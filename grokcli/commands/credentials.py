@@ -89,6 +89,12 @@ def updateCredentialsFromBoto(credentials = {}):
 def handle(options, args):
   """ `grok credentials` handler.  Extracts credentials from command-line
   interface, updates Grok server using web API. """
+  try:
+    server = args.pop(0)
+  except IndexError:
+    parser.print_help()
+    sys.exit(1)
+
   credentials = {
     "aws_access_key_id": options.AWS_ACCESS_KEY_ID,
     "aws_access_key_id": options.AWS_SECRET_ACCESS_KEY
@@ -103,7 +109,7 @@ def handle(options, args):
   elif options.use_boto:
     updateCredentialsFromBoto(credentials)
 
-  grok = GrokSession()
+  grok = GrokSession(server=server)
   grok.apikey = grok.verifyCredentials(**credentials)
   grok.updateSettings(settings=credentials, section="aws")
 
