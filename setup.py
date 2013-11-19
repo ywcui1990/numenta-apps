@@ -16,7 +16,8 @@ version = {}
 execfile("grokcli/__version__.py", {}, version)
 
 setup(
-  name = "Grok Command Line Interface",
+  name = "grokcli",
+  description = "Grok Command Line Interface",
   classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python",
@@ -28,5 +29,6 @@ setup(
   packages = find_packages(),
   entry_points = {"console_scripts": ["grok = grokcli:main"]},
   install_requires = requirements,
+  extras_require = {"docs": ["sphinx"]},
   version = version["__version__"]
 )
