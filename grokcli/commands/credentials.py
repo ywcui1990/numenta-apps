@@ -38,11 +38,10 @@ parser.add_option(
   "-d",
   "--data",
   dest="data",
-  metavar="@FILE or -",
-  help="AWS credential data.  If you start the data with the letter @, the " \
-       "rest should be a filename, or - if you want to read the data from " \
-       "stdin.  Format is bash syntax, specifying AWS_ACCESS_KEY_ID and " \
-       "AWS_SECRET_ACCESS_KEY.")
+  metavar="FILE or -",
+  help="AWS credential data.  Path to file containing AWS credentials, or - " \
+       "if you want to read the data from stdin.  Format is bash syntax, " \
+       "specifying AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.")
 try:
   import boto
   parser.add_option(
@@ -101,11 +100,11 @@ def handle(options, args):
   }
 
   if options.data:
-    if options.data[0] == "@":
-      with open(options.data[1:], "r") as fp:
-        updateCredentialsFromFile(fp, credentials)
-    elif options.data == "-":
+    if options.data.strip() == "-":
       updateCredentialsFromFile(sys.stdin, credentials)
+    elif options.data:
+      with open(options.data, "r") as fp:
+        updateCredentialsFromFile(fp, credentials)
   elif options.use_boto:
     updateCredentialsFromBoto(credentials)
 

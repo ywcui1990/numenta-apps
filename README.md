@@ -73,3 +73,10 @@ a number of sub-commands can be invoked:
     ```
     grok credentials SERVER_URL --use-boto
     ```
+
+*Note to developers:*
+
+To add a command, create a python module in grokcli/commands/ with a `handle()`
+function which accepts two arguments: `options`, and `args`.  Register the
+command by importing the module in grokcli/commands/__init__.py and adding it
+to `__all__`.
