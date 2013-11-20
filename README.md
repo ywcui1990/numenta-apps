@@ -76,7 +76,8 @@ a number of sub-commands can be invoked:
 
 *Note to developers:*
 
-To add a command, create a python module in grokcli/commands/ with a `handle()`
-function which accepts two arguments: `options`, and `args`.  Register the
-command by importing the module in grokcli/commands/__init__.py and adding it
-to `__all__`.
+To add a command, create a python module in
+[grokcli/commands/](grokcli/commands) with a `handle()` function which accepts
+two arguments: `options`, and `args`.  Register the command by importing the
+module in [grokcli/commands/\_\_init\_\_.py](grokcli/commands/__init__.py) and
+adding it to `__all__`.
