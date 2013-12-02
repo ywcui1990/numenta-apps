@@ -96,7 +96,7 @@ def handle(options, args):
 
   credentials = {
     "aws_access_key_id": options.AWS_ACCESS_KEY_ID,
-    "aws_access_key_id": options.AWS_SECRET_ACCESS_KEY
+    "aws_secret_access_key": options.AWS_SECRET_ACCESS_KEY
   }
 
   if options.data:

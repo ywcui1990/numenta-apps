@@ -76,3 +76,40 @@ class GrokSession(Session):
       return
 
     raise Exception("Unable to update settings.")
+
+
+  def listModels(self, **kwargs):
+
+    response = self.request(
+      method="GET",
+      url=self.server + "/_models",
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+
+  def exportModels(self, **kwargs):
+
+    response = self.request(
+      method="GET",
+      url=self.server + "/_models/export",
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+
+  def exportModel(self, modelId, **kwargs):
+
+    response = self.request(
+      method="GET",
+      url=self.server + "/_models/" + modelId + "/export",
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+

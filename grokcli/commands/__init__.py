@@ -6,6 +6,12 @@
 # may be used, reproduced, stored or distributed in any form,
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
-from . import credentials
+from . import (
+  credentials,
+  export
+)
 
-__all__ = ["credentials"]
+__all__ = [
+  "credentials",
+  "export"
+]
