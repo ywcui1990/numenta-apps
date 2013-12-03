@@ -11,6 +11,7 @@ try:
   import yaml
 except ImportError:
   import json # yaml not available, fall back to json
+import select
 import sys
 
 from functools import partial
@@ -63,13 +64,16 @@ def handle(options, args):
     try:
       data = args.pop(0)
     except IndexError:
-      parser.print_help()
-      sys.exit(1)
+      data = "-"
 
   grok = GrokSession(server=server, apikey=apikey)
 
   if data.strip() == "-":
-    importMetricsFromFile(grok, sys.stdin, **vars(options))
+    if select.select([sys.stdin,],[],[],0.0)[0]:
+      importMetricsFromFile(grok, sys.stdin, **vars(options))
+    else:
+      parser.print_help()
+      sys.exit(1)
   elif data:
     with open(data, "r") as fp:
       importMetricsFromFile(grok, fp, **vars(options))
