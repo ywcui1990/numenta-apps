@@ -123,7 +123,7 @@ a number of sub-commands can be invoked:
       grok import SERVER_URL GROK_API_KEY -d file.json
       grok import SERVER_URL GROK_API_KEY --data=file.json
 
-  `grok import` supports files in YAML format, if pyyaml is installed an
+  `grok import` supports files in YAML format, if pyyaml is installed and
   available on the system.
 
 *Note to developers:*

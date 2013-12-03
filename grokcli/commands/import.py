@@ -37,9 +37,8 @@ parser.add_option(
   "--data",
   dest="data",
   metavar="FILE or -",
-  help="AWS credential data.  Path to file containing AWS credentials, or - " \
-       "if you want to read the data from stdin.  Format is bash syntax, " \
-       "specifying AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.")
+  help="Path to file containing Grok model definitions, or - if you " \
+       "want to read the data from stdin."
 
 # Implementation
 
@@ -49,7 +48,7 @@ def importMetricsFromFile(grok, fp, **kwargs):
 
 
 def handle(options, args):
-  """ `grok export` handler. """
+  """ `grok import` handler. """
   try:
     server = args.pop(0)
     apikey = args.pop(0)
