@@ -113,3 +113,37 @@ class GrokSession(Session):
     if response.status_code == 200:
       return json.loads(response.text)
 
+
+  def createModels(self, nativeMetric, **kwargs):
+
+    url = self.server + "/_models"
+
+    response = self.request(
+      method="POST",
+      url=url,
+      data=json.dumps(nativeMetric),
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 201:
+      return json.loads(response.text)
+
+    raise Exception("Unable to create models")
+
+
+  def createModel(self, nativeMetric, **kwargs):
+    url = self.server + "/_models"
+
+    response = self.request(
+      method="POST",
+      url=url,
+      data=json.dumps(nativeMetric),
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 201:
+      return json.loads(response.text)
+
+    raise Exception("Unable to create model")
+
+

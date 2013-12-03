@@ -7,7 +7,13 @@
 # may be used, reproduced, stored or distributed in any form,
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
+import json
+try:
+  import yaml
+except ImportError:
+  pass
 import sys
+from functools import partial
 from optparse import OptionParser
 
 import commands
@@ -46,3 +52,11 @@ def main():
   (options, args) = submodule.parser.parse_args(sys.argv[1:])
 
   submodule.handle(options, args)
+
+# Use yaml by default, if it's available
+if "yaml" in sys.modules:
+  load = yaml.safe_load
+  dump = partial(yaml.safe_dump, default_flow_style=False)
+else:
+  load = json.loads
+  dump = partial(json.dumps, indent=2)

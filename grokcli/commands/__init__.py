@@ -10,8 +10,10 @@ from . import (
   credentials,
   export
 )
+__import__("import", globals(), locals(), ["."]) # "import" is reserverd.
 
 __all__ = [
   "credentials",
-  "export"
+  "export",
+  "import"
 ]
