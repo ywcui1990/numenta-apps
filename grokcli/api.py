@@ -8,7 +8,7 @@
 #-------------------------------------------------------------------------------
 import json
 from requests.sessions import Session
-from requests.models import Request
+from requests.models import Request, Response
 
 
 class GrokSession(Session):
@@ -145,5 +145,3 @@ class GrokSession(Session):
       return json.loads(response.text)
 
     raise Exception("Unable to create model")
-
-

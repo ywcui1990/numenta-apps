@@ -126,6 +126,22 @@ a number of sub-commands can be invoked:
   `grok import` supports files in YAML format, if pyyaml is installed and
   available on the system.
 
+- `grok (DELETE|GET|POST)`
+
+  Included in the Grok CLI tool is a lower-level direct API which translates
+  CLI options to direct HTTP calls into the Grok web service.  For example, to
+  get all available cloudwatch metrics:
+
+      grok GET SERVER_URL/_metrics/cloudwatch GROK_API_KEY
+
+  For `grok POST` and `grok DELETE`, where request data may be required, such
+  data can be specified either via the `-d`, or `--data` CLI option, or
+  supplied via STDIN:
+
+      grok POST SERVER_URL/_models GROK_API_KEY < model-definition.json
+      grok POST SERVER_URL/_models GROK_API_KEY -d model-definition.json
+      grok POST SERVER_URL/_models GROK_API_KEY --data model-definition.json
+
 *Note to developers:*
 
 To add a command, create a python module in

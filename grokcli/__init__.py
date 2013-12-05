@@ -30,7 +30,7 @@ commands = dict([
 usage = "%prog [command] [options]\n\n" \
         "Available commands:\n"
 
-for command in commands:
+for command in sorted(commands):
   usage += "\n    " + command
 
 parser = OptionParser(usage=usage)
@@ -60,3 +60,14 @@ if "yaml" in sys.modules:
 else:
   load = json.loads
   dump = partial(json.dumps, indent=2)
+
+
+def getCommonArgs(parser, args):
+  try:
+    server = args.pop(0)
+    apikey = args.pop(0)
+  except IndexError:
+    parser.print_help()
+    sys.exit(1)
+
+  return (server, apikey)

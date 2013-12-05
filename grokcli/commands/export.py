@@ -9,10 +9,9 @@
 #-------------------------------------------------------------------------------
 import json
 import sys
-
 from functools import partial
-from grokcli.api import GrokSession
 from optparse import OptionParser
+from grokcli.api import GrokSession
 
 # Subcommand CLI Options
 
@@ -50,12 +49,7 @@ except ImportError:
 
 def handle(options, args):
   """ `grok export` handler. """
-  try:
-    server = args.pop(0)
-    apikey = args.pop(0)
-  except IndexError:
-    parser.print_help()
-    sys.exit(1)
+  (server, apikey) = grokcli.getCommonArgs(parser, args)
 
   dump = partial(json.dumps, indent=2)
 

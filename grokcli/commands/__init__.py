@@ -8,12 +8,18 @@
 #-------------------------------------------------------------------------------
 from . import (
   credentials,
-  export
+  DELETE,
+  export,
+  GET,
+  POST
 )
 __import__("import", globals(), locals(), ["."]) # "import" is reserverd.
 
 __all__ = [
   "credentials",
+  "DELETE",
   "export",
-  "import"
+  "GET",
+  "import",
+  "POST"
 ]

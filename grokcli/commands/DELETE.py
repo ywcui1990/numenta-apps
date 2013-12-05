@@ -7,17 +7,13 @@
 # may be used, reproduced, stored or distributed in any form,
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
-try:
-  import yaml
-except ImportError:
-  import json # yaml not available, fall back to json
+from optparse import OptionParser
+from urlparse import urlparse
+import grokcli
+from grokcli.api import GrokSession, Response
+from functools import partial
 import select
 import sys
-
-from functools import partial
-from grokcli.api import GrokSession
-import grokcli
-from optparse import OptionParser
 
 # Subcommand CLI Options
 
@@ -26,9 +22,8 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s GROK_SERVER GROK_API_KEY [FILE]
+USAGE = """%s GROK_URL GROK_API_KEY [options]
 
-Import Grok model definitions.
 """.strip() % subCommand
 
 parser = OptionParser(usage=USAGE)
@@ -37,19 +32,14 @@ parser.add_option(
   "--data",
   dest="data",
   metavar="FILE or -",
-  help="Path to file containing Grok model definitions, or - if you " \
-       "want to read the data from stdin.")
+  help="Path to file containing request data, or - if you want to " \
+       "read the data from stdin.")
 
 # Implementation
 
-def importMetricsFromFile(grok, fp, **kwargs):
-  models = grokcli.load(fp.read())
-  result = grok.createModels(models)
-
-
 def handle(options, args):
-  """ `grok import` handler. """
-  (server, apikey) = grokcli.getCommonArgs(parser, args)
+  """ `grok DELETE` handler. """
+  (endpoint, apikey) = grokcli.getCommonArgs(parser, args)
 
   if options.data:
     data = options.data
@@ -58,21 +48,27 @@ def handle(options, args):
     try:
       data = args.pop(0)
     except IndexError:
-      data = "-"
+      data = ""
+
+  server = "%(scheme)s://%(netloc)s" % urlparse(endpoint)._asdict()
 
   grok = GrokSession(server=server, apikey=apikey)
 
-  if data.strip() == "-":
+  delete = partial(grok.delete, endpoint)
+
+  response = None
+  if data.strip() == "-" or not data:
     if select.select([sys.stdin,],[],[],0.0)[0]:
-      importMetricsFromFile(grok, sys.stdin, **vars(options))
+      response = delete(data=sys.stdin)
     else:
-      parser.print_help()
-      sys.exit(1)
+      response = delete()
   elif data:
     with open(data, "r") as fp:
-      importMetricsFromFile(grok, fp, **vars(options))
+      response = delete(data=fp)
 
-
+  if isinstance(response, Response):
+    print response.text
+    sys.exit(not int(bool(response)))
 
 
 if __name__ == "__main__":
