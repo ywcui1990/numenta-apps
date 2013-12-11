@@ -9,6 +9,16 @@
 import json
 from requests.sessions import Session
 from requests.models import Request, Response
+from requests.exceptions import (
+  ConnectionError,
+  InvalidURL,
+  MissingSchema)
+import socket
+from grokcli.exceptions import (
+  GrokCLIError,
+  InvalidGrokHostError,
+  InvalidCredentialsError)
+
 
 
 class GrokSession(Session):
@@ -38,24 +48,39 @@ class GrokSession(Session):
     self.verify = False
 
 
+  def _request(self, *args, **kwargs):
+    try:
+      return self.request(*args, **kwargs)
+    except ConnectionError as e:
+      if hasattr(e.args[0], "reason"):
+        if isinstance(e.args[0].reason, socket.gaierror):
+          if e.args[0].reason.args[0] == socket.EAI_NONAME:
+            raise InvalidGrokHostError("Invalid hostname")
+    except (InvalidURL, MissingSchema) as e:
+      raise InvalidGrokHostError("Invalid hostname")
+
+
   def verifyCredentials(self, aws_access_key_id, aws_secret_access_key, **kwargs):
     data = {
       "aws_access_key_id": aws_access_key_id,
       "aws_secret_access_key": aws_secret_access_key,
     }
 
-    response = self.request(
+    response = self._request(
       method="POST",
       url=self.server + "/_auth",
       data=json.dumps(data),
+      allow_redirects=False,
       **kwargs)
 
     if response.status_code == 200:
       result = json.loads(response.text)
       if result["result"] == "success":
         return result["apikey"]
+    elif 300 <= response.status_code < 400:
+      raise InvalidGrokHostError("Invalid protocol")
 
-    raise Exception("Unable to verify credentials.")
+    raise InvalidCredentialsError("Unable to verify credentials.")
 
 
   def updateSettings(self, settings, section=None, **kwargs):
@@ -65,7 +90,7 @@ class GrokSession(Session):
     if section is not None:
       url += "/" + section
 
-    response = self.request(
+    response = self._request(
       method="POST",
       url=url,
       data=json.dumps(settings),
@@ -75,12 +100,12 @@ class GrokSession(Session):
     if response.status_code == 204:
       return
 
-    raise Exception("Unable to update settings.")
+    raise GrokCLIError("Unable to update settings.")
 
 
   def listModels(self, **kwargs):
 
-    response = self.request(
+    response = self._request(
       method="GET",
       url=self.server + "/_models",
       auth=self.auth,
@@ -92,7 +117,7 @@ class GrokSession(Session):
 
   def exportModels(self, **kwargs):
 
-    response = self.request(
+    response = self._request(
       method="GET",
       url=self.server + "/_models/export",
       auth=self.auth,
@@ -104,7 +129,7 @@ class GrokSession(Session):
 
   def exportModel(self, modelId, **kwargs):
 
-    response = self.request(
+    response = self._request(
       method="GET",
       url=self.server + "/_models/" + modelId + "/export",
       auth=self.auth,
@@ -118,7 +143,7 @@ class GrokSession(Session):
 
     url = self.server + "/_models"
 
-    response = self.request(
+    response = self._request(
       method="POST",
       url=url,
       data=json.dumps(nativeMetric),
@@ -128,13 +153,13 @@ class GrokSession(Session):
     if response.status_code == 201:
       return json.loads(response.text)
 
-    raise Exception("Unable to create models")
+    raise GrokCLIError("Unable to create models")
 
 
   def createModel(self, nativeMetric, **kwargs):
     url = self.server + "/_models"
 
-    response = self.request(
+    response = self._request(
       method="POST",
       url=url,
       data=json.dumps(nativeMetric),
@@ -144,4 +169,11 @@ class GrokSession(Session):
     if response.status_code == 201:
       return json.loads(response.text)
 
-    raise Exception("Unable to create model")
+    raise GrokCLIError("Unable to create model")
+
+
+__all__ = [
+  "GrokCLIError",
+  "GrokSession",
+  "InvalidGrokHostError",
+  "InvalidCredentialsError"]

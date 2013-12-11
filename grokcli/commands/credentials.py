@@ -7,10 +7,13 @@
 # may be used, reproduced, stored or distributed in any form,
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
+import socket
 import sys
 
 from optparse import OptionParser
 from grokcli.api import GrokSession
+from grokcli.exceptions import GrokCLIError
+
 
 # Subcommand CLI Options
 
@@ -91,7 +94,7 @@ def handle(options, args):
   try:
     server = args.pop(0)
   except IndexError:
-    parser.print_help()
+    parser.print_help(sys.stderr)
     sys.exit(1)
 
   credentials = {
@@ -110,7 +113,8 @@ def handle(options, args):
 
   grok = GrokSession(server=server)
   grok.apikey = grok.verifyCredentials(**credentials)
-  grok.updateSettings(settings=credentials, section="aws")
+  result = grok.updateSettings(settings=credentials, section="aws")
+  print grok.apikey
 
 
 if __name__ == "__main__":

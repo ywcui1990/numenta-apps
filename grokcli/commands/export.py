@@ -12,6 +12,7 @@ import sys
 from functools import partial
 from optparse import OptionParser
 from grokcli.api import GrokSession
+import grokcli
 
 # Subcommand CLI Options
 

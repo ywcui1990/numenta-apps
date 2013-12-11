@@ -17,7 +17,7 @@ from functools import partial
 from optparse import OptionParser
 
 import commands
-
+from exceptions import GrokCLIError
 
 
 availableCommands = __import__("grokcli.commands", globals(), locals(), ['*'])
@@ -44,14 +44,19 @@ def main():
   try:
     subcommand = sys.argv.pop(1)
   except IndexError:
-    parser.print_help()
+    parser.print_help(sys.stderr)
     sys.exit()
 
   submodule = commands.get(subcommand, sys.modules[__name__])
 
   (options, args) = submodule.parser.parse_args(sys.argv[1:])
 
-  submodule.handle(options, args)
+  try:
+    submodule.handle(options, args)
+  except GrokCLIError as e:
+    print >> sys.stderr, "ERROR:", e.message
+    sys.exit(1)
+
 
 # Use yaml by default, if it's available
 if "yaml" in sys.modules:
@@ -67,7 +72,7 @@ def getCommonArgs(parser, args):
     server = args.pop(0)
     apikey = args.pop(0)
   except IndexError:
-    parser.print_help()
+    parser.print_help(sys.stderr)
     sys.exit(1)
 
   return (server, apikey)
