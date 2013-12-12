@@ -142,6 +142,30 @@ a number of sub-commands can be invoked:
       grok POST SERVER_URL/_models GROK_API_KEY -d model-definition.json
       grok POST SERVER_URL/_models GROK_API_KEY --data model-definition.json
 
+- `grok cloudwatch add`
+
+  Create Grok model for CloudWatch metric.
+
+      grok cloudwatch add SERVER_URL GROK_API_KEY [options]
+
+  CLI options include:
+
+   Option     | Description
+  ------------|-----------------------------------------------------------
+   metric     | CloudWatch metric name
+   namespace  | AWS CloudWatch namespace
+   region     | AWS Region
+   dimensions | Cloudwatch dimension name-value pair (separated by space)
+
+  For example:
+
+      grok cloudwatch add SERVER_URL/_models GROK_API_KEY \
+        --metric=CPUUtilization \
+        --namespace=AWS/EC2 \
+        --region=us-west-2 \
+        --dimensions InstanceId i-abc123
+
+
 *Note to developers:*
 
 To add a command, create a python module in
