@@ -7,6 +7,7 @@
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
 from . import (
+  cloudwatch,
   credentials,
   DELETE,
   export,
@@ -16,6 +17,7 @@ from . import (
 __import__("import", globals(), locals(), ["."]) # "import" is reserverd.
 
 __all__ = [
+  "cloudwatch",
   "credentials",
   "DELETE",
   "export",
