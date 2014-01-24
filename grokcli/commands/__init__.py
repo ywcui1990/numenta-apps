@@ -12,6 +12,7 @@ from . import (
   DELETE,
   export,
   GET,
+  metrics,
   POST
 )
 __import__("import", globals(), locals(), ["."]) # "import" is reserverd.
@@ -23,5 +24,6 @@ __all__ = [
   "export",
   "GET",
   "import",
+  "metrics",
   "POST"
 ]
