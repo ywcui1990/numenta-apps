@@ -27,6 +27,17 @@ USAGE = """%s GROK_URL GROK_API_KEY [options]
 """.strip() % subCommand
 
 parser = OptionParser(usage=USAGE)
+try:
+  import yaml
+  parser.add_option(
+    "-y",
+    "--yaml",
+    dest="useYaml",
+    default=False,
+    action="store_true",
+    help="Display results in YAML format")
+except ImportError:
+  pass # yaml not available, hide from user
 
 # Implementation
 
@@ -41,7 +52,12 @@ def handle(options, args):
   response = grok.get(endpoint)
 
   if isinstance(response, Response):
-    print response.text
+    if hasattr(options, "useYaml"):
+      if options.useYaml:
+        print yaml.safe_dump(yaml.load(response.text), default_flow_style=False)
+      else:
+        print response.text
+
     sys.exit(not int(bool(response)))
 
 
