@@ -49,7 +49,96 @@ parser.add_option(
 
 
 
-# Implementation
+def printTabulatedResults(columns, maximums, buffer_):
+  """ Print tabulated data
+  """
+
+  # Print column names
+  for (colnum, value) in enumerate(columns):
+    if colnum == 0:
+      print " ",
+    else:
+      print "| ",
+    print value.ljust(maximums[colnum]),
+  print
+
+  # Print horizontal rule
+  for (colnum, value) in enumerate(columns):
+    if colnum == 0:
+      print " ",
+    else:
+      print "| ",
+    print "_" * maximums[colnum],
+  print
+
+  # Print buffered results
+  for row in buffer_:
+    for (colnum, value) in enumerate(columns):
+      if colnum == 0:
+        print " ",
+      else:
+        print "| ",
+
+      if colnum < len(row):
+        print row[colnum].ljust(maximums[colnum]),
+      else:
+        print "".ljust(maximums[colnum]),
+
+    print
+
+
+def handleCloudwatchRequest(grok, region=None, datasource=None, namespace=None,
+    metricName=None):
+  """ Request available metric data for specified region, datasource,
+      namespace, metric name where provided in CLI context
+  """
+  # Query Grok regions API for available cloudwatch metrics
+  if region:
+    regions = [region]
+  else:
+    regions = grok.listMetrics(datasource)["regions"]
+
+  columns = ["Region", "Namespace", "Name", "Metric"]
+  maximums = [len(column) for column in columns]
+  buffer_ = []
+  for region in regions:
+    for metric in grok.listCloudwatchMetrics(region, namespace=namespace,
+        metric=metricName):
+
+      maximums[0] = max(maximums[0], len(metric["region"]))
+      maximums[1] = max(maximums[1], len(metric["namespace"]))
+      maximums[2] = max(maximums[2], len(metric.get("name", "")))
+      maximums[3] = max(maximums[3], len(metric["metric"]))
+
+      row = [
+        metric["region"],
+        metric["namespace"],
+        metric.get("name", ""),
+        metric["metric"]]
+
+      for dimension in metric["dimensions"]:
+        if dimension not in columns[4:]:
+          columns.append(dimension)
+
+        colnum = columns[4:].index(dimension) + 4
+        if len(maximums) <= colnum:
+          maximums.append(len(dimension))
+          maximums[colnum] = max(maximums[colnum], len(dimension))
+
+        maximums[colnum] = max(maximums[colnum],
+          len(next(iter(metric["dimensions"][dimension]))))
+
+        if len(row) <= colnum:
+          row.extend(([""] * (colnum-len(row))))
+          if isinstance(metric["dimensions"][dimension], list):
+            row.extend(metric["dimensions"][dimension])
+          else:
+            row.append(metric["dimensions"][dimension])
+
+      buffer_.append(row)
+
+  return (columns, maximums, buffer_)
+
 
 def handle(options, args):
   """ `grok metrics` handler. """
@@ -57,85 +146,31 @@ def handle(options, args):
 
   grok = GrokSession(server=server, apikey=apikey)
 
-
   if options.datasource == "cloudwatch":
 
-    # Query Grok regions API for available cloudwatch metrics
-    if options.region:
-      regions = [options.region]
-    else:
-      regions = grok.listMetrics(options.datasource)["regions"]
+    (columns, maximums, buffer_) = handleCloudwatchRequest(grok,
+                                    region=options.region,
+                                    datasource=options.datasource,
+                                    namespace=options.namespace,
+                                    metricName=options.metric)
 
-    columns = ["Region", "Namespace", "Name", "Metric"]
-    maximums = [len(column) for column in columns]
-    buffer_ = []
-    for region in regions:
-      for metric in grok.listCloudwatchMetrics(region,
-          namespace=options.namespace,
-          metric=options.metric):
+    printTabulatedResults(columns, maximums, buffer_)
 
-        maximums[0] = max(maximums[0], len(metric["region"]))
-        maximums[1] = max(maximums[1], len(metric["namespace"]))
-        maximums[2] = max(maximums[2], len(metric.get("name", "")))
-        maximums[3] = max(maximums[3], len(metric["metric"]))
-
-        row = [metric["region"], metric["namespace"], metric.get("name", ""), metric["metric"]]
-
-        for dimension in metric["dimensions"]:
-          if dimension not in columns[4:]:
-            columns.append(dimension)
-
-          colnum = columns[4:].index(dimension) + 4
-          if len(maximums) <= colnum:
-            maximums.append(len(dimension))
-            maximums[colnum] = max(maximums[colnum], len(dimension))
-
-          maximums[colnum] = max(maximums[colnum], len(next(iter(metric["dimensions"][dimension]))))
-
-          if len(row) <= colnum:
-            row.extend(([""] * (colnum-len(row))))
-            if isinstance(metric["dimensions"][dimension], list):
-              row.extend(metric["dimensions"][dimension])
-            else:
-              row.append(metric["dimensions"][dimension])
-
-        buffer_.append(row)
-
-    # Print column names
-    for (colnum, value) in enumerate(columns):
-      if colnum == 0:
-        print " ",
-      else:
-        print "| ",
-      print value.ljust(maximums[colnum]),
-    print
-
-    # Print horizontal rule
-    for (colnum, value) in enumerate(columns):
-      if colnum == 0:
-        print " ",
-      else:
-        print "| ",
-      print "_" * maximums[colnum],
-    print
-
-    # Print buffered results
-    for row in buffer_:
-      for (colnum, value) in enumerate(columns):
-        if colnum == 0:
-          print " ",
-        else:
-          print "| ",
-
-        if colnum < len(row):
-          print row[colnum].ljust(maximums[colnum]),
-        else:
-          print "".ljust(maximums[colnum]),
-
-      print
+  elif options.datasource == "custom":
+    print "Not currently supported"
 
   else:
-    print grok.listMetricDatasources() # TODO
+    columns = ("Datasource",)
+    maximums = [len(column) for column in columns]
+
+    buffer_ = []
+    for datasource in grok.listMetricDatasources():
+      maximums[0] = max(len(datasource), maximums[0])
+      buffer_.append((datasource,))
+
+    printTabulatedResults(columns, maximums, buffer_)
+
+
 
 if __name__ == "__main__":
   handle(*parser.parse_args())
