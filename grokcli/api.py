@@ -103,6 +103,51 @@ class GrokSession(Session):
     raise GrokCLIError("Unable to update settings.")
 
 
+  def listMetricDatasources(self, **kwargs):
+
+    response = self._request(
+      method="GET",
+      url=self.server + "/_metrics",
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+
+  def listMetrics(self, datasource, **kwargs):
+
+    response = self._request(
+      method="GET",
+      url=self.server + "/_metrics/" + datasource,
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+
+  def listCloudwatchMetrics(self, region, namespace=None, metric=None,
+      **kwargs):
+
+    url = self.server + "/_metrics/cloudwatch/"
+    if namespace:
+      url += region + "/" + namespace
+      if metric:
+        url += "/" + metric
+    else:
+      url += "regions/" + region
+
+    response = self._request(
+      method="GET",
+      url=url,
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+
   def listModels(self, **kwargs):
 
     response = self._request(

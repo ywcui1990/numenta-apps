@@ -142,6 +142,54 @@ a number of sub-commands can be invoked:
       grok POST SERVER_URL/_models GROK_API_KEY -d model-definition.json
       grok POST SERVER_URL/_models GROK_API_KEY --data model-definition.json
 
+- `grok metrics`
+
+  View available metrics.
+
+      grok metrics SERVER_URL GROK_API_KEY [options]
+
+  CLI options include:
+
+   Option     | Description
+  ------------|-----------------------------------------------------------
+   datasource | Grok datasource (e.g. "cloudwatch", "custom")
+   metric     | CloudWatch metric name
+   namespace  | AWS CloudWatch namespace
+   region     | AWS Region
+
+  To get a list of available cloudwatch metrics:
+
+      grok metrics SERVER_URL GROK_API_KEY --datasource=cloudwatch
+
+  Limiting to CloudWatch metrics in a specific AWS region:
+
+      grok metrics SERVER_URL GROK_API_KEY \
+        --datasource=cloudwatch \
+        --region=REGION
+
+  Limiting to CloudWatch metrics in a specific AWS region and namespace:
+
+      grok metrics SERVER_URL GROK_API_KEY \
+        --datasource=cloudwatch \
+        --region=REGION \
+        --namespace=NAMESPACE
+
+  Limiting to CloudWatch metrics in a specific AWS region, namespace and metric:
+
+      grok metrics SERVER_URL GROK_API_KEY \
+        --datasource=cloudwatch \
+        --region=REGION \
+        --namespace=NAMESPACE \
+        --metric=METRIC
+
+  For example, to list the AWS/EC2 CPUUtilization metrics in us-west-2:
+
+      grok metrics SERVER_URL GROK_API_KEY \
+        --datasource=cloudwatch \
+        --region=us-west-2 \
+        --namespace=AWS/EC2 \
+        --metric=CPUUtilization
+
 - `grok cloudwatch add`
 
   Create Grok model for CloudWatch metric.
