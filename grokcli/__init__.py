@@ -40,11 +40,19 @@ def handle(options, args):
   parser.print_help()
 
 
+def printTerms():
+  print
+  print("By using the Grok CLI, you agree to terms and conditions "
+        "outlined in the product End User License Agreement (EULA): "
+        "https://aws.amazon.com/marketplace/agreement?asin=B00I18SNQ6")
+
+
 def main():
   try:
     subcommand = sys.argv.pop(1)
   except IndexError:
     parser.print_help(sys.stderr)
+    printTerms()
     sys.exit()
 
   submodule = commands.get(subcommand, sys.modules[__name__])
@@ -56,6 +64,8 @@ def main():
   except GrokCLIError as e:
     print >> sys.stderr, "ERROR:", e.message
     sys.exit(1)
+
+  printTerms()
 
 
 # Use yaml by default, if it's available
