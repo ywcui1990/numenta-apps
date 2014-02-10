@@ -229,6 +229,22 @@ class GrokSession(Session):
     raise GrokCLIError("Unable to create model")
 
 
+  def deleteInstance(self, serverName, **kwargs):
+    url = self.server + "/_instances"
+
+    response = self._request(
+      method="DELETE",
+      url=url,
+      data=json.dumps([serverName]),
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+    raise GrokCLIError("Unable to delete instance")
+
+
 
 __all__ = [
   "GrokCLIError",

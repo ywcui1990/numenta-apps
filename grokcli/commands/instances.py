@@ -28,6 +28,11 @@ Browse...
 
 
 parser = OptionParser(usage=USAGE)
+parser.add_option(
+  "--delete",
+  dest="delete",
+  metavar="SERVER_NAME",
+  help='Remove monitored instance with server name')
 
 
 
@@ -45,6 +50,9 @@ def handleListRequest(grok):
   print table
 
 
+def handleDeleteRequest(grok, serverName):
+  grok.deleteInstance(serverName)
+
 
 def handle(options, args):
   """ `grok metrics` handler. """
@@ -52,7 +60,10 @@ def handle(options, args):
 
   grok = GrokSession(server=server, apikey=apikey)
 
-  handleListRequest(grok)
+  if options.delete:
+    handleDeleteRequest(grok, options.delete)
+  else:
+    handleListRequest(grok)
 
 
 
