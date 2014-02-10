@@ -190,6 +190,16 @@ a number of sub-commands can be invoked:
         --namespace=AWS/EC2 \
         --metric=CPUUtilization
 
+- `grok instances`
+
+  Manage monitored instances.
+
+      grok instances SERVER_URL GROK_API_KEY [options]
+
+  To get a list of all monitored instances:
+
+      grok instances SERVER_URL GROK_API_KEY
+
 - `grok cloudwatch add`
 
   Create Grok model for CloudWatch metric.
