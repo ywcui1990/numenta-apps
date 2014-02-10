@@ -38,6 +38,7 @@ def handleListRequest(grok):
   table.add_column("Instance", [x['name'] for x in instances])
   table.add_column("Service", [x['namespace'] for x in instances])
   table.add_column("Region", [x['location'] for x in instances])
+  table.add_column("Server", [x['server'] for x in instances])
   table.add_column("Status", [x['status'] for x in instances])
 
   table.align = "l" # left align
