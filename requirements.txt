@@ -1,3 +1,4 @@
 certifi
 pyyaml
 requests
+prettytable

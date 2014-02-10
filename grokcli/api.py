@@ -160,6 +160,18 @@ class GrokSession(Session):
       return json.loads(response.text)
 
 
+  def listInstances(self, **kwargs):
+
+    response = self._request(
+      method="GET",
+      url=self.server + "/_instances",
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+
   def exportModels(self, **kwargs):
 
     response = self._request(
