@@ -190,6 +190,26 @@ a number of sub-commands can be invoked:
         --namespace=AWS/EC2 \
         --metric=CPUUtilization
 
+- `grok instances`
+
+  Manage monitored instances.
+
+      grok instances SERVER_URL GROK_API_KEY [options]
+
+  CLI options include:
+
+   Option     | Description
+  ------------|-----------------------------------------------------------
+   delete     | Remove monitored instance with server name
+
+  To get a list of all monitored instances:
+
+      grok instances SERVER_URL GROK_API_KEY
+
+  To remove a monitored instance:
+
+      grok instances SERVER_URL GROK_API_KEY --delete=SERVER_NAME
+
 - `grok cloudwatch add`
 
   Create Grok model for CloudWatch metric.

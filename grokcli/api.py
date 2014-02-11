@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (C) 2013 Numenta Inc. All rights reserved.
+# Copyright (C) 2013-2014 Numenta Inc. All rights reserved.
 #
 # The information and source code contained herein is the
 # exclusive property of Numenta Inc.  No part of this software
@@ -160,6 +160,18 @@ class GrokSession(Session):
       return json.loads(response.text)
 
 
+  def listInstances(self, **kwargs):
+
+    response = self._request(
+      method="GET",
+      url=self.server + "/_instances",
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+
   def exportModels(self, **kwargs):
 
     response = self._request(
@@ -215,6 +227,22 @@ class GrokSession(Session):
       return json.loads(response.text)
 
     raise GrokCLIError("Unable to create model")
+
+
+  def deleteInstance(self, serverName, **kwargs):
+    url = self.server + "/_instances"
+
+    response = self._request(
+      method="DELETE",
+      url=url,
+      data=json.dumps([serverName]),
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+    raise GrokCLIError("Unable to delete instance")
 
 
 
