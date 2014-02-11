@@ -10,6 +10,13 @@ from setuptools import find_packages, setup
 
 
 
+def printTerms():
+  print("\nBy using the Grok CLI, you agree to terms and conditions\n"
+        "outlined in the product End User License Agreement (EULA):\n"
+        "https://aws.amazon.com/marketplace/agreement?asin=B00I18SNQ6\n")
+
+
+
 requirements = map(str.strip, open("requirements.txt").readlines())
 
 version = {}
@@ -32,3 +39,5 @@ setup(
   extras_require = {"docs": ["sphinx"]},
   version = version["__version__"]
 )
+
+printTerms()
