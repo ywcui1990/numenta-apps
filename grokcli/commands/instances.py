@@ -9,6 +9,7 @@
 #-------------------------------------------------------------------------------
 
 from optparse import OptionParser
+import sys
 
 from prettytable import PrettyTable
 
@@ -21,7 +22,7 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s GROK_SERVER GROK_API_KEY [options]
+USAGE = """%s (list|monitor|unmonitor) GROK_SERVER GROK_API_KEY [options]
 
 Browse...
 """.strip() % subCommand
@@ -29,41 +30,56 @@ Browse...
 
 parser = OptionParser(usage=USAGE)
 parser.add_option(
-  "--delete",
-  dest="delete",
-  metavar="SERVER_NAME",
-  help='Remove monitored instance with server name')
+  "--instance",
+  dest="instance",
+  metavar="INSTANCE_ID",
+  help='Instance ID (required for monitor/unmonitor')
 
+
+
+def printHelpAndExit():
+  parser.print_help(sys.stderr)
+  sys.exit(1)
 
 
 def handleListRequest(grok):
   instances = grok.listInstances()
   table = PrettyTable()
 
+  table.add_column("ID", [x['server'] for x in instances])
   table.add_column("Instance", [x['name'] for x in instances])
   table.add_column("Service", [x['namespace'] for x in instances])
   table.add_column("Region", [x['location'] for x in instances])
-  table.add_column("Server", [x['server'] for x in instances])
   table.add_column("Status", [x['status'] for x in instances])
 
   table.align = "l" # left align
   print table
 
 
-def handleDeleteRequest(grok, serverName):
+def handleUnmonitorRequest(grok, serverName):
   grok.deleteInstance(serverName)
 
 
 def handle(options, args):
-  """ `grok metrics` handler. """
+  """ `grok instance` handler. """
+  try:
+    action = args.pop(0)
+  except IndexError:
+    printHelpAndExit()
+
   (server, apikey) = grokcli.getCommonArgs(parser, args)
 
   grok = GrokSession(server=server, apikey=apikey)
 
-  if options.delete:
-    handleDeleteRequest(grok, options.delete)
-  else:
+  if action == "list":
     handleListRequest(grok)
+  elif action == "unmonitor":
+    if not options.instance:
+      printHelpAndExit()
+
+    handleUnmonitorRequest(grok, options.instance)
+  else:
+    printHelpAndExit()
 
 
 
