@@ -22,7 +22,7 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s (list|monitor|unmonitor) GROK_SERVER GROK_API_KEY [options]
+USAGE = """%s (list|unmonitor) GROK_SERVER GROK_API_KEY [options]
 
 Browse...
 """.strip() % subCommand
@@ -33,7 +33,7 @@ parser.add_option(
   "--instance",
   dest="instance",
   metavar="INSTANCE_ID",
-  help='Instance ID (required for monitor/unmonitor')
+  help='Instance ID (required for unmonitor')
 
 
 
@@ -73,11 +73,13 @@ def handle(options, args):
 
   if action == "list":
     handleListRequest(grok)
+
   elif action == "unmonitor":
     if not options.instance:
       printHelpAndExit()
 
     handleUnmonitorRequest(grok, options.instance)
+
   else:
     printHelpAndExit()
 
