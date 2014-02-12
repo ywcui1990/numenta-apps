@@ -26,6 +26,8 @@ USAGE = """%s (add|delete|list) GROK_SERVER GROK_API_KEY [options]
 Create Grok cloudwatch model
 """.strip() % subCommand
 
+
+
 def dimensions_callback(option, opt, value, parser):
   if not hasattr(dimensions_callback, "dimensions"):
     dimensions_callback.dimensions = {}
@@ -90,18 +92,17 @@ def handle(options, args):
   elif action == "delete":
     pass # TODO There is no cloudwatch-specific DELETE interface
   elif action == "list":
-    (columns, maximums, buffer_) = handleCloudwatchRequest(grok,
-                                region=options.region,
-                                namespace=options.namespace,
-                                metricName=options.metric)
+    (columns, maximums, buf) = handleCloudwatchRequest(
+      grok,
+      region=options.region,
+      namespace=options.namespace,
+      metricName=options.metric)
 
-    printTabulatedResults(columns, maximums, buffer_)
+    printTabulatedResults(columns, maximums, buf)
 
 
-def printTabulatedResults(columns, maximums, buffer_):
-  """ Print tabulated data
-  """
-
+def printTabulatedResults(columns, maximums, buf):
+  """ Print tabulated data """
   # Print column names
   for (colnum, value) in enumerate(columns):
     if colnum == 0:
@@ -121,7 +122,7 @@ def printTabulatedResults(columns, maximums, buffer_):
   print
 
   # Print buffered results
-  for row in buffer_:
+  for row in buf:
     for (colnum, value) in enumerate(columns):
       if colnum == 0:
         print " ",
