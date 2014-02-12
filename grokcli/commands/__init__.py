@@ -8,6 +8,7 @@
 #-------------------------------------------------------------------------------
 from . import (
   cloudwatch,
+  custom,
   credentials,
   DELETE,
   export,
@@ -20,6 +21,7 @@ __import__("import", globals(), locals(), ["."]) # "import" is reserverd.
 
 __all__ = [
   "cloudwatch",
+  "custom",
   "credentials",
   "DELETE",
   "export",
