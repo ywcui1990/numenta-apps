@@ -37,7 +37,7 @@ parser.add_option(
   "--metric",
   dest="metric",
   metavar="NAME",
-  help="Metric name")
+  help="Metric name (required for unmonitor)")
 parser.add_option(
   "--namespace",
   dest="namespace",
@@ -49,6 +49,11 @@ parser.add_option(
   metavar="REGION",
   help="AWS Region (cloudwatch-only)")
 
+
+
+def printHelpAndExit():
+  parser.print_help(sys.stderr)
+  sys.exit(1)
 
 
 def handleListRequest(grok):
@@ -64,13 +69,16 @@ def handleListRequest(grok):
   print table
 
 
+def handleUnmonitorRequest(grok, metricID):
+  grok.deleteModel(metricID)
+
+
 def handle(options, args):
   """ `grok metrics` handler. """
   try:
     action = args.pop(0)
   except IndexError:
-    parser.print_help(sys.stderr)
-    sys.exit(1)
+    printHelpAndExit()
 
   (server, apikey) = grokcli.getCommonArgs(parser, args)
 
@@ -79,9 +87,9 @@ def handle(options, args):
   if action == "list":
     handleListRequest(grok)
   elif action == "unmonitor":
-    pass
+    if not options.metric:
+      printHelpAndExit()
 
-
-
-if __name__ == "__main__":
-  handle(*parser.parse_args())
+    handleUnmonitorRequest(grok, options.metric)
+  else:
+    printHelpAndExit()
