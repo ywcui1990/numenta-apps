@@ -194,21 +194,21 @@ a number of sub-commands can be invoked:
 
   Manage monitored instances.
 
-      grok instances SERVER_URL GROK_API_KEY [options]
+      grok instances (list|unmonitor) SERVER_URL GROK_API_KEY [options]
 
   CLI options include:
 
    Option     | Description
   ------------|-----------------------------------------------------------
-   delete     | Remove monitored instance with server name
+   instance   | Instance ID
 
   To get a list of all monitored instances:
 
-      grok instances SERVER_URL GROK_API_KEY
+      grok instances list SERVER_URL GROK_API_KEY
 
   To remove a monitored instance:
 
-      grok instances SERVER_URL GROK_API_KEY --delete=SERVER_NAME
+      grok instances unmonitor SERVER_URL GROK_API_KEY --instance=INSTANCE_ID
 
 - `grok cloudwatch add`
 

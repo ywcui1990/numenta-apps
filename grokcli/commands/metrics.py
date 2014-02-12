@@ -7,9 +7,11 @@
 # may be used, reproduced, stored or distributed in any form,
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
-import json
-import sys
 from optparse import OptionParser
+import sys
+
+from prettytable import PrettyTable
+
 import grokcli
 from grokcli.api import GrokSession
 
@@ -19,9 +21,9 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s GROK_SERVER GROK_API_KEY [options]
+USAGE = """%s (list|unmonitor) GROK_SERVER GROK_API_KEY [options]
 
-Browse...
+Manage monitored metrics.
 """.strip() % subCommand
 
 
@@ -35,7 +37,7 @@ parser.add_option(
   "--metric",
   dest="metric",
   metavar="NAME",
-  help="Metric name")
+  help="Metric name (required for unmonitor)")
 parser.add_option(
   "--namespace",
   dest="namespace",
@@ -49,128 +51,45 @@ parser.add_option(
 
 
 
-def printTabulatedResults(columns, maximums, buffer_):
-  """ Print tabulated data
-  """
-
-  # Print column names
-  for (colnum, value) in enumerate(columns):
-    if colnum == 0:
-      print " ",
-    else:
-      print "| ",
-    print value.ljust(maximums[colnum]),
-  print
-
-  # Print horizontal rule
-  for (colnum, value) in enumerate(columns):
-    if colnum == 0:
-      print " ",
-    else:
-      print "| ",
-    print "_" * maximums[colnum],
-  print
-
-  # Print buffered results
-  for row in buffer_:
-    for (colnum, value) in enumerate(columns):
-      if colnum == 0:
-        print " ",
-      else:
-        print "| ",
-
-      if colnum < len(row):
-        print row[colnum].ljust(maximums[colnum]),
-      else:
-        print "".ljust(maximums[colnum]),
-
-    print
+def printHelpAndExit():
+  parser.print_help(sys.stderr)
+  sys.exit(1)
 
 
-def handleCloudwatchRequest(grok, region=None, datasource=None, namespace=None,
-    metricName=None):
-  """ Request available metric data for specified region, datasource,
-      namespace, metric name where provided in CLI context
-  """
-  # Query Grok regions API for available cloudwatch metrics
-  if region:
-    regions = [region]
-  else:
-    regions = grok.listMetrics(datasource)["regions"]
+def handleListRequest(grok):
+  models = grok.listModels()
+  table = PrettyTable()
 
-  columns = ["Region", "Namespace", "Name", "Metric"]
-  maximums = [len(column) for column in columns]
-  buffer_ = []
-  for region in regions:
-    for metric in grok.listCloudwatchMetrics(region, namespace=namespace,
-        metric=metricName):
+  table.add_column("ID", [x['uid'] for x in models])
+  table.add_column("Display Name", [x['display_name'] for x in models])
+  table.add_column("Name", [x['name'] for x in models])
+  table.add_column("Status", [x['status'] for x in models])
 
-      maximums[0] = max(maximums[0], len(metric["region"]))
-      maximums[1] = max(maximums[1], len(metric["namespace"]))
-      maximums[2] = max(maximums[2], len(metric.get("name", "")))
-      maximums[3] = max(maximums[3], len(metric["metric"]))
+  table.align = "l" # left align
+  print table
 
-      row = [
-        metric["region"],
-        metric["namespace"],
-        metric.get("name", ""),
-        metric["metric"]]
 
-      for dimension in metric["dimensions"]:
-        if dimension not in columns[4:]:
-          columns.append(dimension)
-
-        colnum = columns[4:].index(dimension) + 4
-        if len(maximums) <= colnum:
-          maximums.append(len(dimension))
-          maximums[colnum] = max(maximums[colnum], len(dimension))
-
-        maximums[colnum] = max(maximums[colnum],
-          len(next(iter(metric["dimensions"][dimension]))))
-
-        if len(row) <= colnum:
-          row.extend(([""] * (colnum-len(row))))
-          if isinstance(metric["dimensions"][dimension], list):
-            row.extend(metric["dimensions"][dimension])
-          else:
-            row.append(metric["dimensions"][dimension])
-
-      buffer_.append(row)
-
-  return (columns, maximums, buffer_)
+def handleUnmonitorRequest(grok, metricID):
+  grok.deleteModel(metricID)
 
 
 def handle(options, args):
   """ `grok metrics` handler. """
+  try:
+    action = args.pop(0)
+  except IndexError:
+    printHelpAndExit()
+
   (server, apikey) = grokcli.getCommonArgs(parser, args)
 
   grok = GrokSession(server=server, apikey=apikey)
 
-  if options.datasource == "cloudwatch":
+  if action == "list":
+    handleListRequest(grok)
+  elif action == "unmonitor":
+    if not options.metric:
+      printHelpAndExit()
 
-    (columns, maximums, buffer_) = handleCloudwatchRequest(grok,
-                                    region=options.region,
-                                    datasource=options.datasource,
-                                    namespace=options.namespace,
-                                    metricName=options.metric)
-
-    printTabulatedResults(columns, maximums, buffer_)
-
-  elif options.datasource == "custom":
-    print "Not currently supported"
-
+    handleUnmonitorRequest(grok, options.metric)
   else:
-    columns = ("Datasource",)
-    maximums = [len(column) for column in columns]
-
-    buffer_ = []
-    for datasource in grok.listMetricDatasources():
-      maximums[0] = max(len(datasource), maximums[0])
-      buffer_.append((datasource,))
-
-    printTabulatedResults(columns, maximums, buffer_)
-
-
-
-if __name__ == "__main__":
-  handle(*parser.parse_args())
+    printHelpAndExit()
