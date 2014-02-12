@@ -8,6 +8,10 @@
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
 from optparse import OptionParser
+import sys
+
+from prettytable import PrettyTable
+
 import grokcli
 from grokcli.api import GrokSession
 
@@ -17,9 +21,9 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s GROK_SERVER GROK_API_KEY [options]
+USAGE = """%s (list|unmonitor) GROK_SERVER GROK_API_KEY [options]
 
-Browse...
+Manage monitored metrics.
 """.strip() % subCommand
 
 
@@ -47,11 +51,35 @@ parser.add_option(
 
 
 
+def handleListRequest(grok):
+  models = grok.listModels()
+  table = PrettyTable()
+
+  table.add_column("ID", [x['uid'] for x in models])
+  table.add_column("Display Name", [x['display_name'] for x in models])
+  table.add_column("Name", [x['name'] for x in models])
+  table.add_column("Status", [x['status'] for x in models])
+
+  table.align = "l" # left align
+  print table
+
+
 def handle(options, args):
   """ `grok metrics` handler. """
+  try:
+    action = args.pop(0)
+  except IndexError:
+    parser.print_help(sys.stderr)
+    sys.exit(1)
+
   (server, apikey) = grokcli.getCommonArgs(parser, args)
 
   grok = GrokSession(server=server, apikey=apikey)
+
+  if action == "list":
+    handleListRequest(grok)
+  elif action == "unmonitor":
+    pass
 
 
 
