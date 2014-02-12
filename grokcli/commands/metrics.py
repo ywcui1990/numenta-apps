@@ -93,3 +93,7 @@ def handle(options, args):
     handleUnmonitorRequest(grok, options.metric)
   else:
     printHelpAndExit()
+
+
+if __name__ == "__main__":
+  handle(*parser.parse_args())
