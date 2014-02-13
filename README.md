@@ -214,7 +214,7 @@ a number of sub-commands can be invoked:
 
   Manage CloudWatch metrics.
 
-      grok cloudwatch (list|monitor) SERVER_URL GROK_API_KEY [options]
+      grok cloudwatch (metrics|instances) (list|monitor) SERVER_URL GROK_API_KEY [options]
 
   CLI options include:
 
@@ -227,7 +227,7 @@ a number of sub-commands can be invoked:
 
   For example:
 
-      grok cloudwatch monitor SERVER_URL/_models GROK_API_KEY \
+      grok cloudwatch metrics monitor SERVER_URL/_models GROK_API_KEY \
         --metric=CPUUtilization \
         --namespace=AWS/EC2 \
         --region=us-west-2 \

@@ -21,7 +21,8 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s (list|monitor) GROK_SERVER GROK_API_KEY [options]
+USAGE = """%s (metrics|instances) (list|monitor) \
+GROK_SERVER GROK_API_KEY [options]
 
 Create Grok cloudwatch model
 """.strip() % subCommand
@@ -56,47 +57,75 @@ parser.add_option(
   nargs=2,
   type="str",
   callback=dimensions_callback,
-  help="Cloudwatch dimensions (required)")
+  help="Cloudwatch dimensions (required for monitor)")
 
 # Implementation
+
+def handleMetricsMonitorRequest(grok, nativeMetric):
+  result = grok.createModel(nativeMetric)
+  model = next(iter(result))
+  print model["uid"]
+
 
 def handle(options, args):
   """ `grok cloudwatch` handler. """
   try:
+    resource = args.pop(0)
     action = args.pop(0)
   except IndexError:
-    parser.print_help(sys.stderr)
-    sys.exit(1)
+    printHelpAndExit()
 
   (server, apikey) = grokcli.getCommonArgs(parser, args)
 
   grok = GrokSession(server=server, apikey=apikey)
 
-  if action == "monitor":
-    nativeMetric = {
-        "datasource": "cloudwatch",
-        "metric": options.metric,
-        "namespace": options.namespace,
-        "region": options.region
-      }
+  if resource == "metrics":
 
-    if hasattr(dimensions_callback, "dimensions"):
-      nativeMetric["dimensions"] = dimensions_callback.dimensions
+    if action == "monitor":
+      nativeMetric = {
+          "datasource": "cloudwatch",
+          "metric": options.metric,
+          "namespace": options.namespace,
+          "region": options.region
+        }
+
+      if hasattr(dimensions_callback, "dimensions"):
+        nativeMetric["dimensions"] = dimensions_callback.dimensions
+      else:
+        printHelpAndExit()
+
+      handleMetricsMonitorRequest(grok, nativeMetric)
+
+    elif action == "list":
+      (columns, maximums, buf) = handleCloudwatchRequest(
+        grok,
+        region=options.region,
+        namespace=options.namespace,
+        metricName=options.metric)
+
+      printTabulatedResults(columns, maximums, buf)
+
     else:
-      parser.print_help()
-      sys.exit(1)
+      printHelpAndExit()
 
-    result = grok.createModel(nativeMetric)
-    model = next(iter(result))
-    print model["uid"]
-  elif action == "list":
-    (columns, maximums, buf) = handleCloudwatchRequest(
-      grok,
-      region=options.region,
-      namespace=options.namespace,
-      metricName=options.metric)
+  elif resource == "instances":
 
-    printTabulatedResults(columns, maximums, buf)
+    if action == "monitor":
+      print "Not yet implemented"
+
+    elif action == "list":
+      print "Not yet implemented"
+
+    else:
+      printHelpAndExit()
+
+  else:
+    printHelpAndExit()
+
+
+def printHelpAndExit():
+  parser.print_help(sys.stderr)
+  sys.exit(1)
 
 
 def printTabulatedResults(columns, maximums, buf):

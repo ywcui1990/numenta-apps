@@ -24,7 +24,7 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s (list|monitor) GROK_SERVER GROK_API_KEY [options]
+USAGE = """%s metrics (list|monitor) GROK_SERVER GROK_API_KEY [options]
 
 Manage custom metrics.
 """.strip() % subCommand
@@ -34,7 +34,7 @@ parser.add_option(
   "--metric",
   dest="metric",
   metavar="ID",
-  help="Metric ID")
+  help="Metric ID (required for monitor)")
 
 
 
@@ -67,6 +67,7 @@ def handleMonitorRequest(grok, metricID):
 def handle(options, args):
   """ `grok custom` handler. """
   try:
+    resource = args.pop(0)
     action = args.pop(0)
   except IndexError:
     printHelpAndExit()
@@ -75,14 +76,19 @@ def handle(options, args):
 
   grok = GrokSession(server=server, apikey=apikey)
 
-  if action == "list":
-    handleListRequest(grok)
+  if resource == "metrics":
 
-  elif action == "monitor":
-    if not options.metric:
+    if action == "list":
+      handleListRequest(grok)
+
+    elif action == "monitor":
+      if not options.metric:
+        printHelpAndExit()
+
+      handleMonitorRequest(grok, options.metric)
+
+    else:
       printHelpAndExit()
-
-    handleMonitorRequest(grok, options.metric)
 
   else:
     printHelpAndExit()
