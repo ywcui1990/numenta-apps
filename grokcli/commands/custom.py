@@ -56,6 +56,14 @@ def handleListRequest(grok):
   print table
 
 
+def handleMonitorRequest(grok, metricID):
+  nativeMetric = {
+    "datasource": "custom",
+    "uid": metricID
+  }
+  grok.createModel(nativeMetric)
+
+
 def handle(options, args):
   """ `grok custom` handler. """
   try:
@@ -69,6 +77,13 @@ def handle(options, args):
 
   if action == "list":
     handleListRequest(grok)
+
+  elif action == "monitor":
+    if not options.metric:
+      printHelpAndExit()
+
+    handleMonitorRequest(grok, options.metric)
+
   else:
     printHelpAndExit()
 
