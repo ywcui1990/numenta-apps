@@ -229,6 +229,22 @@ class GrokSession(Session):
     raise GrokCLIError("Unable to create model")
 
 
+  def createInstance(self, region, namespace, instanceID, **kwargs):
+    url = (self.server + "/_instances/" +
+          region + "/" + namespace + "/" + instanceID)
+
+    response = self._request(
+      method="POST",
+      url=url,
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+    raise GrokCLIError("Unable to create instance")
+
+
   def deleteModel(self, metricID, **kwargs):
     url = self.server + "/_models/" + metricID
 
