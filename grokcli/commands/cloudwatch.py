@@ -21,7 +21,7 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s (add|delete|list) GROK_SERVER GROK_API_KEY [options]
+USAGE = """%s (list|monitor) GROK_SERVER GROK_API_KEY [options]
 
 Create Grok cloudwatch model
 """.strip() % subCommand
@@ -72,7 +72,7 @@ def handle(options, args):
 
   grok = GrokSession(server=server, apikey=apikey)
 
-  if action == "add":
+  if action == "monitor":
     nativeMetric = {
         "datasource": "cloudwatch",
         "metric": options.metric,
@@ -89,8 +89,6 @@ def handle(options, args):
     result = grok.createModel(nativeMetric)
     model = next(iter(result))
     print model["uid"]
-  elif action == "delete":
-    pass # TODO There is no cloudwatch-specific DELETE interface
   elif action == "list":
     (columns, maximums, buf) = handleCloudwatchRequest(
       grok,

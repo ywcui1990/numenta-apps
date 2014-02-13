@@ -210,11 +210,11 @@ a number of sub-commands can be invoked:
 
       grok instances unmonitor SERVER_URL GROK_API_KEY --instance=INSTANCE_ID
 
-- `grok cloudwatch add`
+- `grok cloudwatch`
 
-  Create Grok model for CloudWatch metric.
+  Manage CloudWatch metrics.
 
-      grok cloudwatch add SERVER_URL GROK_API_KEY [options]
+      grok cloudwatch (list|monitor) SERVER_URL GROK_API_KEY [options]
 
   CLI options include:
 
@@ -227,7 +227,7 @@ a number of sub-commands can be invoked:
 
   For example:
 
-      grok cloudwatch add SERVER_URL/_models GROK_API_KEY \
+      grok cloudwatch monitor SERVER_URL/_models GROK_API_KEY \
         --metric=CPUUtilization \
         --namespace=AWS/EC2 \
         --region=us-west-2 \
