@@ -16,6 +16,11 @@ def printTerms():
         "https://aws.amazon.com/marketplace/agreement?asin=B00I18SNQ6\n")
 
 
+def printRegisterHint():
+  print("If you haven't already registered, please do so by visiting\n"
+        "the URL: GROK_SERVER/grok/register, to help us serve you better.\n")
+
+
 
 requirements = map(str.strip, open("requirements.txt").readlines())
 
@@ -41,3 +46,4 @@ setup(
 )
 
 printTerms()
+printRegisterHint()
