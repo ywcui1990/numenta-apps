@@ -8,6 +8,7 @@
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
 
+import json
 from optparse import OptionParser
 import sys
 
@@ -34,6 +35,11 @@ parser.add_option(
   dest="instance",
   metavar="INSTANCE_ID",
   help='Instance ID (required for unmonitor')
+parser.add_option(
+  "--format",
+  dest="format",
+  default="text",
+  help='Output format (text|json)')
 
 
 
@@ -42,18 +48,22 @@ def printHelpAndExit():
   sys.exit(1)
 
 
-def handleListRequest(grok):
+def handleListRequest(grok, fmt):
   instances = grok.listInstances()
-  table = PrettyTable()
 
-  table.add_column("ID", [x['server'] for x in instances])
-  table.add_column("Instance", [x['name'] for x in instances])
-  table.add_column("Service", [x['namespace'] for x in instances])
-  table.add_column("Region", [x['location'] for x in instances])
-  table.add_column("Status", [x['status'] for x in instances])
+  if fmt == "json":
+    print(json.dumps(instances))
+  else:
+    table = PrettyTable()
 
-  table.align = "l" # left align
-  print table
+    table.add_column("ID", [x['server'] for x in instances])
+    table.add_column("Instance", [x['name'] for x in instances])
+    table.add_column("Service", [x['namespace'] for x in instances])
+    table.add_column("Region", [x['location'] for x in instances])
+    table.add_column("Status", [x['status'] for x in instances])
+
+    table.align = "l" # left align
+    print(table)
 
 
 def handleUnmonitorRequest(grok, serverName):
@@ -72,7 +82,7 @@ def handle(options, args):
   grok = GrokSession(server=server, apikey=apikey)
 
   if action == "list":
-    handleListRequest(grok)
+    handleListRequest(grok, options.format)
 
   elif action == "unmonitor":
     if not options.instance:
