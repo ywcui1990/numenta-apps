@@ -14,12 +14,11 @@ from requests.exceptions import (
   InvalidURL,
   MissingSchema)
 import socket
+from urlparse import urlparse
 from grokcli.exceptions import (
   GrokCLIError,
   InvalidGrokHostError,
   InvalidCredentialsError)
-
-from urlparse import urlparse
 
 
 
