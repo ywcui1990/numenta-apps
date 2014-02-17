@@ -41,6 +41,11 @@ parser.add_option(
   metavar="NAME",
   help="Metric name")
 parser.add_option(
+  "--instance",
+  dest="instance",
+  metavar="INSTANCE_ID",
+  help="Instance ID")
+parser.add_option(
   "--namespace",
   dest="namespace",
   metavar="NAMESPACE",
@@ -65,6 +70,10 @@ def handleMetricsMonitorRequest(grok, nativeMetric):
   result = grok.createModel(nativeMetric)
   model = next(iter(result))
   print model["uid"]
+
+
+def handleInstanceMonitorRequest(grok, region, namespace, instance):
+  grok.createInstance(region, namespace, instance)
 
 
 def handle(options, args):
@@ -111,7 +120,11 @@ def handle(options, args):
   elif resource == "instances":
 
     if action == "monitor":
-      print "Not yet implemented"
+      if not (options.region and options.namespace and options.instance):
+        printHelpAndExit()
+
+      handleInstanceMonitorRequest(grok, options.region,
+                                   options.namespace, options.instance)
 
     elif action == "list":
       print "Not yet implemented"
