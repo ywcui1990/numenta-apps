@@ -52,7 +52,7 @@ def handleListRequest(grok):
   table.add_column("Display Name", [x['display_name'] for x in metrics])
   table.add_column("Status", [x['status'] for x in metrics])
 
-  table.align = "l" # left align
+  table.align = "l"  # left align
   print table
 
 
