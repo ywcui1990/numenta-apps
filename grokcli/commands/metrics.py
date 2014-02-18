@@ -77,7 +77,7 @@ def handleListRequest(grok, fmt):
     table.add_column("Status", [x['status'] for x in models])
 
     table.align = "l" # left align
-    print table
+    print(table)
 
 
 def handleUnmonitorRequest(grok, metricID):
