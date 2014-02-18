@@ -62,7 +62,7 @@ def handleListRequest(grok, fmt):
     table.add_column("Region", [x['location'] for x in instances])
     table.add_column("Status", [x['status'] for x in instances])
 
-    table.align = "l" # left align
+    table.align = "l"  # left align
     print(table)
 
 

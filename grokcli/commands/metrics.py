@@ -76,7 +76,7 @@ def handleListRequest(grok, fmt):
     table.add_column("Name", [x['name'] for x in models])
     table.add_column("Status", [x['status'] for x in models])
 
-    table.align = "l" # left align
+    table.align = "l"  # left align
     print(table)
 
 

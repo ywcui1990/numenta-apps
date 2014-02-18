@@ -135,7 +135,7 @@ def handleMetricsListRequest(grok, fmt, region=None, namespace=None,
     tableAddMetricDimensionColumn(table, metrics, 'AutoScalingGroupName')
     tableAddMetricDimensionColumn(table, metrics, 'AvailabilityZone')
 
-    table.align = "l" # left align
+    table.align = "l"  # left align
     print(table)
 
 
