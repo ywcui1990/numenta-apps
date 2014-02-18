@@ -7,8 +7,12 @@
 # may be used, reproduced, stored or distributed in any form,
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
-import sys
+
 from optparse import OptionParser
+import sys
+
+from prettytable import PrettyTable
+
 import grokcli
 from grokcli.api import GrokSession
 
@@ -66,6 +70,28 @@ parser.add_option(
 
 # Implementation
 
+def getCloudwatchMetrics(grok, region=None, namespace=None,
+                         metricName=None):
+  """ Request available metric data for specified region,
+      namespace, metric name where provided in CLI context
+  """
+  # Query Grok regions API for available cloudwatch metrics
+  if region:
+    regions = [region]
+  else:
+    regions = grok.listMetrics("cloudwatch")["regions"]
+
+  metrics = []
+
+  for region in regions:
+    for metric in grok.listCloudwatchMetrics(region,
+                                             namespace=namespace,
+                                             metric=metricName):
+      metrics.append(metric)
+
+  return metrics
+
+
 def handleMetricsMonitorRequest(grok, nativeMetric):
   result = grok.createModel(nativeMetric)
   model = next(iter(result))
@@ -74,6 +100,34 @@ def handleMetricsMonitorRequest(grok, nativeMetric):
 
 def handleInstanceMonitorRequest(grok, region, namespace, instance):
   grok.createInstance(region, namespace, instance)
+
+
+def tableAddMetricDimensionColumn(table, metrics, column):
+  table.add_column(column, [x['dimensions'][column][0]
+    if column in x['dimensions'] else '' for x in metrics])
+
+
+def handleMetricsListRequest(grok, region=None, namespace=None,
+                             metricName=None):
+  metrics = getCloudwatchMetrics(grok, region=region,
+                                 namespace=namespace, metricName=metricName)
+
+  table = PrettyTable()
+
+  table.add_column("Region", [x['region'] for x in metrics])
+  table.add_column("Namespace", [x['namespace'] for x in metrics])
+  table.add_column("Name", [x['name'] for x in metrics])
+  table.add_column("Metric", [x['metric'] for x in metrics])
+
+  tableAddMetricDimensionColumn(table, metrics, 'VolumeId')
+  tableAddMetricDimensionColumn(table, metrics, 'InstanceId')
+  tableAddMetricDimensionColumn(table, metrics, 'DBInstanceIdentifier')
+  tableAddMetricDimensionColumn(table, metrics, 'LoadBalancerName')
+  tableAddMetricDimensionColumn(table, metrics, 'AutoScalingGroupName')
+  tableAddMetricDimensionColumn(table, metrics, 'AvailabilityZone')
+
+  table.align = "l" # left align
+  print(table)
 
 
 def handle(options, args):
@@ -106,13 +160,11 @@ def handle(options, args):
       handleMetricsMonitorRequest(grok, nativeMetric)
 
     elif action == "list":
-      (columns, maximums, buf) = handleCloudwatchRequest(
+      handleMetricsListRequest(
         grok,
         region=options.region,
         namespace=options.namespace,
         metricName=options.metric)
-
-      printTabulatedResults(columns, maximums, buf)
 
     else:
       printHelpAndExit()
@@ -139,95 +191,6 @@ def handle(options, args):
 def printHelpAndExit():
   parser.print_help(sys.stderr)
   sys.exit(1)
-
-
-def printTabulatedResults(columns, maximums, buf):
-  """ Print tabulated data """
-  # Print column names
-  for (colnum, value) in enumerate(columns):
-    if colnum == 0:
-      print " ",
-    else:
-      print "| ",
-    print value.ljust(maximums[colnum]),
-  print
-
-  # Print horizontal rule
-  for (colnum, value) in enumerate(columns):
-    if colnum == 0:
-      print " ",
-    else:
-      print "| ",
-    print "_" * maximums[colnum],
-  print
-
-  # Print buffered results
-  for row in buf:
-    for (colnum, value) in enumerate(columns):
-      if colnum == 0:
-        print " ",
-      else:
-        print "| ",
-
-      if colnum < len(row):
-        print row[colnum].ljust(maximums[colnum]),
-      else:
-        print "".ljust(maximums[colnum]),
-
-    print
-
-
-def handleCloudwatchRequest(grok, region=None, namespace=None,
-    metricName=None):
-  """ Request available metric data for specified region,
-      namespace, metric name where provided in CLI context
-  """
-  # Query Grok regions API for available cloudwatch metrics
-  if region:
-    regions = [region]
-  else:
-    regions = grok.listMetrics("cloudwatch")["regions"]
-
-  columns = ["Region", "Namespace", "Name", "Metric"]
-  maximums = [len(column) for column in columns]
-  buffer_ = []
-  for region in regions:
-    for metric in grok.listCloudwatchMetrics(region, namespace=namespace,
-        metric=metricName):
-
-      maximums[0] = max(maximums[0], len(metric["region"]))
-      maximums[1] = max(maximums[1], len(metric["namespace"]))
-      maximums[2] = max(maximums[2], len(metric.get("name", "")))
-      maximums[3] = max(maximums[3], len(metric["metric"]))
-
-      row = [
-        metric["region"],
-        metric["namespace"],
-        metric.get("name", ""),
-        metric["metric"]]
-
-      for dimension in metric["dimensions"]:
-        if dimension not in columns[4:]:
-          columns.append(dimension)
-
-        colnum = columns[4:].index(dimension) + 4
-        if len(maximums) <= colnum:
-          maximums.append(len(dimension))
-          maximums[colnum] = max(maximums[colnum], len(dimension))
-
-        maximums[colnum] = max(maximums[colnum],
-          len(next(iter(metric["dimensions"][dimension]))))
-
-        if len(row) <= colnum:
-          row.extend(([""] * (colnum-len(row))))
-          if isinstance(metric["dimensions"][dimension], list):
-            row.extend(metric["dimensions"][dimension])
-          else:
-            row.append(metric["dimensions"][dimension])
-
-      buffer_.append(row)
-
-  return (columns, maximums, buffer_)
 
 
 
