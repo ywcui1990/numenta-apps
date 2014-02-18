@@ -7,6 +7,8 @@
 # may be used, reproduced, stored or distributed in any form,
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
+
+import json
 from optparse import OptionParser
 import sys
 
@@ -48,6 +50,11 @@ parser.add_option(
   dest="region",
   metavar="REGION",
   help="AWS Region (cloudwatch-only)")
+parser.add_option(
+  "--format",
+  dest="format",
+  default="text",
+  help='Output format (text|json)')
 
 
 
@@ -56,17 +63,21 @@ def printHelpAndExit():
   sys.exit(1)
 
 
-def handleListRequest(grok):
+def handleListRequest(grok, fmt):
   models = grok.listModels()
-  table = PrettyTable()
 
-  table.add_column("ID", [x['uid'] for x in models])
-  table.add_column("Display Name", [x['display_name'] for x in models])
-  table.add_column("Name", [x['name'] for x in models])
-  table.add_column("Status", [x['status'] for x in models])
+  if fmt == "json":
+    print(json.dumps(models))
+  else:
+    table = PrettyTable()
 
-  table.align = "l" # left align
-  print table
+    table.add_column("ID", [x['uid'] for x in models])
+    table.add_column("Display Name", [x['display_name'] for x in models])
+    table.add_column("Name", [x['name'] for x in models])
+    table.add_column("Status", [x['status'] for x in models])
+
+    table.align = "l" # left align
+    print table
 
 
 def handleUnmonitorRequest(grok, metricID):
@@ -85,7 +96,7 @@ def handle(options, args):
   grok = GrokSession(server=server, apikey=apikey)
 
   if action == "list":
-    handleListRequest(grok)
+    handleListRequest(grok, options.format)
   elif action == "unmonitor":
     if not options.metric:
       printHelpAndExit()
