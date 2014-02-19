@@ -77,9 +77,9 @@ parser.add_option(
 # Implementation
 
 def getCloudwatchMetrics(grok, region=None, namespace=None,
-                         metricName=None):
+                         instance=None, metricName=None):
   """ Request available metric data for specified region,
-      namespace, metric name where provided in CLI context
+      namespace, instance, metric name where provided in CLI context
   """
   # Query Grok regions API for available cloudwatch metrics
   if region:
@@ -92,6 +92,7 @@ def getCloudwatchMetrics(grok, region=None, namespace=None,
   for region in regions:
     for metric in grok.listCloudwatchMetrics(region,
                                              namespace=namespace,
+                                             instance=instance,
                                              metric=metricName):
       metrics.append(metric)
 
@@ -114,14 +115,29 @@ def handleInstanceUnmonitorRequest(grok, region, namespace, instance):
 
 
 def tableAddMetricDimensionColumn(table, metrics, column):
-  table.add_column(column, [x['dimensions'][column][0]
-    if column in x['dimensions'] else '' for x in metrics])
+  values = []
+
+  for m in metrics:
+    v = ""
+
+    if column in m['dimensions']:
+      d = m['dimensions'][column]
+
+      if isinstance(d, list): # hack due to weird server response format
+        v = d[0]
+      else:
+        v = d
+
+    values.append(v)
+
+  table.add_column(column, values)
 
 
 def handleMetricsListRequest(grok, fmt, region=None, namespace=None,
-                             metricName=None):
+                             metricName=None, instance=None):
   metrics = getCloudwatchMetrics(grok, region=region,
-                                 namespace=namespace, metricName=metricName)
+                                 namespace=namespace, instance=instance,
+                                 metricName=metricName)
 
   if fmt == "json":
     print(json.dumps(metrics))
@@ -130,7 +146,8 @@ def handleMetricsListRequest(grok, fmt, region=None, namespace=None,
 
     table.add_column("Region", [x['region'] for x in metrics])
     table.add_column("Namespace", [x['namespace'] for x in metrics])
-    table.add_column("Name", [x['name'] for x in metrics])
+    table.add_column("Name", [x['name'] if 'name' in x else ''
+                     for x in metrics])
     table.add_column("Metric", [x['metric'] for x in metrics])
 
     tableAddMetricDimensionColumn(table, metrics, 'VolumeId')
@@ -179,7 +196,8 @@ def handle(options, args):
         options.format,
         region=options.region,
         namespace=options.namespace,
-        metricName=options.metric)
+        metricName=options.metric,
+        instance=options.instance)
 
     else:
       printHelpAndExit()
