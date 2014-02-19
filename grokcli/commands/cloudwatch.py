@@ -16,6 +16,7 @@ from prettytable import PrettyTable
 
 import grokcli
 from grokcli.api import GrokSession
+from grokcli.exceptions import GrokCLIError
 
 
 
@@ -44,7 +45,7 @@ parser.add_option(
   "--metric",
   dest="metric",
   metavar="NAME",
-  help="Metric name")
+  help="Metric name (required for metric monitor, metric unmonitor")
 parser.add_option(
   "--instance",
   dest="instance",
@@ -103,6 +104,22 @@ def handleMetricsMonitorRequest(grok, nativeMetric):
   result = grok.createModel(nativeMetric)
   model = next(iter(result))
   print model["uid"]
+
+
+def handleMetricsUnmonitorRequest(grok, region, namespace, instance, metric):
+  metricName = "{0}/{1}".format(namespace, metric)
+  server = "{0}/{1}/{2}".format(region, namespace, instance)
+
+  models = grok.listModels()
+
+  metrics = [m for m in models if (m["datasource"] == "cloudwatch" and
+                                   m["name"] == metricName and
+                                   m["server"] == server)]
+
+  if not len(metrics):
+    raise GrokCLIError("Metric not found")
+
+  grok.deleteModel(metrics[0]["uid"])
 
 
 def handleInstanceMonitorRequest(grok, region, namespace, instance):
@@ -189,6 +206,15 @@ def handle(options, args):
         printHelpAndExit()
 
       handleMetricsMonitorRequest(grok, nativeMetric)
+
+    elif action == "unmonitor":
+      if not (options.region and options.namespace
+              and options.instance and options.metric):
+        printHelpAndExit()
+
+      handleMetricsUnmonitorRequest(grok, options.region,
+                                    options.namespace, options.instance,
+                                    options.metric)
 
     elif action == "list":
       handleMetricsListRequest(
