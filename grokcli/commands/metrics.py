@@ -35,6 +35,11 @@ parser.add_option(
   dest="id",
   metavar="ID",
   help="Metric ID (required for unmonitor)")
+parser.add_option(
+  "--format",
+  dest="format",
+  default="text",
+  help='Output format (text|json)')
 
 
 
