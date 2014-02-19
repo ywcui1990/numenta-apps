@@ -16,6 +16,7 @@ from prettytable import PrettyTable
 
 import grokcli
 from grokcli.api import GrokSession
+from grokcli.exceptions import GrokCLIError
 
 
 
@@ -26,7 +27,8 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s metrics (list|monitor) GROK_SERVER GROK_API_KEY [options]
+USAGE = """%s metrics (list|monitor|unmonitor) \
+GROK_SERVER GROK_API_KEY [options]
 
 Manage custom metrics.
 """.strip() % subCommand
@@ -37,6 +39,11 @@ parser.add_option(
   dest="id",
   metavar="ID",
   help="Metric ID (required for monitor)")
+parser.add_option(
+  "--name",
+  dest="name",
+  metavar="Name",
+  help="Metric Name (required for unmonitor)")
 parser.add_option(
   "--format",
   dest="format",
@@ -75,6 +82,18 @@ def handleMonitorRequest(grok, metricID):
   grok.createModel(nativeMetric)
 
 
+def handleUnmonitorRequest(grok, metricName):
+  models = grok.listModels()
+
+  metrics = [m for m in models if (m["datasource"] == "custom" and
+                                   m["name"] == metricName)]
+
+  if not len(metrics):
+    raise GrokCLIError("Metric not found")
+
+  grok.deleteModel(metrics[0]["uid"])
+
+
 def handle(options, args):
   """ `grok custom` handler. """
   try:
@@ -97,6 +116,12 @@ def handle(options, args):
         printHelpAndExit()
 
       handleMonitorRequest(grok, options.id)
+
+    elif action == "unmonitor":
+      if not options.name:
+        printHelpAndExit()
+
+      handleUnmonitorRequest(grok, options.name)
 
     else:
       printHelpAndExit()
