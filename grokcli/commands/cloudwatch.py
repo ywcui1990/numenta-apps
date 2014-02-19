@@ -26,7 +26,7 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s (metrics|instances) (list|monitor) \
+USAGE = """%s (metrics|instances) (list|monitor|unmonitor) \
 GROK_SERVER GROK_API_KEY [options]
 
 Create Grok cloudwatch model
@@ -49,17 +49,17 @@ parser.add_option(
   "--instance",
   dest="instance",
   metavar="INSTANCE_ID",
-  help="Instance ID")
+  help="Instance ID (required for monitor, unmonitor)")
 parser.add_option(
   "--namespace",
   dest="namespace",
   metavar="NAMESPACE",
-  help="Metric namespace")
+  help="Metric namespace (required for monitor, unmonitor)")
 parser.add_option(
   "--region",
   dest="region",
   metavar="REGION",
-  help="AWS Region")
+  help="AWS Region (required for monitor, unmonitor)")
 parser.add_option(
   "--dimensions",
   dest="dimensions",
@@ -67,7 +67,7 @@ parser.add_option(
   nargs=2,
   type="str",
   callback=dimensions_callback,
-  help="Cloudwatch dimensions (required for monitor)")
+  help="Cloudwatch dimensions (required for metrics monitor)")
 parser.add_option(
   "--format",
   dest="format",
@@ -106,6 +106,11 @@ def handleMetricsMonitorRequest(grok, nativeMetric):
 
 def handleInstanceMonitorRequest(grok, region, namespace, instance):
   grok.createInstance(region, namespace, instance)
+
+
+def handleInstanceUnmonitorRequest(grok, region, namespace, instance):
+  instanceID = "{0}/{1}/{2}".format(region, namespace, instance)
+  grok.deleteInstance(instanceID)
 
 
 def tableAddMetricDimensionColumn(table, metrics, column):
@@ -187,6 +192,13 @@ def handle(options, args):
 
       handleInstanceMonitorRequest(grok, options.region,
                                    options.namespace, options.instance)
+
+    elif action == "unmonitor":
+      if not (options.region and options.namespace and options.instance):
+        printHelpAndExit()
+
+      handleInstanceUnmonitorRequest(grok, options.region,
+                                     options.namespace, options.instance)
 
     elif action == "list":
       print "Not yet implemented"
