@@ -31,30 +31,10 @@ Manage monitored metrics.
 
 parser = OptionParser(usage=USAGE)
 parser.add_option(
-  "--datasource",
-  dest="datasource",
-  metavar="DATASOURCE",
-  help='Metric data source ("cloudwatch", "custom", etc.)')
-parser.add_option(
-  "--metric",
-  dest="metric",
-  metavar="NAME",
-  help="Metric name (required for unmonitor)")
-parser.add_option(
-  "--namespace",
-  dest="namespace",
-  metavar="NAMESPACE",
-  help="Metric namespace (cloudwatch-only)")
-parser.add_option(
-  "--region",
-  dest="region",
-  metavar="REGION",
-  help="AWS Region (cloudwatch-only)")
-parser.add_option(
-  "--format",
-  dest="format",
-  default="text",
-  help='Output format (text|json)')
+  "--id",
+  dest="id",
+  metavar="ID",
+  help="Metric ID (required for unmonitor)")
 
 
 
@@ -98,10 +78,10 @@ def handle(options, args):
   if action == "list":
     handleListRequest(grok, options.format)
   elif action == "unmonitor":
-    if not options.metric:
+    if not options.id:
       printHelpAndExit()
 
-    handleUnmonitorRequest(grok, options.metric)
+    handleUnmonitorRequest(grok, options.id)
   else:
     printHelpAndExit()
 
