@@ -33,8 +33,8 @@ Manage custom metrics.
 
 parser = OptionParser(usage=USAGE)
 parser.add_option(
-  "--metric",
-  dest="metric",
+  "--id",
+  dest="id",
   metavar="ID",
   help="Metric ID (required for monitor)")
 parser.add_option(
@@ -93,10 +93,10 @@ def handle(options, args):
       handleListRequest(grok, options.format)
 
     elif action == "monitor":
-      if not options.metric:
+      if not options.id:
         printHelpAndExit()
 
-      handleMonitorRequest(grok, options.metric)
+      handleMonitorRequest(grok, options.id)
 
     else:
       printHelpAndExit()
