@@ -31,10 +31,10 @@ Browse...
 
 parser = OptionParser(usage=USAGE)
 parser.add_option(
-  "--instance",
-  dest="instance",
-  metavar="INSTANCE_ID",
-  help='Instance ID (required for unmonitor')
+  "--id",
+  dest="id",
+  metavar="ID",
+  help='Instance ID (required for unmonitor)')
 parser.add_option(
   "--format",
   dest="format",
@@ -66,8 +66,8 @@ def handleListRequest(grok, fmt):
     print(table)
 
 
-def handleUnmonitorRequest(grok, serverName):
-  grok.deleteInstance(serverName)
+def handleUnmonitorRequest(grok, instanceID):
+  grok.deleteInstance(instanceID)
 
 
 def handle(options, args):
@@ -85,10 +85,10 @@ def handle(options, args):
     handleListRequest(grok, options.format)
 
   elif action == "unmonitor":
-    if not options.instance:
+    if not options.id:
       printHelpAndExit()
 
-    handleUnmonitorRequest(grok, options.instance)
+    handleUnmonitorRequest(grok, options.id)
 
   else:
     printHelpAndExit()
