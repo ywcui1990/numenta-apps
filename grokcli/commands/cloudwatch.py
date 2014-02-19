@@ -134,18 +134,18 @@ def handleInstanceUnmonitorRequest(grok, region, namespace, instance):
 def tableAddMetricDimensionColumn(table, metrics, column):
   values = []
 
-  for m in metrics:
-    v = ""
+  for metric in metrics:
+    value = ""
 
-    if column in m['dimensions']:
-      d = m['dimensions'][column]
+    if column in metric['dimensions']:
+      c = metric['dimensions'][column]
 
-      if isinstance(d, list): # hack due to weird server response format
-        v = d[0]
+      if isinstance(c, list): # hack due to weird server response format
+        value = c[0]
       else:
-        v = d
+        value = c
 
-    values.append(v)
+    values.append(value)
 
   table.add_column(column, values)
 
