@@ -8,6 +8,7 @@
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
 
+import json
 from optparse import OptionParser
 import sys
 
@@ -67,6 +68,11 @@ parser.add_option(
   type="str",
   callback=dimensions_callback,
   help="Cloudwatch dimensions (required for monitor)")
+parser.add_option(
+  "--format",
+  dest="format",
+  default="text",
+  help='Output format (text|json)')
 
 # Implementation
 
@@ -107,27 +113,30 @@ def tableAddMetricDimensionColumn(table, metrics, column):
     if column in x['dimensions'] else '' for x in metrics])
 
 
-def handleMetricsListRequest(grok, region=None, namespace=None,
+def handleMetricsListRequest(grok, fmt, region=None, namespace=None,
                              metricName=None):
   metrics = getCloudwatchMetrics(grok, region=region,
                                  namespace=namespace, metricName=metricName)
 
-  table = PrettyTable()
+  if fmt == "json":
+    print(json.dumps(metrics))
+  else:
+    table = PrettyTable()
 
-  table.add_column("Region", [x['region'] for x in metrics])
-  table.add_column("Namespace", [x['namespace'] for x in metrics])
-  table.add_column("Name", [x['name'] for x in metrics])
-  table.add_column("Metric", [x['metric'] for x in metrics])
+    table.add_column("Region", [x['region'] for x in metrics])
+    table.add_column("Namespace", [x['namespace'] for x in metrics])
+    table.add_column("Name", [x['name'] for x in metrics])
+    table.add_column("Metric", [x['metric'] for x in metrics])
 
-  tableAddMetricDimensionColumn(table, metrics, 'VolumeId')
-  tableAddMetricDimensionColumn(table, metrics, 'InstanceId')
-  tableAddMetricDimensionColumn(table, metrics, 'DBInstanceIdentifier')
-  tableAddMetricDimensionColumn(table, metrics, 'LoadBalancerName')
-  tableAddMetricDimensionColumn(table, metrics, 'AutoScalingGroupName')
-  tableAddMetricDimensionColumn(table, metrics, 'AvailabilityZone')
+    tableAddMetricDimensionColumn(table, metrics, 'VolumeId')
+    tableAddMetricDimensionColumn(table, metrics, 'InstanceId')
+    tableAddMetricDimensionColumn(table, metrics, 'DBInstanceIdentifier')
+    tableAddMetricDimensionColumn(table, metrics, 'LoadBalancerName')
+    tableAddMetricDimensionColumn(table, metrics, 'AutoScalingGroupName')
+    tableAddMetricDimensionColumn(table, metrics, 'AvailabilityZone')
 
-  table.align = "l"  # left align
-  print(table)
+    table.align = "l"  # left align
+    print(table)
 
 
 def handle(options, args):
@@ -162,6 +171,7 @@ def handle(options, args):
     elif action == "list":
       handleMetricsListRequest(
         grok,
+        options.format,
         region=options.region,
         namespace=options.namespace,
         metricName=options.metric)
