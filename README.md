@@ -218,6 +218,22 @@ a number of sub-commands can be invoked:
         --region=us-west-2 \
         --instance=i-abc123
 
+- `grok custom`
+
+  Manage custom metrics.
+
+  To list available custom metrics:
+
+      grok custom metrics list SERVER_URL GROK_API_KEY
+
+  To monitor a custom metric:
+
+      grok custom metrics monitor SERVER_URL GROK_API_KEY --id=METRIC_ID
+
+  To unmonitor a custom metric:
+
+      grok custom metrics unmonitor SERVER_URL GROK_API_KEY --name=METRIC_NAME
+
 *Note to developers:*
 
 To add a command, create a python module in
