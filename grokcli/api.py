@@ -167,14 +167,16 @@ class GrokSession(Session):
       return json.loads(response.text)
 
 
-  def listCloudwatchMetrics(self, region, namespace=None, metric=None,
-      **kwargs):
+  def listCloudwatchMetrics(self, region, namespace=None, instance=None,
+    metric=None, **kwargs):
 
     url = self.server + "/_metrics/cloudwatch/"
     if namespace:
       url += region + "/" + namespace
       if metric:
         url += "/" + metric
+      elif instance:
+        url += "/instances/" + instance
     else:
       url += "regions/" + region
 
@@ -186,6 +188,8 @@ class GrokSession(Session):
 
     if response.status_code == 200:
       return json.loads(response.text)
+
+    raise GrokCLIError("Unable to find metrics")
 
 
   def listModels(self, **kwargs):
