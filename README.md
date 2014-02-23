@@ -144,51 +144,21 @@ a number of sub-commands can be invoked:
 
 - `grok metrics`
 
-  View available metrics.
+  Manage monitored metrics.
 
-      grok metrics SERVER_URL GROK_API_KEY [options]
+      grok metrics (list|unmonitor) GROK_SERVER GROK_API_KEY [options]
 
-  CLI options include:
+  To get a list of monitored metrics:
 
-   Option     | Description
-  ------------|-----------------------------------------------------------
-   datasource | Grok datasource (e.g. "cloudwatch", "custom")
-   metric     | CloudWatch metric name
-   namespace  | AWS CloudWatch namespace
-   region     | AWS Region
+      grok metrics SERVER_URL GROK_API_KEY
 
-  To get a list of available cloudwatch metrics:
+  Limiting to monitored metrics for a specific AWS instance:
 
-      grok metrics SERVER_URL GROK_API_KEY --datasource=cloudwatch
+      grok metrics list SERVER_URL GROK_API_KEY --instance=INSTANCE_ID --region=REGION --namespace=NAMESPACE
 
-  Limiting to CloudWatch metrics in a specific AWS region:
+  To unmonitor a metric:
 
-      grok metrics SERVER_URL GROK_API_KEY \
-        --datasource=cloudwatch \
-        --region=REGION
-
-  Limiting to CloudWatch metrics in a specific AWS region and namespace:
-
-      grok metrics SERVER_URL GROK_API_KEY \
-        --datasource=cloudwatch \
-        --region=REGION \
-        --namespace=NAMESPACE
-
-  Limiting to CloudWatch metrics in a specific AWS region, namespace and metric:
-
-      grok metrics SERVER_URL GROK_API_KEY \
-        --datasource=cloudwatch \
-        --region=REGION \
-        --namespace=NAMESPACE \
-        --metric=METRIC
-
-  For example, to list the AWS/EC2 CPUUtilization metrics in us-west-2:
-
-      grok metrics SERVER_URL GROK_API_KEY \
-        --datasource=cloudwatch \
-        --region=us-west-2 \
-        --namespace=AWS/EC2 \
-        --metric=CPUUtilization
+      grok metrics unmonitor https://localhost CmHnD --id=METRIC_ID
 
 - `grok instances`
 
@@ -196,43 +166,57 @@ a number of sub-commands can be invoked:
 
       grok instances (list|unmonitor) SERVER_URL GROK_API_KEY [options]
 
-  CLI options include:
-
-   Option     | Description
-  ------------|-----------------------------------------------------------
-   instance   | Instance ID
-
   To get a list of all monitored instances:
 
       grok instances list SERVER_URL GROK_API_KEY
 
-  To remove a monitored instance:
+  To unmonitor an instance:
 
-      grok instances unmonitor SERVER_URL GROK_API_KEY --instance=INSTANCE_ID
+      grok instances unmonitor SERVER_URL GROK_API_KEY --id=INSTANCE_ID
 
 - `grok cloudwatch`
 
   Manage CloudWatch metrics.
 
-      grok cloudwatch (metrics|instances) (list|monitor) SERVER_URL GROK_API_KEY [options]
+      grok cloudwatch (metrics|instances) (list|monitor|unmonitor) GROK_SERVER GROK_API_KEY [options]
 
-  CLI options include:
+  To list available cloudwatch metrics:
 
-   Option     | Description
-  ------------|-----------------------------------------------------------
-   metric     | CloudWatch metric name
-   namespace  | AWS CloudWatch namespace
-   region     | AWS Region
-   dimensions | Cloudwatch dimension name-value pair (separated by space)
+      grok cloudwatch metrics list SERVER_URL GROK_API_KEY
 
-  For example:
+  To filter list of available cloudwatch metrics by instance id:
 
-      grok cloudwatch metrics monitor SERVER_URL/_models GROK_API_KEY \
+      grok cloudwatch metrics list SERVER_URL GROK_API_KEY --instance=INSTANCE_ID
+
+  To monitor a metric (example):
+
+      grok cloudwatch metrics monitor SERVER_URL GROK_API_KEY \
         --metric=CPUUtilization \
         --namespace=AWS/EC2 \
         --region=us-west-2 \
         --dimensions InstanceId i-abc123
 
+  To monitor an instance (example):
+
+      grok cloudwatch instances monitor SERVER_URL GROK_API_KEY \
+        --namespace=AWS/EC2 \
+        --region=us-west-2 \
+        --instance=i-abc123
+
+  To unmonitor a metric (example):
+
+      grok cloudwatch metrics unmonitor SERVER_URL GROK_API_KEY \
+        --metric=CPUUtilization \
+        --namespace=AWS/EC2 \
+        --region=us-west-2 \
+        --dimensions InstanceId i-abc123
+
+  To unmonitor an instance (example):
+
+      grok cloudwatch instances unmonitor SERVER_URL GROK_API_KEY \
+        --namespace=AWS/EC2 \
+        --region=us-west-2 \
+        --instance=i-abc123
 
 *Note to developers:*
 
