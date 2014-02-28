@@ -36,6 +36,21 @@ parser.add_option(
   metavar="ID",
   help="Metric ID (required for unmonitor)")
 parser.add_option(
+  "--instance",
+  dest="instance",
+  metavar="INSTANCE_ID",
+  help="Instance ID (cloudwatch only)")
+parser.add_option(
+  "--namespace",
+  dest="namespace",
+  metavar="NAMESPACE",
+  help="Metric namespace (cloudwatch only)")
+parser.add_option(
+  "--region",
+  dest="region",
+  metavar="REGION",
+  help="AWS Region (cloudwatch only)")
+parser.add_option(
   "--format",
   dest="format",
   default="text",
@@ -48,8 +63,13 @@ def printHelpAndExit():
   sys.exit(1)
 
 
-def handleListRequest(grok, fmt):
+def handleListRequest(grok, fmt, region=None, namespace=None, instance=None):
   models = grok.listModels()
+
+  if region and namespace and instance:
+    server = "{0}/{1}/{2}".format(region, namespace, instance)
+    models = [m for m in models if (m["datasource"] == "cloudwatch" and
+                                    m["server"] == server)]
 
   if fmt == "json":
     print(json.dumps(models))
@@ -81,7 +101,9 @@ def handle(options, args):
   grok = GrokSession(server=server, apikey=apikey)
 
   if action == "list":
-    handleListRequest(grok, options.format)
+    handleListRequest(grok, options.format,
+                      region=options.region, namespace=options.namespace,
+                      instance=options.instance)
   elif action == "unmonitor":
     if not options.id:
       printHelpAndExit()
