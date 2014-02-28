@@ -18,6 +18,7 @@ from optparse import OptionParser
 
 import commands
 from exceptions import GrokCLIError
+import __version__
 
 
 availableCommands = __import__("grokcli.commands", globals(), locals(), ['*'])
@@ -33,7 +34,7 @@ usage = "%prog [command] [options]\n\n" \
 for command in sorted(commands):
   usage += "\n    " + command
 
-parser = OptionParser(usage=usage)
+parser = OptionParser(usage=usage, version=__version__.__version__)
 
 
 def handle(options, args):
@@ -41,6 +42,8 @@ def handle(options, args):
 
 
 def main():
+  parser.parse_args()
+  
   try:
     subcommand = sys.argv.pop(1)
   except IndexError:
