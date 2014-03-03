@@ -42,14 +42,16 @@ def handle(options, args):
 
 
 def main():
-  parser.parse_args()
-  
   try:
     subcommand = sys.argv.pop(1)
   except IndexError:
     parser.print_help(sys.stderr)
     sys.exit()
 
+  if subcommand == "--version":
+    print(__version__.__version__)
+    sys.exit()
+  
   submodule = commands.get(subcommand, sys.modules[__name__])
 
   (options, args) = submodule.parser.parse_args(sys.argv[1:])
