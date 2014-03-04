@@ -97,7 +97,7 @@ def handleDeleteRequest(grok, stackID, name):
 
 
 def handle(options, args):
-  """ `grok instance` handler. """
+  """ `grok autostacks` handler. """
   try:
     resource = args.pop(0)
     action = args.pop(0)
