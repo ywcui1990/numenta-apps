@@ -216,6 +216,18 @@ class GrokSession(Session):
       return json.loads(response.text)
 
 
+  def listAutostacks(self, **kwargs):
+
+    response = self._request(
+      method="GET",
+      url=self.server + "/_autostacks",
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+
   def exportModels(self, **kwargs):
 
     response = self._request(
@@ -289,6 +301,27 @@ class GrokSession(Session):
     raise GrokCLIError("Unable to create instance")
 
 
+  def createAutostack(self, name, region, filters, **kwargs):
+    url = self.server + "/_autostacks"
+    stack = {
+      "name": name,
+      "region": region,
+      "filters": filters
+    }
+
+    response = self._request(
+      method="POST",
+      url=url,
+      data=json.dumps(stack),
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 201:
+      return json.loads(response.text)
+
+    raise GrokCLIError("Unable to create autostack")
+
+
   def deleteModel(self, metricID, **kwargs):
     url = self.server + "/_models/" + metricID
 
@@ -318,6 +351,21 @@ class GrokSession(Session):
       return json.loads(response.text)
 
     raise GrokCLIError("Unable to delete instance")
+
+
+  def deleteAutostack(self, stackID, **kwargs):
+    url = self.server + "/_autostacks/" + stackID
+
+    response = self._request(
+      method="DELETE",
+      url=url,
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 204:
+      return
+
+    raise GrokCLIError("Unable to delete autostack")
 
 
 

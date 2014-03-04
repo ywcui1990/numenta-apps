@@ -15,6 +15,7 @@ from . import (
   GET,
   metrics,
   instances,
+  autostacks,
   POST
 )
 __import__("import", globals(), locals(), ["."]) # "import" is reserverd.
@@ -29,5 +30,6 @@ __all__ = [
   "import",
   "metrics",
   "instances",
+  "autostacks",
   "POST"
 ]
