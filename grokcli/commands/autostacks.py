@@ -53,7 +53,15 @@ parser.add_option(
 parser.add_option(
   "--metric_id",
   dest="metricID",
-  help='Metric ID (required for metrics add, metrics remove)')
+  help='Metric ID (required for metrics remove)')
+parser.add_option(
+  "--metric_namespace",
+  dest="metricNamespace",
+  help='Metric Namespace (required for metrics add)')
+parser.add_option(
+  "--metric_name",
+  dest="metricName",
+  help='Metric Name (required for metrics add)')
 parser.add_option(
   "--format",
   dest="format",
@@ -125,11 +133,11 @@ def handleMetricsListRequest(grok, stackID, stackName, fmt):
     print(table)
 
 
-def handleMetricsAddRequest(grok, stackID, stackName, metricID):
+def handleMetricsAddRequest(grok, stackID, stackName, metricNamespace, metricName):
   if not stackID:
     stackID = findStackByName(grok, stackName)
 
-  grok.addMetricToAutostack(stackID, metricID)
+  grok.addMetricToAutostack(stackID, metricNamespace, metricName)
 
 
 def handleMetricsRemoveRequest(grok, stackID, stackName, metricID):
@@ -181,11 +189,11 @@ def handle(options, args):
       handleMetricsListRequest(grok, options.id, options.name, options.format)
 
     if action == "add":
-      if not options.metricID:
+      if not (options.metricNamespace and options.metricName):
         printHelpAndExit()
 
       handleMetricsAddRequest(grok, options.id, options.name,
-                              options.metricID)
+                              options.metricNamespace, options.metricName)
 
     if action == "remove":
       if not options.metricID:

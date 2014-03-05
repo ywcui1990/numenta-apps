@@ -334,9 +334,9 @@ class GrokSession(Session):
     raise GrokCLIError("Unable to create autostack")
 
 
-  def addMetricToAutostack(self, stackID, metricID, **kwargs):
+  def addMetricToAutostack(self, stackID, metricNamespace, metricName, **kwargs):
     url = self.server + "/_autostacks/" + stackID + "/metrics"
-    data = json.dumps([{ "metric": metricID }])
+    data = json.dumps([{ "namespace": metricNamespace, "metric": metricName }])
 
     response = self._request(
       method="POST",
@@ -345,7 +345,7 @@ class GrokSession(Session):
       auth=self.auth,
       **kwargs)
 
-    if response.status_code == 200:
+    if response.status_code == 201:
       return
 
     raise GrokCLIError("Unable to add metric to autostack")
