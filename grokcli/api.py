@@ -192,6 +192,18 @@ class GrokSession(Session):
     raise GrokCLIError("Unable to find metrics")
 
 
+  def listAutostackMetrics(self, stackID, **kwargs):
+
+    response = self._request(
+      method="GET",
+      url=self.server + "/_autostacks/" + stackID + "/metrics",
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+
   def listModels(self, **kwargs):
 
     response = self._request(
@@ -322,6 +334,23 @@ class GrokSession(Session):
     raise GrokCLIError("Unable to create autostack")
 
 
+  def addMetricToAutostack(self, stackID, metricID, **kwargs):
+    url = self.server + "/_autostacks/" + stackID + "/metrics"
+    data = json.dumps([{ "metric": metricID }])
+
+    response = self._request(
+      method="POST",
+      url=url,
+      data=data,
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return
+
+    raise GrokCLIError("Unable to add metric to autostack")
+
+
   def deleteModel(self, metricID, **kwargs):
     url = self.server + "/_models/" + metricID
 
@@ -366,6 +395,21 @@ class GrokSession(Session):
       return
 
     raise GrokCLIError("Unable to delete autostack")
+
+
+  def removeMetricFromAutostack(self, stackID, metricID, **kwargs):
+    url = self.server + "/_autostacks/" + stackID + "/metrics/" + metricID
+
+    response = self._request(
+      method="DELETE",
+      url=url,
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 204:
+      return
+
+    raise GrokCLIError("Unable to remove metric from autostack")
 
 
 
