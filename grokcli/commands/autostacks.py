@@ -24,7 +24,8 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s (stacks) (list|create|delete) GROK_SERVER GROK_API_KEY [options]
+USAGE = """%s (stacks|metrics) (list|create|delete|add|remove) \
+GROK_SERVER GROK_API_KEY [options]
 
 Browse...
 """.strip() % subCommand
@@ -34,11 +35,13 @@ parser = OptionParser(usage=USAGE)
 parser.add_option(
   "--id",
   dest="id",
-  help='Stack ID (required for delete [or provide --name])')
+  help=('Stack ID (required for '
+    'delete, add, remove, metrics list [or provide --name])'))
 parser.add_option(
   "--name",
   dest="name",
-  help='Stack name (required for create, delete [or provide --id])')
+  help=('Stack name (required for create; delete, '
+    'add, remove, metrics list [or provide --id])'))
 parser.add_option(
   "--region",
   dest="region",
@@ -47,6 +50,18 @@ parser.add_option(
   "--filters",
   dest="filters",
   help='Filters (required for create)')
+parser.add_option(
+  "--metric_id",
+  dest="metricID",
+  help='Metric ID (required for metrics remove)')
+parser.add_option(
+  "--metric_namespace",
+  dest="metricNamespace",
+  help='Metric Namespace (required for metrics add)')
+parser.add_option(
+  "--metric_name",
+  dest="metricName",
+  help='Metric Name (required for metrics add)')
 parser.add_option(
   "--format",
   dest="format",
@@ -58,6 +73,16 @@ parser.add_option(
 def printHelpAndExit():
   parser.print_help(sys.stderr)
   sys.exit(1)
+
+
+def findStackByName(grok, name):
+  stacks = grok.listAutostacks()
+  foundStacks = [s for s in stacks if s['name'] == name]
+
+  if not len(foundStacks):
+    raise GrokCLIError("Autostack not found")
+
+  return foundStacks[0]['uid']
 
 
 def handleListRequest(grok, fmt):
@@ -81,19 +106,45 @@ def handleCreateRequest(grok, name, region, filters):
   grok.createAutostack(name, region, filters)
 
 
-def handleDeleteRequest(grok, stackID, name):
-  if stackID:
-    grok.deleteAutostack(stackID)
-    return
+def handleDeleteRequest(grok, stackID, stackName):
+  if not stackID:
+    stackID = findStackByName(grok, stackName)
   
-  # Look for stack with given name
-  stacks = grok.listAutostacks()
-  foundStacks = [s for s in stacks if s['name'] == name]
+  grok.deleteAutostack(stackID)
 
-  if not len(foundStacks):
-    raise GrokCLIError("Autostack not found")
 
-  grok.deleteAutostack(foundStacks[0]['uid'])
+def handleMetricsListRequest(grok, stackID, stackName, fmt):
+  if not stackID:
+    stackID = findStackByName(grok, stackName)
+
+  metrics = grok.listAutostackMetrics(stackID)
+
+  if fmt == "json":
+    print(json.dumps(metrics))
+  else:
+    table = PrettyTable()
+
+    table.add_column("ID", [x['uid'] for x in metrics])
+    table.add_column("Display Name", [x['display_name'] for x in metrics])
+    table.add_column("Name", [x['name'] for x in metrics])
+    table.add_column("Status", [x['status'] for x in metrics])
+
+    table.align = "l"  # left align
+    print(table)
+
+
+def handleMetricsAddRequest(grok, stackID, stackName, metricNamespace, metricName):
+  if not stackID:
+    stackID = findStackByName(grok, stackName)
+
+  grok.addMetricToAutostack(stackID, metricNamespace, metricName)
+
+
+def handleMetricsRemoveRequest(grok, stackID, stackName, metricID):
+  if not stackID:
+    stackID = findStackByName(grok, stackName)
+
+  grok.removeMetricFromAutostack(stackID, metricID)
 
 
 def handle(options, args):
@@ -129,6 +180,28 @@ def handle(options, args):
     else:
       printHelpAndExit()
       
+  elif resource == "metrics":
+
+    if not (options.name or options.id):
+      printHelpAndExit()
+
+    if action == "list":
+      handleMetricsListRequest(grok, options.id, options.name, options.format)
+
+    if action == "add":
+      if not (options.metricNamespace and options.metricName):
+        printHelpAndExit()
+
+      handleMetricsAddRequest(grok, options.id, options.name,
+                              options.metricNamespace, options.metricName)
+
+    if action == "remove":
+      if not options.metricID:
+        printHelpAndExit()
+
+      handleMetricsRemoveRequest(grok, options.id, options.name,
+                                 options.metricID)
+
   else:
     printHelpAndExit()
 
