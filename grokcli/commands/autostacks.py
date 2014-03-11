@@ -24,7 +24,7 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s (stacks|metrics) (list|create|delete|add|remove) \
+USAGE = """%s (stacks|metrics|instances) (list|create|delete|add|remove) \
 GROK_SERVER GROK_API_KEY [options]
 
 Browse...
@@ -36,12 +36,12 @@ parser.add_option(
   "--id",
   dest="id",
   help=('Stack ID (required for '
-    'delete, add, remove, metrics list [or provide --name])'))
+    'delete, add, remove, metrics list, instances list [or provide --name])'))
 parser.add_option(
   "--name",
   dest="name",
   help=('Stack name (required for create; delete, '
-    'add, remove, metrics list [or provide --id])'))
+    'add, remove, metrics list, instances list [or provide --id])'))
 parser.add_option(
   "--region",
   dest="region",
@@ -147,6 +147,26 @@ def handleMetricsRemoveRequest(grok, stackID, stackName, metricID):
   grok.removeMetricFromAutostack(stackID, metricID)
 
 
+def handleInstancesListRequest(grok, stackID, stackName, fmt):
+  if not stackID:
+    stackID = findStackByName(grok, stackName)
+
+  instances = grok.listAutostackInstances(stackID)
+
+  if fmt == "json":
+    print(json.dumps(instances))
+  else:
+    table = PrettyTable()
+
+    table.add_column("Instance", [x['instanceID'] for x in instances])
+    table.add_column("Type", [x['instanceType'] for x in instances])
+    table.add_column("Region", [x['regionName'] for x in instances])
+    table.add_column("State", [x['state'] for x in instances])
+
+    table.align = "l"  # left align
+    print(table)
+
+
 def handle(options, args):
   """ `grok autostacks` handler. """
   try:
@@ -201,6 +221,14 @@ def handle(options, args):
 
       handleMetricsRemoveRequest(grok, options.id, options.name,
                                  options.metricID)
+
+  elif resource == "instances":
+
+    if not (options.name or options.id):
+      printHelpAndExit()
+
+    if action == "list":
+      handleInstancesListRequest(grok, options.id, options.name, options.format)
 
   else:
     printHelpAndExit()
