@@ -234,6 +234,58 @@ a number of sub-commands can be invoked:
 
       grok custom metrics unmonitor SERVER_URL GROK_API_KEY --name=METRIC_NAME
 
+- `grok autostacks`
+
+Manage autostacks.
+
+To create autostack:
+
+    grok autostack stacks create SERVER_URL GROK_API_KEY --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
+
+To list autostacks:
+
+    grok autostack stacks list SERVER_URL GROK_API_KEY
+
+To delete autostack:
+
+    grok autostack stacks delete --name=STACK_NAME SERVER_URL GROK_API_KEY
+
+or:
+
+    grok autostack stacks delete --id=STACK_ID SERVER_URL GROK_API_KEY
+
+To add metric type(s) monitored by AutoStack:
+
+    grok autostack metrics add --name=STACK_NAME --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME SERVER_URL GROK_API_KEY
+
+or:
+
+    grok autostack metrics add --id=STACK_ID --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME SERVER_URL GROK_API_KEY
+
+To list metric type(s) monitored by AutoStack:
+
+    grok autostack metrics list --name=STACK_NAME
+
+or:
+
+    grok autostack metrics list --id=STACK_ID
+
+To remove metric type(s) monitored by AutoStack:
+
+    grok autostack metrics remove --name=STACK_NAME --metric_id=METRIC_ID
+
+or:
+
+    grok autostack metrics remove --id=STACK_ID --metric_id=METRIC_ID
+
+To list EC2 Instances associated with an AutoStack(s):
+
+    grok autostack instances list --name=STACK_NAME
+
+or:
+
+    grok autostack instances list --id=STACK_ID
+
 *Note to developers:*
 
 To add a command, create a python module in
