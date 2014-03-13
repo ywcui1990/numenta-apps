@@ -228,6 +228,18 @@ class GrokSession(Session):
       return json.loads(response.text)
 
 
+  def listAutostackInstances(self, stackID, **kwargs):
+
+    response = self._request(
+      method="GET",
+      url=self.server + "/_autostacks/" + stackID + "/instances",
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+
   def listAutostacks(self, **kwargs):
 
     response = self._request(
