@@ -188,8 +188,9 @@ def handle(options, args):
       if not (options.name and options.region and options.filters):
         printHelpAndExit()
 
+      filters = json.loads(options.filters)
       handleCreateRequest(grok,
-                          options.name, options.region, options.filters)
+                          options.name, options.region, filters)
 
     elif action == "delete":
       if not (options.id or options.name):
