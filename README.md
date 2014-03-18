@@ -28,14 +28,16 @@ a number of sub-commands can be invoked:
 
     grok [command] [options]
 
+Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two arguments after the command name. However, if you set those two environment variables, you can omit those arguments from the commands.
+
 - `grok credentials`
 
   Use the `grok credentials` sub-command to add your AWS credentials to a
   running Grok server configuration:
 
-      grok credentials SERVER_URL [options]
+      grok credentials GROK_SERVER_URL [options]
 
-  The `SERVER_URL` positional argument is required and must be a url to a
+  The `GROK_SERVER_URL` positional argument is required and must be a url to a
   running Grok server.  For example: https://ec2-AA-BB-CC-DD.us-west-2.compute.amazonaws.com
 
   You can specify your credentials in one of three ways:
@@ -43,22 +45,22 @@ a number of sub-commands can be invoked:
   - Specify `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` CLI options.
 
     ```
-    grok credentials SERVER_URL --AWS_ACCESS_KEY_ID=... --AWS_SECRET_ACCESS_KEY=...
+    grok credentials GROK_SERVER_URL --AWS_ACCESS_KEY_ID=... --AWS_SECRET_ACCESS_KEY=...
     ```
 
   - Read AWS credentials from a specific file using the `-d`, or `--data` CLI
     options.
 
     ```
-    grok credentials SERVER_URL -d PATH_TO_FILE
-    grok credentials SERVER_URL --data=PATH_TO_FILE
+    grok credentials GROK_SERVER_URL -d PATH_TO_FILE
+    grok credentials GROK_SERVER_URL --data=PATH_TO_FILE
     ```
 
     You can read from stdin using `-`:
 
     ```
-    grok credentials SERVER_URL -d - < PATH_TO_FILE
-    grok credentials SERVER_URL --data=- < PATH_TO_FILE
+    grok credentials GROK_SERVER_URL -d - < PATH_TO_FILE
+    grok credentials GROK_SERVER_URL --data=- < PATH_TO_FILE
     ```
 
     The credentials file should be formatted according to this template:
@@ -71,16 +73,16 @@ a number of sub-commands can be invoked:
   - Use existing boto configuration.
 
     ```
-    grok credentials SERVER_URL --use-boto
+    grok credentials GROK_SERVER_URL --use-boto
     ```
 
 - `grok export`
 
   Export Grok model definitions to a file in JSON or YAML format.
 
-      grok export SERVER_URL GROK_API_KEY [options]
+      grok export [GROK_SERVER_URL GROK_API_KEY] [options]
 
-  The `SERVER_URL` positional argument is required and must be a url to a
+  The `GROK_SERVER_URL` positional argument is required and must be a url to a
   running Grok server.  For example: https://ec2-AA-BB-CC-DD.us-west-2.compute.amazonaws.com
 
   The `GROK_API_KEY` positional argument is also required, and can be retrieved
@@ -89,26 +91,26 @@ a number of sub-commands can be invoked:
   By default, `grok export` prints output to stdout, which can be directed to a
   file:
 
-      grok export SERVER_URL GROK_API_KEY > file.json
+      grok export [GROK_SERVER_URL GROK_API_KEY] > file.json
 
   However, you can optionally specify a file using the `-o` or `--output` CLI
   option:
 
-      grok export SERVER_URL GROK_API_KEY -o file.json
-      grok export SERVER_URL GROK_API_KEY --output=file.json
+      grok export [GROK_SERVER_URL GROK_API_KEY] -o file.json
+      grok export [GROK_SERVER_URL GROK_API_KEY] --output=file.json
 
   Use the `-y` or `--yaml` CLI flag to save output in YAML format
 
-      grok export SERVER_URL GROK_API_KEY -y
-      grok export SERVER_URL GROK_API_KEY --yaml
+      grok export [GROK_SERVER_URL GROK_API_KEY] -y
+      grok export [GROK_SERVER_URL GROK_API_KEY] --yaml
 
 - `grok import`
 
   Import Grok model definitions into a Grok server from a local file.
 
-      grok import SERVER_URL GROK_API_KEY [FILE] [options]
+      grok import [GROK_SERVER_URL GROK_API_KEY] [FILE] [options]
 
-  The `SERVER_URL` positional argument is required and must be a url to a
+  The `GROK_SERVER_URL` positional argument is required and must be a url to a
   running Grok server.  For example: https://ec2-AA-BB-CC-DD.us-west-2.compute.amazonaws.com
 
   The `GROK_API_KEY` positional argument is also required, and can be retrieved
@@ -118,10 +120,10 @@ a number of sub-commands can be invoked:
   `grok import` will assume `STDIN` if `-d` or `--data` is not specified.  The
   following are equivalent:
 
-      grok import SERVER_URL GROK_API_KEY file.json
-      grok import SERVER_URL GROK_API_KEY < file.json
-      grok import SERVER_URL GROK_API_KEY -d file.json
-      grok import SERVER_URL GROK_API_KEY --data=file.json
+      grok import [GROK_SERVER_URL GROK_API_KEY] file.json
+      grok import [GROK_SERVER_URL GROK_API_KEY] < file.json
+      grok import [GROK_SERVER_URL GROK_API_KEY] -d file.json
+      grok import [GROK_SERVER_URL GROK_API_KEY] --data=file.json
 
   `grok import` supports files in YAML format, if pyyaml is installed and
   available on the system.
@@ -132,29 +134,29 @@ a number of sub-commands can be invoked:
   CLI options to direct HTTP calls into the Grok web service.  For example, to
   get all available cloudwatch metrics:
 
-      grok GET SERVER_URL/_metrics/cloudwatch GROK_API_KEY
+      grok GET GROK_SERVER_URL/_metrics/cloudwatch GROK_API_KEY
 
   For `grok POST` and `grok DELETE`, where request data may be required, such
   data can be specified either via the `-d`, or `--data` CLI option, or
   supplied via STDIN:
 
-      grok POST SERVER_URL/_models GROK_API_KEY < model-definition.json
-      grok POST SERVER_URL/_models GROK_API_KEY -d model-definition.json
-      grok POST SERVER_URL/_models GROK_API_KEY --data model-definition.json
+      grok POST GROK_SERVER_URL/_models GROK_API_KEY < model-definition.json
+      grok POST GROK_SERVER_URL/_models GROK_API_KEY -d model-definition.json
+      grok POST GROK_SERVER_URL/_models GROK_API_KEY --data model-definition.json
 
 - `grok metrics`
 
   Manage monitored metrics.
 
-      grok metrics (list|unmonitor) GROK_SERVER GROK_API_KEY [options]
+      grok metrics (list|unmonitor) [GROK_SERVER_URL GROK_API_KEY] [options]
 
   To get a list of monitored metrics:
 
-      grok metrics SERVER_URL GROK_API_KEY
+      grok metrics [GROK_SERVER_URL GROK_API_KEY]
 
   Limiting to monitored metrics for a specific AWS instance:
 
-      grok metrics list SERVER_URL GROK_API_KEY --instance=INSTANCE_ID --region=REGION --namespace=NAMESPACE
+      grok metrics list [GROK_SERVER_URL GROK_API_KEY] --instance=INSTANCE_ID --region=REGION --namespace=NAMESPACE
 
   To unmonitor a metric:
 
@@ -164,33 +166,33 @@ a number of sub-commands can be invoked:
 
   Manage monitored instances.
 
-      grok instances (list|unmonitor) SERVER_URL GROK_API_KEY [options]
+      grok instances (list|unmonitor) [GROK_SERVER_URL GROK_API_KEY] [options]
 
   To get a list of all monitored instances:
 
-      grok instances list SERVER_URL GROK_API_KEY
+      grok instances list [GROK_SERVER_URL GROK_API_KEY]
 
   To unmonitor an instance:
 
-      grok instances unmonitor SERVER_URL GROK_API_KEY --id=INSTANCE_ID
+      grok instances unmonitor [GROK_SERVER_URL GROK_API_KEY] --id=INSTANCE_ID
 
 - `grok cloudwatch`
 
   Manage CloudWatch metrics.
 
-      grok cloudwatch (metrics|instances) (list|monitor|unmonitor) GROK_SERVER GROK_API_KEY [options]
+      grok cloudwatch (metrics|instances) (list|monitor|unmonitor) [GROK_SERVER_URL GROK_API_KEY] [options]
 
   To list available cloudwatch metrics:
 
-      grok cloudwatch metrics list SERVER_URL GROK_API_KEY
+      grok cloudwatch metrics list [GROK_SERVER_URL GROK_API_KEY]
 
   To filter list of available cloudwatch metrics by instance id:
 
-      grok cloudwatch metrics list SERVER_URL GROK_API_KEY --instance=INSTANCE_ID
+      grok cloudwatch metrics list [GROK_SERVER_URL GROK_API_KEY] --instance=INSTANCE_ID
 
   To monitor a metric (example):
 
-      grok cloudwatch metrics monitor SERVER_URL GROK_API_KEY \
+      grok cloudwatch metrics monitor [GROK_SERVER_URL GROK_API_KEY] \
         --metric=CPUUtilization \
         --namespace=AWS/EC2 \
         --region=us-west-2 \
@@ -198,14 +200,14 @@ a number of sub-commands can be invoked:
 
   To monitor an instance (example):
 
-      grok cloudwatch instances monitor SERVER_URL GROK_API_KEY \
+      grok cloudwatch instances monitor [GROK_SERVER_URL GROK_API_KEY] \
         --namespace=AWS/EC2 \
         --region=us-west-2 \
         --instance=i-abc123
 
   To unmonitor a metric (example):
 
-      grok cloudwatch metrics unmonitor SERVER_URL GROK_API_KEY \
+      grok cloudwatch metrics unmonitor [GROK_SERVER_URL GROK_API_KEY] \
         --metric=CPUUtilization \
         --namespace=AWS/EC2 \
         --region=us-west-2 \
@@ -213,7 +215,7 @@ a number of sub-commands can be invoked:
 
   To unmonitor an instance (example):
 
-      grok cloudwatch instances unmonitor SERVER_URL GROK_API_KEY \
+      grok cloudwatch instances unmonitor [GROK_SERVER_URL GROK_API_KEY] \
         --namespace=AWS/EC2 \
         --region=us-west-2 \
         --instance=i-abc123
@@ -224,15 +226,15 @@ a number of sub-commands can be invoked:
 
   To list available custom metrics:
 
-      grok custom metrics list SERVER_URL GROK_API_KEY
+      grok custom metrics list [GROK_SERVER_URL GROK_API_KEY]
 
   To monitor a custom metric:
 
-      grok custom metrics monitor SERVER_URL GROK_API_KEY --id=METRIC_ID
+      grok custom metrics monitor [GROK_SERVER_URL GROK_API_KEY] --id=METRIC_ID
 
   To unmonitor a custom metric:
 
-      grok custom metrics unmonitor SERVER_URL GROK_API_KEY --name=METRIC_NAME
+      grok custom metrics unmonitor [GROK_SERVER_URL GROK_API_KEY] --name=METRIC_NAME
 
 - `grok autostacks`
 
@@ -240,27 +242,27 @@ Manage autostacks.
 
 To create autostack:
 
-    grok autostack stacks create SERVER_URL GROK_API_KEY --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
+    grok autostack stacks create [GROK_SERVER_URL GROK_API_KEY] --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
 
 To list autostacks:
 
-    grok autostack stacks list SERVER_URL GROK_API_KEY
+    grok autostack stacks list [GROK_SERVER_URL GROK_API_KEY]
 
 To delete autostack:
 
-    grok autostack stacks delete --name=STACK_NAME SERVER_URL GROK_API_KEY
+    grok autostack stacks delete --name=STACK_NAME [GROK_SERVER_URL GROK_API_KEY]
 
 or:
 
-    grok autostack stacks delete --id=STACK_ID SERVER_URL GROK_API_KEY
+    grok autostack stacks delete --id=STACK_ID [GROK_SERVER_URL GROK_API_KEY]
 
 To add metric type(s) monitored by AutoStack:
 
-    grok autostack metrics add --name=STACK_NAME --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME SERVER_URL GROK_API_KEY
+    grok autostack metrics add --name=STACK_NAME --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME [GROK_SERVER_URL GROK_API_KEY]
 
 or:
 
-    grok autostack metrics add --id=STACK_ID --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME SERVER_URL GROK_API_KEY
+    grok autostack metrics add --id=STACK_ID --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME [GROK_SERVER_URL GROK_API_KEY]
 
 To list metric type(s) monitored by AutoStack:
 
