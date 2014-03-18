@@ -1,6 +1,6 @@
 #!/bin/bash
 #------------------------------------------------------------------------------
-# Copyright (C) 2013 Numenta Inc. All rights reserved.
+# Copyright (C) 2014 Numenta Inc. All rights reserved.
 #
 # The information and source code contained herein is the
 # exclusive property of Numenta Inc.  No part of this software
@@ -30,19 +30,21 @@ show_credential_usage() {
 
 show_help() {
   show_credential_usage
-  echo "$0 -s https://your.grok.server -r AWS_REGION -i instance-id -i instance-id"
+  echo "$0 -s https://your.grok.server -r AWS_REGION -i instance-id01 -i instance-id02 -g AUTO_SCALE_GROUPNAME"
   echo
   echo "If you are working with a running server, add -a API_KEY"
   echo
 }
 
 parse_cli(){
-  while getopts "ha:i:r:s:" opt; do
+  while getopts "ha:g:i:r:s:" opt; do
     case "$opt" in
       h) show_help
          exit 0
          ;;
       a) GROK_API_KEY="$OPTARG"
+         ;;
+      g) AUTO_SCALE_GROUP_ID="$AUTO_SCALE_GROUP_ID $OPTARG"
          ;;
       i) INSTANCES_TO_MONITOR="$INSTANCES_TO_MONITOR $OPTARG"
          ;;
@@ -104,6 +106,50 @@ monitor_instances() {
   done
 }
 
+add_example_autostack() {
+  echo "Adding autostacks..."
+  for autostack in ${AUTO_SCALE_GROUP_ID}
+  do
+    echo "Creating autostack ${autostack}..."
+    # First, create the autostack
+    printf -v aws_filter "[[\"aws:autoscaling:groupName\",\"%s\"]]" ${autostack}
+    grok autostacks stacks create ${GROK_SERVER} ${GROK_API_KEY} \
+       --name="${autostack}" \
+       --region="${AWS_REGION}" \
+       --filters=$aws_filter
+    # List the instances in the autostack
+    echo "Found the following instances for ${autostack}"
+    grok autostacks instances list ${GROK_SERVER} ${GROK_API_KEY} \
+       --name="${autostack}" \
+       --region="${AWS_REGION}"
+
+    # Add a default set of metrics like the Web UI does
+    # Network
+    echo "Adding NetworkIn metric"
+    grok autostacks metrics add ${GROK_SERVER} ${GROK_API_KEY} \
+      --name="${autostack}" \
+      --region="${AWS_REGION}" \
+      --name="${autostack}" \
+      --metric_namespace='AWS/EC2' --metric_name=NetworkIn
+ 
+    # Disk writes
+    echo "Adding DiskWriteBytes metric"
+    grok autostacks metrics add ${GROK_SERVER} ${GROK_API_KEY} \
+      --name="${autostack}" \
+      --region="${AWS_REGION}" \
+      --name="${autostack}" \
+      --metric_namespace='AWS/EC2' --metric_name=DiskWriteBytes
+ 
+    # And CPU
+    echo "Adding CPUUtilization metric"
+    grok autostacks metrics add ${GROK_SERVER} ${GROK_API_KEY} \
+      --name="${autostack}" \
+      --region="${AWS_REGION}" \
+      --name="${autostack}" \
+      --metric_namespace='AWS/EC2' --metric_name=CPUUtilization
+  done
+}
+
 configure_grok_server() {
   if [ -z ${GROK_API_KEY} ]; then
     echo "Setting server credentials"
@@ -113,10 +159,22 @@ configure_grok_server() {
     echo "Using preset GROK_API_KEY: ${GROK_API_KEY}"
   fi
   monitor_instances
+  if [ ! -z $AUTO_SCALE_GROUP_ID ]; then
+    add_example_autostack
+  fi
 }
 
 parse_cli $*
 sanity_check_configuration
+
 echo "Configuring ${GROK_SERVER}..."
 configure_grok_server
-echo "GROK_API_KEY: ${GROK_API_KEY}"
+echo
+
+echo "Instances monitored:"
+grok instances list ${GROK_SERVER} ${GROK_API_KEY}
+echo
+
+echo "Autostacks monitored: "
+grok autostacks stacks list ${GROK_SERVER} ${GROK_API_KEY} --region=${AWS_REGION}
+echo

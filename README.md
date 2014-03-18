@@ -244,6 +244,7 @@ To create autostack:
 
     grok autostack stacks create [GROK_SERVER_URL GROK_API_KEY] --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
 
+    Notes:
     You can use any AWS tag for the FILTER_NAME. FILTER_VALUE is an AWS-specific
     wildcard, not a full-fledged regular expression. * matches any number of characters
     and ? matches any single character.
@@ -251,11 +252,13 @@ To create autostack:
     For example, "jenkins-*" and "jenkins-??????" both match "jenkins-master".
 
     You can use any AWS tag for the first component of a filter, for optimal performance
-    it's better that the first tag/value pair specified be the one that eliminates the most
+    we recommend that the first tag/value pair specified be the one that eliminates the most
     instances. This is because we have to implement the AND (intersection) operation locally
     (AWS only supports OR at this time). Our implementation sends the first tag/value to AWS,
     gets all the matching instances, and then filters them against the remaining tag/value
     filters locally.
+
+    This does not create any metrics for the new autostack. You must create metrics for the new autostack with grok autostacks metrics add (see below)
 
 To list autostacks:
 
