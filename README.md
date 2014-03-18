@@ -248,43 +248,43 @@ To list autostacks:
 
 To delete autostack:
 
-    grok autostack stacks delete --name=STACK_NAME SERVER_URL GROK_API_KEY
+    grok autostack stacks delete SERVER_URL GROK_API_KEY --name=STACK_NAME --region=REGION
 
 or:
 
-    grok autostack stacks delete --id=STACK_ID SERVER_URL GROK_API_KEY
+    grok autostack stacks delete SERVER_URL GROK_API_KEY --id=STACK_ID
 
 To add metric type(s) monitored by AutoStack:
 
-    grok autostack metrics add --name=STACK_NAME --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME SERVER_URL GROK_API_KEY
+    grok autostack metrics add SERVER_URL GROK_API_KEY --name=STACK_NAME --region=REGION --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
 
 or:
 
-    grok autostack metrics add --id=STACK_ID --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME SERVER_URL GROK_API_KEY
+    grok autostack metrics add SERVER_URL GROK_API_KEY --id=STACK_ID --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
 
 To list metric type(s) monitored by AutoStack:
 
-    grok autostack metrics list --name=STACK_NAME
+    grok autostack metrics list SERVER_URL GROK_API_KEY --name=STACK_NAME --region=REGION
 
 or:
 
-    grok autostack metrics list --id=STACK_ID
+    grok autostack metrics list SERVER_URL GROK_API_KEY --id=STACK_ID
 
 To remove metric type(s) monitored by AutoStack:
 
-    grok autostack metrics remove --name=STACK_NAME --metric_id=METRIC_ID
+    grok autostack metrics remove SERVER_URL GROK_API_KEY --name=STACK_NAME --region=REGION --metric_id=METRIC_ID
 
 or:
 
-    grok autostack metrics remove --id=STACK_ID --metric_id=METRIC_ID
+    grok autostack metrics remove SERVER_URL GROK_API_KEY --id=STACK_ID --metric_id=METRIC_ID
 
 To list EC2 Instances associated with an AutoStack(s):
 
-    grok autostack instances list --name=STACK_NAME
+    grok autostack instances list SERVER_URL GROK_API_KEY --name=STACK_NAME --region=REGION
 
 or:
 
-    grok autostack instances list --id=STACK_ID
+    grok autostack instances list SERVER_URL GROK_API_KEY --id=STACK_ID
 
 *Note to developers:*
 
