@@ -8,6 +8,7 @@
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
 import json
+import os
 try:
   import yaml
 except ImportError:
@@ -73,6 +74,10 @@ else:
 
 
 def getCommonArgs(parser, args):
+  env = os.environ
+  if ('GROK_SERVER_URL' in env) and ('GROK_API_KEY' in env):
+    return (env['GROK_SERVER_URL'], env['GROK_API_KEY'])
+
   try:
     server = args.pop(0)
     apikey = args.pop(0)
