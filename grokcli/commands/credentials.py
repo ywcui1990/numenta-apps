@@ -30,13 +30,19 @@ Add AWS credentials to a Grok server configuration.
 parser = OptionParser(usage=USAGE)
 
 parser.add_option(
+  "--accept-eula",
+  dest="acceptEULA",
+  action="store_true",
+  default=False,
+  help="Accept the EULA")
+parser.add_option(
   "--AWS_ACCESS_KEY_ID",
   dest="AWS_ACCESS_KEY_ID",
   help="AWS Access Key ID")
 parser.add_option(
   "--AWS_SECRET_ACCESS_KEY",
   dest="AWS_SECRET_ACCESS_KEY",
-  help="AWS Secret Sccess Key")
+  help="AWS Secret Access Key")
 parser.add_option(
   "-d",
   "--data",
@@ -56,6 +62,12 @@ try:
     help="Use AWS credentials from default boto configuration")
 except ImportError:
   pass # Boto is optional.  Hide CLI option if boto not installed
+parser.add_option(
+  "--opt-out-of-data-collection",
+  dest="optOutOfDataCollection",
+  action="store_true",
+  default=False,
+  help="Opt out of data collection")
 
 # Implementation
 
@@ -97,6 +109,15 @@ def handle(options, args):
     parser.print_help(sys.stderr)
     sys.exit(1)
 
+  if not options.acceptEULA:
+    print ("Please read and accept the product End User License Agreement "
+           "(EULA) before proceeding.\n"
+           "The EULA can be found here: "
+           "https://aws.amazon.com/marketplace/agreement?asin=B00I18SNQ6\n\n"
+           "To accept the EULA, re-run this command with the "
+           "--accept-eula option.")
+    sys.exit(1)
+
   credentials = {
     "aws_access_key_id": options.AWS_ACCESS_KEY_ID,
     "aws_secret_access_key": options.AWS_SECRET_ACCESS_KEY
@@ -111,9 +132,19 @@ def handle(options, args):
   elif options.use_boto:
     updateCredentialsFromBoto(credentials)
 
+  if not (credentials["aws_access_key_id"] and
+          credentials["aws_secret_access_key"]):
+    parser.print_help(sys.stderr)
+    sys.exit(1)
+
+  usertrack = {
+    "optin": "false" if options.optOutOfDataCollection else "true"
+  }
+
   grok = GrokSession(server=server)
   grok.apikey = grok.verifyCredentials(**credentials)
-  result = grok.updateSettings(settings=credentials, section="aws")
+  grok.updateSettings(settings=credentials, section="aws")
+  grok.updateSettings(settings=usertrack, section="usertrack")
   print grok.apikey
 
 
