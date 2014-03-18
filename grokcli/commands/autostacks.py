@@ -45,7 +45,8 @@ parser.add_option(
 parser.add_option(
   "--region",
   dest="region",
-  help='AWS region (required for create)')
+  help=('AWS region (required for create, delete, add, remove, '
+                    'metrics list, instances list)'))
 parser.add_option(
   "--filters",
   dest="filters",
@@ -75,9 +76,10 @@ def printHelpAndExit():
   sys.exit(1)
 
 
-def findStackByName(grok, name):
+def findStackByName(grok, name, region):
   stacks = grok.listAutostacks()
-  foundStacks = [s for s in stacks if s['name'] == name]
+  foundStacks = [s for s in stacks if
+                 (s['name'] == name and s['region'] == region)]
 
   if not len(foundStacks):
     raise GrokCLIError("Autostack not found")
@@ -106,16 +108,16 @@ def handleCreateRequest(grok, name, region, filters):
   grok.createAutostack(name, region, filters)
 
 
-def handleDeleteRequest(grok, stackID, stackName):
+def handleDeleteRequest(grok, stackID, stackName, region):
   if not stackID:
-    stackID = findStackByName(grok, stackName)
+    stackID = findStackByName(grok, stackName, region)
   
   grok.deleteAutostack(stackID)
 
 
-def handleMetricsListRequest(grok, stackID, stackName, fmt):
+def handleMetricsListRequest(grok, stackID, stackName, region, fmt):
   if not stackID:
-    stackID = findStackByName(grok, stackName)
+    stackID = findStackByName(grok, stackName, region)
 
   metrics = grok.listAutostackMetrics(stackID)
 
@@ -133,23 +135,24 @@ def handleMetricsListRequest(grok, stackID, stackName, fmt):
     print(table)
 
 
-def handleMetricsAddRequest(grok, stackID, stackName, metricNamespace, metricName):
+def handleMetricsAddRequest(grok, stackID, stackName, region,
+                            metricNamespace, metricName):
   if not stackID:
-    stackID = findStackByName(grok, stackName)
+    stackID = findStackByName(grok, stackName, region)
 
   grok.addMetricToAutostack(stackID, metricNamespace, metricName)
 
 
-def handleMetricsRemoveRequest(grok, stackID, stackName, metricID):
+def handleMetricsRemoveRequest(grok, stackID, stackName, region, metricID):
   if not stackID:
-    stackID = findStackByName(grok, stackName)
+    stackID = findStackByName(grok, stackName, region)
 
   grok.removeMetricFromAutostack(stackID, metricID)
 
 
-def handleInstancesListRequest(grok, stackID, stackName, fmt):
+def handleInstancesListRequest(grok, stackID, stackName, region, fmt):
   if not stackID:
-    stackID = findStackByName(grok, stackName)
+    stackID = findStackByName(grok, stackName, region)
 
   instances = grok.listAutostackInstances(stackID)
 
@@ -193,43 +196,58 @@ def handle(options, args):
                           options.name, options.region, filters)
 
     elif action == "delete":
-      if not (options.id or options.name):
+      if not (options.id or (options.name and options.region)):
         printHelpAndExit()
 
-      handleDeleteRequest(grok, options.id, options.name)
+      handleDeleteRequest(grok, options.id, options.name, options.region)
 
     else:
       printHelpAndExit()
       
   elif resource == "metrics":
 
-    if not (options.name or options.id):
+    if not (options.id or (options.name and options.region)):
       printHelpAndExit()
 
     if action == "list":
-      handleMetricsListRequest(grok, options.id, options.name, options.format)
+      handleMetricsListRequest(grok,
+                               options.id,
+                               options.name,
+                               options.region,
+                               options.format)
 
-    if action == "add":
+    elif action == "add":
       if not (options.metricNamespace and options.metricName):
         printHelpAndExit()
 
-      handleMetricsAddRequest(grok, options.id, options.name,
-                              options.metricNamespace, options.metricName)
+      handleMetricsAddRequest(grok,
+                              options.id,
+                              options.name,
+                              options.region,
+                              options.metricNamespace,
+                              options.metricName)
 
-    if action == "remove":
+    elif action == "remove":
       if not options.metricID:
         printHelpAndExit()
 
-      handleMetricsRemoveRequest(grok, options.id, options.name,
+      handleMetricsRemoveRequest(grok,
+                                 options.id,
+                                 options.name,
+                                 options.region,
                                  options.metricID)
 
   elif resource == "instances":
 
-    if not (options.name or options.id):
+    if not (options.id or (options.name and options.region)):
       printHelpAndExit()
 
     if action == "list":
-      handleInstancesListRequest(grok, options.id, options.name, options.format)
+      handleInstancesListRequest(grok,
+                                 options.id,
+                                 options.name,
+                                 options.region,
+                                 options.format)
 
   else:
     printHelpAndExit()
