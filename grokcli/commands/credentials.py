@@ -22,7 +22,7 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s GROK_SERVER [OPTIONS]
+USAGE = """%s GROK_SERVER_URL [OPTIONS]
 
 Add AWS credentials to a Grok server configuration.
 """.strip() % subCommand

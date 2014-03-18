@@ -21,7 +21,7 @@ if __name__ == "__main__":
 else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
-USAGE = """%s GROK_SERVER GROK_API_KEY
+USAGE = """%s [GROK_SERVER_URL GROK_API_KEY]
 
 Export Grok model definitions.
 """.strip() % subCommand

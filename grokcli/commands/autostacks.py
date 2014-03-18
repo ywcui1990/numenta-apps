@@ -25,7 +25,7 @@ else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
 USAGE = """%s (stacks|metrics|instances) (list|create|delete|add|remove) \
-GROK_SERVER GROK_API_KEY [options]
+[GROK_SERVER_URL GROK_API_KEY] [options]
 
 Browse...
 """.strip() % subCommand
