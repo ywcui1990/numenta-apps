@@ -28,7 +28,7 @@ else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
 USAGE = """%s (metrics|instances) (list|monitor|unmonitor) \
-GROK_SERVER GROK_API_KEY [options]
+[GROK_SERVER_URL GROK_API_KEY] [options]
 
 Create Grok cloudwatch model
 """.strip() % subCommand

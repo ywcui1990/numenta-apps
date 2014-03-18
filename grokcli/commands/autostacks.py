@@ -25,7 +25,7 @@ else:
   subCommand = "%%prog %s" % __name__.rpartition('.')[2]
 
 USAGE = """%s (stacks|metrics|instances) (list|create|delete|add|remove) \
-GROK_SERVER GROK_API_KEY [options]
+[GROK_SERVER_URL GROK_API_KEY] [options]
 
 Browse...
 """.strip() % subCommand
@@ -191,8 +191,9 @@ def handle(options, args):
       if not (options.name and options.region and options.filters):
         printHelpAndExit()
 
+      filters = json.loads(options.filters)
       handleCreateRequest(grok,
-                          options.name, options.region, options.filters)
+                          options.name, options.region, filters)
 
     elif action == "delete":
       if not (options.id or (options.name and options.region)):
