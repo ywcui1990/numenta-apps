@@ -120,7 +120,9 @@ class GrokSession(Session):
     elif 300 <= response.status_code < 400:
       raise InvalidGrokHostError("Invalid protocol")
 
-    raise InvalidCredentialsError("Unable to verify credentials.")
+    raiseError(InvalidCredentialsError,
+               "Unable to verify credentials.",
+               response)
 
 
   def updateSettings(self, settings, section=None, **kwargs):
@@ -140,7 +142,7 @@ class GrokSession(Session):
     if response.status_code == 204:
       return
 
-    raise GrokCLIError("Unable to update settings.")
+    raiseError(GrokCLIError, "Unable to update settings.", response)
 
 
   def listMetricDatasources(self, **kwargs):
@@ -154,6 +156,8 @@ class GrokSession(Session):
     if response.status_code == 200:
       return json.loads(response.text)
 
+    raiseError(GrokCLIError, "Unable to list metric datasources.", response)
+
 
   def listMetrics(self, datasource, **kwargs):
 
@@ -165,6 +169,8 @@ class GrokSession(Session):
 
     if response.status_code == 200:
       return json.loads(response.text)
+
+    raiseError(GrokCLIError, "Unable to list metrics.", response)
 
 
   def listCloudwatchMetrics(self, region, namespace=None, instance=None,
@@ -189,7 +195,7 @@ class GrokSession(Session):
     if response.status_code == 200:
       return json.loads(response.text)
 
-    raise GrokCLIError("Unable to find metrics")
+    raiseError(GrokCLIError, "Unable to list metrics.", response)
 
 
   def listAutostackMetrics(self, stackID, **kwargs):
@@ -203,6 +209,8 @@ class GrokSession(Session):
     if response.status_code == 200:
       return json.loads(response.text)
 
+    raiseError(GrokCLIError, "Unable to list metrics.", response)
+
 
   def listModels(self, **kwargs):
 
@@ -214,6 +222,8 @@ class GrokSession(Session):
 
     if response.status_code == 200:
       return json.loads(response.text)
+
+    raiseError(GrokCLIError, "Unable to list models.", response)
 
 
   def listInstances(self, **kwargs):
@@ -227,6 +237,8 @@ class GrokSession(Session):
     if response.status_code == 200:
       return json.loads(response.text)
 
+    raiseError(GrokCLIError, "Unable to list instances.", response)
+
 
   def listAutostackInstances(self, stackID, **kwargs):
 
@@ -238,6 +250,8 @@ class GrokSession(Session):
 
     if response.status_code == 200:
       return json.loads(response.text)
+
+    raiseError(GrokCLIError, "Unable to list instances.", response)
 
 
   def listAutostacks(self, **kwargs):
@@ -251,6 +265,8 @@ class GrokSession(Session):
     if response.status_code == 200:
       return json.loads(response.text)
 
+    raiseError(GrokCLIError, "Unable to list autostacks.", response)
+
 
   def exportModels(self, **kwargs):
 
@@ -263,6 +279,8 @@ class GrokSession(Session):
     if response.status_code == 200:
       return json.loads(response.text)
 
+    raiseError(GrokCLIError, "Unable to export models.", response)
+
 
   def exportModel(self, modelId, **kwargs):
 
@@ -274,6 +292,8 @@ class GrokSession(Session):
 
     if response.status_code == 200:
       return json.loads(response.text)
+
+    raiseError(GrokCLIError, "Unable to export model.", response)
 
 
   def createModels(self, nativeMetric, **kwargs):
@@ -290,7 +310,7 @@ class GrokSession(Session):
     if response.status_code == 201:
       return json.loads(response.text)
 
-    raise GrokCLIError("Unable to create models")
+    raiseError(GrokCLIError, "Unable to create models.", response)
 
 
   def createModel(self, nativeMetric, **kwargs):
@@ -306,7 +326,7 @@ class GrokSession(Session):
     if response.status_code == 201:
       return json.loads(response.text)
 
-    raise GrokCLIError("Unable to create model")
+    raiseError(GrokCLIError, "Unable to create model.", response)
 
 
   def createInstance(self, region, namespace, instanceID, **kwargs):
@@ -322,7 +342,7 @@ class GrokSession(Session):
     if response.status_code == 200:
       return json.loads(response.text)
 
-    raise GrokCLIError("Unable to create instance")
+    raiseError(GrokCLIError, "Unable to create instance.", response)
 
 
   def createAutostack(self, name, region, filters, **kwargs):
@@ -343,7 +363,7 @@ class GrokSession(Session):
     if response.status_code == 201:
       return json.loads(response.text)
 
-    raise GrokCLIError("Unable to create autostack")
+    raiseError(GrokCLIError, "Unable to create autostack.", response)
 
 
   def addMetricToAutostack(self, stackID, metricNamespace, metricName, **kwargs):
@@ -360,7 +380,7 @@ class GrokSession(Session):
     if response.status_code == 201:
       return
 
-    raise GrokCLIError("Unable to add metric to autostack")
+    raiseError(GrokCLIError, "Unable to add metric to autostack.", response)
 
 
   def deleteModel(self, metricID, **kwargs):
@@ -375,7 +395,7 @@ class GrokSession(Session):
     if response.status_code == 200:
       return json.loads(response.text)
 
-    raise GrokCLIError("Unable to delete model")
+    raiseError(GrokCLIError, "Unable to delete model.", response)
 
 
   def deleteInstance(self, serverName, **kwargs):
@@ -391,7 +411,7 @@ class GrokSession(Session):
     if response.status_code == 200:
       return json.loads(response.text)
 
-    raise GrokCLIError("Unable to delete instance")
+    raiseError(GrokCLIError, "Unable to delete instance.", response)
 
 
   def deleteAutostack(self, stackID, **kwargs):
@@ -406,7 +426,7 @@ class GrokSession(Session):
     if response.status_code == 204:
       return
 
-    raise GrokCLIError("Unable to delete autostack")
+    raiseError(GrokCLIError, "Unable to delete autostack.", response)
 
 
   def removeMetricFromAutostack(self, stackID, metricID, **kwargs):
@@ -421,7 +441,13 @@ class GrokSession(Session):
     if response.status_code == 204:
       return
 
-    raise GrokCLIError("Unable to remove metric from autostack")
+    raiseError(GrokCLIError, "Unable to remove metric from autostack.",
+               response)
+
+
+
+def raiseError(error, message, response):
+  raise error("{0}\nMessage: {1}".format(message, response.text))
 
 
 
