@@ -240,13 +240,14 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
 
 Manage autostacks.
 
-To create autostack:
+To create an autostack:
 
     grok autostack stacks create [GROK_SERVER_URL GROK_API_KEY] --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
 
 You can use any AWS tag for FILTER_NAME. The FILTER_VALUE is an AWS-specific
 wildcard, not a full-fledged regular expression. * matches any number of characters
-and ? matches any single character.
+and ? matches any single character. The filter name and value are both
+case-sensitive.
 
 For example, "jenkins-*" and "jenkins-??????" both match "jenkins-master".
 

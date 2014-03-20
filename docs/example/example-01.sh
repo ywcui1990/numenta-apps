@@ -92,7 +92,8 @@ sanity_check_configuration() {
 set_server_credentials() {
   grok credentials ${GROK_SERVER} \
     --AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
-    --AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    --AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+    --accept-eula
 }
 
 monitor_instances() {
