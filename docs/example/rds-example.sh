@@ -30,23 +30,21 @@ show_credential_usage() {
 
 show_help() {
   show_credential_usage
-  echo "$0 -s https://your.grok.server -r AWS_REGION -i instance-id01 -i instance-id02 -g AUTO_SCALE_GROUPNAME"
+  echo "$0 -s https://your.grok.server -r AWS_REGION -d RDS_SERVER"
   echo
   echo "If you are working with a running server, add -a API_KEY"
   echo
 }
 
 parse_cli(){
-  while getopts "ha:g:i:r:s:" opt; do
+  while getopts "ha:d:r:s:" opt; do
     case "$opt" in
       h) show_help
          exit 0
          ;;
       a) GROK_API_KEY="$OPTARG"
          ;;
-      g) AUTO_SCALE_GROUP_ID="$AUTO_SCALE_GROUP_ID $OPTARG"
-         ;;
-      i) INSTANCES_TO_MONITOR="$INSTANCES_TO_MONITOR $OPTARG"
+      d) RDS_SERVER_LIST="$RDS_SERVER_LIST $OPTARG"
          ;;
       r) AWS_REGION="$OPTARG"
          ;;
@@ -65,8 +63,8 @@ sanity_check_configuration() {
     show_credential_usage
     exit 1
   fi
-  if [ "$INSTANCES_TO_MONITOR" == "" ]; then
-    echo "You must specify at least one instance id with -i"
+  if [ "$RDS_SERVER_LIST" == "" ]; then
+    echo "You must specify at least one RDS instance with -d"
     show_help
     exit 1
   fi
@@ -96,58 +94,14 @@ set_server_credentials() {
     --accept-eula
 }
 
-monitor_instances() {
-  for instance in ${INSTANCES_TO_MONITOR}
+monitor_rds_instances() {
+  for instance in ${RDS_SERVER_LIST}
   do
-    echo "Monitoring ${instance} in ${AWS_REGION}"
+    echo "Monitoring ${instance} RDS instance in ${AWS_REGION}"
     grok cloudwatch instances monitor ${GROK_SERVER} ${GROK_API_KEY} \
-      --namespace='AWS/EC2' \
+      --namespace='AWS/RDS' \
       --region=${AWS_REGION} \
       --instance=${instance}
-  done
-}
-
-add_example_autostack() {
-  echo "Adding autostacks..."
-  for autostack in ${AUTO_SCALE_GROUP_ID}
-  do
-    echo "Creating autostack ${autostack}..."
-    # First, create the autostack
-    printf -v aws_filter "[[\"aws:autoscaling:groupName\",\"%s\"]]" ${autostack}
-    grok autostacks stacks create ${GROK_SERVER} ${GROK_API_KEY} \
-       --name="${autostack}" \
-       --region="${AWS_REGION}" \
-       --filters=$aws_filter
-    # List the instances in the autostack
-    echo "Found the following instances for ${autostack}"
-    grok autostacks instances list ${GROK_SERVER} ${GROK_API_KEY} \
-       --name="${autostack}" \
-       --region="${AWS_REGION}"
-
-    # Add a default set of metrics like the Web UI does
-    # Network
-    echo "Adding NetworkIn metric"
-    grok autostacks metrics add ${GROK_SERVER} ${GROK_API_KEY} \
-      --name="${autostack}" \
-      --region="${AWS_REGION}" \
-      --name="${autostack}" \
-      --metric_namespace='AWS/EC2' --metric_name=NetworkIn
- 
-    # Disk writes
-    echo "Adding DiskWriteBytes metric"
-    grok autostacks metrics add ${GROK_SERVER} ${GROK_API_KEY} \
-      --name="${autostack}" \
-      --region="${AWS_REGION}" \
-      --name="${autostack}" \
-      --metric_namespace='AWS/EC2' --metric_name=DiskWriteBytes
- 
-    # And CPU
-    echo "Adding CPUUtilization metric"
-    grok autostacks metrics add ${GROK_SERVER} ${GROK_API_KEY} \
-      --name="${autostack}" \
-      --region="${AWS_REGION}" \
-      --name="${autostack}" \
-      --metric_namespace='AWS/EC2' --metric_name=CPUUtilization
   done
 }
 
@@ -159,10 +113,7 @@ configure_grok_server() {
   else
     echo "Using preset GROK_API_KEY: ${GROK_API_KEY}"
   fi
-  monitor_instances
-  if [ ! -z $AUTO_SCALE_GROUP_ID ]; then
-    add_example_autostack
-  fi
+  monitor_rds_instances
 }
 
 parse_cli $*
@@ -171,11 +122,6 @@ sanity_check_configuration
 echo "Configuring ${GROK_SERVER}..."
 configure_grok_server
 echo
-
 echo "Instances monitored:"
 grok instances list ${GROK_SERVER} ${GROK_API_KEY}
-echo
-
-echo "Autostacks monitored: "
-grok autostacks stacks list ${GROK_SERVER} ${GROK_API_KEY} --region=${AWS_REGION}
 echo
