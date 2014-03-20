@@ -13,6 +13,7 @@
 """
 
 import sys
+import time
 
 from grokcli.api import GrokSession
 try:

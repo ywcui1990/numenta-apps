@@ -111,7 +111,7 @@ def handleCreateRequest(grok, name, region, filters):
 def handleDeleteRequest(grok, stackID, stackName, region):
   if not stackID:
     stackID = findStackByName(grok, stackName, region)
-  
+
   grok.deleteAutostack(stackID)
 
 
@@ -203,7 +203,7 @@ def handle(options, args):
 
     else:
       printHelpAndExit()
-      
+
   elif resource == "metrics":
 
     if not (options.id or (options.name and options.region)):
