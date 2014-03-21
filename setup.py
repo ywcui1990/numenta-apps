@@ -6,6 +6,7 @@
 # may be used, reproduced, stored or distributed in any form,
 # without explicit written authorization from Numenta Inc.
 #-------------------------------------------------------------------------------
+import sys
 from setuptools import find_packages, setup
 
 
@@ -48,5 +49,7 @@ setup(
   version = version["__version__"]
 )
 
-printTerms()
-printRegisterHint()
+if "sdist" not in sys.argv:
+  # Don't print terms or registration hint when building Python distribution
+  printTerms()
+  printRegisterHint()
