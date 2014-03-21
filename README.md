@@ -238,57 +238,58 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
 
 - `grok autostacks`
 
-Manage autostacks.
+  Manage autostacks.
 
-To create autostack:
+  To create autostack:
 
-    grok autostack stacks create [GROK_SERVER_URL GROK_API_KEY] --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
+      grok autostack stacks create [GROK_SERVER_URL GROK_API_KEY] --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
 
-To list autostacks:
+  To list autostacks:
 
-    grok autostack stacks list [GROK_SERVER_URL GROK_API_KEY]
+      grok autostack stacks list [GROK_SERVER_URL GROK_API_KEY]
 
-To delete autostack:
+  To delete autostack:
 
-    grok autostack stacks delete [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
+      grok autostack stacks delete [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
 
-or:
+  or:
 
-    grok autostack stacks delete [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
+      grok autostack stacks delete [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
 
-To add metric type(s) monitored by AutoStack:
+  To add metric type(s) monitored by AutoStack:
 
-    grok autostack metrics add [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
+      grok autostack metrics add [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
 
-or:
+  or:
 
-    grok autostack metrics add [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
+      grok autostack metrics add [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
 
-To list metric type(s) monitored by AutoStack:
+  To list metric type(s) monitored by AutoStack:
 
-    grok autostack metrics list [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
+      grok autostack metrics list [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
 
-or:
+  or:
 
-    grok autostack metrics list [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
+      grok autostack metrics list [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
 
-To remove metric type(s) monitored by AutoStack:
+  To remove metric type(s) monitored by AutoStack:
 
-    grok autostack metrics remove [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION --metric_id=METRIC_ID
+      grok autostack metrics remove [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION --metric_id=METRIC_ID
 
-or:
+  or:
 
-    grok autostack metrics remove [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID --metric_id=METRIC_ID
+      grok autostack metrics remove [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID --metric_id=METRIC_ID
 
-To list EC2 Instances associated with an AutoStack(s):
+  To list EC2 Instances associated with an AutoStack(s):
 
-    grok autostack instances list [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
+      grok autostack instances list [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
 
-or:
+  or:
 
-    grok autostack instances list [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
+      grok autostack instances list [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
 
-*Note to developers:*
+Note to developers
+------------------
 
 To add a command, create a python module in
 [grokcli/commands/](grokcli/commands) with a `handle()` function which accepts
