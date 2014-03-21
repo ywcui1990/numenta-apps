@@ -110,12 +110,13 @@ def handle(options, args):
     sys.exit(1)
 
   if not options.acceptEULA:
-    print ("Please read and accept the product End User License Agreement "
-           "(EULA) before proceeding.\n"
-           "The EULA can be found here: "
-           "https://aws.amazon.com/marketplace/agreement?asin=B00I18SNQ6\n\n"
-           "To accept the EULA, re-run this command with the "
-           "--accept-eula option.")
+    print >> sys.stderr, (
+            "Please read and accept the product End User License Agreement "
+            "(EULA) before proceeding.\n"
+            "The EULA can be found here: "
+            "https://aws.amazon.com/marketplace/agreement?asin=B00I18SNQ6\n\n"
+            "To accept the EULA, re-run this command with the "
+            "--accept-eula option.")
     sys.exit(1)
 
   credentials = {
