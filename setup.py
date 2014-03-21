@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# Copyright (C) 2013 Numenta Inc. All rights reserved.
+# Copyright (C) 2013-2014 Numenta Inc. All rights reserved.
 #
 # The information and source code contained herein is the
 # exclusive property of Numenta Inc.  No part of this software
@@ -31,13 +31,16 @@ setup(
   name = "grokcli",
   description = "Grok Command Line Interface",
   classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
     "Intended Audience :: Developers",
-    "Programming Language :: Python",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 2",
-    "Topic :: Software Development :: Libraries"],
-  keywords = "grok",
-  author = "Austin Marshall",
-  author_email = "amarshall@groksolutions.com",
+    "Topic :: Utilities"],
+  keywords = "grok, numenta, anomaly detection, monitoring",
+  author = "Austin Marshall, Chetan Surpur",
+  author_email = "amarshall@numenta.com, csurpur@numenta.com",
   packages = find_packages(),
   entry_points = {"console_scripts": ["grok = grokcli:main"]},
   install_requires = requirements,
