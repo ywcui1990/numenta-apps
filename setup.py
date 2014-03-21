@@ -69,6 +69,14 @@
   Or, from PyPi, assuming the wheels have been uploaded to PyPi:
 
       pip install --use-wheel grokcli
+
+
+  Uploading to PyPi
+  -----------------
+
+  Build and upload source, egg, and wheel distributions to PyPi:
+
+      python setup.py sdist bdist_wheel bdist_egg upload
 """
 import sys
 from setuptools import find_packages, setup
