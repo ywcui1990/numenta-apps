@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-------------------------------------------------------------------------------
-# Copyright (C) 2013 Numenta Inc. All rights reserved.
+# Copyright (C) 2013-2014 Numenta Inc. All rights reserved.
 #
 # The information and source code contained herein is the
 # exclusive property of Numenta Inc.  No part of this software
@@ -52,7 +52,7 @@ def main():
   if subcommand == "--version":
     print(__version__.__version__)
     sys.exit()
-  
+
   submodule = commands.get(subcommand, sys.modules[__name__])
 
   (options, args) = submodule.parser.parse_args(sys.argv[1:])
