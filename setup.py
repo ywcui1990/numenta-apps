@@ -95,6 +95,7 @@ execfile("grokcli/__version__.py", {}, version)
 setup(
   name = "grokcli",
   description = "Grok Command Line Interface",
+  url = "https://github.com/groksolutions/grok-cli",
   classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
