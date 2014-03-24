@@ -240,15 +240,33 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
 
   Manage autostacks.
 
-  To create autostack:
+To create an autostack:
 
       grok autostacks stacks create [GROK_SERVER_URL GROK_API_KEY] --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
 
-  To list autostacks:
+You can use any AWS tag for FILTER_NAME. The FILTER_VALUE is an AWS-specific
+wildcard, not a full-fledged regular expression. * matches any number of characters
+and ? matches any single character. The filter name and value are both
+case-sensitive.
+
+For example, "jenkins-*" and "jenkins-??????" both match "jenkins-master".
+
+You can use any AWS tag for the first component of a filter, though for
+optimal performance we recommend that the first tag/value pair specified be
+the one that eliminates the most instances. Because AWS only supports OR
+operations at this time, we have to implement the AND (intersection) operation
+locally. Our implementation sends the first tag/value to AWS, gets all the
+matching instances, and then filters them against the remaining tag/value
+filters locally.
+
+This does not create any metrics for the new autostack. You must create metrics
+for the new autostack with grok autostacks metrics add (see below)
+
+  To list AutoStacks:
 
       grok autostacks stacks list [GROK_SERVER_URL GROK_API_KEY]
 
-  To delete autostack:
+  To delete an AutoStack:
 
       grok autostacks stacks delete [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
 
@@ -256,7 +274,7 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
 
       grok autostacks stacks delete [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
 
-  To add metric type(s) monitored by AutoStack:
+  To add metric type(s) monitored by an AutoStack:
 
       grok autostacks metrics add [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
 
@@ -264,7 +282,7 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
 
       grok autostacks metrics add [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
 
-  To list metric type(s) monitored by AutoStack:
+  To list metric type(s) monitored by an AutoStack:
 
       grok autostacks metrics list [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
 
@@ -272,7 +290,7 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
 
       grok autostacks metrics list [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
 
-  To remove metric type(s) monitored by AutoStack:
+  To remove metric type(s) monitored by an AutoStack:
 
       grok autostacks metrics remove [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION --metric_id=METRIC_ID
 
