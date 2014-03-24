@@ -30,9 +30,13 @@ show_credential_usage() {
 
 show_help() {
   show_credential_usage
-  echo "$0 -s https://your.grok.server -r AWS_REGION -i instance-id01 -i instance-id02 -g AUTO_SCALE_GROUPNAME"
+  echo "$0 -s https://your.grok.server -r AWS_REGION -g serverType"
   echo
   echo "If you are working with a running server, add -a API_KEY"
+  echo
+  echo "This example script assumes you have instances with a server:type tag,"
+  echo "an environment tag, and that there are nodes with environment set"
+  echo "to production."
   echo
 }
 
@@ -95,7 +99,7 @@ add_example_autostack() {
   do
     echo "Creating autostack ${autostack}..."
     # First, create the autostack
-    printf -v aws_filter "[[\"aws:autoscaling:groupName\",\"%s\"]]" ${autostack}
+    printf -v aws_filter "[[\"server:type\",\"%s\"],[\"environment\",\"production\"]]" ${autostack}
     grok autostacks stacks create ${GROK_SERVER} ${GROK_API_KEY} \
        --name="${autostack}" \
        --region="${AWS_REGION}" \
