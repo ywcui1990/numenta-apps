@@ -1,12 +1,19 @@
 #!/usr/bin/env python
-#-------------------------------------------------------------------------------
-# Copyright (C) 2013 Numenta Inc. All rights reserved.
+#------------------------------------------------------------------------------
+# Copyright 2013-2014 Numenta Inc.
 #
-# The information and source code contained herein is the
-# exclusive property of Numenta Inc.  No part of this software
-# may be used, reproduced, stored or distributed in any form,
-# without explicit written authorization from Numenta Inc.
-#-------------------------------------------------------------------------------
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#------------------------------------------------------------------------------
 import socket
 import sys
 
@@ -110,12 +117,13 @@ def handle(options, args):
     sys.exit(1)
 
   if not options.acceptEULA:
-    print ("Please read and accept the product End User License Agreement "
-           "(EULA) before proceeding.\n"
-           "The EULA can be found here: "
-           "https://aws.amazon.com/marketplace/agreement?asin=B00I18SNQ6\n\n"
-           "To accept the EULA, re-run this command with the "
-           "--accept-eula option.")
+    print >> sys.stderr, (
+            "Please read and accept the product End User License Agreement "
+            "(EULA) before proceeding.\n"
+            "The EULA can be found here: "
+            "https://aws.amazon.com/marketplace/agreement?asin=B00I18SNQ6\n\n"
+            "To accept the EULA, re-run this command with the "
+            "--accept-eula option.")
     sys.exit(1)
 
   credentials = {

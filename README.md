@@ -238,11 +238,11 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
 
 - `grok autostacks`
 
-Manage autostacks.
+  Manage autostacks.
 
 To create an autostack:
 
-    grok autostack stacks create [GROK_SERVER_URL GROK_API_KEY] --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
+      grok autostacks stacks create [GROK_SERVER_URL GROK_API_KEY] --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
 
 You can use any AWS tag for FILTER_NAME. The FILTER_VALUE is an AWS-specific
 wildcard, not a full-fledged regular expression. * matches any number of characters
@@ -262,54 +262,73 @@ filters locally.
 This does not create any metrics for the new autostack. You must create metrics
 for the new autostack with grok autostacks metrics add (see below)
 
-To list autostacks:
+  To list AutoStacks:
 
-    grok autostack stacks list [GROK_SERVER_URL GROK_API_KEY]
+      grok autostacks stacks list [GROK_SERVER_URL GROK_API_KEY]
 
-To delete autostack:
+  To delete an AutoStack:
 
-    grok autostack stacks delete [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
+      grok autostacks stacks delete [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
 
-or:
+  or:
 
-    grok autostack stacks delete [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
+      grok autostacks stacks delete [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
 
-To add metric type(s) monitored by AutoStack:
+  To add metric type(s) monitored by an AutoStack:
 
-    grok autostack metrics add [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
+      grok autostacks metrics add [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
 
-or:
+  or:
 
-    grok autostack metrics add [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
+      grok autostacks metrics add [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID --metric_namespace=METRIC_NAMESPACE --metric_name=METRIC_NAME
 
-To list metric type(s) monitored by AutoStack:
+  To list metric type(s) monitored by an AutoStack:
 
-    grok autostack metrics list [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
+      grok autostacks metrics list [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
 
-or:
+  or:
 
-    grok autostack metrics list [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
+      grok autostacks metrics list [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
 
-To remove metric type(s) monitored by AutoStack:
+  To remove metric type(s) monitored by an AutoStack:
 
-    grok autostack metrics remove [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION --metric_id=METRIC_ID
+      grok autostacks metrics remove [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION --metric_id=METRIC_ID
 
-or:
+  or:
 
-    grok autostack metrics remove [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID --metric_id=METRIC_ID
+      grok autostacks metrics remove [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID --metric_id=METRIC_ID
 
-To list EC2 Instances associated with an AutoStack(s):
+  To list EC2 Instances associated with an AutoStack(s):
 
-    grok autostack instances list [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
+      grok autostacks instances list [GROK_SERVER_URL GROK_API_KEY] --name=STACK_NAME --region=REGION
 
-or:
+  or:
 
-    grok autostack instances list [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
+      grok autostacks instances list [GROK_SERVER_URL GROK_API_KEY] --id=STACK_ID
 
-*Note to developers:*
+Note to developers
+------------------
 
 To add a command, create a python module in
 [grokcli/commands/](grokcli/commands) with a `handle()` function which accepts
 two arguments: `options`, and `args`.  Register the command by importing the
 module in [grokcli/commands/\_\_init\_\_.py](grokcli/commands/__init__.py) and
 adding it to `__all__`.
+
+License
+-------
+
+Copyright 2013-2014 Numenta Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
