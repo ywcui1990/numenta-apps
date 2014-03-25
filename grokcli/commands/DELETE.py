@@ -65,7 +65,7 @@ def handle(options, args):
 
   response = None
   if data.strip() == "-" or not data:
-    if select.select([sys.stdin,],[],[],0.0)[0]:
+    if select.select([sys.stdin], [], [], 0.0)[0]:
       response = delete(data=sys.stdin)
     else:
       response = delete()
