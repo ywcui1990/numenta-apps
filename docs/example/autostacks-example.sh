@@ -106,7 +106,7 @@ add_example_autostack() {
   do
     echo "Creating autostack ${autostack}..."
     # First, create the autostack
-    printf -v aws_filter "[[\"server:type\",\"%s\"],[\"environment\",\"production\"]]" ${autostack}
+    printf -v aws_filter '{"tag:server:type":["%s"], "tag:environment":["production"]}' ${autostack}
     grok autostacks stacks create ${GROK_SERVER} ${GROK_API_KEY} \
        --name="${autostack}" \
        --region="${AWS_REGION}" \
@@ -125,7 +125,7 @@ add_example_autostack() {
       --region="${AWS_REGION}" \
       --name="${autostack}" \
       --metric_namespace='AWS/EC2' --metric_name=NetworkIn
- 
+
     # Disk writes
     echo "Adding DiskWriteBytes metric"
     grok autostacks metrics add ${GROK_SERVER} ${GROK_API_KEY} \
