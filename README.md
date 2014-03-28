@@ -242,7 +242,7 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
 
 To create an autostack:
 
-      grok autostacks stacks create [GROK_SERVER_URL GROK_API_KEY] --name=NAME --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
+      grok autostacks stacks create [GROK_SERVER_URL GROK_API_KEY] --name=NAME --region=REGION --filters='{"tag:FILTER_NAME": ["FILTER_VALUE"]}'
 
 You can use any AWS tag for FILTER_NAME. The FILTER_VALUE is an AWS-specific
 wildcard, not a full-fledged regular expression. * matches any number of characters
