@@ -58,6 +58,12 @@ parser.add_option(
   dest="filters",
   help='Filters (required for create)')
 parser.add_option(
+  "--preview",
+  dest="preview",
+  action="store_true",
+  default=False,
+  help='Preview (use with create)')
+parser.add_option(
   "--metric_id",
   dest="metricID",
   help='Metric ID (required for metrics remove)')
@@ -105,6 +111,25 @@ def handleListRequest(grok, fmt):
     table.add_column("Name", [x['name'] for x in stacks])
     table.add_column("Region", [x['region'] for x in stacks])
     table.add_column("Filters", [x['filters'] for x in stacks])
+
+    table.align = "l"  # left align
+    print(table)
+
+
+def handlePreviewRequest(grok, fmt, region, filters):
+  instances = grok.previewAutostack(region, filters)
+
+  if fmt == "json":
+    print(json.dumps(instances))
+  else:
+    table = PrettyTable()
+
+    table.add_column("ID", [x['instanceID'] for x in instances])
+    table.add_column("Instance",
+                     [x['tags']['Name'] if 'Name' in x['tags'] else ''
+                     for x in instances])
+    table.add_column("Region", [x['regionName'] for x in instances])
+    table.add_column("State", [x['state'] for x in instances])
 
     table.align = "l"  # left align
     print(table)
@@ -194,12 +219,20 @@ def handle(options, args):
       handleListRequest(grok, options.format)
 
     elif action == "create":
-      if not (options.name and options.region and options.filters):
+      if not (options.region and options.filters):
         printHelpAndExit()
 
       filters = json.loads(options.filters)
-      handleCreateRequest(grok,
-                          options.name, options.region, filters)
+
+      if options.preview:
+        handlePreviewRequest(grok, options.format,
+                             options.region, filters)
+      else:
+        if not options.name:
+          printHelpAndExit()
+
+        handleCreateRequest(grok,
+                            options.name, options.region, filters)
 
     elif action == "delete":
       if not (options.id or (options.name and options.region)):
