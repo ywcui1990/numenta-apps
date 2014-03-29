@@ -262,6 +262,10 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
   This does not create any metrics for the new autostack. You must create metrics
   for the new autostack with grok autostacks metrics add (see below)
 
+  To preview an autostack:
+
+      grok autostacks stacks create [GROK_SERVER_URL GROK_API_KEY] --preview --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
+
   To list AutoStacks:
 
       grok autostacks stacks list [GROK_SERVER_URL GROK_API_KEY]
