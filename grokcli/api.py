@@ -352,6 +352,22 @@ class GrokSession(Session):
     raiseError(GrokCLIError, "Unable to create instance.", response)
 
 
+  def previewAutostack(self, region, filters, **kwargs):
+    params = "?region={0}&filters={1}".format(region, json.dumps(filters))
+    url = self.server + "/_autostacks/preview_instances" + params
+
+    response = self._request(
+      method="GET",
+      url=url,
+      auth=self.auth,
+      **kwargs)
+
+    if response.status_code == 200:
+      return json.loads(response.text)
+
+    raiseError(GrokCLIError, "Unable to preview autostack.", response)
+
+
   def createAutostack(self, name, region, filters, **kwargs):
     url = self.server + "/_autostacks"
     stack = {
