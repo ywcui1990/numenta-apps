@@ -26,6 +26,9 @@ The data is uploaded as two separate Datadog metrics. One for the values and one
 for the anomaly scores. The Grok metric server is used as the Datadog host. The
 Grok metric name is combined with either ".value" or ".anomalyScore" to make up
 the Datadog metric name.
+
+Note: This sample requires the `dogapi` library, which can be installed with
+the samples bundle: `pip install grokcli[samples]`.
 """
 
 import calendar
