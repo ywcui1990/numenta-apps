@@ -125,7 +125,7 @@ setup(
   packages = find_packages(),
   entry_points = {"console_scripts": ["grok = grokcli:main"]},
   install_requires = requirements,
-  extras_require = {"docs": ["sphinx"]},
+  extras_require = {"docs": ["sphinx"], "samples": ["dogapi"]},
   version = version["__version__"]
 )
 
