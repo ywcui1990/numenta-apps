@@ -49,9 +49,9 @@ from grokcli.api import GrokSession
 def _getMetricServerAndName(grok, metricId):
   """Gets the server and metric names for the metric with the given ID.
 
-  @param grok the GrokSession instance
-  @param metricId the Grok metric ID for the desired metric
-  @return the server name and metric name for the Grok metric
+  :param grok: the GrokSession instance
+  :param metricId: the Grok metric ID for the desired metric
+  :return: the server name and metric name for the Grok metric
   """
   response = grok.get(grok.server + "/_models/" + metricId,
                       auth=grok.auth)
@@ -63,8 +63,8 @@ def _getMetricServerAndName(grok, metricId):
 def _tranformAnomalyScore(score):
   """Transform anomaly score to match Grok mobile bar height.
 
-  @param score the "anomaly_score" value returned by the Grok API
-  @returns the value corresponding to the height of the anomaly bars in Grok
+  :param score: the "anomaly_score" value returned by the Grok API
+  :return: the value corresponding to the height of the anomaly bars in Grok
       mobile
   """
   if score > 0.99999:
@@ -80,10 +80,10 @@ def _getMetricData(grok, metricId, numRecords):
   This includes a data transformation for the anomaly score to a value that
   matches the height of the bars in the mobile client.
 
-  @param grok the GrokSession instance
-  @param metricId the ID of the metric to get data for
-  @param numRecords the number of records to get from the API
-  @returns a 2-tuple of values and anomalies lists where each element in the
+  :param grok: the GrokSession instance
+  :param metricId: the ID of the metric to get data for
+  :param numRecords: the number of records to get from the API
+  :return: a 2-tuple of values and anomalies lists where each element in the
       lists is a 2-tuple containing the unix timestamp and the value
   """
   url = grok.server + "/_models/" + metricId + "/data"
