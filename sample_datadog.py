@@ -123,6 +123,12 @@ def sendDataToDatadog(datadogApiKey, grokServer, grokApiKey, numRecords,
   grok = GrokSession(server=grokServer, apikey=grokApiKey)
   server, metricName = _getMetricServerAndName(grok, metricId)
   valuesData, anomaliesData = _getMetricData(grok, metricId, numRecords)
+
+  # Hack to limit number of records for Grok instances prior to version 1.3
+  # that don't respect the limit parameter when getting metric data.
+  valuesData = valuesData[-numRecords:]
+  anomaliesData = anomaliesData[-numRecords:]
+
   print "Sending %i records for metric %s on server %s" % (
       len(valuesData), metricName, server)
   response = dog_http_api.metric(metricName + ".value", valuesData,
