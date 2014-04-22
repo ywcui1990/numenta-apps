@@ -264,7 +264,7 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
 
   To preview an autostack:
 
-      grok autostacks stacks create [GROK_SERVER_URL GROK_API_KEY] --preview --region=REGION --filters='[["FILTER_NAME", "FILTER_VALUE"]]'
+      grok autostacks stacks create [GROK_SERVER_URL GROK_API_KEY] --preview --region=REGION --filters='{"tag:FILTER_NAME": ["FILTER_VALUE"]}'
 
   To list AutoStacks:
 
