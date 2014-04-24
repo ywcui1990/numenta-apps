@@ -1,12 +1,14 @@
 Grok Command Line Interface
 ===========================
 
-Command line interface (CLI) tools for interacting with a Grok server.
+This repository contains the Grok Command line interface (CLI). `grokcli` allows you to easily interact with a Grok server through the command line including creating instances, etc.
 
-Requires: Python (2.6 or greater)
+In addition you can use `grokcli` to integrate with third party applications.  Included in `grokcli` is an integration with Datadog (see [Grok Integration With Datadog](docs/Grok-Integration-with-DataDog.pdf) for full details). See more details by running `python -m grokcli.datadog --help`.
 
 Installation
 ------------
+
+Requires: Python (2.6 or greater)
 
 - pip (recommended)
 
