@@ -61,6 +61,18 @@ if __name__ == "__main__":
              " Metrics endpoint" % METRIC_NAME)
 
     # Send model creation request to create a model connected to the metric
+    #
+    # NOTE: If you have less than 288 records in your datastream, you will need
+    # to include min/max values for your data
+    #
+    #   models = grok.createModel({"uid": uid, "datasource": "custom", 
+    #                              "min": 0, "max": 100}) 
+    #
+    # NOTE: Starting in 1.6 you can optionally include a unit of measurement
+    #
+    #   models = grok.createModel({"uid": uid, "datasource": "custom", 
+    #                              "min": 0, "max": 100, "unit": "percent"}) 
+    #
     models = grok.createModel({"uid": uid, "datasource": "custom"})
 
     model = models[0]
