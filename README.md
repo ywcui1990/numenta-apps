@@ -116,7 +116,8 @@ Each command takes `GROK_SERVER_URL` and `GROK_API_KEY` as the first two argumen
   running Grok server.  For example: https://ec2-AA-BB-CC-DD.us-west-2.compute.amazonaws.com
 
   The `GROK_API_KEY` positional argument is also required, and can be retrieved
-  from the web interface of a running Grok server.
+  from the web interface of a running Grok server. The API Key is synonymous with the mobile
+  password.
 
   The `FILE` positional argument is optional, however if it is not specified,
   `grok import` will assume `STDIN` if `-d` or `--data` is not specified.  The
