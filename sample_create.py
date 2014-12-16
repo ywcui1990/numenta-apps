@@ -55,7 +55,7 @@ if __name__ == "__main__":
         break
     else:
       print ('"%s" metric does not exist (yet).  You can create the metric by'
-             ' sending data to Grok.  See "sample-collect-data.py" for a'
+             ' sending data to Grok.  See "sample_collect_data.py" for a'
              " simple script that you can use to periodically sample open"
              " file  descriptors, and report the results to the Grok Custom"
              " Metrics endpoint" % METRIC_NAME)
@@ -68,12 +68,51 @@ if __name__ == "__main__":
     #   models = grok.createModel({"uid": uid, "datasource": "custom", 
     #                              "min": 0, "max": 100}) 
     #
-    # NOTE: Starting in 1.6 you can optionally include a unit of measurement
+    # NOTE: Starting in 1.6.1, there are additional features available. To make
+    # it easier to read, the options have been split into dicts. The old format
+    # will continue to work, but the new format provides for greater flexibility
+    # and better display.
+    #   {"datasource": "custom",  # required to define this as a custom metric
+    #    "metricSpec": {          # defines the metric details
+    #      "uid": uid,            # required; provided by the sample code above
+    #      "resource": "Name",    # optional; allows grouping custom metrics
+    #      "unit": "Unit Name"    # optional; defines the unit of measure
+    #     },
+    #    "modelParams": {         # optional; defines model parameters
+    #      "min": 0,              # optional; defines the min expected value
+    #      "max": 100,            # optional; defines the min expected value
+    #     }
+    #   }
+    # 
+    # The optional fields "resource" and "unit" are for display purposes only.
+    # If "resource" is provided, any custom metrics with the same value for this
+    # field will be grouped together in the UI.
+    # If "unit" is provided, the UI will include the unit of measure on the
+    # raw data charts.
     #
-    #   models = grok.createModel({"uid": uid, "datasource": "custom", 
-    #                              "min": 0, "max": 100, "unit": "percent"}) 
+    #   models = grok.createModel({"datasource": "custom",
+    #                              "metricSpec": {
+    #                                "uid": uid,
+    #                                "resource": "Open File Descriptors",
+    #                                "unit": "Files Open",
+    #                              },
+    #                              "modelParams": {
+    #                                "min": 0,
+    #                                "max": 20000,
+    #                              }
+    #                             })
     #
-    models = grok.createModel({"uid": uid, "datasource": "custom"})
+    models = grok.createModel({"datasource": "custom",
+                               "metricSpec": {
+                                 "uid": uid,
+                                 "resource": "My Resource Name",
+                                 "unit": "Files Open",
+                               },
+                               "modelParams": {
+                                 "min": 0,
+                                 "max": 20000,
+                               }
+                              })
 
     model = models[0]
     assert model["uid"] == uid
