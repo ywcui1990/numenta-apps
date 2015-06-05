@@ -258,11 +258,7 @@ def buildRpms(env, grokSha, releaseVersion,
             infrastuctureCommonPath = os.path.join(PRODUCTS_PATH,
                                                    "infrastructure",
                                                    "infrastructure")
-            env.update(
-              PYTHONPATH=prependPath(os.path.join(env["PRODUCTS"],
-                                                  "infrastructure"),
-                                     env["PYTHONPATH"])
-  )
+            
             command = ("%s/create-numenta-rpm" % infrastuctureCommonPath +
                        " --rpm-flavor grok" +
                        " --install-wheel " + wheelFilePath +

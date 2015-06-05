@@ -6,12 +6,10 @@ This file declares the third party open source dependencies this program has apa
 
 ## Python
 
-> This directory is missing defined python requirements.
-
 Package | Version | License
 ------- | ------- | -------
 agamotto | ? | [Apache 2.0 License](https://github.com/GrokSolutions/agamotto/blob/master/LICENSE)
-boto | ? | [License](https://github.com/boto/boto/blob/master/LICENSE)
-fabric | ? | [License](https://github.com/fabric/fabric/blob/master/LICENSE)
+boto | 2.38.0 | [License](https://github.com/boto/boto/blob/master/LICENSE)
+fabric | 1.9.0 | [License](https://github.com/fabric/fabric/blob/master/LICENSE)
 grok-cli | 1.1.1 | [Apache 2.0](https://github.com/GrokSolutions/grok-cli/blob/master/LICENSE)
-PyYAML | ? | [MIT License](http://pyyaml.org/browser/pyyaml/trunk/LICENSE)
+PyYAML | 3.10 | [MIT License](http://pyyaml.org/browser/pyyaml/trunk/LICENSE)

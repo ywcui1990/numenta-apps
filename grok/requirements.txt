@@ -10,6 +10,7 @@ validictory==0.9.1
 
 # Required by grok
 boto==2.38.0
+fabric==1.9.0
 msgpack-python==0.3.0
 paste==1.7.5.1
 pytz==2015.2
