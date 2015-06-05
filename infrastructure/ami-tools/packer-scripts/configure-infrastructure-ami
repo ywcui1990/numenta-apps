@@ -1,0 +1,67 @@
+#!/bin/bash
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+#
+# This script configures an Infrastructure AMI candidate by installing
+# the infrastructure repositories and base salt formulas.
+
+echo "Marking instance as being an Infrastructure AMI build..."
+AMIBUILD_LOCK=/tmp/baking-ami
+touch "${AMIBUILD_LOCK}"
+
+complain() {
+  echo "$@"
+  logger -t ami-bake "$@"
+}
+
+echo "Installing repos..."
+mv /tmp/*.repo /etc/yum.repos.d
+
+echo "Cleaning yum..."
+yum clean all
+
+echo "Installing minion formulas..."
+yum install -y minion-saltcellar
+
+# Ensure we have the latest glibc to protect against the GHOST vulnerability
+echo "Updating glibc"
+yum install -y glibc
+
+echo "Stopping Salt..."
+service salt-minion stop
+
+echo "Configuring Salt minion_id"
+echo
+echo "Setting Salt minion_id to role-infrastructure"
+echo role-infrastructure-ami > /etc/salt/minion_id
+
+echo "Purging salt minion key data..."
+rm -fr /etc/salt/pki/minion/*
+
+echo "Restarting salt minion..."
+service salt-minion restart
+
+echo "Running Salt..."
+salt-call --local state.highstate -l debug
+saltcode=$?
+echo
+echo "Salt run return code: ${saltcode}"
+exit "${saltcode}"

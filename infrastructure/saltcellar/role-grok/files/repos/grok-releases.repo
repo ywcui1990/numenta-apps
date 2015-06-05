@@ -1,0 +1,17 @@
+[grok-thirdparty]
+name=grok-thirdparty
+baseurl=http://yum.groksolutions.com.s3.amazonaws.com/s3/thirdparty
+gpgcheck=0
+priority=1
+s3_enabled=1
+key_id=AKIAIZFOXZD3U7GEURGA
+secret_key=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
+
+[grok-releases]
+name=grok-releases
+baseurl=http://yum.groksolutions.com.s3.amazonaws.com/s3/releases
+gpgcheck=0
+priority=1
+s3_enabled=1
+key_id=AKIAIZFOXZD3U7GEURGA
+secret_key=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

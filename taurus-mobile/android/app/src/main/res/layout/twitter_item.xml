@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Numenta Platform for Intelligent Computing (NuPIC)
+  ~ Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+  ~ Numenta, Inc. a separate commercial license for this software code, the
+  ~ following terms and conditions apply:
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License version 3 as
+  ~ published by the Free Software Foundation.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see http://www.gnu.org/licenses.
+  ~
+  ~ http://numenta.org/licenses/
+  ~
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/tweet_item"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="fill_parent">
+
+    <LinearLayout android:id="@+id/group_header"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+                  android:paddingLeft="5sp"
+                  android:paddingRight="5sp"
+                  android:paddingTop="2sp"
+                  android:paddingBottom="2sp"
+                  android:background="#e0e0e0">
+
+        <TextView android:id="@+id/date"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="left|center_vertical"
+                  android:textStyle="bold"
+                  android:layout_weight="0.1"
+                  android:textAppearance="@android:style/TextAppearance.Holo.Small"/>
+
+        <TextView android:id="@+id/tweet_count"
+                  android:textStyle="bold"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="left|center_vertical"
+                  android:textAppearance="@android:style/TextAppearance.Holo.Small"/>
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/tweet_header"
+                  android:layout_width="match_parent"
+                  android:orientation="horizontal"
+                  android:paddingLeft="5sp"
+                  android:paddingRight="5sp"
+                  android:layout_height="wrap_content">
+
+        <TextView android:id="@+id/user"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="left|center_vertical"
+                  android:layout_weight="0.1"
+                  android:textStyle="bold"
+                  android:textAppearance="@android:style/TextAppearance.Holo.Small"/>
+
+        <TextView android:id="@+id/retweet_total"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center_vertical"
+                  android:textStyle="bold"
+                  android:textSize="12sp"
+                  android:textAppearance="@android:style/TextAppearance.Holo.Small"/>
+
+        <ImageView android:id="@+id/retweet_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="12sp"
+                android:src="@drawable/ic_retweet"
+                android:layout_gravity="center_vertical"
+                android:paddingLeft="3sp"
+                android:paddingRight="3sp"/>
+
+        <TextView android:id="@+id/retweet_count"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center_vertical"
+                  android:textSize="12sp"
+                  android:textAppearance="@android:style/TextAppearance.Holo.Small"/>
+    </LinearLayout>
+
+    <TextView android:id="@+id/tweet_text"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:paddingLeft="5sp"
+              android:paddingRight="5sp"
+              android:textAppearance="@android:style/TextAppearance.Holo.Small"/>
+
+</LinearLayout>

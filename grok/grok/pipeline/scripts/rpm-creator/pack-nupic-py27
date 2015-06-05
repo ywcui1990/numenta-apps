@@ -1,0 +1,87 @@
+#!/bin/bash
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
+# TODO: https://jira.numenta.com/browse/TAUR-451 (Port this script to python)
+set -o pipefail
+set -o errexit
+
+function exit_if_error() {
+  EXIT_CODE=$?
+  if [[ $EXIT_CODE != 0 ]]; then
+    echo $1
+    exit $EXIT_CODE
+  fi
+}
+
+function clean_directories() {
+  rm -fr ${WORK_D}
+}
+
+function catch_sigint {
+  cleanup_directories
+  exit 1
+}
+
+function catch_sigterm {
+  cleanup_directories
+  exit 3
+}
+
+if [ "${2}" ]; then
+  NUPIC_VERSION=${2}
+fi
+
+if [ -z "$BUILDDISK" ]; then
+  BUILDDISK="/opt/build/"
+fi
+
+WORK_D=$(mktemp -d ${BUILDDISK}/build_nupic_py27.XXXX)
+
+mkdir -p ${WORK_D}
+
+trap "catch_sigint" SIGINT
+trap "catch_sigterm" SIGTERM
+
+export PATH=/opt/numenta/anaconda/bin:$PATH
+
+mkdir -p ${WORK_D}/nta
+rsync -av --exclude .git ${NUPIC} ${WORK_D}
+
+PYTHON_VERSION=`python -c 'import sys; print sys.version[:3]'`
+PACKAGE_NAME="nupic"
+
+if [ "${1}" ]; then
+  if [ "$PYTHON_VERSION" == "2.7" ]; then
+    PACKAGE_NAME="nupic-py27-${1}"
+  fi
+fi
+
+./rpm-creator.py --source-dir ${WORK_D} \
+  --repo-directory numenta \
+  --install-directory /opt \
+  --depends nupic-linux64-py27 \
+  --base-version ${NUPIC_VERSION} \
+  --debug 10 \
+  --package-name ${PACKAGE_NAME}
+exit_if_error "./rpm-creator.py failed in pack-nupic-py27"
+
+clean_directories

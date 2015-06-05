@@ -1,0 +1,223 @@
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
+# This file drives baking and validating the various AMI targets we use
+# at Numenta.
+#
+# Do `rake -T` to see what AMI configurations are available.
+
+CENTOS6_CONFIG="ami-configurations/centos6.json"
+GROK_PIPELINE_CONFIG="ami-configurations/grok-pipeline.json"
+GROK_PLUMBING_CONFIG="ami-configurations/grok-plumbing.json"
+INFRASTRUCTURE_CONFIG="ami-configurations/infrastructure-base.json"
+WEB_CONFIG="ami-configurations/salt-webserver.json"
+
+epel_rpm = "epel-release-6-8.noarch.rpm"
+epel_rpm_url = "http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
+s3_yum_plugin_rpm = "yum-s3-0.2.4-1.noarch.rpm"
+secretsauce_repo_f = "repos/secretsauce.repo"
+
+task :help do
+  sh %{ rake -T }
+end
+
+# task aliases
+task :clean => [:cleanup]
+task :default => [:help]
+task :grok => [:bake_grok_pipeline]
+task :h => [:help]
+task :plumbing => [:bake_grok_plumbing]
+task :webserver => [:bake_webserver]
+
+# Validation section
+
+desc "Validate all packer configuration files"
+task :validate_all => [:validate_centos6,
+                       :validate_grok_pipeline,
+                       :validate_grok_plumbing,
+                       :validate_infrastructure,
+                       :validate_webserver]
+
+desc "Validate CentOS 6 configuration"
+task :validate_centos6 => [:products_sha,
+                           :salt_bootstrap,
+                           :yum_plugin] do
+  sh %{ packer validate #{CENTOS6_CONFIG} }
+end
+
+desc "Validate Grok Pipeline configuration"
+task :validate_grok_pipeline => [:products_sha,
+                                 :grok_repos,
+                                 :yum_plugin] do
+  sh %{ packer validate #{GROK_PIPELINE_CONFIG} }
+end
+
+desc "Validate Grok Plumbing configuration"
+task :validate_grok_plumbing => [:products_sha,
+                                 :salt_bootstrap,
+                                 :grok_repos,
+                                 :yum_plugin] do
+  sh %{ packer validate #{GROK_PLUMBING_CONFIG} }
+end
+
+desc "Validate Infrastructure configuration"
+task :validate_infrastructure => [:products_sha,
+                                  :salt_bootstrap,
+                                  :yum_plugin] do
+  sh %{ packer validate #{INFRASTRUCTURE_CONFIG} }
+end
+
+desc "Validate Webserver packer configuration"
+task :validate_webserver => [:products_sha, :yum_plugin] do
+  sh %{ packer validate #{WEB_CONFIG} }
+end
+
+# AMI targets
+
+desc "Bake a new CentOS 6 AMI"
+task :bake_centos6 => [:products_sha,
+                       :yum_plugin,
+                       :epel_repo,
+                       :salt_bootstrap,
+                       :validate_centos6 ] do
+  sh %{ packer build #{CENTOS6_CONFIG} }
+end
+
+# This task takes two parameters from the environment, which are passed from
+# the grok-pipeline to the ami-pipeline
+desc "Bake a new Grok Pipeline AMI"
+task :bake_grok_pipeline => [:products_sha,
+                             :yum_plugin,
+                             :epel_repo,
+                             :grok_repos,
+                             :validate_grok_pipeline ] do
+  # sh %{ packer build #{GROK_PIPELINE_CONFIG} }
+  sh %{ packer build -var 'grok_install_manifest=#{ENV["GROK_INSTALL_MANIFEST"]}' \
+       -var 'ami_name=#{ENV["AMI_NAME"]}' #{GROK_PIPELINE_CONFIG} }
+end
+
+desc "Bake a new Grok Plumbing AMI"
+task :bake_grok_plumbing => [:products_sha,
+                             :yum_plugin,
+                             :epel_repo,
+                             :grok_repos,
+                             :salt_bootstrap,
+                             :validate_grok_plumbing ] do
+  sh %{ packer build #{GROK_PLUMBING_CONFIG} }
+end
+
+desc "Bake a new Infrastructure AMI"
+task :bake_infrastructure => [:products_sha,
+                              :yum_plugin,
+                              :salt_bootstrap,
+                              :secretsauce_repo,
+                              :validate_infrastructure ] do
+  sh %{ packer build #{INFRASTRUCTURE_CONFIG} }
+end
+
+desc "Bake a new HVM webserver AMI"
+task :bake_webserver => [:products_sha,
+                         :yum_plugin,
+                         :salt_bootstrap,
+                         :secretsauce_repo,
+                         :get_ami_keypairs,
+                         :validate_webserver ] do
+  sh %{ packer build #{WEB_CONFIG} }
+end
+
+# Utility stanzas
+
+# Get the s3 yum plugin
+file s3_yum_plugin_rpm do
+  puts "Downloading #{s3_yum_plugin_rpm}"
+  sh %{ wget --no-check-certificate https://s3-us-west-2.amazonaws.com/yum.groksolutions.com/s3/thirdparty/yum-s3-0.2.4-1.noarch.rpm }
+end
+
+desc "Download the yum s3 plugin"
+task :yum_plugin => [s3_yum_plugin_rpm]
+
+# Get the EPEL installer rpm for 6.5
+file epel_rpm do
+  puts "Downloading #{epel_rpm_url}"
+  sh %{ wget --no-check-certificate #{epel_rpm_url} }
+end
+
+desc "Download the epel yum plugin"
+task :epel_repo => [epel_rpm]
+
+# Get salt bootstrap
+desc "Download the latest Salt bootstrap.sh script"
+task :salt_bootstrap do
+  sh %{ wget --no-check-certificate -O - https://bootstrap.saltstack.com > bootstrap-salt.sh }
+  sh %{ chmod +x bootstrap-salt.sh }
+end
+
+# Cleanups
+
+desc "Clean up working directory"
+task :cleanup do
+  sh %{ rm -f .*.un~}
+end
+
+desc "Clean the working directory"
+task :clean_workspace do
+  sh %{ rm -fr workspace *.un~ }
+end
+
+# These stanzas generate or copy files so we can install them into the
+# packer work instance.
+
+task :products_sha do
+  sh %{ git rev-parse --verify HEAD > products.sha }
+end
+
+task :create_workspace_directory do
+  sh %{ mkdir -p workspace }
+end
+
+# We don't want internal keypairs in the repository, but we need them when
+# baking webserver AMIs.
+desc "Clone AMI keys from /etc/numenta/ami"
+task :get_ami_keypairs do
+  sh %{ rsync -a /etc/numenta/ami/sshkeys . }
+end
+
+# Copy the secretsauce repo from the saltcellar so we aren't maintaining it
+# in two places
+desc "Copy the secretsauce repo from the saltcellar"
+task :secretsauce_repo do
+  sh %{ rsync ../saltcellar/yum-numenta-secret-sauce/files/secretsauce.repo repos/secretsauce.repo }
+end
+
+# Copy the grok repos from the saltcellar so we aren't maintaining them
+# in two places.
+desc "Copy the grok repos from the saltcellar"
+task :grok_repos do
+  sh %{ rsync ../saltcellar/grok-plumbing/files/repos/grok*repo repos }
+end
+
+# Make saltcellar tarball
+desc "Pack up the saltcellar for Salt solo AMI bake"
+task :saltcellar_tarball => [:create_workspace_directory] do
+  sh %{ rm -f workspace/saltcellar.tar* }
+  sh %{ cd ../saltcellar ; tar cvf ../ami-tools/workspace/saltcellar.tar * }
+  sh %{ bzip2 -v workspace/saltcellar.tar }
+end

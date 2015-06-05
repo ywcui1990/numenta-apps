@@ -1,0 +1,100 @@
+#!/bin/bash
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
+# TODO: https://jira.numenta.com/browse/TAUR-451 (Port this script to python)
+set -o pipefail
+set -o errexit
+
+## bin/update_release_version.py fails if nupic is not in PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:${NUPIC}/py:.
+export PATH=/opt/numenta/anaconda/bin:$PATH
+
+function exit_if_error() {
+  EXIT_CODE=$?
+  if [[ $EXIT_CODE != 0 ]]; then
+    echo $1
+    exit $EXIT_CODE
+  fi
+}
+
+function clean_directories() {
+  rm -fr ${WORK_D}
+}
+
+function catch_sigint {
+  cleanup_directories
+  exit 1
+}
+
+function catch_sigterm {
+  cleanup_directories
+  exit 3
+}
+
+python -c "import nupic"
+exit_if_error "Failed to import nupic"
+
+if [ -z "$BUILDDISK" ]; then
+  BUILDDISK="/opt/build/"
+fi
+
+WORK_D=$(mktemp -d ${BUILDDISK}/build_grok_py27.XXXX)
+
+trap "catch_sigint" SIGINT
+trap "catch_sigterm" SIGTERM
+
+if [ "${2}" ]; then
+  GROK_VERSION_BASE=${2}
+fi
+mkdir -p ${WORK_D}
+
+rsync -av ${GROK_HOME}/../.git ${WORK_D}
+exit_if_error "rsync -av ${GROK_HOME}/../.git ${WORK_D} command failed"
+rsync -av ${GROK_HOME} ${WORK_D}
+exit_if_error "rsync -av ${GROK_HOME} ${WORK_D} command failed"
+cp /opt/numenta/bashrc ${WORK_D}
+
+
+PYTHON_VERSION=`python -c 'import sys; print sys.version[:3]'`
+echo $PYTHON_VERSION
+PACKAGE_NAME="grok"
+DEPENDS_ON="nupic"
+
+if [  "${1}" ]  &&  [ "${2}"  ] ; then
+  if [ "$PYTHON_VERSION" == "2.7" ]; then
+    PACKAGE_NAME="grok-py27-${1}"
+    DEPENDS_ON="nupic-py27-${3}"
+  fi
+fi
+
+./rpm-creator.py --source-dir ${WORK_D} \
+  --repo-directory numenta \
+  --after-install post_install_grok \
+  --install-directory /opt \
+  --depends ${DEPENDS_ON} \
+  --base-version ${GROK_VERSION_BASE} \
+  --debug 10 \
+  --package-name ${PACKAGE_NAME}
+exit_if_error "./rpm-creator.py failed while executing!"
+
+echo "WORK_D: ${WORK_D}"
+clean_directories
