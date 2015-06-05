@@ -123,7 +123,7 @@ def parseCLA():
   parser.add_argument("--git-url",
                       dest="gitURL",
                       help="git repo to clone",
-                      default="git@github.com:GrokSolutions/products.git")
+                      default="git@github.com:GrokSolutions/applications.git")
 
   parser.add_argument("--internal-only",
                       action="store_true",

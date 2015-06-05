@@ -31,7 +31,7 @@ The pipeline can be run end-to-end via the driver script, or each individual ste
 ```
 ##### Example
 ```bash
-    ./grok-pipeline --trigger-pipeline grok --grok-remote git@github.com:<github_username>/products.git
+    ./grok-pipeline --trigger-pipeline grok --grok-remote git@github.com:<github_username>/applications.git
       --grok-branch pipeline-development --nupic-remote git@github.com:numenta/nupic.git --nupic-branch master
       --sha 7f1c852c719ed6b8de4f8cda42f3e9a583564066 --release-version 1.0 --log debug
 ```
@@ -45,7 +45,7 @@ The pipeline can be run end-to-end via the driver script, or each individual ste
 ```
 ##### Example
 ```bash
-  python build.py --trigger-pipeline grok --grok-remote git@github.com:<github_username>/products.git
+  python build.py --trigger-pipeline grok --grok-remote git@github.com:<github_username>/applications.git
     --grok-branch pipeline-development --nupic-remote git@github.com:numenta/nupic.git --nupic-branch master
     --sha 7f1c852c719ed6b8de4f8cda42f3e9a583564066 --release-version 1.0 --log debug
 ```

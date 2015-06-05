@@ -172,7 +172,7 @@ def checkout(pathspec, **kwargs):
     infrastructure.utilities.exceptions.CommandFailedError: if
     the command fails
 
-  @returns: The text blob output of git clone
+  @returns: The text blob output of git checkout
   @rtype: string
   """
   command = "git checkout"

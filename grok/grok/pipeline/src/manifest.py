@@ -54,7 +54,7 @@ def parseArgs():
   parser.add_argument("--grok-branch", dest="grokBranch", type=str,
                       help="The branch you are building from")
   parser.add_argument("--grok-remote", dest="grokRemote", type=str,
-                      default="git@github.com:GrokSolutions/products.git",
+                      default="git@github.com:GrokSolutions/applications.git",
                       help="URL for Grok remote repository")
   parser.add_argument("--nupic-remote", dest="nupicRemote", type=str,
                       default="git@github.com:numenta/nupic.git",
