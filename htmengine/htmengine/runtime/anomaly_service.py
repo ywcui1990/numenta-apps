@@ -19,6 +19,7 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+
 import itertools
 import json
 import logging
@@ -31,7 +32,9 @@ import time
 import zlib
 
 from nta.utils import amqp
-from nta.utils.amqp import AMQPDeliveryModes
+from nta.utils.amqp import connection as amqp_connection
+from nta.utils.amqp import constants as amqp_constants
+from nta.utils.amqp import synchronous_amqp_client
 from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 from nta.utils.message_bus_connector import MessageBusConnector
 from nta.utils.message_bus_connector import MessageProperties
@@ -634,16 +637,16 @@ class AnomalyService(object):
     """
     # Properties for publishing model command results on RabbitMQ exchange
     modelCommandResultProperties = MessageProperties(
-      deliveryMode=AMQPDeliveryModes.PERSISTENT_MESSAGE,
-      headers=dict(dataType="model-cmd-result"))
+        deliveryMode=amqp_constants.AMQPDeliveryModes.PERSISTENT_MESSAGE,
+        headers=dict(dataType="model-cmd-result"))
 
     # Properties for publishing model inference results on RabbitMQ exchange
     modelInferenceResultProperties = MessageProperties(
-      deliveryMode=AMQPDeliveryModes.PERSISTENT_MESSAGE)
+        deliveryMode=amqp_constants.AMQPDeliveryModes.PERSISTENT_MESSAGE)
 
     # Declare an exchange for forwarding our results
-    with amqp.SynchronousAmqpClient(
-        amqp.getRabbitmqConnectionParameters()) as amqpClient:
+    with synchronous_amqp_client.SynchronousAmqpClient(
+        amqp_connection.getRabbitmqConnectionParameters()) as amqpClient:
       amqpClient.declareExchange(self._modelResultsExchange,
                                  exchangeType="fanout",
                                  durable=True)

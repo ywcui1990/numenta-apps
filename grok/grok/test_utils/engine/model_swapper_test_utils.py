@@ -29,7 +29,7 @@ import types
 
 from mock import patch
 
-from nta.utils import amqp
+from nta.utils.amqp import connection as amqp_connection
 from nta.utils.test_utils.amqp_test_utils import RabbitmqVirtualHostPatch
 
 
@@ -135,7 +135,8 @@ class ModelSwapperIsolationPatch(object):
       self._modelCheckpointPatch.start()
 
       # Self-validation
-      actualVhost = amqp.getRabbitmqConnectionParameters().vhost
+      actualVhost = (
+          amqp_connection.getRabbitmqConnectionParameters().vhost)
       assert actualVhost == self._vhostPatch._vhost, (
         "Expected vhost=%r, but got vhost=%r") % (
         self._vhost, actualVhost)

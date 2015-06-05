@@ -42,6 +42,11 @@ from boto.exception import JSONResponseError
 
 from nta.utils import amqp
 from nta.utils import error_handling
+from nta.utils.amqp import connection as amqp_connection
+from nta.utils.amqp import consumer as amqp_consumer
+from nta.utils.amqp import exceptions as amqp_exceptions
+from nta.utils.amqp import messages as amqp_messages
+from nta.utils.amqp import synchronous_amqp_client
 
 import taurus.engine
 from taurus.engine import taurus_logging
@@ -542,7 +547,7 @@ class DynamoDBService(object):
 
     Tweet data must have routing key of "taurus.metric_data.tweets".
 
-    :param amqp.ConsumerMessage message: ``message.body`` is one of:
+    :param amqp.messages.ConsumerMessage message: ``message.body`` is one of:
         Serialized batch of model inference results generated in
           ``AnomalyService`` and must be deserialized using
           ``AnomalyService.deserializeModelResult()``. Per
@@ -625,8 +630,8 @@ class DynamoDBService(object):
 
     try:
       # Open connection to rabbitmq
-      with amqp.SynchronousAmqpClient(
-          amqp.getRabbitmqConnectionParameters(),
+      with synchronous_amqp_client.SynchronousAmqpClient(
+          amqp_connection.getRabbitmqConnectionParameters(),
           channelConfigCb=_configChannel) as amqpClient:
 
         self._declareExchanges(amqpClient)
@@ -634,9 +639,9 @@ class DynamoDBService(object):
 
         # Start consuming messages
         for evt in amqpClient.readEvents():
-          if isinstance(evt, amqp.ConsumerMessage):
+          if isinstance(evt, amqp_messages.ConsumerMessage):
             self.messageHandler(evt)
-          elif isinstance(evt, amqp.ConsumerCancellation):
+          elif isinstance(evt, amqp_consumer.ConsumerCancellation):
             # Bad news: this likely means that our queue was deleted externally
             msg = "Consumer cancelled by broker: %r (%r)" % (evt, consumer)
             g_log.critical(msg)
@@ -644,10 +649,10 @@ class DynamoDBService(object):
           else:
             g_log.warning("Unexpected amqp event=%r", evt)
 
-    except amqp.AmqpConnectionError:
+    except amqp_exceptions.AmqpConnectionError:
       g_log.exception("RabbitMQ connection failed")
       raise
-    except amqp.AmqpChannelError:
+    except amqp_exceptions.AmqpChannelError:
       g_log.exception("RabbitMQ channel failed")
       raise
     except Exception:

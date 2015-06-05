@@ -37,10 +37,10 @@ import uuid
 
 from mock import patch
 
-
-import nta.utils.amqp
-from nta.utils.amqp import (AMQPErrorCodes,
-                            getRabbitmqConnectionParameters)
+from nta.utils.amqp import connection as amqp_connection
+from nta.utils.amqp import constants as amqp_constants
+from nta.utils.amqp import exceptions as amqp_exceptions 
+from nta.utils.amqp import synchronous_amqp_client
 from nta.utils.logging_support_raw import LoggingSupport
 from nta.utils import message_bus_connector
 from nta.utils.message_bus_connector import \
@@ -66,8 +66,8 @@ def setUpModule():
 
 
 def _getQueueMessageCount(mqName):
-  connParams = getRabbitmqConnectionParameters()
-  with nta.utils.amqp.SynchronousAmqpClient(connParams) as amqpClient:
+  connParams = amqp_connection.getRabbitmqConnectionParameters()
+  with synchronous_amqp_client.SynchronousAmqpClient(connParams) as amqpClient:
     r = amqpClient.declareQueue(mqName, passive=True)
     return r.messageCount
 
@@ -172,14 +172,15 @@ class MessageQueueManagementTestCase(_TestCaseBase):
 
         bus.deleteMessageQueue(mqName=mqName)
 
-        connParams = getRabbitmqConnectionParameters()
+        connParams = amqp_connection.getRabbitmqConnectionParameters()
 
-        with nta.utils.amqp.SynchronousAmqpClient(connParams) as amqpClient:
-          with self.assertRaises(nta.utils.amqp.AmqpChannelError) as excContext:
+        with synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
+          amqpClient):
+          with self.assertRaises(amqp_exceptions.AmqpChannelError) as excContext:
             r = amqpClient.declareQueue(mqName, passive=True)
 
           self.assertEqual(excContext.exception.code,
-                           AMQPErrorCodes.NOT_FOUND)
+                           amqp_constants.AMQPErrorCodes.NOT_FOUND)
 
 
   def testDeleteMessageQueueThatDoesNotExist(self):
@@ -318,7 +319,7 @@ class MessagePublisherTestCase(_TestCaseBase):
     """ Test properties for equality
 
     :param message_bus_connector.MessageProperties busProps:
-    :param nta.utils.amqp.BasicProperties
+    :param nta.utils.amqp.messages.BasicProperties
     """
     # NOTE: they happen to have matching attribute names of interest
     attributeNames = (
@@ -362,9 +363,10 @@ class MessagePublisherTestCase(_TestCaseBase):
         # Verify that the messages were added
         self.assertEqual(_getQueueMessageCount(mqName), 2)
 
-        connParams = getRabbitmqConnectionParameters()
+        connParams = amqp_connection.getRabbitmqConnectionParameters()
 
-        with nta.utils.amqp.SynchronousAmqpClient(connParams) as amqpClient:
+        with synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
+          amqpClient):
           msg = amqpClient.getOneMessage(mqName, noAck=False)
           self.assertEqual(msg.body, msg1)
           msg.ack()
@@ -400,9 +402,10 @@ class MessagePublisherTestCase(_TestCaseBase):
       # Verify that the messages were added
       self.assertEqual(_getQueueMessageCount(mqName), numMessagesToPublish)
 
-      connParams = getRabbitmqConnectionParameters()
+      connParams = amqp_connection.getRabbitmqConnectionParameters()
 
-      with nta.utils.amqp.SynchronousAmqpClient(connParams) as amqpClient:
+      with synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
+        amqpClient):
         actualContent = []
         for i in xrange(numMessagesToPublish):
           msg = amqpClient.getOneMessage(mqName, noAck=False)
@@ -429,7 +432,7 @@ class MessagePublisherTestCase(_TestCaseBase):
       contentType="text/plain",
       contentEncoding="content encoding",
       headers=dict(a="1", b="2", c="3"),
-      deliveryMode=nta.utils.amqp.AMQPDeliveryModes.NON_PERSISTENT_MESSAGE,
+      deliveryMode=amqp_constants.AMQPDeliveryModes.NON_PERSISTENT_MESSAGE,
       priority=3,
       correlationId="myCorrelationId",
       replyTo="replyToMe",
@@ -437,7 +440,7 @@ class MessagePublisherTestCase(_TestCaseBase):
       messageId="myMessageId",
       timestamp=epochNow,
       messageType="myMesageType",
-      userId=nta.utils.amqp.RabbitmqConfig().get("credentials", "user"),
+      userId=amqp_connection.RabbitmqConfig().get("credentials", "user"),
       appId="myAppId"
     )
 
@@ -459,10 +462,10 @@ class MessagePublisherTestCase(_TestCaseBase):
     exgName = "testPublishExg"
     routingKey = "testPublishExg-routing-key"
 
-    connParams = getRabbitmqConnectionParameters()
+    connParams = amqp_connection.getRabbitmqConnectionParameters()
 
     # Create an exchange and bind a message queue to it
-    with nta.utils.amqp.SynchronousAmqpClient(connParams) as amqpClient:
+    with synchronous_amqp_client.SynchronousAmqpClient(connParams) as amqpClient:
       amqpClient.declareExchange(exgName, exchangeType="direct")
 
       amqpClient.declareQueue(mqName)
@@ -476,7 +479,7 @@ class MessagePublisherTestCase(_TestCaseBase):
       contentType="text/plain",
       contentEncoding="content encoding",
       headers=dict(a="1", b="2", c="3"),
-      deliveryMode=nta.utils.amqp.AMQPDeliveryModes.NON_PERSISTENT_MESSAGE,
+      deliveryMode=amqp_constants.AMQPDeliveryModes.NON_PERSISTENT_MESSAGE,
       priority=3,
       correlationId="myCorrelationId",
       replyTo="replyToMe",
@@ -484,7 +487,7 @@ class MessagePublisherTestCase(_TestCaseBase):
       messageId="myMessageId",
       timestamp=int(time.time()),
       messageType="myMesageType",
-      userId=nta.utils.amqp.RabbitmqConfig().get("credentials", "user"),
+      userId=amqp_connection.RabbitmqConfig().get("credentials", "user"),
       appId="myAppId"
     )
     with MessageBusConnector() as bus:
@@ -509,7 +512,7 @@ class MessagePublisherTestCase(_TestCaseBase):
     # Verify that the messages were added
     self.assertEqual(_getQueueMessageCount(mqName), numMessagesToPublish)
 
-    with nta.utils.amqp.SynchronousAmqpClient(connParams) as amqpClient:
+    with synchronous_amqp_client.SynchronousAmqpClient(connParams) as amqpClient:
       actualContent = []
       for i in xrange(numMessagesToPublish):
         msg = amqpClient.getOneMessage(mqName, noAck=False)
@@ -535,8 +538,8 @@ class MessagePublisherTestCase(_TestCaseBase):
     routingKey = "testPublishExgNotPublished-routing-key"
 
     # Create an exchange, but don't bind a queue to it
-    connParams = getRabbitmqConnectionParameters()
-    with nta.utils.amqp.SynchronousAmqpClient(connParams) as amqpClient:
+    connParams = amqp_connection.getRabbitmqConnectionParameters()
+    with synchronous_amqp_client.SynchronousAmqpClient(connParams) as amqpClient:
       amqpClient.declareExchange(exgName, exchangeType="direct")
 
     # Now publish to that exchange via MessageBusConnector

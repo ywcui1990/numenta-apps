@@ -36,7 +36,7 @@ from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.exceptions import ResourceNotFoundException
 from boto.dynamodb2.table import BatchTable
 
-from nta.utils import amqp
+from nta.utils.amqp import messages as amqp_messages
 from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 
 from htmengine.runtime.anomaly_service import AnomalyService
@@ -104,7 +104,8 @@ class DynamoDBServiceTestCase(unittest.TestCase):
         "DynamoDBDefinition")
 
 
-  @patch("taurus.engine.runtime.dynamodb.dynamodb_service.amqp.SynchronousAmqpClient",
+  @patch("taurus.engine.runtime.dynamodb.dynamodb_service.amqp."
+         "synchronous_amqp_client.SynchronousAmqpClient",
          autospec=True)
   def testDynamoDBServiceRun(self, amqpClientClassMock, connectDynamoDB,
       _gracefulCreateTable):
@@ -122,7 +123,8 @@ class DynamoDBServiceTestCase(unittest.TestCase):
     """
 
     amqpClientMock = MagicMock(
-      spec_set=dynamodb_service.amqp.SynchronousAmqpClient)
+        spec_set=(
+         dynamodb_service.amqp.synchronous_amqp_client.SynchronousAmqpClient))
     amqpClientMock.__enter__.return_value = amqpClientMock
 
     amqpClientClassMock.return_value = amqpClientMock
@@ -178,14 +180,14 @@ class DynamoDBServiceTestCase(unittest.TestCase):
     # Then simulate the process of handling an inbound batch of model inference
     # results and assert that the appropriate put_item() calls are made at the
     # other end.
-    message = amqp.ConsumerMessage(
+    message = amqp_messages.ConsumerMessage(
       body=Mock(),
       properties=Mock(headers=dict()),
-      methodInfo=amqp.MessageDeliveryInfo(consumerTag=Mock(),
-                                          deliveryTag=Mock(),
-                                          redelivered=False,
-                                          exchange=Mock(),
-                                          routingKey=""),
+      methodInfo=amqp_messages.MessageDeliveryInfo(consumerTag=Mock(),
+                                                   deliveryTag=Mock(),
+                                                   redelivered=False,
+                                                   exchange=Mock(),
+                                                   routingKey=""),
       ackImpl=Mock(),
       nackImpl=Mock())
 
@@ -271,14 +273,14 @@ class DynamoDBServiceTestCase(unittest.TestCase):
     # results and assert that the appropriate put_item() calls are made at the
     # other end.
 
-    message = amqp.ConsumerMessage(
+    message = amqp_messages.ConsumerMessage(
       body=Mock(),
       properties=Mock(headers=dict()),
-      methodInfo=amqp.MessageDeliveryInfo(consumerTag=Mock(),
-                                          deliveryTag=Mock(),
-                                          redelivered=False,
-                                          exchange=Mock(),
-                                          routingKey=""),
+      methodInfo=amqp_messages.MessageDeliveryInfo(consumerTag=Mock(),
+                                                   deliveryTag=Mock(),
+                                                   redelivered=False,
+                                                   exchange=Mock(),
+                                                   routingKey=""),
       ackImpl=Mock(),
       nackImpl=Mock())
 
@@ -363,10 +365,10 @@ class DynamoDBServiceTestCase(unittest.TestCase):
       }
     ]
 
-    message = amqp.ConsumerMessage(
+    message = amqp_messages.ConsumerMessage(
       body=json.dumps(tweetData),
       properties=Mock(),
-      methodInfo=amqp.MessageDeliveryInfo(
+      methodInfo=amqp_messages.MessageDeliveryInfo(
         consumerTag=Mock(),
         deliveryTag=Mock(),
         redelivered=False,
