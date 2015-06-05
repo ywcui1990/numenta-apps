@@ -59,6 +59,10 @@ class RabbitmqVirtualHostPatch(object):
   NOTE: the patch assumes that the code under test connects to RabbitMQ using
   the virtual_host from "virtual_host" attribute in the "connection" section of
   grok's rabbitmq.conf configuration file.
+
+  NOTE: this decorator will only decorate methods beginning with the
+  `mock.patch.TEST_PREFIX` prefix (defaults to "test"). Please keep this in
+  mind when decorating entire classes.
   """
 
   _RABBIT_MANAGEMENT_HEADERS = {"content-type": "application/json"}
