@@ -9,7 +9,7 @@
   "manifest":{
     "buildWorkspace":"/opt/numenta/jenkins/workspace/grok-product-pipeline/2014-12-04_20-11-33SXydjO",
     "pipeline":"grok",
-    "grokRemote":"git@github.com:GrokSolutions/applications.git",
+    "grokRemote":"git@github.com:Numenta/numenta-apps.git",
     "logLevel":"debug",
     "releaseVersion":"master",
     "nupicRemote":"git@github.com:numenta/nupic.git",

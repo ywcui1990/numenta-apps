@@ -46,7 +46,7 @@ def buildNuPIC(env, pipelineConfig, logger):
     :param pipelineConfig: dict of the pipeline config values, e.g.:
       {
         "buildWorkspace": "/path/to/build/in",
-        "grokRemote": "git@github.com:GrokSolutions/applications.git",
+        "grokRemote": "git@github.com:Numenta/numenta-apps.git",
         "grokBranch": "master",
         "grokSha": "HEAD",
         "nupicRemote": "git@github.com:numenta/nupic.git",
@@ -79,7 +79,7 @@ def buildGrok(env, pipelineConfig, logger):
     :param pipelineConfig: dict of the pipeline config values, e.g.:
       {
         "buildWorkspace": "/path/to/build/in",
-        "grokRemote": "git@github.com:GrokSolutions/applications.git",
+        "grokRemote": "git@github.com:Numenta/numenta-apps.git",
         "grokBranch": "master",
         "grokSha": "HEAD",
         "nupicRemote": "git@github.com:numenta/nupic.git",
