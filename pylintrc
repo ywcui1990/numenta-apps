@@ -74,11 +74,12 @@ load-plugins=nupic.support.lint.executable
 # C0111 - Missing docstring.
 # C0302 - Too many lines in module
 # C0322 - No space before operator (=, %, *, etc).
+# C0330 - Wrong hanging indentation
 # R0902 - Too many instance attributes
 # R0904 - Too many public methods.
 # R0911 - Too many return statements
 # R0912 - Too many branches
-disable=E1101,E1103,W0142,W0105,W0231,W0621,C0111,C0302,C0322,R0902,R0904,R0911,R0912
+disable=E1101,E1103,W0142,W0105,W0231,W0621,C0111,C0302,C0322,C0330,R0902,R0904,R0911,R0912
 
 
 [REPORTS]
