@@ -38,7 +38,7 @@ def checkIfSaneProductionParams(grokRemote, nupicRemote, grokBranch,
     :returns: True or False to allow/ prohibit updating ciBranch
     :rtype: bool
   """
-  if (grokRemote == "git@github.com:GrokSolutions/applications.git" and
+  if (grokRemote == "git@github.com:Numenta/numenta-apps.git" and
       nupicRemote == "git@github.com:numenta/nupic.git" and
       nupicBranch == "master" and grokBranch == "master"):
     return True

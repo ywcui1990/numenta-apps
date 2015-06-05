@@ -84,7 +84,7 @@ def downloadOrCreateNuPICWheel(env, pipelineConfig):
     :param pipelineConfig: dict of the pipeline config values, e.g.:
       {
         "buildWorkspace": "/path/to/build/in",
-        "grokRemote": "git@github.com:GrokSolutions/applications.git",
+        "grokRemote": "git@github.com:Numenta/numenta-apps.git",
         "grokBranch": "master",
         "grokSha": "HEAD",
         "nupicRemote": "git@github.com:numenta/nupic.git",
@@ -139,7 +139,7 @@ def preBuildSetup(env, pipelineConfig):
     :param pipelineConfig: dict of the pipeline config values, e.g.:
       {
         "buildWorkspace": "/path/to/build/in",
-        "grokRemote": "git@github.com:GrokSolutions/applications.git",
+        "grokRemote": "git@github.com:Numenta/numenta-apps.git",
         "grokBranch": "master",
         "grokSha": "HEAD",
         "nupicRemote": "git@github.com:numenta/nupic.git",
@@ -183,7 +183,7 @@ def addAndParseArgs(jsonArgs):
     :returns: A dict of the parameters needed, as follows:
       {
         "buildWorkspace": "/path/to/build/in",
-        "grokRemote": "git@github.com:GrokSolutions/applications.git",
+        "grokRemote": "git@github.com:Numenta/numenta-apps.git",
         "grokBranch": "master",
         "grokSha": "HEAD",
         "nupicRemote": "git@github.com:numenta/nupic.git",
@@ -205,7 +205,7 @@ def addAndParseArgs(jsonArgs):
                       help="Common dir prefix for Grok and NuPIC")
   parser.add_argument("--grok-remote", dest="grokRemote", type=str,
                       help="The grok remote you want to use, e.g.,  "
-                           "git@github.com:GrokSolutions/applications.git")
+                           "git@github.com:Numenta/numenta-apps.git")
   parser.add_argument("--grok-sha", dest="grokSha", type=str,
                       help="Grok SHA that will be built")
   parser.add_argument("--grok-branch", dest="grokBranch", type=str,
@@ -247,7 +247,7 @@ def addAndParseArgs(jsonArgs):
   # Setup defaults
   pipelineConfig = {
     "buildWorkspace": None,
-    "grokRemote": "git@github.com:GrokSolutions/applications.git",
+    "grokRemote": "git@github.com:Numenta/numenta-apps.git",
     "grokBranch": "master",
     "grokSha": "HEAD",
     "nupicRemote": "git@github.com:numenta/nupic.git",

@@ -93,7 +93,7 @@ def invokeGrokBuild(gitRemote, branch, buildSha):
     as appropriate.
 
     :param gitRemote: The remote to be used when accessing git (e.g.:
-      git@github.com:GrokSolutions/applications.git)
+      git@github.com:Numenta/numenta-apps.git)
 
     :param branch: The git branch to use.
 
@@ -111,7 +111,7 @@ def invokeGrokMobileBuild(gitRemote, branch, buildSha):
     This function invokes the Jenkins job related to Grok-Mobile builds.
 
     :param gitRemote: The remote to be used when accessing git (e.g.:
-      git@github.com:GrokSolutions/applications.git)
+      git@github.com:Numenta/numenta-apps.git)
 
     :param branch: The git branch to use.
 
@@ -135,7 +135,7 @@ def invokeTaurusBuild(gitRemote, branch, buildSha):
     builds as appropriate.
 
     :param gitRemote: The remote to be used when accessing git (e.g.:
-      git@github.com:GrokSolutions/applications.git)
+      git@github.com:Numenta/numenta-apps.git)
 
     :param branch: The git branch to use.
 
@@ -158,7 +158,7 @@ def invokeTaurusMobileBuild(gitRemote, branch, buildSha):
     Taurus-Mobile builds as appropriate.
 
     :param gitRemote: The remote to be used when accessing git (e.g.:
-      git@github.com:GrokSolutions/applications.git)
+      git@github.com:Numenta/numenta-apps.git)
 
     :param branch: The git branch to use.
 
@@ -178,7 +178,7 @@ def invokeRpmBuild(gitRemote, branch, buildSha):
     infrastruture-rpm-pipeline builds as appropriate.
 
     :param gitRemote: The remote to be used when accessing git (e.g.:
-      git@github.com:GrokSolutions/applications.git)
+      git@github.com:Numenta/numenta-apps.git)
 
     :param branch: The git branch to use.
 
@@ -236,7 +236,7 @@ def parseArgs():
   """
   parser = argparse.ArgumentParser(description="Jenkins pipeline controller")
   parser.add_argument("--gitRemote", dest="gitRemote", type=str,
-                      default="git@github.com:GrokSolutions/applications.git",
+                      default="git@github.com:Numenta/numenta-apps.git",
                       help="Specifies which git remote to use")
   parser.add_argument("--startSha", dest="startSha", type=str,
                       help=("**OPTIONAL** If specified, this determines which "

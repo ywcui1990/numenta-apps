@@ -349,7 +349,7 @@ def addAndParseArgs(jsonArgs):
                       help="The grokSha for which are creating rpm")
   parser.add_argument("--grok-remote", dest="grokRemote", type=str,
                       help="The grok remote you want to use, "
-                           "e.g. git@github.com:GrokSolutions/applications.git")
+                           "e.g. git@github.com:Numenta/numenta-apps.git")
   parser.add_argument("--unit-test-status", dest="testStatus", type=str,
                       help="Unit test success status")
   parser.add_argument("--release-version", dest="releaseVersion", type=str,
