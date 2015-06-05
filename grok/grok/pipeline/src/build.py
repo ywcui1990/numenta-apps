@@ -51,7 +51,7 @@ def getDeployTrack(grokRemote, nupicRemote, grokBranch, nupicBranch):
     :returns: A `string` representing the deployment track
     e.g.
     1)
-    grokRemote: git@github.com:<user-name>/products.git
+    grokRemote: git@github.com:<user-name>/applications.git
     nupicRemote: git@github.com:numenta/nupic.git
     deployTrack: <user-name>-numenta
     2)
@@ -84,7 +84,7 @@ def downloadOrCreateNuPICWheel(env, pipelineConfig):
     :param pipelineConfig: dict of the pipeline config values, e.g.:
       {
         "buildWorkspace": "/path/to/build/in",
-        "grokRemote": "git@github.com:GrokSolutions/products.git",
+        "grokRemote": "git@github.com:GrokSolutions/applications.git",
         "grokBranch": "master",
         "grokSha": "HEAD",
         "nupicRemote": "git@github.com:numenta/nupic.git",
@@ -139,7 +139,7 @@ def preBuildSetup(env, pipelineConfig):
     :param pipelineConfig: dict of the pipeline config values, e.g.:
       {
         "buildWorkspace": "/path/to/build/in",
-        "grokRemote": "git@github.com:GrokSolutions/products.git",
+        "grokRemote": "git@github.com:GrokSolutions/applications.git",
         "grokBranch": "master",
         "grokSha": "HEAD",
         "nupicRemote": "git@github.com:numenta/nupic.git",
@@ -158,7 +158,7 @@ def preBuildSetup(env, pipelineConfig):
   # Clone Grok if needed, otherwise, setup remote
   with changeToWorkingDir(pipelineConfig["buildWorkspace"]):
     if not os.path.isdir(env["GROK_HOME"]):
-      git.clone(pipelineConfig["grokRemote"])
+      git.clone(pipelineConfig["grokRemote"], directory="products")
 
   with changeToWorkingDir(env["GROK_HOME"]):
     if pipelineConfig["grokSha"]:
@@ -183,7 +183,7 @@ def addAndParseArgs(jsonArgs):
     :returns: A dict of the parameters needed, as follows:
       {
         "buildWorkspace": "/path/to/build/in",
-        "grokRemote": "git@github.com:GrokSolutions/products.git",
+        "grokRemote": "git@github.com:GrokSolutions/applications.git",
         "grokBranch": "master",
         "grokSha": "HEAD",
         "nupicRemote": "git@github.com:numenta/nupic.git",
@@ -204,8 +204,8 @@ def addAndParseArgs(jsonArgs):
   parser.add_argument("--build-workspace", dest="buildWorkspace", type=str,
                       help="Common dir prefix for Grok and NuPIC")
   parser.add_argument("--grok-remote", dest="grokRemote", type=str,
-                      help="The grok remote you want to use, "
-                           "e.g.,  git@github.com:GrokSolutions/products.git")
+                      help="The grok remote you want to use, e.g.,  "
+                           "git@github.com:GrokSolutions/applications.git")
   parser.add_argument("--grok-sha", dest="grokSha", type=str,
                       help="Grok SHA that will be built")
   parser.add_argument("--grok-branch", dest="grokBranch", type=str,
@@ -247,7 +247,7 @@ def addAndParseArgs(jsonArgs):
   # Setup defaults
   pipelineConfig = {
     "buildWorkspace": None,
-    "grokRemote": "git@github.com:GrokSolutions/products.git",
+    "grokRemote": "git@github.com:GrokSolutions/applications.git",
     "grokBranch": "master",
     "grokSha": "HEAD",
     "nupicRemote": "git@github.com:numenta/nupic.git",
