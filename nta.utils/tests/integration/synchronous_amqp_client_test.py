@@ -16,7 +16,6 @@ import logging
 import requests
 import unittest
 from random import randint
-from unittest import skip
 
 from nta.utils.error_handling import retry
 from nta.utils.amqp import (
@@ -286,7 +285,7 @@ class SynchronousAmqpClientTest(unittest.TestCase):
   def testBindUnbindQueue(self):
     """ Test binding and unbinding queues to exchanges """
     self._connectToClient()
-    exchangeName = "testExchanges"
+    exchangeName = "testExchange"
     exchangeType = "direct"
     queueName = "testQueue"
     routingKey = "testKey"
@@ -695,7 +694,6 @@ class SynchronousAmqpClientTest(unittest.TestCase):
                        "test-msg-%d" % (i))
 
 
-  @skip("Test not complete, recover DOES NOT WORK!")
   def testRecoverUnackedMessages(self):
     """ Tests getting messages using a consumer and GetNextEvent(). """
     self._connectToClient()
@@ -740,8 +738,28 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       self.assertEqual(queue["messages_unacknowledged"], numTestMessages)
     _verifyUnacknowledgedMessages()
 
-    self.client.recover()
+    self.client.recover(requeue=True)
 
+    @_RETRY_ON_ASSERTION_ERROR
+    def _verifyRecoveredMessages():
+      """
+      Verifies that messages are unacknowledged on server in nested function to
+      use the _RETRY_ON_ASSERTION_ERROR decorator.
+      """
+      queue = requests.get(
+        url="http://%s:%s/api/queues/%s/%s" % (
+          self.connParams.host,
+          self.connParams.port,
+          self.connParams.vhost,
+          queueName),
+        auth=(self.connParams.username, self.connParams.password)
+      ).json()
+      self.assertEqual(queue["message_stats"]["redeliver"], numTestMessages)
+    _verifyRecoveredMessages()
+
+    for i in range(0, numTestMessages):
+      self.assertEqual(self.client.getNextEvent().body,
+                       "test-msg-%d" % (i))
 
   def testAckingMessages(self):
     """ Tests acking messages """

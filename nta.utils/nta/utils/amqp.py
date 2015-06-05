@@ -1337,11 +1337,13 @@ class SynchronousAmqpClient(object):
     """This method asks the server to redeliver all unacknowledged messages on a
     specified channel. Zero or more messages may be redelivered.
 
+    NOTE: RabbitMQ does not currently support recovering with requeue=False
+
     :param bool requeue: If false, the message will be redelivered to the
       original recipient. If true, the server will attempt to requeue the
       message, potentially then delivering it to an alternative subscriber.
     """
-    self._liveChannelContext.channel.recover(requeue=requeue)
+    self._liveChannelContext.channel.basic.recover(requeue=requeue)
 
 
   def ackAll(self):
