@@ -3,7 +3,7 @@ Install dependencies
 
 * [VirtualBox](https://www.virtualbox.org/wiki/Downloads) 4.3.10 or greater.
 * [Vagrant](http://www.vagrantup.com/downloads.html) 1.6 or greater.
-* Docker Client (`brew install docker`, for example)
+* Docker Client that supports the `-f` arg (https://docs.docker.com/installation/mac/)
 
 Startup
 -------
@@ -25,11 +25,11 @@ containers, and the full suite of taurus-specific supervisor services in
 another.  We'll also be basing our taurus image on the official numenta/nupic
 docker image to avoid building nupic.
 
-In the root of `numenta-applications/`:
+In the root of `numenta-apps/`:
 
 ```
-docker build -t taurus-server:latest -f Dockerfile-taurus
-docker build -t taurus-dynamodb:latest taurus/external/dynamodb_test_tool/
+docker build -t taurus-server:latest -f Dockerfile-taurus .
+docker build -t taurus-dynamodb:latest taurus/external/dynamodb_test_tool
 ```
 
 Start MySQL container:
