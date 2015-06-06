@@ -87,6 +87,9 @@ install-prerequisites-and-update-repos() {
 
   yum remove -y numenta-infrastructure-common grok-updater
   yum install -y numenta-infrastructure-python
+
+  # Ensure our pip is current
+  pip install --upgrade pip
 }
 
 run-salt() {

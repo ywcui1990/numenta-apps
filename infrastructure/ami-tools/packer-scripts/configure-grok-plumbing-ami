@@ -41,6 +41,7 @@ install-prerequisites-and-update-repos() {
   echo "Cleaning up stale yum data..."
   yum clean all
 
+  # If you install these before installing yum-s3, yum will crash on start.
   for repo in grok-development.repo \
               grok-release-candidates.repo \
               grok-releases.repo \
