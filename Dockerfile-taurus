@@ -1,0 +1,16 @@
+FROM numenta/nupic:latest
+RUN apt-get install -y libmysqlclient-dev mysql-client nginx
+ADD nta.utils /opt/numenta/nta.utils
+ADD htmengine /opt/numenta/htmengine
+ADD taurus.metric_collectors /opt/numenta/taurus.metric_collectors
+ADD taurus /opt/numenta/taurus
+ADD install-taurus.sh /opt/numenta/install-taurus.sh
+ADD install-taurus-metric-collectors.sh /opt/numenta/install-taurus-metric-collectors.sh
+WORKDIR /opt/numenta
+ENV PYTHONPATH /usr/local/lib/python2.7/site-packages
+RUN ./install-taurus.sh /usr/local/lib/python2.7/site-packages /usr/local/bin
+ENV APPLICATION_CONFIG_PATH /opt/numenta/taurus/conf
+WORKDIR /opt/numenta/taurus
+RUN mkdir -p /opt/numenta/taurus/logs
+EXPOSE 443 9001
+CMD ./infrastructure/coreos/taurus/run-taurus.sh
