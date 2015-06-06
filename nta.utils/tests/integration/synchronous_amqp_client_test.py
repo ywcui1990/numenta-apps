@@ -754,12 +754,14 @@ class SynchronousAmqpClientTest(unittest.TestCase):
           queueName),
         auth=(self.connParams.username, self.connParams.password)
       ).json()
+      self.assertIn("redeliver", queue["message_stats"])
       self.assertEqual(queue["message_stats"]["redeliver"], numTestMessages)
     _verifyRecoveredMessages()
 
     for i in range(0, numTestMessages):
       self.assertEqual(self.client.getNextEvent().body,
                        "test-msg-%d" % (i))
+
 
   def testAckingMessages(self):
     """ Tests acking messages """
