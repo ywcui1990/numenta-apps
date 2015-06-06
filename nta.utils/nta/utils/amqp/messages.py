@@ -202,6 +202,7 @@ class BasicProperties(object):
     self.clusterId = clusterId
 
 
+
   def __repr__(self):
     args = (
       ("%s=%r" % (attr, getattr(self, attr)))

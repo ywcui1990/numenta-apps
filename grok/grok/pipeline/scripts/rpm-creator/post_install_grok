@@ -1,24 +1,20 @@
 #!/bin/bash
 # ----------------------------------------------------------------------
-# Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
-# following terms and conditions apply:
+# Copyright (C) 2014 Numenta Inc. All rights reserved.
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
-# published by the Free Software Foundation.
+# The information and source code contained herein is the
+# exclusive property of Numenta Inc. No part of this software
+# may be used, reproduced, stored or distributed in any form,
+# without explicit written authorization from Numenta Inc.
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# This script is executed when a grok RPM is installed using rpm or yum,
+# after all the files have been installed.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see http://www.gnu.org/licenses.
+# We’re building the RPMs outside of a Grok instance in an arbitrary tree
+# structure, which is what leads to the incorrect .pth / .egg-info files.
 #
-# http://numenta.org/licenses/
-# ----------------------------------------------------------------------install-option="--install-dir=lib/python2.7/site-packages" --no-deps"
+# This command "pip install -e /opt/numents/grok
+# --install-option="--install-dir=lib/python2.7/site-packages" --no-deps"
 # regenerates the .pth files so they point to /opt/numenta/grok instead
 # of the build paths from the jenkins slaves.
 
@@ -48,8 +44,5 @@ fi
 # TODO: TAUR-845 Figure out why psutil and PyYAML are being deleted.
 
 pip install psutil==1.2.1
-
-# Install requirements.txt
-pip install -r requirements.txt
 
 python setup.py develop --install-dir=lib/python2.7/site-packages --script-dir=bin

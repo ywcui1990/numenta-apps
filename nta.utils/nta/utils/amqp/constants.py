@@ -43,4 +43,3 @@ class AMQPErrorCodes(object):
 
   # Requested resource not found
   NOT_FOUND = 404
-  
