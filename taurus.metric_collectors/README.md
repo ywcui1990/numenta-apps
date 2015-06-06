@@ -19,7 +19,7 @@ Installation
   specified, the generated scripts go into the location specified in
   `--install-dir`.
 
-`install-taurus-metric-collectors.sh` is included at the root of the `products` repository as a
+`install-taurus-metric-collectors.sh` is included at the root of the `numenta-apps` repository as a
 convenient alternative:
 
     `./install-taurus-metric-collectors.sh <site-packages in $PYTHONPATH> <somewhere in $PATH>`
@@ -58,7 +58,7 @@ convenient alternative:
 ### Create a cron job that invokes taurus-check-twitter-screen-names periodically
 
   e.g., every hour
-  `@hourly source /opt/numenta/products/taurus.metric_collectors/env.sh; /opt/numenta/anaconda/bin/taurus-check-twitter-screen-names 2>&1 | logger -t taurus-check-twitter-screen-names`
+  `@hourly source /opt/numenta/numenta-apps/taurus.metric_collectors/env.sh; /opt/numenta/anaconda/bin/taurus-check-twitter-screen-names 2>&1 | logger -t taurus-check-twitter-screen-names`
 
 This script will send email notifications to report unmapped screen names, if they haven't already been reported.
 
@@ -78,7 +78,7 @@ This script will send email notifications to report unmapped screen names, if th
 ### Create a cron job that invokes taurus-check-company-symbols periodically
 
   e.g., every day
-  `@daily source /opt/numenta/products/taurus.metric_collectors/env.sh; /opt/numenta/anaconda/bin/taurus-check-company-symbols 2>&1 | logger -t taurus-check-company-symbols`
+  `@daily source /opt/numenta/numenta-apps/taurus.metric_collectors/env.sh; /opt/numenta/anaconda/bin/taurus-check-company-symbols 2>&1 | logger -t taurus-check-company-symbols`
 
 This script will send email notifications to report invalid stock symbols, if they haven't already been reported.
 
@@ -108,7 +108,7 @@ where metric data samples as well as non-metric data (e.g., tweets) are
 forwarded
 
 `TAURUS_METRIC_COLLECTORS_LOG_DIR`: Path of the directory where logs are to be
-stored; defaults to <products/taurus.metric_collectors/logs/>
+stored; defaults to <numenta-apps/taurus.metric_collectors/logs/>
 
 `TAURUS_TWITTER_ACCESS_TOKEN`: Twitter oAuth access token for Twitter's public API
 
