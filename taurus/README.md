@@ -21,7 +21,7 @@ First, install `nta.utils`, `htmengine` and `taurus.metric_collectors`.  Then, t
   specified, the generated scripts go into the location specified in
   `--install-dir`.
 
-`install-taurus.sh` is included at the root of the `products` repository as a
+`install-taurus.sh` is included at the root of the `numenta-apps` repository as a
 convenient alternative:
 
     ./install-taurus.sh <site-packages in $PYTHONPATH> <somewhere in $PATH>
@@ -37,7 +37,7 @@ local changes without conflicts:
 - Edit `conf-user/supervisord.conf`, replacing `/opt/numenta/taurus/conf` with
   your own configuration path.  For example, the line
   `environment=APPLICATION_CONFIG_PATH=/opt/numenta/taurus/conf` should instead
-  be something like `environment=APPLICATION_CONFIG_PATH=/Users/<your username>/nta/products/taurus/conf-user`
+  be something like `environment=APPLICATION_CONFIG_PATH=/Users/<your username>/nta/numenta-apps/taurus/conf-user`
 - Additionally ensure that APPLICATION_CONFIG_PATH is set in your environment.
 - Edit `conf-user/supervisord.conf` to uncomment the lines for the DynamoDB
   local test tool.
