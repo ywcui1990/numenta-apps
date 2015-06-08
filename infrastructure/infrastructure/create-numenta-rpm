@@ -66,6 +66,10 @@ def parseCLA():
 
   parser = argparse.ArgumentParser(description="Create a products RPM")
 
+  defaultVersion = os.environ.get("RELEASE_VERSION")
+  if not defaultVersion:
+    defaultVersion = "1.7.1"
+
   parser.add_argument("--artifact",
                       action="append",
                       dest="artifacts",
@@ -82,7 +86,7 @@ def parseCLA():
   parser.add_argument("--base-version",
                       dest="baseVersion",
                       help="Base version number to use",
-                      default="1.7.1")
+                      default=defaultVersion)
 
   parser.add_argument("--build-script",
                       action="append",
@@ -359,7 +363,7 @@ def setPythonPath(environment, productsDirectory):
     Set any extra pythonpath.
 
     @environment - current environment variables.
-    @param productsDirectory - products direcotry path.
+    @param productsDirectory - products directory path.
   """
   pythonpath = ""
   g_logger.debug("Previous: %s", pythonpath)
@@ -376,7 +380,7 @@ def cleanScripts(productsDirectory, environment):
   """
     Cleans the grok directory before packaging.
 
-    @param productsDirectory - products direcotry path
+    @param productsDirectory - products directory path
                                to run cleanup scripts.
   """
   g_logger.info("Running cleanup scripts...")
@@ -396,7 +400,7 @@ def purgeBlacklistedStuff(productsDirectory):
   """
     Purges anything not whitelisted.
 
-    @param productsDirectory - products direcotry path
+    @param productsDirectory - products directory path
                                to remove blacklisted stuff.
   """
   g_logger.info("Purge anything not whitelisted.")
