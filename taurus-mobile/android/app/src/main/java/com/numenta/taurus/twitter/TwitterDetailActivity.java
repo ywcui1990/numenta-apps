@@ -257,12 +257,17 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
-                    int totalItemCount) {
+                    final int totalItemCount) {
                 // Synchronize chart and group header on scroll
                 if (_isScrolling) {
                     // The last 2 items are the "grey" filler and the last tweet
                     if (visibleItemCount <= 2) {
-                        _listView.setSelection(totalItemCount - 2);
+                        _listView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                _listView.setSelection(totalItemCount - 2);
+                            }
+                        });
                     }
                 }
 
