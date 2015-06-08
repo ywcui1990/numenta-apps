@@ -66,9 +66,7 @@ def parseCLA():
 
   parser = argparse.ArgumentParser(description="Create a products RPM")
 
-  defaultVersion = os.environ.get("RELEASE_VERSION")
-  if not defaultVersion:
-    defaultVersion = "1.7.1"
+  defaultVersion = os.environ.get("RELEASE_VERSION", "1.7.1")
 
   parser.add_argument("--artifact",
                       action="append",
