@@ -8,7 +8,7 @@ Install dependencies
 Startup
 -------
 
-From within the `docker-workshop` directory:
+From within the `taurus/infrastructure/coreos/` directory:
 
 ```
 vagrant up
