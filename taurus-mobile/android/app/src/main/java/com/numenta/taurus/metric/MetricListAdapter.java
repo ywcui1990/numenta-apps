@@ -247,7 +247,7 @@ public class MetricListAdapter extends AnomalyListAdapter<MetricAnomalyChartData
 
                 Boolean modified = false;
                 // Load data in parallel
-                ArrayList<Callable<Boolean>> tasks = new ArrayList<>(args.length);
+                ArrayList<Callable<Boolean>> tasks = new ArrayList<Callable<Boolean>>(args.length);
                 for (final AnomalyChartData val : args) {
                     if (isCancelled()) {
                         break;

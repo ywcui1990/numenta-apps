@@ -337,7 +337,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
             endTime = _timestampArg + DataUtils.MILLIS_PER_HOUR;
             start = endTime - DataUtils.MILLIS_PER_HOUR * TaurusApplication.getTotalBarsOnChart();
         }
-        return new Pair<>(start, endTime);
+        return new Pair<Long, Long>(start, endTime);
     }
 
     /**
@@ -412,10 +412,10 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
             long _initialTimestamp = getIntent().getLongExtra(SELECTED_TIMESTAMP_ARG, 0);
 
             // Group tweets with the same text and re-tweets into buckets
-            TreeMap<Tweet, Integer> _buckets = new TreeMap<>(SORT_BY_TEXT);
+            TreeMap<Tweet, Integer> _buckets = new TreeMap<Tweet, Integer>(SORT_BY_TEXT);
 
             // Aggregated tweet count by time based on metric raw data
-            TreeMap<Long, Integer> _tweetCountByDate = new TreeMap<>();
+            TreeMap<Long, Integer> _tweetCountByDate = new TreeMap<Long, Integer>();
 
             @Override
             protected Void doInBackground(Void... params) {

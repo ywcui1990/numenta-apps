@@ -122,7 +122,7 @@ public class NotificationService {
         long localId;
         boolean newNotification = false;
         long notificationCount;
-        ArrayList<String> acknowledge = new ArrayList<>();
+        ArrayList<String> acknowledge = new ArrayList<String>();
         final CoreDatabase grokdb = GrokApplication.getDatabase();
         final SharedPreferences prefs =
                 PreferenceManager.getDefaultSharedPreferences(_service.getApplicationContext());

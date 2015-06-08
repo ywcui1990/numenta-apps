@@ -289,11 +289,11 @@ public class LineChartView extends View {
 
                 Pair<Integer, Float>[] anomalies = new Pair[3];
                 // Green
-                anomalies[0] = new Pair<>(100, 0.1f);
+                anomalies[0] = new Pair<Integer, Float>(100, 0.1f);
                 // Yellow
-                anomalies[1] = new Pair<>(120, 0.6f);
+                anomalies[1] = new Pair<Integer, Float>(120, 0.6f);
                 // Green
-                anomalies[2] = new Pair<>(140, 1.0f);
+                anomalies[2] = new Pair<Integer, Float>(140, 1.0f);
                 setAnomalies(anomalies);
                 // Show selection
                 setSelection(100);

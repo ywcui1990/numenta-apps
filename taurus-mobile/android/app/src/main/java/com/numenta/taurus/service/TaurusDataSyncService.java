@@ -136,7 +136,7 @@ public class TaurusDataSyncService extends DataSyncService {
         // Blocking queue holding data waiting to be saved to the database.
         // This queue will be filled by the TaurusClient as it downloads data and it will be
         // emptied by the databaseTask as is saves data to the database
-        final LinkedBlockingQueue<InstanceData> pending = new LinkedBlockingQueue<>(
+        final LinkedBlockingQueue<InstanceData> pending = new LinkedBlockingQueue<InstanceData>(
                 PENDING_IO_BUFFER_SIZE);
 
         // Background task used save data to the database. This task will wait for data to arrive
@@ -146,7 +146,7 @@ public class TaurusDataSyncService extends DataSyncService {
             @Override
             public void run() {
                 // Save data in batches, one day at the time
-                final List<InstanceData> batch = new ArrayList<>();
+                final List<InstanceData> batch = new ArrayList<InstanceData>();
                 int batchSize = -DataUtils.MILLIS_PER_HOUR;
 
                 // Tracks batch timestamp. Once the data timestamp is greater than the batch
