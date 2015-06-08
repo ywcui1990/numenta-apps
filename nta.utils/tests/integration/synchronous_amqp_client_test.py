@@ -19,14 +19,14 @@ from random import randint
 
 from nta.utils.error_handling import retry
 from nta.utils.amqp import (
-  AmqpChannelError,
-  Consumer,
-  Message,
-  QueueDeclarationResult,
-  UnroutableError)
+    AmqpChannelError,
+    Consumer,
+    Message,
+    QueueDeclarationResult,
+    UnroutableError)
 from nta.utils.amqp import (
-  getRabbitmqConnectionParameters,
-  RabbitmqManagementConnectionParams)
+    getRabbitmqConnectionParameters,
+    RabbitmqManagementConnectionParams)
 from nta.utils.amqp import SynchronousAmqpClient
 from nta.utils.logging_support_raw import LoggingSupport
 from nta.utils.test_utils import amqp_test_utils
@@ -48,8 +48,8 @@ _RETRY_ON_ASSERTION_ERROR = retry(timeoutSec=10, initialRetryDelaySec=0.5,
 
 
 @amqp_test_utils.RabbitmqVirtualHostPatch(
-  clientLabel="testingAmqpClient",
-  logger=_LOGGER)
+    clientLabel="testingAmqpClient",
+    logger=_LOGGER)
 class SynchronousAmqpClientTest(unittest.TestCase):
   """ Test for nta.utils.amqp.SynchronousAmqpClient """
 
@@ -123,13 +123,13 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     :param int testMessageCount: (optional)
     """
     queue = requests.get(
-      url="http://%s:%s/api/queues/%s/%s" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        testQueueName),
-      auth=(self.connParams.username,
-            self.connParams.password)
+        url="http://%s:%s/api/queues/%s/%s" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            testQueueName),
+        auth=(self.connParams.username,
+              self.connParams.password)
     ).json()
     self.assertEqual(queue["name"], testQueueName)
     self.assertEqual(queue["consumers"], testConsumerCount)
@@ -144,13 +144,13 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     :param queueName: Queue name
     """
     response = requests.get(
-      url="http://%s:%s/api/queues/%s/%s" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        queueName),
-      auth=(self.connParams.username,
-            self.connParams.password))
+        url="http://%s:%s/api/queues/%s/%s" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            queueName),
+        auth=(self.connParams.username,
+              self.connParams.password))
     self.assertEqual(response.status_code, 404, "Queue didn't properly delete")
 
 
@@ -170,13 +170,13 @@ class SynchronousAmqpClientTest(unittest.TestCase):
 
     self.client.declareExchange(exchangeName, exchangeType)
     exchange = requests.get(
-      url="http://%s:%s/api/exchanges/%s/%s" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        exchangeName),
-      auth=(self.connParams.username,
-            self.connParams.password)
+        url="http://%s:%s/api/exchanges/%s/%s" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            exchangeName),
+        auth=(self.connParams.username,
+              self.connParams.password)
     ).json()
     self.assertEqual(exchange["name"], exchangeName)
     self.assertEqual(exchange["type"], exchangeType)
@@ -207,13 +207,13 @@ class SynchronousAmqpClientTest(unittest.TestCase):
 
     self.client.declareExchange(exchangeName, exchangeType)
     exchange = requests.get(
-      url="http://%s:%s/api/exchanges/%s/%s" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        exchangeName),
-      auth=(self.connParams.username,
-            self.connParams.password)
+        url="http://%s:%s/api/exchanges/%s/%s" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            exchangeName),
+        auth=(self.connParams.username,
+              self.connParams.password)
     ).json()
     self.assertEqual(exchange["name"], exchangeName)
     self.assertEqual(exchange["type"], exchangeType)
@@ -244,13 +244,13 @@ class SynchronousAmqpClientTest(unittest.TestCase):
 
     self.client.declareExchange(exchangeName, exchangeType)
     exchange = requests.get(
-      url="http://%s:%s/api/exchanges/%s/%s" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        exchangeName),
-      auth=(self.connParams.username,
-            self.connParams.password)
+        url="http://%s:%s/api/exchanges/%s/%s" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            exchangeName),
+        auth=(self.connParams.username,
+              self.connParams.password)
     ).json()
     self.assertEqual(exchange["name"], exchangeName)
     self.assertEqual(exchange["type"], exchangeType)
@@ -300,12 +300,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
 
     self.client.bindQueue(queueName, exchangeName, routingKey)
     queueBindings = requests.get(
-      url="http://%s:%s/api/queues/%s/%s/bindings" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        queueName),
-      auth=(self.connParams.username, self.connParams.password)
+        url="http://%s:%s/api/queues/%s/%s/bindings" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            queueName),
+        auth=(self.connParams.username, self.connParams.password)
     ).json()
     queueBindingsList = [bind for bind in queueBindings
                          if bind["source"] == exchangeName]
@@ -313,12 +313,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     self.assertEqual(queueBindingsList[0]["routing_key"], routingKey)
 
     exchangeBindings = requests.get(
-      url="http://%s:%s/api/exchanges/%s/%s/bindings/source" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        exchangeName),
-      auth=(self.connParams.username, self.connParams.password)
+        url="http://%s:%s/api/exchanges/%s/%s/bindings/source" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            exchangeName),
+        auth=(self.connParams.username, self.connParams.password)
     ).json()
     exchangeBindingsList = [bind for bind in exchangeBindings
                             if bind["destination"] == queueName]
@@ -327,13 +327,13 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     self.assertEqual(exchangeBindingsList[0]["routing_key"], routingKey)
 
     bindings = requests.get(
-      url="http://%s:%s/api/bindings/%s/e/%s/q/%s" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        exchangeName,
-        queueName),
-      auth=(self.connParams.username, self.connParams.password)
+        url="http://%s:%s/api/bindings/%s/e/%s/q/%s" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            exchangeName,
+            queueName),
+        auth=(self.connParams.username, self.connParams.password)
     ).json()
     bindingsList = [bind for bind in bindings
                     if bind["routing_key"] == routingKey]
@@ -341,38 +341,38 @@ class SynchronousAmqpClientTest(unittest.TestCase):
 
     self.client.unbindQueue(queueName, exchangeName, routingKey)
     queueBindings = requests.get(
-      url="http://%s:%s/api/queues/%s/%s/bindings" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        queueName),
-      auth=(self.connParams.username, self.connParams.password)
+        url="http://%s:%s/api/queues/%s/%s/bindings" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            queueName),
+        auth=(self.connParams.username, self.connParams.password)
     ).json()
     queueBindingsList = [bind for bind in queueBindings
                          if bind["source"] == exchangeName]
     self.assertFalse(queueBindingsList)
     exchangeBindings = requests.get(
-      url="http://%s:%s/api/exchanges/%s/%s/bindings/source" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        exchangeName),
-      auth=(self.connParams.username, self.connParams.password)
+        url="http://%s:%s/api/exchanges/%s/%s/bindings/source" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            exchangeName),
+        auth=(self.connParams.username, self.connParams.password)
     ).json()
     exchangeBindingsList = [bind for bind in exchangeBindings
                             if bind["destination"] == queueName]
     self.assertFalse(exchangeBindingsList)
     bindings = requests.get(
-      url="http://%s:%s/api/bindings/%s/e/%s/q/%s" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost,
-        exchangeName,
-        queueName),
-      auth=(self.connParams.username, self.connParams.password)
+        url="http://%s:%s/api/bindings/%s/e/%s/q/%s" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost,
+            exchangeName,
+            queueName),
+        auth=(self.connParams.username, self.connParams.password)
     ).json()
     bindingsList = [bind for bind in bindings
-                     if bind["routing_key"] == routingKey]
+                    if bind["routing_key"] == routingKey]
     self.assertFalse(bindingsList)
 
 
@@ -461,12 +461,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     @_RETRY_ON_ASSERTION_ERROR
     def _verifyReadyMessages():
       queue = requests.get(
-        url="http://%s:%s/api/queues/%s/%s" % (
-          self.connParams.host,
-          self.connParams.port,
-          self.connParams.vhost,
-          queueName),
-        auth=(self.connParams.username, self.connParams.password)
+          url="http://%s:%s/api/queues/%s/%s" % (
+              self.connParams.host,
+              self.connParams.port,
+              self.connParams.vhost,
+              queueName),
+          auth=(self.connParams.username, self.connParams.password)
       ).json()
       self.assertEqual(queue["messages_ready"], numTestMessages)
     _verifyReadyMessages()
@@ -475,12 +475,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     @_RETRY_ON_ASSERTION_ERROR
     def _verifyUnacknowledgedMessages():
       queue = requests.get(
-        url="http://%s:%s/api/queues/%s/%s" % (
-          self.connParams.host,
-          self.connParams.port,
-          self.connParams.vhost,
-          queueName),
-        auth=(self.connParams.username, self.connParams.password)
+          url="http://%s:%s/api/queues/%s/%s" % (
+              self.connParams.host,
+              self.connParams.port,
+              self.connParams.vhost,
+              queueName),
+          auth=(self.connParams.username, self.connParams.password)
       ).json()
       self.assertEqual(queue["messages_unacknowledged"], numTestMessages)
     _verifyUnacknowledgedMessages()
@@ -489,12 +489,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     @_RETRY_ON_ASSERTION_ERROR
     def _verifyAcknowledgedMessages():
       queue = requests.get(
-        url="http://%s:%s/api/queues/%s/%s" % (
-          self.connParams.host,
-          self.connParams.port,
-          self.connParams.vhost,
-          queueName),
-        auth=(self.connParams.username, self.connParams.password)
+          url="http://%s:%s/api/queues/%s/%s" % (
+              self.connParams.host,
+              self.connParams.port,
+              self.connParams.vhost,
+              queueName),
+          auth=(self.connParams.username, self.connParams.password)
       ).json()
       self.assertEqual(queue["messages"], 0)
       self.assertIn("ack", queue["message_stats"])
@@ -530,12 +530,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       use the _RETRY_ON_ASSERTION_ERROR decorator.
       """
       queue = requests.get(
-        url="http://%s:%s/api/queues/%s/%s" % (
-          self.connParams.host,
-          self.connParams.port,
-          self.connParams.vhost,
-          queueName),
-        auth=(self.connParams.username, self.connParams.password)
+          url="http://%s:%s/api/queues/%s/%s" % (
+              self.connParams.host,
+              self.connParams.port,
+              self.connParams.vhost,
+              queueName),
+          auth=(self.connParams.username, self.connParams.password)
       ).json()
       self.assertEqual(queue["messages_ready"], numTestMessages)
     _verifyReadyMessages()
@@ -548,12 +548,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       use the _RETRY_ON_ASSERTION_ERROR decorator.
       """
       queue = requests.get(
-        url="http://%s:%s/api/queues/%s/%s" % (
-          self.connParams.host,
-          self.connParams.port,
-          self.connParams.vhost,
-          queueName),
-        auth=(self.connParams.username, self.connParams.password)
+          url="http://%s:%s/api/queues/%s/%s" % (
+              self.connParams.host,
+              self.connParams.port,
+              self.connParams.vhost,
+              queueName),
+          auth=(self.connParams.username, self.connParams.password)
       ).json()
       self.assertEqual(queue["messages_unacknowledged"], numTestMessages)
     _verifyUnacknowledgedMessages()
@@ -566,12 +566,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       use the _RETRY_ON_ASSERTION_ERROR decorator.
       """
       queue = requests.get(
-        url="http://%s:%s/api/queues/%s/%s" % (
-          self.connParams.host,
-          self.connParams.port,
-          self.connParams.vhost,
-          queueName),
-        auth=(self.connParams.username, self.connParams.password)
+          url="http://%s:%s/api/queues/%s/%s" % (
+              self.connParams.host,
+              self.connParams.port,
+              self.connParams.vhost,
+              queueName),
+          auth=(self.connParams.username, self.connParams.password)
       ).json()
       self.assertEqual(queue["messages"], 0)
       self.assertEqual(queue["messages_unacknowledged"], 0)
@@ -656,22 +656,22 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     consumer = self.client.createConsumer(queueName)
     self.assertIsInstance(consumer, Consumer)
     consumers = requests.get(
-      url="http://%s:%s/api/consumers/%s" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost),
-      auth=(self.connParams.username, self.connParams.password)
+        url="http://%s:%s/api/consumers/%s" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost),
+        auth=(self.connParams.username, self.connParams.password)
     ).json()
     consumersList = [c for c in consumers if c["queue"]["name"] == queueName]
     self.assertTrue(consumersList)
 
     consumer.cancel()
     consumers = requests.get(
-      url="http://%s:%s/api/consumers/%s" % (
-        self.connParams.host,
-        self.connParams.port,
-        self.connParams.vhost),
-      auth=(self.connParams.username, self.connParams.password)
+        url="http://%s:%s/api/consumers/%s" % (
+            self.connParams.host,
+            self.connParams.port,
+            self.connParams.vhost),
+        auth=(self.connParams.username, self.connParams.password)
     ).json()
     consumersList = [c for c in consumers if c["queue"]["name"] == queueName]
     self.assertFalse(consumersList)
@@ -739,12 +739,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       use the _RETRY_ON_ASSERTION_ERROR decorator.
       """
       queue = requests.get(
-        url="http://%s:%s/api/queues/%s/%s" % (
-          self.connParams.host,
-          self.connParams.port,
-          self.connParams.vhost,
-          queueName),
-        auth=(self.connParams.username, self.connParams.password)
+          url="http://%s:%s/api/queues/%s/%s" % (
+              self.connParams.host,
+              self.connParams.port,
+              self.connParams.vhost,
+              queueName),
+          auth=(self.connParams.username, self.connParams.password)
       ).json()
       self.assertEqual(queue["messages_unacknowledged"], numTestMessages)
     _verifyUnacknowledgedMessages()
@@ -758,12 +758,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       use the _RETRY_ON_ASSERTION_ERROR decorator.
       """
       queue = requests.get(
-        url="http://%s:%s/api/queues/%s/%s" % (
-          self.connParams.host,
-          self.connParams.port,
-          self.connParams.vhost,
-          queueName),
-        auth=(self.connParams.username, self.connParams.password)
+          url="http://%s:%s/api/queues/%s/%s" % (
+              self.connParams.host,
+              self.connParams.port,
+              self.connParams.vhost,
+              queueName),
+          auth=(self.connParams.username, self.connParams.password)
       ).json()
       self.assertIn("redeliver", queue["message_stats"])
       self.assertEqual(queue["message_stats"]["redeliver"], numTestMessages)
@@ -807,12 +807,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       use the _RETRY_ON_ASSERTION_ERROR decorator.
       """
       queue = requests.get(
-        url="http://%s:%s/api/queues/%s/%s" % (
-          self.connParams.host,
-          self.connParams.port,
-          self.connParams.vhost,
-          queueName),
-        auth=(self.connParams.username, self.connParams.password)
+          url="http://%s:%s/api/queues/%s/%s" % (
+              self.connParams.host,
+              self.connParams.port,
+              self.connParams.vhost,
+              queueName),
+          auth=(self.connParams.username, self.connParams.password)
       ).json()
       self.assertEqual(queue["messages"], 0)
       self.assertIn("ack", queue["message_stats"])
@@ -853,12 +853,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       use the _RETRY_ON_ASSERTION_ERROR decorator.
       """
       queue = requests.get(
-        url="http://%s:%s/api/queues/%s/%s" % (
-          self.connParams.host,
-          self.connParams.port,
-          self.connParams.vhost,
-          queueName),
-        auth=(self.connParams.username, self.connParams.password)
+          url="http://%s:%s/api/queues/%s/%s" % (
+              self.connParams.host,
+              self.connParams.port,
+              self.connParams.vhost,
+              queueName),
+          auth=(self.connParams.username, self.connParams.password)
       ).json()
       self.assertEqual(queue["messages"], 0)
       self.assertEqual(queue["messages_unacknowledged"], 0)
