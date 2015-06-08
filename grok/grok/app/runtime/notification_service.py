@@ -35,11 +35,7 @@ from boto.exception import BotoServerError
 from pytz import timezone
 import requests
 
-from nta.utils.amqp import connection as amqp_connection
-from nta.utils.amqp import consumer as amqp_consumer
-from nta.utils.amqp import exceptions as amqp_exceptions
-from nta.utils.amqp import messages as amqp_messages
-from nta.utils.amqp import synchronous_amqp_client
+from nta.utils import amqp
 
 from grok import logging_support
 from grok.grok_logging import getExtendedLogger
@@ -379,8 +375,8 @@ class NotificationService(object):
         amqpClient.requestQoS(prefetchCount=1)
 
       # Open connection to rabbitmq
-      with synchronous_amqp_client.SynchronousAmqpClient(
-          amqp_connection.getRabbitmqConnectionParameters(),
+      with amqp.synchronous_amqp_client.SynchronousAmqpClient(
+          amqp.connection.getRabbitmqConnectionParameters(),
           channelConfigCb=configChannel) as amqpClient:
 
         # make sure the queue and exchanges exists and the queue is bound
@@ -398,10 +394,10 @@ class NotificationService(object):
         consumer = amqpClient.createConsumer(result.queue)
 
         for evt in amqpClient.readEvents():
-          if isinstance(evt, amqp_messages.ConsumerMessage):
+          if isinstance(evt, amqp.messages.ConsumerMessage):
             self.messageHandler(evt)
 
-          elif isinstance(evt, amqp_consumer.ConsumerCancellation):
+          elif isinstance(evt, amqp.consumer.ConsumerCancellation):
             # Bad news: this likely means that our queue was deleted externally
             msg = "Consumer cancelled by broker: %r (%r)" % (evt, consumer)
             self._log.critical(msg)
@@ -410,10 +406,10 @@ class NotificationService(object):
           else:
             self._log.warning("Unexpected amqp event=%r", evt)
 
-    except amqp_exceptions.AmqpConnectionError:
+    except amqp.exceptions.AmqpConnectionError:
       self._log.exception("RabbitMQ connection failed")
       raise
-    except amqp_exceptions.AmqpChannelError:
+    except amqp.exceptions.AmqpChannelError:
       self._log.exception("RabbitMQ channel failed")
       raise
     except Exception as ex:

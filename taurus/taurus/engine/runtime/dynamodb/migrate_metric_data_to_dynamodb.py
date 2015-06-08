@@ -31,7 +31,7 @@ import sys
 from taurus.engine import config, repository, logging_support, taurus_logging
 from taurus.engine.repository.schema import metric_data
 
-from nta.utils.amqp import constants as amqp_constants
+from nta.utils import amqp
 from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 from nta.utils.message_bus_connector import MessageBusConnector
 from nta.utils.message_bus_connector import MessageProperties
@@ -66,13 +66,13 @@ def replayMetricDataToModelResultsExchange(messageBus,
   # Properties for publishing model command results on RabbitMQ exchange
   # (same as AnomalyService)
   modelCommandResultProperties = MessageProperties(
-      deliveryMode=amqp_constants.AMQPDeliveryModes.PERSISTENT_MESSAGE,
+      deliveryMode=amqp.constants.AMQPDeliveryModes.PERSISTENT_MESSAGE,
       headers=dict(dataType="model-cmd-result"))
 
   # Properties for publishing model inference results on RabbitMQ exchange
   # (same as AnomalyService)
   modelInferenceResultProperties = MessageProperties(
-    deliveryMode=amqp_constants.AMQPDeliveryModes.PERSISTENT_MESSAGE)
+    deliveryMode=amqp.constants.AMQPDeliveryModes.PERSISTENT_MESSAGE)
 
   g_log.info("Getting metric data...")
   result = repository.getMetricData(engine,

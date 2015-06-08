@@ -453,7 +453,7 @@ class SynchronousAmqpClient(object):
       publisher-acknowledgments mode, raised if the given
       message is returned as unroutable.
     :raises nta.utils.amqp.exceptions.NackError: when the given message is
-      NACKed by broker while channel is in RabbitMQ publisher-acknowledgments 
+      NACKed by broker while channel is in RabbitMQ publisher-acknowledgments
       mode
     :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
@@ -706,11 +706,13 @@ class SynchronousAmqpClient(object):
     """This method asks the server to redeliver all unacknowledged messages on a
     specified channel. Zero or more messages may be redelivered.
 
+    NOTE: RabbitMQ does not currently support recovering with requeue=False
+
     :param bool requeue: If false, the message will be redelivered to the
       original recipient. If true, the server will attempt to requeue the
       message, potentially then delivering it to an alternative subscriber.
     """
-    self._liveChannelContext.channel.recover(requeue=requeue)
+    self._liveChannelContext.channel.basic.recover(requeue=requeue)
 
 
   def ackAll(self):
@@ -923,7 +925,7 @@ class SynchronousAmqpClient(object):
     """If returned messages are present, raise UnroutableError and clear
     returned messages holding buffer
 
-    :raises nta.utils.amqp.exceptions.UnroutableError: if returned messages 
+    :raises nta.utils.amqp.exceptions.UnroutableError: if returned messages
       are present
     """
     channelContext = self._channelContextInstance
@@ -1091,9 +1093,9 @@ class SynchronousAmqpClient(object):
     try:
       if self._connection is None:
         # Failure during connection setup
-        raise amqp_exceptions.AmqpConnectionError(code=0, 
+        raise amqp_exceptions.AmqpConnectionError(code=0,
                                                   text="connection setup failed",
-                                                  classId=0, 
+                                                  classId=0,
                                                   methodId=0)
 
       closeInfo = self._connection.close_info

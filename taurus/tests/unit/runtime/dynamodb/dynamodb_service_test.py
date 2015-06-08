@@ -36,7 +36,7 @@ from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.exceptions import ResourceNotFoundException
 from boto.dynamodb2.table import BatchTable
 
-from nta.utils.amqp import messages as amqp_messages
+from nta.utils import amqp
 from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 
 from htmengine.runtime.anomaly_service import AnomalyService
@@ -180,10 +180,10 @@ class DynamoDBServiceTestCase(unittest.TestCase):
     # Then simulate the process of handling an inbound batch of model inference
     # results and assert that the appropriate put_item() calls are made at the
     # other end.
-    message = amqp_messages.ConsumerMessage(
+    message = amqp.messages.ConsumerMessage(
       body=Mock(),
       properties=Mock(headers=dict()),
-      methodInfo=amqp_messages.MessageDeliveryInfo(consumerTag=Mock(),
+      methodInfo=amqp.messages.MessageDeliveryInfo(consumerTag=Mock(),
                                                    deliveryTag=Mock(),
                                                    redelivered=False,
                                                    exchange=Mock(),
@@ -273,10 +273,10 @@ class DynamoDBServiceTestCase(unittest.TestCase):
     # results and assert that the appropriate put_item() calls are made at the
     # other end.
 
-    message = amqp_messages.ConsumerMessage(
+    message = amqp.messages.ConsumerMessage(
       body=Mock(),
       properties=Mock(headers=dict()),
-      methodInfo=amqp_messages.MessageDeliveryInfo(consumerTag=Mock(),
+      methodInfo=amqp.messages.MessageDeliveryInfo(consumerTag=Mock(),
                                                    deliveryTag=Mock(),
                                                    redelivered=False,
                                                    exchange=Mock(),
@@ -365,10 +365,10 @@ class DynamoDBServiceTestCase(unittest.TestCase):
       }
     ]
 
-    message = amqp_messages.ConsumerMessage(
+    message = amqp.messages.ConsumerMessage(
       body=json.dumps(tweetData),
       properties=Mock(),
-      methodInfo=amqp_messages.MessageDeliveryInfo(
+      methodInfo=amqp.messages.MessageDeliveryInfo(
         consumerTag=Mock(),
         deliveryTag=Mock(),
         redelivered=False,

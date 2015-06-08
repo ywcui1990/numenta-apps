@@ -58,7 +58,7 @@ from nta.utils.error_handling import retry
 from htmengine.model_swapper import ModelSwapperConfig
 import htmengine.utils
 
-from nta.utils.amqp import connection as amqp_connection
+from nta.utils import amqp
 
 
 _BASE_API_URL = "http://%(rmqHost)s:%(rmqPort)s/api"
@@ -149,7 +149,7 @@ def _parseArgs():
   parser = OptionParser(usage=usage)
 
   # Get params to use as option defaults
-  rmqParams = amqp_connection.RabbitmqManagementConnectionParams()
+  rmqParams = amqp.connection.RabbitmqManagementConnectionParams()
 
   parser.add_option(
     "--rmq-addr",

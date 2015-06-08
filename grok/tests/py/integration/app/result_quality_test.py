@@ -39,8 +39,7 @@ import requests
 import datetime
 from dateutil.parser import parse as parsedate
 
-from nta.utils.amqp import connection as amqp_connection
-from nta.utils.amqp import synchronous_amqp_client
+from nta.utils import amqp
 from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 
 from htmengine.runtime.anomaly_service import AnomalyService
@@ -109,17 +108,18 @@ class ResultQualityTests(test_case_base.TestCaseBase):
 
     # Subscribe to results broadcast from Anomaly Service
 
-    connParams = amqp_connection.getRabbitmqConnectionParameters()
+    connParams = amqp.connection.getRabbitmqConnectionParameters()
 
     def deleteAmqpQueue(queue):
-      with synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
+      with amqp.synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
           amqpClient):
         amqpClient.deleteQueue(queue=queue, ifUnused=False, ifEmpty=False)
 
     self.resultsQueueName = "grok.result_quality_test.likelihood_results.%s" % (
       uuid.uuid1().hex,)
 
-    with synchronous_amqp_client.SynchronousAmqpClient(connParams) as amqpClient:
+    with amqp.synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
+          amqpClient):
       amqpClient.declareQueue(self.resultsQueueName)
       self.addCleanup(deleteAmqpQueue, self.resultsQueueName)
 
@@ -319,9 +319,9 @@ class ResultQualityTests(test_case_base.TestCaseBase):
       return message
 
 
-    connParams = amqp_connection.getRabbitmqConnectionParameters()
-    with synchronous_amqp_client.SynchronousAmqpClient(
-        amqp_connection.getRabbitmqConnectionParameters()) as amqpClient:
+    connParams = amqp.connection.getRabbitmqConnectionParameters()
+    with amqp.synchronous_amqp_client.SynchronousAmqpClient(
+        amqp.connection.getRabbitmqConnectionParameters()) as amqpClient:
 
       lastMessage = None
 
