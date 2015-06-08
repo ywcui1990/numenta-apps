@@ -67,7 +67,7 @@ class InstanceListAdapter extends AnomalyListAdapter<InstanceAnomalyChartData> {
 
         ChartLoadTask(AnomalyChartView view) {
             // Use a WeakReference to ensure the view can be garbage collected
-            _chartViewReference = new WeakReference<>(view);
+            _chartViewReference = new WeakReference<AnomalyChartView>(view);
         }
 
         @Override

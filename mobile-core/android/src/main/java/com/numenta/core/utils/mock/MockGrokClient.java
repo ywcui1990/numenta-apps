@@ -88,11 +88,11 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * </pre>
  */
 public class MockGrokClient implements GrokClient {
-    protected final ArrayList<Metric> _metrics = new ArrayList<>();
+    protected final ArrayList<Metric> _metrics = new ArrayList<Metric>();
     protected Version _version;
 
     // Keep metric data sorted by timestamp within the same metric id
-    protected SortedSet<MetricData> _metricData = new ConcurrentSkipListSet<>(
+    protected SortedSet<MetricData> _metricData = new ConcurrentSkipListSet<MetricData>(
             new Comparator<MetricData>() {
                 @Override
                 public int compare(MetricData lhs, MetricData rhs) {
@@ -111,8 +111,8 @@ public class MockGrokClient implements GrokClient {
                 }
             });
 
-    final Map<String, Notification> _notifications = new HashMap<>();
-    final Map<String, Annotation> _annotations = new HashMap<>();
+    final Map<String, Notification> _notifications = new HashMap<String, Notification>();
+    final Map<String, Annotation> _annotations = new HashMap<String, Annotation>();
 
 
     public MockGrokClient(Version version) {
@@ -186,7 +186,7 @@ public class MockGrokClient implements GrokClient {
      */
     @Override
     public List<Notification> getNotifications() throws GrokException, IOException {
-        return new ArrayList<>(_notifications.values());
+        return new ArrayList<Notification>(_notifications.values());
     }
 
     /**
@@ -200,7 +200,7 @@ public class MockGrokClient implements GrokClient {
 
     @Override
     public List<Annotation> getAnnotations(Date from, Date to) throws GrokException, IOException {
-        return new ArrayList<>(_annotations.values());
+        return new ArrayList<Annotation>(_annotations.values());
     }
 
     @Override

@@ -142,12 +142,12 @@ public class AnomalyChartView extends View {
                         0.7f, 0.8f, 0.9f,
                         0.99f, 0.999f, 0.9999f,
                         0.9999f, 0.99995f, 1.0f};
-                ArrayList<Pair<Long, Float>> data = new ArrayList<>(testData.length);
+                ArrayList<Pair<Long, Float>> data = new ArrayList<Pair<Long, Float>>(testData.length);
                 for (int i = 0; i < testData.length; i++) {
                     if (i == 10) {
                         data.add(new Pair<Long, Float>(null, testData[i]));
                     } else {
-                        data.add(new Pair<>(from, testData[i]));
+                        data.add(new Pair<Long, Float>(from, testData[i]));
                     }
                 }
                 setData(data);

@@ -612,8 +612,6 @@ class DynamoDBService(object):
                            routingKey="#")  # substitute for zero or more
                                              # words.
 
-    return amqpClient.createConsumer(result.queue)
-
 
   def run(self):
     g_log.info("Running")
@@ -630,7 +628,8 @@ class DynamoDBService(object):
           channelConfigCb=_configChannel) as amqpClient:
 
         self._declareExchanges(amqpClient)
-        consumer = self._declareQueueAndBindToExchanges(amqpClient)
+        self._declareQueueAndBindToExchanges(amqpClient)
+        consumer = amqpClient.createConsumer(self._queueName)
 
         # Start consuming messages
         for evt in amqpClient.readEvents():
