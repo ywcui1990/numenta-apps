@@ -31,15 +31,19 @@ from nta.utils.amqp import SynchronousAmqpClient
 from nta.utils.logging_support_raw import LoggingSupport
 from nta.utils.test_utils import amqp_test_utils
 
-_LOGGER = logging.getLogger("integration.synchronous_amqp_client_test")
+
+_LOGGER = logging.getLogger(__name__)
+
 
 def setUpModule():
   LoggingSupport.initTestApp()
 
+
+
 _RETRY_ON_ASSERTION_ERROR = retry(timeoutSec=10, initialRetryDelaySec=0.5,
-                               maxRetryDelaySec=2,
-                               retryExceptions=(AssertionError,),
-                               logger=_LOGGER)
+                                  maxRetryDelaySec=2,
+                                  retryExceptions=(AssertionError,),
+                                  logger=_LOGGER)
 
 
 
@@ -71,7 +75,7 @@ class SynchronousAmqpClientTest(unittest.TestCase):
 
 
   def assertRaisesCode(self, excClass, excCode, callableObj=None,
-                           *args, **kwargs):
+                       *args, **kwargs):
     """
     Asserts that an Exception with a particular "code" is raised.
 
@@ -86,6 +90,7 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       return
 
     raise self.failureException("%s not raised" % (excClass.__name__,))
+
 
   @_RETRY_ON_ASSERTION_ERROR
   def _verifyDeletedExchange(self, exchangeName):
@@ -266,10 +271,10 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     queueName = "testQueue"
 
     self.assertRaisesCode(AmqpChannelError,
-                              404,
-                              self.client.declareQueue,
-                              queueName,
-                              passive=True)
+                          404,
+                          self.client.declareQueue,
+                          queueName,
+                          passive=True)
 
     self.assertIsInstance(self.client.declareQueue(queueName),
                           QueueDeclarationResult)
@@ -302,11 +307,11 @@ class SynchronousAmqpClientTest(unittest.TestCase):
         queueName),
       auth=(self.connParams.username, self.connParams.password)
     ).json()
-    self.assertTrue([bind for bind in queueBindings
-                     if bind["source"] == exchangeName])
-    self.assertEqual([bind for bind in queueBindings
-                      if bind["source"] == exchangeName][0]["routing_key"],
-                     routingKey)
+    queueBindingsList = [bind for bind in queueBindings
+                         if bind["source"] == exchangeName]
+    self.assertTrue(queueBindingsList)
+    self.assertEqual(queueBindingsList[0]["routing_key"], routingKey)
+
     exchangeBindings = requests.get(
       url="http://%s:%s/api/exchanges/%s/%s/bindings/source" % (
         self.connParams.host,
@@ -315,12 +320,12 @@ class SynchronousAmqpClientTest(unittest.TestCase):
         exchangeName),
       auth=(self.connParams.username, self.connParams.password)
     ).json()
-    self.assertTrue([bind for bind in exchangeBindings
-                     if bind["destination"] == queueName])
+    exchangeBindingsList = [bind for bind in exchangeBindings
+                            if bind["destination"] == queueName]
+    self.assertTrue(exchangeBindingsList)
                     # Tests that the binding actually exists
-    self.assertEqual([bind for bind in exchangeBindings
-                      if bind["destination"] == queueName][0]["routing_key"],
-                     routingKey)
+    self.assertEqual(exchangeBindingsList[0]["routing_key"], routingKey)
+
     bindings = requests.get(
       url="http://%s:%s/api/bindings/%s/e/%s/q/%s" % (
         self.connParams.host,
@@ -330,8 +335,9 @@ class SynchronousAmqpClientTest(unittest.TestCase):
         queueName),
       auth=(self.connParams.username, self.connParams.password)
     ).json()
-    self.assertTrue([bind for bind in bindings
-                     if bind["routing_key"] == routingKey])
+    bindingsList = [bind for bind in bindings
+                    if bind["routing_key"] == routingKey]
+    self.assertTrue(bindingsList)
 
     self.client.unbindQueue(queueName, exchangeName, routingKey)
     queueBindings = requests.get(
@@ -342,8 +348,9 @@ class SynchronousAmqpClientTest(unittest.TestCase):
         queueName),
       auth=(self.connParams.username, self.connParams.password)
     ).json()
-    self.assertFalse([bind for bind in queueBindings
-                     if bind["source"] == exchangeName])
+    queueBindingsList = [bind for bind in queueBindings
+                         if bind["source"] == exchangeName]
+    self.assertFalse(queueBindingsList)
     exchangeBindings = requests.get(
       url="http://%s:%s/api/exchanges/%s/%s/bindings/source" % (
         self.connParams.host,
@@ -352,8 +359,9 @@ class SynchronousAmqpClientTest(unittest.TestCase):
         exchangeName),
       auth=(self.connParams.username, self.connParams.password)
     ).json()
-    self.assertFalse([bind for bind in exchangeBindings
-                     if bind["destination"] == queueName])
+    exchangeBindingsList = [bind for bind in exchangeBindings
+                            if bind["destination"] == queueName]
+    self.assertFalse(exchangeBindingsList)
     bindings = requests.get(
       url="http://%s:%s/api/bindings/%s/e/%s/q/%s" % (
         self.connParams.host,
@@ -363,8 +371,9 @@ class SynchronousAmqpClientTest(unittest.TestCase):
         queueName),
       auth=(self.connParams.username, self.connParams.password)
     ).json()
-    self.assertFalse([bind for bind in bindings
-                     if bind["routing_key"] == routingKey])
+    bindingsList = [bind for bind in bindings
+                     if bind["routing_key"] == routingKey]
+    self.assertFalse(bindingsList)
 
 
   def testPublishMessage(self):
@@ -653,7 +662,8 @@ class SynchronousAmqpClientTest(unittest.TestCase):
         self.connParams.vhost),
       auth=(self.connParams.username, self.connParams.password)
     ).json()
-    self.assertTrue([c for c in consumers if c["queue"]["name"] == queueName])
+    consumersList = [c for c in consumers if c["queue"]["name"] == queueName]
+    self.assertTrue(consumersList)
 
     consumer.cancel()
     consumers = requests.get(
@@ -663,7 +673,8 @@ class SynchronousAmqpClientTest(unittest.TestCase):
         self.connParams.vhost),
       auth=(self.connParams.username, self.connParams.password)
     ).json()
-    self.assertFalse([c for c in consumers if c["queue"]["name"] == queueName])
+    consumersList = [c for c in consumers if c["queue"]["name"] == queueName]
+    self.assertFalse(consumersList)
 
 
   def testConsumerGetNextEvent(self):
@@ -852,7 +863,6 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       self.assertEqual(queue["messages"], 0)
       self.assertEqual(queue["messages_unacknowledged"], 0)
     _verifyNackedMessages()
-
 
 
 
