@@ -197,7 +197,7 @@ public class MetricAnomalyChartData implements AnomalyChartData, Serializable {
      * @see #getAnomalies()
      */
     private void computeAnomalies() {
-        ArrayList<Pair<Integer, Float>> result = new ArrayList<>();
+        ArrayList<Pair<Integer, Float>> result = new ArrayList<Pair<Integer, Float>>();
 
         final long startDate = _data.get(0).first;
         float value;
@@ -208,7 +208,7 @@ public class MetricAnomalyChartData implements AnomalyChartData, Serializable {
                 // Check values for greater or equals to "yellow"
                 if (value >= TaurusApplication.getYellowBarFloor()) {
                     int idx = (int) (point.first - startDate) / METRIC_DATA_INTERVAL;
-                    result.add(new Pair<>(idx, value));
+                    result.add(new Pair<Integer, Float>(idx, value));
                 }
             }
         }
@@ -246,7 +246,7 @@ public class MetricAnomalyChartData implements AnomalyChartData, Serializable {
         // Total number of data points per anomaly bar
         final long pointsPerBar = msecsPerBar / METRIC_DATA_INTERVAL;
 
-        ArrayList<Pair<Integer, Float>> anomalies = new ArrayList<>();
+        ArrayList<Pair<Integer, Float>> anomalies = new ArrayList<Pair<Integer, Float>>();
 
         // Clear all data values
         int size = (int) (bars * msecsPerBar / METRIC_DATA_INTERVAL);
@@ -310,7 +310,7 @@ public class MetricAnomalyChartData implements AnomalyChartData, Serializable {
                 float logScale = (float) DataUtils.logScale(Math.abs(value.second));
                 // Check values for greater or equals to "yellow"
                 if (logScale >= TaurusApplication.getYellowBarFloor()) {
-                    anomalies.add(new Pair<>(size, logScale));
+                    anomalies.add(new Pair<Integer, Float>(size, logScale));
                 }
             }
         }
@@ -430,10 +430,10 @@ public class MetricAnomalyChartData implements AnomalyChartData, Serializable {
                     final int size = numOfDays * MILLIS_PER_DAY / METRIC_DATA_INTERVAL;
                     _allRawData = new float[size];
                     Arrays.fill(_allRawData, Float.NaN);
-                    _allAnomalies = new ArrayList<>();
+                    _allAnomalies = new ArrayList<Pair<Long, Float>>();
 
                     // Aggregate anomalies hourly
-                    final TreeMap<Long, Float> aggregated = new TreeMap<>();
+                    final TreeMap<Long, Float> aggregated = new TreeMap<Long, Float>();
 
                     TaurusClient client = TaurusApplication.connectToTaurus();
                     if (client == null) {
@@ -466,7 +466,7 @@ public class MetricAnomalyChartData implements AnomalyChartData, Serializable {
 
                     // Populate anomaly array for all scrollable period
                     for (long time = from; time < to; time += MILLIS_PER_HOUR) {
-                        _allAnomalies.add(new Pair<>(time, aggregated.get(time)));
+                        _allAnomalies.add(new Pair<Long, Float>(time, aggregated.get(time)));
                     }
 
                     // Refresh data

@@ -38,7 +38,7 @@ import time
 import sqlalchemy as sql
 import tweepy
 
-from nta.utils.amqp import AMQPDeliveryModes
+from nta.utils import amqp
 from nta.utils.config import Config
 from nta.utils import date_time_utils
 from nta.utils.error_handling import abortProgramOnAnyException
@@ -948,7 +948,7 @@ class TweetForwarder(object):
 
   # AMQP Basic Properties for publishing tweets on message bus
   _TWEET_BASIC_AMQP_PROPERTIES = MessageProperties(
-    deliveryMode=AMQPDeliveryModes.PERSISTENT_MESSAGE)
+    deliveryMode=amqp.constants.AMQPDeliveryModes.PERSISTENT_MESSAGE)
 
   # Sleep duration between forwarding cycles
   _SLEEP_SEC = 5

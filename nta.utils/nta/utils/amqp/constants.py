@@ -1,4 +1,3 @@
-#!/bin/bash
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
@@ -18,38 +17,29 @@
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
-# ----------------------------------------------------------------------install-option="--install-dir=lib/python2.7/site-packages" --no-deps"
-# regenerates the .pth files so they point to /opt/numenta/grok instead
-# of the build paths from the jenkins slaves.
+# ----------------------------------------------------------------------
 
-set -o pipefail
-set -o errexit
+"""
+AMQP constants.
 
-if [ -n "${VERBOSE_DEBUG}" ]; then
-  set -o xtrace
-fi
+TODO need unit tests
+"""
 
-cd /opt/numenta/grok
+class AMQPDeliveryModes(object):
+  """ Message delivery modes of interest """
 
-export NUPIC=/opt/numenta/nupic
-export NUMENTA=/opt/numenta
-export PRODUCTS=/opt/numenta/products
+  NON_PERSISTENT_MESSAGE = 1
 
-source /etc/grok/supervisord.vars
+  # NOTE: A durable queue is necessary for persiting persistent messages at
+  # queue level
+  PERSISTENT_MESSAGE = 2
 
-if [ -n "${VERBOSE_DEBUG}" ]; then
-  pwd
-  echo "${NUPIC}"
-  echo "In grok rpm postinstall script, dumping env"
-  env | sort
-  echo "end postinstall env dump"
-fi
 
-# TODO: TAUR-845 Figure out why psutil and PyYAML are being deleted.
 
-pip install psutil==1.2.1
+class AMQPErrorCodes(object):
+  """ AMQP Error Codes of interest; these occur in the method frame of
+  Channel.Close and Connection.Close methods
+  """
 
-# Install requirements.txt
-pip install -r requirements.txt
-
-python setup.py develop --install-dir=lib/python2.7/site-packages --script-dir=bin
+  # Requested resource not found
+  NOT_FOUND = 404

@@ -160,11 +160,11 @@ public abstract class AnomalyListAdapter<T extends AnomalyChartData> extends Bas
             ArrayList<T> values;
             synchronized (_lock) {
                 if (_originalValues == null) {
-                    _originalValues = new ArrayList<>(_values);
+                    _originalValues = new ArrayList<T>(_values);
                 }
-                values = new ArrayList<>(_originalValues);
+                values = new ArrayList<T>(_originalValues);
             }
-            final ArrayList<T> newValues = new ArrayList<>();
+            final ArrayList<T> newValues = new ArrayList<T>();
             for (final T value : values) {
                 if (_predicate.test(value, constraint)) {
                     newValues.add(value);
@@ -278,7 +278,7 @@ public abstract class AnomalyListAdapter<T extends AnomalyChartData> extends Bas
         if (task != null) {
             task.executeOnExecutor(GrokApplication.getWorkerThreadPool(), values);
             if (_taskList == null) {
-                _taskList = new ConcurrentLinkedQueue<>();
+                _taskList = new ConcurrentLinkedQueue<AsyncTask>();
             }
             _taskList.add(task);
         }
@@ -513,7 +513,7 @@ public abstract class AnomalyListAdapter<T extends AnomalyChartData> extends Bas
     public void clearFilter() {
         synchronized (_lock) {
             if (_originalValues != null) {
-                _values = new ArrayList<>(_originalValues);
+                _values = new ArrayList<T>(_originalValues);
                 _originalValues = null;
             }
         }

@@ -127,7 +127,7 @@ public class TaurusClientTest {
     static void batchWrite(AmazonDynamoDBClient awsClient, String table, Queue<PutRequest> values) {
 
         // Process 25 items per batch
-        ArrayList<WriteRequest> batch = new ArrayList<>();
+        ArrayList<WriteRequest> batch = new ArrayList<WriteRequest>();
         boolean pending = !values.isEmpty();
         while (pending) {
             // Fill batch with 25 items from the queue
@@ -191,7 +191,7 @@ public class TaurusClientTest {
                     .withProvisionedThroughput(new ProvisionedThroughput(5l, 5l)));
             Tables.waitForTableToBecomeActive(awsClient, TaurusClient.METRIC_TABLE);
 
-            Queue<PutRequest> values = new ArrayDeque<>();
+            Queue<PutRequest> values = new ArrayDeque<PutRequest>();
             String metricName;
             MetricType[] types = MetricType.values();
             for (int i = 0; i < INSTANCES; i++) {
@@ -259,7 +259,7 @@ public class TaurusClientTest {
                     .withProvisionedThroughput(new ProvisionedThroughput(5l, 5l)));
             Tables.waitForTableToBecomeActive(awsClient, TaurusClient.METRIC_DATA_TABLE);
 
-            Queue<PutRequest> values = new ArrayDeque<>();
+            Queue<PutRequest> values = new ArrayDeque<PutRequest>();
             String score;
             String date;
             int row;
@@ -386,7 +386,7 @@ public class TaurusClientTest {
             String score;
             int hourOfDay;
             int row;
-            Queue<PutRequest> values = new ArrayDeque<>();
+            Queue<PutRequest> values = new ArrayDeque<PutRequest>();
 
             for (int i = 0; i < INSTANCES; i++) {
                 instanceId = "id." + i;
@@ -404,7 +404,7 @@ public class TaurusClientTest {
                     hour = hourOfDay > 9 ? Integer.toString(hourOfDay) : "0" + hourOfDay;
                     date = dateFormat.format(timestamp.getTime());
 
-                    Map<String, AttributeValue> anomalyScore = new HashMap<>();
+                    Map<String, AttributeValue> anomalyScore = new HashMap<String, AttributeValue>();
                     anomalyScore.put("StockPrice", new AttributeValue().withN(score));
                     anomalyScore.put("StockVolume", new AttributeValue().withN(score));
                     anomalyScore.put("TwitterVolume", new AttributeValue().withN(score));
@@ -495,7 +495,7 @@ public class TaurusClientTest {
                     .withProvisionedThroughput(new ProvisionedThroughput(5l, 5l)));
             Tables.waitForTableToBecomeActive(awsClient, TaurusClient.TWEETS_TABLE);
 
-            Queue<PutRequest> values = new ArrayDeque<>();
+            Queue<PutRequest> values = new ArrayDeque<PutRequest>();
             int tweetId = 0;
             String metricName;
             String dateStr;
@@ -598,7 +598,7 @@ public class TaurusClientTest {
 
     @Test
     public void testGetTweets() throws Exception {
-        final ArrayList<Tweet> results = new ArrayList<>();
+        final ArrayList<Tweet> results = new ArrayList<Tweet>();
         String metricId = MetricType.TwitterVolume.name() + ".0";
         _taurusClient.getTweets(metricId,
                 new Date(TEST_START_TIMESTAMP),
@@ -664,7 +664,7 @@ public class TaurusClientTest {
 
     @Test
     public void testGetMetricValues() throws Exception {
-        final ArrayList<MetricValue> results = new ArrayList<>();
+        final ArrayList<MetricValue> results = new ArrayList<MetricValue>();
         String metricId = "id.0";
         _taurusClient.getMetricValues(metricId,
                 new Date(TEST_START_TIMESTAMP),
@@ -692,7 +692,7 @@ public class TaurusClientTest {
 
     @Test
     public void testGetAllInstanceData() throws Exception {
-        final ArrayList<InstanceData> results = new ArrayList<>();
+        final ArrayList<InstanceData> results = new ArrayList<InstanceData>();
 
         _taurusClient.getAllInstanceData(new Date(TEST_START_TIMESTAMP),
                 new Date(TEST_END_TIMESTAMP), true, new TaurusClient.DataCallback<InstanceData>() {

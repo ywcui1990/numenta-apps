@@ -27,12 +27,14 @@
 CENTOS6_CONFIG="ami-configurations/centos6.json"
 GROK_PIPELINE_CONFIG="ami-configurations/grok-pipeline.json"
 GROK_PLUMBING_CONFIG="ami-configurations/grok-plumbing.json"
+INFRASTRUCTURE_128GB_CONFIG="ami-configurations/infrastructure-base-128gb.json"
 INFRASTRUCTURE_CONFIG="ami-configurations/infrastructure-base.json"
 WEB_CONFIG="ami-configurations/salt-webserver.json"
 
 epel_rpm = "epel-release-6-8.noarch.rpm"
 epel_rpm_url = "http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
 s3_yum_plugin_rpm = "yum-s3-0.2.4-1.noarch.rpm"
+s3_yum_plugin_url = "https://s3-us-west-2.amazonaws.com/yum.groksolutions.com/s3/thirdparty/yum-s3-0.2.4-1.noarch.rpm"
 secretsauce_repo_f = "repos/secretsauce.repo"
 
 task :help do
@@ -44,6 +46,8 @@ task :clean => [:cleanup]
 task :default => [:help]
 task :grok => [:bake_grok_pipeline]
 task :h => [:help]
+task :i => [:bake_infrastructure]
+task :inf128 => [:bake_infrastructure_128gb]
 task :plumbing => [:bake_grok_plumbing]
 task :webserver => [:bake_webserver]
 
@@ -80,9 +84,18 @@ end
 
 desc "Validate Infrastructure configuration"
 task :validate_infrastructure => [:products_sha,
+                                  :grok_repos,
                                   :salt_bootstrap,
                                   :yum_plugin] do
   sh %{ packer validate #{INFRASTRUCTURE_CONFIG} }
+end
+
+desc "Validate Infrastructure 128GB configuration"
+task :validate_infrastructure_128gb => [:products_sha,
+                                        :grok_repos,
+                                        :salt_bootstrap,
+                                        :yum_plugin] do
+  sh %{ packer validate #{INFRASTRUCTURE_128GB_CONFIG} }
 end
 
 desc "Validate Webserver packer configuration"
@@ -109,7 +122,6 @@ task :bake_grok_pipeline => [:products_sha,
                              :epel_repo,
                              :grok_repos,
                              :validate_grok_pipeline ] do
-  # sh %{ packer build #{GROK_PIPELINE_CONFIG} }
   sh %{ packer build -var 'grok_install_manifest=#{ENV["GROK_INSTALL_MANIFEST"]}' \
        -var 'ami_name=#{ENV["AMI_NAME"]}' #{GROK_PIPELINE_CONFIG} }
 end
@@ -125,12 +137,23 @@ task :bake_grok_plumbing => [:products_sha,
 end
 
 desc "Bake a new Infrastructure AMI"
-task :bake_infrastructure => [:products_sha,
-                              :yum_plugin,
+task :bake_infrastructure => [:grok_repos,
+                              :products_sha,
                               :salt_bootstrap,
                               :secretsauce_repo,
-                              :validate_infrastructure ] do
+                              :validate_infrastructure,
+                              :yum_plugin ] do
   sh %{ packer build #{INFRASTRUCTURE_CONFIG} }
+end
+
+desc "Bake a new 128GB Infrastructure AMI"
+task :bake_infrastructure_128gb => [:grok_repos,
+                                    :products_sha,
+                                    :salt_bootstrap,
+                                    :secretsauce_repo,
+                                    :validate_infrastructure_128gb,
+                                    :yum_plugin ] do
+  sh %{ packer build #{INFRASTRUCTURE_128GB_CONFIG} }
 end
 
 desc "Bake a new HVM webserver AMI"
@@ -147,8 +170,10 @@ end
 
 # Get the s3 yum plugin
 file s3_yum_plugin_rpm do
-  puts "Downloading #{s3_yum_plugin_rpm}"
-  sh %{ wget --no-check-certificate https://s3-us-west-2.amazonaws.com/yum.groksolutions.com/s3/thirdparty/yum-s3-0.2.4-1.noarch.rpm }
+  unless File.exist?(s3_yum_plugin_rpm)
+    puts "Downloading #{s3_yum_plugin_rpm}"
+    sh %{ wget --no-check-certificate #{s3_yum_plugin_url} }
+  end
 end
 
 desc "Download the yum s3 plugin"
@@ -156,8 +181,10 @@ task :yum_plugin => [s3_yum_plugin_rpm]
 
 # Get the EPEL installer rpm for 6.5
 file epel_rpm do
-  puts "Downloading #{epel_rpm_url}"
-  sh %{ wget --no-check-certificate #{epel_rpm_url} }
+  unless File.exist?(epel_rpm)
+    puts "Downloading #{epel_rpm_url}"
+    sh %{ wget --no-check-certificate #{epel_rpm_url} }
+  end
 end
 
 desc "Download the epel yum plugin"
@@ -166,8 +193,10 @@ task :epel_repo => [epel_rpm]
 # Get salt bootstrap
 desc "Download the latest Salt bootstrap.sh script"
 task :salt_bootstrap do
-  sh %{ wget --no-check-certificate -O - https://bootstrap.saltstack.com > bootstrap-salt.sh }
-  sh %{ chmod +x bootstrap-salt.sh }
+  unless File.exist?("bootstrap-salt.sh")
+    sh %{ wget --no-check-certificate -O - https://bootstrap.saltstack.com > bootstrap-salt.sh }
+    sh %{ chmod +x bootstrap-salt.sh }
+  end
 end
 
 # Cleanups
@@ -204,7 +233,9 @@ end
 # in two places
 desc "Copy the secretsauce repo from the saltcellar"
 task :secretsauce_repo do
-  sh %{ rsync ../saltcellar/yum-numenta-secret-sauce/files/secretsauce.repo repos/secretsauce.repo }
+  unless File.exist?("repos/secretsauce.repo")
+    sh %{ rsync ../saltcellar/yum-numenta-secret-sauce/files/secretsauce.repo repos/secretsauce.repo }
+  end
 end
 
 # Copy the grok repos from the saltcellar so we aren't maintaining them
