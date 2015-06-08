@@ -42,7 +42,7 @@ from infrastructure.utilities import git
 from infrastructure.utilities import logger as log
 from infrastructure.utilities import rpm
 from infrastructure.utilities.exceptions import InvalidParametersError
-from infrastructure.utilities.path import ( 
+from infrastructure.utilities.path import (
   changeToWorkingDir,
   purgeDirectory,
   rmrf)
@@ -82,7 +82,7 @@ def parseCLA():
   parser.add_argument("--base-version",
                       dest="baseVersion",
                       help="Base version number to use",
-                      default="1.7")
+                      default="1.7.1")
 
   parser.add_argument("--build-script",
                       action="append",
