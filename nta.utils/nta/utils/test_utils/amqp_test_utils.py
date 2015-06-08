@@ -33,10 +33,7 @@ import uuid
 from mock import patch
 import requests
 
-import nta.utils.amqp
-from nta.utils.amqp import (AMQPErrorCodes,
-                            getRabbitmqConnectionParameters,
-                            RabbitmqManagementConnectionParams)
+from nta.utils import amqp
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
 
@@ -143,7 +140,7 @@ class RabbitmqVirtualHostPatch(object):
     assert not self.active
 
     # Use RabbitMQ Management Plugin to create the new temporary vhost
-    connectionParams = RabbitmqManagementConnectionParams()
+    connectionParams = amqp.connection.RabbitmqManagementConnectionParams()
 
     url = "http://%s:%s/api/vhosts/%s" % (
       connectionParams.host, connectionParams.port, self._vhost)
@@ -195,7 +192,7 @@ class RabbitmqVirtualHostPatch(object):
 
       # Apply a config patch to override the rabbitmq virtual host to be
       # used by message_bus_connector and others
-      rabbitmqConfig = nta.utils.amqp.RabbitmqConfig()
+      rabbitmqConfig = amqp.connection.RabbitmqConfig()
       self._configPatch = ConfigAttributePatch(
         rabbitmqConfig.CONFIG_NAME,
         rabbitmqConfig.baseConfigDir,
@@ -207,7 +204,8 @@ class RabbitmqVirtualHostPatch(object):
                         self.__class__.__name__, self._vhost)
 
       # Self-validation
-      connectionParams = getRabbitmqConnectionParameters()
+      connectionParams = (
+        amqp.connection.getRabbitmqConnectionParameters())
       actualVhost = connectionParams.vhost
       assert actualVhost == self._vhost, (
         "Expected vhost=%r, but got vhost=%r") % (self._vhost, actualVhost)
@@ -245,7 +243,8 @@ class RabbitmqVirtualHostPatch(object):
   def _deleteTemporaryVhost(self):
     """ Delete a RabbitMQ virtual host """
     # Use RabbitMQ Management Plugin to delete the temporary vhost
-    connectionParams = RabbitmqManagementConnectionParams()
+    connectionParams = (
+        amqp.connection.RabbitmqManagementConnectionParams())
 
     url = "http://%s:%s/api/vhosts/%s" % (
       connectionParams.host, connectionParams.port, self._vhost)
@@ -286,16 +285,17 @@ def managedExchangeDeleter(exchange):
     else:
       messageExchanges = exchange
 
-    connParams = getRabbitmqConnectionParameters()
+    connParams = amqp.connection.getRabbitmqConnectionParameters()
 
     for exchangeName in messageExchanges:
       try:
-        with nta.utils.amqp.SynchronousAmqpClient(connParams) as amqpClient:
+        with amqp.synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
+          amqpClient):
           _LOGGER.info("managedExchangeDeleter: Deleting exchange=%r",
                        exchangeName)
           amqpClient.deleteExchange(exchangeName, ifUnused=False)
-      except nta.utils.amqp.AmqpChannelError as e:
-        if e.code == AMQPErrorCodes.NOT_FOUND:
+      except amqp.exceptions.AmqpChannelError as e:
+        if e.code == amqp.constants.AMQPErrorCodes.NOT_FOUND:
           _LOGGER.info("managedExchangeDeleter: exchange=%r not found (%r)",
                        exchangeName, e)
         else:
@@ -320,17 +320,18 @@ def managedQueueDeleter(mq):
     else:
       messageQueues = mq
 
-    connParams = getRabbitmqConnectionParameters()
+    connParams = amqp.connection.getRabbitmqConnectionParameters()
 
     for mqName in messageQueues:
       try:
-        with nta.utils.amqp.SynchronousAmqpClient(connParams) as amqpClient:
+        with amqp.synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
+          amqpClient):
           _LOGGER.info("managedQueueDeleter: Deleting mq=%r",
                        mqName)
           amqpClient.deleteQueue(mqName, ifUnused=False, ifEmpty=False)
-      except nta.utils.amqp.AmqpChannelError as e:
+      except amqp.exceptions.AmqpChannelError as e:
         # Suppress queue_delete error (perhaps queue was never created?)
-        if e.code == AMQPErrorCodes.NOT_FOUND:
+        if e.code == amqp.constants.AMQPErrorCodes.NOT_FOUND:
           _LOGGER.info("managedQueueDeleter: mq=%r not found (%r)",
                        mqName, e)
         else:
