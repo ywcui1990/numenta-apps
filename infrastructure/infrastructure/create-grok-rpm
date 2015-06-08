@@ -37,7 +37,7 @@ time ./create-numenta-rpm --rpm-flavor grok \
   --rpm-name nta-products-grok \
   --postinstall-script "${reporoot}/grok/grok/pipeline/scripts/rpm-creator/post_install_grok" \
   --cleanup-script grok/grok/pipeline/scripts/rpm-creator/clean-grok-tree-for-packaging \
-  --base-version 1.7.0 \
+  --base-version 1.7.1 \
   --whitelist grok \
   --whitelist htmengine \
   --whitelist install-grok.sh \
