@@ -49,7 +49,7 @@ public class Log {
     private static final String TAG = Log.class.getCanonicalName();
     // Max logs to keep in memory. 10k uses about 1MB memory.
     public static final int MAX_LOGS_TO_KEEP = 10000;
-    public static final BlockingQueue<String> _queue = new LinkedBlockingQueue<>(
+    public static final BlockingQueue<String> _queue = new LinkedBlockingQueue<String>(
             MAX_LOGS_TO_KEEP);
 
     protected static void queueLog(String msg) {

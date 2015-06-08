@@ -133,7 +133,7 @@ public class InstanceAnomalyChartData implements AnomalyChartData, Serializable 
     public List<Pair<Long, Float>> getCollapsedData() {
         _readLock.lock();
         try {
-            ArrayList<Pair<Long, Float>> collapsedData = new ArrayList<>();
+            ArrayList<Pair<Long, Float>> collapsedData = new ArrayList<Pair<Long, Float>>();
             if (_data != null) {
                 boolean closed = false;
                 MarketCalendar marketCalendar = TaurusApplication.getMarketCalendar();
@@ -225,9 +225,9 @@ public class InstanceAnomalyChartData implements AnomalyChartData, Serializable 
                     database.getInstanceData(_instanceId, startDate, _endDate);
 
             // Extract anomaly scores
-            ArrayList<Pair<Long, Float>> scores = new ArrayList<>(anomalies.size());
+            ArrayList<Pair<Long, Float>> scores = new ArrayList<Pair<Long, Float>>(anomalies.size());
             for (Pair<Long, AnomalyValue> value : anomalies) {
-                scores.add(new Pair<>(value.first, value.second.anomaly));
+                scores.add(new Pair<Long, Float>(value.first, value.second.anomaly));
             }
             // Check if anything changed
             if (!scores.equals(_data)) {

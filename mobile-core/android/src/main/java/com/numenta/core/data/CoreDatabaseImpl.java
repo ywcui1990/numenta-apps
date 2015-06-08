@@ -120,10 +120,10 @@ public class CoreDatabaseImpl implements CoreDatabase {
     public static final int DATABASE_VERSION = 27;
 
     // Cache All metrics definition in memory
-    private final ConcurrentHashMap<String, Metric> _metricCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Metric> _metricCache = new ConcurrentHashMap<String, Metric>();
 
     // Maps between instance id and instance name
-    protected final ConcurrentHashMap<String, String> _instanceToName = new ConcurrentHashMap<>();
+    protected final ConcurrentHashMap<String, String> _instanceToName = new ConcurrentHashMap<String, String>();
 
     private final SQLiteHelper _sqlite;
 
@@ -161,7 +161,7 @@ public class CoreDatabaseImpl implements CoreDatabase {
         _sqlite = new SQLiteHelper(context, getFileName(), getVersion());
         // Initialize aggregation type options supported by the application
         String[] options = context.getResources().getStringArray(R.array.aggregation_type_options);
-        _validAggregationTypes = new HashSet<>(options.length);
+        _validAggregationTypes = new HashSet<AggregationType>(options.length);
         for (String option : options) {
             _validAggregationTypes.add(AggregationType.valueOf(option));
         }
@@ -593,7 +593,7 @@ public class CoreDatabaseImpl implements CoreDatabase {
      */
     @Override
     public ArrayList<Metric> getMetricsByInstanceId(String instanceId) {
-        ArrayList<Metric> results = new ArrayList<>();
+        ArrayList<Metric> results = new ArrayList<Metric>();
         Collection<Metric> allMetrics = getMetricCache().values();
         for (Metric metric : allMetrics) {
             if (metric.getInstanceId().equals(instanceId)) {
@@ -880,7 +880,7 @@ public class CoreDatabaseImpl implements CoreDatabase {
     @Override
     public List<Annotation> getAnnotations(String server, Date from, Date to) {
         StringBuilder selection = new StringBuilder();
-        ArrayList<String> selectionArgs = new ArrayList<>(3);
+        ArrayList<String> selectionArgs = new ArrayList<String>(3);
         boolean append = false;
         if (from != null) {
             selection.append("timestamp >= ?");
@@ -904,7 +904,7 @@ public class CoreDatabaseImpl implements CoreDatabase {
         }
         Cursor cursor = null;
         try {
-            ArrayList<Annotation> results = new ArrayList<>();
+            ArrayList<Annotation> results = new ArrayList<Annotation>();
             cursor = getReadableDatabase().query(true, Annotation.TABLE_NAME,
                     null, selection.toString(),
                     selectionArgs.isEmpty() ? null
@@ -933,7 +933,7 @@ public class CoreDatabaseImpl implements CoreDatabase {
     public Collection<Annotation> getAllAnnotations() {
         Cursor cursor = null;
         try {
-            ArrayList<Annotation> results = new ArrayList<>();
+            ArrayList<Annotation> results = new ArrayList<Annotation>();
             SQLiteDatabase db = getReadableDatabase();
             cursor = db.query(true, Annotation.TABLE_NAME,
                     null, null, null, null, null, null, null);
@@ -960,7 +960,7 @@ public class CoreDatabaseImpl implements CoreDatabase {
     public Collection<Notification> getAllNotifications() {
         Cursor cursor = null;
         try {
-            ArrayList<Notification> results = new ArrayList<>();
+            ArrayList<Notification> results = new ArrayList<Notification>();
             SQLiteDatabase db = getReadableDatabase();
             cursor = db.query(true, Notification.TABLE_NAME,
                     null, null, null, null, null, null, null);

@@ -72,7 +72,7 @@ public class TaurusDatabase extends CoreDatabaseImpl {
 
     // Cache instance data. Map<InstanceID, List<SortedMap<timestamp, anomalyScore>>>
     private final ConcurrentHashMap<String, SortedMap<Long, AnomalyValue>> _instanceDataCache
-            = new ConcurrentHashMap<>();
+            = new ConcurrentHashMap<String,SortedMap<Long,AnomalyValue>>();
 
     // Most recent timestamp stored in the database
     private long _lastTimestamp;
@@ -167,7 +167,7 @@ public class TaurusDatabase extends CoreDatabaseImpl {
         SortedMap<Long, AnomalyValue> values = _instanceDataCache.get(instanceId);
         if (values == null) {
             // Keep results sorted by timestamp
-            values = new ConcurrentSkipListMap<>();
+            values = new ConcurrentSkipListMap<Long,AnomalyValue>();
             SortedMap<Long, AnomalyValue> oldValues = _instanceDataCache
                     .putIfAbsent(instanceId, values);
             if (oldValues != null) {
@@ -222,14 +222,14 @@ public class TaurusDatabase extends CoreDatabaseImpl {
             // Use current time as upper limit
             to = System.currentTimeMillis();
         }
-        ArrayList<Pair<Long, AnomalyValue>> results = new ArrayList<>();
+        ArrayList<Pair<Long, AnomalyValue>> results = new ArrayList<Pair<Long,AnomalyValue>>();
         // Get instance cached values
         SortedMap<Long, AnomalyValue> cached = getInstanceCachedValues(instanceId);
         if (!cached.isEmpty()) {
             // Get all entries for the given period including both "from" and "to" in the result
             Set<Map.Entry<Long, AnomalyValue>> entries = cached.subMap(from, to + 1).entrySet();
             for (Map.Entry<Long, AnomalyValue> row : entries) {
-                results.add(new Pair<>(row.getKey(), row.getValue()));
+                results.add(new Pair<Long,AnomalyValue>(row.getKey(), row.getValue()));
             }
         }
         return results;

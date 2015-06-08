@@ -113,7 +113,7 @@ public class TaurusClient implements GrokClient {
 
     // Cache metric values
     final ConcurrentHashMap<String, ConcurrentSkipListMap<Long, CachedMetricValue>>
-            _cachedMetricValues = new ConcurrentHashMap<>();
+            _cachedMetricValues = new ConcurrentHashMap<String, ConcurrentSkipListMap<Long, CachedMetricValue>>();
 
     private static final String TAG = TaurusClient.class.getSimpleName();
 
@@ -203,7 +203,7 @@ public class TaurusClient implements GrokClient {
         timestampFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         // Key conditions
-        Map<String, Condition> keyConditions = new HashMap<>();
+        Map<String, Condition> keyConditions = new HashMap<String, Condition>();
 
         // uid = modelId
         Condition modelIdCond = new Condition()
@@ -324,7 +324,7 @@ public class TaurusClient implements GrokClient {
         // Get metric from cache
         ConcurrentSkipListMap<Long, CachedMetricValue> cache = _cachedMetricValues.get(modelId);
         if (cache == null) {
-            cache = new ConcurrentSkipListMap<>();
+            cache = new ConcurrentSkipListMap<Long, CachedMetricValue>();
             ConcurrentSkipListMap<Long, CachedMetricValue> oldValues =
                     _cachedMetricValues.putIfAbsent(modelId, cache);
             if (oldValues != null) {
@@ -363,7 +363,7 @@ public class TaurusClient implements GrokClient {
         timestampFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         // Key conditions
-        Map<String, Condition> keyConditions = new HashMap<>();
+        Map<String, Condition> keyConditions = new HashMap<String, Condition>();
 
         // uid = modelId
         keyConditions.put("uid", new Condition()
@@ -437,7 +437,7 @@ public class TaurusClient implements GrokClient {
             boolean ascending, @NonNull DataCallback<InstanceData> callback)
             throws GrokException, IOException {
 
-        Map<String, Condition> keyConditions = new HashMap<>();
+        Map<String, Condition> keyConditions = new HashMap<String, Condition>();
 
         // Use "date" as hash key
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
@@ -579,7 +579,7 @@ public class TaurusClient implements GrokClient {
         String metricTypeName;
         String symbol;
         JSONObject parameters;
-        ArrayList<Metric> metrics = new ArrayList<>();
+        ArrayList<Metric> metrics = new ArrayList<Metric>();
 
         TaurusDataFactory dataFactory = TaurusApplication.getInstance().getDataFactory();
 

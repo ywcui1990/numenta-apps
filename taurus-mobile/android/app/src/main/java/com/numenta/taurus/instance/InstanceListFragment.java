@@ -292,9 +292,9 @@ public class InstanceListFragment extends ListFragment {
         if (_listAdapter != null) {
             // Background task for loading instance data
             _instanceLoadTask = new AsyncTask<Void, Void, Boolean>() {
-                HashSet<InstanceAnomalyChartData> deletedItems = new HashSet<>();
+                HashSet<InstanceAnomalyChartData> deletedItems = new HashSet<InstanceAnomalyChartData>();
 
-                HashSet<InstanceAnomalyChartData> addedItems = new HashSet<>();
+                HashSet<InstanceAnomalyChartData> addedItems = new HashSet<InstanceAnomalyChartData>();
 
                 @Override
                 protected void onPostExecute(Boolean modified) {
@@ -330,8 +330,8 @@ public class InstanceListFragment extends ListFragment {
                     // Consolidate adapter instance list with database
                     Set<String> persistedInstances = TaurusApplication.getDatabase()
                             .getAllInstances();
-                    ArrayList<InstanceAnomalyChartData> items = new ArrayList<>();
-                    HashSet<String> adapterInstances = new HashSet<>();
+                    ArrayList<InstanceAnomalyChartData> items = new ArrayList<InstanceAnomalyChartData>();
+                    HashSet<String> adapterInstances = new HashSet<String>();
                     boolean modified = false;
                     Date endDate;
 
