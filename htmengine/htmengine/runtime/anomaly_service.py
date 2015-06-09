@@ -32,6 +32,7 @@ import time
 import zlib
 
 from nta.utils import amqp
+from nta.utils.message_bus_connector import MessageProperties
 
 from htmengine.anomaly_likelihood_helper import AnomalyLikelihoodHelper
 from htmengine import htmengineerrno
