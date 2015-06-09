@@ -21,53 +21,12 @@
 
 import os
 
-from infrastructure.utilities import logger as log
 from infrastructure.utilities.exceptions import BuildFailureException
-from infrastructure.utilities.nupic.build_commands import (
-  checkIfProjectExistsLocallyForSHA,
-  fullBuild,
-  installNuPICWheel
-)
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput
 
 SCRIPTS_DIR = os.path.join(os.environ.get("PRODUCTS"), "grok", "grok",
                            "pipeline", "scripts")
-
-
-# TODO Refactor and fix the cyclic calls between fullBuild() and buildNuPIC()
-# Fix https://jira.numenta.com/browse/TAUR-749
-def buildNuPIC(env, pipelineConfig, logger):
-  """
-    Builds NuPIC with the provided nupicSHA
-
-    :param env: The environment which will be set before building
-
-    :param pipelineConfig: dict of the pipeline config values, e.g.:
-      {
-        "buildWorkspace": "/path/to/build/in",
-        "grokRemote": "git@github.com:Numenta/numenta-apps.git",
-        "grokBranch": "master",
-        "grokSha": "HEAD",
-        "nupicRemote": "git@github.com:numenta/nupic.git",
-        "nupicBranch": "master",
-        "nupicSha": "HEAD",
-        "pipelineParams": "{dict of parameters}",
-        "pipelineJson": "/path/to/json/file"
-      }
-
-    :param logger: Initialized Numenta logger object.
-  """
-  env = updateEnv(env)
-
-  if not checkIfProjectExistsLocallyForSHA("nupic", pipelineConfig["nupicSha"],
-                                           logger):
-    # TODO Refactor and fix the cyclic calls between fullBuild() and buildNuPIC()
-    # Fix https://jira.numenta.com/browse/TAUR-749
-    fullBuild(env, pipelineConfig["buildWorkspace"],
-              pipelineConfig["nupicRemote"],
-              pipelineConfig["nupicBranch"],
-              pipelineConfig["nupicSha"], logger)
 
 
 
@@ -82,12 +41,8 @@ def buildGrok(env, pipelineConfig, logger):
         "grokRemote": "git@github.com:Numenta/numenta-apps.git",
         "grokBranch": "master",
         "grokSha": "HEAD",
-        "nupicRemote": "git@github.com:numenta/nupic.git",
-        "nupicBranch": "master",
-        "nupicSha": "HEAD",
         "pipelineParams": "{dict of parameters}",
-        "pipelineJson": "/path/to/json/file",
-        "wheelFilePath": "/path/to/wheel/file"
+        "pipelineJson": "/path/to/json/file"
       }
 
     :param logger: Logger object.
@@ -101,9 +56,6 @@ def buildGrok(env, pipelineConfig, logger):
                                    "grok/lib/python2.7/site-packages")
     if not os.path.exists(sitePackagesDir):
       os.makedirs(sitePackagesDir)
-    with changeToWorkingDir(env["PRODUCTS"]):
-      installNuPICWheel(env, env["GROK_HOME"],
-                        pipelineConfig["wheelFilePath"], logger)
 
     # Setup the baseline configuration
     with changeToWorkingDir(env["GROK_HOME"]):
