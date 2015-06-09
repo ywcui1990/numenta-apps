@@ -22,17 +22,6 @@
 #
 # Install support for Grok logging, both to S3 and locally on the instance
 
-# Install logwriter credentials so we can upload logs to S3
-logwriter_credentials.json:
-  file.managed:
-    - name: /etc/grok/logwriter_credentials.json
-    - source: salt://grok-plumbing/files/loghandling/logwriter_credentials.json
-    - user: root
-    - group: root
-    - mode: 0644
-    - require:
-      - file: etc-grok
-
 # Rotate grok's logfiles, and upload to S3 if user has enabled it.
 shuffle-groklogs:
   file.managed:
@@ -41,8 +30,6 @@ shuffle-groklogs:
     - user: root
     - group: root
     - mode: 0755
-    - require:
-      - file: logwriter_credentials.json
   cron.present:
     - name: /usr/local/sbin/lockrun --lockfile=/var/lock/shuffle_groklogs -- /usr/local/sbin/shuffle_groklogs 2>&1 | logger -t gs-shuffle-groklogs
     - identifier: shuffle_groklogs
@@ -50,7 +37,6 @@ shuffle-groklogs:
     - hour: '*'
     - minute: '7'
     - require:
-      - file: logwriter_credentials.json
       - file: shuffle-groklogs
 
 # Enforce absence of old logrotate conf file now that we're rotating our logs
