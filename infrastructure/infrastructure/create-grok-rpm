@@ -24,9 +24,6 @@
 # Note: You can speed this up with
 #   --site-packages-tarball ~/site-packages.tar.bz2
 #
-# Specify a wheel with
-#   --install-wheel ~/nupic-0.1.3.dev0-cp27-none-linux_x86_64.whl
-#
 # Specify a local copy of the repo to pull from with
 #   --git-url file:///home/ec2-user/products
 
