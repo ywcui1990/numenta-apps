@@ -29,24 +29,30 @@ import requests
 import unittest
 
 from nta.utils.error_handling import retry
-from nta.utils.amqp import (
+from nta.utils.amqp.connection import (
+    getRabbitmqConnectionParameters,
+    RabbitmqManagementConnectionParams,
+)
+from nta.utils.amqp.consumer import Consumer
+from nta.utils.amqp.exceptions import (
     AmqpChannelError,
+    UnroutableError
+)
+from nta.utils.amqp.messages import (
     BasicProperties,
-    Consumer,
     Message,
     MessageGetInfo,
     ReturnedMessage,
-    QueueDeclarationResult,
-    UnroutableError)
-from nta.utils.amqp import (
-    getRabbitmqConnectionParameters,
-    RabbitmqManagementConnectionParams)
-from nta.utils.amqp import SynchronousAmqpClient
+)
+from nta.utils.amqp.queue import QueueDeclarationResult
+from nta.utils.amqp.synchronous_amqp_client import SynchronousAmqpClient
 from nta.utils.logging_support_raw import LoggingSupport
 from nta.utils.test_utils import amqp_test_utils
 
 
+
 _LOGGER = logging.getLogger(__name__)
+
 
 
 def setUpModule():
@@ -54,7 +60,7 @@ def setUpModule():
 
 
 
-_RETRY_ON_ASSERTION_ERROR = retry(timeoutSec=15, initialRetryDelaySec=0.5,
+_RETRY_ON_ASSERTION_ERROR = retry(timeoutSec=20, initialRetryDelaySec=0.5,
                                   maxRetryDelaySec=2,
                                   retryExceptions=(AssertionError,),
                                   logger=_LOGGER)
