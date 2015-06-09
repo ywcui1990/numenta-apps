@@ -41,7 +41,9 @@ from nta.utils.amqp.exceptions import (
 from nta.utils.amqp.messages import (
     BasicProperties,
     Message,
+    MessageDeliveryInfo,
     MessageGetInfo,
+    MessageReturnInfo,
     ReturnedMessage,
 )
 from nta.utils.amqp.queue import QueueDeclarationResult
@@ -557,15 +559,13 @@ class SynchronousAmqpClientTest(unittest.TestCase):
       message = self.client.getOneMessage(queueName)
       _LOGGER.info("getOneMessage() = %s", message.__repr__())
       self.assertEqual(message.body, "test-msg-%d" % (i))
-      # TODO: Equality operator for BasicProperties object
-      #self.assertEqual(message.properties, BasicProperties())
-      # TODO: Equality operator for MessageGetInfo object
-      #self.assertEqual(message.methodInfo,
-      #                 MessageGetInfo(deliveryTag=1,
-      #                                redelivered=False,
-      #                                exchange=exchangeName,
-      #                                routingKey=routingKey,
-      #                                messageCount=(_NUM_TEST_MESSAGES-1-i)))
+      self.assertEqual(message.properties, BasicProperties())
+      self.assertEqual(message.methodInfo,
+                       MessageGetInfo(deliveryTag=(i+1),
+                                      redelivered=False,
+                                      exchange=exchangeName,
+                                      routingKey=routingKey,
+                                      messageCount=(_NUM_TEST_MESSAGES-1-i)))
 
 
   def testEnablePublisherAcksAfterUnroutableMessage(self):
@@ -589,8 +589,15 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     with self.assertRaises(UnroutableError) as cm:
       self.client.enablePublisherAcks()
 
-    self.assertEqual(cm.exception.messages[0].body, "test-msg")
-    self.assertEqual(cm.exception.messages[0].methodInfo.replyCode, 312)
+    self.assertEqual(cm.exception.messages[0],
+                     ReturnedMessage(
+                         body="test-msg",
+                         properties=BasicProperties(),
+                         methodInfo=MessageReturnInfo(
+                             replyCode=312,
+                             replyText="NO_ROUTE",
+                             exchange=exchangeName,
+                             routingKey="fakeKey")))
 
 
   def testPublishMandatoryMessage(self):
@@ -671,21 +678,19 @@ class SynchronousAmqpClientTest(unittest.TestCase):
                           routingKey)
     self._verifyQueue(queueName, testMessageCount=_NUM_TEST_MESSAGES)
 
-    self.client.createConsumer(queueName)
+    consumer = self.client.createConsumer(queueName)
     self._hasEvent()
 
     for i in range(0, _NUM_TEST_MESSAGES):
       message = self.client.getNextEvent()
       self.assertEqual(message.body, "test-msg-%d" % (i))
-      # TODO: Equality operator for BasicProperties object
-      #self.assertEqual(message.properties, BasicProperties())
-      # TODO: Equality operator for MessageGetInfo object
-      #self.assertEqual(message.methodInfo,
-      #                 MessageGetInfo(deliveryTag=1,
-      #                                redelivered=False,
-      #                                exchange=exchangeName,
-      #                                routingKey=routingKey,
-      #                                messageCount=(_NUM_TEST_MESSAGES-1-i)))
+      self.assertEqual(message.properties, BasicProperties())
+      self.assertEqual(message.methodInfo,
+                       MessageDeliveryInfo(consumerTag=consumer.tag,
+                                           deliveryTag=(i+1),
+                                           redelivered=False,
+                                           exchange=exchangeName,
+                                           routingKey=routingKey))
 
 
   def testRecoverUnackedMessages(self):
@@ -707,21 +712,19 @@ class SynchronousAmqpClientTest(unittest.TestCase):
                           routingKey)
     self._verifyQueue(queueName, testMessageCount=_NUM_TEST_MESSAGES)
 
-    self.client.createConsumer(queueName)
+    consumer = self.client.createConsumer(queueName)
     self._hasEvent()
 
     for i in range(0, _NUM_TEST_MESSAGES):
       message = self.client.getNextEvent()
       self.assertEqual(message.body, "test-msg-%d" % (i))
-      # TODO: Equality operator for BasicProperties object
-      #self.assertEqual(message.properties, BasicProperties())
-      # TODO: Equality operator for MessageGetInfo object
-      #self.assertEqual(message.methodInfo,
-      #                 MessageGetInfo(deliveryTag=1,
-      #                                redelivered=False,
-      #                                exchange=exchangeName,
-      #                                routingKey=routingKey,
-      #                                messageCount=(_NUM_TEST_MESSAGES-1-i)))
+      self.assertEqual(message.properties, BasicProperties())
+      self.assertEqual(message.methodInfo,
+                       MessageDeliveryInfo(consumerTag=consumer.tag,
+                                           deliveryTag=(i+1),
+                                           redelivered=False,
+                                           exchange=exchangeName,
+                                           routingKey=routingKey))
 
     self._verifyUnacknowledgedMessages(queueName)
 
@@ -748,15 +751,13 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     for i in range(0, _NUM_TEST_MESSAGES):
       message = self.client.getNextEvent()
       self.assertEqual(message.body, "test-msg-%d" % (i))
-      # TODO: Equality operator for BasicProperties object
-      #self.assertEqual(message.properties, BasicProperties())
-      # TODO: Equality operator for MessageGetInfo object
-      #self.assertEqual(message.methodInfo,
-      #                 MessageGetInfo(deliveryTag=1,
-      #                                redelivered=False,
-      #                                exchange=exchangeName,
-      #                                routingKey=routingKey,
-      #                                messageCount=(_NUM_TEST_MESSAGES-1-i)))
+      self.assertEqual(message.properties, BasicProperties())
+      self.assertEqual(message.methodInfo,
+                       MessageDeliveryInfo(consumerTag=consumer.tag,
+                                           deliveryTag=(_NUM_TEST_MESSAGES+i+1),
+                                           redelivered=True,
+                                           exchange=exchangeName,
+                                           routingKey=routingKey))
 
 
   def testAckingMessages(self):
