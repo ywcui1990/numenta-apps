@@ -70,6 +70,18 @@ def parseArgs():
                       default="git@github.com:Numenta/numenta-apps.git",
                       help="URL for Grok remote repository")
 
+  parser.add_argument("--nupic-remote",
+                      dest="nupicRemote",
+                      type=str,
+                      default="git@github.com:numenta/nupic.git",
+                      help="URL for NuPIC remote repository")
+
+  parser.add_argument("--nupic-branch",
+                      dest="nupicBranch",
+                      type=str,
+                      default="master",
+                      help="NuPIC Branch to build")
+
   parser.add_argument("--release-version",
                       dest="releaseVersion",
                       type=str,

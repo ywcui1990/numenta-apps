@@ -59,6 +59,7 @@ For each commit to NuPIC
 
 import argparse
 import os
+import uuid
 
 from pkg_resources import resource_stream
 
