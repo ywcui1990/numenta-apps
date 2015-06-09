@@ -19,6 +19,7 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+
 from datetime import datetime, timedelta
 import locale
 locale.setlocale(locale.LC_ALL, "en_US")
@@ -254,9 +255,9 @@ class NotificationService(object):
     """ Inspect all inbound model results in a batch for anomaly thresholds and
         trigger notifications where applicable.
 
-        :param amqp.ConsumerMessage message: ``message.body`` is a serialized
-          batch of model inference results generated in ``AnomalyService``
-          and must be deserialized using
+        :param amqp.messages.ConsumerMessage message: ``message.body`` is a
+          serialized batch of model inference results generated in
+          ``AnomalyService`` and must be deserialized using
           ``AnomalyService.deserializeModelResult()``. The message conforms to
           htmengine/runtime/json_schema/model_inference_results_msg_schema.json
     """
@@ -374,8 +375,8 @@ class NotificationService(object):
         amqpClient.requestQoS(prefetchCount=1)
 
       # Open connection to rabbitmq
-      with amqp.SynchronousAmqpClient(
-          amqp.getRabbitmqConnectionParameters(),
+      with amqp.synchronous_amqp_client.SynchronousAmqpClient(
+          amqp.connection.getRabbitmqConnectionParameters(),
           channelConfigCb=configChannel) as amqpClient:
 
         # make sure the queue and exchanges exists and the queue is bound
@@ -393,10 +394,10 @@ class NotificationService(object):
         consumer = amqpClient.createConsumer(result.queue)
 
         for evt in amqpClient.readEvents():
-          if isinstance(evt, amqp.ConsumerMessage):
+          if isinstance(evt, amqp.messages.ConsumerMessage):
             self.messageHandler(evt)
 
-          elif isinstance(evt, amqp.ConsumerCancellation):
+          elif isinstance(evt, amqp.consumer.ConsumerCancellation):
             # Bad news: this likely means that our queue was deleted externally
             msg = "Consumer cancelled by broker: %r (%r)" % (evt, consumer)
             self._log.critical(msg)
@@ -405,10 +406,10 @@ class NotificationService(object):
           else:
             self._log.warning("Unexpected amqp event=%r", evt)
 
-    except amqp.AmqpConnectionError:
+    except amqp.exceptions.AmqpConnectionError:
       self._log.exception("RabbitMQ connection failed")
       raise
-    except amqp.AmqpChannelError:
+    except amqp.exceptions.AmqpChannelError:
       self._log.exception("RabbitMQ channel failed")
       raise
     except Exception as ex:

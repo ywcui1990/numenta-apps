@@ -30,7 +30,7 @@ installer.
 import logging
 from optparse import OptionParser
 
-from nta.utils.amqp import RabbitmqConfig
+from nta.utils import amqp
 from nta.utils.config import Config
 
 
@@ -44,7 +44,7 @@ def setRabbitmqLoginScriptImpl():
   connectiona and authentication information. It parses options from
   command-line args (see _parseArgs function) and applies the overrides to the
   rabbitmq.conf configuration object.
-  
+
   The calling script needs to initialize logging via logging_support prior to
   invoking this function.
   """
@@ -55,9 +55,10 @@ def setRabbitmqLoginScriptImpl():
     user = options["user"]
     password = options["password"]
 
-    config = RabbitmqConfig()
+    config = amqp.connection.RabbitmqConfig()
 
-    configWriter = RabbitmqConfig(mode=RabbitmqConfig.MODE_OVERRIDE_ONLY)
+    configWriter = amqp.connection.RabbitmqConfig(mode=(
+        amqp.connection.RabbitmqConfig.MODE_OVERRIDE_ONLY))
 
     if not configWriter.has_section("connection"):
       configWriter.add_section("connection")
@@ -80,7 +81,7 @@ def setRabbitmqLoginScriptImpl():
     configWriter.save()
 
     g_log.info("Override of rabbitmq settings for %s completed successfully",
-               RabbitmqConfig.CONFIG_NAME)
+               amqp.connection.RabbitmqConfig.CONFIG_NAME)
 
   except SystemExit as e:
     if e.code != 0:
@@ -102,7 +103,7 @@ def _parseArgs():
   helpString = (
     "%%prog OPTIONS\n"
     "Applies the given rabbitmq login information as overrides for %s.") % (
-    RabbitmqConfig.CONFIG_NAME,)
+    amqp.connection.RabbitmqConfig.CONFIG_NAME,)
 
   parser = OptionParser(helpString)
 

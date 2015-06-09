@@ -248,7 +248,7 @@ def clean_rabbitmq():
   if "APPLICATION_CONFIG_PATH" not in os.environ:
     os.environ["APPLICATION_CONFIG_PATH"] = data["APPLICATION_CONFIG_PATH"]
 
-  from nta.utils.amqp import RabbitmqConfig
+  from nta.utils.amqp.connection import RabbitmqConfig
   rabbitmq_config = RabbitmqConfig()
   rabbitmq_user = rabbitmq_config.get("credentials", "user")
   rabbitmq_password = rabbitmq_config.get("credentials", "password")
