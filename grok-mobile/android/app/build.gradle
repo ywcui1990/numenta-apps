@@ -41,7 +41,7 @@ android {
         applicationId 'com.groksolutions.grok.mobile'
         minSdkVersion 16
         targetSdkVersion 21
-        versionCode gitCommitCount
+        versionCode gitCommitCount + initialVersionCode
         versionName project.version
         // Email address to send user feedback
         resValue "string", "feedback_email_address", System.getProperty('FEEDBACK_EMAIL')

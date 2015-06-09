@@ -35,6 +35,9 @@ The application was designed and tested on "Nexus 4".
         # Email address to send user feedback
         systemProp.FEEDBACK_EMAIL = "support@domain.tld"
 
+        # Initial version code to use in addition to 'gitCommitCount'
+        systemProp.INITIAL_VERSION_CODE=1314
+
 ### Running Tests with Gradle ###
 
 - Add ```local.properties``` file to your android folder with the following values:

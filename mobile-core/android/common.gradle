@@ -94,5 +94,9 @@ allprojects {
          */
         defaultKeyAlias = 'grok'
 
+        /**
+         * Initial version code to use in addition to 'gitCommitCount'
+         */
+        initialVersionCode = System.getProperty('INITIAL_VERSION_CODE', '0').toInteger()
     }
 }
