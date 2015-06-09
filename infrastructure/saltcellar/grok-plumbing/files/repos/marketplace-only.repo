@@ -1,6 +1,5 @@
 [marketplace-only]
 name=Grok Marketplace RPMs
-baseurl=http://yum.groksolutions.com.s3.amazonaws.com/s3/marketplace-only
+baseurl=http://public.numenta.com/yum/marketplace-only
 gpgcheck=0
 priority=1
-s3_enabled=1
