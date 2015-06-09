@@ -56,7 +56,7 @@ def parseArgs():
   parser.add_argument("--grok-sha",
                       dest="grokSha",
                       type=str,
-                      help="Triggering SHA from NuPIC or Grok")
+                      help="Triggering SHA from Grok")
 
   parser.add_argument("--grok-branch",
                       dest="grokBranch",
@@ -74,7 +74,7 @@ def parseArgs():
                       dest="releaseVersion",
                       type=str,
                       help="Current release version, this will be used as base"
-                      "version for grok, nupic and tracking rpm")
+                      "version for grok and tracking rpm")
 
   parser.add_argument("--log",
                       dest="logLevel",

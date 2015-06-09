@@ -44,26 +44,21 @@ def parseArgs():
     :rtype argparse.Namespace
   """
   parser = argparse.ArgumentParser(description="manifest tool to prepare"
-                                   "environment for Grok and NuPIC pipelines")
+                                   "environment for Grok pipeline")
   parser.add_argument("--trigger-pipeline", dest="pipeline", type=str,
                       help="Repository which has triggered pipeline. This "
-                      "pipeline will be triggered for changes in GROK or NuPIC",
+                      "pipeline will be triggered for changes in GROK",
                       required=True)
   parser.add_argument("--sha", dest="sha", type=str,
-                      help="Triggering SHA from NuPIC or Grok", default="HEAD")
+                      help="Triggering SHA from Grok", default="HEAD")
   parser.add_argument("--grok-branch", dest="grokBranch", type=str,
                       help="The branch you are building from")
   parser.add_argument("--grok-remote", dest="grokRemote", type=str,
                       default="git@github.com:Numenta/numenta-apps.git",
                       help="URL for Grok remote repository")
-  parser.add_argument("--nupic-remote", dest="nupicRemote", type=str,
-                      default="git@github.com:numenta/nupic.git",
-                      help="URL for NuPIC remote repository")
-  parser.add_argument("--nupic-branch", dest="nupicBranch", type=str,
-                      default="master", help="NuPIC Branch to build")
   parser.add_argument("--release-version", dest="releaseVersion", type=str,
                        help="Current release version, this will be used as base"
-                       "version for grok, nupic and tracking rpm")
+                       "version for grok and tracking rpm")
   parser.add_argument("--log", dest="logLevel", type=str, default="warning",
                       help="Logging level, optional parameter and defaulted to"
                       "level warning")
