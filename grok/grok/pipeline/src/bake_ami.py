@@ -55,7 +55,7 @@ def writeRpmDetails(nameOfFile, sha, bucketName, artifactsDir):
   """
   Get the rpm name for the corresponding sha and write it to a file.
 
-  :param nameOfFile: grok or nupic according to the rpm name
+  :param nameOfFile: grok to describe the rpm name
   :param sha: rpm name with the corresponding sha
   :param bucketName: bucket name from where the sha file would be downloaded
   :param artifactsDir: location of build artifacts to store the file
@@ -103,11 +103,9 @@ def addAndParseArgs(jsonArgs):
       conflicting parameters set
   """
   parser = argparse.ArgumentParser(description="Tool to bake AMI with "
-                                   "given versions of GROK and NuPIC")
+                                   "given version of GROK")
   parser.add_argument("--grok-sha", dest="grokSha", type=str,
                       help="SHA from Grok used for this build")
-  parser.add_argument("--nupic-sha", dest="nupicSha", type=str,
-                      help="SHA from NuPIC used for this build")
   parser.add_argument("--deploy-track", dest="deployTrack", type=str,
                       help="Deploy track that should be used for tracking RPM")
   parser.add_argument("--track-rpm-version", dest="trackVersion", type=str,
@@ -120,14 +118,12 @@ def addAndParseArgs(jsonArgs):
                       help="Descriptive key to be used with auto generated ami"
                       "name")
   parser.add_argument("--build-workspace", dest="buildWorkspace", type=str,
-                      help="Common dir prefix for grok and NuPIC")
+                      help="Common dir prefix for grok")
   parser.add_argument("--pipeline-json", dest="pipelineJson", type=str,
                       help="Path locator for build json file. This file should"
                       "have all parameters required by this script. Provide"
                       "parameters either as a command line parameters or as"
                       "individial parameters")
-  parser.add_argument("--nupic-deploy-track", dest="nupicDeployTrack",
-                      type=str, help="Deploy track for nupic RPM")
   parser.add_argument("--grok-rpm-name", dest="grokRpmName",
                       type=str, help="Grok RPM name to installed on the AMI")
   parser.add_argument("--log", dest="logLevel", type=str, default="warning",
