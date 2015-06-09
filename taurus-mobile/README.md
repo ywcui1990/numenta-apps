@@ -46,6 +46,9 @@ The application was designed and tested on "Nexus 4".
         systemProp.COGNITO_POOL_ID = "us-east-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxxx"
         # Keystore password
         systemProp.BUILD_PASSWORD = "CHANGEME"
+        # Initial version code to use in addition to 'gitCommitCount'
+        systemProp.INITIAL_VERSION_CODE=480
+
 
 ### Running Tests with Gradle ###
 

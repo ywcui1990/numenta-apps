@@ -1,13 +1,11 @@
 [grok-noarch]
 name=Grok Noarch repo
-baseurl=http://yum.groksolutions.com.s3.amazonaws.com/s3/noarch
+baseurl=http://public.numenta.com/yum/noarch
 gpgcheck=0
 priority=1
-s3_enabled=1
 
 [grok-x86-64]
 name=Grok x86-64 Repository
-baseurl=http://yum.groksolutions.com.s3.amazonaws.com/s3/x86_64
+baseurl=http://public.numenta.com/yum/x86_64
 gpgcheck=0
 priority=1
-s3_enabled=1
