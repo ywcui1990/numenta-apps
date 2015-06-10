@@ -25,6 +25,7 @@
 
 import glob
 import os
+import re
 import shutil
 import sys
 
@@ -53,6 +54,10 @@ from infrastructure.utilities.cli import runWithOutput
 NUPIC_CORE_REMOTE = "git@github.com:numenta/nupic.core.git"
 SCRIPTS_DIR = os.path.join(git.getGitRootFolder(), "nupic-pipeline", "scripts")
 ARTIFACTS_DIR = createOrReplaceArtifactsDir()
+
+DOXYFILE = "docs/Doxyfile"
+INIT_FILE = "nupic/__init__.py"
+VERSION_FILE = "VERSION"
 
 g_config = yaml.load(
             resource_stream(__name__, "../../../conf/nupic/config.yaml"))
@@ -84,6 +89,39 @@ def fetchNuPIC(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger):
   except CommandFailedError:
     logger.exception("NuPIC checkout failed with %s,"
                      " this sha might not exist.", nupicSha)
+
+
+
+def isReleaseVersion(nupicBranch, nupicSha):
+  """
+    Check to see if this is a release version.
+
+    :param nupicBranch: The NuPIC branch which will be used to build
+    :param nupicSha: NuPIC SHA used for current run.
+
+    :returns: True if nupicBranch and nupicSha are identical and match the
+      pattern X.Y.Z (e.g., 0.2.3)
+    :rtype: boolean
+  """
+  pattern = re.compile(r"\A\d+\.\d+\.\d+\Z")
+  if nupicBranch == nupicSha and pattern.match(nupicSha):
+    return True
+  return False
+
+
+
+def replaceInFile(fromValue, toValue, filePath):
+  """
+    Replaces old text with new text in a specified file.
+
+    :param fromValue: Text to be replaced.
+    :param toValue: New text.
+    :param filePath: file that will be modified.
+  """
+  with open(filePath, "r") as f:
+    contents = f.read()
+  with open(filePath, "wb") as f:
+    f.write(contents.replace(fromValue, toValue))
 
 
 
@@ -239,10 +277,10 @@ def buildNuPIC(env, logger):
                     env, logger)
       # need to remove this folder for wheel build to work
       shutil.rmtree("external/linux32arm")
+
       # build the wheel
       command = ("python setup.py bdist_wheel --nupic-core-dir=%s" %
                  os.path.join(env["NUPIC_CORE_DIR"], "build", "release"))
-      log.printEnv(env, logger)
       runWithOutput(command, env, logger)
     except:
       logger.exception("Failed while building nupic")
@@ -419,6 +457,18 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger):
     necessary, installing nupic.core
   """
   fetchNuPIC(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger)
+
+  # If this is a release version, then update __init__.py with the right
+  # version number. This will ensure the proper version number is tagged in
+  # the wheel file
+  if isReleaseVersion(nupicBranch, nupicSha):
+    with changeToWorkingDir(buildWorkspace):
+      with open(VERSION_FILE, "r") as f:
+        devVersion = f.read().strip()
+      for targetFile in [VERSION_FILE, DOXYFILE, INIT_FILE]:
+        logger.debug("\tUpdating %s...", targetFile)
+        replaceInFile(devVersion, nupicSha, targetFile)
+
   nupicCoreRemote, nupicCoreSHA = getNuPICCoreDetails(env, logger)
 
   boolBuildNupicCore = False
