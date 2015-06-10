@@ -1,11 +1,11 @@
 {
   "builders": [
     {
-      "ami_description": "Numenta infrastructure base - CentOS 6.5 + 128GB root + SaltStack solo",
-      "ami_name": "numenta-infrastructure-saltstack-128GB-{{isotime | clean_ami_name}}",
+      "ami_description": "Numenta infrastructure base - CentOS 6.5 + 256GB root + SaltStack solo",
+      "ami_name": "numenta-infrastructure-saltstack-256GB-{{isotime | clean_ami_name}}",
       "instance_type": "m3.large",
       "region": "us-west-2",
-      "source_ami": "ami-ef4e6adf",
+      "source_ami": "ami-e394acd3",
       "ssh_port": 22,
       "ssh_timeout": "3m",
       "ssh_username": "root",
