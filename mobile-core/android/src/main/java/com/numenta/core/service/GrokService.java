@@ -151,7 +151,9 @@ public class GrokService extends IntentService {
                     }
                 } catch (AuthenticationException e) {
                     fireAuthenticationFailedEvent();
-                } catch (GrokException | IOException e) {
+                } catch (GrokException e) {
+                    Log.e(TAG, "Unable to connect to Grok", e);
+                } catch (IOException e) {
                     Log.e(TAG, "Unable to connect to Grok", e);
                 }
             }
@@ -353,7 +355,10 @@ public class GrokService extends IntentService {
         } catch (AuthenticationException e) {
             Log.w(TAG, "Authentication failure");
             throw e;
-        } catch (GrokException | IOException e) {
+        } catch (GrokException e) {
+            Log.e(TAG, "Unable to connect to Grok.", e);
+            throw e;
+        } catch (IOException e) {
             Log.e(TAG, "Unable to connect to Grok.", e);
             throw e;
         }

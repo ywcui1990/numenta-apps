@@ -81,11 +81,6 @@ class TestGrokInstallation(unittest.TestCase):
                       "Package %s not installed" % packageName)
 
 
-  def testLogwriterCredentialFilePresent(self):
-    self.assertTrue(agamotto.file.exists(
-                    "/etc/grok/logwriter_credentials.json"))
-
-
   def testMetricCollectorIsRunning(self):
     self.assertTrue(agamotto.process.running(
                     "python -m grok.app.runtime.metric_collector"))

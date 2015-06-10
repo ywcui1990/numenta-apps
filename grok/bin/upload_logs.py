@@ -38,8 +38,8 @@ from grok.app import config
 _LOGGER = logging.getLogger(__name__)
 _USAGE = "Usage: upload_logs.py [--force] path/to/log/dir"
 
-_AWS_ACCESS_KEY = config.get("logging", "s3_access_key_id")
-_AWS_SECRET_KEY = config.get("logging", "s3_secret_access_key")
+_AWS_ACCESS_KEY = config.get("aws", "aws_access_key_id")
+_AWS_SECRET_KEY = config.get("aws", "aws_secret_access_key")
 _BUCKET = "grok.logs"
 _KEY_PREFIX = "upload/%s-" % config.get("usertrack", "grok_id")
 _UPLOADED_DIR = "uploaded"

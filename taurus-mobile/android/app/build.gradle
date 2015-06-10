@@ -47,7 +47,7 @@ android {
         *******************************************************************************************/
         //noinspection OldTargetApi
         targetSdkVersion 16
-        versionCode gitCommitCount
+        versionCode gitCommitCount + initialVersionCode
         versionName project.version
         // Email address to send user feedback
         resValue "string", "feedback_email_address", System.getProperty('FEEDBACK_EMAIL')
@@ -104,8 +104,8 @@ android {
 //        unitTests.returnDefaultValues = true
 //    }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
     }
 }
 

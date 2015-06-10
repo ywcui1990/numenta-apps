@@ -21,26 +21,20 @@
 
 
 
-def checkIfSaneProductionParams(grokRemote, nupicRemote, grokBranch,
-                                nupicBranch):
+def checkIfSaneProductionParams(grokRemote, grokBranch):
   """
     This method checks if the build is being run against whitelisted
     forks/branches for production purposes.
 
     :param grokRemote: GROK repository URL used for current build
 
-    :param nupicRemote: NuPIC repository URL used for current build
-
     :param grokBranch: grok branch used for current build
-
-    :param nupicBranch: NuPIC branch used for NuPIC branch for current build
 
     :returns: True or False to allow/ prohibit updating ciBranch
     :rtype: bool
   """
   if (grokRemote == "git@github.com:Numenta/numenta-apps.git" and
-      nupicRemote == "git@github.com:numenta/nupic.git" and
-      nupicBranch == "master" and grokBranch == "master"):
+      grokBranch == "master"):
     return True
   else:
     return False

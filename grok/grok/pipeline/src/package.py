@@ -58,9 +58,8 @@ def uploadShaFiletoBucket(rpmName, filename, logger):
   """
     Uploads sha.json to bucket "builds.numenta.com"
 
-    :param rpmName: Which rpm either grok or nupic,
-                    according to this the bucket is decided.
-                    for eg:builds.numenta.com/grok.
+    :param rpmName: For now, this is always Grok
+                    i.e., builds.numenta.com/grok.
     :param filename: The sha.json file which should be uploaded.
     :raises: re-raising the base exceptions..
   """
@@ -119,9 +118,9 @@ def checkRpmExists(rpmName, sha, rpmNameDetails, config, logger):
     builds.numenta.com, and then checks if the rpm is present on
     rpmbuild.groksolutions.com or in S3
 
-    :param rpmName: Here it is grok or nupic.
-                    e.g.: builds.numenta.com/grok if checking for grok rpm
-    :param sha: The sha of grok or nupic which we are searching for
+    :param rpmName: For now, this is always Grok
+                    i.e., builds.numenta.com/grok if checking for grok rpm
+    :param sha: The sha of grok which we are searching for
     :rpmNameDetails: This is a dict which is used to store the RPM name
                      which we are searching for
     :returns: True if rpm exists on S3 and rpmbuild.groksolutions.com else False
@@ -210,9 +209,9 @@ def moveRpmsToRpmbuild(rpmName, config, logger):
 def buildRpms(env, grokSha, releaseVersion,
               artifactsDir, logger, config, grokRemote):
   """
-  Builds an rpm for grok that contains an embedded NuPIC wheel
+  Builds an rpm for grok
 
-  Takes the sha according to grok or nupic and checks that the sha.json file
+  Takes the sha according to grok and checks that the sha.json file
   is present (also checks if the rpm is present on rpmbuild and in S3), if
   not it creates the rpm.
 
@@ -225,7 +224,7 @@ def buildRpms(env, grokSha, releaseVersion,
                    AWS secret and access.
   :returns: syncRpmStatus(It is list which will help recongnize if RPM's rpm
             should be synced) and rpmNameDetails(It is a dict which contains the
-            RPM name of Grok and NuPIC)
+            RPM name of Grok)
   :raises: infrastructure.utilities.exceptions.MissingRPMError,
            when RPM is not found.
            infrastructure.utilities.exceptions.FailedToMoveRPM,
@@ -243,11 +242,6 @@ def buildRpms(env, grokSha, releaseVersion,
       if not rpmExists:
         logger.info("Creating %s rpm.", rpmName)
 
-        # Download the NuPIC wheel
-        # TODO: Make this use the real nupicSHA, not just default to tip of
-        # stable
-        wheelFilePath = s3.downloadNuPICWheel(sha=None, )
-
         # Clean stale rpms
         with changeToWorkingDir(OPERATIONS_SCRIPTS):
           try:
@@ -258,10 +252,9 @@ def buildRpms(env, grokSha, releaseVersion,
             infrastuctureCommonPath = os.path.join(PRODUCTS_PATH,
                                                    "infrastructure",
                                                    "infrastructure")
-            
+
             command = ("%s/create-numenta-rpm" % infrastuctureCommonPath +
                        " --rpm-flavor grok" +
-                       " --install-wheel " + wheelFilePath +
                        " --debug" +
                        " --postinstall-script post_install_grok" +
                        " --cleanup-script grok/grok/pipeline/scripts/rpm-creator" +
@@ -332,19 +325,16 @@ def addAndParseArgs(jsonArgs):
   """
   This method parses the command line paramaters passed to the script.
 
-  :returns: logger, buildWorkspace, nupicBuildDir,
-            grokSha, releaseVersion,
+  :returns: logger, buildWorkspace, grokSha, releaseVersion,
             pipelineParams, pipelineJson
   """
 
   parser = argparse.ArgumentParser(description="Package tool for creating"
-                                               " grok and NuPIC rpms")
+                                               " grok rpms")
   parser.add_argument("--pipeline-json", dest="pipelineJson", type=str,
                       help="The manifest file name")
   parser.add_argument("--build-workspace", dest="buildWorkspace", type=str,
-                      help="Common dir prefix for grok and NuPIC")
-  parser.add_argument("--nupic-build-dir", dest="nupicBuildDir", type=str,
-                      help="nupic build dir where NuPIC is build")
+                      help="Common dir prefix for grok")
   parser.add_argument("--grokSha", dest="grokSha", type=str,
                       help="The grokSha for which are creating rpm")
   parser.add_argument("--grok-remote", dest="grokRemote", type=str,
@@ -354,7 +344,7 @@ def addAndParseArgs(jsonArgs):
                       help="Unit test success status")
   parser.add_argument("--release-version", dest="releaseVersion", type=str,
                        help="Current release version, this will be used as base"
-                       "version for grok, nupic and tracking rpm")
+                       "version for grok and tracking rpm")
   parser.add_argument("--log", dest="logLevel", type=str, default="warning",
                       help="Logging level")
 
@@ -385,8 +375,6 @@ def addAndParseArgs(jsonArgs):
   buildWorkspace = os.environ.get("BUILD_WORKSPACE",
                      pipelineParams.get("buildWorkspace",
                      pipelineParams.get("manifest", {}).get("buildWorkspace")))
-  nupicBuildDir = pipelineParams.get("nupicBuildDir",
-                    pipelineParams.get("build", {}).get("nupicBuildDir"))
   grokSha = pipelineParams.get("grokSha",
               pipelineParams.get("build", {}).get("grokSha"))
   unitTestStatus = pipelineParams.get("testStatus",
@@ -404,8 +392,8 @@ def addAndParseArgs(jsonArgs):
     g_logger.error("Unit Test failed. RPM's will not be created.")
     raise exceptions.UnittestFailed("Unit Test failed")
 
-  if buildWorkspace and nupicBuildDir and grokSha and grokRemote:
-    return (buildWorkspace, nupicBuildDir, grokSha, releaseVersion,
+  if buildWorkspace and grokSha and grokRemote:
+    return (buildWorkspace, grokSha, releaseVersion,
             pipelineParams, args["pipelineJson"], grokRemote)
   else:
     parser.error("Please provide all parameters, "
@@ -415,7 +403,7 @@ def addAndParseArgs(jsonArgs):
 
 def main(jsonArgs=None):
   """
-    This is the Main fuction, which creates Grok and NuPIC rpms and
+    This is the Main fuction, which creates Grok rpms and
     writes the status to the json file if it is json driven.
 
     :param jsonArgs: dict of pipeline-json and logLevel, defaults to empty
@@ -427,7 +415,7 @@ def main(jsonArgs=None):
     :raises: raises generic Exception if anything else goes wrong.
   """
   jsonArgs = jsonArgs or {}
-  (buildWorkspace, nupicBuildDir, grokSha, releaseVersion,
+  (buildWorkspace, grokSha, releaseVersion,
    pipelineParams, pipelineJson, grokRemote) = addAndParseArgs(jsonArgs)
   try:
     # TODO: TAUR-841: Use an IAM role on the the jenkins instances instead of
@@ -438,7 +426,7 @@ def main(jsonArgs=None):
       g_logger.error("Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY")
       raise exceptions.MissingAWSKeysInEnvironment("AWS keys are not set")
 
-    env = prepareEnv(buildWorkspace, nupicBuildDir, os.environ)
+    env = prepareEnv(buildWorkspace, None, os.environ)
     artifactsDir = jenkins.createOrReplaceArtifactsDir()
     syncRpm, rpmNameDetails = buildRpms(env, grokSha,
                                         releaseVersion, artifactsDir,

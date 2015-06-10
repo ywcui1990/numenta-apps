@@ -73,7 +73,8 @@ g_googleAnalyticsIdParameter = ("-DGA_TRACKING_ID=%s" %
                                 os.environ["GA_TRACKING_ID"])
 g_feedbackEmailParameter = ("-DFEEDBACK_EMAIL=%s" %
                             os.environ["FEEDBACK_EMAIL"])
-
+g_initialVersionCodeParameter = ("-DINITIAL_VERSION_CODE=%s" %
+                                 os.environ["INITIAL_VERSION_CODE"])
 
 
 def setupArtifactsDir():
@@ -120,13 +121,14 @@ def runTests(publicDnsName, apiKey, buildDir, artifactsDir, logger):
       serverUrlPrefix = "-DSERVER_URL=https://"
       serverPassPrefix = "-DSERVER_PASS="
 
-      command = ("./gradlew %s%s %s%s %s %s connectedCheck" %
+      command = ("./gradlew %s%s %s%s %s %s %s connectedCheck" %
                     (serverUrlPrefix,
                      publicDnsName,
                      serverPassPrefix,
                      apiKey,
                      g_googleAnalyticsIdParameter,
-                     g_feedbackEmailParameter))
+                     g_feedbackEmailParameter,
+                     g_initialVersionCodeParameter))
       runWithOutput(command, env=os.environ, logger=logger)
     # copy test results to the artifacts folder
     with changeToWorkingDir(buildDir):
@@ -298,31 +300,33 @@ def main(args):
   signal.signal(signal.SIGINT, handleSignalInterrupt)
   signal.signal(signal.SIGTERM, handleSignalInterrupt)
 
-  # In order to build the Grok-Mobile APK, we need to have the `grok.keystore`
-  # file stored at the root of the android project.
-  shutil.copy2("/etc/numenta/products/keys/grok.keystore",
-               os.path.join(GROK_MOBILE_HOME, "android"))
-
-  artifactsDir = setupArtifactsDir()
-
-  # Build mobile client
-  with changeToWorkingDir(ANDROID_PATH):
-    runWithOutput("./gradlew clean build %s %s" %
-                    (g_googleAnalyticsIdParameter,
-                     g_feedbackEmailParameter),
-                  env=os.environ, logger=logger)
-
-  rootBuildDir = os.path.join(GROK_MOBILE_HOME, "android", "build")
-  grokBuildDir = os.path.join(rootBuildDir, "grok-mobile", "outputs")
-  coreBuildDir = os.path.join(rootBuildDir, "mobile-core", "outputs")
-
-  shutil.copy2(os.path.join(grokBuildDir, "lint-results.xml"),
-               os.path.join(artifactsDir, "grok-mobile-lint-results.xml"))
-  shutil.copy2(os.path.join(coreBuildDir, "lint-results.xml"),
-               os.path.join(artifactsDir, "mobile-core-lint-results.xml"))
-
-  serverKey = os.path.join("~", ".ssh", g_config["KEY"] + ".pem")
   try:
+    # In order to build the Grok-Mobile APK, we need to have the `grok.keystore`
+    # file stored at the root of the android project.
+    shutil.copy2("/etc/numenta/products/keys/grok.keystore",
+                 os.path.join(GROK_MOBILE_HOME, "android"))
+
+    artifactsDir = setupArtifactsDir()
+
+    # Build mobile client
+    with changeToWorkingDir(ANDROID_PATH):
+      runWithOutput("./gradlew clean build %s %s %s" %
+                      (g_googleAnalyticsIdParameter,
+                       g_feedbackEmailParameter,
+                       g_initialVersionCodeParameter),
+                    env=os.environ, logger=logger)
+
+    rootBuildDir = os.path.join(GROK_MOBILE_HOME, "android", "build")
+    grokBuildDir = os.path.join(rootBuildDir, "grok-mobile", "outputs")
+    coreBuildDir = os.path.join(rootBuildDir, "mobile-core", "outputs")
+
+    shutil.copy2(os.path.join(grokBuildDir, "lint-results.xml"),
+                 os.path.join(artifactsDir, "grok-mobile-lint-results.xml"))
+    shutil.copy2(os.path.join(coreBuildDir, "lint-results.xml"),
+                 os.path.join(artifactsDir, "mobile-core-lint-results.xml"))
+
+    serverKey = os.path.join("~", ".ssh", g_config["KEY"] + ".pem")
+
     waitForGrokServerToBeReady(publicDnsName, serverKey, g_config["USER"],
                                logger)
     apiKey = args.apiKey or getApiKey(instanceId, publicDnsName, awsConfig,
