@@ -29,6 +29,6 @@ function install {
 }
 
 install nta.utils $1 $2
+install infrastructure $1 $2F
 install htmengine $1 $2
-install infrastructure $1 $2
 install grok $1 $2
