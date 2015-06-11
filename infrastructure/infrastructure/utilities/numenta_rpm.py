@@ -16,20 +16,20 @@ from infrastructure.utilities.cli import runWithOutput
 class NumentaRPM(object):
   """docstring for NumentaRPM
   """
-  def __init__(self, config, logger):
+  def __init__(self, config):
     failmsg = None
     if config.sitePackagesTarball:
       if config.flavor != "grok":
         failmsg = "--site-packages is only used for grok packages."
-    if g_config.flavor == None:
+    if config.flavor == None:
       failmsg = "You must set a type of rpm to create with --rpm-flavor"
-    if g_config.artifacts == []:
+    if config.artifacts == []:
       failmsg = "You must specify artifacts in the fakeroot to package."
-      if g_config.flavor == "grok":
+      if config.flavor == "grok":
         failmsg = failmsg + " Grok rpms should specify opt"
-      if g_config.flavor == "infrastructure":
+      if config.flavor == "infrastructure":
         failmsg = failmsg + " Infrastructure rpms should specify opt"
-      if g_config.flavor == "saltcellar":
+      if config.flavor == "saltcellar":
         failmsg = failmsg + " Saltcellar rpms should specify srv"
     if failmsg:
       raise InvalidParametersError(failmsg)
