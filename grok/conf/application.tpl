@@ -76,10 +76,6 @@ aws_secret_access_key = %(NOTIFICATIONS_AWS_SECRET_ACCESS_KEY)s
 subject = Welcome to Grok!
 body = registration-body.tpl
 
-[logging]
-s3_access_key_id =
-s3_secret_access_key =
-
 [anomaly_likelihood]
 # Minimal sample size for statistic calculation
 statistics_min_sample_size=100

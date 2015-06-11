@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 """
-AMQP constants of interest and helper utilities
+AMQP synchronous client.
 
 TODO need unit tests
 """
@@ -32,591 +32,166 @@ import socket
 from haigha.connections.rabbit_connection import RabbitConnection
 from haigha.message import Message as HaighaMessage
 
-import nta.utils
-from nta.utils.config import Config
 from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 
+from nta.utils.amqp import connection as amqp_connection
+from nta.utils.amqp import consumer as amqp_consumer
+from nta.utils.amqp import exceptions as amqp_exceptions
+from nta.utils.amqp import messages as amqp_messages
+from nta.utils.amqp import queue as amqp_queue
 
 g_log = logging.getLogger(__name__)
 
 
 
-class RabbitmqConfig(Config):
-  """ RabbitMQ configuration access class """
+class _CallbackSink(object):
 
-  # Name of rabbitmq config file
-  CONFIG_NAME = "rabbitmq.conf"
-
-  def __init__(self, mode=Config.MODE_LOGICAL):
-    super(RabbitmqConfig, self).__init__(self.CONFIG_NAME,
-                                         nta.utils.CONF_DIR,
-                                         mode=mode)
-
-
-
-class AMQPDeliveryModes(object):
-  """ Message delivery modes of interest """
-
-  NON_PERSISTENT_MESSAGE = 1
-
-  # NOTE: A durable queue is necessary for persiting persistent messages at
-  # queue level
-  PERSISTENT_MESSAGE = 2
-
-
-
-class AMQPErrorCodes(object):
-  """ AMQP Error Codes of interest; these occur in the method frame of
-  Channel.Close and Connection.Close methods
-  """
-
-  # Requested resource not found
-  NOT_FOUND = 404
-
-
-
-def getRabbitmqConnectionParameters():
-  """Get RabbitMQ connection parameters from the RabbitMQ connection config
-
-  :returns: connection parameters for the RabbitMQ broker
-  :rtype: nta.utils.amqp.ConnectionParams
-  """
-  config = RabbitmqConfig()
-
-  host = config.get("connection", "host")
-
-  port = config.getint("connection", "port")
-
-  vhost = config.get("connection", "virtual_host")
-
-  credentials = PlainCredentials(config.get("credentials","user"),
-                                 config.get("credentials","password"))
-
-  return ConnectionParams(host=host,
-                          port=port,
-                          vhost=vhost,
-                          credentials=credentials)
-
-
-
-class RabbitmqManagementConnectionParams(object):
-  """RabbitMQ management plugin connection settings"""
-
-  __slots__ = ("host", "port", "vhost", "username", "password")
+  __slots__ = ("values",)
 
   def __init__(self):
-    connectionParams = getRabbitmqConnectionParameters()
+    self.values = []
 
-    self.host = connectionParams.host
-    self.port = RabbitmqConfig().getint("management", "port")
-    self.vhost = connectionParams.vhost
-    self.username = connectionParams.credentials.username
-    self.password = connectionParams.credentials.password
+  def __call__(self, *args):
+    self.values.append(args)
+
+  @property
+  def ready(self):
+    return bool(self.values)
+
+  def __repr__(self):
+    return "%s(ready=%s, values=%.255r)" % (self.__class__.__name__,
+                                            self.ready,
+                                            self.values)
+
+
+class _PubackState(_CallbackSink):
+
+  __slots__ = ()
+
+  ACK = 1
+  NACK = 2
+
+  def handleAck(self, deliveryTag):
+    """Message Ack'ed in RabbitMQ Publisher Acknowledgments mode"""
+    g_log.debug("Message ACKed: tag=%s", deliveryTag)
+
+    assert not self.ready, (deliveryTag, self.values)
+
+    self(self.ACK, deliveryTag)
+
+  def handleNack(self, deliveryTag):
+    """Message Nack'ed in RabbitMQ Publisher Acknowledgments mode"""
+    g_log.error("Message NACKed: tag=%s", deliveryTag)
+
+    assert not self.ready, (deliveryTag, self.values)
+
+    self(self.NACK, deliveryTag)
+
+
+class _ChannelContext(object):
+
+  __slots__ = ("channel", "nextConsumerTag", "consumerSet", "pendingEvents",
+               "pubacksSelected", "returnedMessages")
+
+  def __init__(self, channel):
+    self.channel = None
+    self.nextConsumerTag = None
+
+    # Consumer tags of active consumers
+    self.consumerSet = None
+
+    # Events pending delivery via SynchronousAmqpClient.getNextEvent
+    self.pendingEvents = None
+
+    # True after publisher-acknowledgments mode has been selected
+    self.pubacksSelected = None
+
+    # Holds messages of type ReturnedMessage received via Basic.Return
+    self.returnedMessages = None
+
+    self.reset()
+    self.channel = channel
+
+  def reset(self):
+    """ Reset member variables to default state """
+    self.channel = None
+    self.nextConsumerTag = 1
+
+    # Consumer tags of active consumers
+    self.consumerSet = set()
+
+    # Events pending delivery via SynchronousAmqpClient.getNextEvent
+    self.pendingEvents = deque()
+
+    # True after publisher-acknowledgments mode has been selected
+    self.pubacksSelected = False
+
+    # Holds messages of type ReturnedMessage received via Basic.Return
+    self.returnedMessages = []
 
 
   def __repr__(self):
-    return "%s(host=%r, port=%s, username=%r, password=%r)" % (
-      self.__class__.__name__,
-      self.host,
-      self.port,
-      self.username,
-      "OBFUSCATED")
-
-
-
-class _AmqpErrorBase(Exception):
-  """Signals failure of AMQP operation """
-
-  def __init__(self, code, text, classId, methodId):
-    """
-    :param int code: AMQP reply code
-    :param str text: reply text
-    :param int classId: failing method class
-    :param int methodId:failing method ID
-    """
-    super(_AmqpErrorBase, self).__init__(code, text, classId, methodId)
-    self.code = code
-    self.text = text
-    self.classId = classId
-    self.methodId = methodId
-
-
-  def __repr__(self):
-    return self.__class__.__name__ + (
-      "(code=%s, text=%s, class_id=%s, method_id=%s)" % (
-      self.code, self.text, self.classId, self.methodId))
-
-
-
-class AmqpChannelError(_AmqpErrorBase):
-  """Signals failure of AMQP operation on a channel and concludes in closing of
-  the channel.
-  """
-  pass
-
-
-
-class AmqpConnectionError(_AmqpErrorBase):
-  """AMQP broker closed connection or connection with broker dropped suddently
-
-  If TCP/IP connection dropped suddenly, classId will be 0, text will contain an
-  error message, and the rest of the attributes are undefined """
-  pass
-
-
-
-class UnroutableError(Exception):
-  """Raised when one or more unroutable messages have been returned by broker.
-  """
-
-  def __init__(self, messages):
-    """
-    :param messages: sequence of returned unroutable messages
-    :type messages: sequence of ReturnedMessage objects
-    """
-    super(UnroutableError, self).__init__(
-      "%s unroutable message(s) returned: %.255s" % (len(messages), messages))
-
-    self.messages = messages
-
-
-
-class NackError(Exception):
-  """Published message was NACKed by broker; only applicable in RabbitMQ
-  publisher-acknowledgments mode
-  """
-
-  def __init__(self, messages):
-    """
-    :param messages: sequence of returned nacked messages
-    :type messages: sequence of ReturnedMessage objects
-    """
-    super(NackError, self).__init__(
-      "%s nacked message(s) returned: %.255s" % (len(messages), messages))
-
-    self.messages = messages
-
-
-
-class PlainCredentials(object):
-  """Credentials for default authentication with RabbitMQ"""
-
-  __slots__ = ("username", "password")
-
-
-  def __init__(self, username, password):
-    """
-    :param str username: user name
-    :param str password: password
-    """
-    self.username = username
-    self.password = password
-
-
-  def __repr__(self):
-    # NOTE: we obfuscate the password, since we don't want it in the logs
-    return "%s(username=%r, password=%r)" % (self.__class__.__name__,
-                                             self.username,
-                                             "OBFUSCATED")
-
-
-
-class ConnectionParams(object):
-  """Parameters for connecting to AMQP broker"""
-
-  __slots__ = ("host", "port", "vhost", "credentials")
-
-  DEFAULT_HOST = "localhost"
-  DEFAULT_PORT = 5672  # RabbitMQ default
-  DEFAULT_VHOST = "/"
-
-  # Default username and password for RabbitMQ
-  DEFAULT_USERNAME = "guest"
-  DEFAULT_PASSWORD = "guest"
-
-
-  def __init__(self, host=None, port=None, vhost=None,
-               credentials=None):
-    """
-    :param str host: hostname or IP address; [default="localhost"]
-    :param int port: port number; [default=RabbitMQ default port]
-    :param str vhost: vhost; [default="/"]
-    :param PlainCredentials credentials: authentication credentials;
-      [default=RabbitMQ default credentials]
-    """
-    self.host = host if host is not None else self.DEFAULT_HOST
-    self.port = port if port is not None else self.DEFAULT_PORT
-    self.vhost = vhost if vhost is not None else self.DEFAULT_VHOST
-    self.credentials = (
-      credentials if credentials is not None
-      else PlainCredentials(self.DEFAULT_USERNAME, self.DEFAULT_PASSWORD))
-
-
-  def __repr__(self):
-    return "%s(host=%r, port=%s, vhost=%r, credentials=%r)" % (
-      self.__class__.__name__, self.host, self.port, self.vhost,
-      self.credentials)
-
-
-
-class MessageDeliveryInfo(object):
-  """Information about a message received via Basic.Deliver as the result of
-  Basic.Consume
-  """
-
-  __slots__ = ("consumerTag", "deliveryTag", "redelivered", "exchange",
-               "routingKey")
-
-
-  def __init__(self,
-               consumerTag,
-               deliveryTag,
-               redelivered,
-               exchange,
-               routingKey):
-    """
-    :param str consumerTag: consumer tag
-    :param int deliveryTag: message delivery tag
-    :param bool redelivered: True if message was redelivered
-    :param str exchange: Specifies the name of the exchange that the message was
-      originally published to. May be empty, indicating the default exchange.
-    :param str routingKey: Specifies the routing key name specified when the
-      message was published
-    """
-    self.consumerTag = consumerTag
-    self.deliveryTag = deliveryTag
-    self.redelivered = redelivered
-    self.exchange = exchange
-    self.routingKey = routingKey
-
-
-  def __repr__(self):
-    return ("%s(consumerTag=%r, deliveryTag=%s, redelivered=%s, exchange=%r, "
-            "routingKey=%r)") % (
-              self.__class__.__name__, self.consumerTag, self.deliveryTag,
-              self.redelivered, self.exchange, self.routingKey)
-
-
-
-class MessageGetInfo(object):
-  """Information about a message received via Basic.Get-Ok"""
-
-  __slots__ = ("deliveryTag", "redelivered", "exchange", "routingKey",
-               "messageCount")
-
-
-  def __init__(self,
-               deliveryTag,
-               redelivered,
-               exchange,
-               routingKey,
-               messageCount=None):
-    """
-    :param int deliveryTag: message delivery tag
-    :param bool redelivered: True if message was redelivered
-    :param str exchange: Specifies the name of the exchange that the message was
-      originally published to. May be empty, indicating the default exchange.
-    :param str routingKey: Specifies the routing key name specified when the
-      message was published
-    :param int messageCount: basic.get-ok.message-count
-    """
-    self.deliveryTag = deliveryTag
-    self.redelivered = redelivered
-    self.exchange = exchange
-    self.routingKey = routingKey
-    self.messageCount = messageCount
-
-
-  def __repr__(self):
-    return ("%s(deliveryTag=%s, redelivered=%s, exchange=%s, "
-            "routingKey=%s, messageCount=%s)") % (
-              self.__class__.__name__, self.deliveryTag, self.redelivered,
-              self.exchange, self.routingKey, self.messageCount)
-
-
-
-class MessageReturnInfo(object):
-  """Information aobut a message returned via Basic.Return"""
-
-  __slots__ = ("replyCode", "replyText", "exchange", "routingKey")
-
-
-  def __init__(self, replyCode, replyText, exchange, routingKey):
-    """
-    :param int replyCode: Reply code (int)
-    :param str replyText: Reply text
-    :param str exchange: Specifies the name of the exchange that the message
-      was originally published to. May be empty, meaning the default exchange.
-    :param str routingKey: The routing key name specified when the message was
-      published
-    """
-    self.replyCode = replyCode
-    self.replyText = replyText
-    self.exchange = exchange
-    self.routingKey = routingKey
-
-
-  def __repr__(self):
-    return "%s(replyCode=%s, replyText=%s, exchange=%s, routingKey=%s)" % (
-      self.__class__.__name__, self.replyCode, self.replyText, self.exchange,
-      self.routingKey)
-
-
-
-class BasicProperties(object):
-  """Content properties of a message (Basic.Properties)"""
-
-  __slots__ = ("contentType", "contentEncoding", "headers", "deliveryMode",
-               "priority", "correlationId", "replyTo", "expiration",
-               "messageId", "timestamp", "messageType", "userId", "appId",
-               "clusterId")
-
-
-  def __init__(self,
-               contentType=None,
-               contentEncoding=None,
-               headers=None,
-               deliveryMode=None,
-               priority=None,
-               correlationId=None,
-               replyTo=None,
-               expiration=None,
-               messageId=None,
-               timestamp=None,
-               messageType=None,
-               userId=None,
-               appId=None,
-               clusterId=None):
-    """
-    NOTE: Unless noted otherwise, the value None signals absence of the property
-
-    :param str contentType: application use; MIME content type (shortstr).
-    :param str contentEncoding: application use MIME content encoding (shortstr)
-    :param dict headers: application use; message header field table; similar to
-      X-Headers in HTTP
-    :param int deliveryMode: queue implementation use; message delivery mode;
-      see AMQPDeliveryModes.
-    :param int priority: queue implementation use; message priority, 0 to 9.
-    :param str correlationId: application use; application correlation
-      identifier (shortstr); useful for correlating responses with requests.
-    :param str replyTo: application use; address to reply to (shortstr);
-      commonly used to name a callback queue
-    :param str expiration: queue implementation use; message expiration TTL
-      specification (shortstr). The value is in whole number of milliseconds
-      converted to a string; a message that has been in the queue for longer
-      than the configured TTL is said to be dead and will not be delivered from
-      that queue.
-    :param str messageId: application use; application message identifier
-      (shortstr)
-    :param long timestamp: application use; message publishing timestamp in
-      seconds since unix Epoch (e.g., long(time.time()))
-    :param str messageType: application use; message type name (basic.type;
-      shortstr)
-    :param str userId: queue implementation use; creating user id (shortstr).
-      RabbitMQ: "If this property is set by a publisher, its value must be equal
-      to the name of the user used to open the connection. If the user-id
-      property is not set, the publisher's identity remains private."
-    :param str appId: application use; creating application id (shortstr)
-    :param str clusterId: DEPRECATED
-
-    """
-    self.contentType = contentType
-    self.contentEncoding = contentEncoding
-    self.headers = headers
-    self.deliveryMode = deliveryMode
-    self.priority = priority
-    self.correlationId = correlationId
-    self.replyTo = replyTo
-    self.expiration = expiration
-    self.messageId = messageId
-    self.timestamp = timestamp
-    self.messageType = messageType
-    self.userId = userId
-    self.appId = appId
-    self.clusterId = clusterId
-
-
-  def __repr__(self):
-    args = (
-      ("%s=%r" % (attr, getattr(self, attr)))
-      for attr in sorted(self.__slots__)
-      if not callable(getattr(self, attr)) and getattr(self, attr) is not None)
-
-    return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
-
-
-
-class Message(object):
-  """Represents a message to publish; also base class for messages originated
-  from server
-  """
-
-  __slots__ = ("body", "properties")
-
-
-  def __init__(self, body, properties=None):
-    """
-    :param body: message body, which may be an empty string
-    :type body: bytes or string
-    :param BasicProperties: message properties; defaults to BasicProperties with
-      all attributes having the value None
-    """
-    self.body = body
-    self.properties = (properties if properties is not None
-                       else BasicProperties())
-
-  def __repr__(self):
-    return "%s(props=%s, body=%.255r)" % (self.__class__.__name__,
-                                               self.properties, self.body)
-
-
-
-class ReturnedMessage(Message):
-  """Message received as the result of Basic.Return"""
-
-  __slots__ = ("methodInfo",)
-
-
-  def __init__(self, body, properties, methodInfo):
-    """
-    :param body: see Message.body
-    :param BasicProperties properties: message properties
-    :param MessageReturnInfo methodInfo: info from Basic.Return method
-
-    """
-    super(ReturnedMessage, self).__init__(body, properties)
-    self.methodInfo = methodInfo
-
-
-  def __repr__(self):
-    return "%s(info=%r, props=%r, body=%.255r)" % (
-      self.__class__.__name__, self.methodInfo, self.properties, self.body)
-
-
-
-class _AckableMessage(Message):
-  """Base class for ConsumerMessage and PolledMessage with ack/nack support"""
-
-  __slots__ = ("methodInfo", "_ackImpl", "_nackImpl")
-
-
-  def __init__(self, body, properties, methodInfo, ackImpl, nackImpl):
-    """
-    :param body: see Message.body
-    :param BasicProperties properties: message properties
-    :param methodInfo: MessageDeliveryInfo or MessageGetInfo
-    :param ackImpl: function for acking the message that has the following
-      signature: ackImpl(deliveryTag, multiple)
-    :type ackImpl: callable ackImpl(deliveryTag, multiple) or None
-    :param nackImpl: function for nacking the message that has the following
-      signature: nackImpl(deliveryTag, requeue)
-    :type nackImpl: callable nackImpl(deliveryTag, multiple, requeue) or None
-
-    """
-    super(_AckableMessage, self).__init__(body, properties)
-    self.methodInfo = methodInfo
-    self._ackImpl = ackImpl
-    self._nackImpl = nackImpl
-
-
-  def __repr__(self):
-    return "%s(info=%r, props=%r, body=%.255r)" % (
-      self.__class__.__name__, self.methodInfo, self.properties, self.body)
-
-
-  def ack(self, multiple=False):
-    """Ack the message; only use with messages received with no-ack=False
-
-    NOTE: Behavior is undefined on messages received with no-ack=True
-
-    NOTE: behavior is undefined if called after failure of the connection or
-    channel on which this consumer was created (see AmqpConnectionError and
-    AmqpChannelError)
+    return ("%s(channel=%s, nextConsumerTag=%s, pubacksSelected=%s, "
+            "numReturned=%s, numCons=%s, numEvts=%s)") % (
+              self.__class__.__name__,
+              self.channel.channel_id if self.channel is not None else None,
+              self.nextConsumerTag, self.pubacksSelected,
+              len(self.returnedMessages), len(self.consumerSet),
+              len(self.pendingEvents))
+
+
+  def ack(self, deliveryTag, multiple):
+    """ Acks a messages or multiple messages using the context's channel.
+
+    NOTE: This method is passed to the constructors of _AckableMessage
+    subclasses as implementation of Ack to make sure that the Ack will be
+    attempted on the channel whence the message originated.
+
+    NOTE: behavior is undefined on messages received with no-ack=True
 
     :param int deliveryTag: delivery tag of message being acknowledged
     :param bool multiple: If true, the delivery tag is treated as "up to and
       including", so that the client can acknowledge multiple messages with a
       single method. If false, the delivery tag refers to a single
-      message.
+      message. If the multiple is true, and the delivery tag is zero, tells
+      the server to acknowledge all outstanding messages.
     """
-    self._ackImpl(self.methodInfo.deliveryTag, multiple)
+    self.channel.basic.ack(delivery_tag=deliveryTag, multiple=multiple)
 
+  def nack(self, deliveryTag, multiple, requeue):
+    """ Nacks a messages or multiple messages using the context's channel
 
-  def nack(self, multiple=False, requeue=False):
-    """Nack the message; only use with messages received with no-ack=False;
+    NOTE: This method is passed to the constructors of _AckableMessage
+    subclasses as implementation of Nack to make sure that the Nack will be
+    attempted on the channel whence the message originated.
 
-    NOTE: Behavior is undefined on messages received with no-ack=True
+    NOTE: behavior is undefined on messages received with no-ack=True
 
-    NOTE: behavior is undefined if called after failure of the connection or
-    channel on which this consumer was created (see AmqpConnectionError and
-    AmqpChannelError)
-
+    :param int deliveryTag: delivery tag of message being acknowledged
     :param bool multiple: If true, the delivery tag is treated as "up to and
       including", so that multiple messages can be rejected with a single
-      method. If false, the delivery tag refers to a single message.
+      method. If false, the delivery tag refers to a single message. If the
+      multiple true, and the delivery tag is zero, this indicates rejection of
+      all outstanding messages.
     :param bool requeue: If requeue is true, the server will attempt to
       requeue the message. If requeue is false or the requeue attempt fails
       the messages are discarded or dead-lettered
     """
-    self._nackImpl(self.methodInfo.deliveryTag, multiple, requeue)
+    self.channel.basic.nack(delivery_tag=deliveryTag,
+                            multiple=multiple,
+                            requeue=requeue)
 
-
-
-class PolledMessage(_AckableMessage):
-  """Message received via Basic.Get-Ok as the result of Basic.Get
-
-  methodInfo arg is of type MessageGetInfo
-  """
-  pass
-
-
-
-class ConsumerMessage(_AckableMessage):
-  """Message received via Basic.Deliver as the result of Basic.Consume
-
-  methodInfo arg is of type MessageDeliveryInfo
-  """
-  pass
-
-
-
-class Consumer(object):
-  """Represents a consumer; an object of this class is returned by the client's
-  `createConsumer()` method
-  """
-
-  __slots__ = ("tag", "_queue", "_cancelImpl")
-
-
-  def __init__(self, tag, queue, cancelImpl):
-    """
-    :param str tag: this consumer's consumer-tag
-    :param str queue: name of queue being consumed (for `__repr__`)
-    :param cancelImpl: function for cancelling the consumer.
-    :type cancelImpl: callable cancelImpl(consumerTag)
-    """
-    if not callable(cancelImpl):
-      raise ValueError("cancelImpl arg is not callable: %r" % (cancelImpl,))
-
-    self.tag = tag
-    self._queue = queue
-    self._cancelImpl = cancelImpl
-
-
-  def __repr__(self):
-    return "%s(tag=%r, queue=%r)" % (self.__class__.__name__, self.tag,
-                                     self._queue)
-
-
-  def cancel(self):
-    """Cancel the consumer. This does not affect already delivered
+  def cancelConsumer(self, consumerTag):
+    """This method cancels a consumer. This does not affect already delivered
     messages, but it does mean the server will not send any more messages for
-    this consumer. The client may receive an arbitrary number of messages in
+    that consumer. The client may receive an arbitrary number of messages in
     between sending the cancel method and receiving the cancel-ok reply
 
     NOTE: behavior is undefined if called after failure of the connection or
     channel on which this consumer was created (see AmqpConnectionError and
     AmqpChannelError)
+
+    :param str consumerTag: tag of consumer to cancel
 
     :returns: a (possibly empty) sequence of ConsumerMessage objects
       corresponding to messages delivered for the given consumer
@@ -624,57 +199,36 @@ class Consumer(object):
       `getNextEvent()` or by the `readEvents()` generator.
 
 
-    :raises AmqpChannelError:
-    :raises AmqpConnectionError:
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.AmqpConnectionError:
     """
-    return self._cancelImpl(self.tag)
+    self.consumerSet.discard(consumerTag)
 
+    self.channel.basic.cancel(consumer_tag=consumerTag, nowait=False)
 
+    # Remove unprocessed messages destined for this consumer from pending
+    # events
+    remainingEvents = deque()
+    unprocessedMessages = []
+    while self.pendingEvents:
+      evt = self.pendingEvents.popleft()
 
-class ConsumerCancellation(object):
-  """Object of this class represents cancellation of consumer by broker"""
+      if (isinstance(evt, amqp_messages.ConsumerMessage) and
+          evt.methodInfo.consumerTag == consumerTag):
+        unprocessedMessages.append(evt)
 
-  __slots__ = ("consumerTag",)
+      elif (isinstance(evt, amqp_consumer.ConsumerCancellation) and
+            evt.consumerTag == consumerTag):
+        # A broker-initiated Basic.Cancel must have arrived before
+        # our cancel request completed
+        g_log.warn("cancel_consumer: discarding evt=%s", evt)
 
+      else:
+        remainingEvents.append(evt)
 
-  def __init__(self, consumerTag):
-    """
-    :param str consumerTag: tag of cancelled consumer
-    """
-    self.consumerTag = consumerTag
+    self.pendingEvents = remainingEvents
 
-
-  def __repr__(self):
-    return "%s(tag=%r)" % (self.__class__.__name__, self.consumerTag)
-
-
-
-class QueueDeclarationResult(object):
-  """Result of queue declaration"""
-
-  __slots__ = ("queue", "messageCount", "consumerCount")
-
-
-  def __init__(self, queue, messageCount, consumerCount):
-    """
-    :param str queue: Reports the name of the queue. If the server generated a
-      queue name, this field contains that name
-    :param int messageCount: The number of messages in the queue, which will be
-      zero for newly-declared queues
-    :param int consumerCount: Reports the number of active consumers for the
-      queue. Note that consumers can suspend activity (Channel.Flow) in which
-      case they do not appear in this count
-    """
-    self.queue = queue
-    self.messageCount = messageCount
-    self.consumerCount = consumerCount
-
-
-  def __repr__(self):
-    return "%s(queue=%r, messageCount=%s, consumerCount=%s)" % (
-      self.__class__.__name__,
-      self.queue, self.messageCount, self.consumerCount)
-
+    return unprocessedMessages
 
 
 class SynchronousAmqpClient(object):
@@ -700,194 +254,6 @@ class SynchronousAmqpClient(object):
   to preserve those semantics to facilitate better correlation with AMQP
   documentation.
   """
-
-  class _CallbackSink(object):
-
-    __slots__ = ("values",)
-
-    def __init__(self):
-      self.values = []
-
-    def __call__(self, *args):
-      self.values.append(args)
-
-    @property
-    def ready(self):
-      return bool(self.values)
-
-    def __repr__(self):
-      return "%s(ready=%s, values=%.255r)" % (self.__class__.__name__,
-                                              self.ready,
-                                              self.values)
-
-
-  class _PubackState(_CallbackSink):
-
-    __slots__ = ()
-
-    ACK = 1
-    NACK = 2
-
-    def handleAck(self, deliveryTag):
-      """Message Ack'ed in RabbitMQ Publisher Acknowledgments mode"""
-      g_log.debug("Message ACKed: tag=%s", deliveryTag)
-
-      assert not self.ready, (deliveryTag, self.values)
-
-      self(self.ACK, deliveryTag)
-
-    def handleNack(self, deliveryTag):
-      """Message Nack'ed in RabbitMQ Publisher Acknowledgments mode"""
-      g_log.error("Message NACKed: tag=%s", deliveryTag)
-
-      assert not self.ready, (deliveryTag, self.values)
-
-      self(self.NACK, deliveryTag)
-
-
-  class _ChannelContext(object):
-
-    __slots__ = ("channel", "nextConsumerTag", "consumerSet", "pendingEvents",
-                 "pubacksSelected", "returnedMessages")
-
-    def __init__(self, channel):
-      self.channel = None
-      self.nextConsumerTag = None
-
-      # Consumer tags of active consumers
-      self.consumerSet = None
-
-      # Events pending delivery via SynchronousAmqpClient.getNextEvent
-      self.pendingEvents = None
-
-      # True after publisher-acknowledgments mode has been selected
-      self.pubacksSelected = None
-
-      # Holds messages of type ReturnedMessage received via Basic.Return
-      self.returnedMessages = None
-
-      self.reset()
-      self.channel = channel
-
-    def reset(self):
-      """ Reset member variables to default state """
-      self.channel = None
-      self.nextConsumerTag = 1
-
-      # Consumer tags of active consumers
-      self.consumerSet = set()
-
-      # Events pending delivery via SynchronousAmqpClient.getNextEvent
-      self.pendingEvents = deque()
-
-      # True after publisher-acknowledgments mode has been selected
-      self.pubacksSelected = False
-
-      # Holds messages of type ReturnedMessage received via Basic.Return
-      self.returnedMessages = []
-
-
-    def __repr__(self):
-      return ("%s(channel=%s, nextConsumerTag=%s, pubacksSelected=%s, "
-              "numReturned=%s, numCons=%s, numEvts=%s)") % (
-                self.__class__.__name__,
-                self.channel.channel_id if self.channel is not None else None,
-                self.nextConsumerTag, self.pubacksSelected,
-                len(self.returnedMessages), len(self.consumerSet),
-                len(self.pendingEvents))
-
-
-    def ack(self, deliveryTag, multiple):
-      """ Acks a messages or multiple messages using the context's channel.
-
-      NOTE: This method is passed to the constructors of _AckableMessage
-      subclasses as implementation of Ack to make sure that the Ack will be
-      attempted on the channel whence the message originated.
-
-      NOTE: behavior is undefined on messages received with no-ack=True
-
-      :param int deliveryTag: delivery tag of message being acknowledged
-      :param bool multiple: If true, the delivery tag is treated as "up to and
-        including", so that the client can acknowledge multiple messages with a
-        single method. If false, the delivery tag refers to a single
-        message. If the multiple is true, and the delivery tag is zero, tells
-        the server to acknowledge all outstanding messages.
-      """
-      self.channel.basic.ack(delivery_tag=deliveryTag, multiple=multiple)
-
-    def nack(self, deliveryTag, multiple, requeue):
-      """ Nacks a messages or multiple messages using the context's channel
-
-      NOTE: This method is passed to the constructors of _AckableMessage
-      subclasses as implementation of Nack to make sure that the Nack will be
-      attempted on the channel whence the message originated.
-
-      NOTE: behavior is undefined on messages received with no-ack=True
-
-      :param int deliveryTag: delivery tag of message being acknowledged
-      :param bool multiple: If true, the delivery tag is treated as "up to and
-        including", so that multiple messages can be rejected with a single
-        method. If false, the delivery tag refers to a single message. If the
-        multiple true, and the delivery tag is zero, this indicates rejection of
-        all outstanding messages.
-      :param bool requeue: If requeue is true, the server will attempt to
-        requeue the message. If requeue is false or the requeue attempt fails
-        the messages are discarded or dead-lettered
-      """
-      self.channel.basic.nack(delivery_tag=deliveryTag,
-                              multiple=multiple,
-                              requeue=requeue)
-
-    def cancelConsumer(self, consumerTag):
-      """This method cancels a consumer. This does not affect already delivered
-      messages, but it does mean the server will not send any more messages for
-      that consumer. The client may receive an arbitrary number of messages in
-      between sending the cancel method and receiving the cancel-ok reply
-
-      NOTE: behavior is undefined if called after failure of the connection or
-      channel on which this consumer was created (see AmqpConnectionError and
-      AmqpChannelError)
-
-      :param str consumerTag: tag of consumer to cancel
-
-      :returns: a (possibly empty) sequence of ConsumerMessage objects
-        corresponding to messages delivered for the given consumer
-        before the cancel operation completed that were not yet returned by
-        `getNextEvent()` or by the `readEvents()` generator.
-
-
-      :raises AmqpChannelError:
-      :raises AmqpConnectionError:
-      """
-      self.consumerSet.discard(consumerTag)
-
-      self.channel.basic.cancel(consumer_tag=consumerTag, nowait=False)
-
-      # Remove unprocessed messages destined for this consumer from pending
-      # events
-      remainingEvents = deque()
-      unprocessedMessages = []
-      while self.pendingEvents:
-        evt = self.pendingEvents.popleft()
-
-        if (isinstance(evt, ConsumerMessage) and
-            evt.methodInfo.consumerTag == consumerTag):
-          unprocessedMessages.append(evt)
-
-        elif (isinstance(evt, ConsumerCancellation) and
-              evt.consumerTag == consumerTag):
-          # A broker-initiated Basic.Cancel must have arrived before
-          # our cancel request completed
-          g_log.warn("cancel_consumer: discarding evt=%s", evt)
-
-        else:
-          remainingEvents.append(evt)
-
-      self.pendingEvents = remainingEvents
-
-      return unprocessedMessages
-
-
   # Correlations between names of BasicProperties attributes and Haigha's
   # message property names.
   #
@@ -927,8 +293,9 @@ class SynchronousAmqpClient(object):
     NOTE: Connection establishment may be performed in the scope of the
     constructor or on demand, depending on the underlying implementation
 
-    :param ConnectionParams connectionParams: parameters for connecting to AMQP
-      broker; [default=default params for RabbitMQ broker on localhost]
+    :param nta.utils.amqp.connection.ConnectionParams connectionParams:
+      parameters for connecting to AMQP broker;
+      [default=default params for RabbitMQ broker on localhost]
     :param channelConfigCb: An optional callback function that will be
       called whenever a new AMQP Channel is being brought up
     :type channelConfigCb: None or callable with the signature
@@ -950,7 +317,7 @@ class SynchronousAmqpClient(object):
 
     # Instantiate underlying connection object
     params = (connectionParams if connectionParams is not None
-              else ConnectionParams())
+              else amqp_connection.ConnectionParams())
 
     # NOTE: we could get a `close_cb` call from RabbitConnection constructor, so
     # prepare for it by initializing `self._connection`
@@ -979,7 +346,7 @@ class SynchronousAmqpClient(object):
   def _liveChannelContext(self):
     """NOTE: Creates channel on demand"""
     if self._channelContextInstance is None:
-      self._channelContextInstance = self._ChannelContext(
+      self._channelContextInstance = _ChannelContext(
         self._connection.channel(synchronous=True))
       try:
         self._channelContextInstance.channel.add_close_listener(
@@ -1051,10 +418,10 @@ class SynchronousAmqpClient(object):
   def enablePublisherAcks(self):
     """Enable RabbitMQ publisher acknowledgments
 
-    :raises UnroutableError: raised when messages that were sent in
-      non-publisher-acknowledgments mode are returned by the time the
-      Confirm.Select-Ok is received
-    :raises AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.UnroutableError: raised when messages
+      that were sent in non-publisher-acknowledgments mode are returned by
+      the time the Confirm.Select-Ok is received
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
     channelContext = self._liveChannelContext
 
@@ -1072,7 +439,7 @@ class SynchronousAmqpClient(object):
   def publish(self, message, exchange, routingKey, mandatory=False):
     """ Publish a message
 
-    :param Message message:
+    :param nta.utils.amqp.messages.Message message:
     :param str exchange: destination exchange name; "" for default exchange
     :param str routingKey: Message routing key
     :param bool mandatory: This flag tells the server how to react if the
@@ -1080,13 +447,15 @@ class SynchronousAmqpClient(object):
       return an unroutable message with a Return method. If this flag is False
       the server silently drops the message.
 
-    :raises UnroutableError: when in non-publisher-acknowledgments mode,
-      raised before attempting to publish given message if unroutable messages
-      had been returned. In publisher-acknowledgments mode, raised if the given
+    :raises nta.utils.amqp.exceptions.UnroutableError: when in
+      non-publisher-acknowledgments mode, raised before attempting to publish
+      given message if unroutable messages had been returned. In
+      publisher-acknowledgments mode, raised if the given
       message is returned as unroutable.
-    :raises NackError: when the given message is NACKed by broker while channel
-      is in RabbitMQ publisher-acknowledgments mode
-    :raises AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.NackError: when the given message is
+      NACKed by broker while channel is in RabbitMQ publisher-acknowledgments
+      mode
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
     message = HaighaMessage(
       body=message.body,
@@ -1100,7 +469,7 @@ class SynchronousAmqpClient(object):
         len(channelContext.returnedMessages),
         channelContext.returnedMessages)
 
-      pubackState = self._PubackState()
+      pubackState = _PubackState()
       channelContext.channel.basic.set_ack_listener(pubackState.handleAck)
       channelContext.channel.basic.set_nack_listener(pubackState.handleNack)
 
@@ -1122,15 +491,15 @@ class SynchronousAmqpClient(object):
 
       assert responseTag == deliveryTag, ((how, responseTag), deliveryTag)
 
-      if how == self._PubackState.NACK:
+      if how == _PubackState.NACK:
         # Raise NackError with returned message
         returnedMessages = channelContext.returnedMessages
         channelContext.returnedMessages = []
 
-        raise NackError(returnedMessages)
+        raise amqp_exceptions.NackError(returnedMessages)
 
       # It was Acked
-      assert how == self._PubackState.ACK, how
+      assert how == _PubackState.ACK, how
 
       # Raise if this message was returned as unroutable
       self._raiseAndClearIfReturnedMessages()
@@ -1194,10 +563,10 @@ class SynchronousAmqpClient(object):
       consumer can access the queue
 
     :returns: consumer context
-    :rtype: Consumer
+    :rtype: nta.utils.amqp.consumer.Consumer
 
-    :raises AmqpChannelError:
-    :raises AmqpConnectionError:
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.AmqpConnectionError:
     """
     consumerTag = self._makeConsumerTag()
 
@@ -1214,9 +583,9 @@ class SynchronousAmqpClient(object):
 
     channelContext.consumerSet.add(consumerTag)
 
-    consumer = Consumer(tag=consumerTag,
-                        queue=queue,
-                        cancelImpl=channelContext.cancelConsumer)
+    consumer = amqp_consumer.Consumer(tag=consumerTag,
+                                      queue=queue,
+                                      cancelImpl=channelContext.cancelConsumer)
 
     g_log.info(
       "Created consumer=%r; queue=%r, noLocal=%r, noAck=%r, exclusive=%r",
@@ -1243,12 +612,12 @@ class SynchronousAmqpClient(object):
 
     An event may be an object of one of the following classes:
 
-      ConsumerMessage
-      ConsumerCancellation
+      nta.utils.amqp.messages.ConsumerMessage
+      nta.utils.amqp.consumer.ConsumerCancellation
 
     :returns: the next event when it becomes available
 
-    :raises AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
     # We expect the context to be set up already
     channelContext = self._channelContextInstance
@@ -1282,7 +651,7 @@ class SynchronousAmqpClient(object):
     """
     channelContext = self._liveChannelContext
 
-    consumer = self._CallbackSink()
+    consumer = _CallbackSink()
 
     channelContext.channel.basic.get(queue, consumer=consumer, no_ack=noAck)
     while not consumer.ready:
@@ -1313,11 +682,11 @@ class SynchronousAmqpClient(object):
     :param nackImpl: callable for nacking the message that has the following
       signature: nackImpl(deliveryTag, requeue); or None
 
-    :rtype: PolledMessage
+    :rtype: nta.utils.amqp.messages.PolledMessage
     """
     info = haighaMessage.delivery_info
 
-    methodInfo = MessageGetInfo(
+    methodInfo = amqp_messages.MessageGetInfo(
       deliveryTag=info["delivery_tag"],
       redelivered=bool(info["redelivered"]),
       exchange=info["exchange"],
@@ -1325,7 +694,7 @@ class SynchronousAmqpClient(object):
       messageCount=info["message_count"]
     )
 
-    return PolledMessage(
+    return amqp_messages.PolledMessage(
       body=cls._decodeMessageBody(haighaMessage.body),
       properties=cls._makeBasicProperties(haighaMessage.properties),
       methodInfo=methodInfo,
@@ -1337,11 +706,13 @@ class SynchronousAmqpClient(object):
     """This method asks the server to redeliver all unacknowledged messages on a
     specified channel. Zero or more messages may be redelivered.
 
+    NOTE: RabbitMQ does not currently support recovering with requeue=False
+
     :param bool requeue: If false, the message will be redelivered to the
       original recipient. If true, the server will attempt to requeue the
       message, potentially then delivering it to an alternative subscriber.
     """
-    self._liveChannelContext.channel.recover(requeue=requeue)
+    self._liveChannelContext.channel.basic.recover(requeue=requeue)
 
 
   def ackAll(self):
@@ -1399,7 +770,7 @@ class SynchronousAmqpClient(object):
       have finished using it (RabbitMQ-specific).
     :param dict arguments: custom key/value pairs for the exchange
 
-    :raises AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
     self._liveChannelContext.channel.exchange.declare(
       exchange,
@@ -1419,7 +790,7 @@ class SynchronousAmqpClient(object):
       it has no queue bindings. If the exchange has queue bindings the server
       does not delete it but raises a channel exception instead.
 
-    :raises AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
     self._liveChannelContext.channel.exchange.delete(exchange,
                                                      if_unused=ifUnused,
@@ -1454,9 +825,9 @@ class SynchronousAmqpClient(object):
       syntax and semantics of these arguments depends on the server
       implementation.
 
-    :rtype: QueueDeclarationResult
+    :rtype: nta.utils.amqp.queue.QueueDeclarationResult
 
-    :raises AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
     queue, messageCount, consumerCount = (
       self._liveChannelContext.channel.queue.declare(
@@ -1468,7 +839,7 @@ class SynchronousAmqpClient(object):
         arguments=arguments or dict(),
         nowait=False))
 
-    return QueueDeclarationResult(queue, messageCount, consumerCount)
+    return amqp_queue.QueueDeclarationResult(queue, messageCount, consumerCount)
 
 
   def deleteQueue(self, queue, ifUnused=False, ifEmpty=False):
@@ -1486,7 +857,7 @@ class SynchronousAmqpClient(object):
     :returns: number of messages deleted
     :rtype: int
 
-    :raises AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
     return self._liveChannelContext.channel.queue.delete(queue,
                                                          if_unused=ifUnused,
@@ -1502,7 +873,7 @@ class SynchronousAmqpClient(object):
     :returns: number of messages purged
     :rtype: int
 
-    :raises AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
     return self._liveChannelContext.channel.queue.purge(queue, nowait=False)
 
@@ -1525,7 +896,7 @@ class SynchronousAmqpClient(object):
       and semantics of these arguments depends on the exchange class and server
       implemenetation.
 
-    :raises AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
     self._liveChannelContext.channel.queue.bind(queue=queue,
                                                 exchange=exchange,
@@ -1542,7 +913,7 @@ class SynchronousAmqpClient(object):
     :param str routingKey: the routing key of the binding to unbind
     :param dict arguments: Specifies the arguments of the binding to unbind
 
-    :raises AmqpChannelError:
+    :raises nta.utils.amqp.exceptions.AmqpChannelError:
     """
     self._liveChannelContext.channel.queue.unbind(queue=queue,
                                                   exchange=exchange,
@@ -1554,21 +925,22 @@ class SynchronousAmqpClient(object):
     """If returned messages are present, raise UnroutableError and clear
     returned messages holding buffer
 
-    :raises UnroutableError: if returned messages are present
+    :raises nta.utils.amqp.exceptions.UnroutableError: if returned messages
+      are present
     """
     channelContext = self._channelContextInstance
 
     if channelContext and channelContext.returnedMessages:
       messages = channelContext.returnedMessages
       channelContext.returnedMessages = []
-      raise UnroutableError(messages)
+      raise amqp_exceptions.UnroutableError(messages)
 
 
   @classmethod
-  def _makeHaighaPropertiesDict(cls, basicProperties):
+  def _makeHaighaPropertiesDict(cls, BasicProperties):
     """Marshal BasicProperties into the haigha properties dict
 
-    :param BasicProperties basicProperties:
+    :param nta.utils.amqp.messages.BasicProperties BasicProperties:
 
     :returns: dict of Properties expected by Haigha's publish method
     :rtype: dict
@@ -1576,7 +948,7 @@ class SynchronousAmqpClient(object):
     props = dict()
 
     for attrName, propName, clientToHaigha, _ in cls._PROPERTY_CORRELATIONS:
-      value = getattr(basicProperties, attrName)
+      value = getattr(BasicProperties, attrName)
       # Add only those properties that have concrete values
       if value is not None:
         props[propName] = clientToHaigha(value)
@@ -1596,7 +968,7 @@ class SynchronousAmqpClient(object):
 
       attributes[attrName] = value
 
-    return BasicProperties(**attributes)
+    return amqp_messages.BasicProperties(**attributes)
 
 
   def _makeConsumerTag(self):
@@ -1637,7 +1009,7 @@ class SynchronousAmqpClient(object):
     """
     info = haighaMessage.delivery_info
 
-    methodInfo = MessageDeliveryInfo(
+    methodInfo = amqp_messages.MessageDeliveryInfo(
       consumerTag=info["consumer_tag"],
       deliveryTag=info["delivery_tag"],
       redelivered=bool(info["redelivered"]),
@@ -1645,7 +1017,7 @@ class SynchronousAmqpClient(object):
       routingKey=info["routing_key"]
     )
 
-    return ConsumerMessage(
+    return amqp_messages.ConsumerMessage(
       body=cls._decodeMessageBody(haighaMessage.body),
       properties=cls._makeBasicProperties(haighaMessage.properties),
       methodInfo=methodInfo,
@@ -1660,7 +1032,8 @@ class SynchronousAmqpClient(object):
     """
     channelContext = self._channelContextInstance
 
-    channelContext.pendingEvents.append(ConsumerCancellation(consumerTag))
+    channelContext.pendingEvents.append(
+        amqp_consumer.ConsumerCancellation(consumerTag))
 
     channelContext.consumerSet.discard(consumerTag)
 
@@ -1686,17 +1059,17 @@ class SynchronousAmqpClient(object):
     :param haigha.message.Message haighaMessage: haigha message returned via
       Basic.Return
 
-    :rtype: ReturnedMessage
+    :rtype: nta.utils.amqp.messages.ReturnedMessage
     """
     info = haighaMessage.return_info
 
-    methodInfo = MessageReturnInfo(
+    methodInfo = amqp_messages.MessageReturnInfo(
       replyCode=info["reply_code"],
       replyText=info["reply_text"],
       exchange=info["exchange"],
       routingKey=info["routing_key"])
 
-    return ReturnedMessage(
+    return amqp_messages.ReturnedMessage(
       body=cls._decodeMessageBody(haighaMessage.body),
       properties=cls._makeBasicProperties(haighaMessage.properties),
       methodInfo=methodInfo)
@@ -1720,17 +1093,20 @@ class SynchronousAmqpClient(object):
     try:
       if self._connection is None:
         # Failure during connection setup
-        raise AmqpConnectionError(code=0, text="connection setup failed",
-                                  classId=0, methodId=0)
+        raise amqp_exceptions.AmqpConnectionError(code=0,
+                                                  text="connection setup failed",
+                                                  classId=0,
+                                                  methodId=0)
 
       closeInfo = self._connection.close_info
 
       if self._userInitiatedClosing:
         if closeInfo["reply_code"] != 0:
-          raise AmqpConnectionError(
+          raise amqp_exceptions.AmqpConnectionError(
             **self._amqpErrorArgsFromCloseInfo(closeInfo))
       else:
-        raise AmqpConnectionError(**self._amqpErrorArgsFromCloseInfo(closeInfo))
+        raise amqp_exceptions.AmqpConnectionError(
+            **self._amqpErrorArgsFromCloseInfo(closeInfo))
     finally:
       self._connection = None
       if self._channelContextInstance is not None:
@@ -1744,9 +1120,11 @@ class SynchronousAmqpClient(object):
 
       if self._userInitiatedClosing:
         if closeInfo["reply_code"] != 0:
-          raise AmqpChannelError(**self._amqpErrorArgsFromCloseInfo(closeInfo))
+          raise amqp_exceptions.AmqpChannelError(
+              **self._amqpErrorArgsFromCloseInfo(closeInfo))
       else:
-        raise AmqpChannelError(**self._amqpErrorArgsFromCloseInfo(closeInfo))
+        raise amqp_exceptions.AmqpChannelError(
+            **self._amqpErrorArgsFromCloseInfo(closeInfo))
     finally:
       if self._channelContextInstance is not None:
         self._channelContextInstance.reset()

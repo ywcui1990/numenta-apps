@@ -1,4 +1,25 @@
 #!/usr/bin/env python
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
 import argparse
 import datetime
 from itertools import groupby, izip_longest
@@ -10,7 +31,7 @@ import sys
 from taurus.engine import config, repository, logging_support, taurus_logging
 from taurus.engine.repository.schema import metric_data
 
-from nta.utils.amqp import AMQPDeliveryModes
+from nta.utils import amqp
 from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 from nta.utils.message_bus_connector import MessageBusConnector
 from nta.utils.message_bus_connector import MessageProperties
@@ -45,13 +66,13 @@ def replayMetricDataToModelResultsExchange(messageBus,
   # Properties for publishing model command results on RabbitMQ exchange
   # (same as AnomalyService)
   modelCommandResultProperties = MessageProperties(
-    deliveryMode=AMQPDeliveryModes.PERSISTENT_MESSAGE,
-    headers=dict(dataType="model-cmd-result"))
+      deliveryMode=amqp.constants.AMQPDeliveryModes.PERSISTENT_MESSAGE,
+      headers=dict(dataType="model-cmd-result"))
 
   # Properties for publishing model inference results on RabbitMQ exchange
   # (same as AnomalyService)
   modelInferenceResultProperties = MessageProperties(
-    deliveryMode=AMQPDeliveryModes.PERSISTENT_MESSAGE)
+    deliveryMode=amqp.constants.AMQPDeliveryModes.PERSISTENT_MESSAGE)
 
   g_log.info("Getting metric data...")
   result = repository.getMetricData(engine,

@@ -155,8 +155,8 @@ public class TaurusNotificationService extends NotificationService {
         if (database == null) {
             return Collections.emptyList();
         }
-        ArrayList<Notification> results = new ArrayList<>();
-        HashMap<String, Pair<Long, AnomalyValue>> anomalies = new HashMap<>();
+        ArrayList<Notification> results = new ArrayList<Notification>();
+        HashMap<String, Pair<Long, AnomalyValue>> anomalies = new HashMap<String, Pair<Long, AnomalyValue>>();
         EnumSet<MetricType> mask;
         // Get all anomalies for favorite instances
         for (String instance : TaurusApplication.getFavoriteInstances()) {

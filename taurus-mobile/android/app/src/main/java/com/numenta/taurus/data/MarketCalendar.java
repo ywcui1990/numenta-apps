@@ -72,8 +72,8 @@ public class MarketCalendar {
      */
     private MarketCalendar(TimeZone timezone, int open, int close) {
         _timezone = timezone;
-        _holidays = new TreeSet<>();
-        _marketHours = new Pair<>(open, close);
+        _holidays = new TreeSet<Long>();
+        _marketHours = new Pair<Integer, Integer>(open, close);
         // Default Work Weekdays:  Sun  , Mon , Tue , Wed , Thu , Fri , Sat
         _workWeek = new boolean[]{false, true, true, true, true, true, false};
     }
@@ -146,12 +146,12 @@ public class MarketCalendar {
 
         Calendar current = Calendar.getInstance(_timezone);
         Calendar range = Calendar.getInstance(_timezone);
-        List<Pair<Long, Long>> results = new ArrayList<>();
+        List<Pair<Long, Long>> results = new ArrayList<Pair<Long, Long>>();
         long start, end;
         int hour, min, sec;
 
         // Keep track of closed hours sorted by start time and then by end time in ascending order
-        TreeSet<Pair<Long, Long>> closedSet = new TreeSet<>(new Comparator<Pair<Long, Long>>() {
+        TreeSet<Pair<Long, Long>> closedSet = new TreeSet<Pair<Long, Long>>(new Comparator<Pair<Long, Long>>() {
             @Override
             public int compare(Pair<Long, Long> lhs, Pair<Long, Long> rhs) {
                 if (lhs == rhs || lhs.equals(rhs)) {
@@ -194,7 +194,7 @@ public class MarketCalendar {
             range.add(Calendar.SECOND, -1);
             end = range.getTimeInMillis();
 
-            closedSet.add(new Pair<>(holiday, end));
+            closedSet.add(new Pair<Long, Long>(holiday, end));
         }
 
         // Find all weekends and closed hours
@@ -229,7 +229,7 @@ public class MarketCalendar {
                 range.add(Calendar.SECOND, -1);
                 end = range.getTimeInMillis();
 
-                closedSet.add(new Pair<>(start, end));
+                closedSet.add(new Pair<Long, Long>(start, end));
             } else {
                 // On weekends add whole day until next day opening hour. From "00:00:00" to "9:29:59" (next day)
                 range.setTimeInMillis(current.getTimeInMillis());
@@ -252,7 +252,7 @@ public class MarketCalendar {
                 range.add(Calendar.SECOND, -1);
                 end = range.getTimeInMillis();
 
-                closedSet.add(new Pair<>(start, end));
+                closedSet.add(new Pair<Long, Long>(start, end));
             }
             // Next day
             current.add(Calendar.DAY_OF_MONTH, 1);
@@ -268,7 +268,7 @@ public class MarketCalendar {
             } else if (pair.first > end) {
                 // Start a new sequence
                 if (start != 0 && end != 0) {
-                    results.add(new Pair<>(start, end));
+                    results.add(new Pair<Long, Long>(start, end));
                 }
                 start = pair.first;
                 end = pair.second;
@@ -276,7 +276,7 @@ public class MarketCalendar {
         }
         // Add last range if necessary
         if (start < toDate) {
-            results.add(new Pair<>(start, end));
+            results.add(new Pair<Long, Long>(start, end));
         }
         return results;
     }

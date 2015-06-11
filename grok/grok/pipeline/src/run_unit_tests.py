@@ -39,7 +39,7 @@ def runTestCommand(testCommand, env, logger, outputFile=None):
     Runs given test command with provided environment
 
     :param testCommand: Test command that is suppose to be run
-    :param env: Current environ set for GROK_HOME, NUPIC etc
+    :param env: Current environ set for GROK_HOME, etc
     :param outputFile: Optional, Path for output file where stdout should be
       redirected. It is passed only if the test are nonXunitTest, as the
       results are not generated as xml we need redirect them to a text file.
@@ -67,14 +67,13 @@ def runTestCommand(testCommand, env, logger, outputFile=None):
 
 
 
-def runUnitTests(env, pipeline, nupicSha, grokSha, logger):
+def runUnitTests(env, pipeline, grokSha, logger):
   """
     Runs tests listed in files present at {GROK_HOME}/tests/ci/
 
-    :param env: Current environ set for GROK_HOME, NUPIC etc
+    :param env: Current environ set for GROK_HOME, etc
     :param pipeline: name of repository which has triggered this build
     :param grokSha: grok SHA used current run
-    :param nupicSha: NuPIC SHA for used current run
     :returns: return True if tests are successful
     :rtype: bool
 
@@ -83,7 +82,7 @@ def runUnitTests(env, pipeline, nupicSha, grokSha, logger):
   printEnv(env, logger)
   buildWorkspace = os.environ["BUILD_WORKSPACE"]
 
-  task = "_".join([pipeline, nupicSha, grokSha, str(uuid.uuid4())])
+  task = "_".join([pipeline, grokSha, str(uuid.uuid4())])
 
   xunitSuccess = True
   with open(os.path.join(env["GROK_HOME"],
@@ -119,10 +118,8 @@ def recordXunitTestsResults(taskIdentifier):
 
     :param taskIdentifier: Unique task identifier; used in the construction of
       the results filename to avoid collisions
-      e.g task = pipeline + grokSha + nupicSha + uuid
+      e.g task = pipeline + grokSha + uuid
   """
-  nupicResults = os.path.join(os.environ["BUILD_WORKSPACE"],
-                              "nupic/tests/results/xunit/jenkins")
   grokResults = os.path.join(os.environ["BUILD_WORKSPACE"],
                              "products/grok/tests/results/py2/xunit/jenkins")
   htmEngineResults = os.path.join(os.environ["BUILD_WORKSPACE"],
@@ -141,7 +138,6 @@ def recordXunitTestsResults(taskIdentifier):
       shutil.move(os.path.join(targetResultDir, "%s_results_%s.xml" % (
                   currentTest, taskIdentifier)), masterResults)
 
-  attemptResultUpdate(nupicResults, "results.xml", "nupic")
   attemptResultUpdate(grokResults, "results.xml", "grok")
   attemptResultUpdate(htmEngineResults, "results.xml", "htmengine")
   attemptResultUpdate(ntaUtilsResults, "results.xml", "ntautils")
@@ -152,11 +148,10 @@ def addAndParseArgs(jsonArgs):
   """
     Parse the command line arguments.
 
-    :returns : pipeline, buildWorkspace, nupicSha,
-               grokSha, pipelineParams.
+    :returns : pipeline, buildWorkspace, grokSha, pipelineParams.
   """
   parser = argparse.ArgumentParser(description="test tool to run Test for "
-                                   "Grok and Nupic. Provide parameters either "
+                                   "Grok. Provide parameters either "
                                    "via path for JSON file or commandline. "
                                    "Provinding both JSON parameter and as a "
                                    "commandline is prohibited. "
@@ -164,13 +159,11 @@ def addAndParseArgs(jsonArgs):
                                    "parameters")
   parser.add_argument("--trigger-pipeline", dest="pipeline", type=str,
                       help="Repository name which triggered this pipeline",
-                      choices=["grok", "nupic"])
+                      choices=["grok"])
   parser.add_argument("--build-workspace", dest="buildWorkspace", type=str,
-                      help="Common dir prefix for grok and NuPIC")
+                      help="Common dir prefix for grok")
   parser.add_argument("--grok-sha", dest="grokSha", type=str,
                       help="SHA from Grok used for this build")
-  parser.add_argument("--nupic-sha", dest="nupicSha", type=str,
-                      help="SHA from NuPIC used for this build")
   parser.add_argument("--pipeline-json", dest="pipelineJson", type=str,
                       help="Path locator for build json file. This file should "
                       "have all parameters required by this script. Provide "
@@ -209,14 +202,12 @@ def addAndParseArgs(jsonArgs):
   buildWorkspace = os.environ.get("BUILD_WORKSPACE",
                      pipelineParams.get("buildWorkspace",
                      pipelineParams.get("manifest", {}).get("buildWorkspace")))
-  nupicSha = pipelineParams.get("nupicSha",
-                                pipelineParams.get("build", {}).get("nupicSha"))
   grokSha = pipelineParams.get("grokSha",
                                pipelineParams.get("build", {}).get("grokSha"))
 
-  if pipeline and buildWorkspace and nupicSha and grokSha:
-    return (pipeline, buildWorkspace, nupicSha,
-            grokSha, pipelineParams, args["pipelineJson"])
+  if pipeline and buildWorkspace and grokSha:
+    return (pipeline, buildWorkspace, grokSha, pipelineParams,
+            args["pipelineJson"])
   else:
     parser.error("Please provide all parameters, "
                  "use --help for further details")
@@ -236,7 +227,7 @@ def main(jsonArgs=None):
   jsonArgs = jsonArgs or {}
   testResult = False
   try:
-    (pipeline, buildWorkspace, nupicSha, grokSha,
+    (pipeline, buildWorkspace, grokSha,
      pipelineParams, pipelineJson) = addAndParseArgs(jsonArgs)
 
     os.environ["BUILD_WORKSPACE"] = buildWorkspace
@@ -247,7 +238,7 @@ def main(jsonArgs=None):
       LD_LIBRARY_PATH="/opt/numenta/anaconda/lib:/usr/lib64:/usr/lib"
     )
 
-    testResult = runUnitTests(env, pipeline, nupicSha, grokSha, g_logger)
+    testResult = runUnitTests(env, pipeline, grokSha, g_logger)
     # Write testResult to JSON file if JSON file driven run
     if pipelineJson:
       pipelineParams["test"] = {"testStatus" : testResult}

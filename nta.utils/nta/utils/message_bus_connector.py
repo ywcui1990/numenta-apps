@@ -33,13 +33,8 @@ import time
 
 import requests
 
-from nta.utils import amqp
-from nta.utils.amqp import (AMQPDeliveryModes,
-                            AMQPErrorCodes)
-
 from nta.utils import error_handling
-
-
+from nta.utils import amqp
 
 g_log = logging.getLogger("nta.utils.message_bus_connector")
 
@@ -67,9 +62,9 @@ class ConsumerCancelled(MessageBusConnectorError):
 _RETRY_ON_AMQP_ERROR = error_handling.retry(
   timeoutSec=10, initialRetryDelaySec=0.05, maxRetryDelaySec=2,
   retryExceptions=(
-    amqp.AmqpChannelError,
-    amqp.AmqpConnectionError,
-    amqp.NackError,
+    amqp.exceptions.AmqpChannelError,
+    amqp.exceptions.AmqpConnectionError,
+    amqp.exceptions.UnroutableError,
     socket.gaierror,
     socket.error,
     select.error,
@@ -79,7 +74,7 @@ _RETRY_ON_AMQP_ERROR = error_handling.retry(
 
 
 
-class MessageProperties(amqp.BasicProperties):
+class MessageProperties(amqp.messages.BasicProperties):
   """ basic.Properties of a message per AMQP 0.9.1
 
   Some attributes are used by AMQP brokers, but most are open to interpretation
@@ -98,8 +93,8 @@ class MessageBusConnector(object):
   if needed.
   """
 
-  _PERSISTENT_PUBLISH_PROPERTIES = amqp.BasicProperties(
-    deliveryMode=AMQPDeliveryModes.PERSISTENT_MESSAGE)
+  _PERSISTENT_PUBLISH_PROPERTIES = amqp.messages.BasicProperties(
+      deliveryMode=amqp.constants.AMQPDeliveryModes.PERSISTENT_MESSAGE)
 
   # This is the limit for how many unacked messages the broker may deliver
   _PREFETCH_MAX = 2
@@ -112,7 +107,7 @@ class MessageBusConnector(object):
       """
       For publisher
 
-      :param SynchronousAmqpClient client:
+      :param amqp.synchronous_amqp_client.SynchronousAmqpClient client:
       """
       # This makes sure that the broker ACKs/NACKs a message after it takes
       # complete responsibility for it (e.g., saves to disk for persistent
@@ -189,8 +184,8 @@ class MessageBusConnector(object):
                                                           ifUnused=False,
                                                           ifEmpty=False)
       self._logger.info("Deleted mq=%s; messageCount=%s", mqName, numMsgDeleted)
-    except amqp.AmqpChannelError as e:
-      if e.code == AMQPErrorCodes.NOT_FOUND:
+    except amqp.exceptions.AmqpChannelError as e:
+      if e.code == amqp.constants.AMQPErrorCodes.NOT_FOUND:
         # Suppress the exception
         self._channelMgr.reset()
         self._logger.warn(
@@ -211,8 +206,8 @@ class MessageBusConnector(object):
     """
     try:
       self._channelMgr.client.purgeQueue(mqName)
-    except amqp.AmqpChannelError as e:
-      if e.code == AMQPErrorCodes.NOT_FOUND:
+    except amqp.exceptions.AmqpChannelError as e:
+      if e.code == amqp.constants.AMQPErrorCodes.NOT_FOUND:
         self._channelMgr.reset()
         self._logger.error("Attempted purge of mq=%s, but it wasn't found "
                            "(probably deleted?) (%r)", mqName, e)
@@ -231,8 +226,8 @@ class MessageBusConnector(object):
       r = self._channelMgr.client.declareQueue(mqName,
                                                passive=True)
       return r.messageCount == 0
-    except amqp.AmqpChannelError as e:
-      if e.code == AMQPErrorCodes.NOT_FOUND:
+    except amqp.exceptions.AmqpChannelError as e:
+      if e.code == amqp.constants.AMQPErrorCodes.NOT_FOUND:
         self._channelMgr.reset()
         raise MessageQueueNotFound(
           "isEmpty: mq=%s not found (%r)" % (mqName, e,))
@@ -262,7 +257,8 @@ class MessageBusConnector(object):
 
     retval: (possibly empty) sequence of message queue names
     """
-    connectionParams = amqp.RabbitmqManagementConnectionParams()
+    connectionParams = (
+        amqp.connection.RabbitmqManagementConnectionParams())
 
     # Use RabbitMQ Management Plugin to retrieve the names of message
     # queues
@@ -314,7 +310,7 @@ class MessageBusConnector(object):
     if not mqName:
       raise ValueError("Name cannot be empty or None: %r" % (mqName,))
 
-    msg = amqp.Message(body,
+    msg = amqp.messages.Message(body,
                        properties=(self._PERSISTENT_PUBLISH_PROPERTIES
                                    if persistent else None))
 
@@ -325,7 +321,7 @@ class MessageBusConnector(object):
                                       exchange="",
                                       routingKey=mqName,
                                       mandatory=True)
-    except amqp.UnroutableError:
+    except amqp.exceptions.UnroutableError:
       raise MessageQueueNotFound("Could not deliver message to mq=%s; did "
                                  "you delete the mq or forget to create it?"
                                  % (mqName,))
@@ -357,14 +353,14 @@ class MessageBusConnector(object):
     """
     # NOTE: when using the default exchange (""), the the routing key is used
     #   to select the destination queue
-    msg = amqp.Message(body, properties=properties)
+    msg = amqp.messages.Message(body, properties=properties)
     try:
       self._channelMgr.client.publish(
         msg,
         exchange=exchange,
         routingKey=routingKey,
         mandatory=mandatory)
-    except amqp.UnroutableError:
+    except amqp.exceptions.UnroutableError:
       return False
 
     return True
@@ -451,7 +447,7 @@ class _QueueConsumer(object):
       """
       For consumer
 
-      :param SynchronousAmqpClient client:
+      :param amqp.synchronous_amqp_client.SynchronousAmqpClient client:
       """
       # NOTE: prefetch_count doesn't apply to the polling mode
       if self._blocking:
@@ -521,7 +517,7 @@ class _QueueConsumer(object):
       try:
         while True:
           evt = amqpClient.getNextEvent()
-          if type(evt) is amqp.ConsumerMessage:
+          if type(evt) is amqp.messages.ConsumerMessage:
 
             assert evt.methodInfo.consumerTag == consumer.tag, (
               evt.methodInfo.consumerTag, consumer, evt)
@@ -529,7 +525,7 @@ class _QueueConsumer(object):
             numRetrieved += 1
             yield evt
 
-          elif type(evt) is amqp.ConsumerCancellation:
+          elif type(evt) is amqp.consumer.ConsumerCancellation:
             # NOTE: this may happen when the consumed queue is deleted
 
             assert evt.consumerTag == consumer.tag, (evt, consumer)
@@ -570,9 +566,10 @@ class _QueueConsumer(object):
           assert not self._blocking, (
             "Unexpected termination of blocking iterator")
           done = True
-      except (amqp.AmqpChannelError, amqp.AmqpConnectionError) as e:
-        if isinstance(e, amqp.AmqpChannelError):
-          if e.code == AMQPErrorCodes.NOT_FOUND:
+      except (amqp.exceptions.AmqpChannelError,
+            amqp.exceptions.AmqpConnectionError) as e:
+        if isinstance(e, amqp.exceptions.AmqpChannelError):
+          if e.code == amqp.constants.AMQPErrorCodes.NOT_FOUND:
             self._logger.error("Requested server entity not found (%r)", e)
             raise MessageQueueNotFound("_QueueConsumer: mq=%s not found"
                                        % self._mqName)
@@ -628,8 +625,8 @@ class _QueueConsumer(object):
 
     try:
       message = amqpClient.getOneMessage(self._mqName, noAck=False)
-    except amqp.AmqpChannelError as e:
-      if e.code == AMQPErrorCodes.NOT_FOUND:
+    except amqp.exceptions.AmqpChannelError as e:
+      if e.code == amqp.constants.AMQPErrorCodes.NOT_FOUND:
         self._logger.error("Requested server entity not found (%r)", e)
         raise MessageQueueNotFound("pollOneMessage: mq=%s not found (%r)"
                                    % (self._mqName, e,))
@@ -646,17 +643,19 @@ class _ChannelManager(object):
   NOT thread-safe
   """
 
-  _CLIENT_CLASS = amqp.SynchronousAmqpClient
+  _CLIENT_CLASS = amqp.synchronous_amqp_client.SynchronousAmqpClient
 
   def __init__(self, configureChannel=None):
     """
     configureChannel: Function to call to configure channel after channel is
-      created: NoneType configureChannel(SynchronousAmqpClient)
+      created: NoneType
+      configureChannel(amqp.synchronous_amqp_client.SynchronousAmqpClient)
     """
     self._logger = g_log
 
     # Function to call on channel after channel is created or re-created;
-    # passed as channelConfigCb arg to SynchronousAmqpClient
+    # passed as channelConfigCb arg to
+    # amqp.synchronous_amqp_client.SynchronousAmqpClient
     self._configureChannel = configureChannel
 
     # AMQP client
@@ -691,7 +690,7 @@ class _ChannelManager(object):
 
 
   def _connectToBrokerNoRetries(self):
-    connectionParams = amqp.getRabbitmqConnectionParameters()
+    connectionParams = amqp.connection.getRabbitmqConnectionParameters()
 
     g_log.debug("Connecting to broker at %s:%d as %s",
                 connectionParams.host, connectionParams.port,

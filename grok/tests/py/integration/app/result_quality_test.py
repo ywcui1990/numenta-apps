@@ -108,16 +108,18 @@ class ResultQualityTests(test_case_base.TestCaseBase):
 
     # Subscribe to results broadcast from Anomaly Service
 
-    connParams = amqp.getRabbitmqConnectionParameters()
+    connParams = amqp.connection.getRabbitmqConnectionParameters()
 
     def deleteAmqpQueue(queue):
-      with amqp.SynchronousAmqpClient(connParams) as amqpClient:
+      with amqp.synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
+          amqpClient):
         amqpClient.deleteQueue(queue=queue, ifUnused=False, ifEmpty=False)
 
     self.resultsQueueName = "grok.result_quality_test.likelihood_results.%s" % (
       uuid.uuid1().hex,)
 
-    with amqp.SynchronousAmqpClient(connParams) as amqpClient:
+    with amqp.synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
+          amqpClient):
       amqpClient.declareQueue(self.resultsQueueName)
       self.addCleanup(deleteAmqpQueue, self.resultsQueueName)
 
@@ -317,9 +319,9 @@ class ResultQualityTests(test_case_base.TestCaseBase):
       return message
 
 
-    connParams = amqp.getRabbitmqConnectionParameters()
-    with amqp.SynchronousAmqpClient(
-        amqp.getRabbitmqConnectionParameters()) as amqpClient:
+    connParams = amqp.connection.getRabbitmqConnectionParameters()
+    with amqp.synchronous_amqp_client.SynchronousAmqpClient(
+        amqp.connection.getRabbitmqConnectionParameters()) as amqpClient:
 
       lastMessage = None
 

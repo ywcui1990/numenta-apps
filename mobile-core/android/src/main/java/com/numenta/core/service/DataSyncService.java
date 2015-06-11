@@ -203,7 +203,7 @@ public class DataSyncService {
             return 0;
         }
         int newMetrics = 0;
-        HashSet<String> metricSet = new HashSet<>();
+        HashSet<String> metricSet = new HashSet<String>();
         // Save results to database
         boolean dataChanged = false;
         Metric localMetric;
@@ -446,8 +446,8 @@ public class DataSyncService {
             return;
         }
 
-        HashSet<String> activeAnnotations = new HashSet<>();
-        HashSet<String> localAnnotations = new HashSet<>();
+        HashSet<String> activeAnnotations = new HashSet<String>();
+        HashSet<String> localAnnotations = new HashSet<String>();
         // Save results to database
         boolean dataChanged = false;
         CoreDatabase database = GrokApplication.getDatabase();
@@ -512,7 +512,9 @@ public class DataSyncService {
             }
             // Annotation not found
             Log.e(TAG, "Failed to delete annotation. " + annotationId + " was not found");
-        } catch (GrokException | IOException e) {
+        } catch (GrokException e) {
+            Log.e(TAG, "Failed to delete annotation " + annotationId, e);
+        } catch (IOException e) {
             Log.e(TAG, "Failed to delete annotation " + annotationId, e);
         }
         return false;
@@ -543,7 +545,9 @@ public class DataSyncService {
                     return true;
                 }
             }
-        } catch (GrokException | IOException e) {
+        } catch (GrokException e) {
+            Log.e(TAG, "Failed to add annotation ", e);
+        } catch (IOException e) {
             Log.e(TAG, "Failed to add annotation ", e);
         }
         return false;

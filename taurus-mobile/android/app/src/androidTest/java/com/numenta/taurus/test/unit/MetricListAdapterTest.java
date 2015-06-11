@@ -32,6 +32,8 @@ import org.json.JSONObject;
 
 import android.test.ApplicationTestCase;
 
+import java.util.concurrent.Executors;
+
 /**
  * MetricListAdapter contains MetricAnomalyChartData elements
  * MetricAnomalyChartData has a Metric
@@ -55,6 +57,7 @@ public class MetricListAdapterTest extends ApplicationTestCase<TaurusApplication
     public void setUp() throws Exception {
         super.setUp();
         createApplication();
+        TaurusApplication.setDefaultThreadPoolForUnitTestsOnly(Executors.newCachedThreadPool());
         CoreDataFactory factory = TaurusApplication.getDatabase().getDataFactory();
 
         adapter = new MetricListAdapter(getContext());

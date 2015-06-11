@@ -27,9 +27,6 @@ Downloads the Grok support public keys and dumps them to stdout. Used
 by other scripts to pull the grok keys when needed.
 """
 
-AWS_ACCESS_KEY = "AKIAIZFOXZD3U7GEURGA"
-AWS_SECRET_KEY = "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"
-
 BUCKET = "yum.groksolutions.com"
 
 import boto

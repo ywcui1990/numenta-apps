@@ -59,7 +59,6 @@ For each commit to NuPIC
 
 import argparse
 import os
-import uuid
 
 from pkg_resources import resource_stream
 
@@ -91,7 +90,11 @@ def addAndParseArgs():
     :raises parser.error in case wrong combination of arguments or arguments
     are missing.
   """
-  parser = argparse.ArgumentParser(description="Build tool for NuPIC.")
+  parser = argparse.ArgumentParser(description=("Build tool for NuPIC. To "
+                                   "create a release version, set both "
+                                   "--nupic-branch and --nupic-sha to a git "
+                                   "release tag (e.g., 0.2.3) that already "
+                                   "exists in NuPIC."))
   parser.add_argument("--build-workspace", dest="buildWorkspace", type=str,
                       default=os.environ.get("BUILD_WORKSPACE"),
                       help="Common build directory for NuPIC, "

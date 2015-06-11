@@ -18,29 +18,35 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-# Formula: grok-plumbing.loghandling
-#
-# Install support for Grok logging, both to S3 and locally on the instance
 
-# Rotate grok's logfiles, and upload to S3 if user has enabled it.
-shuffle-groklogs:
-  file.managed:
-    - name: /usr/local/sbin/shuffle_groklogs
-    - source: salt://grok-plumbing/files/loghandling/shuffle_groklogs
-    - user: root
-    - group: root
-    - mode: 0755
-  cron.present:
-    - name: /usr/local/sbin/lockrun --lockfile=/var/lock/shuffle_groklogs -- /usr/local/sbin/shuffle_groklogs 2>&1 | logger -t gs-shuffle-groklogs
-    - identifier: shuffle_groklogs
-    - user: root
-    - hour: '*'
-    - minute: '7'
-    - require:
-      - file: shuffle-groklogs
+"""
+AMQP queue.
 
-# Enforce absence of old logrotate conf file now that we're rotating our logs
-# ourselves.
-scrub-stale-logrotate-file:
-  file.absent:
-    - name: /etc/logrotate.d/grok-logs
+TODO need unit tests
+"""
+
+class QueueDeclarationResult(object):
+  """Result of queue declaration"""
+
+  __slots__ = ("queue", "messageCount", "consumerCount")
+
+
+  def __init__(self, queue, messageCount, consumerCount):
+    """
+    :param str queue: Reports the name of the queue. If the server generated a
+      queue name, this field contains that name
+    :param int messageCount: The number of messages in the queue, which will be
+      zero for newly-declared queues
+    :param int consumerCount: Reports the number of active consumers for the
+      queue. Note that consumers can suspend activity (Channel.Flow) in which
+      case they do not appear in this count
+    """
+    self.queue = queue
+    self.messageCount = messageCount
+    self.consumerCount = consumerCount
+
+
+  def __repr__(self):
+    return "%s(queue=%r, messageCount=%s, consumerCount=%s)" % (
+      self.__class__.__name__,
+      self.queue, self.messageCount, self.consumerCount)

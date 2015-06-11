@@ -1,8 +1,5 @@
 [grok-release-candidates]
 name=grok-release-candidates
-baseurl=http://yum.groksolutions.com.s3.amazonaws.com/s3/release-candidates
+baseurl=http://public.numenta.com/yum/release-candidates
 gpgcheck=0
 priority=1
-s3_enabled=1
-key_id=AKIAIZFOXZD3U7GEURGA
-secret_key=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

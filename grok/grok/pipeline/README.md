@@ -25,29 +25,13 @@ The pipeline can be run end-to-end via the driver script, or each individual ste
 
 #### Execution via driver
 ```bash
-    ./grok-pipeline --trigger-pipeline <grok or nupic> --grok-remote <git-remote> --grok-branch <branch-name>
-      --nupic-remote <git-remote> --nupic-branch <branch-name> --sha <commit-sha-for-trigger-pipeline>
-      --release-version <grok-version-number> --log <log-level>
+    ./grok-pipeline --trigger-pipeline grok --grok-remote <git-remote> --grok-branch <branch-name>
+      --sha <commit-sha-for-trigger-pipeline> --release-version <grok-version-number> --log <log-level>
 ```
 ##### Example
 ```bash
     ./grok-pipeline --trigger-pipeline grok --grok-remote git@github.com:<github_username>/applications.git
-      --grok-branch pipeline-development --nupic-remote git@github.com:numenta/nupic.git --nupic-branch master
-      --sha 7f1c852c719ed6b8de4f8cda42f3e9a583564066 --release-version 1.0 --log debug
-```
-#### Example Execution Via Tool
-
-- Pass all parameter via commandline
-```bash
-    python build.py --trigger-pipeline <grok or nupic> --grok-remote <git-remote> --grok-branch <branch-name>
-      --nupic-remote <git-remote> --nupic-branch <branch-name> --sha <commit-sha-for-trigger-pipeline>
-      --release-version <grok-version-number> --log <log-level>
-```
-##### Example
-```bash
-  python build.py --trigger-pipeline grok --grok-remote git@github.com:<github_username>/applications.git
-    --grok-branch pipeline-development --nupic-remote git@github.com:numenta/nupic.git --nupic-branch master
-    --sha 7f1c852c719ed6b8de4f8cda42f3e9a583564066 --release-version 1.0 --log debug
+      --grok-branch pipeline-development  --sha 7f1c852c719ed6b8de4f8cda42f3e9a583564066 --release-version 1.0 --log debug
 ```
 - Pass parameter via .json file
 ```

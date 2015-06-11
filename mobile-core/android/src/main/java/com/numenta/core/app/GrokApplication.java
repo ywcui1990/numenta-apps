@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -96,6 +97,8 @@ public class GrokApplication extends Application {
     public static final String AGGREGATION_PROPERTY = "aggregation";
 
     public static final long MAX_DURATION = MILLISECONDS.convert(5, MINUTES);
+
+    private static ExecutorService _defaultThreadPool;
 
     /** Maximum number of days to sync. */
     public int _numberOfDaysToSync;
@@ -169,6 +172,16 @@ public class GrokApplication extends Application {
      */
     public static void setStaticInstanceForUnitTestsOnly(GrokApplication testApplicationObject) {
         _instance = testApplicationObject;
+    }
+
+    /**
+     * Set default thread pool used by unit tests.
+     * This method should only be called from unit tests. In a normal android runtime environment
+     * the application will reuse the background service thread pools
+     * @param testThreadPool
+     */
+    public static void setDefaultThreadPoolForUnitTestsOnly(ExecutorService testThreadPool) {
+        _defaultThreadPool = testThreadPool;
     }
 
 
@@ -554,7 +567,7 @@ public class GrokApplication extends Application {
         if (_instance != null && _instance._bound && _instance._dataService != null) {
             return _instance._dataService.getWorkerThreadPool();
         }
-        return null;
+        return _defaultThreadPool;
     }
 
     /**
@@ -572,7 +585,7 @@ public class GrokApplication extends Application {
         if (_instance != null && _instance._bound && _instance._dataService != null) {
             return _instance._dataService.getIOThreadPool();
         }
-        return null;
+        return _defaultThreadPool;
     }
 
     /**

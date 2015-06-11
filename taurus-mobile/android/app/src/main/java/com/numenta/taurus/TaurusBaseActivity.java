@@ -426,7 +426,7 @@ public abstract class TaurusBaseActivity extends Activity {
 
         feedbackIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
         feedbackIntent.setType("message/rfc822");
-        ArrayList<Uri> uris = new ArrayList<>();
+        ArrayList<Uri> uris = new ArrayList<Uri>();
         uris.add(takeScreenCapture(true));
         if (uploadId != null) {
             uris.add(writeTextFileToSend(uploadId.toString()));
@@ -445,7 +445,7 @@ public abstract class TaurusBaseActivity extends Activity {
      */
     public void trackBackgroundTask(AsyncTask task) {
         if (_taskList == null) {
-            _taskList = new ConcurrentLinkedQueue<>();
+            _taskList = new ConcurrentLinkedQueue<AsyncTask>();
         }
         _taskList.add(task);
     }

@@ -135,7 +135,8 @@ class ModelSwapperIsolationPatch(object):
       self._modelCheckpointPatch.start()
 
       # Self-validation
-      actualVhost = amqp.getRabbitmqConnectionParameters().vhost
+      actualVhost = (
+          amqp.connection.getRabbitmqConnectionParameters().vhost)
       assert actualVhost == self._vhostPatch._vhost, (
         "Expected vhost=%r, but got vhost=%r") % (
         self._vhost, actualVhost)
