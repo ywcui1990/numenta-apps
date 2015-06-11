@@ -254,12 +254,20 @@ class DynamoDBServiceTest(TestCaseBase):
         body=json.dumps(twitterData)
       )
 
+
     metricTweetsTable = Table(MetricTweetsDynamoDBDefinition().tableName,
                               connection=dynamodb)
-    metricTweetItem =  metricTweetsTable.lookup(
-      "-".join((metricName, uid)),
-      "2015-02-19T19:43:24.870118"
-    )
+    for _ in range(30):
+      try:
+        metricTweetItem =  metricTweetsTable.lookup(
+          twitterData[0]["text"],
+          twitterData[0]["agg_ts"]
+        )
+        break
+      except ItemNotFound:
+        # LOL eventual consistency
+        time.sleep(1)
+        continue
     # There is no server-side cleanup for tweet data, so remove it here for
     # now to avoid accumulating test data
     self.addCleanup(metricTweetItem.delete)
@@ -271,6 +279,7 @@ class DynamoDBServiceTest(TestCaseBase):
     self.assertEqual(metricTweetItem["userid"], twitterData[0]["userid"])
     self.assertEqual(metricTweetItem["username"], twitterData[0]["username"])
     self.assertEqual(metricTweetItem["retweet_count"], twitterData[0]["retweet_count"])
+    self.assertEqual(metricTweetItem["copy_count"], 0)
 
     queryResult = metricTweetsTable.query_2(
       metric_name__eq=metricName,
@@ -286,6 +295,54 @@ class DynamoDBServiceTest(TestCaseBase):
     self.assertEqual(queriedMetricTweetItem["userid"], twitterData[0]["userid"])
     self.assertEqual(queriedMetricTweetItem["username"], twitterData[0]["username"])
     self.assertEqual(queriedMetricTweetItem["retweet_count"], twitterData[0]["retweet_count"])
+    self.assertEqual(queriedMetricTweetItem["copy_count"], 0)
+
+    duplicatedTwitterData = [
+      {
+        "metric_name": "copy of " + metricName,
+        "tweet_uid": "copy of " + uid,
+        "created_at": "2015-02-19T19:45:24.870109",
+        "agg_ts": "2015-02-19T19:43:24.870118", # Same agg_ts!
+        "text": "Tweet text", # Same text!
+        "userid": "20",
+        "username": "Copy of Tweet username",
+        "retweet_count": "0"
+      }
+    ]
+
+    with MessageBusConnector() as messageBus:
+      messageBus.publishExg(
+        exchange=self.config.get("non_metric_data", "exchange_name"),
+        routingKey=(
+          self.config.get("non_metric_data", "exchange_name") + ".twitter"),
+        body=json.dumps(duplicatedTwitterData)
+      )
+
+    for _ in range(30):
+      metricTweetItem =  metricTweetsTable.lookup(
+        twitterData[0]["text"],
+        twitterData[0]["agg_ts"]
+      )
+
+      if metricTweetItem["copy_count"] != 1:
+        time.sleep(1)
+        continue
+
+      # Assert same as original, except for copy_count, which should be 1
+
+      self.assertEqual(metricTweetItem["username"], twitterData[0]["username"])
+      self.assertEqual(metricTweetItem["tweet_uid"], twitterData[0]["tweet_uid"])
+      self.assertEqual(metricTweetItem["created_at"], twitterData[0]["created_at"])
+      self.assertEqual(metricTweetItem["agg_ts"], twitterData[0]["agg_ts"])
+      self.assertEqual(metricTweetItem["text"], twitterData[0]["text"])
+      self.assertEqual(metricTweetItem["userid"], twitterData[0]["userid"])
+      self.assertEqual(metricTweetItem["username"], twitterData[0]["username"])
+      self.assertEqual(metricTweetItem["retweet_count"], twitterData[0]["retweet_count"])
+
+      break
+    else:
+      self.fail("copy_count of original tweet not updated within reasonable"
+                " amount of time (~30s) for duplicated tweet.")
 
     # Delete metric and ensure metric is deleted from dynamodb, too
     self._deleteMetric(metricName)

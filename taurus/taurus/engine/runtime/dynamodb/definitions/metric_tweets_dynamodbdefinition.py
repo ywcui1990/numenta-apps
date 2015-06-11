@@ -45,7 +45,7 @@ class MetricTweetsDynamoDBDefinition(DynamoDBDefinition):
   def tableCreateKwargs(self):
     return dict(
       schema=[
-        HashKey("metric_name_tweet_uid"),
+        HashKey("text"),
         RangeKey("agg_ts")
       ],
       throughput={
@@ -86,6 +86,7 @@ class MetricTweetsDynamoDBDefinition(DynamoDBDefinition):
         "text",
         "userid",
         "username",
-        "retweet_count"
+        "retweet_count",
+        "copy_count"
       )
     )
