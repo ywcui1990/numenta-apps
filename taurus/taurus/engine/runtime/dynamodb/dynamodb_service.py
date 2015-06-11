@@ -518,9 +518,7 @@ class DynamoDBService(object):
 
       @_RETRY_ON_TRANSIENT_DYNAMODB_ERROR
       def putItemWithRetries():
-        g_log.info("Putting %r", data._asdict())
         self._metric_tweets.put_item(data._asdict(), overwrite=False)
-        g_log.info("Success!")
 
       try:
         putItemWithRetries()
@@ -543,7 +541,6 @@ class DynamoDBService(object):
                                     expression_attribute_values=updateValues)
 
         try:
-          g_log.info("Updating...")
           updateItemWithRetries()
           g_log.info("Duplicate tweet.  Atomically increased copy_count of "
                      "original tweet.  text=%s; agg_ts=%s;",
