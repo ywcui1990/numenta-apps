@@ -1,6 +1,7 @@
 import os
 
 from tempfile import mkdtemp
+from distutils.dir_util import copy_tree, mkpath
 
 from infrastructure.utilities import git
 from infrastructure.utilities import logger as log
@@ -50,11 +51,11 @@ class NumentaRPM(object):
 
     if not config.preserveFakeroot:
       if logger:
-        logger.debug("Scrubbing fakeroot in %s", g_fakeroot)
+        logger.debug("Scrubbing fakeroot in %s", fakeroot)
       rmrf(fakeroot, logger=logger)
     else:
       if logger:
-        logger.debug("Skipping fakeroot scrub, leaving %s intact.", g_fakeroot)
+        logger.debug("Skipping fakeroot scrub, leaving %s intact.", fakeroot)
 
   def sanitizeSrvSalt(self, saltpath):
     """
@@ -496,6 +497,7 @@ class NumentaRPM(object):
     config = self.config
     fakeroot = mkdtemp(prefix=config.tempdir)
     self.fakeroot = fakeroot
+    logger = self.logger
     self.productsDirectory = os.path.join(fakeroot, "opt", "numenta", "products")
     logger.debug("Creating fakeroot in %s", fakeroot)
     (iteration, fakerootSHA) = self.constructFakeroot()
