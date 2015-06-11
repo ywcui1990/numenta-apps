@@ -96,8 +96,8 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     """
     self.connParams = RabbitmqManagementConnectionParams()
     self.client = SynchronousAmqpClient(getRabbitmqConnectionParameters())
-    self.addCleanup(self.client.close)
     self.assertTrue(self.client.isOpen())
+    self.addCleanup(self.client.close)
 
 
   @_RETRY_ON_ASSERTION_ERROR

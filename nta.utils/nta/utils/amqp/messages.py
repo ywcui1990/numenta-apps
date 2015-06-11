@@ -64,8 +64,8 @@ class MessageDeliveryInfo(object):
 
 
   def __eq__(self, other):
-    return all([self.__getattribute__(slot) == other.__getattribute__(slot)
-                for slot in self.__slots__])
+    return all(self.__getattribute__(slot) == other.__getattribute__(slot)
+               for slot in self.__slots__)
 
 
   def __ne__(self, other):
@@ -110,8 +110,8 @@ class MessageGetInfo(object):
 
 
   def __eq__(self, other):
-    return all([self.__getattribute__(slot) == other.__getattribute__(slot)
-                for slot in self.__slots__])
+    return all(self.__getattribute__(slot) == other.__getattribute__(slot)
+               for slot in self.__slots__)
 
 
   def __ne__(self, other):
@@ -147,8 +147,8 @@ class MessageReturnInfo(object):
 
 
   def __eq__(self, other):
-    return all([self.__getattribute__(slot) == other.__getattribute__(slot)
-                for slot in self.__slots__])
+    return all(self.__getattribute__(slot) == other.__getattribute__(slot)
+               for slot in self.__slots__)
 
 
   def __ne__(self, other):
@@ -238,8 +238,8 @@ class BasicProperties(object):
 
 
   def __eq__(self, other):
-    return all([self.__getattribute__(slot) == other.__getattribute__(slot)
-                for slot in self.__slots__])
+    return all(self.__getattribute__(slot) == other.__getattribute__(slot)
+               for slot in self.__slots__)
 
 
   def __ne__(self, other):
@@ -295,8 +295,8 @@ class ReturnedMessage(Message):
 
 
   def __eq__(self, other):
-    return all([self.__getattribute__(slot) == other.__getattribute__(slot)
-                for slot in self.__slots__])
+    return all(self.__getattribute__(slot) == other.__getattribute__(slot)
+               for slot in self.__slots__)
 
 
   def __ne__(self, other):
