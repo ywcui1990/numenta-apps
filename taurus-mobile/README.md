@@ -89,7 +89,7 @@ your Java installation.
 
 ### Docker setup
 
-- **Docker container**
+- **Docker engine (virtualboc + coreos + vagrant)**
     - Install `VirtualBox` from https://www.virtualbox.org/wiki/Downloads
     - Install `vagrant` from http://www.vagrantup.com/downloads.html or **homebrew**:
 
@@ -99,11 +99,12 @@ your Java installation.
 
             brew install docker
 
-    - Start `docker` container:
+    - Start `docker` engine:
 
+            cd coreos-vagrant
             vagrant up
 
-- **Docker image**
+- **Docker container**
 
     - Copy your **Application Signing** keystore file to `.keys/grok.keystore` directory:
 
