@@ -35,11 +35,6 @@
       "type": "file"
     },
     {
-      "destination": "/tmp/grok-development.repo",
-      "source": "repos/grok-development.repo",
-      "type": "file"
-    },
-    {
       "destination": "/tmp/nta-carbonite.repo",
       "source": "repos/nta-carbonite.repo",
       "type": "file"
@@ -93,15 +88,15 @@
     },
     {
       "type": "shell",
+      "script": "packer-scripts/install-epel-repo-6.5"
+    },
+    {
+      "type": "shell",
       "script": "packer-scripts/install-salt"
     },
     {
       "type": "shell",
       "script": "packer-scripts/set-salt-output-state-to-mixed"
-    },
-    {
-      "type": "shell",
-      "script": "packer-scripts/install-epel-repo-6.5"
     },
     {
       "type": "shell",
