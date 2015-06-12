@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 requirements = map(str.strip, open("requirements.txt").readlines())
 
-depLinks = ["http://pypi.numenta.com/pypi", ] if "linux" in sys.platform else []
+depLinks = ["https://pypi.numenta.com/pypi", ] if "linux" in sys.platform else []
 
 setup(
   name = "htmengine",
