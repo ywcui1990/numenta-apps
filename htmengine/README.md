@@ -19,8 +19,8 @@ First, install `nta.utils`.  Then, to install `htmengine`:
 Environment Variables
 ---------------------
 
-`APPLICATION_CONFIG_PATH`: directory path where active application configuration
-files are located
+`APPLICATION_CONFIG_PATH` **(REQUIRED)**: Directory path where active
+application-specific configuration files are located.
 
 
 Usage
