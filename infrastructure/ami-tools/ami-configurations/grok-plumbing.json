@@ -5,7 +5,7 @@
       "ami_name": "grok-plumbing-saltstack-32GB-{{isotime | clean_ami_name}}",
       "instance_type": "m3.large",
       "region": "us-west-2",
-      "source_ami": "ami-ef4e6adf",
+      "source_ami": "ami-5b447f6b",
       "ssh_port": 22,
       "ssh_timeout": "3m",
       "ssh_username": "root",

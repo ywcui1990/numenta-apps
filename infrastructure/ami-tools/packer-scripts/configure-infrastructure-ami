@@ -32,8 +32,10 @@ complain() {
   logger -t ami-bake "$@"
 }
 
-echo "Installing repos..."
-mv /tmp/*.repo /etc/yum.repos.d
+echo "Installing Numenta repositories..."
+mv /tmp/nta-carbonite.repo /etc/yum.repos.d
+mv /tmp/nta-thirdparty.repo /etc/yum.repos.d
+mv /tmp/secretsauce.repo /etc/yum.repos.d
 
 echo "Cleaning yum..."
 yum clean all
