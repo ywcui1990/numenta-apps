@@ -1,11 +1,11 @@
 {
   "builders": [
     {
-      "ami_description": "Numenta infrastructure base - CentOS 6.5 + 256GB root + SaltStack solo",
+      "ami_description": "Numenta infrastructure base - CentOS 6.5 + 256GB root + SaltStack + upstream openSSL",
       "ami_name": "numenta-infrastructure-saltstack-256GB-{{isotime | clean_ami_name}}",
       "instance_type": "m3.large",
       "region": "us-west-2",
-      "source_ami": "ami-e394acd3",
+      "source_ami": "ami-c33b00f3",
       "ssh_port": 22,
       "ssh_timeout": "3m",
       "ssh_username": "root",
@@ -71,6 +71,8 @@
         "mkdir -p /etc/numenta",
         "mkdir -p /srv/salt",
         "echo",
+        "echo Purging stale repo files",
+        "rm -fv /etc/yum.repos.d/grok*repo",
         "echo Engraving products SHA and build timestamp into AMI",
         "echo",
         "mv /tmp/products.sha /etc/numenta",
