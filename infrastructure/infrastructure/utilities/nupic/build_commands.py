@@ -274,14 +274,15 @@ def buildNuPIC(env, logger):
       # install requirements
       runWithOutput("pip install --install-option=--prefix=%s --requirement "
                     "external/common/requirements.txt" % env["NTA"],
-                    env, logger)
+                    env=env, logger=logger)
       # need to remove this folder for wheel build to work
       shutil.rmtree("external/linux32arm")
 
       # build the wheel
-      command = ("python setup.py bdist_wheel --nupic-core-dir=%s" %
-                 os.path.join(env["NUPIC_CORE_DIR"], "build", "release"))
-      runWithOutput(command, env, logger)
+      command = ("python setup.py bdist_wheel bdist_egg --nupic-core-dir=%s " 
+                 "upload -r numenta-pypi" % os.path.join(env["NUPIC_CORE_DIR"],
+                                                         "build", "release"))
+      runWithOutput(command, env=env, logger=logger)
     except:
       logger.exception("Failed while building nupic")
       raise NupicBuildFailed("NuPIC building failed.")
