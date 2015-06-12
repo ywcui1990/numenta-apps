@@ -9,7 +9,7 @@
       "ami_name": "packer-{{user `ami_name`}}-{{isotime | clean_ami_name}}",
       "instance_type": "m3.large",
       "region": "us-west-2",
-      "source_ami": "ami-f7a790c7",
+      "source_ami": "ami-e32219d3",
       "ssh_port": 22,
       "ssh_timeout": "3m",
       "ssh_username": "root",
