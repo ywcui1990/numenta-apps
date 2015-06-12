@@ -463,7 +463,7 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger):
   # version number. This will ensure the proper version number is tagged in
   # the wheel file
   if isReleaseVersion(nupicBranch, nupicSha):
-    with changeToWorkingDir(buildWorkspace):
+    with changeToWorkingDir(os.path.join(buildWorkspace, "nupic")):
       with open(VERSION_FILE, "r") as f:
         devVersion = f.read().strip()
       for targetFile in [VERSION_FILE, DOXYFILE, INIT_FILE]:
