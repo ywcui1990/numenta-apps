@@ -7,6 +7,7 @@ cp /opt/numenta/taurus/infrastructure/coreos/htmengine/conf/supervisord-base.con
 cp /opt/numenta/taurus/infrastructure/coreos/taurus/conf/application.conf /opt/numenta/taurus/conf/
 cp /opt/numenta/taurus/infrastructure/coreos/taurus/conf/nginx-taurus.conf /opt/numenta/taurus/conf/
 cp /opt/numenta/taurus/infrastructure/coreos/taurus/conf/supervisord.conf /opt/numenta/taurus/conf/
+mkdir -p /opt/numenta/taurus/conf/ssl/
 cp /opt/numenta/taurus/infrastructure/coreos/taurus/conf/ssl/* /opt/numenta/taurus/conf/ssl/
 taurus-set-rabbitmq --host=${RABBITMQ_HOST} --user=${RABBITMQ_USER} --password=${RABBITMQ_PASSWD}
 taurus-set-sql-login --host=${MYSQL_HOST} --user=${MYSQL_USER} --password=${MYSQL_PASSWD}
