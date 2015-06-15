@@ -93,7 +93,7 @@ public class TaurusMobileAppTest {
     }
 
 
-    @Test(priority = 1,dependsOnMethods={"skipTutorial"})
+    @Test(priority = 1 , dependsOnMethods = {"skipTutorial"})
     public void addFavourites()
         throws InterruptedException {
         // Long press on any company name
@@ -112,7 +112,7 @@ public class TaurusMobileAppTest {
     }
 
 
-    @Test(priority = 2 ,dependsOnMethods={"addFavourites"})
+    @Test(priority = 2 , dependsOnMethods = {"addFavourites"})
     public void removeFavourites()
         throws InterruptedException {
             TestUtilities.waitClick(FAVORITES, driver, WAIT_TIME);
@@ -134,7 +134,7 @@ public class TaurusMobileAppTest {
         }
 
 
-    @Test(priority = 3,dependsOnMethods={"removeFavourites"})
+    @Test(priority = 3 , dependsOnMethods = {"removeFavourites"})
     public void clickOnCompanyName() throws InterruptedException {
         TestUtilities.waitClick(ALL, driver, WAIT_TIME);
         TestUtilities.waitClick(EXPECTED_COMPANY_NAME, driver, WAIT_TIME);
@@ -149,7 +149,7 @@ public class TaurusMobileAppTest {
     }
 
 
-    @Test(priority = 4 , dependsOnMethods={"clickOnCompanyName"})
+    @Test(priority = 4 , dependsOnMethods = {"clickOnCompanyName"})
     public void settings() throws InterruptedException {
         // Clicking on Settings option
         TestUtilities.clickFeedback(driver, WAIT_TIME);
