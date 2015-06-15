@@ -42,6 +42,7 @@ from infrastructure.utilities import git
 from infrastructure.utilities import logger as log
 from infrastructure.utilities import rpm
 from infrastructure.utilities.exceptions import InvalidParametersError
+from infrastructure.utilities.numenta_rpm import NumentaRPM
 from infrastructure.utilities.path import (
   changeToWorkingDir,
   purgeDirectory,
@@ -745,8 +746,12 @@ if __name__ == "__main__":
   signal.signal(signal.SIGINT, signalHandler)
   signal.signal(signal.SIGTERM, signalHandler)
 
+  parseCLA()
+  numentaRPM = NumentaRPM(g_config)
   try:
-    createNumentaRPM()
+    numentaRPM.create()
+    #createNumentaRPM()
   except:
-    cleanupDirectories()
+    numentaRPM.cleanupDirectories()
+    #cleanupDirectories()
     raise
