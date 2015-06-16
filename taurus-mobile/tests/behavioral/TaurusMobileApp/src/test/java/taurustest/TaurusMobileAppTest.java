@@ -59,7 +59,6 @@ public class TaurusMobileAppTest {
         sauceUserName, String sauceAccessKey) throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("name", "Taurus mobile Testing");
-        capabilities.setCapability("appiumVersion", "1.3.1");
         capabilities.setCapability("app", "sauce-storage:taur-app-release.apk");
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("device-orientation", "portrait");
