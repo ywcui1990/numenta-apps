@@ -58,33 +58,27 @@ else
 fi
 
 run_pip_installs_if_needed() {
-  cd ${GROK_HOME}
-  log_info "Running python setup.py develop"
-  python setup.py develop --prefix=/opt/numenta/products/grok
+  pushd "${NUMENTA}"
+    log_info "Running install_grok.sh"
 
-  log_info "Running pip install"
-  rm -fr "${PIP_SCRATCH_D}"
-  mkdir -p "${PIP_SCRATCH_D}"
-  pip install --build "${PIP_SCRATCH_D}" \
-    --install-option="--prefix=." \
-    --editable . 2>&1
-  if [ "$?" -ne 0 ]; then
-    die "pip install failed in ${PIP_SCRATCH_D}"
-  fi
+    install_grok.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
+  popd
 }
 
 initialize_grok() {
-  log_info "Running grok init"
-  python setup.py init 2>&1
-  if [ "$?" -ne 0 ]; then
-    die "python setup.py init failed in ${GROK_HOME}"
-  fi
+  pushd "${GROK_HOME}"
+    log_info "Running grok init"
+    python setup.py init 2>&1
+    if [ "$?" -ne 0 ]; then
+      die "python setup.py init failed in ${GROK_HOME}"
+    fi
+  popd
 }
 
 set_grok_edition() {
   log_info "Setting edition"
   EDITION="standard"
-  /opt/numenta/grok/bin/set_edition.py "${EDITION}"
+  "${GROK_HOME}/bin/set_edition.py" "${EDITION}"
   if [ "$?" -ne 0 ]; then
     die "set_edition.py failed"
   fi
@@ -92,7 +86,7 @@ set_grok_edition() {
 
 update_grok_quota() {
   log_info "first boot: running update_quota.py"
-  /opt/numenta/grok/bin/update_quota.py 2>&1
+  "${GROK_HOME}/bin/update_quota.py" 2>&1
   if [ "$?" -ne 0 ]; then
     die "update_quota.py failed"
   fi
@@ -101,16 +95,17 @@ update_grok_quota() {
 log_grok_server_details() {
   if [ -f "${GROK_HOME}/bin/log_server_details.py" ]; then
     log_info "Logging server details"
-    cd "${GROK_HOME}"
-    bin/log_server_details.py 2>&1
-    if [ "$?" -ne 0 ]; then
-      die "log_grok_server_details.py failed"
-    fi
+    pushd "${GROK_HOME}"
+      bin/log_server_details.py 2>&1
+      if [ "$?" -ne 0 ]; then
+        die "log_grok_server_details.py failed"
+      fi
+    popd
   fi
 }
 
 grok_postconfigure_housekeeping() {
-  if [ -f ${STAMPFILE} ]; then
+  if [ -f "${STAMPFILE}" ]; then
     # Yes, update_quota.py is called from two places in the script. This is
     # deliberate.
     #
@@ -123,7 +118,7 @@ grok_postconfigure_housekeeping() {
   fi
 }
 
-cd ${GROK_HOME}
+cd "${GROK_HOME}"
 
 # Everything after this check is run only on the very first boot for
 # an instance.
