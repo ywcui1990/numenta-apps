@@ -328,7 +328,7 @@ class NumentaRPM(object):
 
     logger.info("Preparing Grok fakeroot in %s\n", fakeroot)
 
-    actualSHA = installProductsIntoGrokFakeroot(fakeroot)
+    actualSHA = self.installProductsIntoGrokFakeroot()
 
     productsDirectory = "%s/opt/numenta/products" % fakeroot
     grokPath = "%s/grok" % (productsDirectory)
@@ -435,6 +435,7 @@ class NumentaRPM(object):
       Set any extra pythonpath.
 
     """
+    config = self.config
     fakeroot = self.fakeroot
     logger = self.logger
     productsDirectory = self.productsDirectory
@@ -443,7 +444,7 @@ class NumentaRPM(object):
     logger.debug("Previous: %s", pythonpath)
     newPath = [os.path.join(fakeroot, extraPythonpath)
                for extraPythonpath in config.pythonpathExtensions]
-    log.debug("Adding %s to PYTHONPATH", newPath)
+    logger.debug("Adding %s to PYTHONPATH", newPath)
     self.environment["PYTHONPATH"] += ":" + ":".join(newPath)
     logger.debug("New PYTHONPATH: %s", self.environment["PYTHONPATH"])
 
