@@ -29,7 +29,9 @@ docker image to avoid building nupic.
 In the root of `numenta-apps/`:
 
 ```
-docker build -t taurus-server:latest -f Dockerfile-taurus .
+docker build -t nta.utils:latest nta.utils
+docker build -t htmengine:latest htmengine
+docker build -t taurus-server:latest taurus
 docker build -t taurus-dynamodb:latest taurus/external/dynamodb_test_tool
 ```
 
