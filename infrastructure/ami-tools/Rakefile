@@ -27,7 +27,7 @@
 CENTOS6_CONFIG="ami-configurations/centos6.json"
 GROK_PIPELINE_CONFIG="ami-configurations/grok-pipeline.json"
 GROK_PLUMBING_CONFIG="ami-configurations/grok-plumbing.json"
-INFRASTRUCTURE_128GB_CONFIG="ami-configurations/infrastructure-base-128gb.json"
+INFRASTRUCTURE_256GB_CONFIG="ami-configurations/infrastructure-base-256gb.json"
 INFRASTRUCTURE_CONFIG="ami-configurations/infrastructure-base.json"
 WEB_CONFIG="ami-configurations/salt-webserver.json"
 
@@ -90,12 +90,12 @@ task :validate_infrastructure => [:products_sha,
   sh %{ packer validate #{INFRASTRUCTURE_CONFIG} }
 end
 
-desc "Validate Infrastructure 128GB configuration"
-task :validate_infrastructure_128gb => [:products_sha,
+desc "Validate Infrastructure 256GB configuration"
+task :validate_infrastructure_256gb => [:products_sha,
                                         :grok_repos,
                                         :salt_bootstrap,
                                         :yum_plugin] do
-  sh %{ packer validate #{INFRASTRUCTURE_128GB_CONFIG} }
+  sh %{ packer validate #{INFRASTRUCTURE_256GB_CONFIG} }
 end
 
 desc "Validate Webserver packer configuration"
@@ -146,14 +146,14 @@ task :bake_infrastructure => [:grok_repos,
   sh %{ packer build #{INFRASTRUCTURE_CONFIG} }
 end
 
-desc "Bake a new 128GB Infrastructure AMI"
-task :bake_infrastructure_128gb => [:grok_repos,
+desc "Bake a new 256GB Infrastructure AMI"
+task :bake_infrastructure_256gb => [:grok_repos,
                                     :products_sha,
                                     :salt_bootstrap,
                                     :secretsauce_repo,
-                                    :validate_infrastructure_128gb,
+                                    :validate_infrastructure_256gb,
                                     :yum_plugin ] do
-  sh %{ packer build #{INFRASTRUCTURE_128GB_CONFIG} }
+  sh %{ packer build #{INFRASTRUCTURE_256GB_CONFIG} }
 end
 
 desc "Bake a new HVM webserver AMI"

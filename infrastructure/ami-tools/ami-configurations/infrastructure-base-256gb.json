@@ -1,11 +1,11 @@
 {
   "builders": [
     {
-      "ami_description": "Numenta infrastructure base - CentOS 6.5 + 128GB root + SaltStack solo",
-      "ami_name": "numenta-infrastructure-saltstack-128GB-{{isotime | clean_ami_name}}",
+      "ami_description": "Numenta infrastructure base - CentOS 6.5 + 256GB root + SaltStack + upstream openSSL",
+      "ami_name": "numenta-infrastructure-saltstack-256GB-{{isotime | clean_ami_name}}",
       "instance_type": "m3.large",
       "region": "us-west-2",
-      "source_ami": "ami-ef4e6adf",
+      "source_ami": "ami-c33b00f3",
       "ssh_port": 22,
       "ssh_timeout": "3m",
       "ssh_username": "root",
@@ -32,11 +32,6 @@
     {
       "destination": "/tmp/secretsauce.repo",
       "source": "repos/secretsauce.repo",
-      "type": "file"
-    },
-    {
-      "destination": "/tmp/grok-development.repo",
-      "source": "repos/grok-development.repo",
       "type": "file"
     },
     {
@@ -76,6 +71,8 @@
         "mkdir -p /etc/numenta",
         "mkdir -p /srv/salt",
         "echo",
+        "echo Purging stale repo files",
+        "rm -fv /etc/yum.repos.d/grok*repo",
         "echo Engraving products SHA and build timestamp into AMI",
         "echo",
         "mv /tmp/products.sha /etc/numenta",
@@ -93,15 +90,15 @@
     },
     {
       "type": "shell",
+      "script": "packer-scripts/install-epel-repo-6.5"
+    },
+    {
+      "type": "shell",
       "script": "packer-scripts/install-salt"
     },
     {
       "type": "shell",
       "script": "packer-scripts/set-salt-output-state-to-mixed"
-    },
-    {
-      "type": "shell",
-      "script": "packer-scripts/install-epel-repo-6.5"
     },
     {
       "type": "shell",
