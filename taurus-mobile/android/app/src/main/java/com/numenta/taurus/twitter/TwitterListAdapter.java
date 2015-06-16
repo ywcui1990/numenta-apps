@@ -29,31 +29,75 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class TwitterListAdapter extends ArrayAdapter<Tweet> {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class TwitterListAdapter extends BaseAdapter {
+
+    private static final String TAG = TwitterListAdapter.class.getSimpleName();
+
+    final Context _context;
+
+    final List<Tweet> _tweetList;
+
+    final LayoutInflater _inflater;
+
+    public void add(Tweet tweet) {
+        _tweetList.add(tweet);
+        notifyDataSetChanged();
+    }
+
+    public void sort(Comparator<Tweet> comparator) {
+        Collections.sort(_tweetList, comparator);
+        notifyDataSetChanged();
+    }
 
     static class ViewHolder {
 
         View groupHeader;
+
         TextView date;
+
         TextView tweetCount;
 
         View tweetHeader;
+
         TextView user;
+
         TextView retweetTotal;
+
         ImageView _retweetIcon;
+
         TextView retweetCount;
 
         TextView tweetText;
     }
-    private final LayoutInflater _inflater;
 
     public TwitterListAdapter(Context context) {
-        super(context, R.layout.twitter_item);
+        _context = context;
         _inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        _tweetList = new ArrayList<Tweet>();
+    }
+
+    @Override
+    public int getCount() {
+        return _tweetList.size();
+    }
+
+    @Override
+    public Tweet getItem(int position) {
+        return _tweetList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 
     @Override
