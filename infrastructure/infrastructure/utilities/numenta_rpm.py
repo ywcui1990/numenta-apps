@@ -442,7 +442,7 @@ class NumentaRPM(object):
     pythonpath = ""
     logger.debug("Previous: %s", pythonpath)
     newPath = [os.path.join(fakeroot, extraPythonpath)
-               for extraPythonpath in config.pythonpathExtensions)]
+               for extraPythonpath in config.pythonpathExtensions]
     log.debug("Adding %s to PYTHONPATH", newPath)
     self.environment["PYTHONPATH"] += ":" + ":".join(newPath)
     logger.debug("New PYTHONPATH: %s", self.environment["PYTHONPATH"])
