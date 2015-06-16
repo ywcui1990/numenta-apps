@@ -190,7 +190,7 @@ class NumentaRPM(object):
     logger = self.logger
     srvPath = os.path.join(fakeroot, "srv")
     logger.debug("Creating saltcellar fakeroot in %s", srvPath)
-    productsDirectory = self.productsDirectory
+    productsPath = os.path.join(fakeroot, "products")
     mkpath(srvPath)
 
     logger.debug("Cloning...")
@@ -207,28 +207,28 @@ class NumentaRPM(object):
 
     # Capture the commit count since we're going to trash products once we pull
     # out the saltcellar
-    iteration = git.getCommitCount(productsDirectory)
-    logger.debug("Commit count in %s is %s", productsDirectory, iteration)
+    iteration = git.getCommitCount(productsPath)
+    logger.debug("Commit count in %s is %s", productsPath, iteration)
 
     # Move the saltcellar to /srv/salt
     logger.debug("Moving saltcellar to %s/salt", srvPath)
     logger.debug("srvPath: %s", srvPath)
-    logger.debug("productsDirectory: %s", productsDirectory)
-    logger.debug("%s/infrastructure/saltcellar", productsDirectory)
+    logger.debug("productsPath: %s", productsPath)
+    logger.debug("%s/infrastructure/saltcellar", productsPath)
 
     logger.debug("Checking for %s/infrastructure/saltcellar",
-                   productsDirectory)
+                   productsPath)
     logger.debug(os.path.exists("%s/infrastructure/saltcellar" %
-                                  productsDirectory))
+                                  productsPath))
 
-    os.rename(os.path.join(productsDirectory, "infrastructure",
+    os.rename(os.path.join(productsPath, "infrastructure",
                            "saltcellar"),
               os.path.join(srvPath, "salt"))
 
     # Now that we have the salt formulas, nuke the rest of products out of
     # the fakeroot
     logger.debug("Deleting products from fakeroot")
-    rmrf(productsDirectory)
+    rmrf(productsPath)
 
     # Finally, scrub the private data out of /srv/salt
     if not config.numenta_internal_only:
