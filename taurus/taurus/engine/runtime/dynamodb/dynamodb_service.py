@@ -44,6 +44,7 @@ from boto.exception import JSONResponseError
 
 from nta.utils import amqp
 from nta.utils import error_handling
+from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 
 import taurus.engine
 from taurus.engine import taurus_logging
@@ -145,6 +146,7 @@ def convertInferenceResultRowToMetricDataItem(metricId, row):
 
 
 
+
 class DynamoDBService(object):
   """ Binds a "dynamodb" queue to:
       - The model results fanout exchange defined in the
@@ -208,6 +210,19 @@ class DynamoDBService(object):
       self._gracefulCreateTable(MetricTweetsDynamoDBDefinition()))
     self._instance_data_hourly = self._gracefulCreateTable(
         InstanceDataHourlyDynamoDBDefinition())
+
+
+  @staticmethod
+  def _constructSortKey(agg_ts):
+    """ Construct an initial sort key by converting agg_ts to an epoch time,
+    and multiply it by some power of 10.  On update, the key will be
+    incremented by one atomically.  The original range queries will be
+    preserved while allowing a response with tweets sorted by popularity
+    within the time range bucket
+    """
+    ts = epochFromNaiveUTCDatetime(datetime.strptime(agg_ts.partition(".")[0],
+                                                     "%Y-%m-%dT%H:%M:%S"))
+    return int(ts * 1e5)
 
 
   @staticmethod
@@ -507,6 +522,7 @@ class DynamoDBService(object):
       # Filter "RT" prefix and URL suffix
       tweet_text = item["text"] = _filter.match(item["text"]).group(1)
       item["copy_count"] = 0
+      item["sort_key"] = self._constructSortKey(item["agg_ts"])
 
       data = MetricTweetsDynamoDBDefinition().Item(**item)
 
@@ -526,10 +542,8 @@ class DynamoDBService(object):
 
         updateKey = {"text": dynamizer.encode(tweet_text),
                      "agg_ts": dynamizer.encode(item["agg_ts"])}
-        atomicUpdateCopyCount = {"copy_count": {"Action": "ADD",
-                                                "Value": {"N":"1"}}}
         updateValues = {":incr": dynamizer.encode(1)}
-        updateExpression = "ADD copy_count :incr"
+        updateExpression = "ADD copy_count :incr, sort_key :incr"
         updateCondition = "attribute_exists(copy_count)"
 
         @_RETRY_ON_TRANSIENT_DYNAMODB_ERROR
@@ -546,7 +560,7 @@ class DynamoDBService(object):
                      "original tweet.  text=%s; agg_ts=%s;",
                      tweet_text, item["agg_ts"])
         except Exception:
-          g_log.exception("Atomic of update copy_count failed: table=%s; "
+          g_log.exception("Atomic update failed: table=%s; "
                           "updateKey=%s; condition_expression=%s; "
                           "expression_attribute_values=%s;",
                           self._metric_tweets.table_name, updateKey,

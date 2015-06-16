@@ -281,9 +281,14 @@ class DynamoDBServiceTest(TestCaseBase):
     self.assertEqual(metricTweetItem["retweet_count"], twitterData[0]["retweet_count"])
     self.assertEqual(metricTweetItem["copy_count"], 0)
 
+    sort_key = twitterData[0]["agg_ts"]
+
+    ts = (epochFromNaiveUTCDatetime(
+      datetime.datetime.strptime(twitterData[0]["agg_ts"].partition(".")[0],
+                                 "%Y-%m-%dT%H:%M:%S")) * 1e5)
     queryResult = metricTweetsTable.query_2(
       metric_name__eq=metricName,
-      agg_ts__eq=twitterData[0]["agg_ts"],
+      sort_key__gte=ts,
       index="taurus.metric_data-metric_name_index")
     queriedMetricTweetItem = next(queryResult)
 
@@ -296,6 +301,7 @@ class DynamoDBServiceTest(TestCaseBase):
     self.assertEqual(queriedMetricTweetItem["username"], twitterData[0]["username"])
     self.assertEqual(queriedMetricTweetItem["retweet_count"], twitterData[0]["retweet_count"])
     self.assertEqual(queriedMetricTweetItem["copy_count"], 0)
+    self.assertEqual(queriedMetricTweetItem["sort_key"], ts)
 
     duplicatedTwitterData = [
       {
@@ -338,6 +344,7 @@ class DynamoDBServiceTest(TestCaseBase):
       self.assertEqual(metricTweetItem["userid"], twitterData[0]["userid"])
       self.assertEqual(metricTweetItem["username"], twitterData[0]["username"])
       self.assertEqual(metricTweetItem["retweet_count"], twitterData[0]["retweet_count"])
+      self.assertEqual(metricTweetItem["sort_key"], ts + 1)
 
       break
     else:
