@@ -8,7 +8,8 @@ Install dependencies
 Startup
 -------
 
-From within the `taurus/infrastructure/coreos/` directory:
+From within the `infrastructure/coreos/` directory relative to `numenta-apps`
+root:
 
 ```
 vagrant up
