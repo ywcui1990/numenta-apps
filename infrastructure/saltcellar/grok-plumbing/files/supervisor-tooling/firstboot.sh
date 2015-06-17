@@ -61,7 +61,7 @@ run_pip_installs_if_needed() {
   pushd "${NUMENTA}"
     log_info "Running install_grok.sh"
 
-    install_grok.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
+    install-grok.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
   popd
 }
 
