@@ -35,7 +35,6 @@ docker build -t htmengine:latest htmengine
 docker build -t taurus.metric_collectors:latest taurus.metric_collectors
 docker build -t taurus:latest taurus
 docker build -t taurus-dynamodb:latest taurus/external/dynamodb_test_tool
-
 ```
 
 Start MySQL container(s):
@@ -116,7 +115,7 @@ docker run \
   -p 8001:8001 \
   -d \
   --privileged \
-  taurus-collectors:latest
+  taurus.metric_collectors:latest
 ```
 
 *Note*: You must have `TAURUS_TWITTER_ACCESS_TOKEN`,
