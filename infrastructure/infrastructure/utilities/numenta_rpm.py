@@ -435,19 +435,22 @@ class NumentaRPM(object):
       Set any extra pythonpath.
 
     """
+
     config = self.config
     fakeroot = self.fakeroot
+    environment = self.environment
     logger = self.logger
     productsDirectory = self.productsDirectory
 
     pythonpath = ""
     logger.debug("Previous: %s", pythonpath)
-    newPath = [os.path.join(fakeroot, extraPythonpath)
-               for extraPythonpath in config.pythonpathExtensions]
-    logger.debug("Adding %s to PYTHONPATH", newPath)
-    self.environment["PYTHONPATH"] += ":" + ":".join(newPath)
-    logger.debug("New PYTHONPATH: %s", self.environment["PYTHONPATH"])
-
+    for extraPythonpath in config.pythonpathExtensions:
+      pythonpath = "%s:%s/opt/numenta/products/%s" % (environment["PYTHONPATH"],
+                                                      fakeroot,
+                                                      extraPythonpath)
+      logger.debug("Setting PYTHONPATH to %s", pythonpath)
+    self.environment["PYTHONPATH"] = pythonpath
+    logger.debug("New PYTHONPATH: %s", pythonpath)
 
   def installProductsIntoGrokFakeroot(self):
     """
