@@ -19,7 +19,6 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-
 import itertools
 import json
 import logging
@@ -32,6 +31,7 @@ import time
 import zlib
 
 from nta.utils import amqp
+from nta.utils.amqp.constants import AMQPDeliveryModes
 from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 from nta.utils.message_bus_connector import MessageBusConnector
 from nta.utils.message_bus_connector import MessageProperties
