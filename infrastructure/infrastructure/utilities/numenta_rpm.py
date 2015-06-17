@@ -168,7 +168,7 @@ class NumentaRPM(object):
     self.cleanScripts()
 
     # Purge anything not whitelisted
-    self.purgeBlacklistedStuff(productsDirectory)
+    self.purgeBlacklistedStuff()
 
     return (iteration, actualSHA)
 
@@ -388,7 +388,7 @@ class NumentaRPM(object):
 
     logger.info("Phase 5: Purge anything not whitelisted.")
     # Purge anything not whitelisted
-    self.purgeBlacklistedStuff(productsDirectory)
+    self.purgeBlacklistedStuff()
 
     return (iteration, actualSHA)
 
