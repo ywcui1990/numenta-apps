@@ -1,4 +1,4 @@
-FROM htmengine:latest
+FROM taurus.metric_collectors:latest
 RUN apt-get install -y nginx
 ADD . /opt/numenta/taurus
 WORKDIR /opt/numenta/taurus
