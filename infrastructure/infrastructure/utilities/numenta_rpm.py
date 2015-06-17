@@ -155,7 +155,6 @@ class NumentaRPM(object):
     productsDirectory = self.productsDirectory
     logger.debug("Creating %s", productsDirectory)
     mkpath(productsDirectory)
-    environment = dict(os.environ)
     copy_tree(config.productsDir, productsDirectory)
     iteration = git.getCommitCount(productsDirectory)
 
@@ -330,17 +329,17 @@ class NumentaRPM(object):
 
     actualSHA = self.installProductsIntoGrokFakeroot()
 
-    productsDirectory = "%s/opt/numenta/products" % fakeroot
-    grokPath = "%s/grok" % (productsDirectory)
+    productsDirectory = self.productsDirectory
+    grokPath = os.path.join(productsDirectory, "grok")
     iteration = git.getCommitCount(productsDirectory)
 
     # Extend PYTHONPATH for setup.py, build & cleanup scripts
     # pythonpathExtensions
     logger.debug("**************************************************")
     logger.info("Phase 1: Preparing PYTHONPATH and installing wheels")
-    environment = dict(os.environ)
     # Set extra python path
     self.setPythonPath()
+    environment = self.environment
     sitePackagesDirectory = "%s/grok/lib/python2.7/site-packages" % \
                             productsDirectory
 
@@ -414,6 +413,7 @@ class NumentaRPM(object):
 
     """
     productsDirectory = self.productsDirectory
+    config = self.config
     environment = self.environment
     logger = self.logger
 
