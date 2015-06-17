@@ -16,7 +16,8 @@ vagrant up
 source env
 ```
 
-``vagrant up`` triggers vagrant to download the CoreOS image (if necessary) and (re)launch the instance
+``vagrant up`` triggers vagrant to download the CoreOS image (if necessary)
+and (re)launch the instance
 
 Build and run Taurus Docker Image
 ---------------------------------
@@ -31,11 +32,12 @@ In the root of `numenta-apps/`:
 ```
 docker build -t nta.utils:latest nta.utils
 docker build -t htmengine:latest htmengine
-docker build -t taurus-server:latest taurus
+docker build -t taurus.metric_collectors:latest taurus.metric_collectors
+docker build -t taurus:latest taurus
 docker build -t taurus-dynamodb:latest taurus/external/dynamodb_test_tool
 ```
 
-Start MySQL container:
+Start MySQL container(s):
 
 ```
 docker run \
@@ -68,11 +70,11 @@ docker run \
   taurus-dynamodb:latest
 ```
 
-Start Taurus container:
+Start Taurus container(s):
 
 ```
 docker run \
-  --name taurus-server \
+  --name taurus \
   --link taurus-rabbit:rabbit \
   -e RABBITMQ_HOST=rabbit \
   -e RABBITMQ_USER=guest \
@@ -84,17 +86,48 @@ docker run \
   --link taurus-dynamodb:dynamodb \
   -e DYNAMODB_HOST=dynamodb \
   -e DYNAMODB_PORT=8300 \
+  -e TAURUS_RMQ_METRIC_DEST=rabbit \
+  -e TAURUS_RMQ_METRIC_PREFIX=docker \
   -p 8443:443 \
   -p 9001:9001 \
   -d \
   --privileged \
-  taurus-server:latest
+  taurus:latest
+
+docker run \
+  --name taurus-collectors \
+  --link taurus-rabbit:rabbit \
+  -e RABBITMQ_HOST=rabbit \
+  -e RABBITMQ_USER=guest \
+  -e RABBITMQ_PASSWD=guest \
+  --link taurus-mysql:mysql \
+  -e MYSQL_HOST=mysql \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWD=taurus \
+  --link taurus:taurus \
+  -e TAURUS_HTM_SERVER=taurus \
+  -e TAURUS_METRIC_COLLECTORS_LOG_DIR=/opt/numenta/taurus.metric_collectors/logs \
+  -e TAURUS_TWITTER_ACCESS_TOKEN=${TAURUS_TWITTER_ACCESS_TOKEN} \
+  -e TAURUS_TWITTER_ACCESS_TOKEN_SECRET=${TAURUS_TWITTER_ACCESS_TOKEN_SECRET} \
+  -e TAURUS_TWITTER_CONSUMER_KEY=${TAURUS_TWITTER_CONSUMER_KEY} \
+  -e TAURUS_TWITTER_CONSUMER_SECRET=${TAURUS_TWITTER_CONSUMER_SECRET} \
+  -e XIGNITE_API_TOKEN=${XIGNITE_API_TOKEN} \
+  -p 8001:8001 \
+  -d \
+  --privileged \
+  taurus.metric_collectors:latest
 ```
+
+*Note*: You must have `TAURUS_TWITTER_ACCESS_TOKEN`,
+`TAURUS_TWITTER_ACCESS_TOKEN_SECRET`, `TAURUS_TWITTER_CONSUMER_KEY`,
+`TAURUS_TWITTER_CONSUMER_SECRET`, `XIGNITE_API_TOKEN` which are specific to
+your accounts with the respective services set in your environment for the
+above command to succeed.
 
 Inspect logs:
 
 ```
-docker logs --tail=1000 -f taurus-server
+docker logs --tail=1000 -f taurus
 ```
 
 *Note*: Supervisor configuration has been modified to log everything to stdout.
