@@ -519,8 +519,11 @@ class DynamoDBService(object):
       item["metric_name_tweet_uid"] = (
         "-".join((item["metric_name"], item["tweet_uid"])))
 
-      # Filter "RT" prefix and URL suffix
-      tweet_text = item["text"] = _filter.match(item["text"]).group(1)
+      # Gracefully filter "RT" prefix and URL suffix
+      match = _filter.match(item["text"])
+      if match is not None:
+        item["text"] = match.group(1)
+      tweet_text = item["text"]
       item["copy_count"] = 0
       item["sort_key"] = self._constructSortKey(item["agg_ts"])
 
