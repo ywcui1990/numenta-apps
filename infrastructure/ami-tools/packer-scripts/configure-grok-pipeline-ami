@@ -22,12 +22,7 @@
 #
 # This should only contain settings specific to Grok Plumbing AMIs
 
-export PATH="/opt/numenta/anaconda/bin:${PATH}:/usr/local/sbin:/usr/local/bin"
-export PYTHONPATH="${PYTHONPATH}:/opt/numenta/products"
-
 source /etc/grok/supervisord.vars
-export PATH="/opt/rh/devtoolset-2/root/usr/bin:${PATH}"
-export PYTHONPATH="${PYTHONPATH}:/opt/numenta/products"
 
 echo "Marking instance as being an AMI build..."
 AMIBUILD_LOCK=/tmp/baking-ami
@@ -138,14 +133,7 @@ install-grok() {
     exit "${grok_install_code}"
   fi
 
-  # Hotfix the uwsgi error
-  pushd /opt/numenta/grok
-  pip install uwsgi --upgrade
-  if [ $? != 0 ]; then
-    echo "uwsgi install/upgrade failed"
-    exit 1
-  fi
-  popd
+
 }
 
 start-grok() {
