@@ -23,6 +23,11 @@
 package taurustest;
 
 import java.net.URL;
+
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.rules.Timeout;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -53,6 +58,7 @@ public class TaurusMobileAppTest {
     static By EXPECTED_COMPANY_NAME = By.id("com.numenta.taurus:id/ticker");
     static By EXPECTED_COMPANY_NAME_FOR_FAVORITE = By.id("com.numenta.taurus:id/ticker");
 
+
     @BeforeClass
     @Parameters({"deviceName", "version", "sauceUserName", "sauceAccessKey"})
     public void setUp(String deviceName,String platformVersion, String
@@ -72,6 +78,7 @@ public class TaurusMobileAppTest {
     }
 
 
+    @Rule public TestRule timeout1 = new Timeout(30000);
     @Test(priority = 0)
     @Parameters({"deviceName", "version","sauceUserName","sauceAccessKey"})
     public void skipTutorial()
@@ -92,7 +99,8 @@ public class TaurusMobileAppTest {
     }
 
 
-    @Test(priority = 1 , dependsOnMethods = {"skipTutorial"})
+    @Rule public TestRule timeout2 = new Timeout(30000);
+    @Test(priority = 1)
     public void addFavourites()
         throws InterruptedException {
         // Long press on any company name
@@ -111,7 +119,8 @@ public class TaurusMobileAppTest {
     }
 
 
-    @Test(priority = 2 , dependsOnMethods = {"addFavourites"})
+    @Rule public TestRule timeout3 = new Timeout(30000);
+    @Test(priority = 2)
     public void removeFavourites()
         throws InterruptedException {
             TestUtilities.waitClick(FAVORITES, driver, WAIT_TIME);
@@ -133,7 +142,8 @@ public class TaurusMobileAppTest {
         }
 
 
-    @Test(priority = 3 , dependsOnMethods = {"removeFavourites"})
+    @Rule public TestRule timeout4 = new Timeout(30000);
+    @Test(priority = 3)
     public void clickOnCompanyName() throws InterruptedException {
         TestUtilities.waitClick(ALL, driver, WAIT_TIME);
         TestUtilities.waitClick(EXPECTED_COMPANY_NAME, driver, WAIT_TIME);
@@ -148,7 +158,8 @@ public class TaurusMobileAppTest {
     }
 
 
-    @Test(priority = 4 , dependsOnMethods = {"clickOnCompanyName"})
+    @Rule public TestRule timeout5 = new Timeout(30000);
+    @Test(priority = 4)
     public void settings() throws InterruptedException {
         // Clicking on Settings option
         TestUtilities.clickFeedback(driver, WAIT_TIME);
