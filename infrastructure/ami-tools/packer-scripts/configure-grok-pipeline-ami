@@ -94,7 +94,7 @@ run-salt() {
   echo "Setting Salt minion_id to grok-server"
   echo grok-server > /etc/salt/minion_id
 
-  ln -s "${PRODUCTS}/infrastructure/saltcellar" "/srv/salt"
+  ln -s "${PRODUCTS}/infrastructure/saltcellar" /srv/salt
 
   # We need to install grok-private-settings to get WUFOO and S3 configuration
   # information
