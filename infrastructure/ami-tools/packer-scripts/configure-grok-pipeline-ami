@@ -22,12 +22,7 @@
 #
 # This should only contain settings specific to Grok Plumbing AMIs
 
-export PATH="/opt/numenta/anaconda/bin:${PATH}:/usr/local/sbin:/usr/local/bin"
-export PYTHONPATH="${PYTHONPATH}:/opt/numenta/products"
-
 source /etc/grok/supervisord.vars
-export PATH="/opt/rh/devtoolset-2/root/usr/bin:${PATH}"
-export PYTHONPATH="${PYTHONPATH}:/opt/numenta/products"
 
 echo "Marking instance as being an AMI build..."
 AMIBUILD_LOCK=/tmp/baking-ami
@@ -99,7 +94,7 @@ run-salt() {
   echo "Setting Salt minion_id to grok-server"
   echo grok-server > /etc/salt/minion_id
 
-  yum install -y grok-saltcellar
+  ln -s "${PRODUCTS}/infrastructure/saltcellar" /srv/salt
 
   # We need to install grok-private-settings to get WUFOO and S3 configuration
   # information
@@ -138,13 +133,10 @@ install-grok() {
     exit "${grok_install_code}"
   fi
 
-  # Hotfix the uwsgi error
-  pushd /opt/numenta/grok
-  pip install uwsgi --upgrade
-  if [ $? != 0 ]; then
-    echo "uwsgi install/upgrade failed"
-    exit 1
-  fi
+  pushd "${PRODUCTS}"
+    complain "Running install-grok.sh"
+
+    install-grok.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
   popd
 }
 
@@ -160,6 +152,6 @@ start-grok() {
 
 
 install-prerequisites-and-update-repos
-run-salt
 install-grok
+run-salt
 start-grok
