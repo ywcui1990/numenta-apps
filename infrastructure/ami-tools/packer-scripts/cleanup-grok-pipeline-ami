@@ -65,7 +65,7 @@ reset_mysql_and_rabbit_passwords() {
       exit 1
     fi
   fi
-  sed -i.bak "s/passwd.*$/passwd\ =\ ${default_mysql_password}/g" "${NUMENTA_D}"/grok/conf/grok-app.tpl
+  sed -i.bak "s/passwd.*$/passwd\ =\ ${default_mysql_password}/g" "${NUMENTA_D}"/grok/conf/application.tpl
 
   echo "Resetting rabbitmq password for user guest"
   rabbitmqctl change_password guest ${default_rabbit_password}
