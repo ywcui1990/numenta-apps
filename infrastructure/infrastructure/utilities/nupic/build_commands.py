@@ -462,17 +462,13 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger):
   # If this is a release version, then update __init__.py with the right
   # version number. This will ensure the proper version number is tagged in
   # the wheel file
-  nupicRoot = os.path.join(buildWorkspace, "nupic")
-  with changeToWorkingDir(nupicRoot):
-    with open(VERSION_FILE, "r") as f:
-      currentVersion = f.read().strip()
-    if isReleaseVersion(nupicBranch, nupicSha):
-      newVersion = nupicSha
-    else:
-      newVersion = currentVersion[:-1] + git.getCommitCount(nupicRoot)
-    for targetFile in [VERSION_FILE, DOXYFILE, INIT_FILE]:
-      logger.debug("\tUpdating %s...", targetFile)
-      replaceInFile(currentVersion, newVersion, targetFile)
+  if isReleaseVersion(nupicBranch, nupicSha):
+    with changeToWorkingDir(os.path.join(buildWorkspace, "nupic")):
+      with open(VERSION_FILE, "r") as f:
+        devVersion = f.read().strip()
+      for targetFile in [VERSION_FILE, DOXYFILE, INIT_FILE]:
+        logger.debug("\tUpdating %s...", targetFile)
+        replaceInFile(devVersion, nupicSha, targetFile)
 
   nupicCoreRemote, nupicCoreSHA = getNuPICCoreDetails(env, logger)
 
