@@ -94,7 +94,7 @@ run-salt() {
   echo "Setting Salt minion_id to grok-server"
   echo grok-server > /etc/salt/minion_id
 
-  yum install -y grok-saltcellar
+  ln -s "${PRODUCTS}/infrastructure/saltcellar" "/srv/salt"
 
   # We need to install grok-private-settings to get WUFOO and S3 configuration
   # information
@@ -133,7 +133,11 @@ install-grok() {
     exit "${grok_install_code}"
   fi
 
+  pushd "${NUMENTA}"
+    log_info "Running install_grok.sh"
 
+    install-grok.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
+  popd
 }
 
 start-grok() {

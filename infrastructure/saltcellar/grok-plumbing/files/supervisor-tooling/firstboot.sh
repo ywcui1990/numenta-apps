@@ -57,14 +57,6 @@ else
   die "Could not load supervisord.vars"
 fi
 
-run_pip_installs_if_needed() {
-  pushd "${NUMENTA}"
-    log_info "Running install_grok.sh"
-
-    install-grok.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
-  popd
-}
-
 initialize_grok() {
   pushd "${GROK_HOME}"
     log_info "Running grok init"
@@ -131,7 +123,6 @@ if [ -f "${STAMPFILE}" ]; then
   exit 0
 fi
 
-run_pip_installs_if_needed
 initialize_grok
 set_grok_edition
 update_grok_quota
