@@ -28,9 +28,8 @@ from htmengine.model_checkpoint_mgr.model_checkpoint_mgr import \
     ModelCheckpointMgr, ModelNotFound, ModelAlreadyExists
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
-from grok.test_utils.engine.model_checkpoint_test_utils import \
-    ModelCheckpointStoragePatch #TODO: Get rid of this line!
-
+from htmengine.test_utils.model_checkpoint_test_utils import \
+    ModelCheckpointStoragePatch
 
 # Disable warning: Access to a protected member
 # pylint: disable=W0212
@@ -40,12 +39,12 @@ from grok.test_utils.engine.model_checkpoint_test_utils import \
 
 
 
-@ModelCheckpointStoragePatch() #TODO: Get rid of this
+@ModelCheckpointStoragePatch()
 class TestModelCheckpointMgr(unittest.TestCase):
 
 
   def testStorageDirOverrideViaEnvironmentVariable(self):
-    with ModelCheckpointStoragePatch() as storagePatch: #TODO: Get rid of this
+    with ModelCheckpointStoragePatch() as storagePatch:
       checkpointMgr = ModelCheckpointMgr()
 
       tempModelCheckpointDir = storagePatch.tempModelCheckpointDir
