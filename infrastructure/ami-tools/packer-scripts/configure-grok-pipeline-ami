@@ -134,7 +134,7 @@ install-grok() {
   fi
 
   pushd "${NUMENTA}"
-    log_info "Running install_grok.sh"
+    log_info "Running install-grok.sh"
 
     install-grok.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
   popd
