@@ -23,6 +23,7 @@
 from collections import namedtuple
 
 from boto.dynamodb2.fields import HashKey, RangeKey, GlobalAllIndex
+from boto.dynamodb2.types import NUMBER
 
 import taurus.engine
 from taurus.engine.runtime.dynamodb.definitions.dynamodbdefinition import (
@@ -45,7 +46,7 @@ class MetricTweetsDynamoDBDefinition(DynamoDBDefinition):
   def tableCreateKwargs(self):
     return dict(
       schema=[
-        HashKey("metric_name_tweet_uid"),
+        HashKey("text"),
         RangeKey("agg_ts")
       ],
       throughput={
@@ -58,7 +59,7 @@ class MetricTweetsDynamoDBDefinition(DynamoDBDefinition):
           "taurus.metric_data-metric_name_index",
           parts=[
             HashKey("metric_name"),
-            RangeKey("agg_ts")
+            RangeKey("sort_key", data_type=NUMBER)
           ],
           throughput={
             "read": (
@@ -86,6 +87,8 @@ class MetricTweetsDynamoDBDefinition(DynamoDBDefinition):
         "text",
         "userid",
         "username",
-        "retweet_count"
+        "retweet_count",
+        "copy_count",
+        "sort_key"
       )
     )
