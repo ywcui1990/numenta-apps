@@ -133,8 +133,8 @@ install-grok() {
     exit "${grok_install_code}"
   fi
 
-  pushd "${NUMENTA}"
-    log_info "Running install-grok.sh"
+  pushd "${PRODUCTS}"
+    complain "Running install-grok.sh"
 
     install-grok.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
   popd
@@ -152,6 +152,6 @@ start-grok() {
 
 
 install-prerequisites-and-update-repos
-run-salt
 install-grok
+run-salt
 start-grok
