@@ -47,7 +47,7 @@ from infrastructure.utilities.s3 import (downloadFileFromS3,
 g_config = yaml.load(resource_stream(__name__, "../conf/config.yaml"))
 
 
-S3_YUM_BUCKET = "yum.groksolutions.com"
+S3_YUM_BUCKET = "public.groksolutions.com"
 
 
 
@@ -205,7 +205,7 @@ def downloadGrokRPM(grokSHA, workDir):
   g_logger.debug("Found grok RPM name %s, downloading", grokRpmName)
   with changeToWorkingDir(workDir):
     downloadFileFromS3(bucketName=S3_YUM_BUCKET,
-                       path="s3/x86_64/%s" % grokRpmName,
+                       path="yum/x86_64/%s" % grokRpmName,
                        logger=g_logger)
   return "%s/%s" % (workDir, grokRpmName)
 
