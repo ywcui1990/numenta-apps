@@ -29,7 +29,7 @@ from htmengine.model_checkpoint_mgr.model_checkpoint_mgr import \
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
 from grok.test_utils.engine.model_checkpoint_test_utils import \
-    ModelCheckpointStoragePatch
+    ModelCheckpointStoragePatch #TODO: Get rid of this line!
 
 
 # Disable warning: Access to a protected member
@@ -40,12 +40,12 @@ from grok.test_utils.engine.model_checkpoint_test_utils import \
 
 
 
-@ModelCheckpointStoragePatch()
+@ModelCheckpointStoragePatch() #TODO: Get rid of this
 class TestModelCheckpointMgr(unittest.TestCase):
 
 
   def testStorageDirOverrideViaEnvironmentVariable(self):
-    with ModelCheckpointStoragePatch() as storagePatch:
+    with ModelCheckpointStoragePatch() as storagePatch: #TODO: Get rid of this
       checkpointMgr = ModelCheckpointMgr()
 
       tempModelCheckpointDir = storagePatch.tempModelCheckpointDir
