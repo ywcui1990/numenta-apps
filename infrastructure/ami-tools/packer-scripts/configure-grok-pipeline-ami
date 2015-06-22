@@ -122,17 +122,6 @@ install-grok() {
   echo "Installing Grok..."
   yum install -y "${GROK_RPM_NAME}"
 
-  # We don't want to pollute the releases repository with non-release RPMs,
-  # so tell install-grok-packages to use the x86_64 repo.
-  install-grok-packages --log-level debug \
-    --repository x86_64 \
-    --configuration-file /etc/grok/grok-manifest.json
-  grok_install_code=$?
-  if [ $grok_install_code != 0 ]; then
-    echo "Grok install failed with exit code ${grok_install_code}"
-    exit "${grok_install_code}"
-  fi
-
   pushd "${PRODUCTS}"
     complain "Running install-grok.sh"
 
