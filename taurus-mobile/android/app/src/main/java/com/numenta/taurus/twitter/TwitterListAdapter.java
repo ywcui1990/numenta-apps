@@ -22,6 +22,7 @@
 
 package com.numenta.taurus.twitter;
 
+import com.numenta.core.utils.DataUtils;
 import com.numenta.taurus.R;
 import com.numenta.taurus.data.Tweet;
 
@@ -38,6 +39,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * List adapter backed by an list of Tweets used to interface with the backend twitter
+ */
 public class TwitterListAdapter extends BaseAdapter {
 
     private static final String TAG = TwitterListAdapter.class.getSimpleName();
@@ -47,6 +51,9 @@ public class TwitterListAdapter extends BaseAdapter {
     final List<Tweet> _tweetList;
 
     final LayoutInflater _inflater;
+
+    /** Tolerate up to 30 minutes when positioning via timestamp */
+    static final long TIMESTAMP_TOLERANCE = 30 * DataUtils.MILLIS_PER_MINUTE;
 
     public void add(Tweet tweet) {
         _tweetList.add(tweet);
@@ -188,18 +195,18 @@ public class TwitterListAdapter extends BaseAdapter {
 
     /**
      * Returns the position of the item with the maximum aggregation count whose timestamp is
-     * within the given range based on the timestamp value and a tolerance value.
+     * within the given range based on the timestamp value and a default tolerance value.
      * The time range to search for the max value is [timestamp-tolerance, timestamp+tolerance].
      *
      * @param timestamp The timestamp to check (unix time)
-     * @param tolerance The extra tolerance in milliseconds
      * @return The position of the first item or -1 if not found
+     * @see #TIMESTAMP_TOLERANCE
      */
-    public int getPositionByTimestamp(long timestamp, long tolerance) {
+    public int getPositionByTimestamp(long timestamp) {
         int count = getCount();
         Tweet item;
-        long lowerBound = timestamp - tolerance;
-        long upperBound = timestamp + tolerance;
+        long lowerBound = timestamp - TIMESTAMP_TOLERANCE;
+        long upperBound = timestamp + TIMESTAMP_TOLERANCE;
         int pos = -1;
         int maxValue = -1;
         for (int i = 0; i < count; i++) {

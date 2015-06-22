@@ -93,9 +93,6 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
     /** The selected timestamp to position */
     public static final String SELECTED_TIMESTAMP_ARG = "selected";
 
-    /** Tolerate up to 30 minutes when positioning via timestamp */
-    private static final long TIMESTAMP_TOLERANCE = 30 * DataUtils.MILLIS_PER_MINUTE;
-
     /** Sort tweets by time > retweet count > retweet total > id */
     static Comparator<Tweet> SORT_BY_DATE = new Comparator<Tweet>() {
         @Override
@@ -296,8 +293,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
      */
     private void scrollTo(long timestamp) {
         if (_listView != null) {
-            int position = _twitterListAdapter.getPositionByTimestamp(timestamp,
-                    TIMESTAMP_TOLERANCE);
+            int position = _twitterListAdapter.getPositionByTimestamp(timestamp);
             _listView.setSelection(position < 0 ? 0 : position);
         }
     }
@@ -516,8 +512,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 _buckets.clear();
 
                 // Find selected timestamp
-                final int position = _twitterListAdapter.getPositionByTimestamp(_initialTimestamp,
-                        TIMESTAMP_TOLERANCE);
+                final int position = _twitterListAdapter.getPositionByTimestamp(_initialTimestamp);
                 if (position >= 0) {
                     _listView.post(new Runnable() {
                         @Override
@@ -560,8 +555,8 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
 
                         // Find max count value within time tolerance
                         SortedMap<Long, Integer> valuesInRange = _tweetCountByDate
-                                .subMap(selectedTimestamp - TIMESTAMP_TOLERANCE,
-                                        selectedTimestamp + TIMESTAMP_TOLERANCE + 1);
+                                .subMap(selectedTimestamp - _twitterListAdapter.TIMESTAMP_TOLERANCE,
+                                        selectedTimestamp + _twitterListAdapter.TIMESTAMP_TOLERANCE + 1);
                         int max = -1;
                         for(SortedMap.Entry<Long, Integer> entry : valuesInRange.entrySet()) {
                             if (entry.getValue() > max) {
