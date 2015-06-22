@@ -34,7 +34,7 @@ WEB_CONFIG="ami-configurations/salt-webserver.json"
 epel_rpm = "epel-release-6-8.noarch.rpm"
 epel_rpm_url = "http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
 s3_yum_plugin_rpm = "yum-s3-0.2.4-1.noarch.rpm"
-s3_yum_plugin_url = "https://s3-us-west-2.amazonaws.com/yum.groksolutions.com/s3/thirdparty/yum-s3-0.2.4-1.noarch.rpm"
+s3_yum_plugin_url = "https://s3-us-west-2.amazonaws.com/public.numenta.com/yum/thirdparty/yum-s3-0.2.4-1.noarch.rpm"
 secretsauce_repo_f = "repos/secretsauce.repo"
 
 task :help do

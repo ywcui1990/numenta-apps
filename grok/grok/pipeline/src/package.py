@@ -107,8 +107,8 @@ def checkExistsOnS3(rpmName):
     :param rpmName: The actuall rpm name which needs to be checked.
     :returns: True if the rpm exists on S3 else False
   """
-  bucket = s3.getS3Connection().get_bucket("yum.groksolutions.com")
-  key = bucket.get_key(os.path.join("/s3/x86_64", "%s" % rpmName))
+  bucket = s3.getS3Connection().get_bucket("public.numenta.com")
+  key = bucket.get_key(os.path.join("/yum/x86_64", "%s" % rpmName))
   return True if key else False
 
 
