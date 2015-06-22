@@ -88,7 +88,9 @@ def prepareEnv(workspace, nupicBuildDir=None, environ=None):
     PY_VERSION=sys.version[:3],
     PRODUCTS=os.path.join(workspace, "products"),
     GROK_HOME=os.path.join(workspace, "products", "grok"),
-    LD_LIBRARY_PATH=environ.get("LD_LIBRARY_PATH")
+    LD_LIBRARY_PATH=environ.get("LD_LIBRARY_PATH"),
+    PYPI_USER_NAME=environ.get("PYPI_USER_NAME"),
+    PYPI_PASSWORD=environ.get("PYPI_PASSWORD")
   )
 
   env.update(
