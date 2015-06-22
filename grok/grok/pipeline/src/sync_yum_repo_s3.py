@@ -81,7 +81,8 @@ def syncRepoWithS3(pipelineJson, pipelineParams, repoName):
                 key_filename=serverKey, user=g_config["USER"],
                 connection_attempts=10, warn_only=True):
     g_logger.info("Updating repo to sync S3 repo")
-    result = run("update-individual-repo %s" % repoName)
+    result = run("cd %s && ./update-individual-repo %s" % (
+                 g_config["YUM_REPO_TOOLS_PATH"], repoName))
 
   message = ""
   if result.return_code:
