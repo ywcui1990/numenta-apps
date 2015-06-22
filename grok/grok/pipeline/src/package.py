@@ -262,6 +262,7 @@ def buildRpms(env, grokSha, releaseVersion,
                        " --whitelist grok" +
                        " --whitelist nta.utils" +
                        " --whitelist htmengine" +
+                       " --whitelist infrastructure" +
                        " --whitelist install-grok.sh" +
                        " --base-version " + releaseVersion +
                        " --description Grok-installed-from-products-repo" +
@@ -271,6 +272,7 @@ def buildRpms(env, grokSha, releaseVersion,
                        " --log-level debug" +
                        " --setup-py-dir nta.utils" +
                        " --setup-py-dir htmengine" +
+                       " --setup-py-dir infrastructure" +
                        " --extend-pythonpath grok/lib/python2.7/site-packages" +
                        " --sha " + grokSha +
                        " --artifact opt" +
