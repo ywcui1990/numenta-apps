@@ -280,8 +280,10 @@ def buildNuPIC(env, logger):
 
       # build the wheel
       command = ("python setup.py bdist_wheel bdist_egg --nupic-core-dir=%s " 
-                 "upload -r numenta-pypi" % os.path.join(env["NUPIC_CORE_DIR"],
-                                                         "build", "release"))
+                 "upload -r https://%s:%spypi.numenta.com" % (
+                    os.path.join(env["NUPIC_CORE_DIR"], "build", "release"),
+                    env["PYPI_USER_NAME"],
+                    env["PYPI_PASSWORD"]))
       runWithOutput(command, env=env, logger=logger)
     except:
       logger.exception("Failed while building nupic")
