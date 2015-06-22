@@ -101,6 +101,16 @@ anaconda-yaml:
       - pip: anaconda-pip
       - pkg: anaconda-python
 
+anaconda-numpy:
+  pip.installed:
+    - name: numpy == 1.9.2
+    - bin_env: /opt/numenta/anaconda/bin/pip
+    - watch_in:
+      - cmd: enforce-anaconda-permissions
+    - require:
+      - pip: anaconda-pip
+      - pkg: anaconda-python
+
 # Install a python2.7 symlink so /usr/bin/env python2.7 will work
 python-27-symlink:
   file.symlink:
