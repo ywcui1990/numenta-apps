@@ -86,7 +86,9 @@ install-prerequisites-and-update-repos() {
   yum remove -y numenta-infrastructure-common grok-updater
 
   # Ensure our pip is current
+  export PYTHONPATH="${NUMENTA}/anaconda/lib/python2.7/site-packages"
   pip install --upgrade pip
+  pip install numpy==1.9.2
 }
 
 run-salt() {
