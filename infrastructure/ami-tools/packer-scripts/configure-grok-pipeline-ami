@@ -29,6 +29,7 @@ AMIBUILD_LOCK=/tmp/baking-ami
 NUMENTA=/opt/numenta
 PRODUCTS="${NUMENTA}/products"
 touch "${AMIBUILD_LOCK}"
+S3_ROOT_URL="https://s3-us-west-2.amazonaws.com/public.numenta.com/yum/x86_64/"
 
 complain() {
   echo "$@"
@@ -120,12 +121,20 @@ run-salt() {
 install-grok() {
   splat
   echo "Installing Grok..."
-  yum install -y "${GROK_RPM_NAME}"
+  yum install -y "${S3_ROOT_URL}${GROK_RPM_NAME}"
+  if [ $? != 0 ]; then
+    echo "Failed to install Grok RPM"
+    exit 1
+  fi
 
   pushd "${PRODUCTS}"
     complain "Running install-grok.sh"
 
     install-grok.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
+    if [ $? != 0 ]; then
+      echo "Failed to install Grok"
+      exit 1
+    fi
   popd
 }
 
