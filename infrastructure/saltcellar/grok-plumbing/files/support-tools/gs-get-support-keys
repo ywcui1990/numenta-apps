@@ -38,7 +38,7 @@ def printGrokSupportPubkey(conn):
   bucket = conn.get_bucket(BUCKET, validate=False)
   k = Key(bucket)
 
-  k.key = "/yum/public/GrokSupport.pubkeys"
+  k.key = "/resources/GrokSupport.pubkeys"
   print k.get_contents_as_string()
 
 
