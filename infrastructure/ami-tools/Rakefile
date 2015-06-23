@@ -122,7 +122,7 @@ task :bake_grok_pipeline => [:products_sha,
                              :epel_repo,
                              :grok_repos,
                              :validate_grok_pipeline ] do
-  sh %{ packer build -var 'grok_install_manifest=#{ENV["GROK_INSTALL_MANIFEST"]}' \
+  sh %{ packer build -var 'grok_rpm_name=#{ENV["GROK_RPM_NAME"]}' \
        -var 'ami_name=#{ENV["AMI_NAME"]}' #{GROK_PIPELINE_CONFIG} }
 end
 
