@@ -31,7 +31,6 @@ from datetime import datetime, timedelta
 from decimal import Context, Underflow, Clamped, Overflow
 import json
 import os
-import re
 import sys
 
 import boto.dynamodb2
@@ -39,12 +38,10 @@ from boto.dynamodb2.exceptions import (
     ConditionalCheckFailedException, ItemNotFound, ResourceNotFoundException,
     ValidationException, ProvisionedThroughputExceededException)
 from boto.dynamodb2.table import Table
-from boto.dynamodb2.types import NonBooleanDynamizer
 from boto.exception import JSONResponseError
 
 from nta.utils import amqp
 from nta.utils import error_handling
-from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 
 import taurus.engine
 from taurus.engine import taurus_logging
@@ -63,7 +60,6 @@ from taurus.engine import logging_support
 
 
 g_log = taurus_logging.getExtendedLogger(__name__)
-dynamizer = NonBooleanDynamizer()
 
 
 
@@ -146,7 +142,6 @@ def convertInferenceResultRowToMetricDataItem(metricId, row):
 
 
 
-
 class DynamoDBService(object):
   """ Binds a "dynamodb" queue to:
       - The model results fanout exchange defined in the
@@ -210,19 +205,6 @@ class DynamoDBService(object):
       self._gracefulCreateTable(MetricTweetsDynamoDBDefinition()))
     self._instance_data_hourly = self._gracefulCreateTable(
         InstanceDataHourlyDynamoDBDefinition())
-
-
-  @staticmethod
-  def _constructSortKey(agg_ts):
-    """ Construct an initial sort key by converting agg_ts to an epoch time,
-    and multiply it by some power of 10.  On update, the key will be
-    incremented by one atomically.  The original range queries will be
-    preserved while allowing a response with tweets sorted by popularity
-    within the time range bucket
-    """
-    ts = epochFromNaiveUTCDatetime(datetime.strptime(agg_ts.partition(".")[0],
-                                                     "%Y-%m-%dT%H:%M:%S"))
-    return int(ts * 1e5)
 
 
   @staticmethod
@@ -303,7 +285,7 @@ class DynamoDBService(object):
                       "row=%r from batchLen=%d", data, row, len(rows))
           continue
 
-        dynamodbBatchWrite.put_item(data=data._asdict(), overwrite=False)
+        dynamodbBatchWrite.put_item(data=data._asdict(), overwrite=True)
         processedKeys.add(key)
 
 
@@ -491,84 +473,22 @@ class DynamoDBService(object):
                                     batch["results"])
 
 
-  def _handleNonMetricTweetData(self, body,
-      _filter=re.compile("(?:^RT\\s+)?(.+?)(?:\\s+https?:\\/\\/\\S+\\s*)*$")):
+  def _handleNonMetricTweetData(self, body):
     """ Twitter handler. Publishes non-metric data to DynamoDB for twitter
     data pulled off of the `dynamodb` queue.
 
     :param str body: Incoming message payload as a JSON-encoded list of objects,
       with each object per
       ``taurus/metric_collectors/twitterdirect/tweet_export_schema.json``
-    :param _sre.SREPattern _filter: Compiled regex used to filter duplicate
-      tweets. The current logic removes optional "RT " from the beginning of
-      the text and optional URL from the end of the text.
-
-      For example:
-        RT @Company: Watch it again:  the story of John Doe.\nhttps://t.co/yWd0
-        RT @Company: Watch it again:  the story of John Doe.\nhttps://t.co/sdSA
-        @Company: Watch it again:  the story of John Doe.\nhttps://t.co/yWd0
-        @Company: Watch it again:  the story of John Doe.\nhttps://t.co/yWd1
-
-      All translate to:
-        @Company: Watch it again:  the story of John Doe.
     """
     payload = json.loads(body)
     g_log.info("Handling %d non-metric tweet item(s)", len(payload))
-    for item in payload:
-
-      item["metric_name_tweet_uid"] = (
-        "-".join((item["metric_name"], item["tweet_uid"])))
-
-      # Gracefully filter "RT" prefix and URL suffix
-      match = _filter.match(item["text"])
-      if match is not None:
-        item["text"] = match.group(1)
-      tweet_text = item["text"]
-      item["copy_count"] = 0
-      item["sort_key"] = self._constructSortKey(item["agg_ts"])
-
-      data = MetricTweetsDynamoDBDefinition().Item(**item)
-
-      # First, attempt to write out metric tweet.  If a duplicate composite
-      # hash-range primary key exists (filtered text + hour), a
-      # ConditionalCheckFailedException will be raised.  In response, attempt
-      # to atomically update the "copy_count" using a conditional write
-      # operation, increasing the value by 1
-
-      @_RETRY_ON_TRANSIENT_DYNAMODB_ERROR
-      def putItemWithRetries():
-        self._metric_tweets.put_item(data._asdict(), overwrite=False)
-
-      try:
-        putItemWithRetries()
-      except ConditionalCheckFailedException:
-
-        updateKey = {"text": dynamizer.encode(tweet_text),
-                     "agg_ts": dynamizer.encode(item["agg_ts"])}
-        updateValues = {":incr": dynamizer.encode(1)}
-        updateExpression = "ADD copy_count :incr, sort_key :incr"
-        updateCondition = "attribute_exists(copy_count)"
-
-        @_RETRY_ON_TRANSIENT_DYNAMODB_ERROR
-        def updateItemWithRetries():
-          self.dynamodb.update_item(self._metric_tweets.table_name,
-                                    updateKey,
-                                    condition_expression=updateCondition,
-                                    update_expression=updateExpression,
-                                    expression_attribute_values=updateValues)
-
-        try:
-          updateItemWithRetries()
-          g_log.info("Duplicate tweet.  Atomically increased copy_count of "
-                     "original tweet.  text=%s; agg_ts=%s;",
-                     tweet_text, item["agg_ts"])
-        except Exception:
-          g_log.exception("Atomic update failed: table=%s; "
-                          "updateKey=%s; condition_expression=%s; "
-                          "expression_attribute_values=%s;",
-                          self._metric_tweets.table_name, updateKey,
-                          updateCondition, updateExpression, updateValues)
-          raise
+    with self._metric_tweets.batch_write() as dynamodbBatchWrite:
+      for item in payload:
+        item["metric_name_tweet_uid"] = (
+          "-".join((item["metric_name"], item["tweet_uid"])))
+        data = MetricTweetsDynamoDBDefinition().Item(**item)
+        dynamodbBatchWrite.put_item(data=data._asdict(), overwrite=True)
 
 
   def _purgeMetricFromDynamoDB(self, uid):
@@ -688,8 +608,9 @@ class DynamoDBService(object):
     # more simultaneous processes.
 
     amqpClient.bindQueue(exchange=self._nonMetricDataExchange,
-                         queue=result.queue,
-                         routingKey="#")  # substitute for zero or more words.
+                           queue=result.queue,
+                           routingKey="#")  # substitute for zero or more
+                                             # words.
 
 
   def run(self):
