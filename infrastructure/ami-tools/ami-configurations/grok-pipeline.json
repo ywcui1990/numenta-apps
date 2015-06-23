@@ -59,6 +59,11 @@
       "type": "file"
     },
     {
+      "destination": "/tmp/epel.repo",
+      "source": "repos/epel.repo",
+      "type": "file"
+    },
+    {
       "inline": [
         "echo 'Sleeping for 30s, waiting for system to settle down.'",
         "sleep 30",

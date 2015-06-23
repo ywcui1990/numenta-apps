@@ -77,7 +77,8 @@ install-prerequisites-and-update-repos() {
               grok-release-candidates.repo \
               grok-releases.repo \
               nta-carbonite.repo \
-              nta-thirdparty.repo
+              nta-thirdparty.repo \
+              epel.repo
   do
     echo "Installing ${repo}..."
     mv "/tmp/${repo}" /etc/yum.repos.d
@@ -85,7 +86,6 @@ install-prerequisites-and-update-repos() {
   yum clean all
   yum makecache
   yum repolist
-  rpm -qa
 
   yum remove -y numenta-infrastructure-common grok-updater
 
