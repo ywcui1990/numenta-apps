@@ -23,7 +23,6 @@
 # This should only contain settings specific to Grok Plumbing AMIs
 
 source /etc/grok/supervisord.vars
-env | sort
 
 echo "Marking instance as being an AMI build..."
 AMIBUILD_LOCK=/tmp/baking-ami
@@ -83,8 +82,10 @@ install-prerequisites-and-update-repos() {
     echo "Installing ${repo}..."
     mv "/tmp/${repo}" /etc/yum.repos.d
   done
+  yum clean all
   yum makecache
   yum repolist
+  rpm -qa
 
   yum remove -y numenta-infrastructure-common grok-updater
 
@@ -102,16 +103,11 @@ run-salt() {
   echo "Setting Salt minion_id to grok-server"
   echo grok-server > /etc/salt/minion_id
 
+  # clean any existing salt states and point to the grok salt cellar
+  rm -rf /srv/salt
   ln -s "${PRODUCTS}/infrastructure/saltcellar" /srv/salt
 
-  # We need to install grok-private-settings to get WUFOO and S3 configuration
-  # information
-  yum install -y grok-private-settings
-
   echo "Running Salt..."
-  source /etc/grok/supervisord.vars
-  env | sort
-  which python
   run-salt-solo | tee /tmp/saltrun.log
 
   # Salt exits zero unless the process crashes, even if there are failures in
@@ -133,6 +129,14 @@ install-grok() {
   yum install -y "${S3_ROOT_URL}${GROK_RPM_NAME}"
   if [ $? != 0 ]; then
     echo "Failed to install Grok RPM"
+    exit 1
+  fi
+
+  # We need to install grok-private-settings to get WUFOO and S3 configuration
+  # information
+  yum install -y grok-private-settings
+  if [ $? != 0 ]; then
+    echo "Failed to install Grok private settings"
     exit 1
   fi
 
