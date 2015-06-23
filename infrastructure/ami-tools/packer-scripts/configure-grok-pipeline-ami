@@ -111,6 +111,7 @@ run-salt() {
   echo "Running Salt..."
   source /etc/grok/supervisord.vars
   env | sort
+  which python
   run-salt-solo | tee /tmp/saltrun.log
 
   # Salt exits zero unless the process crashes, even if there are failures in
