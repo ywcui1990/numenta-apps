@@ -79,8 +79,6 @@ if [ -f ${STAMPFILE} ]; then
   exit 0
 fi
 
-# set-mysql-root-password
-# set-rabbitmq-root-password
 chown -R ec2-user:ec2-user /opt/numenta/products/grok
 
 date > ${STAMPFILE}

@@ -129,6 +129,10 @@ install-grok() {
     exit 1
   fi
 
+  echo "Creating symlink to /opt/numenta/grok and setting permissions"
+  ln -s ${BUILD_WORKSPACE}/products/grok /opt/numenta/grok
+  chown -R ec2-user:ec2-user /opt/numenta/products
+
   pushd "${PRODUCTS}"
     complain "Running install-grok.sh"
 
