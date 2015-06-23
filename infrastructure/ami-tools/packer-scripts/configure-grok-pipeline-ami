@@ -22,8 +22,6 @@
 #
 # This should only contain settings specific to Grok Plumbing AMIs
 
-source /etc/grok/supervisord.vars
-
 echo "Marking instance as being an AMI build..."
 AMIBUILD_LOCK=/tmp/baking-ami
 NUMENTA=/opt/numenta
@@ -57,7 +55,14 @@ splat() {
 
 install-prerequisites-and-update-repos() {
   splat
+  # clean any stale /etc/grok and remake the folder
+  rm -rf /etc/grok
   mkdir -p /etc/grok
+
+  echo "Creating symlink for supervisord.vars"
+  ln -s "${PRODUCTS}/grok/supervisord.vars" /etc/grok/supervisord.vars
+  echo "Sourcing supervisord.vars..."
+  source /etc/grok/supervisord.vars
 
   echo "Engraving products SHA and build timestamp into AMI"
   cp /tmp/products.sha /etc/grok/ami-operations.sha
@@ -104,18 +109,18 @@ run-salt() {
   # information
   yum install -y grok-private-settings
 
-  # Make sure /opt/numenta/grok is absent so we can create a symlink later.
-  rm -fr /opt/numenta/grok
-
   echo "Running Salt..."
   run-salt-solo | tee /tmp/saltrun.log
-  saltcode=$?
+
+  # Salt exits zero unless the process crashes, even if there are failures in
+  # particular states.
+  salt_err_count=`grep -ic "Result: False" /tmp/saltrun.log`
   echo
   echo "post run-salt-solo"
-  if [ "${saltcode}" != 0 ]; then
-    echo "Salt failed with exit code ${saltcode}"
-    grep -i fail /tmp/saltrun.log
-    exit "${saltcode}"
+  if [ "${salt_err_count}" != 0 ]; then
+    echo "Salt failed with ${salt_err_count} failures"
+    grep -i "Result: False" /tmp/saltrun.log
+    exit "${salt_err_count}"
   fi
   rm -f /tmp/saltrun.log
 }
@@ -130,7 +135,8 @@ install-grok() {
   fi
 
   echo "Creating symlink to /opt/numenta/grok and setting permissions"
-  ln -s ${BUILD_WORKSPACE}/products/grok /opt/numenta/grok
+  rm -fr /opt/numenta/grok
+  ln -s "${PRODUCTS}/grok" /opt/numenta/grok
   chown -R ec2-user:ec2-user /opt/numenta/products
 
   pushd "${PRODUCTS}"
