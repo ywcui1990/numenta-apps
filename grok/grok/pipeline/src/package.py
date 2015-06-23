@@ -256,7 +256,6 @@ def buildRpms(env, grokSha, releaseVersion,
             command = ("%s/create-numenta-rpm" % infrastuctureCommonPath +
                        " --rpm-flavor grok" +
                        " --debug" +
-                       " --postinstall-script post_install_grok" +
                        " --cleanup-script grok/grok/pipeline/scripts/rpm-creator" +
                        "/clean-grok-tree-for-packaging" +
                        " --whitelist grok" +

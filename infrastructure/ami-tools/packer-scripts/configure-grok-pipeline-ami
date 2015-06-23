@@ -23,6 +23,8 @@
 # This should only contain settings specific to Grok Plumbing AMIs
 
 source /etc/grok/supervisord.vars
+echo "Cat original supervisord.vars:"
+cat /etc/grok/supervisord.vars
 
 echo "Marking instance as being an AMI build..."
 AMIBUILD_LOCK=/tmp/baking-ami
@@ -90,8 +92,8 @@ install-prerequisites-and-update-repos() {
   # Ensure our pip is current
   export PATH="${NUMENTA}/anaconda/bin:${PATH}"
   export PYTHONPATH="${NUMENTA}/anaconda/lib/python2.7/site-packages"
-  pip install --upgrade pip
-  pip install numpy==1.9.2
+  "${NUMENTA}/anaconda/bin/pip" install --upgrade pip
+  "${NUMENTA}/anaconda/bin/pip" install numpy==1.9.2
 }
 
 run-salt() {
