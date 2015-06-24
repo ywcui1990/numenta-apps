@@ -95,7 +95,6 @@ firstboot-root-helper:
     - require:
       - file: set-mysql-root-password
       - file: set-rabbitmq-root-password
-      - file: supervisord.vars
 
 firstboot-helper:
   file.managed:
@@ -107,7 +106,6 @@ firstboot-helper:
     - require:
       - file: set-mysql-root-password
       - file: set-rabbitmq-root-password
-      - file: supervisord.vars
 
 # Password helpers
 set-mysql-root-password:
