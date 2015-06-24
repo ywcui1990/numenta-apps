@@ -55,7 +55,6 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -92,9 +91,6 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
 
     /** The selected timestamp to position */
     public static final String SELECTED_TIMESTAMP_ARG = "selected";
-
-    /** Tolerate up to 30 minutes when positioning via timestamp */
-    private static final long TIMESTAMP_TOLERANCE = 30 * DataUtils.MILLIS_PER_MINUTE;
 
     /** Sort tweets by time > retweet count > retweet total > id */
     static Comparator<Tweet> SORT_BY_DATE = new Comparator<Tweet>() {
@@ -215,7 +211,6 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
         // Add "grey" filler as list footer. This footer will allow us to scroll to the last tweet.
         _listView.addFooterView(getLayoutInflater().inflate(R.layout.twitter_list_footer, null));
         _twitterListAdapter = new TwitterListAdapter(this);
-        _listView.setFastScrollEnabled(true);
         _listView.setAdapter(_twitterListAdapter);
         _listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -296,9 +291,10 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
      */
     private void scrollTo(long timestamp) {
         if (_listView != null) {
-            int position = _twitterListAdapter.getPositionByTimestamp(timestamp,
-                    TIMESTAMP_TOLERANCE);
-            _listView.setSelection(position < 0 ? 0 : position);
+            int position = _twitterListAdapter.getPositionByTimestamp(timestamp);
+            if (position != -1) {
+                _listView.setSelection(position);
+            }
         }
     }
 
@@ -409,7 +405,8 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
 
             long _bucketTimestamp = Long.MAX_VALUE;
 
-            long _initialTimestamp = getIntent().getLongExtra(SELECTED_TIMESTAMP_ARG, 0);
+            // Initial selection
+            long _timestampToSelect = -1;
 
             // Group tweets with the same text and re-tweets into buckets
             TreeMap<Tweet, Integer> _buckets = new TreeMap<Tweet, Integer>(SORT_BY_TEXT);
@@ -485,7 +482,6 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
             @Override
             protected void onPostExecute(Void param) {
                 // Make sure to flush last tweets
-                flushBucket();
                 _loading = false;
             }
 
@@ -498,6 +494,12 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 }
                 Tweet tweet;
                 Integer count;
+
+                // Save current scroll position and item
+                final int topIndex = _listView.getFirstVisiblePosition();
+                final Tweet topItem = (Tweet) _listView.getItemAtPosition(topIndex);
+
+                _twitterListAdapter.setNotifyDataSetChanged(false);
                 for (Map.Entry<Tweet, Integer> entry : _buckets.entrySet()) {
                     // Update retweet count
                     tweet = entry.getKey();
@@ -515,17 +517,31 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 _twitterListAdapter.sort(SORT_BY_DATE);
                 _buckets.clear();
 
-                // Find selected timestamp
-                final int position = _twitterListAdapter.getPositionByTimestamp(_initialTimestamp,
-                        TIMESTAMP_TOLERANCE);
-                if (position >= 0) {
-                    _listView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            _listView.setSelection(position);
-                        }
-                    });
+                // Check if we need to scroll to selected timestamp
+                if (_timestampToSelect != -1) {
+                    // Find selected timestamp
+                    final int postion = _twitterListAdapter.getPositionByTimestamp(_timestampToSelect);
+                    if (postion != -1) {
+                        _listView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                _listView.setSelection(postion);
+                            }
+                        });
+                    }
+                } else {
+                    // Restore top item
+                    final int postion = _twitterListAdapter.getPositionByTweet(topItem);
+                    if (postion >= 0) {
+                        _listView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                _listView.setSelection(postion);
+                            }
+                        });
+                    }
                 }
+                _twitterListAdapter.notifyDataSetChanged();
             }
 
             /**
@@ -547,8 +563,9 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                         }
                         int total = 0;
                         long selectedTimestamp = 0;
+                        final long initialTimestamp = getIntent().getLongExtra(SELECTED_TIMESTAMP_ARG, 0);
                         for (float val : values) {
-                            if (selectedTimestamp == 0 && time >= _initialTimestamp) {
+                            if (selectedTimestamp == 0 && time >= initialTimestamp) {
                                 selectedTimestamp = time;
                             }
                             if (!Float.isNaN(val) && val > 0) {
@@ -560,8 +577,8 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
 
                         // Find max count value within time tolerance
                         SortedMap<Long, Integer> valuesInRange = _tweetCountByDate
-                                .subMap(selectedTimestamp - TIMESTAMP_TOLERANCE,
-                                        selectedTimestamp + TIMESTAMP_TOLERANCE + 1);
+                                .subMap(selectedTimestamp - _twitterListAdapter.TIMESTAMP_TOLERANCE,
+                                        selectedTimestamp + _twitterListAdapter.TIMESTAMP_TOLERANCE + 1);
                         int max = -1;
                         for(SortedMap.Entry<Long, Integer> entry : valuesInRange.entrySet()) {
                             if (entry.getValue() > max) {
@@ -573,6 +590,10 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                         // When the total number of tweets is very large (500+),
                         // break loading task into smaller chunks to avoid long wait time on the UI
                         if (total > 500) {
+                            // The first item in the list will be the selected timestamp.
+                            // Just keep the list from scrolling
+                            _timestampToSelect = -1;
+
                             // First load data from the user selected date.
                             connection.getTweets(_metric.getName(),
                                     new Date(selectedTimestamp),
@@ -588,36 +609,71 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                             publishProgress();
 
                             // Load rest of the data
-                            if (range.first < selectedTimestamp) {
-                                // Get lower half
-                                connection.getTweets(_metric.getName(),
-                                        new Date(range.first),
-                                        new Date(selectedTimestamp),
-                                        new GrokClient.DataCallback<Tweet>() {
-                                            @Override
-                                            public boolean onData(Tweet tweet) {
-                                                publishProgress(tweet);
-                                                return !isCancelled();
-                                            }
-                                        });
-                                // Force flush current bucket
+                            long left = selectedTimestamp;
+                            long right = selectedTimestamp;
+                            while (left > range.first || right < range.second) {
+                                if (right < range.second) {
+                                    // Load upper half in chunks of 100 tweets at the time
+                                    long to = right + DataUtils.METRIC_DATA_INTERVAL;
+                                    int count = _tweetCountByDate.get(to);
+                                    Integer value;
+                                    while (to < range.second && count < 100) {
+                                        to += DataUtils.METRIC_DATA_INTERVAL;
+                                        value = _tweetCountByDate.get(to);
+                                        if (value == null) {
+                                            break;
+                                        }
+                                        count += value;
+                                    }
+                                    connection.getTweets(_metric.getName(),
+                                            new Date(right),
+                                            new Date(to),
+                                            new GrokClient.DataCallback<Tweet>() {
+                                                @Override
+                                                public boolean onData(Tweet tweet) {
+                                                    publishProgress(tweet);
+                                                    return !isCancelled();
+                                                }
+                                            });
+                                    right = to;
+                                }
+
+                                // Force flush last bucket
+                                publishProgress();
+
+                                if (left > range.first) {
+                                    // Load lower half in chunks of 100 tweets at the time
+                                    long from = left - DataUtils.METRIC_DATA_INTERVAL;
+                                    int count = _tweetCountByDate.get(from);
+                                    Integer value;
+                                    while (from  > range.first && count < 100) {
+                                        from -= DataUtils.METRIC_DATA_INTERVAL;
+                                        value = _tweetCountByDate.get(from);
+                                        if (value == null) {
+                                            break;
+                                        }
+                                        count += value;
+                                    }
+
+                                    connection.getTweets(_metric.getName(),
+                                            new Date(from),
+                                            new Date(left),
+                                            new GrokClient.DataCallback<Tweet>() {
+                                                @Override
+                                                public boolean onData(Tweet tweet) {
+                                                    publishProgress(tweet);
+                                                    return !isCancelled();
+                                                }
+                                            });
+                                    left = from;
+                                }
+                                // Force flush last bucket
                                 publishProgress();
                             }
-                            // Load upper half, skip selection because it was load already
-                            selectedTimestamp += DataUtils.METRIC_DATA_INTERVAL;
-                            if (range.second > selectedTimestamp) {
-                                connection.getTweets(_metric.getName(),
-                                        new Date(selectedTimestamp),
-                                        new Date(range.second),
-                                        new GrokClient.DataCallback<Tweet>() {
-                                            @Override
-                                            public boolean onData(Tweet tweet) {
-                                                publishProgress(tweet);
-                                                return !isCancelled();
-                                            }
-                                        });
-                            }
                         } else {
+                            // Force selection to timestamp
+                            _timestampToSelect = initialTimestamp;
+
                             // Load everything, no need to load selection first
                             connection.getTweets(_metric.getName(),
                                     new Date(range.first), new Date(range.second),

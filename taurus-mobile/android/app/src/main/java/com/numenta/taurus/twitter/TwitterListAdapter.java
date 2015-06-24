@@ -22,6 +22,7 @@
 
 package com.numenta.taurus.twitter;
 
+import com.numenta.core.utils.DataUtils;
 import com.numenta.taurus.R;
 import com.numenta.taurus.data.Tweet;
 
@@ -29,31 +30,107 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class TwitterListAdapter extends ArrayAdapter<Tweet> {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+/**
+ * List adapter backed by an list of Tweets used to interface with the backend twitter
+ */
+public class TwitterListAdapter extends BaseAdapter {
+
+    private static final String TAG = TwitterListAdapter.class.getSimpleName();
+
+    final Context _context;
+
+    final List<Tweet> _tweetList;
+
+    final LayoutInflater _inflater;
+
+    /** Tolerate up to 30 minutes when positioning via timestamp */
+    static final long TIMESTAMP_TOLERANCE = 30 * DataUtils.MILLIS_PER_MINUTE;
+
+    private boolean _notifyDataSetChanged = true;
+
+    public void add(Tweet tweet) {
+        _tweetList.add(tweet);
+        if (_notifyDataSetChanged) {
+            notifyDataSetChanged();
+        }
+    }
+
+    public void sort(Comparator<Tweet> comparator) {
+        Collections.sort(_tweetList, comparator);
+        if (_notifyDataSetChanged) {
+            notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Control whether methods that change the list ({@link #add} automatically call
+     * {@link #notifyDataSetChanged}.  If set to false, caller must manually call
+     * notifyDataSetChanged() to have the changes reflected in the attached view.
+     *
+     * The default is true, and calling notifyDataSetChanged() resets the flag to true.
+     *
+     * @param notifyOnChange if true, modifications to the list will automatically
+     *                       call {@link #notifyDataSetChanged}
+     */
+    public void setNotifyDataSetChanged(boolean notifyOnChange) {
+        _notifyDataSetChanged = notifyOnChange;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        _notifyDataSetChanged = true;
+        super.notifyDataSetChanged();
+    }
 
     static class ViewHolder {
 
         View groupHeader;
+
         TextView date;
+
         TextView tweetCount;
 
         View tweetHeader;
+
         TextView user;
+
         TextView retweetTotal;
+
         ImageView _retweetIcon;
+
         TextView retweetCount;
 
         TextView tweetText;
     }
-    private final LayoutInflater _inflater;
 
     public TwitterListAdapter(Context context) {
-        super(context, R.layout.twitter_item);
+        _context = context;
         _inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        _tweetList = new ArrayList<Tweet>();
+    }
+
+    @Override
+    public int getCount() {
+        return _tweetList.size();
+    }
+
+    @Override
+    public Tweet getItem(int position) {
+        return _tweetList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 
     @Override
@@ -144,18 +221,18 @@ public class TwitterListAdapter extends ArrayAdapter<Tweet> {
 
     /**
      * Returns the position of the item with the maximum aggregation count whose timestamp is
-     * within the given range based on the timestamp value and a tolerance value.
+     * within the given range based on the timestamp value and a default tolerance value.
      * The time range to search for the max value is [timestamp-tolerance, timestamp+tolerance].
      *
      * @param timestamp The timestamp to check (unix time)
-     * @param tolerance The extra tolerance in milliseconds
      * @return The position of the first item or -1 if not found
+     * @see #TIMESTAMP_TOLERANCE
      */
-    public int getPositionByTimestamp(long timestamp, long tolerance) {
+    public int getPositionByTimestamp(long timestamp) {
         int count = getCount();
         Tweet item;
-        long lowerBound = timestamp - tolerance;
-        long upperBound = timestamp + tolerance;
+        long lowerBound = timestamp - TIMESTAMP_TOLERANCE;
+        long upperBound = timestamp + TIMESTAMP_TOLERANCE;
         int pos = -1;
         int maxValue = -1;
         for (int i = 0; i < count; i++) {
@@ -170,5 +247,13 @@ public class TwitterListAdapter extends ArrayAdapter<Tweet> {
             }
         }
         return pos;
+    }
+
+    /**
+     * Returns the position of the item
+     * @return The position of the item or -1 if not found
+     */
+    public int getPositionByTweet(Tweet tweet) {
+        return _tweetList.indexOf(tweet);
     }
 }
