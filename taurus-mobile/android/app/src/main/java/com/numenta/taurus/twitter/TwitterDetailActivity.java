@@ -615,15 +615,17 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                                 if (right < range.second) {
                                     // Load upper half in chunks of 100 tweets at the time
                                     long to = right + DataUtils.METRIC_DATA_INTERVAL;
-                                    int count = _tweetCountByDate.get(to);
-                                    Integer value;
-                                    while (to < range.second && count < 100) {
-                                        to += DataUtils.METRIC_DATA_INTERVAL;
-                                        value = _tweetCountByDate.get(to);
-                                        if (value == null) {
-                                            break;
+                                    Integer value = _tweetCountByDate.get(to);
+                                    if (value != null) {
+                                        int count = value;
+                                        while (to < range.second && count < 100) {
+                                            to += DataUtils.METRIC_DATA_INTERVAL;
+                                            value = _tweetCountByDate.get(to);
+                                            if (value == null) {
+                                                break;
+                                            }
+                                            count += value;
                                         }
-                                        count += value;
                                     }
                                     connection.getTweets(_metric.getName(),
                                             new Date(right),
@@ -644,15 +646,17 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                                 if (left > range.first) {
                                     // Load lower half in chunks of 100 tweets at the time
                                     long from = left - DataUtils.METRIC_DATA_INTERVAL;
-                                    int count = _tweetCountByDate.get(from);
-                                    Integer value;
-                                    while (from  > range.first && count < 100) {
-                                        from -= DataUtils.METRIC_DATA_INTERVAL;
-                                        value = _tweetCountByDate.get(from);
-                                        if (value == null) {
-                                            break;
+                                    Integer value = _tweetCountByDate.get(from);
+                                    if (value != null) {
+                                        int count = value;
+                                        while (from > range.first && count < 100) {
+                                            from -= DataUtils.METRIC_DATA_INTERVAL;
+                                            value = _tweetCountByDate.get(from);
+                                            if (value == null) {
+                                                break;
+                                            }
+                                            count += value;
                                         }
-                                        count += value;
                                     }
 
                                     connection.getTweets(_metric.getName(),
