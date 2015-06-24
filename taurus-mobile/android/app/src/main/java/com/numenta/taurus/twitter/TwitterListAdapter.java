@@ -55,14 +55,40 @@ public class TwitterListAdapter extends BaseAdapter {
     /** Tolerate up to 30 minutes when positioning via timestamp */
     static final long TIMESTAMP_TOLERANCE = 30 * DataUtils.MILLIS_PER_MINUTE;
 
+    private boolean _notifyDataSetChanged = true;
+
     public void add(Tweet tweet) {
         _tweetList.add(tweet);
-        notifyDataSetChanged();
+        if (_notifyDataSetChanged) {
+            notifyDataSetChanged();
+        }
     }
 
     public void sort(Comparator<Tweet> comparator) {
         Collections.sort(_tweetList, comparator);
-        notifyDataSetChanged();
+        if (_notifyDataSetChanged) {
+            notifyDataSetChanged();
+        }
+    }
+
+    /**
+     * Control whether methods that change the list ({@link #add} automatically call
+     * {@link #notifyDataSetChanged}.  If set to false, caller must manually call
+     * notifyDataSetChanged() to have the changes reflected in the attached view.
+     *
+     * The default is true, and calling notifyDataSetChanged() resets the flag to true.
+     *
+     * @param notifyOnChange if true, modifications to the list will automatically
+     *                       call {@link #notifyDataSetChanged}
+     */
+    public void setNotifyDataSetChanged(boolean notifyOnChange) {
+        _notifyDataSetChanged = notifyOnChange;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        _notifyDataSetChanged = true;
+        super.notifyDataSetChanged();
     }
 
     static class ViewHolder {
@@ -221,5 +247,13 @@ public class TwitterListAdapter extends BaseAdapter {
             }
         }
         return pos;
+    }
+
+    /**
+     * Returns the position of the item
+     * @return The position of the item or -1 if not found
+     */
+    public int getPositionByTweet(Tweet tweet) {
+        return _tweetList.indexOf(tweet);
     }
 }
