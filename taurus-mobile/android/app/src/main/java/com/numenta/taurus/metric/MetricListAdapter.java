@@ -289,8 +289,8 @@ public class MetricListAdapter extends AnomalyListAdapter<MetricAnomalyChartData
             }
 
             void showProgress() {
-                // Show progress after 2 seconds if the task is still active
-                _handler.sendEmptyMessageDelayed(MESSAGE_SHOW_PROGRESS, 2000);
+                // Show progress after 3 seconds if the task is still active
+                _handler.sendEmptyMessageDelayed(MESSAGE_SHOW_PROGRESS, 3000);
             }
         };
     }

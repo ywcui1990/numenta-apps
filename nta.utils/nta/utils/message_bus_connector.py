@@ -33,12 +33,8 @@ import time
 
 import requests
 
-from nta.utils import amqp
-from nta.utils.amqp.constants import AMQPDeliveryModes, AMQPErrorCodes
-
 from nta.utils import error_handling
-
-
+from nta.utils import amqp
 
 g_log = logging.getLogger("nta.utils.message_bus_connector")
 
@@ -68,7 +64,6 @@ _RETRY_ON_AMQP_ERROR = error_handling.retry(
   retryExceptions=(
     amqp.exceptions.AmqpChannelError,
     amqp.exceptions.AmqpConnectionError,
-    amqp.exceptions.NackError,
     amqp.exceptions.UnroutableError,
     socket.gaierror,
     socket.error,

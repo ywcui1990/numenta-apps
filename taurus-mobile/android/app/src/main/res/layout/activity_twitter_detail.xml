@@ -70,6 +70,7 @@
                 android:clickable="true"
                 android:id="@+id/twitter_list"
                 android:focusable="false"
+                android:fastScrollEnabled="true"
                 android:dividerHeight="2dp"/>
 
         <LinearLayout android:id="@+id/group_header"
