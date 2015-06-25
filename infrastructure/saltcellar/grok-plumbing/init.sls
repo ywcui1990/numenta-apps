@@ -88,7 +88,6 @@ include:
   - grok-plumbing.zap-public-keys
   - grok-plumbing.nginx-tooling
   - mysql
-  - numenta-python.numpy
   - rabbitmq
   - rabbitmq.grok
 
