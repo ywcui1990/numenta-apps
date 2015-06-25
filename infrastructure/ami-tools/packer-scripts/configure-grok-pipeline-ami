@@ -29,7 +29,7 @@ AMIBUILD_LOCK=/tmp/baking-ami
 NUMENTA=/opt/numenta
 PRODUCTS="${NUMENTA}/products"
 touch "${AMIBUILD_LOCK}"
-S3_ROOT_URL="https://s3-us-west-2.amazonaws.com/public.numenta.com/yum/x86_64/"
+S3_ROOT_URL="https://s3-us-west-2.amazonaws.com/public.numenta.com/yum/x86_64"
 
 complain() {
   echo "$@"
@@ -126,7 +126,7 @@ run-salt() {
 install-grok() {
   splat
   echo "Installing Grok..."
-  yum install -y "${S3_ROOT_URL}${GROK_RPM_NAME}"
+  yum install -y "${S3_ROOT_URL}/${GROK_RPM_NAME}"
   if [ $? != 0 ]; then
     echo "Failed to install Grok RPM"
     exit 1
@@ -145,10 +145,10 @@ install-grok() {
   echo "Sourcing supervisord.vars..."
   source /etc/grok/supervisord.vars
 
-  echo "Creating symlink to /opt/numenta/grok and setting permissions"
-  rm -fr /opt/numenta/grok
-  ln -s "${PRODUCTS}/grok" /opt/numenta/grok
-  chown -R ec2-user:ec2-user /opt/numenta/products
+  echo "Creating symlink to ${NUMENTA}/grok and setting permissions"
+  rm -fr "${NUMENTA}"/grok
+  ln -s "${PRODUCTS}/grok" "${NUMENTA}"/grok
+  chown -R ec2-user:ec2-user "${PRODUCTS}"
 
   pushd "${PRODUCTS}"
     complain "Running install-grok.sh"
