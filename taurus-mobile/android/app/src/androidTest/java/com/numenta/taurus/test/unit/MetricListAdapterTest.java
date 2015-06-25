@@ -58,7 +58,6 @@ public class MetricListAdapterTest extends ApplicationTestCase<TaurusApplication
         super.setUp();
         createApplication();
         TaurusApplication.setStaticInstanceForUnitTestsOnly(getApplication());
-        TaurusApplication.setDefaultThreadPoolForUnitTestsOnly(Executors.newCachedThreadPool());
         CoreDataFactory factory = TaurusApplication.getDatabase().getDataFactory();
 
         adapter = new MetricListAdapter(getContext());
