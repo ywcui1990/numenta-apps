@@ -83,7 +83,9 @@ class MetricStreamerTestCase(unittest.TestCase):
 
   def testSendInputRowsToModel(self):
     """ Test MetricStreamer._sendInputRowsToModel """
-    metricDataOutputChunkSize = 1440 #Hardcode value
+    metricDataOutputChunkSize = metric_streamer_util.config.getint(
+        "metric_streamer", "chunk_size")
+
 
     now = datetime.utcnow()
 
@@ -164,7 +166,8 @@ class MetricStreamerTestCase(unittest.TestCase):
     """ Test MetricStreamer._sendInputRowsToModel with ModelNotFound error
     from ModelSwapperInterface.submitRequests
     """
-    metricDataOutputChunkSize = 1440
+    metricDataOutputChunkSize = metric_streamer_util.config.getint(
+        "metric_streamer", "chunk_size")
 
     now = datetime.utcnow()
 
@@ -203,7 +206,8 @@ class MetricStreamerTestCase(unittest.TestCase):
     """ Test MetricStreamer._sendInputRowsToModel with error other than
     ModelNotFound from ModelSwapperInterface.submitRequests
     """
-    metricDataOutputChunkSize = 1440
+    metricDataOutputChunkSize = metric_streamer_util.config.getint(
+        "metric_streamer", "chunk_size")
 
     now = datetime.utcnow()
 
