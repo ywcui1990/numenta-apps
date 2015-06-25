@@ -18,18 +18,16 @@
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
-# ----------------------------------------------------------------------
 
-# Create a numenta-infrastructure-python rpm
+# Set a proper PATH
+# Start prepending directories
+PATH="/usr/local/bin:${PATH}"
+PATH="/usr/local/sbin:${PATH}"
+export PATH="/opt/numenta/anaconda/bin:${PATH}"
 
-# Don't quote the $@, we want it burst into separate arguments instead of
-# being treated as a single argument
-./create-numenta-rpm \
-  --artifact opt \
-  --description "Numenta infrastructure-common python utility modules" \
-  --log-level warning \
-  --rpm-flavor infrastructure \
-  --rpm-name numenta-infrastructure-python \
-  --architecture noarch \
-  --postinstall-script infrastructure-python-postinstall \
-  --tempdir /tmp/grok-saltcellar-rpm $@
+# Use anaconda's PYTHONPATH
+export PYTHONPATH="/opt/numenta/anaconda/lib/python2.7/site-packages"
+
+cd /opt/numenta/products/infrastructure
+
+./setup.py install
