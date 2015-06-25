@@ -18,16 +18,19 @@
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
-# ----------------------------------------------------------------------
-# Package saltcellar into an RPM for Grok
+ANACONDA_D="/opt/numenta/anaconda"
 
-# Don't quote the $@, we want it burst into separate arguments instead of
-# being treated as a single argument
-./create-numenta-rpm --debug \
-  --artifact srv \
-  --description "Grok saltcellar - installs to /srv/salt" \
-  --log-level warning \
-  --rpm-flavor saltcellar \
-  --rpm-name grok-saltcellar \
-  --architecture noarch \
-  --tempdir /tmp/grok-saltcellar-rpm $@
+# Set a proper PATH
+# Start prepending directories
+PATH="/usr/local/bin:${PATH}"
+PATH="/usr/local/sbin:${PATH}"
+export PATH="${ANACONDA_D}/bin:${PATH}"
+
+# Use anaconda's PYTHONPATH
+export PYTHONPATH="${ANACONDA_D}/lib/python2.7/site-packages"
+
+cd /opt/numenta/products/infrastructure
+
+python ./setup.py install \
+  --install-dir="${ANACONDA_D}/lib/python2.7/site-packages" \
+  --script-dir="${ANACONDA_D}/bin"
