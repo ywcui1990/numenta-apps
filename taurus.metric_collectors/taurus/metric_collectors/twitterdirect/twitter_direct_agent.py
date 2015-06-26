@@ -36,6 +36,7 @@ import threading
 import time
 
 import sqlalchemy as sql
+from sqlalchemy import or_
 import tweepy
 
 from nta.utils import amqp
@@ -1151,23 +1152,41 @@ class TweetForwarder(object):
 class MetricDataForwarder(object):
   """ This class is responsible for aggregating and forwarding metric data """
 
-  def __init__(self, metricSpecs, aggSec):
-    self._metricSpecs = metricSpecs
+  def __init__(self, metricSpecs, aggSec, symbolList=None,
+               forwardOnlyBacklog=False):
+
+    if not symbolList:
+      g_log.info("MetricDataForwarder was initialized without a symbol list; "
+                 "will use all symbols in metricSpec")
+      self._symbolList = []
+      self._metricSpecs = metricSpecs
+    else:
+      g_log.info("MetricDataForwarder was initialized with a symbol list; "
+                 "only metrics corresponding with these symbols will be "
+                 "recorded/forwarded")
+      self._symbolList=[symbol.upper() for symbol in symbolList]
+      self._metricSpecs = tuple(spec for spec in metricSpecs
+                                if spec.symbol.upper() in self._symbolList)
+
     self._aggSec = aggSec
 
     self._sqlEngine = collectorsdb.engineFactory()
 
+    self._forwardOnlyBacklog = forwardOnlyBacklog
+
 
   @classmethod
   @abortProgramOnAnyException(exitCode=1, logger=g_log)
-  def runInThread(cls, metricSpecs, aggSec):
+  def runInThread(cls, metricSpecs, aggSec, symbolList=None,
+                  forwardOnlyBacklog=False):
     """ The thread target function; instantiates and runs MetricDataForwarder
 
     :param metricSpecs: sequence of TwitterMetricSpec
     :param int aggSec: metric aggregation period in seconds
     """
     g_log.info("%s thread is running", cls.__name__)
-    cls(metricSpecs, aggSec)._run()
+    cls(metricSpecs, aggSec, symbolList=symbolList,
+        forwardOnlyBacklog=forwardOnlyBacklog)._run()
 
 
   def _run(self):
@@ -1182,13 +1201,10 @@ class MetricDataForwarder(object):
 
     # Calculate next aggregation start time using lastEmittedAggTime as base
     lastAggStartEpoch = date_time_utils.epochFromNaiveUTCDatetime(
-      lastEmittedAggTime)
-    nextAggStartEpoch = (
-      lastAggStartEpoch +
-      (int((time.time() - lastAggStartEpoch + aggSec - 1) / aggSec) * aggSec))
+      lastEmittedAggTime) + aggSec
 
 
-    nextAggEndEpoch = nextAggStartEpoch + aggSec
+    nextAggEndEpoch = lastAggStartEpoch + aggSec
     latencyAllowanceSec = aggSec
     while True:
       # Sleep until it's time to aggregate metric data
@@ -1198,12 +1214,17 @@ class MetricDataForwarder(object):
         time.sleep(aggHarvestEpoch - now)
         now = time.time()
 
+
       # Aggregate and forward metric samples to htmengine's Metric Listener
       lastEmittedAggTime = self._forwardTweetVolumeMetrics(
         lastEmittedAggTime=lastEmittedAggTime,
         stopDatetime=datetime.utcfromtimestamp(nextAggEndEpoch))
 
       nextAggEndEpoch += aggSec
+
+      if self._forwardOnlyBacklog and (now >= aggHarvestEpoch):
+        g_log.info("Done sending all backlogged metric data; returning from process")
+        return
 
 
   def _forwardTweetVolumeMetrics(self, lastEmittedAggTime, stopDatetime):
@@ -1232,7 +1253,9 @@ class MetricDataForwarder(object):
     while aggStartDatetime < stopDatetime:
       # Query Tweet Volume metrics for one aggregation interval
       metricToVolumeMap = defaultdict(int,
-                                      self._queryTweetVolumes(aggStartDatetime))
+                                      self._queryTweetVolumes(
+                                          aggStartDatetime,
+                                          self._symbolList))
 
       # Generate metric samples
       epochTimestamp = date_time_utils.epochFromNaiveUTCDatetime(
@@ -1276,22 +1299,31 @@ class MetricDataForwarder(object):
 
 
   @collectorsdb.retryOnTransientErrors
-  def _queryTweetVolumes(self, aggDatetime):
+  def _queryTweetVolumes(self, aggDatetime, symbolList):
     """ Query the database for the counts of tweet metric volumes for the
     specified aggregation.
 
     :param datetime aggDatetime: aggregation timestamp
+    :param list symbolList: A list of strings containing the symbols the server
+      will update
     :returns: a sparse sequence of two-tuples: (metric_name, count); metrics
       that have no tweets in the given aggregation period will be absent from
       the result.
     """
-    sel = sql.select(
-        [schema.twitterTweetSamples.c.metric, sql.func.count()]
+    if not symbolList:
+      sel = sql.select(
+          [schema.twitterTweetSamples.c.metric, sql.func.count()]
+        ).where(schema.twitterTweetSamples.c.agg_ts == aggDatetime
+        ).group_by(schema.twitterTweetSamples.c.metric)
+    else:
+      sel = sql.select(
+          [schema.twitterTweetSamples.c.metric, sql.func.count()]
       ).where(schema.twitterTweetSamples.c.agg_ts == aggDatetime
+      ).where(or_(
+          schema.twitterTweetSamples.c.metric.ilike("TWITTER.TWEET.HANDLE.%s.%%" % symbol) for symbol in symbolList)
       ).group_by(schema.twitterTweetSamples.c.metric)
 
     return self._sqlEngine.execute(sel).fetchall()
-
 
 
 
@@ -1306,6 +1338,7 @@ def _parseArgs():
     accessTokenSecret
     forwardNonMetric
     echoData
+    symbolList
   """
   helpString = (
     "%prog [options]"
@@ -1388,6 +1421,27 @@ def _parseArgs():
       help=("Echo processed Twitter messages to stdout for debugging "
             "[default: %default]"))
 
+  parser.add_option(
+      "--forwardbacklog",
+      action="store_true",
+      default=False,
+      dest="forwardBacklog",
+      help=("Use this option to only forward backloged data (the processes "
+            "will not run indefinitely). This is only partially implemented "
+            "and currently only affects the MetricDataForwarder. "
+            "[default: %default]"))
+
+  parser.add_option(
+      "--symbol",
+      action="append",
+      dest="symbolList",
+      type=str,
+      default=[],
+      help=("(optional) Specify a list of symbols to update. The "
+            "twitter_direct_agent will only forward metric data for these "
+            "symbols but will continue collecting non-metric data (i.e. "
+            "tweets) for ALL symbols. Format: --symbol=ABC --symbol=DEF"))
+
   options, remainingArgs = parser.parse_args()
   if remainingArgs:
     parser.error("Unexpected remaining args: %r" % (remainingArgs,))
@@ -1404,7 +1458,9 @@ def _parseArgs():
     accessToken=options.accessToken,
     accessTokenSecret=options.accessTokenSecret,
     forwardNonMetric=options.forwardNonMetric,
-    echoData=options.echoData)
+    echoData=options.echoData,
+    forwardBacklog=options.forwardBacklog,
+    symbolList=options.symbolList)
 
 
 def _partition(l, numParts):
@@ -1485,7 +1541,10 @@ def main():
       # Start Metric Data Forwarder
       metricDataForwarderThread = threading.Thread(
         target=MetricDataForwarder.runInThread,
-        kwargs=dict(metricSpecs=metricSpecs, aggSec=options["aggPeriod"]))
+        kwargs=dict(metricSpecs=metricSpecs,
+                    aggSec=options["aggPeriod"],
+                    symbolList=options["symbolList"],
+                    forwardOnlyBacklog=options["forwardBacklog"]))
       metricDataForwarderThread.setDaemon(True)
       metricDataForwarderThread.start()
       g_log.info("Started MetricDataForwarder thread")
@@ -1510,6 +1569,8 @@ def main():
     taskOptions = dict(options.iteritems())
     taskOptions.pop("numPartitions")
     taskOptions.pop("forwardNonMetric")
+    taskOptions.pop("forwardBacklog")
+    taskOptions.pop("symbolList")
 
     tasks = [
       dict(

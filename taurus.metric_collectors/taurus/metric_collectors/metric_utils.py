@@ -288,8 +288,6 @@ def unmonitorMetric(host, apiKey, modelId):
       g_log.exception("Assuming transient error while unmonitoring model=%s",
                       modelId)
       time.sleep(0.2)
-    else:
-      break
   else:
     raise RetriesExceededError("Unmonitor-metric retries exceeded")
 
@@ -382,6 +380,22 @@ def getAllModelIds(host, apiKey):
   :raises: RetriesExceededError
   """
   return tuple(obj["uid"] for obj in getAllModels(host, apiKey))
+
+
+
+def getSymbolModelIDs(host, apiKey, symbol):
+  """ Retrieve IDs of all models associated with a particular symbol
+
+  :param host: API server's hostname or IP address
+  :param apiKey: API server's API Key
+  :param symbol: Stock symbol to look up
+
+  :returns: a sequence of unique model id strings
+
+  :raises: GetModelsRequestError
+  :raises: RetriesExceededError
+  """
+  return tuple(obj["uid"] for obj in getAllModels(host, apiKey) if ".%s." % symbol in obj["name"])
 
 
 
