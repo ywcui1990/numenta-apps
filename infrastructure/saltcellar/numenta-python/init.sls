@@ -31,6 +31,8 @@ anaconda-python:
     - installed
     - pkgs:
       - gs-anaconda
+    - require:
+      - pkg: compiler-toolchain
     - watch_in:
       - cmd: enforce-anaconda-permissions
 
