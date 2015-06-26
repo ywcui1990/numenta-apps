@@ -55,7 +55,6 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -151,6 +150,9 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
     // Twitter group header
     private View _groupHeader;
 
+    // Loading tweets message
+    private View _loadingMessage;
+
     // Date field on group header
     private TextView _date;
 
@@ -203,6 +205,8 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 }
             }
         });
+
+        _loadingMessage = findViewById(R.id.loading_tweets_message);
 
         _groupHeader = findViewById(R.id.group_header);
         _date = (TextView) _groupHeader.findViewById(R.id.date);
@@ -475,6 +479,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
             @Override
             protected void onCancelled(Void aVoid) {
                 _loading = false;
+                _loadingMessage.setVisibility(View.GONE);
             }
 
             @Override
@@ -482,6 +487,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 // Make sure to flush last tweets
                 flushBucket();
                 _loading = false;
+                _loadingMessage.setVisibility(View.GONE);
             }
 
             /**
@@ -493,6 +499,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 }
                 Tweet tweet;
                 Integer count;
+                _twitterListAdapter.setNotifyDataSetChanged(false);
                 for (Map.Entry<Tweet, Integer> entry : _buckets.entrySet()) {
                     // Update retweet count
                     tweet = entry.getKey();
@@ -508,6 +515,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                     _twitterListAdapter.add(tweet);
                 }
                 _twitterListAdapter.sort(SORT_BY_DATE);
+                _twitterListAdapter.notifyDataSetChanged();
                 _buckets.clear();
 
                 // Find selected timestamp
@@ -557,7 +565,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                                 .subMap(selectedTimestamp - _twitterListAdapter.TIMESTAMP_TOLERANCE,
                                         selectedTimestamp + _twitterListAdapter.TIMESTAMP_TOLERANCE + 1);
                         int max = -1;
-                        for(SortedMap.Entry<Long, Integer> entry : valuesInRange.entrySet()) {
+                        for (SortedMap.Entry<Long, Integer> entry : valuesInRange.entrySet()) {
                             if (entry.getValue() > max) {
                                 max = entry.getValue();
                                 selectedTimestamp = entry.getKey();
@@ -567,6 +575,14 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                         // When the total number of tweets is very large (500+),
                         // break loading task into smaller chunks to avoid long wait time on the UI
                         if (total > 500) {
+
+                            // Show "loading" message
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    _loadingMessage.setVisibility(View.VISIBLE);
+                                }
+                            });
                             // First load data from the user selected date.
                             connection.getTweets(_metric.getName(),
                                     new Date(selectedTimestamp),
