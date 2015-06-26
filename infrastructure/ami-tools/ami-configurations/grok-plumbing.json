@@ -60,16 +60,6 @@
       "type": "file"
     },
     {
-      "destination": "/tmp/epel.repo",
-      "source": "repos/epel.repo",
-      "type": "file"
-    },
-    {
-      "destination": "/tmp/RPM-GPG-KEY-EPEL-6",
-      "source": "repos/RPM-GPG-KEY-EPEL-6",
-      "type": "file"
-    },
-    {
       "destination": "/tmp/yum-s3-0.2.4-1.noarch.rpm",
       "source": "yum-s3-0.2.4-1.noarch.rpm",
       "type": "file"
