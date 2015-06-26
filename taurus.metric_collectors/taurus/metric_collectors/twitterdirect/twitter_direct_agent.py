@@ -36,7 +36,6 @@ import threading
 import time
 
 import sqlalchemy as sql
-from sqlalchemy import or_
 import tweepy
 
 from nta.utils import amqp
@@ -1053,7 +1052,7 @@ class TweetForwarder(object):
 
   @classmethod
   def queryNonMetricTweetBatch(cls, sqlEngine, minSeq, maxItems=None,
-                               maxSeq=None):
+                               maxSeq=None, symbolList=None):
     """ Query a batch of non-metric twitter items for forwarding
 
     NOTE: Also used by migrate_tweets_to_dynamodb.py script
@@ -1091,10 +1090,21 @@ class TweetForwarder(object):
       tweetsSchema,
       samplesSchema.c.msg_uid == tweetsSchema.c.uid)
 
-    sel = sql.select(fields
-      ).select_from(join
-      ).where(samplesSchema.c.seq >= minSeq
+    if not symbolList:
+      sel = sql.select(fields
+        ).select_from(join
+        ).where(samplesSchema.c.seq >= minSeq
+        ).order_by(samplesSchema.c.seq.asc())
+    else:
+      sel = sql.select(fields
+        ).select_from(join
+        ).where(samplesSchema.c.seq >= minSeq
+        ).where(sql.or_(
+            schema.twitterTweetSamples.c.metric.ilike(
+              "TWITTER.TWEET.HANDLE.%s.%%" % symbol
+            ) for symbol in symbolList)
       ).order_by(samplesSchema.c.seq.asc())
+
 
     if maxSeq is not None:
       sel = sel.where(samplesSchema.c.seq <= maxSeq)
@@ -1319,8 +1329,10 @@ class MetricDataForwarder(object):
       sel = sql.select(
           [schema.twitterTweetSamples.c.metric, sql.func.count()]
       ).where(schema.twitterTweetSamples.c.agg_ts == aggDatetime
-      ).where(or_(
-          schema.twitterTweetSamples.c.metric.ilike("TWITTER.TWEET.HANDLE.%s.%%" % symbol) for symbol in symbolList)
+      ).where(sql.or_(
+          schema.twitterTweetSamples.c.metric.ilike(
+              "TWITTER.TWEET.HANDLE.%s.%%" % symbol
+          ) for symbol in symbolList)
       ).group_by(schema.twitterTweetSamples.c.metric)
 
     return self._sqlEngine.execute(sel).fetchall()

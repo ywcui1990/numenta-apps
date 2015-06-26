@@ -45,6 +45,7 @@ from taurus.metric_collectors import (
 from taurus.metric_collectors.collectorsdb.schema import (
     twitterTweetSamples as tweetSamplesSchema
 )
+from taurus.metric_collectors.twitterdirect import migrate_tweets_to_dynamodb
 from taurus.metric_collectors.twitterdirect.twitter_direct_agent import (
     MetricDataForwarder,
     loadMetricSpecs
@@ -204,6 +205,10 @@ def main():
       metric_utils.updateLastEmittedSampleDatetime(
           key=_EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY,
           sampleDatetime=lastEmittedAggTime)
+
+
+    g_log.info("Forwarding tweets to dynamodb using new symbol...")
+    migrate_tweets_to_dynamodb.main(symbolList=[options.new_symbol])
 
 
     g_log.info("Unmonitoring and deleting existing metrics associated with "
