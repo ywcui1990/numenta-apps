@@ -165,7 +165,7 @@ def main():
         newMetricName = "%s%s" % (
             newSymbolTweetPrefix,
             tweetSample.metric[len(oldSymbolTweetPrefix):])
-        if tweetSample.metric not in oldSymbolTweetPrefix:
+        if tweetSample.metric not in oldSymbolTweetMetricsList:
           oldSymbolTweetMetricsList.append(tweetSample.metric)
 
 
@@ -208,11 +208,12 @@ def main():
 
     g_log.info("Unmonitoring and deleting existing metrics associated with "
                "symbol=%s", options.old_symbol)
-    modelIDs = metric_utils.getSymbolModelIDs(options.htmServer,
-                                              options.apikey,
-                                              options.old_symbol)
-    for modelID in modelIDs:
-      metric_utils.unmonitorMetric(options.htmServer, options.apikey, modelID)
+    oldModels = metric_utils.getSymbolModels(options.htmServer,
+                                             options.apikey,
+                                             options.old_symbol)
+    for model in oldModels:
+      metric_utils.unmonitorMetric(options.htmServer, options.apikey, model.uid)
+      metric_utils.deleteMetric(options.htmServer, options.apikey, model.name)
 
   except SystemExit as e:
     if e.code != 0:

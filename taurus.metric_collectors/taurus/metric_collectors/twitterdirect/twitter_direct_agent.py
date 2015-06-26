@@ -1222,7 +1222,7 @@ class MetricDataForwarder(object):
 
       nextAggEndEpoch += aggSec
 
-      if self._forwardOnlyBacklog and (now >= aggHarvestEpoch):
+      if self._forwardOnlyBacklog and not (now >= (nextAggEndEpoch + latencyAllowanceSec)):
         g_log.info("Done sending all backlogged metric data; returning from process")
         return
 
