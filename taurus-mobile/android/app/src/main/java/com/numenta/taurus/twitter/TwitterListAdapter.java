@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * List adapter backed by an list of Tweets used to interface with the backend twitter
@@ -52,20 +54,37 @@ public class TwitterListAdapter extends BaseAdapter {
 
     final LayoutInflater _inflater;
 
+    // Used to control data access from multiple threads
+    private final ReentrantReadWriteLock _lock = new ReentrantReadWriteLock();
+
+    private final Lock _readLock = _lock.readLock();
+
+    private final Lock _writeLock = _lock.writeLock();
+
     /** Tolerate up to 30 minutes when positioning via timestamp */
     static final long TIMESTAMP_TOLERANCE = 30 * DataUtils.MILLIS_PER_MINUTE;
 
     private boolean _notifyDataSetChanged = true;
 
     public void add(Tweet tweet) {
-        _tweetList.add(tweet);
+        _writeLock.lock();
+        try {
+            _tweetList.add(tweet);
+        } finally {
+            _writeLock.unlock();
+        }
         if (_notifyDataSetChanged) {
             notifyDataSetChanged();
         }
     }
 
     public void sort(Comparator<Tweet> comparator) {
-        Collections.sort(_tweetList, comparator);
+        _writeLock.lock();
+        try {
+            Collections.sort(_tweetList, comparator);
+        } finally {
+            _writeLock.unlock();
+        }
         if (_notifyDataSetChanged) {
             notifyDataSetChanged();
         }
@@ -120,12 +139,22 @@ public class TwitterListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return _tweetList.size();
+        _readLock.lock();
+        try {
+            return _tweetList.size();
+        } finally {
+            _readLock.unlock();
+        }
     }
 
     @Override
     public Tweet getItem(int position) {
-        return _tweetList.get(position);
+        _readLock.lock();
+        try {
+            return _tweetList.get(position);
+        } finally {
+            _readLock.unlock();
+        }
     }
 
     @Override
@@ -251,9 +280,15 @@ public class TwitterListAdapter extends BaseAdapter {
 
     /**
      * Returns the position of the item
+     *
      * @return The position of the item or -1 if not found
      */
     public int getPositionByTweet(Tweet tweet) {
-        return _tweetList.indexOf(tweet);
+        _readLock.lock();
+        try {
+            return _tweetList.indexOf(tweet);
+        } finally {
+            _readLock.unlock();
+        }
     }
 }
