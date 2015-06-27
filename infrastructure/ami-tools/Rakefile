@@ -137,7 +137,8 @@ task :bake_grok_plumbing => [:products_sha,
 end
 
 desc "Bake a new Infrastructure AMI"
-task :bake_infrastructure => [:grok_repos,
+task :bake_infrastructure => [:devtools_repo,
+                              :grok_repos,
                               :products_sha,
                               :salt_bootstrap,
                               :secretsauce_repo,
@@ -147,7 +148,8 @@ task :bake_infrastructure => [:grok_repos,
 end
 
 desc "Bake a new 256GB Infrastructure AMI"
-task :bake_infrastructure_256gb => [:grok_repos,
+task :bake_infrastructure_256gb => [:devtools_repo,
+                                    :grok_repos,
                                     :products_sha,
                                     :salt_bootstrap,
                                     :secretsauce_repo,
@@ -227,6 +229,18 @@ end
 desc "Clone AMI keys from /etc/numenta/ami"
 task :get_ami_keypairs do
   sh %{ rsync -a /etc/numenta/ami/sshkeys . }
+end
+
+# Copy the devtools-2 repo from the saltcellar so we aren't maintaining it
+# in two places
+desc "Copy the devtools-2 repo from the saltcellar"
+task :devtools_repo do
+  unless File.exist?("repos/devtools-2.repo")
+    sh %{ rsync ../saltcellar/devtools/files/devtools-2.repo repos/devtools-2.repo }
+  end
+  unless File.exist?("repos/devtools-pathaddition.sh")
+    sh %{ cat ../saltcellar/devtools/files/00-add-devtools-to-path.sh > repos/devtools-pathaddition.sh }
+  end
 end
 
 # Copy the secretsauce repo from the saltcellar so we aren't maintaining it

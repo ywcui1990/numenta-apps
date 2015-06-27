@@ -30,6 +30,16 @@
       "type": "file"
     },
     {
+      "destination": "/tmp/devtools-2.repo",
+      "source": "repos/devtools-2.repo",
+      "type": "file"
+    },
+    {
+      "destination": "/tmp/devtools-pathaddition.sh",
+      "source": "repos/devtools-pathaddition.sh",
+      "type": "file"
+    },
+    {
       "destination": "/tmp/secretsauce.repo",
       "source": "repos/secretsauce.repo",
       "type": "file"
@@ -82,6 +92,10 @@
     {
       "type": "shell",
       "script": "packer-scripts/zap-centos-nonessentials"
+    },
+    {
+      "type": "shell",
+      "script": "packer-scripts/install-devtools"
     },
     {
       "type": "shell",

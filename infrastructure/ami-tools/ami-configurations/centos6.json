@@ -85,6 +85,13 @@
       "script": "packer-scripts/set-salt-output-state-to-mixed"
     },
     {
+      "inline": [
+        "echo 'Updating yum...'",
+        "yum update -y"
+      ],
+      "type": "shell"
+    },
+    {
       "type": "shell",
       "script": "packer-scripts/cleanup-image"
     }
