@@ -85,6 +85,7 @@ end
 desc "Validate Infrastructure configuration"
 task :validate_infrastructure => [:products_sha,
                                   :grok_repos,
+                                  :infrastructure_minion_id,
                                   :salt_bootstrap,
                                   :yum_plugin] do
   sh %{ packer validate #{INFRASTRUCTURE_CONFIG} }
@@ -136,26 +137,43 @@ task :bake_grok_plumbing => [:products_sha,
   sh %{ packer build #{GROK_PLUMBING_CONFIG} }
 end
 
+task :revoke_infrastructure_bake_id do
+  minion_id=File.read("infrastructure_minion_id").strip()
+  sh %{ revoke-salt-key #{minion_id} }
+end
+
+task :sign_infrastructure_bake_id => [:infrastructure_minion_id] do
+  minion_id=File.read("infrastructure_minion_id").strip()
+  sh %{ sign-salt-key #{minion_id} }
+end
+
 desc "Bake a new Infrastructure AMI"
 task :bake_infrastructure => [:devtools_repo,
                               :grok_repos,
+                              :infrastructure_minion_id,
                               :products_sha,
                               :salt_bootstrap,
                               :secretsauce_repo,
                               :validate_infrastructure,
                               :yum_plugin ] do
+  minion_id=File.read("infrastructure_minion_id").strip()
+  sh %{ sign-salt-key #{minion_id} }
   sh %{ packer build #{INFRASTRUCTURE_CONFIG} }
+  sh %{ revoke-salt-key #{minion_id} }
 end
 
 desc "Bake a new 256GB Infrastructure AMI"
 task :bake_infrastructure_256gb => [:devtools_repo,
                                     :grok_repos,
+                                    :infrastructure_minion_id,
                                     :products_sha,
                                     :salt_bootstrap,
                                     :secretsauce_repo,
+                                    :sign_infrastructure_bake_id,
                                     :validate_infrastructure_256gb,
                                     :yum_plugin ] do
   sh %{ packer build #{INFRASTRUCTURE_256GB_CONFIG} }
+  sh %{ rake revoke_infrastructure_bake_id }
 end
 
 desc "Bake a new HVM webserver AMI"
@@ -169,6 +187,11 @@ task :bake_webserver => [:products_sha,
 end
 
 # Utility stanzas
+desc "Set a minion_id for infrastructure baking"
+task :infrastructure_minion_id do
+  datestamp=`date +%Y.%m.%d.%H.%M.%S`
+  File.write("infrastructure_minion_id", "infrabake-#{datestamp}")
+end
 
 # Get the s3 yum plugin
 file s3_yum_plugin_rpm do
