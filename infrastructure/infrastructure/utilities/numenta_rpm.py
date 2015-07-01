@@ -289,7 +289,12 @@ class NumentaRPM(object):
     infraPath = os.path.join(productsDirectory, "infrastructure")
     purgeDirectory(path=infraPath,
                    whitelist=["__init__.py",
-                              "utilities"],
+                              "DEPENDENCIES.md",
+                              "infrastructure",
+                              "LICENSE",
+                              "README.md",
+                              "requirements.txt",
+                              "setup.py"],
                    logger=logger)
 
     return (iteration, fakerootSHA)
