@@ -110,8 +110,7 @@
             android:id="@+id/loading_tweets_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            android:layout_marginBottom="15sp"
+            android:layout_gravity="center_horizontal|center_vertical"
             android:background="@android:drawable/toast_frame"
             android:orientation="horizontal"
             android:padding="15sp"
@@ -133,6 +132,17 @@
                 android:textColor="@android:color/background_light" />
 
         </LinearLayout>
+        <CheckBox
+            android:id="@+id/condensed_tweets_checkbox"
+            android:layout_width="match_parent"
+            android:background="@android:color/black"
+            android:layout_height="24dp"
+            android:button="@drawable/checkbox_selector"
+            android:textAppearance="@android:style/TextAppearance.Holo.Small"
+            android:textColor="#ffffff"
+            android:text="@string/show_condensed_tweets"
+            android:checked="true"
+            android:layout_gravity="bottom|left"/>
     </FrameLayout>
 
 
