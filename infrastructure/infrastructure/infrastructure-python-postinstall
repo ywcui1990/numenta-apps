@@ -18,38 +18,19 @@
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
-# ----------------------------------------------------------------------install-option="--install-dir=lib/python2.7/site-packages" --no-deps"
-# regenerates the .pth files so they point to /opt/numenta/grok instead
-# of the build paths from the jenkins slaves.
+ANACONDA_D="/opt/numenta/anaconda"
 
-set -o pipefail
-set -o errexit
+# Set a proper PATH
+# Start prepending directories
+PATH="/usr/local/bin:${PATH}"
+PATH="/usr/local/sbin:${PATH}"
+export PATH="${ANACONDA_D}/bin:${PATH}"
 
-if [ -n "${VERBOSE_DEBUG}" ]; then
-  set -o xtrace
-fi
+# Use anaconda's PYTHONPATH
+export PYTHONPATH="${ANACONDA_D}/lib/python2.7/site-packages"
 
-cd /opt/numenta/grok
+cd /opt/numenta/products/infrastructure
 
-export NUPIC=/opt/numenta/nupic
-export NUMENTA=/opt/numenta
-export PRODUCTS=/opt/numenta/products
-
-source /etc/grok/supervisord.vars
-
-if [ -n "${VERBOSE_DEBUG}" ]; then
-  pwd
-  echo "${NUPIC}"
-  echo "In grok rpm postinstall script, dumping env"
-  env | sort
-  echo "end postinstall env dump"
-fi
-
-# TODO: TAUR-845 Figure out why psutil and PyYAML are being deleted.
-
-pip install psutil==1.2.1
-
-# Install requirements.txt
-pip install -r requirements.txt
-
-python setup.py develop --install-dir=lib/python2.7/site-packages --script-dir=bin
+python ./setup.py install \
+  --install-dir="${ANACONDA_D}/lib/python2.7/site-packages" \
+  --script-dir="${ANACONDA_D}/bin"

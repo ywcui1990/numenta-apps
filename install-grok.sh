@@ -28,6 +28,8 @@ function install {
   popd
 }
 
+pip install numpy==1.9.2
+
 install nta.utils $1 $2
 install htmengine $1 $2
 install infrastructure $1 $2
