@@ -41,7 +41,7 @@ from infrastructure.utilities.numenta_rpm import NumentaRPM
 # Set up our globals
 g_config = None
 g_logger = None
-
+g_cleanupDirectories = None
 
 
 def parseCLA():
@@ -229,7 +229,7 @@ def parseCLA():
 
 
 
-def signalHandler(caughtSignal, frame, NumentaRPM):
+def signalHandler(caughtSignal, frame):
   """
   Catch SIGINT & SIGTERM, then delete the fakeroot and exit non-zero.
 
@@ -241,7 +241,7 @@ def signalHandler(caughtSignal, frame, NumentaRPM):
   """
   g_logger.error("Caught signal %s in frame %s, terminating...", caughtSignal,
                  frame)
-  NumentaRPM.cleanupDirectories()
+  g_cleanupDirectories()
   sys.exit(1)
 
 
@@ -252,6 +252,7 @@ if __name__ == "__main__":
 
   parseCLA()
   numentaRPM = NumentaRPM(g_config)
+  g_cleanupDirectories = numentaRPM.cleanupDirectories
   try:
     numentaRPM.create()
   except:
