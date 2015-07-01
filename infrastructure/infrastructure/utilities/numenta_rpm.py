@@ -122,7 +122,6 @@ class NumentaRPM(object):
 
     @rtype tuple
     """
-    fakeroot = self.fakeroot
     flavor = self.config.flavor
     config = self.config
     logger = self.logger
@@ -150,7 +149,6 @@ class NumentaRPM(object):
 
     """
     config = self.config
-    fakeroot = self.fakeroot
     logger = self.logger
     productsDirectory = self.productsDirectory
     logger.debug("Creating %s", productsDirectory)
@@ -445,7 +443,6 @@ class NumentaRPM(object):
     fakeroot = self.fakeroot
     environment = self.environment
     logger = self.logger
-    productsDirectory = self.productsDirectory
 
     pythonpath = ""
     logger.debug("Previous: %s", pythonpath)
