@@ -15,9 +15,16 @@ from infrastructure.utilities.cli import runWithOutput
 
 
 class NumentaRPM(object):
-  """docstring for NumentaRPM
+  """
+  Class for creating Numenta RPMs.
   """
   def __init__(self, config):
+    # convert dict to object
+    if isinstance(config, dict):
+      tmpConfig = type('Config', (), {})()
+      for k, v in config.items():
+        setattr(tmpConfig, k, v)
+      config = tmpConfig
     failmsg = None
     if config.sitePackagesTarball:
       if config.flavor != "grok":
