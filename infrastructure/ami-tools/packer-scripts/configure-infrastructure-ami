@@ -44,6 +44,11 @@ yum clean all
 echo "Updating glibc"
 yum install -y glibc
 
+echo
+echo "**********"
+echo "Updating yum"
+time yum update -y
+
 echo "Old minion_id"
 cat /etc/salt/minion_id
 
@@ -61,8 +66,14 @@ echo "Setting Salt minion_id: $(cat /tmp/infrastructure_minion_id)"
 cat /tmp/infrastructure_minion_id > /etc/salt/minion_id
 
 echo "Setting salt master name"
-sed 's/^#master: salt/master: salt.numenta.com/g' /etc/salt/minion -i''
-grep '/^master:/' /etc/salt/minion
+sed 's/^#master:/master: salt.numenta.com/g' /etc/salt/minion -i''
+grep ^master: /etc/salt/minion
+retcode="$?"
+if [ "${retcode}" != "0" ]; then
+  echo "Failed to set salt master name"
+  echo "Check for changes to default /etc/salt/minion"
+  exit "${retcode}"
+fi
 
 echo "Purging salt minion key data..."
 rm -fr /etc/salt/pki/minion/*

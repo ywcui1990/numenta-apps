@@ -28,8 +28,8 @@ complain() {
 
 echo "Installing developer tools..."
 echo "Installing devtools-2.repo..."
-cp /tmp/devtools-2.repo /etc/yum.repos.d
-cp /tmp/devtools-pathaddition.sh /etc/profile.d
+cp -v /tmp/devtools-2.repo /etc/yum.repos.d
+cp -v /tmp/devtools-pathaddition.sh /etc/profile.d
 
 yum makecache
 

@@ -30,11 +30,6 @@ complain() {
 }
 
 echo
-echo "**********"
-echo "Updating yum"
-time yum update -y
-
-echo
 echo "Infrastructure AMI cleanups"
 
 service salt-minion stop

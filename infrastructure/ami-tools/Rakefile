@@ -262,7 +262,7 @@ task :devtools_repo do
     sh %{ rsync ../saltcellar/devtools/files/devtools-2.repo repos/devtools-2.repo }
   end
   unless File.exist?("repos/devtools-pathaddition.sh")
-    sh %{ cat ../saltcellar/devtools/files/00-add-devtools-to-path.sh > repos/devtools-pathaddition.sh }
+    sh %{ rsync ../saltcellar/devtools/files/00-add-devtools-to-path.sh repos/devtools-pathaddition.sh }
   end
 end
 
