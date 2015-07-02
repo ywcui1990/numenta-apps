@@ -441,7 +441,7 @@ def getSymbolModels(host, apiKey, symbol):
   modelResult = namedtuple("modelResult", "uid name")
   return tuple(modelResult(obj["uid"], obj["name"])
                for obj in getAllModels(host, apiKey)
-               if ".%s." % symbol in obj["name"])
+               if ".{symbol}.".format(symbol=symbol) in obj["name"])
 
 
 

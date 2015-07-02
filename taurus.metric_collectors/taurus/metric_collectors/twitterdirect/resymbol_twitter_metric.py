@@ -153,8 +153,8 @@ def main():
     g_log.info("Migrating twitter data from old-symbol=%s to new-symbol=%s",
                options.old_symbol, options.new_symbol)
 
-    oldSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.%s." % options.old_symbol
-    newSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.%s." % options.new_symbol
+    oldSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.{symbol}.".format(symbol=options.old_symbol)
+    newSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.{symbol}.".format(symbol=options.new_symbol)
     oldSymbolTweetMetricsList = []
 
     with collectorsdb.engineFactory().begin() as conn:
@@ -163,9 +163,9 @@ def main():
                                      .contains(oldSymbolTweetPrefix)))
       oldSymbolTweets = conn.execute(oldSymbolTweetsQuery)
       for tweetSample in oldSymbolTweets:
-        newMetricName = "%s%s" % (
-            newSymbolTweetPrefix,
-            tweetSample.metric[len(oldSymbolTweetPrefix):])
+        newMetricName = "{newPrefix}{metric}".format(
+            newPrefix=newSymbolTweetPrefix,
+            metric=tweetSample.metric[len(oldSymbolTweetPrefix):])
         if tweetSample.metric not in oldSymbolTweetMetricsList:
           oldSymbolTweetMetricsList.append(tweetSample.metric)
 

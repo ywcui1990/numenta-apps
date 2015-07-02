@@ -1101,7 +1101,7 @@ class TweetForwarder(object):
         ).where(samplesSchema.c.seq >= minSeq
         ).where(sql.or_(
             schema.twitterTweetSamples.c.metric.ilike(
-              "TWITTER.TWEET.HANDLE.%s.%%" % symbol
+              "TWITTER.TWEET.HANDLE.{symbol}.%".format(symbol=symbol)
             ) for symbol in symbolList)
       ).order_by(samplesSchema.c.seq.asc())
 
@@ -1331,7 +1331,7 @@ class MetricDataForwarder(object):
       ).where(schema.twitterTweetSamples.c.agg_ts == aggDatetime
       ).where(sql.or_(
           schema.twitterTweetSamples.c.metric.ilike(
-              "TWITTER.TWEET.HANDLE.%s.%%" % symbol
+              "TWITTER.TWEET.HANDLE.{symbol}.%".format(symbol=symbol)
           ) for symbol in symbolList)
       ).group_by(schema.twitterTweetSamples.c.metric)
 
