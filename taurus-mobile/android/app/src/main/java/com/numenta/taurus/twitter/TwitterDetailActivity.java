@@ -43,12 +43,16 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -153,6 +157,10 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
     // Loading tweets message
     private View _loadingMessage;
 
+    // Condensed checkbox
+    private CheckBox _condensedCheckbox;
+
+
     // Date field on group header
     private TextView _date;
 
@@ -161,6 +169,8 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
 
     // Twitter list view
     private ListView _listView;
+
+    private Drawable _divider;
 
     private TwitterListAdapter _twitterListAdapter;
 
@@ -213,6 +223,11 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
         _tweetCount = (TextView) _groupHeader.findViewById(R.id.tweet_count);
 
         _listView = (ListView) findViewById(R.id.twitter_list);
+        _divider = _listView.getDivider();
+        // Use black line as divider for condensed view
+        _listView.setDivider(new ColorDrawable(0xFF000000));   //0xAARRGGBB
+        _listView.setDividerHeight(1);
+
         // Add "grey" filler as list footer. This footer will allow us to scroll to the last tweet.
         _listView.addFooterView(getLayoutInflater().inflate(R.layout.twitter_list_footer, null));
         _twitterListAdapter = new TwitterListAdapter(this);
@@ -281,6 +296,25 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 }
             }
         });
+
+        // Handle "condensed" checkbox event
+        _condensedCheckbox = (CheckBox) findViewById(R.id.condensed_tweets_checkbox);
+        _condensedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // Force refresh
+                _twitterListAdapter.setShowCondensedView(isChecked);
+                if (isChecked) {
+                    // Use black line as divider for condensed view
+                    _listView.setDivider(new ColorDrawable(0xFF000000));   //0xAARRGGBB
+                    _listView.setDividerHeight(1);
+                } else {
+                    // Restore original divider
+                    _listView.setDivider(_divider);
+                }
+            }
+        });
+        _twitterListAdapter.setShowCondensedView(_condensedCheckbox.isChecked());
 
         //Get the timestamp parameter passed to the activity
         _timestampArg = getIntent().getLongExtra(TIMESTAMP_ARG, 0);
