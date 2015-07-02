@@ -5,6 +5,7 @@
       "ami_name": "numenta-infrastructure-saltstack-32GB-{{isotime | clean_ami_name}}",
       "instance_type": "m3.large",
       "region": "us-west-2",
+      "security_group_id": "sg-0d18623d",
       "source_ami": "ami-5b447f6b",
       "ssh_port": 22,
       "ssh_timeout": "5m",
@@ -27,6 +28,21 @@
     {
       "destination": "/tmp/products.sha",
       "source": "products.sha",
+      "type": "file"
+    },
+    {
+      "destination": "/tmp/infrastructure_minion_id",
+      "source": "infrastructure_minion_id",
+      "type": "file"
+    },
+    {
+      "destination": "/tmp/devtools-2.repo",
+      "source": "repos/devtools-2.repo",
+      "type": "file"
+    },
+    {
+      "destination": "/tmp/devtools-pathaddition.sh",
+      "source": "repos/devtools-pathaddition.sh",
       "type": "file"
     },
     {
@@ -64,7 +80,6 @@
         "echo 'Sleeping for 30s, waiting for system to settle down.'",
         "sleep 30",
         "mkdir -p /etc/numenta",
-        "mkdir -p /srv/salt",
         "echo",
         "echo Purging grok-specific repo files",
         "rm -fv /etc/yum.repos.d/grok*repo",
@@ -82,6 +97,10 @@
     {
       "type": "shell",
       "script": "packer-scripts/zap-centos-nonessentials"
+    },
+    {
+      "type": "shell",
+      "script": "packer-scripts/install-devtools"
     },
     {
       "type": "shell",
