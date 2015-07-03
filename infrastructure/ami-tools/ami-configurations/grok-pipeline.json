@@ -1,6 +1,6 @@
 {
   "variables": {
-    "grok_install_manifest": "{{env `GROK_INSTALL_MANIFEST`}}",
+    "grok_rpm_name": "{{env `GROK_RPM_NAME`}}",
     "ami_name":"{{env `AMI_NAME`}}"
   },
   "builders": [
@@ -11,7 +11,7 @@
       "region": "us-west-2",
       "source_ami": "ami-e32219d3",
       "ssh_port": 22,
-      "ssh_timeout": "3m",
+      "ssh_timeout": "5m",
       "ssh_username": "root",
       "tags": {
         "OS_Version": "CentOS",
@@ -59,8 +59,8 @@
       "type": "file"
     },
     {
-      "destination": "/tmp/grok-manifest.json",
-      "source": "{{user `grok_install_manifest`}}",
+      "destination": "/tmp/epel.repo",
+      "source": "repos/epel.repo",
       "type": "file"
     },
     {
@@ -75,7 +75,10 @@
     },
     {
       "type": "shell",
-      "script": "packer-scripts/configure-grok-pipeline-ami"
+      "script": "packer-scripts/configure-grok-pipeline-ami",
+      "environment_vars": [
+        "GROK_RPM_NAME={{user `grok_rpm_name`}}"
+      ]
     },
     {
       "type": "shell",

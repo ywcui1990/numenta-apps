@@ -41,6 +41,12 @@ include:
 mysql-community-server:
   pkg.installed:
     - version: 5.6.23-2.el6
+    -require:
+      - pkg: mysql-community-client
+
+mysql-community-client:
+  pkg.installed:
+    - version: 5.6.23-2.el6
 
 mysqld.service:
   service.running:

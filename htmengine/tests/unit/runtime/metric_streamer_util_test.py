@@ -34,7 +34,6 @@ import unittest
 from mock import Mock, patch
 
 # TODO TAUR-708 Remove reference to grok
-import grok.app
 from htmengine.runtime import metric_streamer_util
 
 from htmengine.model_swapper import model_swapper_interface
@@ -84,8 +83,9 @@ class MetricStreamerTestCase(unittest.TestCase):
 
   def testSendInputRowsToModel(self):
     """ Test MetricStreamer._sendInputRowsToModel """
-    metricDataOutputChunkSize = grok.app.config.getint(
-      "metric_streamer", "chunk_size")
+    metricDataOutputChunkSize = metric_streamer_util.config.getint(
+        "metric_streamer", "chunk_size")
+
 
     now = datetime.utcnow()
 
@@ -166,8 +166,8 @@ class MetricStreamerTestCase(unittest.TestCase):
     """ Test MetricStreamer._sendInputRowsToModel with ModelNotFound error
     from ModelSwapperInterface.submitRequests
     """
-    metricDataOutputChunkSize = grok.app.config.getint(
-      "metric_streamer", "chunk_size")
+    metricDataOutputChunkSize = metric_streamer_util.config.getint(
+        "metric_streamer", "chunk_size")
 
     now = datetime.utcnow()
 
@@ -206,8 +206,8 @@ class MetricStreamerTestCase(unittest.TestCase):
     """ Test MetricStreamer._sendInputRowsToModel with error other than
     ModelNotFound from ModelSwapperInterface.submitRequests
     """
-    metricDataOutputChunkSize = grok.app.config.getint(
-      "metric_streamer", "chunk_size")
+    metricDataOutputChunkSize = metric_streamer_util.config.getint(
+        "metric_streamer", "chunk_size")
 
     now = datetime.utcnow()
 

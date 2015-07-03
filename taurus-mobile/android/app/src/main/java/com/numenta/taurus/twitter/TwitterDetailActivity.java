@@ -43,19 +43,22 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -92,9 +95,6 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
 
     /** The selected timestamp to position */
     public static final String SELECTED_TIMESTAMP_ARG = "selected";
-
-    /** Tolerate up to 30 minutes when positioning via timestamp */
-    private static final long TIMESTAMP_TOLERANCE = 30 * DataUtils.MILLIS_PER_MINUTE;
 
     /** Sort tweets by time > retweet count > retweet total > id */
     static Comparator<Tweet> SORT_BY_DATE = new Comparator<Tweet>() {
@@ -154,6 +154,13 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
     // Twitter group header
     private View _groupHeader;
 
+    // Loading tweets message
+    private View _loadingMessage;
+
+    // Condensed checkbox
+    private CheckBox _condensedCheckbox;
+
+
     // Date field on group header
     private TextView _date;
 
@@ -162,6 +169,8 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
 
     // Twitter list view
     private ListView _listView;
+
+    private Drawable _divider;
 
     private TwitterListAdapter _twitterListAdapter;
 
@@ -207,15 +216,21 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
             }
         });
 
+        _loadingMessage = findViewById(R.id.loading_tweets_message);
+
         _groupHeader = findViewById(R.id.group_header);
         _date = (TextView) _groupHeader.findViewById(R.id.date);
         _tweetCount = (TextView) _groupHeader.findViewById(R.id.tweet_count);
 
         _listView = (ListView) findViewById(R.id.twitter_list);
+        _divider = _listView.getDivider();
+        // Use black line as divider for condensed view
+        _listView.setDivider(new ColorDrawable(0xFF000000));   //0xAARRGGBB
+        _listView.setDividerHeight(1);
+
         // Add "grey" filler as list footer. This footer will allow us to scroll to the last tweet.
         _listView.addFooterView(getLayoutInflater().inflate(R.layout.twitter_list_footer, null));
         _twitterListAdapter = new TwitterListAdapter(this);
-        _listView.setFastScrollEnabled(true);
         _listView.setAdapter(_twitterListAdapter);
         _listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -282,6 +297,25 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
             }
         });
 
+        // Handle "condensed" checkbox event
+        _condensedCheckbox = (CheckBox) findViewById(R.id.condensed_tweets_checkbox);
+        _condensedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // Force refresh
+                _twitterListAdapter.setShowCondensedView(isChecked);
+                if (isChecked) {
+                    // Use black line as divider for condensed view
+                    _listView.setDivider(new ColorDrawable(0xFF000000));   //0xAARRGGBB
+                    _listView.setDividerHeight(1);
+                } else {
+                    // Restore original divider
+                    _listView.setDivider(_divider);
+                }
+            }
+        });
+        _twitterListAdapter.setShowCondensedView(_condensedCheckbox.isChecked());
+
         //Get the timestamp parameter passed to the activity
         _timestampArg = getIntent().getLongExtra(TIMESTAMP_ARG, 0);
 
@@ -296,8 +330,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
      */
     private void scrollTo(long timestamp) {
         if (_listView != null) {
-            int position = _twitterListAdapter.getPositionByTimestamp(timestamp,
-                    TIMESTAMP_TOLERANCE);
+            int position = _twitterListAdapter.getPositionByTimestamp(timestamp);
             _listView.setSelection(position < 0 ? 0 : position);
         }
     }
@@ -480,6 +513,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
             @Override
             protected void onCancelled(Void aVoid) {
                 _loading = false;
+                _loadingMessage.setVisibility(View.GONE);
             }
 
             @Override
@@ -487,6 +521,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 // Make sure to flush last tweets
                 flushBucket();
                 _loading = false;
+                _loadingMessage.setVisibility(View.GONE);
             }
 
             /**
@@ -498,6 +533,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 }
                 Tweet tweet;
                 Integer count;
+                _twitterListAdapter.setNotifyDataSetChanged(false);
                 for (Map.Entry<Tweet, Integer> entry : _buckets.entrySet()) {
                     // Update retweet count
                     tweet = entry.getKey();
@@ -513,11 +549,11 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                     _twitterListAdapter.add(tweet);
                 }
                 _twitterListAdapter.sort(SORT_BY_DATE);
+                _twitterListAdapter.notifyDataSetChanged();
                 _buckets.clear();
 
                 // Find selected timestamp
-                final int position = _twitterListAdapter.getPositionByTimestamp(_initialTimestamp,
-                        TIMESTAMP_TOLERANCE);
+                final int position = _twitterListAdapter.getPositionByTimestamp(_initialTimestamp);
                 if (position >= 0) {
                     _listView.post(new Runnable() {
                         @Override
@@ -560,10 +596,10 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
 
                         // Find max count value within time tolerance
                         SortedMap<Long, Integer> valuesInRange = _tweetCountByDate
-                                .subMap(selectedTimestamp - TIMESTAMP_TOLERANCE,
-                                        selectedTimestamp + TIMESTAMP_TOLERANCE + 1);
+                                .subMap(selectedTimestamp - _twitterListAdapter.TIMESTAMP_TOLERANCE,
+                                        selectedTimestamp + _twitterListAdapter.TIMESTAMP_TOLERANCE + 1);
                         int max = -1;
-                        for(SortedMap.Entry<Long, Integer> entry : valuesInRange.entrySet()) {
+                        for (SortedMap.Entry<Long, Integer> entry : valuesInRange.entrySet()) {
                             if (entry.getValue() > max) {
                                 max = entry.getValue();
                                 selectedTimestamp = entry.getKey();
@@ -573,6 +609,14 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                         // When the total number of tweets is very large (500+),
                         // break loading task into smaller chunks to avoid long wait time on the UI
                         if (total > 500) {
+
+                            // Show "loading" message
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    _loadingMessage.setVisibility(View.VISIBLE);
+                                }
+                            });
                             // First load data from the user selected date.
                             connection.getTweets(_metric.getName(),
                                     new Date(selectedTimestamp),

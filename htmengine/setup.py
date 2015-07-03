@@ -1,16 +1,26 @@
+import platform
 import sys
 
 from setuptools import setup, find_packages
 
-requirements = map(str.strip, open("requirements.txt").readlines())
+setup_requirements = []
+install_requirements = []
+for req in open("requirements.txt").readlines():
+  req = req.strip()
+  if req.startswith("numpy"):
+    setup_requirements.append(req)
+  install_requirements.append(req)
 
-depLinks = ["https://pypi.numenta.com/pypi", ] if "linux" in sys.platform else []
+depLinks = []
+if "linux" in sys.platform and platform.linux_distribution()[0] == "CentOS":
+  depLinks = [ "https://pypi.numenta.com/pypi/nupic", ]
 
 setup(
   name = "htmengine",
   description = "HTM Engine",
   packages = find_packages(),
   include_package_data=True,
-  install_requires = requirements,
-  dependency_links = depLinks
+  setup_requires = setup_requirements,
+  install_requires = install_requirements,
+  dependency_links = depLinks,
 )

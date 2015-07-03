@@ -18,14 +18,19 @@
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
-# ----------------------------------------------------------------------
+ANACONDA_D="/opt/numenta/anaconda"
 
-set -o errexit
+# Set a proper PATH
+# Start prepending directories
+PATH="/usr/local/bin:${PATH}"
+PATH="/usr/local/sbin:${PATH}"
+export PATH="${ANACONDA_D}/bin:${PATH}"
 
-function install {
-  pushd $1
-  python setup.py develop --install-dir=$2 --script-dir=$3
-  popd
-}
+# Use anaconda's PYTHONPATH
+export PYTHONPATH="${ANACONDA_D}/lib/python2.7/site-packages"
 
-install infrastructure $1 $2
+cd /opt/numenta/products/infrastructure
+
+python ./setup.py install \
+  --install-dir="${ANACONDA_D}/lib/python2.7/site-packages" \
+  --script-dir="${ANACONDA_D}/bin"
