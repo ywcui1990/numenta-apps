@@ -219,11 +219,13 @@ def main():
 
       g_log.info("Modifying old metrics for new symbol")
       if options.twitter:
-        oldSymbolTweetsQuery = (sql.select([tweetSamplesSchema])
-                                .where(tweetSamplesSchema.c.metric
-                                       .contains(oldSymbolTweetPrefix)))
-        oldSymbolTweets = conn.execute(oldSymbolTweetsQuery)
-        for tweetSample in oldSymbolTweets:
+        oldSymbolTweetMetricsQuery = (sql.select([tweetSamplesSchema.c.metric
+                                                 .distinct()])
+                                      .where(tweetSamplesSchema.c.metric
+                                             .contains(oldSymbolTweetPrefix)))
+        oldSymbolTweetMetrics = conn.execute(oldSymbolTweetMetricsQuery)
+
+        for tweetSample in oldSymbolTweetMetrics:
           newMetricName = "{newPrefix}{metric}".format(
               newPrefix=newSymbolTweetPrefix,
               metric=tweetSample.metric[len(oldSymbolTweetPrefix):])
@@ -232,11 +234,11 @@ def main():
 
           updateSampleQuery = (tweetSamplesSchema
                                .update()
-                               .where(tweetSamplesSchema.c.seq == tweetSample.seq)
+                               .where(tweetSamplesSchema.c.metric
+                                      .contains(oldSymbolTweetPrefix))
                                .values(metric=newMetricName))
 
           conn.execute(updateSampleQuery)
-
 
       if options.stocks:
         updateStockBarsQuery = (stockBarsSchema
