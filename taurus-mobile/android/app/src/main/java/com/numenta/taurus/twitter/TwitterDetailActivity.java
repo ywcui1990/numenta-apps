@@ -170,7 +170,8 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
     // Twitter list view
     private ListView _listView;
 
-    private Drawable _divider;
+    private Drawable _normalDivider;
+    private Drawable _condensedDivider;
 
     private TwitterListAdapter _twitterListAdapter;
 
@@ -223,10 +224,6 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
         _tweetCount = (TextView) _groupHeader.findViewById(R.id.tweet_count);
 
         _listView = (ListView) findViewById(R.id.twitter_list);
-        _divider = _listView.getDivider();
-        // Use black line as divider for condensed view
-        _listView.setDivider(new ColorDrawable(0xFF000000));   //0xAARRGGBB
-        _listView.setDividerHeight(1);
 
         // Add "grey" filler as list footer. This footer will allow us to scroll to the last tweet.
         _listView.addFooterView(getLayoutInflater().inflate(R.layout.twitter_list_footer, null));
@@ -306,15 +303,21 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 _twitterListAdapter.setShowCondensedView(isChecked);
                 if (isChecked) {
                     // Use black line as divider for condensed view
-                    _listView.setDivider(new ColorDrawable(0xFF000000));   //0xAARRGGBB
-                    _listView.setDividerHeight(1);
+                    _listView.setDivider(_condensedDivider);
                 } else {
                     // Restore original divider
-                    _listView.setDivider(_divider);
+                    _listView.setDivider(_normalDivider);
                 }
             }
         });
         _twitterListAdapter.setShowCondensedView(_condensedCheckbox.isChecked());
+        _normalDivider = _listView.getDivider();
+        // Use black line as divider for condensed view
+        _condensedDivider = getResources().getDrawable(R.drawable.twitter_list_divider);
+        if (_condensedCheckbox.isChecked()) {
+            _listView.setDivider(_condensedDivider);
+        }
+
 
         //Get the timestamp parameter passed to the activity
         _timestampArg = getIntent().getLongExtra(TIMESTAMP_ARG, 0);
