@@ -49,20 +49,20 @@ public class Tweet implements Serializable {
 
     final private String _cannonicalText;
 
-    // Match "RT " from the beginning of the text up to the colon.
-    private static final Pattern RT_REGEX = Pattern.compile("^\\s*RT\\s+[^:]+:\\s*");
+    // Match "RT " from the beginning of the text.
+    private static final Pattern RT_REGEX = Pattern.compile("^\\s*RT\\s+");
 
     // From left side – Match @, #, $ up to colon symbol
     private static final Pattern LEFT_HASHTAG_UP_TO_COLON_REGEX = Pattern
-            .compile("^\\s*[@#$][^:]+:\\s*");
+            .compile("^\\s*[@#$][a-zA-Z][_a-zA-Z0-9]*\\s*:?\\s*");
 
     // From left side – Match @, #, $ up to last
     private static final Pattern LEFT_HASHTAG_UP_TO_LAST_REGEX = Pattern
-            .compile("^\\s*([@#$][.\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}_]+\\s){2,}");
+            .compile("^\\s*([@#$][a-zA-Z][_a-zA-Z0-9]*\\s+){2,}");
 
     // From right side – Match @, #, $ when followed by letter, not a number
     private static final Pattern RIGHT_HASHTAG_REGEX = Pattern
-            .compile("([@#$][.\\p{Ll}\\p{Lu}\\p{Lt}\\p{Lo}_]+\\s*)+\\s*$");
+            .compile("\\s*([@#$][a-zA-Z][_a-zA-Z0-9]*\\s*)+\\s*$");
 
     // Match "http" or "https" URLs
     private static final Pattern LINKS_REGEX = Pattern.compile("https?:\\/\\/\\S+\\s*");
@@ -95,19 +95,19 @@ public class Tweet implements Serializable {
         // Remove duplicate tweets using specific set of rules. See "getCannonicalText" for rules
         String rawText = _text;
 
+        // Remove "..."
+        rawText = DOT_DOT_DOT_REGEX.matcher(rawText).replaceAll("");
+
         // Remove all links
         Matcher matcher = LINKS_REGEX.matcher(rawText);
         if (_hasLinks = matcher.find()) {
             rawText = matcher.replaceAll("");
         }
 
-        // Remove "..."
-        rawText = DOT_DOT_DOT_REGEX.matcher(rawText).replaceAll("");
-
         // Remove "RT" re-tweets
         rawText = RT_REGEX.matcher(rawText).replaceAll("");
 
-        // Remove Hash tags from the left
+        // Remove Hash and dollar tags from the left
         matcher = LEFT_HASHTAG_UP_TO_COLON_REGEX.matcher(rawText);
         if (matcher.find()) {
             // Remove everything up to the colon
