@@ -116,6 +116,23 @@ def _parseArgs():
       dest="new_symbol",
       help="New ticker symbol to be used")
 
+  parser.add_option(
+      "-t", "--twitteronly",
+      action="store_false",
+      dest="stocks",
+      default=True,
+      help="Only migrate twitter metric data"
+  )
+
+  parser.add_option(
+      "-x", "--stocksonly",
+      action="store_false",
+      dest="twitter",
+      default=True,
+      help="Only migrate xignite stock metric data"
+  )
+
+
   options, remainingArgs = parser.parse_args()
   if remainingArgs:
     parser.error("Unexpected remaining args: %r" % (remainingArgs,))
@@ -124,6 +141,11 @@ def _parseArgs():
     parser.error("Required \"--oldsymbol\" option was not specified")
   if options.new_symbol is None:
     parser.error("Required \"--newsymbol\" option was not specified")
+
+  if (not options.twitter) and (not options.stocks):
+    parser.error("Flags specifying a single type of metric to migrate can "
+                 "only be used exclusively. Forwarding all metrics is already "
+                 "the default behavior of this tool.")
 
   return options
 
@@ -138,7 +160,7 @@ def main():
   try:
     options = _parseArgs()
 
-    g_log.info("Verifying that twitter agent is in hot_standby mode")
+    g_log.info("Verifying that agents are in hot_standby mode")
     for section in config.sections():
       try:
         assert(config.get(section, "opmode") == ApplicationConfig.OP_MODE_HOT_STANDBY)
@@ -150,65 +172,81 @@ def main():
     for stockData in metric_utils.getMetricsConfiguration().itervalues():
       assert(stockData["symbol"] != options.old_symbol)
 
-    g_log.info("Migrating twitter data from old-symbol=%s to new-symbol=%s",
-               options.old_symbol, options.new_symbol)
+    if options.twitter and (not options.stocks):
+      g_log.info("Migrating ONLY twitter data from old-symbol=%s "
+                 "to new-symbol=%s",
+                 options.old_symbol, options.new_symbol)
+    elif options.stocks and (not options.twitter):
+      g_log.info("Migrating ONLY xignite stock data from old-symbol=%s "
+                 "to new-symbol=%s",
+                 options.old_symbol, options.new_symbol)
+      raise NotImplementedError
+    else:
+      g_log.info("Migrating BOTH twitter and xignite stock data from "
+                 "old-symbol=%s to new-symbol=%s",
+                 options.old_symbol, options.new_symbol)
+      raise NotImplementedError
 
     oldSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.{symbol}.".format(symbol=options.old_symbol)
     newSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.{symbol}.".format(symbol=options.new_symbol)
     oldSymbolTweetMetricsList = []
 
     with collectorsdb.engineFactory().begin() as conn:
-      oldSymbolTweetsQuery = (sql.select([tweetSamplesSchema])
-                              .where(tweetSamplesSchema.c.metric
-                                     .contains(oldSymbolTweetPrefix)))
-      oldSymbolTweets = conn.execute(oldSymbolTweetsQuery)
-      for tweetSample in oldSymbolTweets:
-        newMetricName = "{newPrefix}{metric}".format(
-            newPrefix=newSymbolTweetPrefix,
-            metric=tweetSample.metric[len(oldSymbolTweetPrefix):])
-        if tweetSample.metric not in oldSymbolTweetMetricsList:
-          oldSymbolTweetMetricsList.append(tweetSample.metric)
+
+      g_log.info("Renaming metrics to new symbol")
+      if options.twitter:
+        oldSymbolTweetsQuery = (sql.select([tweetSamplesSchema])
+                                .where(tweetSamplesSchema.c.metric
+                                       .contains(oldSymbolTweetPrefix)))
+        oldSymbolTweets = conn.execute(oldSymbolTweetsQuery)
+        for tweetSample in oldSymbolTweets:
+          newMetricName = "{newPrefix}{metric}".format(
+              newPrefix=newSymbolTweetPrefix,
+              metric=tweetSample.metric[len(oldSymbolTweetPrefix):])
+          if tweetSample.metric not in oldSymbolTweetMetricsList:
+            oldSymbolTweetMetricsList.append(tweetSample.metric)
+
+          updateSampleQuery = (tweetSamplesSchema
+                               .update()
+                               .where(tweetSamplesSchema.c.seq == tweetSample.seq)
+                               .values(metric=newMetricName))
+
+          conn.execute(updateSampleQuery)
 
 
-        updateSampleQuery = (tweetSamplesSchema
-                             .update()
-                             .where(tweetSamplesSchema.c.seq == tweetSample.seq)
-                             .values(metric=newMetricName))
-
-        conn.execute(updateSampleQuery)
-
-
-      g_log.info("Forwarding new metric data to Taurus engine...")
-      oldestRecordTs = conn.execute(sql.select(
-          [tweetSamplesSchema.c.agg_ts],
-          order_by=tweetSamplesSchema.c.agg_ts.asc())).first()[0]
-      lastEmittedAggTime = metric_utils.establishLastEmittedSampleDatetime(
-        key=_EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY,
-        aggSec=options.aggPeriod)
-      aggOffset = math.ceil(
-        (epochFromNaiveUTCDatetime(lastEmittedAggTime) -
-         epochFromNaiveUTCDatetime(oldestRecordTs)) / options.aggPeriod) * options.aggPeriod
-      aggStartDatetime = (lastEmittedAggTime -
-                          timedelta(seconds=aggOffset) -
-                          timedelta(seconds=options.aggPeriod))
-
-      metric_utils.updateLastEmittedSampleDatetime(
+      g_log.info("Forwarding new twitter metric data to Taurus engine...")
+      if options.twitter:
+        oldestRecordTs = conn.execute(sql.select(
+            [tweetSamplesSchema.c.agg_ts],
+            order_by=tweetSamplesSchema.c.agg_ts.asc())).first()[0]
+        lastEmittedAggTime = metric_utils.establishLastEmittedSampleDatetime(
           key=_EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY,
-          sampleDatetime=aggStartDatetime)
+          aggSec=options.aggPeriod)
+        aggOffset = math.ceil(
+          (epochFromNaiveUTCDatetime(lastEmittedAggTime) -
+           epochFromNaiveUTCDatetime(oldestRecordTs)) / options.aggPeriod) * options.aggPeriod
+        aggStartDatetime = (lastEmittedAggTime -
+                            timedelta(seconds=aggOffset) -
+                            timedelta(seconds=options.aggPeriod))
 
-      MetricDataForwarder.runInThread(
-          metricSpecs=loadMetricSpecs(),
-          aggSec=options.aggPeriod,
-          symbolList=[options.new_symbol],
-          forwardOnlyBacklog=True)
+        metric_utils.updateLastEmittedSampleDatetime(
+            key=_EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY,
+            sampleDatetime=aggStartDatetime)
 
-      metric_utils.updateLastEmittedSampleDatetime(
-          key=_EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY,
-          sampleDatetime=lastEmittedAggTime)
+        MetricDataForwarder.runInThread(
+            metricSpecs=loadMetricSpecs(),
+            aggSec=options.aggPeriod,
+            symbolList=[options.new_symbol],
+            forwardOnlyBacklog=True)
+
+        metric_utils.updateLastEmittedSampleDatetime(
+            key=_EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY,
+            sampleDatetime=lastEmittedAggTime)
 
 
-    g_log.info("Forwarding tweets to dynamodb using new symbol...")
-    migrate_tweets_to_dynamodb.main(symbolList=[options.new_symbol])
+    g_log.info("Forwarding metrics to dynamodb using new symbol...")
+    if options.twitter:
+      migrate_tweets_to_dynamodb.main(symbolList=[options.new_symbol])
 
 
     g_log.info("Unmonitoring and deleting existing metrics associated with "
