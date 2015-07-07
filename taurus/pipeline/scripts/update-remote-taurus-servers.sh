@@ -31,49 +31,49 @@ set -o verbose
 set -o nounset
 
 SCRIPT=`which $0`
-REPOPATH=`dirname ${SCRIPT}`/../../..
+REPOPATH=`dirname "${SCRIPT}"`/../../..
 
-pushd ${REPOPATH}
+pushd "${REPOPATH}"
 
-# Sync git histories with collector
-git fetch ${TAURUS_COLLECTOR_USER}@${TAURUS_COLLECTOR_HOST}:/opt/numenta/products
-git push ${TAURUS_COLLECTOR_USER}@${TAURUS_COLLECTOR_HOST}:/opt/numenta/products HEAD
+  # Sync git histories with collector
+  git fetch "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products
+  git push "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products HEAD
 
-# Reset metric collector state, apply database schema updates
-ssh -v -t ${TAURUS_COLLECTOR_USER}@${TAURUS_COLLECTOR_HOST} \
-  "cd /opt/numenta/products &&
-   git reset --hard ${COMMIT_SHA} &&
-   ./install-taurus-metric-collectors.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
-   cd /opt/numenta/products/taurus.metric_collectors/taurus/metric_collectors/collectorsdb &&
-   python migrate.py &&
-   taurus-collectors-set-opmode hot_standby &&
-   supervisord -c conf/supervisord.conf"
+  # Reset metric collector state, apply database schema updates
+  ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
+    "cd /opt/numenta/products &&
+     git reset --hard ${COMMIT_SHA} &&
+     ./install-taurus-metric-collectors.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
+     cd /opt/numenta/products/taurus.metric_collectors/taurus/metric_collectors/collectorsdb &&
+     python migrate.py &&
+     taurus-collectors-set-opmode hot_standby &&
+     supervisord -c conf/supervisord.conf"
 
-# Stop taurus services
-ssh -v -t ${TAURUS_SERVER_USER}@${TAURUS_COLLECTOR_HOST} \
-  "cd /opt/numenta/products/taurus &&
-   supervisorctl -s http://127.0.0.1:9001 shutdown &&
-   sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s stop"
+  # Stop taurus services
+  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_COLLECTOR_HOST}" \
+    "cd /opt/numenta/products/taurus &&
+     supervisorctl -s http://127.0.0.1:9001 shutdown &&
+     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s stop"
 
-# Sync git histories with taurus server
-git fetch ${TAURUS_SERVER_USER}@${TAURUS_SERVER_HOST}:/opt/numenta/products
-git push ${TAURUS_SERVER_USER}@${TAURUS_SERVER_HOST}:/opt/numenta/products HEAD
+  # Sync git histories with taurus server
+  git fetch "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products
+  git push "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products HEAD
 
-# Reset server state, apply database schema, start taurus services
-ssh -v -t ${TAURUS_SERVER_USER}@${TAURUS_SERVER_HOST} \
-  "cd /opt/numenta/products &&
-   git reset --hard ${COMMIT_SHA} &&
-   ./install-taurus.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
-   cd /opt/numenta/products/taurus/taurus/repository &&
-   python migrate.py &&
-   cd /opt/numenta/products/taurus &&
-   sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
-   supervisord -c conf/supervisord.conf"
+  # Reset server state, apply database schema, start taurus services
+  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
+    "cd /opt/numenta/products &&
+     git reset --hard ${COMMIT_SHA} &&
+     ./install-taurus.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
+     cd /opt/numenta/products/taurus/taurus/repository &&
+     python migrate.py &&
+     cd /opt/numenta/products/taurus &&
+     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
+     supervisord -c conf/supervisord.conf"
 
-# Return metric collector to active state
-ssh -v -t ${TAURUS_COLLECTOR_USER}@${TAURUS_COLLECTOR_HOST} \
-  "taurus-collectors-set-opmode active
-   cd /opt/numenta/products/taurus.metric_collectors/
-   supervisorctl -s http://127.0.0.1:8001 restart all"
+  # Return metric collector to active state
+  ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
+    "taurus-collectors-set-opmode active
+     cd /opt/numenta/products/taurus.metric_collectors/
+     supervisorctl -s http://127.0.0.1:8001 restart all"
 
 popd

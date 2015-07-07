@@ -32,62 +32,62 @@ set -o verbose
 set -o nounset
 
 SCRIPT=`which $0`
-REPOPATH=`dirname ${SCRIPT}`/../../..
+REPOPATH=`dirname "${SCRIPT}"`/../../..
 
-pushd ${REPOPATH}
+pushd "${REPOPATH}"
 
-# Tear down existing metrics, stop metric collector services
-ssh -v -t ${TAURUS_COLLECTOR_USER}@${TAURUS_COLLECTOR_HOST} \
-  "taurus-unmonitor-metrics \
-    --server="${TAURUS_SERVER_HOST}" \
-    --apikey="${TAURUS_SERVER_APIKEY}" \
-    --all \
-    --modelsout=./unmonitor.json &&
-   cd /opt/numenta/products/taurus.metric_collectors &&
-   supervisorctl -s http://127.0.0.1:8001 shutdown"
+  # Tear down existing metrics, stop metric collector services
+  ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
+    "taurus-unmonitor-metrics \
+      --server=${TAURUS_SERVER_HOST} \
+      --apikey=${TAURUS_SERVER_APIKEY} \
+      --all \
+      --modelsout=./unmonitor.json &&
+     cd /opt/numenta/products/taurus.metric_collectors &&
+     supervisorctl -s http://127.0.0.1:8001 shutdown"
 
-# Stop taurus services, cleanup checkpoints
-ssh -v -t ${TAURUS_SERVER_USER}@${TAURUS_COLLECTOR_HOST} \
-  "cd /opt/numenta/products/taurus &&
-   supervisorctl -s http://127.0.0.1:9001 shutdown &&
-   sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s stop &&
-   rm -rf /home/${TAURUS_SERVER_USER}/taurus_model_checkpoints/*"
+  # Stop taurus services, cleanup checkpoints
+  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_COLLECTOR_HOST}" \
+    "cd /opt/numenta/products/taurus &&
+     supervisorctl -s http://127.0.0.1:9001 shutdown &&
+     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s stop &&
+     rm -rf /home/${TAURUS_SERVER_USER}/taurus_model_checkpoints/*"
 
-# Sync git histories with collector
-git fetch ${TAURUS_COLLECTOR_USER}@${TAURUS_COLLECTOR_HOST}:/opt/numenta/products
-git push ${TAURUS_COLLECTOR_USER}@${TAURUS_COLLECTOR_HOST}:/opt/numenta/products HEAD
+  # Sync git histories with collector
+  git fetch "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products
+  git push "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products HEAD
 
-# Reset metric collector state, apply database schema
-ssh -v -t ${TAURUS_COLLECTOR_USER}@${TAURUS_COLLECTOR_HOST} \
-  "cd /opt/numenta/products &&
-   git reset --hard ${COMMIT_SHA} &&
-   ./install-taurus-metric-collectors.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
-   cd /opt/numenta/products/taurus.metric_collectors/taurus/metric_collectors/collectorsdb &&
-   python migrate.py &&
-   cd /opt/numenta/products/taurus.metric_collectors &&
-   py.test ../nta.utils/tests/unit tests/unit"
+  # Reset metric collector state, apply database schema
+  ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
+    "cd /opt/numenta/products &&
+     git reset --hard ${COMMIT_SHA} &&
+     ./install-taurus-metric-collectors.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
+     cd /opt/numenta/products/taurus.metric_collectors/taurus/metric_collectors/collectorsdb &&
+     python migrate.py &&
+     cd /opt/numenta/products/taurus.metric_collectors &&
+     py.test ../nta.utils/tests/unit tests/unit"
 
-# Sync git histories with taurus server
-git fetch ${TAURUS_SERVER_USER}@${TAURUS_SERVER_HOST}:/opt/numenta/products
-git push ${TAURUS_SERVER_USER}@${TAURUS_SERVER_HOST}:/opt/numenta/products HEAD
+  # Sync git histories with taurus server
+  git fetch "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products
+  git push "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products HEAD
 
-# Reset server state, apply database schema, start taurus services
-ssh -v -t ${TAURUS_SERVER_USER}@${TAURUS_SERVER_HOST} \
-  "cd /opt/numenta/products &&
-   git reset --hard ${COMMIT_SHA} &&
-   ./install-taurus.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
-   cd /opt/numenta/products/taurus/taurus/repository &&
-   python migrate.py &&
-   cd /opt/numenta/products/taurus &&
-   py.test ../nta.utils/tests/unit ../htmengine/tests/unit tests/unit &&
-   sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
-   supervisord -c conf/supervisord.conf &&
-   py.test ../nta.utils/tests/integration ../htmengine/tests/integration tests/integration"
+  # Reset server state, apply database schema, start taurus services
+  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
+    "cd /opt/numenta/products &&
+     git reset --hard ${COMMIT_SHA} &&
+     ./install-taurus.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
+     cd /opt/numenta/products/taurus/taurus/repository &&
+     python migrate.py &&
+     cd /opt/numenta/products/taurus &&
+     py.test ../nta.utils/tests/unit ../htmengine/tests/unit tests/unit &&
+     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
+     supervisord -c conf/supervisord.conf &&
+     py.test ../nta.utils/tests/integration ../htmengine/tests/integration tests/integration"
 
-# Start metric collector services
-ssh -v -t ${TAURUS_COLLECTOR_USER}@${TAURUS_COLLECTOR_HOST} \
-  "cd /opt/numenta/products/taurus.metric_collectors  &&
-   supervisord -c conf/supervisord.conf  &&
-   py.test ../nta.utils/tests/integration tests/integration"
+  # Start metric collector services
+  ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
+    "cd /opt/numenta/products/taurus.metric_collectors  &&
+     supervisord -c conf/supervisord.conf  &&
+     py.test ../nta.utils/tests/integration tests/integration"
 
 popd
