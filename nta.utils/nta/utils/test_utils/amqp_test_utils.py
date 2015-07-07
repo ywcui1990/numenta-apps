@@ -47,15 +47,14 @@ class RabbitmqVirtualHostPatch(object):
   subprocesses.
 
   On start: creates a temporary virtual host and patches the "virtual_host"
-    attribute in the "connection" section of grok's rabbitmq.conf configuration
-    file
+    attribute in the "connection" section of rabbitmq.conf configuration file
 
   On stop: deletes the temporary virtual host and unpatches the "virtual_host"
     rabbitmq configuraiton attribute.
 
   NOTE: the patch assumes that the code under test connects to RabbitMQ using
   the virtual_host from "virtual_host" attribute in the "connection" section of
-  grok's rabbitmq.conf configuration file.
+  rabbitmq.conf configuration file.
 
   NOTE: this decorator will only decorate methods beginning with the
   `mock.patch.TEST_PREFIX` prefix (defaults to "test"). Please keep this in

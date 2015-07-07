@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-Unit tests for grok.app.runtime.metric_streamer_util
+Unit tests for htmengine.runtime.metric_streamer_util
 """
 
 # Disable pylint warning "Access to a protected member"
@@ -33,9 +33,7 @@ import unittest
 
 from mock import Mock, patch
 
-# TODO TAUR-708 Remove reference to grok
 from htmengine.runtime import metric_streamer_util
-
 from htmengine.model_swapper import model_swapper_interface
 
 
