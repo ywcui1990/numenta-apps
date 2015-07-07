@@ -26,9 +26,11 @@ automatically with grok.
 
 ::
 
-    ./install-grok.sh "$HOME/Library/Python/2.7/lib/python/site-packages" /usr/local/bin
+    ./install-grok.sh <site-packages in $PYTHONPATH> <somewhere in $PATH>
 
-The first directory can be any directory on your `PYTHONPATH`. The second directory can be any directoryon your `PATH`.
+The first directory can be any directory on your `PYTHONPATH`. The second directory can be any directory on your `PATH`.
+
+- e.g., `./install-grok.sh /opt/numenta/anaconda/lib/python2.7/site-packages/ /opt/numenta/anaconda/bin/`
 
 
 Config
@@ -49,16 +51,6 @@ You'll need to install/start MySQL server and RabbitMQ server prior to running s
 
 
 Review your grok configuration file and make changes as necessary.
-
-
-Delete old checkpoints:
-~~~~~~~~~~~~~~~~~~~~~~~
-
-If you have an old copy of grok then you need to clean up the old model checkpoints.
-
-::
-
-    rm -fr ~/grok_model_checkpoints/
 
 
 Common Grok Environment Variables
