@@ -43,7 +43,7 @@ Bootstrap your Grok configuration files and initialize the database:
 generated Grok configuration files should be stored by `python setup.py init`. If not set,
 it presently defaults to the location of Grok configuraiton template files (e.g., `grok/conf/`)
 
-You'll need to install/start MySQL server and RabbitMQ server prior to running setup.
+You'll need to install/start MySQL server and RabbitMQ server prior to running `setup.py init`
 
 ::
 
