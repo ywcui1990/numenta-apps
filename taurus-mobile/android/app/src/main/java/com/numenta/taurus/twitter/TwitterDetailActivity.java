@@ -43,7 +43,6 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -171,6 +170,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
     private ListView _listView;
 
     private Drawable _normalDivider;
+
     private Drawable _condensedDivider;
 
     private TwitterListAdapter _twitterListAdapter;
@@ -317,7 +317,6 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
         if (_condensedCheckbox.isChecked()) {
             _listView.setDivider(_condensedDivider);
         }
-
 
         //Get the timestamp parameter passed to the activity
         _timestampArg = getIntent().getLongExtra(TIMESTAMP_ARG, 0);
@@ -538,8 +537,13 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                 Integer count;
                 _twitterListAdapter.setNotifyDataSetChanged(false);
                 for (Map.Entry<Tweet, Integer> entry : _buckets.entrySet()) {
-                    // Update retweet count
                     tweet = entry.getKey();
+                    // Ignore empty tweets
+                    if (tweet.getCanonicalText().isEmpty()) {
+                        continue;
+                    }
+
+                    // Update retweet count
                     count = entry.getValue();
                     tweet.setRetweetCount(count);
 
