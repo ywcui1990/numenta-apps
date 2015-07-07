@@ -23,6 +23,7 @@
 # Installs the MySQL community repository, then installs MySQL 5.6.23
 
 include:
+  - mysql.client
   - mysql.repositories
 
 {% if grains['os_family'] == 'RedHat' %}
@@ -38,15 +39,11 @@ include:
     - require:
       - pkg: mysql-community-server
 
-mysql-community-server:
-  pkg.installed:
-    - version: 5.6.23-2.el6
-    -require:
-      - pkg: mysql-community-client
-
-mysql-community-client:
-  pkg.installed:
-    - version: 5.6.23-2.el6
+install-mysqld:
+  pkg.latest:
+    - name: mysql-community-server
+    - require:
+      - pkg: install-mysql-client
 
 mysqld.service:
   service.running:
