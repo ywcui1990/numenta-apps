@@ -49,26 +49,30 @@ public class Tweet implements Serializable {
 
     final private String _cannonicalText;
 
-    // Match "RT " from the beginning of the text.
-    private static final Pattern RT_REGEX = Pattern.compile("^\\s*RT\\s+");
+    // Match "RT @tags" from the beginning of the text.
+    private static final Pattern RT_REGEX = Pattern
+            .compile("^\\s*RT\\s+(@[a-zA-Z][_a-zA-Z0-9]*\\s*)*");
 
     // From left side – Match @, #, $ up to colon symbol
     private static final Pattern LEFT_HASHTAG_UP_TO_COLON_REGEX = Pattern
-            .compile("^\\s*[@#$][a-zA-Z][_a-zA-Z0-9]*\\s*:?\\s*");
+            .compile("^\\s*([@#$][a-zA-Z][_a-zA-Z0-9]*\\s?)*:\\s*");
 
     // From left side – Match @, #, $ up to last
     private static final Pattern LEFT_HASHTAG_UP_TO_LAST_REGEX = Pattern
-            .compile("^\\s*([@#$][a-zA-Z][_a-zA-Z0-9]*\\s+){2,}");
+            .compile("^\\s*([@#$][a-zA-Z][_a-zA-Z0-9]*\\s*){2,}");
 
     // From right side – Match @, #, $ when followed by letter, not a number
     private static final Pattern RIGHT_HASHTAG_REGEX = Pattern
             .compile("\\s*([@#$][a-zA-Z][_a-zA-Z0-9]*\\s*)+\\s*$");
 
     // Match "http" or "https" URLs
-    private static final Pattern LINKS_REGEX = Pattern.compile("https?:\\/\\/\\S+\\s*");
+    private static final Pattern LINKS_REGEX = Pattern.compile("\\s*https?:\\/\\/\\S+\\s*");
 
     // Match "..." at the end of the text
-    private static final Pattern DOT_DOT_DOT_REGEX = Pattern.compile("\\.{2,}\\s*$");
+    private static final Pattern DOT_DOT_DOT_REGEX = Pattern.compile("\\s*\\.{2,}\\s*$");
+
+    // Match 2 or more spaces
+    private static final Pattern TWO_OR_MORE_SPACES_REGEX = Pattern.compile("\\s+");
 
     private int _aggregatedCount;
 
@@ -101,26 +105,27 @@ public class Tweet implements Serializable {
         // Remove all links
         Matcher matcher = LINKS_REGEX.matcher(rawText);
         if (_hasLinks = matcher.find()) {
-            rawText = matcher.replaceAll("");
+            rawText = matcher.replaceAll(" ");
         }
 
         // Remove "RT" re-tweets
-        rawText = RT_REGEX.matcher(rawText).replaceAll("");
+        rawText = RT_REGEX.matcher(rawText).replaceAll(" ");
 
         // Remove Hash and dollar tags from the left
         matcher = LEFT_HASHTAG_UP_TO_COLON_REGEX.matcher(rawText);
         if (matcher.find()) {
             // Remove everything up to the colon
-            rawText = matcher.replaceAll("");
+            rawText = matcher.replaceAll(" ");
         } else {
             // Keep last hash tag
             rawText = LEFT_HASHTAG_UP_TO_LAST_REGEX.matcher(rawText).replaceAll("$1");
         }
         // Remove hash tags from the right
-        rawText = RIGHT_HASHTAG_REGEX.matcher(rawText).replaceAll("");
+        rawText = RIGHT_HASHTAG_REGEX.matcher(rawText).replaceAll(" ");
 
-        // Remove line feeds
-        _cannonicalText = rawText.replaceAll("\\n|\\r", "");
+        // Remove line feeds and extra spaces
+        rawText = TWO_OR_MORE_SPACES_REGEX.matcher(rawText).replaceAll(" ");
+        _cannonicalText = rawText.replaceAll("\\n|\\r", "").trim();
 
     }
 
