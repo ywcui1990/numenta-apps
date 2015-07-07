@@ -42,12 +42,12 @@ pushd "${REPOPATH}"
   # Reset metric collector state, apply database schema updates
   ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products &&
+     taurus-collectors-set-opmode hot_standby &&
+     supervisorctl -s http://127.0.0.1:8001 restart all &&
      git reset --hard ${COMMIT_SHA} &&
      ./install-taurus-metric-collectors.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
      cd /opt/numenta/products/taurus.metric_collectors/taurus/metric_collectors/collectorsdb &&
-     python migrate.py &&
-     taurus-collectors-set-opmode hot_standby &&
-     supervisord -c conf/supervisord.conf"
+     python migrate.py"
 
   # Stop taurus services
   ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_COLLECTOR_HOST}" \
