@@ -28,7 +28,12 @@ import unittest
 
 
 APPLICATION_CONFIG_PATH = os.environ.get("APPLICATION_CONFIG_PATH",
-                                         "/opt/numenta/numenta-apps/grok/conf")
+
+GROK_SCRIPTS = [
+  "/usr/local/bin/run-grok-tests",
+  "/usr/local/sbin/groklog_rotator",
+  "/usr/local/sbin/update-motd"
+]
 
 GROK_CONFIG_FILES = [
   "%s/grok-api.conf" % APPLICATION_CONFIG_PATH,
@@ -42,7 +47,6 @@ GROK_CONFIG_FILES = [
   "%s/supervisord.conf" % APPLICATION_CONFIG_PATH
 ]
 
-GROK_PYDIR_BASE = "/opt/numenta/products/grok/grok"
 
 class TestGrokInstallation(unittest.TestCase):
 
