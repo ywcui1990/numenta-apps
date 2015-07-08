@@ -44,9 +44,9 @@ def run(logDir):
   Take logrotated files named foo.log-YYYYMMDD and rename them to
   foo.log-YYYYMMDD-HHMMSS for upload-logs to process.
 
-  @param logDir: Directory to process
+  :param logDir: Directory to process
 
-  @param force: ignored
+  :param force: ignored
   """
   _shuffleLogs(logDir, _INPUT_FORMAT)
   _pruneLogs(logDir, _ROTATED_FORMAT, 168)
@@ -74,8 +74,8 @@ def _shuffleLogs(logDir, nameFormat):
   foo.log-YYYYMMDD-HHMMSS format anyway, so we are going to handle rotation
   ourselves instead of fighting with logrotate.
 
-  @param logDir: Path to log directory to process.
-  @param nameFormat: A regex matching which files we want to rotate
+  :param logDir: Path to log directory to process.
+  :param nameFormat: A regex matching which files we want to rotate
   """
   eligiblename = re.compile(nameFormat)
   tock = time.time()
@@ -99,9 +99,9 @@ def prune(fileList, maxFiles):
   Passed a list of files as fileList, delete all but the most recent
   maxFiles number of files.
 
-  @param fileList: List of file paths
+  :param fileList: List of file paths
 
-  @param maxFiles: Number of files to keep
+  :param maxFiles: Number of files to keep
   """
   if maxFiles < 0:
     maxFiles = 0
@@ -122,11 +122,11 @@ def _pruneLogs(logDir, nameFormat, numLogfiles):
   file we find in the format foo.log-YYYYMMDD-HHMMSS, assemble them all into
   a single list, then keep only the numLogfiles most recent files.
 
-  @param logDir: Path to log directory to process.
+  :param logDir: Path to log directory to process.
 
-  @param nameFormat: format of the filenames we're allowed to touch
+  :param nameFormat: format of the filenames we're allowed to touch
 
-  @param numLogfiles: How many logfiles of each prefix we should keep.
+  :param numLogfiles: How many logfiles of each prefix we should keep.
   """
   eligiblename = re.compile(nameFormat)
   worklist = {}
