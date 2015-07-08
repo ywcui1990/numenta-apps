@@ -53,9 +53,9 @@ enable-rabbitmq-management:
       - service: rabbitmq-server
     - unless: grep rabbitmq_management /etc/rabbitmq/enabled_plugins
     - watch_in:
-      - cmd: kick-rabbit-service
+      - cmd: restart-rabbit-service
 
-kick-rabbit-service:
+restart-rabbit-service:
   cmd.wait:
     - name: service rabbitmq-server restart
     - require:
