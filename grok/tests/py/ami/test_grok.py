@@ -36,6 +36,7 @@ GROK_PACKAGES = [
 
 GROK_SCRIPTS = [
   "/usr/local/bin/run-grok-tests",
+  "/usr/local/sbin/groklog_rotator",
   "/usr/local/sbin/update-motd"
 ]
 

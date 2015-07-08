@@ -39,3 +39,13 @@ logrotate-directory:
     - mode: 644
     - require:
       - file: logrotate-directory
+
+install-groklog_rotator:
+  file.managed:
+    - name: /usr/local/sbin/groklog_rotator
+    - source: salt://logrotate/files/groklog_rotator
+    - user: root
+    - group: root
+    - mode: 755
+    - require:
+      - file: logrotate-directory
