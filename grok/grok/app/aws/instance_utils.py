@@ -45,7 +45,7 @@ def getInstanceData():
     }
 
   """
-  url = 'http://instance-data/latest/dynamic/instance-identity/document'
+  url = "http://169.254.169.254/latest/dynamic/instance-identity/document"
 
   try:
     response = requests.get(url=url)

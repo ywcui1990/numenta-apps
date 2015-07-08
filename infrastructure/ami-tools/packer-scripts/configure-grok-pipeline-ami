@@ -73,8 +73,7 @@ install-prerequisites-and-update-repos() {
   yum clean all
 
   echo "Ensure Numenta S3 repos are current..."
-  for repo in epel.repo \
-              grok-development.repo \
+  for repo in grok-development.repo \
               grok-release-candidates.repo \
               grok-releases.repo \
               nta-carbonite.repo \
