@@ -20,8 +20,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Script to move logs from foo-YYYYMMDD to foo-YYYYMMDD-HHMMSS post
-logrotate runs."""
+"""
+Script to move logs from foo-YYYYMMDD to foo-YYYYMMDD-HHMMSS post
+logrotate runs.
+"""
 
 import datetime
 import logging
@@ -34,20 +36,28 @@ _LOGGER = logging.getLogger(__name__)
 _USAGE = "Usage: shuffle_groklogs path/to/log/dir"
 _INPUT_FORMAT = r".*\.log$"
 _ROTATED_FORMAT = r".*-\d{8}-\d{6}"
-_NUMENTA='/opt/numenta'
+_NUMENTA="/opt/numenta"
 
 
 
-def run(logDir, force=False):
-  """Take logrotated files named foo.log-YYYYMMDD and rename them to
-  foo.log-YYYYMMDD-HHMMSS for upload-logs to process."""
+def run(logDir):
+  """
+  Take logrotated files named foo.log-YYYYMMDD and rename them to
+  foo.log-YYYYMMDD-HHMMSS for upload-logs to process.
+
+  @param logDir: Directory to process
+
+  @param force: ignored
+  """
   _shuffleLogs(logDir, _INPUT_FORMAT)
   _pruneLogs(logDir, _ROTATED_FORMAT, 168)
 
 
 
 def restartSupervisord():
-  """Force supervisord to close and reopen its logfiles"""
+  """
+  Force supervisord to close and reopen its logfiles
+  """
   try:
     with open("%s/grok/grok-supervisord.pid" % (_NUMENTA), "r+") as f:
       supervisordPid = f.read()
@@ -58,17 +68,15 @@ def restartSupervisord():
 
 
 def _shuffleLogs(logDir, nameFormat):
-  """Shuffle logs
-
+  """
   logrotate names files from foo.log to foo.log-YYYYMMDD format, and won't
   rotate again on the same day. We want hourly rotations for
   ${NUMENTA}/grok/bin/upload-logs.py, and it expects to process files in
   foo.log-YYYYMMDD-HHMMSS format anyway, so we are going to handle rotation
   ourselves instead of fighting with logrotate.
 
-  Params:
-    logDir: Path to log directory to process.
-    nameFormat: A regex matching which files we want to rotate
+  @param logDir: Path to log directory to process.
+  @param nameFormat: A regex matching which files we want to rotate
   """
   eligiblename = re.compile(nameFormat)
   tock = time.time()
@@ -88,12 +96,13 @@ def _shuffleLogs(logDir, nameFormat):
 
 
 def prune(fileList, maxFiles):
-  """Passed a list of files as fileList, delete all but the most recent
+  """
+  Passed a list of files as fileList, delete all but the most recent
   maxFiles number of files.
 
-  Params:
-    fileList: List of file paths
-    maxFiles: Number of files to keep
+  @param fileList: List of file paths
+
+  @param maxFiles: Number of files to keep
   """
   if maxFiles < 0:
     maxFiles = 0
@@ -109,16 +118,16 @@ def prune(fileList, maxFiles):
 
 
 def _pruneLogs(logDir, nameFormat, numLogfiles):
-  """Shuffle logs.
-
+  """
   Prune the number of backups of each log file we find in logDir. For each
   file we find in the format foo.log-YYYYMMDD-HHMMSS, assemble them all into
   a single list, then keep only the numLogfiles most recent files.
 
-  Params:
-    logDir: Path to log directory to process.
-    nameFormat: format of the filenames we're allowed to touch
-    numLogfiles: How many logfiles of each prefix we should keep.
+  @param logDir: Path to log directory to process.
+
+  @param nameFormat: format of the filenames we're allowed to touch
+
+  @param numLogfiles: How many logfiles of each prefix we should keep.
   """
   eligiblename = re.compile(nameFormat)
   worklist = {}
