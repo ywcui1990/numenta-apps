@@ -70,10 +70,6 @@ class TestNginxInstallation(unittest.TestCase):
                   "port 443 is not returning a Grok title")
 
 
-  def testNginxUserExists(self):
-    self.assertTrue(agamotto.user.exists("www-data"))
-
-
   def testNginxApiConfiguration(self):
     self.assertTrue(agamotto.file.exists("%s/grok-api.conf" % CONF_D))
 
