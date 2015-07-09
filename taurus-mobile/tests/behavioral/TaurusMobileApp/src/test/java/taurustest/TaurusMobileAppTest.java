@@ -24,7 +24,6 @@ package taurustest;
 
 import java.net.URL;
 
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
@@ -71,6 +70,7 @@ public class TaurusMobileAppTest {
         capabilities.setCapability("deviceName", deviceName);
         capabilities.setCapability("platformVersion", platformVersion);
         capabilities.setCapability("androidPackage","com.numenta.taurus");
+        capabilities.setCapability("appiumVersion", "0.18.2");
         capabilities.setCapability("appActivity",
           "com.numenta.taurus.SplashScreenActivity");
         driver = new RemoteWebDriver(new URL("http://"+sauceUserName+":"+
