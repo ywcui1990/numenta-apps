@@ -103,9 +103,7 @@ except IOError:
   try:
     buildSha = check_output(["git", "rev-parse", "--verify", "HEAD"])
   except CalledProcessError:
-    # Do nothing; just set to 0 as below
-    pass
-  buildSha = "0"
+    buildSha = "0"
 
 
 def _getInstanceMetadata():
