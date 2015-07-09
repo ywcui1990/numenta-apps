@@ -24,12 +24,12 @@ import uuid
 
 import unittest
 
-from htmengine.model_checkpoint_mgr.model_checkpoint_mgr import \
-    ModelCheckpointMgr, ModelNotFound, ModelAlreadyExists
+from htmengine.model_checkpoint_mgr.model_checkpoint_mgr import (
+    ModelCheckpointMgr, ModelNotFound, ModelAlreadyExists)
+from htmengine.model_checkpoint_mgr.model_checkpoint_test_utils import (
+    ModelCheckpointStoragePatch)
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
-from htmengine.test_utils.model_checkpoint_test_utils import \
-    ModelCheckpointStoragePatch
 
 # Disable warning: Access to a protected member
 # pylint: disable=W0212

@@ -43,12 +43,11 @@ from grok.app.quota import Quota
 from nupic.support.decorators import retry
 
 from nta.utils.message_bus_connector import MessageBusConnector
+from nta.utils.test_utils import ManagedSubprocessTerminator
 from nta.utils.test_utils.amqp_test_utils import RabbitmqVirtualHostPatch
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-from grok.test_utils import ManagedSubprocessTerminator
 from grok.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
-
 
 import grok.app
 from grok.app import repository

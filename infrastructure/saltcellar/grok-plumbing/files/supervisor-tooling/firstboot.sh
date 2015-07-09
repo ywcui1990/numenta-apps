@@ -24,15 +24,13 @@ set -o nounset
 set -o pipefail
 
 export NUMENTA=/opt/numenta
-export PATH=${NUMENTA}/anaconda/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 
 mkdir -p /etc/grok
 
 # If you stop writing to $STAMPFILE, or change the path, you will break
 # integration testing. The integration test suite uses the presence of
 # $STAMPFILE to tell that the grok services have been configured.
-STAMPFILE='/etc/grok/firstboot.run'
-GROK_HOME='/opt/numenta/grok'
+STAMPFILE="/etc/grok/firstboot.run"
 export PIP_SCRATCH_D=$(mktemp --directory /tmp/pip_scratch_d.XXXXX)
 
 log_info() {
