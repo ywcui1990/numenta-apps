@@ -102,8 +102,7 @@ def prune(fileList, maxFiles):
 
   :param maxFiles: Number of files to keep
   """
-  if maxFiles < 0:
-    maxFiles = 0
+  maxFiles = 0 if maxFiles < 0 else maxFiles
   # Happily our naming scheme lets us get away with a simple sort to determine
   # the order by age
   fileList.sort()
