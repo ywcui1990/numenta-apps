@@ -26,11 +26,8 @@ RUN apt-get update;\
 apt-get install -y wget git-core default-jdk lib32stdc++6 lib32z1
 
 # Download and install android-sdk
-RUN wget http://dl.google.com/android/android-sdk_r24.2-linux.tgz;\
-tar -xvzf android-sdk_r24.2-linux.tgz;\
-rm android-sdk_r24.2-linux.tgz
-RUN mkdir -p /usr/local/opt;\
-mv android-sdk-linux /usr/local/opt/android-sdk
+RUN wget -qO- http://dl.google.com/android/android-sdk_r24.2-linux.tgz | /bin/tar xz
+RUN mkdir -p /usr/local/opt; mv android-sdk-linux /usr/local/opt/android-sdk
 ENV ANDROID_HOME /usr/local/opt/android-sdk
 
 # Add android tools and platform tools to PATH
@@ -49,6 +46,12 @@ RUN echo no | android create avd --force -n test -t android-16
 RUN echo "emulator -avd test -no-boot-anim -no-skin -no-audio -no-window -force-32bit &" > /usr/local/bin/start-emulator;\
 chmod a+x /usr/local/bin/start-emulator
 
+# Download latest local dynamodb tool
+WORKDIR /opt/numenta/dynamodb
+RUN wget -qO- http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest | tar xz
+RUN echo "java -Djava.library.path=/opt/numenta/dynamodb/DynamoDBLocal_lib -jar /opt/numenta/dynamodb/DynamoDBLocal.jar -inMemory -sharedDb &" > /usr/local/bin/start-dynamodb;\
+chmod a+x /usr/local/bin/start-dynamodb
+
 # Create "products" mount point
 RUN mkdir -p /opt/numenta/products/taurus-mobile/android
 RUN echo "echo 'Map your repository to \"/opt/numenta/products\"'" > \
@@ -61,5 +64,5 @@ ADD .keys/grok.keystore /etc/numenta/products/keys/grok.keystore
 
 # Build taurus-mobile
 WORKDIR /opt/numenta/products/taurus-mobile/android
-CMD start-emulator;adb wait-for-device;./gradlew clean build connectedCheck
+CMD start-dynamodb;start-emulator;adb wait-for-device;./gradlew clean build connectedCheck
 
