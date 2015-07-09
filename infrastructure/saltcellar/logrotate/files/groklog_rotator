@@ -102,16 +102,13 @@ def prune(fileList, maxFiles):
 
   :param maxFiles: Number of files to keep
   """
-  if maxFiles < 0:
-    maxFiles = 0
+  maxFiles = 0 if maxFiles < 0 else maxFiles
   # Happily our naming scheme lets us get away with a simple sort to determine
   # the order by age
   fileList.sort()
-  while len(fileList) > maxFiles:
-    deleteme = fileList[0]
-    print "deleting %s" % deleteme
-    os.remove(deleteme)
-    fileList = fileList[1:]
+  for deleteme in fileList[:len(fileList)-maxFiles]:
+      print "Deleting {}".format(deleteme)
+      os.remove(deleteme)
 
 
 
