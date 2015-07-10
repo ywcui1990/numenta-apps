@@ -18,6 +18,11 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+
+# Note: we don't allow autostacks of RDS, so disable warnings about
+# `getMatchingResources` not being implemented
+#pylint: disable=W0223
+
 import boto.rds
 import boto.exception
 

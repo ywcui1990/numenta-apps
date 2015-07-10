@@ -19,6 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+# Note: we don't allow autostacks of ASGs, so disable warnings about
+# `getMatchingResources` not being implemented
+#pylint: disable=W0223
+
 from boto.ec2 import autoscale
 
 from grok.app.adapters.datasource.cloudwatch.aws_base import (
@@ -50,10 +54,11 @@ class AutoScalingGroupAdapter(AWSResourceAdapterBase):
     ::
 
         [
-          {   # NOTE: grn = "grok resource name"
-              "grn": "aws://us-west-2/auto-scaling-group/webserver-asg-micros01",
-              "resID": "webserver-asg-micros01",
-              "name": value-of-name-tag-or-empty-str
+          {
+            # NOTE: grn = "grok resource name"
+            "grn": "aws://us-west-2/auto-scaling-group/webserver-asg-micros01",
+            "resID": "webserver-asg-micros01",
+            "name": value-of-name-tag-or-empty-str
           },
 
           ...
