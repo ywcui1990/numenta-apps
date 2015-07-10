@@ -42,6 +42,9 @@
 #
 # ----------------------------------------------------------------------
 
+set -o errexit
+set -o pipefail
+
 # Install base centos packages
 sudo yum install gcc gcc-c++ -y
 sudo rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
@@ -56,11 +59,14 @@ sudo /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
 sudo mkdir -p /opt/numenta
 sudo chown centos:centos /opt/numenta
 
+# Install NuPIC
+pip install -I https://pypi.numenta.com/api/package/nupic/nupic-0.2.6-cp27-none-linux_x86_64.whl --user
+
 # Clone Numenta Apps Repo
-git clone https://github.com/numenta/numenta-apps.git /opt/numenta
+git clone https://github.com/numenta/numenta-apps.git /opt/numenta/numenta-apps
 
 # Install Grok
-cd numenta-apps/
+cd /opt/numenta/numenta-apps/
 pip install paver==1.2.4 --user
 pip install uwsgi==2.0.4 --user
 pip install agamotto==0.5.1 --user
