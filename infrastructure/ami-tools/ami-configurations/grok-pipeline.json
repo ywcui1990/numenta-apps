@@ -59,11 +59,6 @@
       "type": "file"
     },
     {
-      "destination": "/tmp/epel.repo",
-      "source": "repos/epel.repo",
-      "type": "file"
-    },
-    {
       "inline": [
         "echo 'Sleeping for 30s, waiting for system to settle down.'",
         "sleep 30",
@@ -72,6 +67,10 @@
         "mkdir -p /srv/salt"
       ],
       "type": "shell"
+    },
+    {
+      "type": "shell",
+      "script": "packer-scripts/install-epel-repo-6.5"
     },
     {
       "type": "shell",

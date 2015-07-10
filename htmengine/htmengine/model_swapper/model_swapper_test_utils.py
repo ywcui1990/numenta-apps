@@ -36,8 +36,8 @@ from nta.utils.test_utils.amqp_test_utils import RabbitmqVirtualHostPatch
 from htmengine.model_swapper.model_swapper_interface import (
     ModelSwapperInterface)
 
-from grok.test_utils.engine.model_checkpoint_test_utils import \
-    ModelCheckpointStoragePatch
+from htmengine.model_checkpoint_mgr.model_checkpoint_test_utils import (
+    ModelCheckpointStoragePatch)
 
 
 
