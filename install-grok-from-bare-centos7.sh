@@ -49,7 +49,7 @@ sudo yum -y install python-pip python-devel libxml2-devel libxslt-devel
 
 # Install MySQL and Rabbit
 sudo rpm -Uvh http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
-sudo yum install mysql-server  mysql mariadb-devel rabbitmq-server nginx git -y
+sudo yum install mysql-server mysql mariadb-devel rabbitmq-server nginx git -y
 sudo /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
 
 # Create /opt/numenta folder
@@ -57,14 +57,13 @@ sudo mkdir -p /opt/numenta
 sudo chown centos:centos /opt/numenta
 
 # Clone Numenta Apps Repo
-cd /opt/numenta
-git clone https://github.com/numenta/numenta-apps.git
+git clone https://github.com/numenta/numenta-apps.git /opt/numenta
 
 # Install Grok
 cd numenta-apps/
-pip install paver --user
+pip install paver==1.2.4 --user
 pip install uwsgi==2.0.4 --user
-pip install agamotto --user
+pip install agamotto==0.5.1 --user
 ./install-grok.sh /home/centos/.local/lib/python2.7/site-packages /home/centos/.local/bin
 
 # Start MySQL and Rabbit
@@ -76,8 +75,8 @@ sudo cp /opt/numenta/numenta-apps/infrastructure/saltcellar/rabbitmq/files/rabbi
 
 # Bootstrap Grok
 export GROK_HOME=/opt/numenta/numenta-apps/grok
-export APPLICATION_CONFIG_PATH="${GROK_HOME}"/conf
-export GROK_LOG_DIR="${GROK_HOME}"/logs
+export APPLICATION_CONFIG_PATH="${GROK_HOME}/conf"
+export GROK_LOG_DIR="${GROK_HOME}/logs"
 
 cd "${GROK_HOME}"
 mkdir -p "${GROK_LOG_DIR}"/
@@ -88,6 +87,8 @@ python setup.py init
 sudo sysctl -w net.core.somaxconn=1024
 sudo nginx -p . -c conf/grok-api.conf
 supervisord -c conf/supervisord.conf
+
+echo "Grok is now running!"
 
 ########################
 ## Run Integration Tests
