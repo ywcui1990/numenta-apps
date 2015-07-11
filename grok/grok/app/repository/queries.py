@@ -656,7 +656,7 @@ def getUnseenNotificationList(conn, deviceId, limit=None, fields=None):
   lastWeekTS = datetime.now() - timedelta(days=7)
 
   sel = (select(fields)
-         .where(schema.otification.c.device == deviceId)
+         .where(schema.notification.c.device == deviceId)
          .where(schema.notification.c.acknowledged == 0)
          .where(schema.notification.c.seen == 0)
          .where(schema.notification.c.timestamp > lastWeekTS)
