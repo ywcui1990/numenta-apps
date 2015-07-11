@@ -19,6 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+#pylint: disable=W0611
 from collections import namedtuple
 from datetime import datetime, timedelta
 
@@ -35,8 +36,13 @@ import htmengine.utils
 from htmengine.utils import jsonDecode
 
 
+# There is an error with pylint's handling of sqlalchemy, so we disable E1120
+# until https://bitbucket.org/logilab/astroid/issues/39/support-for-sqlalchemy
+# is resolved
+#pylint: disable=E1120
+
 # TODO: Update references elsewhere to htmengine directly and remove these
-# imports
+# imports. Until then, disable pylint W0611.
 from htmengine.repository.queries import (
   addMetric,
   addMetricData,
@@ -146,7 +152,7 @@ def addAnnotation(conn, timestamp, device, user, server, message, data,
                                 "Server '%s' was not found." % server)
 
     # Add new annotation
-    add = (schema.annotation.insert() # pylint: disable=E1120
+    add = (schema.annotation.insert()
                             .values(timestamp=timestamp,
                                     device=device,
                                     user=user,
@@ -447,7 +453,9 @@ def getAutostackMetricsWithMetricName(conn, autostackId, name, fields=None):
 
 
 
-def _getCloudwatchMetricReadinessPredicate(conn):
+# TODO Determine why `conn` is used as a parameter and either delete it or use
+# it. Until then, disable pylint warning
+def _getCloudwatchMetricReadinessPredicate(conn): #pylint: disable=W0613
   """ Generate an sqlAlchemy predicate that determines whether the metric is
   ready for data collection.
 
@@ -648,11 +656,11 @@ def getUnseenNotificationList(conn, deviceId, limit=None, fields=None):
   lastWeekTS = datetime.now() - timedelta(days=7)
 
   sel = (select(fields)
-         .where(notification.c.device == deviceId)
-         .where(notification.c.acknowledged == 0)
-         .where(notification.c.seen == 0)
-         .where(notification.c.timestamp > lastWeekTS)
-         .order_by(notification.c.timestamp.desc()))
+         .where(schema.otification.c.device == deviceId)
+         .where(schema.notification.c.acknowledged == 0)
+         .where(schema.notification.c.seen == 0)
+         .where(schema.notification.c.timestamp > lastWeekTS)
+         .order_by(schema.notification.c.timestamp.desc()))
 
   if limit is not None:
     sel = sel.limit(limit)
@@ -927,5 +935,5 @@ def batchSeeNotifications(conn, notificationIds):
   :type notificationIds: list
   """
   update = schema.notification.update().where(
-      notification.c.uid.in_(notificationIds))
+      schema.notification.c.uid.in_(notificationIds))
   conn.execute(update.values(seen=1))
