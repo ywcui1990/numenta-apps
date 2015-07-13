@@ -1,23 +1,46 @@
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
 import os
 
-from tempfile import mkdtemp
 from distutils.dir_util import copy_tree, mkpath
+from tempfile import mkdtemp
 
 from infrastructure.utilities import git
 from infrastructure.utilities import logger as log
 from infrastructure.utilities import rpm
+from infrastructure.utilities.cli import runWithOutput
 from infrastructure.utilities.exceptions import InvalidParametersError
 from infrastructure.utilities.path import (
   changeToWorkingDir,
   purgeDirectory,
   rmrf)
-from infrastructure.utilities.cli import runWithOutput
 
 
 class NumentaRPM(object):
   """
   Class for creating Numenta RPMs.
   """
+
+
   def __init__(self, config):
     # convert dict to object
     if isinstance(config, dict):
@@ -48,10 +71,12 @@ class NumentaRPM(object):
                                          logLevel=config.logLevel)
     self.productsDirectory = None
 
+
   def cleanupDirectories(self):
     """
     Nuke any temp files unless preserveFakeroot is set in the configuration.
     """
+
     config = self.config
     logger = self.logger
     fakeroot = self.fakeroot
@@ -63,6 +88,7 @@ class NumentaRPM(object):
     else:
       if logger:
         logger.debug("Skipping fakeroot scrub, leaving %s intact.", fakeroot)
+
 
   def sanitizeSrvSalt(self, saltpath):
     """
@@ -78,7 +104,7 @@ class NumentaRPM(object):
     This prevents us from accidentally publishing internal-only files to
     customer machines.
 
-    @param saltpath - Path to /srv/salt in the fakeroot
+    :param saltpath: Path to /srv/salt in the fakeroot
     """
 
     logger = self.logger
@@ -118,17 +144,19 @@ class NumentaRPM(object):
     logger.debug("Sanitizing %s with %s", saltpath, findPubkeys)
     runWithOutput(findPemFiles, logger=logger)
 
+
   def constructFakeroot(self):
     """
     Construct a fakeroot.
 
-    @returns (iteration, fakerootSHA) where iteration is the total commit count
+    :returns: (iteration, fakerootSHA) where iteration is the total commit count
     in the repository and fakerootSHA is the SHA in the fakeroot. If we're
     packaging a branch or tip of master, we're still going to want to know what
     the SHA was so we can include it in the RPM description.
 
-    @rtype tuple
+    :rtype: tuple
     """
+
     flavor = self.config.flavor
     config = self.config
     logger = self.logger
@@ -150,11 +178,13 @@ class NumentaRPM(object):
 
   def constructPreBuiltGrokFakeroot(self):
     """
-      construct fakeroot from prebuilt grok
+    Construct fakeroot from prebuilt grok
 
-      @returns SHA of the products repo in the fakeroot
+    :returns: SHA of the products repo in the fakeroot
+    :rtype: tuple
 
     """
+
     config = self.config
     logger = self.logger
     productsDirectory = self.productsDirectory
@@ -182,13 +212,14 @@ class NumentaRPM(object):
     """
     Make a saltcellar fakeroot
 
-    @returns (iteration, fakerootSHA) where iteration is the total commit count
+    :returns: (iteration, fakerootSHA) where iteration is the total commit count
     in the repository and fakerootSHA is the SHA in the fakeroot. If we're
     packaging a branch or tip of master, we're still going to want to know what
     the SHA was so we can include it in the RPM description.
 
-    @rtype tuple
+    :rtype: tuple
     """
+
     config = self.config
     fakeroot = self.fakeroot
     logger = self.logger
@@ -243,17 +274,16 @@ class NumentaRPM(object):
     return (iteration, fakerootSHA)
 
 
-
   def constructInfrastructureFakeroot(self):
     """
     Construct our fakeroot directory tree
 
-    @returns (iteration, fakerootSHA) where iteration is the total commit count
+    :returns: (iteration, fakerootSHA) where iteration is the total commit count
     in the repository and fakerootSHA is the SHA in the fakeroot. If we're
     packaging a branch or tip of master, we're still going to want to know what
     the SHA was so we can include it in the RPM description.
 
-    @rtype tuple
+    :rtype: tuple
     """
 
     config = self.config
@@ -304,6 +334,7 @@ class NumentaRPM(object):
 
     return (iteration, fakerootSHA)
 
+
   def constructGrokFakeroot(self):
     """
     Construct a Grok fakeroot directory tree.
@@ -323,12 +354,12 @@ class NumentaRPM(object):
     6. Purge any files or directories at the top level of the checkout that were
        not whitelisted with --whitelist.
 
-    @returns (iteration, actualSHA) where iteration is the total commit count
+    :returns: (iteration, actualSHA) where iteration is the total commit count
     in the repository and fakerootSHA is the SHA in the fakeroot. If we're
     packaging a branch or tip of master, we're still going to want to know what
     the SHA was so we can include it in the RPM description.
 
-    @rtype tuple
+    :rtype: tuple
     """
 
     config = self.config
@@ -405,9 +436,9 @@ class NumentaRPM(object):
 
   def purgeBlacklistedStuff(self):
     """
-      Purges anything not whitelisted.
-
+    Purges anything not whitelisted.
     """
+
     config = self.config
     logger = self.logger
     productsDirectory = self.productsDirectory
@@ -419,9 +450,9 @@ class NumentaRPM(object):
 
   def cleanScripts(self):
     """
-      Cleans the grok directory before packaging.
-
+    Cleans the grok directory before packaging.
     """
+
     productsDirectory = self.productsDirectory
     config = self.config
     environment = self.environment
@@ -442,8 +473,7 @@ class NumentaRPM(object):
 
   def setPythonPath(self):
     """
-      Set any extra pythonpath.
-
+    Set any extra pythonpath.
     """
 
     config = self.config
@@ -461,14 +491,16 @@ class NumentaRPM(object):
     self.environment["PYTHONPATH"] = pythonpath
     logger.debug("New PYTHONPATH: %s", pythonpath)
 
+
   def installProductsIntoGrokFakeroot(self):
     """
     Clone our git repo into the fakeroot directory tree.
 
     If we're configured to use a site-packages tarball; burst it.
 
-    @returns SHA of the products repo in the fakeroot
+    :returns: SHA of the products repo in the fakeroot
     """
+
     config = self.config
     fakeroot = self.fakeroot
     logger = self.logger
