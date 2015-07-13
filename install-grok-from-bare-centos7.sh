@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
