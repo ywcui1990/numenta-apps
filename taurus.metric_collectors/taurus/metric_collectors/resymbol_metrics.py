@@ -44,7 +44,9 @@ from taurus.metric_collectors import (
     logging_support,
     metric_utils)
 from taurus.metric_collectors.collectorsdb.schema import (
+    emittedStockPrice as stockEmittedPriceSchema,
     twitterTweetSamples as tweetSamplesSchema,
+    xigniteSecurity as stockSchema,
     xigniteSecurityBars as stockBarsSchema,
     xigniteSecurityHeadline as stockHeadlineSchema,
     xigniteSecurityRelease as stockReleaseSchema
@@ -204,12 +206,10 @@ def main():
       g_log.info("Migrating ONLY xignite stock data from old-symbol=%s "
                  "to new-symbol=%s",
                  options.oldSymbol, options.newSymbol)
-      raise NotImplementedError
     else:
       g_log.info("Migrating BOTH twitter and xignite stock data from "
                  "old-symbol=%s to new-symbol=%s",
                  options.oldSymbol, options.newSymbol)
-      raise NotImplementedError
 
     oldSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.{symbol}.".format(symbol=options.oldSymbol)
     newSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.{symbol}.".format(symbol=options.newSymbol)
@@ -241,12 +241,25 @@ def main():
           conn.execute(updateSampleQuery)
 
       if options.stocks:
+        renameStockQuery = (stockSchema
+                            .update()
+                            .where(stockSchema.c.symbol ==
+                                   options.oldSymbol)
+                            .values(symbol=options.newSymbol))
+        conn.execute(renameStockQuery)
+
         updateStockBarsQuery = (stockBarsSchema
                                 .update()
                                 .where(stockBarsSchema.c.symbol ==
                                        options.oldSymbol)
                                 .values(symbol=options.newSymbol))
         conn.execute(updateStockBarsQuery)
+
+        clearEmittedPriceQuery = (stockEmittedPriceSchema
+                                  .delete()
+                                  .where(stockEmittedPriceSchema.c.symbol ==
+                                         options.oldSymbol))
+        conn.execute(clearEmittedPriceQuery)
 
         updateStockHeadlineQuery = (stockHeadlineSchema
                                     .update()
@@ -295,7 +308,7 @@ def main():
       if options.stocks:
         forwardStockBars(metricSpecs=[spec for spec
                                       in loadStockBarsMetricSpecs()
-                                      if spec.symbol == 'AAPL'],
+                                      if spec.symbol == options.newSymbol],
                          symbol=options.newSymbol,
                          engine=conn)
 
