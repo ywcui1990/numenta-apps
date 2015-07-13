@@ -45,6 +45,7 @@ from taurus.metric_collectors import (
     metric_utils)
 from taurus.metric_collectors.collectorsdb.schema import (
     emittedStockPrice as stockEmittedPriceSchema,
+    emittedStockVolume as stockEmittedVolumeSchema,
     twitterTweetSamples as tweetSamplesSchema,
     xigniteSecurity as stockSchema,
     xigniteSecurityBars as stockBarsSchema,
@@ -260,6 +261,11 @@ def main():
                                   .where(stockEmittedPriceSchema.c.symbol ==
                                          options.oldSymbol))
         conn.execute(clearEmittedPriceQuery)
+        clearEmittedVolumeQuery = (stockEmittedVolumeSchema
+                                   .delete()
+                                   .where(stockEmittedVolumeSchema.c.symbol ==
+                                          options.oldSymbol))
+        conn.execute(clearEmittedVolumeQuery)
 
         updateStockHeadlineQuery = (stockHeadlineSchema
                                     .update()
