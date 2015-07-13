@@ -32,8 +32,7 @@ mkdir -p /etc/grok
 # If you stop writing to $STAMPFILE, or change the path, you will break
 # integration testing. The integration test suite uses the presence of
 # $STAMPFILE to tell that the grok services have been configured.
-STAMPFILE='/etc/grok/firstboot-root.run'
-GROK_HOME='/opt/numenta/grok'
+STAMPFILE="/etc/grok/firstboot-root.run"
 export PIP_SCRATCH_D=$(mktemp --directory /tmp/pip_scratch_d.XXXXX)
 
 log_info() {
@@ -57,6 +56,8 @@ if [ -r /etc/grok/supervisord.vars ]; then
 else
   die "Could not load supervisord.vars"
 fi
+
+${GROK_HOME:?"You must set the GROK_HOME env var"}
 
 setup_logdirs() {
   # setup logdir if missing

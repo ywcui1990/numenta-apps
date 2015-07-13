@@ -57,15 +57,19 @@ import com.numenta.taurus.data.Tweet;
 import com.numenta.taurus.metric.MetricType;
 import com.numenta.taurus.service.TaurusClient;
 
+import junit.framework.TestCase;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.test.runner.AndroidJUnit4;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
@@ -79,13 +83,11 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.TimeZone;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore("FIXME: TAUR-867: Update 'run_pipeline' to start DynamoDB local before enabling this test")
-public class TaurusClientTest {
+@RunWith(AndroidJUnit4.class)
+public class TaurusClientTest extends TestCase {
 
     static final String TAG = TaurusClientTest.class.getSimpleName();
 
@@ -100,6 +102,10 @@ public class TaurusClientTest {
             return "taurus";
         }
     };
+
+    // URL to local dynamodb test tool.
+    private static final java.lang.String SERVER_URL = BuildConfig.SERVER_URL == null ?
+            "http://10.0.2.2:8000" : BuildConfig.SERVER_URL;
 
     private static boolean _deleteTestTables;
 
@@ -404,7 +410,8 @@ public class TaurusClientTest {
                     hour = hourOfDay > 9 ? Integer.toString(hourOfDay) : "0" + hourOfDay;
                     date = dateFormat.format(timestamp.getTime());
 
-                    Map<String, AttributeValue> anomalyScore = new HashMap<String, AttributeValue>();
+                    Map<String, AttributeValue> anomalyScore
+                            = new HashMap<String, AttributeValue>();
                     anomalyScore.put("StockPrice", new AttributeValue().withN(score));
                     anomalyScore.put("StockVolume", new AttributeValue().withN(score));
                     anomalyScore.put("TwitterVolume", new AttributeValue().withN(score));
@@ -538,8 +545,11 @@ public class TaurusClientTest {
             awsClient.setRegion(Region.getRegion(Regions.fromName(BuildConfig.REGION)));
         }
         // Only run tests against localhost
-        awsClient.setEndpoint("http://localhost:8003");
+        awsClient.setEndpoint(SERVER_URL);
+        ListTablesResult result = awsClient.listTables();
+        assertTrue("Database is not empty", result.getTableNames().isEmpty());
         return awsClient;
+
     }
 
     @BeforeClass
@@ -574,10 +584,13 @@ public class TaurusClientTest {
 
     @Before
     public void setUp() throws Exception {
-        AmazonDynamoDBClient awsClient = getAWSClient(_awsCredentials);
-        // Only run tests against localhost
+
+        //FIXME: HACK: work around bug https://code.google.com/p/dexmaker/issues/detail?id=2
+        System.setProperty("dexmaker.dexcache",
+                "/data/data/" + BuildConfig.APPLICATION_ID + "/cache");
+
         _taurusClient = new TaurusClient(new StaticCredentialsProvider(_awsCredentials),
-                "http://localhost:8003");
+                SERVER_URL);
 
         // Mock android classes
         Context context = mock(Context.class);
