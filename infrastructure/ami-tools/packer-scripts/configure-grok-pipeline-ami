@@ -91,7 +91,7 @@ install-prerequisites-and-update-repos() {
   # Ensure our pip is current
   export PATH="${NUMENTA}/anaconda/bin:${PATH}"
   export PYTHONPATH="${NUMENTA}/anaconda/lib/python2.7/site-packages"
-  "${NUMENTA}/anaconda/bin/pip" install --upgrade pip
+  "${NUMENTA}/anaconda/bin/pip" install --upgrade pip setuptools
   "${NUMENTA}/anaconda/bin/pip" install numpy==1.9.2
 }
 
