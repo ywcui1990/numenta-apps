@@ -19,6 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+# Note: we don't allow autostacks of Redshift, so disable warnings about
+# `getMatchingResources` not being implemented
+#pylint: disable=W0223
+
 import boto.redshift
 
 from grok.app.adapters.datasource.cloudwatch.aws_base import (

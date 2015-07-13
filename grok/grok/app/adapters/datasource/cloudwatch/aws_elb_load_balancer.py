@@ -19,6 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+# Note: we don't allow autostacks of ELBs, so disable warnings about
+# `getMatchingResources` not being implemented
+#pylint: disable=W0223
+
 from grok.app.adapters.datasource.cloudwatch.aws_base import (
     AWSResourceAdapterBase, ResourceTypeNames)
 from grok.app.aws.elb_utils import getELBInstances

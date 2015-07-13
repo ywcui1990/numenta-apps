@@ -18,6 +18,11 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+
+# Note: we don't allow autostacks of EBS volumes, so disable warnings about
+# `getMatchingResources` not being implemented
+#pylint: disable=W0223
+
 from boto import ec2
 
 from grok.app.adapters.datasource.cloudwatch.aws_base import (
