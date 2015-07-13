@@ -182,7 +182,6 @@ class NumentaRPM(object):
 
     :returns: SHA of the products repo in the fakeroot
     :rtype: tuple
-
     """
 
     config = self.config
