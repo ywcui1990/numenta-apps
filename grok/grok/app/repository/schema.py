@@ -40,6 +40,7 @@ from htmengine.repository.schema import (instance_status_history,
                                          metadata,
                                          metric,
                                          metric_data)
+#pylint: enable=W0611
 
 
 annotation = Table("annotation",
