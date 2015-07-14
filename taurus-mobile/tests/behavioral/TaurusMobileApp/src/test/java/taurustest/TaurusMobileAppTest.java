@@ -39,7 +39,7 @@ import org.testng.annotations.Test;
 
 public class TaurusMobileAppTest {
     private WebDriver driver;
-    static int WAIT_TIME = 100;
+    static int WAIT_TIME = 1000;
     static By ALL = By.name("ALL");
     static By FAVORITES = By.name("FAVORITES");
     static By ADD_FAVORITE_POP_UP = By.id("android:id/title");
@@ -56,6 +56,8 @@ public class TaurusMobileAppTest {
     static By END_BUTTON_ON_TUTORIAL_PAGE = By.name("END");
     static By EXPECTED_COMPANY_NAME = By.id("com.numenta.taurus:id/ticker");
     static By EXPECTED_COMPANY_NAME_FOR_FAVORITE = By.id("com.numenta.taurus:id/ticker");
+    static By START_BUTTON = By.id("com.numenta.taurus:id/tutorial_button_right");
+    static By NEXT_BUTTON = By.name("NEXT");
 
 
     @BeforeClass
@@ -70,7 +72,7 @@ public class TaurusMobileAppTest {
         capabilities.setCapability("deviceName", deviceName);
         capabilities.setCapability("platformVersion", platformVersion);
         capabilities.setCapability("androidPackage","com.numenta.taurus");
-        capabilities.setCapability("appiumVersion", "0.18.2");
+        capabilities.setCapability("appiumVersion", "1.4.0");
         capabilities.setCapability("appActivity",
           "com.numenta.taurus.SplashScreenActivity");
         driver = new RemoteWebDriver(new URL("http://"+sauceUserName+":"+
@@ -81,18 +83,14 @@ public class TaurusMobileAppTest {
     @Rule public TestRule timeout1 = new Timeout(30000);
     @Test(priority = 0)
     @Parameters({"deviceName", "version","sauceUserName","sauceAccessKey"})
-    public void skipTutorial()
-        throws InterruptedException {
-        // SKIP TUTORIAL
+    public void Tutorial() {
         String startBtn =TestUtilities.waitGetText(BUTTON_ON_TUTORIAL_PAGE, driver,WAIT_TIME);
         AssertJUnit.assertEquals(startBtn, "START");
-        // Swipe
-        TestUtilities.swipe(driver, true);
-        TestUtilities.swipe(driver, true);
-        TestUtilities.swipe(driver, true);
-        TestUtilities.swipe(driver, true);
-        TestUtilities.swipe(driver, true);
-        // Exit Tutorial
+        TestUtilities.waitClick(START_BUTTON, driver, WAIT_TIME);
+        TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
+        TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
+        TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
+        TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
         String endButton =TestUtilities.waitGetText(END_BUTTON_ON_TUTORIAL_PAGE, driver, WAIT_TIME);
         AssertJUnit.assertEquals(endButton, "END");
         TestUtilities.waitClick(END_BUTTON_ON_TUTORIAL_PAGE, driver, WAIT_TIME);
@@ -100,7 +98,7 @@ public class TaurusMobileAppTest {
 
 
     @Rule public TestRule timeout2 = new Timeout(30000);
-    @Test(priority = 1 , dependsOnMethods = {"skipTutorial"})
+    @Test(priority = 1 , dependsOnMethods = {"Tutorial"})
     public void addFavourites()
         throws InterruptedException {
         // Long press on any company name
@@ -158,15 +156,28 @@ public class TaurusMobileAppTest {
     }
 
 
-    @Rule public TestRule timeout5 = new Timeout(30000);
-    @Test(priority = 4 , dependsOnMethods = {"clickOnCompanyName"})
-    public void settings() throws InterruptedException {
+
+        @Rule public TestRule timeout5 = new Timeout(30000);
+        @Parameters({"deviceName"})
+        @Test(priority = 4 ,dependsOnMethods = {"clickOnCompanyName"})
+        public void settingsTest(String deviceName) throws InterruptedException {
+        if (deviceName.isEmpty()) {
+        return;
+        }
+        if (deviceName.contains("Nexus")) {
         // Clicking on Settings option
         TestUtilities.clickFeedback(driver, WAIT_TIME);
         TestUtilities.clickSettingOptionAndChangeSettings(driver, WAIT_TIME);
         TestUtilities.clickAbout(driver, WAIT_TIME);
         TestUtilities.clickShare(driver, WAIT_TIME);
     }
+        else {
+        System.out.println("Non-Nexus test device with a hardware Settings button"
+                + " hence Settings page cannot be tested correctly button hence "
+                + "Settings page cannot be tested correctly.");
+   }
+       driver.navigate().back();
+   }
 
 
     @AfterClass

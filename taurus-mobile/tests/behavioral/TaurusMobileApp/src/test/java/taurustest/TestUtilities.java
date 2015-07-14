@@ -23,7 +23,6 @@
 package taurustest;
 
 import java.util.HashMap;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -53,8 +52,9 @@ public class TestUtilities {
     static By DATA_SOURCES = By.name("Data Sources");
     static By BUTTON_ON_TUTORIAL =By.id("com.numenta.taurus:id/tutorial_button_right");
     static By SKIP_ON_TUTORIAL = By.id("com.numenta.taurus:id/tutorial_button_left");
-    static int KEYCODE_MENU = 82;
     static By COMPANYNAME = By.id("com.numenta.taurus:id/ticker");
+    static By SETTING_BUTTON = By.xpath("//android.widget.ImageButton[@content-desc='More options']");
+
 
     public static void waitClick(By locator, WebDriver driver, int value) {
           WebDriverWait wait = new WebDriverWait(driver, value);
@@ -80,30 +80,22 @@ public class TestUtilities {
     }
 
 
-    public static void menuButtonClick(WebDriver driver) {
-        HashMap<String, Integer> swipeObject = new HashMap<String, Integer>();
-        swipeObject.put("keycode", KEYCODE_MENU);
-        ((JavascriptExecutor)driver).executeScript(
-                "mobile: keyevent", swipeObject);
-    }
-
-
     public static void clickFeedback(WebDriver driver, int value) {
-        menuButtonClick(driver);
+        waitClick(SETTING_BUTTON, driver, value);
         waitClick(FEEDBACK_BUTTON, driver, value);
         waitClick(CANCEL_BUTTON, driver, value);
     }
 
 
     public static void clickShare(WebDriver driver, int value) {
-        menuButtonClick(driver);
+        waitClick(SETTING_BUTTON, driver, value);
         waitClick(SHARE_BUTTON, driver, value);
         driver.navigate().back();
     }
 
 
     public static void clickAbout(WebDriver driver, int value) {
-        menuButtonClick(driver);
+        waitClick(SETTING_BUTTON, driver, value);
         waitClick(ABOUT, driver, value);
         driver.navigate().back();
     }
@@ -117,9 +109,8 @@ public class TestUtilities {
 
     public static void clickSettingOptionAndChangeSettings(
         WebDriver driver, int value) throws InterruptedException {
-        menuButtonClick(driver);
+        waitClick(SETTING_BUTTON, driver, value);
         waitClick(SETTINGS_BUTTON, driver, value);
-
         String settingLbl = waitGetText(LABEL_SETTINGS, driver, value);
         String versionLbl = waitGetText(LABEL_VERSION, driver, value);
         String notificationLbl = waitGetText(LABEL_NOTIFICATION, driver, value);
@@ -128,31 +119,10 @@ public class TestUtilities {
         AssertJUnit.assertEquals(versionLbl, "Version");
         AssertJUnit.assertEquals(notificationLbl, "Notifications");
         AssertJUnit.assertEquals(dataSourceLbl, "Data Sources");
-
         waitClick(REFRESH_RATE, driver, value);
         waitClick(RATE_OPTION, driver, value);
         changeNotificationSettings(driver, value);
         waitClick(CHECK_BOX_FOR_NOTIFICATION, driver, value);
         driver.navigate().back();
-    }
-
-    public static void swipe(WebDriver driver, boolean forward)
-            throws InterruptedException {
-        double startXValue, endXValue;
-        if (forward) {
-            startXValue = 0.95;
-            endXValue = 0.05;
-        } else {
-            startXValue = 0.05;
-            endXValue = 0.95;
-        }
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        HashMap<String, Double> swipeObject = new HashMap<String, Double>();
-        swipeObject.put("startX", startXValue);
-        swipeObject.put("startY", 0.5);
-        swipeObject.put("endX", endXValue);
-        swipeObject.put("endY", 0.5);
-        swipeObject.put("duration", 1.8);
-        js.executeScript("mobile: swipe", swipeObject);
     }
 }
