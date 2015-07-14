@@ -80,7 +80,7 @@ public class TaurusMobileAppTest {
     }
 
 
-    @Rule public TestRule timeout1 = new Timeout(30000);
+    @Rule public TestRule tutorialtimeout = new Timeout(30000);
     @Test(priority = 0)
     @Parameters({"deviceName", "version","sauceUserName","sauceAccessKey"})
     public void Tutorial() {
@@ -97,7 +97,7 @@ public class TaurusMobileAppTest {
     }
 
 
-    @Rule public TestRule timeout2 = new Timeout(30000);
+    @Rule public TestRule addFavoritestimeout = new Timeout(30000);
     @Test(priority = 1 , dependsOnMethods = {"Tutorial"})
     public void addFavourites()
         throws InterruptedException {
@@ -117,7 +117,7 @@ public class TaurusMobileAppTest {
     }
 
 
-    @Rule public TestRule timeout3 = new Timeout(30000);
+    @Rule public TestRule removeFavouritestimeout = new Timeout(30000);
     @Test(priority = 2 , dependsOnMethods = {"addFavourites"})
     public void removeFavourites()
         throws InterruptedException {
@@ -140,7 +140,7 @@ public class TaurusMobileAppTest {
         }
 
 
-    @Rule public TestRule timeout4 = new Timeout(30000);
+    @Rule public TestRule clickOnCompanyNametimeout = new Timeout(30000);
     @Test(priority = 3 , dependsOnMethods = {"removeFavourites"})
     public void clickOnCompanyName() throws InterruptedException {
         TestUtilities.waitClick(ALL, driver, WAIT_TIME);
@@ -157,10 +157,10 @@ public class TaurusMobileAppTest {
 
 
 
-        @Rule public TestRule timeout5 = new Timeout(30000);
+        @Rule public TestRule settingstimeout = new Timeout(30000);
         @Parameters({"deviceName"})
         @Test(priority = 4 ,dependsOnMethods = {"clickOnCompanyName"})
-        public void settingsTest(String deviceName) throws InterruptedException {
+        public void settings(String deviceName) throws InterruptedException {
         if (deviceName.isEmpty()) {
         return;
         }
