@@ -454,9 +454,7 @@ def getAutostackMetricsWithMetricName(conn, autostackId, name, fields=None):
 
 
 
-# TODO Determine why `conn` is used as a parameter and either delete it or use
-# it. Until then, disable pylint warning
-def _getCloudwatchMetricReadinessPredicate(conn): #pylint: disable=W0613
+def _getCloudwatchMetricReadinessPredicate():
   """ Generate an sqlAlchemy predicate that determines whether the metric is
   ready for data collection.
 
@@ -520,7 +518,7 @@ def getAutostackMetricsPendingDataCollection(conn):
          .where(schema.metric_set.c.metric == schema.metric.c.uid)
          .where(schema.autostack.c.uid == schema.metric_set.c.autostack)
          .where((schema.metric.c.status == 1) | (schema.metric.c.status == 8))
-         .where(_getCloudwatchMetricReadinessPredicate(conn)))
+         .where(_getCloudwatchMetricReadinessPredicate()))
 
   retval = {}
 
@@ -593,7 +591,7 @@ def getCloudwatchMetricsPendingDataCollection(conn):
          .where(schema.metric.c.datasource == "cloudwatch")
          .where((schema.metric.c.status == MetricStatus.ACTIVE)
                 | (schema.metric.c.status == MetricStatus.PENDING_DATA))
-         .where(_getCloudwatchMetricReadinessPredicate(conn)))
+         .where(_getCloudwatchMetricReadinessPredicate()))
 
   return conn.execute(sel).fetchall()
 
