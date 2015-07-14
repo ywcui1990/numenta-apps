@@ -20,8 +20,7 @@
 # ----------------------------------------------------------------------
 
 # Note: we don't allow autostacks of ASGs, so disable warnings about
-# `getMatchingResources` not being implemented
-#pylint: disable=W0223
+# `getMatchingResources` not being implemented (disable=W0223 comments below)
 
 from boto.ec2 import autoscale
 
@@ -32,7 +31,7 @@ from grok.app.aws.asg_utils import getAutoScalingGroups
 
 
 
-@AWSResourceAdapterBase.registerResourceAdapter
+@AWSResourceAdapterBase.registerResourceAdapter #pylint: disable=W0223
 class AutoScalingGroupAdapter(AWSResourceAdapterBase):
   RESOURCE_TYPE = ResourceTypeNames.AUTOSCALING_GROUP
 
@@ -122,7 +121,7 @@ class AutoScalingGroupAdapter(AWSResourceAdapterBase):
 
 
 
-@AWSResourceAdapterBase.registerMetricAdapter
+@AWSResourceAdapterBase.registerMetricAdapter #pylint: disable=W0223
 class ASGGroupTotalInstancesMetricAdapter(AutoScalingGroupAdapter):
 
   METRIC_NAME = "GroupTotalInstances"
@@ -143,7 +142,7 @@ class ASGGroupTotalInstancesMetricAdapter(AutoScalingGroupAdapter):
 
 
 
-@AWSResourceAdapterBase.registerMetricAdapter
+@AWSResourceAdapterBase.registerMetricAdapter #pylint: disable=W0223
 class ASGCPUUtilizationMetricAdapter(AutoScalingGroupAdapter):
 
   METRIC_NAME = "CPUUtilization"
@@ -158,7 +157,7 @@ class ASGCPUUtilizationMetricAdapter(AutoScalingGroupAdapter):
 
 
 
-@AWSResourceAdapterBase.registerMetricAdapter
+@AWSResourceAdapterBase.registerMetricAdapter #pylint: disable=W0223
 class ASGDiskReadBytesMetricAdapter(AutoScalingGroupAdapter):
 
   METRIC_NAME = "DiskReadBytes"
@@ -173,7 +172,7 @@ class ASGDiskReadBytesMetricAdapter(AutoScalingGroupAdapter):
 
 
 
-@AWSResourceAdapterBase.registerMetricAdapter
+@AWSResourceAdapterBase.registerMetricAdapter #pylint: disable=W0223
 class ASGDiskWriteBytesMetricAdapter(AutoScalingGroupAdapter):
 
   METRIC_NAME = "DiskWriteBytes"
@@ -188,7 +187,7 @@ class ASGDiskWriteBytesMetricAdapter(AutoScalingGroupAdapter):
 
 
 
-@AWSResourceAdapterBase.registerMetricAdapter
+@AWSResourceAdapterBase.registerMetricAdapter #pylint: disable=W0223
 class ASGNetworkInMetricAdapter(AutoScalingGroupAdapter):
 
   METRIC_NAME = "NetworkIn"
@@ -203,7 +202,7 @@ class ASGNetworkInMetricAdapter(AutoScalingGroupAdapter):
 
 
 
-@AWSResourceAdapterBase.registerMetricAdapter
+@AWSResourceAdapterBase.registerMetricAdapter #pylint: disable=W0223
 class ASGNetworkOutMetricAdapter(AutoScalingGroupAdapter):
 
   METRIC_NAME = "NetworkOut"

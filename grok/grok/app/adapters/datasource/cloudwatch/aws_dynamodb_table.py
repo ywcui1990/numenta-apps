@@ -20,8 +20,7 @@
 # ----------------------------------------------------------------------
 
 # Note: we don't allow autostacks of DynamoDB, so disable warnings about
-# `getMatchingResources` not being implemented
-#pylint: disable=W0223
+# `getMatchingResources` not being implemented (disable=W0223 comments below)
 
 from boto import dynamodb
 
@@ -31,7 +30,7 @@ from grok.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
 
 
 
-@AWSResourceAdapterBase.registerResourceAdapter
+@AWSResourceAdapterBase.registerResourceAdapter #pylint: disable=W0223
 class DynamoDBTableAdapter(AWSResourceAdapterBase):
   RESOURCE_TYPE = ResourceTypeNames.DYNAMODB_TABLE
 
@@ -80,7 +79,7 @@ class DynamoDBTableAdapter(AWSResourceAdapterBase):
 
 
 
-@AWSResourceAdapterBase.registerMetricAdapter
+@AWSResourceAdapterBase.registerMetricAdapter #pylint: disable=W0223
 class DDBConsumedReadCapacityUnitsMetricAdapter(DynamoDBTableAdapter):
 
   METRIC_NAME = "ConsumedReadCapacityUnits"
@@ -100,7 +99,7 @@ class DDBConsumedReadCapacityUnitsMetricAdapter(DynamoDBTableAdapter):
 
 
 
-@AWSResourceAdapterBase.registerMetricAdapter
+@AWSResourceAdapterBase.registerMetricAdapter #pylint: disable=W0223
 class DDBConsumedWriteCapacityUnitsMetricAdapter(DynamoDBTableAdapter):
 
   METRIC_NAME = "ConsumedWriteCapacityUnits"
@@ -120,7 +119,7 @@ class DDBConsumedWriteCapacityUnitsMetricAdapter(DynamoDBTableAdapter):
 
 
 
-@AWSResourceAdapterBase.registerMetricAdapter
+@AWSResourceAdapterBase.registerMetricAdapter #pylint: disable=W0223
 class DDBReturnedItemCountMetricAdapter(DynamoDBTableAdapter):
 
   METRIC_NAME = "ReturnedItemCount"

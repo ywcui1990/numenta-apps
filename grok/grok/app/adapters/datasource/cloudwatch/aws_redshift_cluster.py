@@ -20,8 +20,7 @@
 # ----------------------------------------------------------------------
 
 # Note: we don't allow autostacks of Redshift, so disable warnings about
-# `getMatchingResources` not being implemented
-#pylint: disable=W0223
+# `getMatchingResources` not being implemented (disable=W0223 comments below)
 
 import boto.redshift
 
@@ -32,7 +31,7 @@ from grok.app.exceptions import InvalidAWSRegionName
 
 
 
-@AWSResourceAdapterBase.registerResourceAdapter
+@AWSResourceAdapterBase.registerResourceAdapter #pylint: disable=W0223
 class RedshiftClusterAdapter(AWSResourceAdapterBase):
   RESOURCE_TYPE = ResourceTypeNames.REDSHIFT_CLUSTER
 
@@ -99,7 +98,7 @@ class RedshiftClusterAdapter(AWSResourceAdapterBase):
 
 
 
-@AWSResourceAdapterBase.registerMetricAdapter
+@AWSResourceAdapterBase.registerMetricAdapter #pylint: disable=W0223
 class RSCDatabaseConnectionsMetricAdapter(RedshiftClusterAdapter):
 
   METRIC_NAME = "DatabaseConnections"
