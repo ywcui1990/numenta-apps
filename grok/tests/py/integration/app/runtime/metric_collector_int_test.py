@@ -209,6 +209,10 @@ class MetricCollectorTestCase(unittest.TestCase):
           resultQ.put(sys.exc_info()[1])
           raise
 
+      # Give subprocess time to initialize before potentially killing it 
+      # prematurely
+      time.sleep(5)
+
       # Stop it using the signal that it expects from supervisord; this should
       # trigger its handler for KeyboardInterrupt
       p.send_signal(signal.SIGINT)
