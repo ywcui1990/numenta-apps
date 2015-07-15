@@ -39,25 +39,28 @@ import org.testng.annotations.Test;
 
 public class TaurusMobileAppTest {
     private WebDriver driver;
-    static int WAIT_TIME = 1000;
-    static By ALL = By.name("ALL");
-    static By FAVORITES = By.name("FAVORITES");
     static By ADD_FAVORITE_POP_UP = By.id("android:id/title");
-    static By REMOVE_FAVORITE_POP_UP =By.name("Remove Favorite");
-    static By DATE = By.id("com.numenta.taurus:id/date");
+    static By ALL = By.name("ALL");
+    static By BUTTON_ON_TUTORIAL_PAGE =By.id(
+        "com.numenta.taurus:id/tutorial_button_right");
     static By CHECKBOX = By.id("com.numenta.taurus:id/market_hours_checkbox");
-    static By TWITTER_VOLUME = By.name("Twitter Volume");
+    static By DATE = By.id("com.numenta.taurus:id/date");
+    static By END_BUTTON_ON_TUTORIAL_PAGE = By.name("END");
+    static By EXPECTED_COMPANY_NAME = By.id("com.numenta.taurus:id/ticker");
+    static By EXPECTED_COMPANY_NAME_FOR_FAVORITE = By.id(
+        "com.numenta.taurus:id/ticker");
+    static By FAVORITES = By.name("FAVORITES");
     static By LABEL_DETAIL = By.id("com.numenta.taurus:id/caption");
     static By LABEL_STOCKPRICE = By.name("Stock Price");
     static By LABEL_STOCKVOLUME = By.name("Stock Volume");
-    static By LABEL_TWITTERVOLUME = By.name("Twitter Volume");
     static By LABEL_TWITTER = By.name("Twitter");
-    static By BUTTON_ON_TUTORIAL_PAGE =By.id("com.numenta.taurus:id/tutorial_button_right");
-    static By END_BUTTON_ON_TUTORIAL_PAGE = By.name("END");
-    static By EXPECTED_COMPANY_NAME = By.id("com.numenta.taurus:id/ticker");
-    static By EXPECTED_COMPANY_NAME_FOR_FAVORITE = By.id("com.numenta.taurus:id/ticker");
-    static By START_BUTTON = By.id("com.numenta.taurus:id/tutorial_button_right");
+    static By LABEL_TWITTERVOLUME = By.name("Twitter Volume");
+    static By REMOVE_FAVORITE_POP_UP =By.name("Remove Favorite");
+    static By START_BUTTON = By.id(
+        "com.numenta.taurus:id/tutorial_button_right");
+    static By TWITTER_VOLUME = By.name("Twitter Volume");
     static By NEXT_BUTTON = By.name("NEXT");
+    static int WAIT_TIME = 1000;
 
 
     @BeforeClass
@@ -71,7 +74,7 @@ public class TaurusMobileAppTest {
         capabilities.setCapability("device-orientation", "portrait");
         capabilities.setCapability("deviceName", deviceName);
         capabilities.setCapability("platformVersion", platformVersion);
-        capabilities.setCapability("androidPackage","com.numenta.taurus");
+        capabilities.setCapability("androidPackage", "com.numenta.taurus");
         capabilities.setCapability("appiumVersion", "1.4.0");
         capabilities.setCapability("appActivity",
           "com.numenta.taurus.SplashScreenActivity");
@@ -82,37 +85,42 @@ public class TaurusMobileAppTest {
 
     @Rule public TestRule tutorialtimeout = new Timeout(30000);
     @Test(priority = 0)
-    @Parameters({"deviceName", "version","sauceUserName","sauceAccessKey"})
-    public void Tutorial() {
-        String startBtn =TestUtilities.waitGetText(BUTTON_ON_TUTORIAL_PAGE, driver,WAIT_TIME);
+    @Parameters({"deviceName", "version", "sauceUserName", "sauceAccessKey"})
+    public void skipTutorial() {
+        String startBtn =TestUtilities.waitGetText(
+            BUTTON_ON_TUTORIAL_PAGE, driver,WAIT_TIME);
         AssertJUnit.assertEquals(startBtn, "START");
         TestUtilities.waitClick(START_BUTTON, driver, WAIT_TIME);
         TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
         TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
         TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
         TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
-        String endButton =TestUtilities.waitGetText(END_BUTTON_ON_TUTORIAL_PAGE, driver, WAIT_TIME);
+        String endButton =TestUtilities.waitGetText(
+            END_BUTTON_ON_TUTORIAL_PAGE, driver, WAIT_TIME);
         AssertJUnit.assertEquals(endButton, "END");
         TestUtilities.waitClick(END_BUTTON_ON_TUTORIAL_PAGE, driver, WAIT_TIME);
     }
 
 
     @Rule public TestRule addFavoritestimeout = new Timeout(30000);
-    @Test(priority = 1 , dependsOnMethods = {"Tutorial"})
+    @Test(priority = 1 , dependsOnMethods = {"skipTutorial"})
     public void addFavourites()
         throws InterruptedException {
         // Long press on any company name
         TestUtilities.waitClick(FAVORITES, driver, WAIT_TIME);
         TestUtilities.waitClick(ALL, driver, WAIT_TIME);
-        String test = TestUtilities.waitGetText(EXPECTED_COMPANY_NAME, driver, WAIT_TIME);
+        String test = TestUtilities.waitGetText(
+            EXPECTED_COMPANY_NAME, driver, WAIT_TIME);
         TestUtilities.longPressOnCompanyName(driver);
         // Add favorite pop-up
-        String ADD_FAVORITE =TestUtilities.waitGetText(ADD_FAVORITE_POP_UP, driver, WAIT_TIME);
+        String ADD_FAVORITE =TestUtilities.waitGetText(
+            ADD_FAVORITE_POP_UP, driver, WAIT_TIME);
         AssertJUnit.assertEquals(ADD_FAVORITE, "Add Favorite");
         TestUtilities.waitClick(ADD_FAVORITE_POP_UP, driver, WAIT_TIME);
         TestUtilities.waitClick(FAVORITES, driver, WAIT_TIME);
         // Verify company get added in favorite
-        String favorite = TestUtilities.waitGetText(EXPECTED_COMPANY_NAME_FOR_FAVORITE, driver, WAIT_TIME);
+        String favorite = TestUtilities.waitGetText(
+            EXPECTED_COMPANY_NAME_FOR_FAVORITE, driver, WAIT_TIME);
         AssertJUnit.assertEquals(test,favorite);
     }
 
@@ -124,18 +132,22 @@ public class TaurusMobileAppTest {
             TestUtilities.waitClick(FAVORITES, driver, WAIT_TIME);
             //Removing company from Favorites list
             TestUtilities.longPressOnCompanyName(driver);
-            String REMOVE_FAVORITE =TestUtilities.waitGetText(REMOVE_FAVORITE_POP_UP, driver, WAIT_TIME);
+            String REMOVE_FAVORITE =TestUtilities.waitGetText(
+                REMOVE_FAVORITE_POP_UP, driver, WAIT_TIME);
             AssertJUnit.assertEquals(REMOVE_FAVORITE, "Remove Favorite");
             TestUtilities.waitClick(REMOVE_FAVORITE_POP_UP, driver, WAIT_TIME);
             TestUtilities.waitClick(ALL, driver, WAIT_TIME);
             TestUtilities.waitClick(FAVORITES, driver, WAIT_TIME);
             // Verify same company get deleted from favorite tab
-            Integer isPresent = driver.findElements(By.id("com.numenta.taurus:id/ticker")).size();
+            Integer isPresent = driver.findElements(
+                By.id("com.numenta.taurus:id/ticker")).size();
             if(isPresent != 0) {
-                AssertJUnit.assertTrue("Deletion happens successfuly!", isPresent != 0 );
+                AssertJUnit.assertTrue("Deletion happens successfuly!",
+                    isPresent != 0 );
             }
             else {
-                AssertJUnit.assertTrue("Deletion does not happens successfuly!", isPresent == 0 );
+                AssertJUnit.assertTrue("Deletion does not happens successfuly!",
+                    isPresent == 0 );
             }
         }
 
@@ -147,8 +159,10 @@ public class TaurusMobileAppTest {
         TestUtilities.waitClick(EXPECTED_COMPANY_NAME, driver, WAIT_TIME);
         TestUtilities.waitClick(CHECKBOX, driver,WAIT_TIME);
         // Verify company entering in Company Detail page
-        String details = TestUtilities.waitGetText(LABEL_DETAIL, driver, WAIT_TIME);
-        String checkboxString = TestUtilities.waitGetText(CHECKBOX, driver, WAIT_TIME);
+        String details = TestUtilities.waitGetText(
+            LABEL_DETAIL, driver, WAIT_TIME);
+        String checkboxString = TestUtilities.waitGetText(
+            CHECKBOX, driver, WAIT_TIME);
         AssertJUnit.assertEquals(checkboxString,"Show Market Hours Only");
         AssertJUnit.assertEquals(details,"tap for details");
         TestUtilities.waitClick(CHECKBOX, driver,WAIT_TIME);
@@ -157,12 +171,13 @@ public class TaurusMobileAppTest {
 
 
 
-        @Rule public TestRule settingstimeout = new Timeout(30000);
-        @Parameters({"deviceName"})
-        @Test(priority = 4 ,dependsOnMethods = {"clickOnCompanyName"})
-        public void settings(String deviceName) throws InterruptedException {
-        if (deviceName.isEmpty()) {
-        return;
+    @Rule public TestRule settingstimeout = new Timeout(30000);
+    @Parameters({"deviceName"})
+    @Test(priority = 4, dependsOnMethods = {"clickOnCompanyName"})
+    public void settings(String deviceName)
+            throws InterruptedException {
+            if (deviceName.isEmpty()) {
+            return;
         }
         if (deviceName.contains("Nexus")) {
         // Clicking on Settings option
@@ -170,12 +185,11 @@ public class TaurusMobileAppTest {
         TestUtilities.clickSettingOptionAndChangeSettings(driver, WAIT_TIME);
         TestUtilities.clickAbout(driver, WAIT_TIME);
         TestUtilities.clickShare(driver, WAIT_TIME);
-    }
-        else {
-        System.out.println("Non-Nexus test device with a hardware Settings button"
+        } else {
+            System.out.println("Non-Nexus test device with a hardware Settings button"
                 + " hence Settings page cannot be tested correctly button hence "
                 + "Settings page cannot be tested correctly.");
-   }
+       }
        driver.navigate().back();
    }
 

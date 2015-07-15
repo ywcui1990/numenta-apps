@@ -33,28 +33,30 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.AssertJUnit;
 
 public class TestUtilities {
-    static By FEEDBACK_BUTTON = By.name("Feedback");
-    static By SHARE_BUTTON = By.name("Share");
-    static By SETTINGS_BUTTON = By.name("Settings");
     static By ABOUT = By.name("About");
-    static By TUTORIAL =By.name("Tutorial");
+    static By BUTTON_ON_TUTORIAL =By.id(
+        "com.numenta.taurus:id/tutorial_button_right");
     static By CANCEL_BUTTON = By.id("android:id/button2");
-    static By REFRESH_RATE = By.name("Refresh Rate");
-    static By RATE_OPTION = By.name("5 minutes");
     static By CHECK_BOX_FOR_NOTIFICATION = By.id("android:id/checkbox");
-    static By MAX_NOTIFICATION_PER_INSTANCE = By.name(
-          "Max Notifications Per Company");
-    static By OPTION_MAX_NOTIFICATION_PER_INSTANCE = By.name("1 per hour");
-    static By OK_BUTTON = By.name("OK");
+    static By COMPANYNAME = By.id("com.numenta.taurus:id/ticker");
+    static By DATA_SOURCES = By.name("Data Sources");
+    static By FEEDBACK_BUTTON = By.name("Feedback");
     static By LABEL_SETTINGS = By.id("android:id/action_bar_title");
     static By LABEL_VERSION = By.name("Version");
     static By LABEL_NOTIFICATION = By.name("Notifications");
-    static By DATA_SOURCES = By.name("Data Sources");
-    static By BUTTON_ON_TUTORIAL =By.id("com.numenta.taurus:id/tutorial_button_right");
-    static By SKIP_ON_TUTORIAL = By.id("com.numenta.taurus:id/tutorial_button_left");
-    static By COMPANYNAME = By.id("com.numenta.taurus:id/ticker");
-    static By SETTING_BUTTON = By.xpath("//android.widget.ImageButton[@content-desc='More options']");
-
+    static By MAX_NOTIFICATION_PER_INSTANCE = By.name(
+            "Max Notifications Per Company");
+    static By OK_BUTTON = By.name("OK");
+    static By REFRESH_RATE = By.name("Refresh Rate");
+    static By RATE_OPTION = By.name("5 minutes");
+    static By SHARE_BUTTON = By.name("Share");
+    static By SETTINGS_BUTTON = By.name("Settings");
+    static By SKIP_ON_TUTORIAL = By.id(
+        "com.numenta.taurus:id/tutorial_button_left");
+    static By SETTING_BUTTON = By.xpath(
+        "//android.widget.ImageButton[@content-desc='More options']");
+    static By TUTORIAL =By.name("Tutorial");
+    static By OPTION_MAX_NOTIFICATION_PER_INSTANCE = By.name("1 per hour");
 
     public static void waitClick(By locator, WebDriver driver, int value) {
           WebDriverWait wait = new WebDriverWait(driver, value);
