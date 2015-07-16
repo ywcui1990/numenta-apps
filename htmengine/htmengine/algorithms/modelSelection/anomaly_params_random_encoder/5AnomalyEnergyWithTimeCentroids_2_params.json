@@ -52,7 +52,7 @@
         "synPermInactiveDec": 0.0005,
         "numActiveColumnsPerInhArea": 40,
         "seed": 1956,
-        "columnDimensions": 0.8,
+        "potentialPct": 0.8,
         "globalInhibition": 1,
         "maxBoost": 1.0
       },

@@ -18,6 +18,8 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+import sys
+
 import requests
 
 
@@ -44,7 +46,12 @@ def getInstanceData():
       "availabilityZone" : "us-east-1d"
     }
 
+  :returns: dict of EC2 instance data; None if not available
+
   """
+  if sys.platform.startswith("darwin"):
+    return None
+
   url = "http://169.254.169.254/latest/dynamic/instance-identity/document"
 
   try:

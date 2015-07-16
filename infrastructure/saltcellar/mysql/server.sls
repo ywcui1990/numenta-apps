@@ -29,8 +29,9 @@ include:
 {% if grains['os_family'] == 'RedHat' %}
 
 # Add our changes to my.cnf for 5.6
-/etc/my.cnf:
+configure-mysql-slow-query-log:
   file.append:
+    - name: /etc/my.cnf
     - text:
       - "#"
       - "# Apply slow query settings per TAUR-559"
@@ -38,6 +39,8 @@ include:
       - "slow_query_log_file = /var/log/mysql/slow.log"
     - require:
       - pkg: mysql-community-server
+    - watch_in:
+      - service: mysqld.service
 
 install-mysqld:
   pkg.latest:
@@ -53,7 +56,5 @@ mysqld.service:
   {% elif grains['osmajorrelease'][0] == '7' %}
     - name: mysqld.service
   {% endif %}
-    - watch:
-      - file: /etc/my.cnf
 
 {% endif %}
