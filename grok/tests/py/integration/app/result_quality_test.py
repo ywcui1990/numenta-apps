@@ -441,6 +441,31 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     # Compute the confusion matrix
     cMatrix = genConfusionMatrix(labels, data)
 
+    def formatMessage(statusMessage):
+      substitutions = dict(expectedResults)
+      substitutions.update({
+        "statusMessage": statusMessage,
+        "boundingRange": boundingRange,
+        "afn": cMatrix.fn,
+        "afp": cMatrix.fp,
+        "atn": cMatrix.tn,
+        "atp": cMatrix.tp,
+        "aquality": cMatrix.quality})
+      message = ("%(statusMessage)s\n"
+                 "Expected:\n"
+                 "    False negatives: %(fn)i\n"
+                 "    False positives: %(fp)i\n"
+                 "    True negatives:  %(tn)i\n"
+                 "    True positives:  %(tp)i\n"
+                 "    Quality Score:   %(quality)i\n"
+                 "Actual:\n"
+                 "    False negatives: %(afn)i\n"
+                 "    False positives: %(afp)i\n"
+                 "    True negatives:  %(atn)i\n"
+                 "    True positives:  %(atp)i\n"
+                 "    Quality Score:   %(aquality)i\n") % substitutions
+      return message
+
     for (key, value) in expectedResults.iteritems():
       actual = getattr(cMatrix, key)
       spread = value * boundingRange
@@ -449,32 +474,17 @@ class ResultQualityTests(test_case_base.TestCaseBase):
       boundA = value - spread
       boundB = value + spread
 
-      substitutions = dict(expectedResults)
-      substitutions.update({
-          "k": key,
-          "boundingRange": boundingRange,
-          "afn": cMatrix.fn,
-          "afp": cMatrix.fp,
-          "atn": cMatrix.tn,
-          "atp": cMatrix.tp,
-          "aquality": cMatrix.quality})
-      failMessage = ("Change in %(k)s - %(boundingRange).2f boundary "
-                     "violation.\n"
-                     "Expected:\n"
-                     "    False negatives: %(fn)i\n"
-                     "    False positives: %(fp)i\n"
-                     "    True negatives:  %(tn)i\n"
-                     "    True positives:  %(tp)i\n"
-                     "    Quality Score:   %(quality)i\n"
-                     "Actual:\n"
-                     "    False negatives: %(afn)i\n"
-                     "    False positives: %(afp)i\n"
-                     "    True negatives:  %(atn)i\n"
-                     "    True positives:  %(atp)i\n"
-                     "    Quality Score:   %(aquality)i\n") % substitutions
+      failMessage = formatMessage(
+        "Change in %s - %.2f boundary violation." %
+        (key, boundingRange))
+
       self.assertTrue((boundA <= actual <= boundB) or
                       (boundB <= actual <= boundA),
                       failMessage)
+
+    passingMessage = formatMessage("%s Passed with %.2f boundary." %
+                                   (self, boundingRange,))
+    LOGGER.info(passingMessage)
 
     return data
 
