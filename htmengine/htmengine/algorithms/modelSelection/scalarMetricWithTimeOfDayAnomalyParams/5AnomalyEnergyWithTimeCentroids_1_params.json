@@ -55,7 +55,7 @@
         "synPermConnected": 0.10000000000000001,
         "numActiveColumnsPerInhArea": 40,
         "seed": 1956,
-        "columnDimensions": 0.8,
+        "potentialPct": 0.8,
         "globalInhibition": 1,
         "maxBoost": 1.0
       },
