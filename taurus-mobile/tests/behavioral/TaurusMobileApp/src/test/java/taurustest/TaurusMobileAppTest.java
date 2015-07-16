@@ -174,8 +174,7 @@ public class TaurusMobileAppTest {
     @Rule public TestRule settingstimeout = new Timeout(30000);
     @Parameters({"deviceName"})
     @Test(priority = 4, dependsOnMethods = {"clickOnCompanyName"})
-    public void settings(String deviceName)
-            throws InterruptedException {
+    public void settings(String deviceName) throws InterruptedException {
             if (deviceName.isEmpty()) {
             return;
         }
