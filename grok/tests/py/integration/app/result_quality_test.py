@@ -139,10 +139,10 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     dataIdentifier = "IIO"
     knownDataFile = "iio_us-east-1_i-a2eb1cd9_NetworkIn.csv"
     expectedResults = {"fn": 5,
-                       "fp": 12,
-                       "tn": 883,
+                       "fp": 10,
+                       "tn": 885,
                        "tp": 0,
-                       "quality": -650}
+                       "quality": -550}
 
     results1 = self._runQualityTest(dataIdentifier, knownDataFile,
                                     expectedResults)
@@ -179,11 +179,11 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     """
     dataIdentifier = "GRK"
     knownDataFile = "grok_rpmbuild_realanomaly_networkIn.csv"
-    expectedResults = {"fn": 38,
-                       "fp": 73,
-                       "tn": 7115,
-                       "tp": 151,
-                       "quality": 11070}
+    expectedResults = {"fn": 48,
+                       "fp": 58,
+                       "tn": 7130,
+                       "tp": 141,
+                       "quality": 10720}
 
     self._runQualityTest(dataIdentifier, knownDataFile, expectedResults)
 
