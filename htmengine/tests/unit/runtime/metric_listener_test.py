@@ -58,7 +58,7 @@ class MetricListenerTest(unittest.TestCase):
 
     class ThreadedTCPServerMockTemplate (metric_listener.ThreadedTCPServer):
       concurrencyTracker=MagicMock(
-        metric_listener.threading_utils.ThreadsafeCounter)
+        spec=metric_listener.threading_utils.ThreadsafeCounter)
 
     metric_listener.Protocol.current = Protocol.PLAIN
 
@@ -96,12 +96,29 @@ class MetricListenerTest(unittest.TestCase):
     # Check the results
     self.assertEqual(forwardDataMock.call_count, 2)
     data = ["test.metric 4 1386120789", "test.metric 5 1386120799"]
-    call0 = mock.call(mock.ANY, metric_listener.Protocol.PLAIN, data)
+    call0 = mock.call(mock.ANY, data)
     self.assertEqual(forwardDataMock.call_args_list[0], call0)
 
     data = ["test.metric 6 1386120999"]
-    call1 = mock.call(mock.ANY, metric_listener.Protocol.PLAIN, data)
+    call1 = mock.call(mock.ANY, data)
     self.assertEqual(forwardDataMock.call_args_list[1], call1)
+
+
+  @patch.object(metric_listener, "_TimeoutSafeBufferedLineReader", autospec=True)
+  def testReadlines(self, lineReaderClassMock):
+    lineReaderClassMock.return_value.readlinesWithTimeout.return_value = [
+      "abc",
+      None,
+      "def",
+    ]
+
+    reader = iter(metric_listener._readlines(sock=Mock()))
+
+    self.assertEqual(reader.next(), "abc")
+    self.assertEqual(reader.next(), None)
+    self.assertEqual(reader.next(), "def")
+    with self.assertRaises(StopIteration):
+      reader.next()
 
 
 
