@@ -76,7 +76,8 @@ def main(symbolList=None):
   """
   logging_support.LoggingSupport.initTool()
 
-  _parseArgs()
+  if not symbolList:
+    _parseArgs()
 
   startingTimestamp = datetime.utcnow() - timedelta(days=_BACKLOG_DAYS)
 
