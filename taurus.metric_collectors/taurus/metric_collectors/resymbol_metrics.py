@@ -55,7 +55,8 @@ from taurus.metric_collectors.collectorsdb.schema import (
 from taurus.metric_collectors.twitterdirect import migrate_tweets_to_dynamodb
 from taurus.metric_collectors.twitterdirect.twitter_direct_agent import (
     MetricDataForwarder,
-    loadMetricSpecs as loadTwitterMetricSpecs
+    loadMetricSpecs as loadTwitterMetricSpecs,
+    _EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY
 )
 from taurus.metric_collectors.xignite.xignite_stock_agent import (
     _transmitMetricData as forwardStockBars,
@@ -65,8 +66,6 @@ from taurus.metric_collectors.xignite.xignite_stock_agent import (
 
 
 DEFAULT_HTM_SERVER = os.environ.get("TAURUS_HTM_SERVER")
-_EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY = "twitter-tweets-volume"
-_EMITTED_NEWS_VOLUME_SAMPLE_TRACKER_KEY = "xignite-security-news-volume"
 
 
 
@@ -189,15 +188,13 @@ def main():
 
     g_log.info("Verifying that agents are in hot_standby mode")
     for section in config.sections():
-      try:
-        assert(config.get(section, "opmode") == ApplicationConfig.OP_MODE_HOT_STANDBY)
-      except Exception, e:
-        raise
+      assert(config.get(section, "opmode") ==
+             ApplicationConfig.OP_MODE_HOT_STANDBY)
 
     g_log.info("Verifying that the old symbol has been removed from the "
                "metrics configuration")
     for stockData in metric_utils.getMetricsConfiguration().itervalues():
-      assert(stockData["symbol"] != options.oldSymbol)
+      assert stockData["symbol"] != options.oldSymbol
 
     if options.twitter and (not options.stocks):
       g_log.info("Migrating ONLY twitter data from old-symbol=%s "
@@ -212,8 +209,10 @@ def main():
                  "old-symbol=%s to new-symbol=%s",
                  options.oldSymbol, options.newSymbol)
 
-    oldSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.{symbol}.".format(symbol=options.oldSymbol)
-    newSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.{symbol}.".format(symbol=options.newSymbol)
+    oldSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.{symbol}.".format(
+      symbol=options.oldSymbol)
+    newSymbolTweetPrefix = "TWITTER.TWEET.HANDLE.{symbol}.".format(
+      symbol=options.newSymbol)
     oldSymbolTweetMetricsList = []
 
     with collectorsdb.engineFactory().begin() as conn:
@@ -233,7 +232,7 @@ def main():
           if tweetSample.metric not in oldSymbolTweetMetricsList:
             oldSymbolTweetMetricsList.append(tweetSample.metric)
 
-          updateSampleQuery = (tweetSamplesSchema
+          updateSampleQuery = (tweetSamplesSchema  # pylint: disable=E1120
                                .update()
                                .where(tweetSamplesSchema.c.metric
                                       .contains(oldSymbolTweetPrefix))
@@ -242,39 +241,39 @@ def main():
           conn.execute(updateSampleQuery)
 
       if options.stocks:
-        renameStockQuery = (stockSchema
+        renameStockQuery = (stockSchema  # pylint: disable=E1120
                             .update()
                             .where(stockSchema.c.symbol ==
                                    options.oldSymbol)
                             .values(symbol=options.newSymbol))
         conn.execute(renameStockQuery)
 
-        updateStockBarsQuery = (stockBarsSchema
+        updateStockBarsQuery = (stockBarsSchema  # pylint: disable=E1120
                                 .update()
                                 .where(stockBarsSchema.c.symbol ==
                                        options.oldSymbol)
                                 .values(symbol=options.newSymbol))
         conn.execute(updateStockBarsQuery)
 
-        clearEmittedPriceQuery = (stockEmittedPriceSchema
-                                  .delete()
-                                  .where(stockEmittedPriceSchema.c.symbol ==
-                                         options.oldSymbol))
+        clearEmittedPriceQuery = (
+          stockEmittedPriceSchema  # pylint: disable=E1120
+          .delete()
+          .where(stockEmittedPriceSchema.c.symbol == options.oldSymbol))
         conn.execute(clearEmittedPriceQuery)
-        clearEmittedVolumeQuery = (stockEmittedVolumeSchema
-                                   .delete()
-                                   .where(stockEmittedVolumeSchema.c.symbol ==
-                                          options.oldSymbol))
+        clearEmittedVolumeQuery = (
+          stockEmittedVolumeSchema  # pylint: disable=E1120
+          .delete()
+          .where(stockEmittedVolumeSchema.c.symbol == options.oldSymbol))
         conn.execute(clearEmittedVolumeQuery)
 
-        updateStockHeadlineQuery = (stockHeadlineSchema
+        updateStockHeadlineQuery = (stockHeadlineSchema  # pylint: disable=E1120
                                     .update()
                                     .where(stockHeadlineSchema.c.symbol ==
                                            options.oldSymbol)
                                     .values(symbol=options.newSymbol))
         conn.execute(updateStockHeadlineQuery)
 
-        updateStockReleaseQuery = (stockReleaseSchema
+        updateStockReleaseQuery = (stockReleaseSchema  # pylint: disable=E1120
                                    .update()
                                    .where(stockReleaseSchema.c.symbol ==
                                           options.oldSymbol)
@@ -290,9 +289,11 @@ def main():
         lastEmittedAggTime = metric_utils.establishLastEmittedSampleDatetime(
           key=_EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY,
           aggSec=options.aggPeriod)
-        aggOffset = math.ceil(
-          (epochFromNaiveUTCDatetime(lastEmittedAggTime) -
-           epochFromNaiveUTCDatetime(oldestRecordTs)) / options.aggPeriod) * options.aggPeriod
+        aggOffset = (
+          math.ceil(
+            (epochFromNaiveUTCDatetime(lastEmittedAggTime) -
+             epochFromNaiveUTCDatetime(oldestRecordTs)) / options.aggPeriod) *
+          options.aggPeriod)
         aggStartDatetime = (lastEmittedAggTime -
                             timedelta(seconds=aggOffset) -
                             timedelta(seconds=options.aggPeriod))
