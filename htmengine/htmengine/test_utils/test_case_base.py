@@ -32,11 +32,14 @@ import logging
 import unittest
 
 from htmengine import repository
+from htmengine.adapters.datasource import createDatasourceAdapter
+from htmengine.exceptions import MetricAlreadyMonitored
+from htmengine.model_checkpoint_mgr import model_checkpoint_mgr
 from htmengine.repository import schema
 from htmengine.repository.queries import MetricStatus
 import htmengine.exceptions as app_exceptions
 
-from htmengine.model_checkpoint_mgr import model_checkpoint_mgr
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -96,6 +99,29 @@ class TestCaseBase(unittest.TestCase):
       raise ValueError("Did %r forget to set config member variable " % (
                        self,))
     return self.config
+
+
+  def _deleteMetric(self, metricName):
+    adapter = createDatasourceAdapter("custom")
+    adapter.deleteMetricByName(metricName)
+
+
+  def _deleteModel(self, metricId):
+    adapter = createDatasourceAdapter("custom")
+    adapter.unmonitorMetric(metricId)
+
+
+  def _createModel(self, nativeMetric):
+    adapter = createDatasourceAdapter("custom")
+    try:
+      metricId = adapter.monitorMetric(nativeMetric)
+    except MetricAlreadyMonitored as e:
+      metricId = e.uid
+
+    engine = repository.engineFactory(config=self.config)
+
+    with engine.begin() as conn:
+      return repository.getMetric(conn, metricId)
 
 
   def fastCheckSequenceEqual(self, seq1, seq2):

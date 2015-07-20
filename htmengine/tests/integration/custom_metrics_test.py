@@ -32,8 +32,7 @@ import time
 import unittest
 
 from htmengine import repository
-from htmengine.exceptions import (MetricAlreadyMonitored,
-                                  MetricStatisticsNotReadyError)
+from htmengine.exceptions import MetricStatisticsNotReadyError
 from htmengine.repository.queries import MetricStatus
 from htmengine.runtime.scalar_metric_utils import (
   MODEL_CREATION_RECORD_THRESHOLD)
@@ -64,30 +63,6 @@ class CustomMetricsTest(TestCaseBase):
     self.config = g_config
     self.plaintextPort = self.config.getint("metric_listener",
                                             "plaintext_port")
-
-
-  def _deleteMetric(self, metricName):
-    adapter = createDatasourceAdapter("custom")
-    adapter.deleteMetricByName(metricName)
-
-
-  def _deleteModel(self, metricId):
-    adapter = createDatasourceAdapter("custom")
-    adapter.unmonitorMetric(metricId)
-
-
-  def _createModel(self, nativeMetric):
-    adapter = createDatasourceAdapter("custom")
-    try:
-      metricId = adapter.monitorMetric(nativeMetric)
-    except MetricAlreadyMonitored as e:
-      metricId = e.uid
-
-    engine = repository.engineFactory(config=self.config)
-
-    with engine.begin() as conn:
-      return repository.getMetric(conn, metricId)
-
 
 
   def testUnevenTimestamps(self):
