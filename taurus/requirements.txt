@@ -10,3 +10,6 @@ validictory==0.9.1
 nta.utils
 htmengine
 paste==1.7.5.1
+
+# required by tests
+mock==1.0.1
