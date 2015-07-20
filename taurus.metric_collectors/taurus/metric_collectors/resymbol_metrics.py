@@ -38,20 +38,11 @@ from sqlalchemy import sql
 
 from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
 from taurus.metric_collectors import (
-    ApplicationConfig,
     collectorsdb,
     config,
     logging_support,
     metric_utils)
-from taurus.metric_collectors.collectorsdb.schema import (
-    emittedStockPrice as stockEmittedPriceSchema,
-    emittedStockVolume as stockEmittedVolumeSchema,
-    twitterTweetSamples as tweetSamplesSchema,
-    xigniteSecurity as stockSchema,
-    xigniteSecurityBars as stockBarsSchema,
-    xigniteSecurityHeadline as stockHeadlineSchema,
-    xigniteSecurityRelease as stockReleaseSchema
-)
+from taurus.metric_collectors.collectorsdb import schema
 from taurus.metric_collectors.twitterdirect import migrate_tweets_to_dynamodb
 from taurus.metric_collectors.twitterdirect.twitter_direct_agent import (
     MetricDataForwarder,
@@ -188,8 +179,7 @@ def main():
 
     g_log.info("Verifying that agents are in hot_standby mode")
     for section in config.sections():
-      assert(config.get(section, "opmode") ==
-             ApplicationConfig.OP_MODE_HOT_STANDBY)
+      assert config.get(section, "opmode") == config.OP_MODE_HOT_STANDBY
 
     g_log.info("Verifying that the old symbol has been removed from the "
                "metrics configuration")
@@ -219,10 +209,10 @@ def main():
 
       g_log.info("Modifying old metrics for new symbol")
       if options.twitter:
-        oldSymbolTweetMetricsQuery = (sql.select([tweetSamplesSchema.c.metric
-                                                 .distinct()])
-                                      .where(tweetSamplesSchema.c.metric
-                                             .contains(oldSymbolTweetPrefix)))
+        oldSymbolTweetMetricsQuery = (
+          sql.select([schema.twitterTweetSamples.c.metric.distinct()])
+          .where(schema.twitterTweetSamples.c.metric
+                 .contains(oldSymbolTweetPrefix)))
         oldSymbolTweetMetrics = conn.execute(oldSymbolTweetMetricsQuery)
 
         for tweetSample in oldSymbolTweetMetrics:
@@ -232,60 +222,61 @@ def main():
           if tweetSample.metric not in oldSymbolTweetMetricsList:
             oldSymbolTweetMetricsList.append(tweetSample.metric)
 
-          updateSampleQuery = (tweetSamplesSchema  # pylint: disable=E1120
-                               .update()
-                               .where(tweetSamplesSchema.c.metric
-                                      .contains(oldSymbolTweetPrefix))
-                               .values(metric=newMetricName))
+          updateSampleQuery = (
+            schema.twitterTweetSamples  # pylint: disable=E1120
+            .update()
+            .where(schema.twitterTweetSamples.c.metric
+                   .contains(oldSymbolTweetPrefix))
+            .values(metric=newMetricName))
 
           conn.execute(updateSampleQuery)
 
       if options.stocks:
-        renameStockQuery = (stockSchema  # pylint: disable=E1120
+        renameStockQuery = (schema.xigniteSecurity  # pylint: disable=E1120
                             .update()
-                            .where(stockSchema.c.symbol ==
+                            .where(schema.xigniteSecurity.c.symbol ==
                                    options.oldSymbol)
                             .values(symbol=options.newSymbol))
         conn.execute(renameStockQuery)
 
-        updateStockBarsQuery = (stockBarsSchema  # pylint: disable=E1120
-                                .update()
-                                .where(stockBarsSchema.c.symbol ==
-                                       options.oldSymbol)
-                                .values(symbol=options.newSymbol))
+        updateStockBarsQuery = (
+          schema.xigniteSecurityBars  # pylint: disable=E1120
+          .update()
+          .where(schema.xigniteSecurityBars.c.symbol == options.oldSymbol)
+          .values(symbol=options.newSymbol))
         conn.execute(updateStockBarsQuery)
 
         clearEmittedPriceQuery = (
-          stockEmittedPriceSchema  # pylint: disable=E1120
+          schema.emittedStockPrice  # pylint: disable=E1120
           .delete()
-          .where(stockEmittedPriceSchema.c.symbol == options.oldSymbol))
+          .where(schema.emittedStockPrice.c.symbol == options.oldSymbol))
         conn.execute(clearEmittedPriceQuery)
         clearEmittedVolumeQuery = (
-          stockEmittedVolumeSchema  # pylint: disable=E1120
+          schema.emittedStockVolume  # pylint: disable=E1120
           .delete()
-          .where(stockEmittedVolumeSchema.c.symbol == options.oldSymbol))
+          .where(schema.emittedStockVolume.c.symbol == options.oldSymbol))
         conn.execute(clearEmittedVolumeQuery)
 
-        updateStockHeadlineQuery = (stockHeadlineSchema  # pylint: disable=E1120
-                                    .update()
-                                    .where(stockHeadlineSchema.c.symbol ==
-                                           options.oldSymbol)
-                                    .values(symbol=options.newSymbol))
+        updateStockHeadlineQuery = (
+          schema.xigniteSecurityHeadline  # pylint: disable=E1120
+          .update()
+          .where(schema.xigniteSecurityHeadline.c.symbol == options.oldSymbol)
+          .values(symbol=options.newSymbol))
         conn.execute(updateStockHeadlineQuery)
 
-        updateStockReleaseQuery = (stockReleaseSchema  # pylint: disable=E1120
-                                   .update()
-                                   .where(stockReleaseSchema.c.symbol ==
-                                          options.oldSymbol)
-                                   .values(symbol=options.newSymbol))
+        updateStockReleaseQuery = (
+          schema.xigniteSecurityRelease  # pylint: disable=E1120
+          .update()
+          .where(schema.xigniteSecurityRelease.c.symbol == options.oldSymbol)
+          .values(symbol=options.newSymbol))
         conn.execute(updateStockReleaseQuery)
 
 
       g_log.info("Forwarding new metric data to Taurus engine...")
       if options.twitter:
         oldestRecordTs = conn.execute(sql.select(
-            [tweetSamplesSchema.c.agg_ts],
-            order_by=tweetSamplesSchema.c.agg_ts.asc())).first()[0]
+            [schema.twitterTweetSamples.c.agg_ts],
+            order_by=schema.twitterTweetSamples.c.agg_ts.asc())).first()[0]
         lastEmittedAggTime = metric_utils.establishLastEmittedSampleDatetime(
           key=_EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY,
           aggSec=options.aggPeriod)
