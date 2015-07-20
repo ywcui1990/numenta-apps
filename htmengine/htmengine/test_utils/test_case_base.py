@@ -306,6 +306,32 @@ class TestCaseBase(unittest.TestCase):
                                 result.rowid],
                                expected)
 
+  @retry(duration=600, delay=5)
+  def getModelResults(self, uid, resultCount):
+    """Queries MySQL db and returns rows with anomaly results
+
+    :param uid: uid of metric
+    :param resultCount: number of rows expected
+    :return: List of tuples containing timestamp, metric_value,
+     anomaly_score, and rowid
+    """
+    engine = repository.engineFactory(config=self.__config)
+    fields = (schema.metric_data.c.timestamp,
+              schema.metric_data.c.metric_value,
+              schema.metric_data.c.anomaly_score,
+              schema.metric_data.c.rowid)
+
+    with engine.begin() as conn:
+      result = (
+        repository.getMetricData(conn,
+                                 metricId=uid,
+                                 fields=fields,
+                                 sort=schema.metric_data.c.timestamp.desc(),
+                                 score=0.0))
+
+    self.assertEqual(result.rowcount, resultCount)
+    return result.fetchall()
+
 
   @retry()
   def checkModelResultsDeleted(self, uid):
