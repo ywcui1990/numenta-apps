@@ -109,6 +109,7 @@ def retryOnCloudWatchTransientError(logger=logging.root,
 
   def retryFilter(e, *_args, **_kwargs):
     """Return True to permit a retry, false to re-raise the exception."""
+
     if isinstance(e, BotoServerError):
       if getattr(e, "error_code", "") in RETRIABLE_SERVER_ERROR_CODES:
         return True

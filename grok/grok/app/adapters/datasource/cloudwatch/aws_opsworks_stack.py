@@ -100,7 +100,7 @@ class OpsWorksAdapter(AWSResourceAdapterBase):
     return stackList
 
 
-  def _queryCloudWatchMetricStats(period, start, end, stats):
+  def _queryCloudWatchMetricStats(self, period, start, end, stats):
     """Override to hard-code us-east-1 region."""
     return super(OpsWorksAdapter, self)._queryCloudWatchMetricStats(
         period, start, end, stats, "us-east-1")
