@@ -23,7 +23,7 @@
 # Keep this as generic as possible. Grok specific cleanups should go into
 # a separate cleanup-grok script, Taurus to cleanup-taurus, etc.
 
-complain() {
+logline() {
   echo "$@"
   logger -t ami-bake "$@"
 }
@@ -85,7 +85,7 @@ echo "CentOS version: $(cat /etc/centos-release)"
 
 echo
 echo "**********"
-complain "Zapping logfiles..."
+logline "Zapping logfiles..."
 logger -t image-cleanup "Zapping logfiles..."
 for logf in /var/log/cron \
             /var/log/dracut.log \
@@ -94,7 +94,7 @@ for logf in /var/log/cron \
             /var/log/secure \
             /var/log/yum.log
 do
-  complain "Resetting ${logf}"
+  logline "Resetting ${logf}"
   cat /dev/null > "${logf}"
 done
 

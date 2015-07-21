@@ -21,11 +21,6 @@
 # ----------------------------------------------------------------------
 # Install devtools
 
-complain() {
-  echo "$@"
-  logger -t ami-bake "$@"
-}
-
 echo "Installing developer tools..."
 echo "Installing devtools-2.repo..."
 cp -v /tmp/devtools-2.repo /etc/yum.repos.d
