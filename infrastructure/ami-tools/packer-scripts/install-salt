@@ -33,7 +33,13 @@
 bootstrap_salt(){
   echo "Bootstrapping salt..."
   chmod +x /tmp/bootstrap-salt.sh
-  time /tmp/bootstrap-salt.sh
+
+  if [ -f /tmp/infrastructure_minion_id ]; then
+    echo "Setting minion id.."
+    cat /tmp/infrastructure_minion_id > /etc/salt/minion_id
+  fi
+
+  time /tmp/bootstrap-salt.sh -A salt.numenta.com
 }
 
 prep_instance_for_salt(){
@@ -67,6 +73,7 @@ prep_instance_for_salt(){
 setup_directories(){
   mkdir -p /usr/local/sbin
   mkdir -p /usr/local/bin
+  mkdir -p /etc/salt
 }
 
 prep_instance_for_salt

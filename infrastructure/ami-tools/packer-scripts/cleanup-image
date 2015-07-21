@@ -31,14 +31,6 @@ complain() {
 echo
 echo "Cleaning instance for AMI bake"
 
-echo
-echo "If we don't purge authorized_keys, we won't be able to log into instances"
-echo "started from the AMI."
-echo
-echo "Purging authorized_keys files..."
-rm -fv /root/.ssh/authorized_keys /home/ec2-user/.ssh/authorized_keys
-find /home -name authorized_keys -exec rm -fv '{}' ';'
-
 if [ ! -z "${DEBUG}" ]; then
   echo "**********"
   echo "Yum repositories:"
@@ -78,16 +70,6 @@ rm -fr /tmp/*
 
 echo
 echo "**********"
-complain "Zapping logfiles..."
-logger -t image-cleanup "Zapping logfiles..."
-for logf in /var/log/messages /var/log/secure /var/log/cron /var/log/dracut.log /var/log/maillog /var/log/yum.log
-do
-  complain "Resetting ${logf}"
-  cat /dev/null > "${logf}"
-done
-
-echo
-echo "**********"
 echo "Purging salt minion key data..."
 rm -fr /etc/salt/pki/minion/*
 
@@ -100,3 +82,20 @@ df -h /
 echo
 
 echo "CentOS version: $(cat /etc/centos-release)"
+
+echo
+echo "**********"
+complain "Zapping logfiles..."
+logger -t image-cleanup "Zapping logfiles..."
+for logf in /var/log/cron \
+            /var/log/dracut.log \
+            /var/log/maillog \
+            /var/log/messages \
+            /var/log/secure \
+            /var/log/yum.log
+do
+  complain "Resetting ${logf}"
+  cat /dev/null > "${logf}"
+done
+
+find / -name '*.rpmnew' -print

@@ -37,6 +37,16 @@ mv /tmp/nta-carbonite.repo /etc/yum.repos.d
 mv /tmp/nta-thirdparty.repo /etc/yum.repos.d
 mv /tmp/secretsauce.repo /etc/yum.repos.d
 
+echo "Installing mysql community repository..."
+yum install -y http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
+
+echo "Installing mysql-python..."
+yum install -y mysql-community-devel python-devel
+
+# Use /usr/bin/pip so this is visible to salt or instances won't be able to
+# create MySQL users or grant privileges to them.
+/usr/bin/pip install mysql-python
+
 echo "Cleaning yum..."
 yum clean all
 
@@ -55,38 +65,21 @@ cat /etc/salt/minion_id
 echo "Stopping Salt..."
 service salt-minion stop
 
-echo "Setting search list in /etc/resolv.conf to numenta.com"
-sed 's/^search .*/search numenta.com/g' /etc/resolv.conf -i''
-cat /etc/resolv.conf
-host salt.numenta.com
+# echo "Setting search list in /etc/resolv.conf to numenta.com"
+# # sed 's/^search .*/search numenta.com/g' /etc/resolv.conf -i''
+# cat /etc/resolv.conf
+# host salt.numenta.com
 
-echo "Configuring Salt minion_id"
-echo
-echo "Setting Salt minion_id: $(cat /tmp/infrastructure_minion_id)"
-cat /tmp/infrastructure_minion_id > /etc/salt/minion_id
+echo "Salt minion_id: $(cat /etc/salt/minion_id)"
 
-echo "Setting salt master name"
-sed 's/^#master:/master: salt.numenta.com/g' /etc/salt/minion -i''
-grep ^master: /etc/salt/minion
-retcode="$?"
-if [ "${retcode}" != "0" ]; then
-  echo "Failed to set salt master name"
-  echo "Check for changes to default /etc/salt/minion"
-  exit "${retcode}"
-fi
+# echo "Purging salt minion key data..."
+# rm -fr /etc/salt/pki/minion/*
 
-echo "Purging salt minion key data..."
-rm -fr /etc/salt/pki/minion/*
+# echo "Restarting salt minion..."
+# service salt-minion restart
 
-echo "Restarting salt minion..."
-service salt-minion restart
-
-echo "Wait for master to sign key..."
-sleep 10
-
-# echo
-# echo "Test salt config"
-# salt-call state.highstate test=True
+# echo "Wait for master to sign key..."
+# sleep 10
 
 echo
 echo "Running Salt..."
