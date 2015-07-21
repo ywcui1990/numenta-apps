@@ -39,7 +39,9 @@
     - mode: 0755
 
 rabbitmq-server:
-  pkg.installed: []
+  pkg.installed:
+    - name: rabbitmq-server
+    - version: 3.5.3
   service.running:
     - enable: true
     - require:
