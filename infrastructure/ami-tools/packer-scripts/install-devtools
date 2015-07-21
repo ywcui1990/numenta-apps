@@ -40,4 +40,5 @@ yum install -y cmake \
   libjpeg-turbo-devel \
   libX11-devel \
   libXt-devel \
+  openssl-devel \
   rpm-build
