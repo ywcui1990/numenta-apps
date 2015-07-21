@@ -48,74 +48,77 @@ public class GrokMobileAppTest {
     private WebDriver driver;
     static int WAIT_TIME = 10000;
     static By SIGN_IN = By.name("Sign in");
-    static By ANOMALIES = By.id("com.groksolutions.grok.mobile:id/sortByAnomalies");
+    static By ANOMALIES = By
+            .id("com.groksolutions.grok.mobile:id/sortByAnomalies");
     static By NAME = By.id("com.groksolutions.grok.mobile:id/sortByName");
     static By HOUR = By.name("HOUR");
     static By DAY = By.name("DAY");
     static By WEEK = By.name("WEEK");
-    static By EXIT_TUTORIAL = By.id(
-            "com.groksolutions.grok.mobile:id/skipTutorialButton");
-    static By SKIP_TUTORIAL = By.id(
-            "com.groksolutions.grok.mobile:id/skipTutorialButton");
-    static By INSTANCE = By.id(
-            "com.groksolutions.grok.mobile:id/instance_anomaly_chart");
-    static By NOTIFICATION = By.id(
-            "com.groksolutions.grok.mobile:id/menu_notifications");
-    static By CLOSE_BUTTON = By.id(
-            "com.groksolutions.grok.mobile:id/action_close_notifications");
+    static By EXIT_TUTORIAL = By
+            .id("com.groksolutions.grok.mobile:id/skipTutorialButton");
+    static By SKIP_TUTORIAL = By
+            .id("com.groksolutions.grok.mobile:id/skipTutorialButton");
+    static By INSTANCE = By
+            .id("com.groksolutions.grok.mobile:id/instance_anomaly_chart");
+    static By NOTIFICATION = By
+            .id("com.groksolutions.grok.mobile:id/menu_notifications");
+    static By CLOSE_BUTTON = By
+            .id("com.groksolutions.grok.mobile:id/action_close_notifications");
     static By DATE = By.id("com.groksolutions.grok.mobile:id/date");
     static By LABEL_ACTIVITY_LOG = By.id("android:id/title");
     static By LABEL_CONNECT_SERVER = By.name("Connect to your server");
     static By LABEL_SETUP = By.id("android:id/action_bar_title");
-    static By LABEL_SORTEDBY = By.id(
-            "com.groksolutions.grok.mobile:id/sortTitleText");
-    static By ADD_ANOTATION_POP_UP =By.name("Add Annotation");
-    static By ANOTATION_NAME = By.id(
-            "com.groksolutions.grok.mobile:id/txt_name");
-    static By ANOTATION_DESCRIPTION = By.id(
-            "com.groksolutions.grok.mobile:id/txt_annotation_message");
-    static By ANOTATION_SAVE_BUTTON = By.id(
-            "com.groksolutions.grok.mobile:id/btn_save_annotation");
-    static By ANOTATION_DELETE_BUTTON = By.id(
-            "com.groksolutions.grok.mobile:id/btn_annotation_delete");
+    static By LABEL_SORTEDBY = By
+            .id("com.groksolutions.grok.mobile:id/sortTitleText");
+    static By ADD_ANOTATION_POP_UP = By.name("Add Annotation");
+    static By ANOTATION_NAME = By
+    		.id("com.groksolutions.grok.mobile:id/txt_name");
+    static By ANOTATION_DESCRIPTION = By
+            .id("com.groksolutions.grok.mobile:id/txt_annotation_message");
+    static By ANOTATION_SAVE_BUTTON = By
+            .id("com.groksolutions.grok.mobile:id/btn_save_annotation");
+    static By ANOTATION_DELETE_BUTTON = By
+            .id("com.groksolutions.grok.mobile:id/btn_annotation_delete");
     static By SHARE_BUTTON = By.name("Share");
     static By OK_BUTTON = By.name("OK");
 
-
     @BeforeClass
-    @Parameters({"deviceName", "version", "sauceUserName", "sauceAccessKey"})
-    public void setUp(String deviceName,String platformVersion, String
-        sauceUserName, String sauceAccessKey) throws Exception {
+    @Parameters({ "deviceName", "version", "sauceUserName", "sauceAccessKey" })
+    public void setUp(String deviceName, String platformVersion,
+            String sauceUserName, String sauceAccessKey) throws Exception {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("name", "Grok mobile Testing");
-        capabilities.setCapability("app", "sauce-storage:grok-mobile-app-release.apk");
+        capabilities.setCapability("app",
+                "sauce-storage:grok-mobile-app-release.apk");
         capabilities.setCapability("platformName", "Android");
         capabilities.setCapability("device-orientation", "portrait");
         capabilities.setCapability("deviceName", deviceName);
         capabilities.setCapability("platformVersion", platformVersion);
         capabilities.setCapability("androidPackage",
-            "com.groksolutions.grok.mobile");
+                "com.groksolutions.grok.mobile");
         capabilities.setCapability("appActivity",
-                    "com.groksolutions.grok.mobile.SplashScreenActivity");
-        driver = new RemoteWebDriver(new URL("http://"+sauceUserName+":"+
-            sauceAccessKey+"@ondemand.saucelabs.com:80/wd/hub"), capabilities);
+                "com.groksolutions.grok.mobile.SplashScreenActivity");
+        driver = new RemoteWebDriver(new URL("http://" + sauceUserName + ":"
+                + sauceAccessKey + "@ondemand.saucelabs.com:80/wd/hub"),
+                capabilities);
         Thread.sleep(1000);
     }
 
 
     @Rule public TestRule timeout1 = new Timeout(30000);
     @Test(priority = 0)
-    @Parameters({"url", "pwd"})
+    @Parameters({ "url", "pwd" })
     public void login(String serverUrl, String password)
             throws InterruptedException {
-        List<WebElement> allText =  driver.findElements(
-                By.className("android.widget.EditText"));
-        String connectServer = TestUtilities.waitGetText(
-            LABEL_CONNECT_SERVER, driver, WAIT_TIME);
-        AssertJUnit.assertEquals(connectServer,"Connect to your server");
-        String setUp = TestUtilities.waitGetText(LABEL_SETUP, driver, WAIT_TIME);
-        AssertJUnit.assertEquals(setUp,"Setup");
-        //Sign IN
+        List<WebElement> allText = driver.findElements(By
+                .className("android.widget.EditText"));
+        String connectServer = TestUtilities.waitGetText(LABEL_CONNECT_SERVER,
+                driver, WAIT_TIME);
+        AssertJUnit.assertEquals(connectServer, "Connect to your server");
+        String setUp = TestUtilities
+                .waitGetText(LABEL_SETUP, driver, WAIT_TIME);
+        AssertJUnit.assertEquals(setUp, "Setup");
+        // Sign IN
         allText.get(0).sendKeys(serverUrl);
         allText.get(1).sendKeys(password);
         TestUtilities.waitClick(SIGN_IN, driver, WAIT_TIME);
@@ -123,92 +126,88 @@ public class GrokMobileAppTest {
 
 
     @Rule public TestRule timeout2 = new Timeout(30000);
-    @Test(priority = 1 , dependsOnMethods = {"login"})
-    public void skipTutorial()
-            throws InterruptedException {
+    @Test(priority = 1, dependsOnMethods = { "login" })
+    public void skipTutorial() throws InterruptedException {
         // SKIP TUTORIAL
-        String skipTutorial = TestUtilities.waitGetText(
-                SKIP_TUTORIAL, driver, WAIT_TIME);
-        AssertJUnit.assertEquals(skipTutorial,"Skip Tutorial");
+        String skipTutorial = TestUtilities.waitGetText(SKIP_TUTORIAL, driver,
+                WAIT_TIME);
+        AssertJUnit.assertEquals(skipTutorial, "Skip Tutorial");
         // Swipe
         TestUtilities.swipe(driver, true);
         TestUtilities.swipe(driver, true);
         TestUtilities.swipe(driver, true);
         // Exit Tutorial
-        TestUtilities.waitClick(EXIT_TUTORIAL, driver,WAIT_TIME);
+        TestUtilities.waitClick(EXIT_TUTORIAL, driver, WAIT_TIME);
     }
 
 
     @Rule public TestRule timeout3 = new Timeout(30000);
-    @Test(priority = 2 , dependsOnMethods = {"skipTutorial"})
-    public void mainPage()
-            throws InterruptedException {
-        String sortedBy = TestUtilities.waitGetText(
-                LABEL_SORTEDBY, driver, WAIT_TIME);
-        AssertJUnit.assertEquals(sortedBy,"sorted by");
+    @Test(priority = 2, dependsOnMethods = { "skipTutorial" })
+    public void mainPage() throws InterruptedException {
+        String sortedBy = TestUtilities.waitGetText(LABEL_SORTEDBY, driver,
+                WAIT_TIME);
+        AssertJUnit.assertEquals(sortedBy, "sorted by");
         TestUtilities.waitClick(NOTIFICATION, driver, WAIT_TIME);
-        String ActivityLog = TestUtilities.waitGetText(
-                LABEL_ACTIVITY_LOG, driver, WAIT_TIME);
-        Assert.assertEquals(ActivityLog,"Activity Log");
+        String ActivityLog = TestUtilities.waitGetText(LABEL_ACTIVITY_LOG,
+                driver, WAIT_TIME);
+        Assert.assertEquals(ActivityLog, "Activity Log");
         TestUtilities.waitClick(CLOSE_BUTTON, driver, WAIT_TIME);
     }
 
+
     @Rule public TestRule timeout4 = new Timeout(30000);
-    @Test(priority = 3 , dependsOnMethods = {"mainPage"})
-    public void pageModules()
-            throws InterruptedException {
-    String[] tabName = {"DAY", "WEEK", "HOUR"};
-    for(int i=0; i<tabName.length; i++) {
-        TestUtilities.checkTabs(tabName[i], driver, WAIT_TIME);
-    }
-    TestUtilities.sortedByTabs(NAME, driver, WAIT_TIME);
-    TestUtilities.sortedByTabs(ANOMALIES, driver, WAIT_TIME);
+    @Test(priority = 3, dependsOnMethods = { "mainPage" })
+    public void pageModules() throws InterruptedException {
+        String[] tabName = { "DAY", "WEEK", "HOUR" };
+        for (int i = 0; i < tabName.length; i++) {
+            TestUtilities.checkTabs(tabName[i], driver, WAIT_TIME);
+        }
+        TestUtilities.sortedByTabs(NAME, driver, WAIT_TIME);
+        TestUtilities.sortedByTabs(ANOMALIES, driver, WAIT_TIME);
     }
 
 
     @Rule public TestRule timeout5 = new Timeout(30000);
-    @Test(priority = 4 , dependsOnMethods = {"pageModules"})
-    public void swipeRightAndLeft()
-            throws InterruptedException {
+    @Test(priority = 4, dependsOnMethods = { "pageModules" })
+    public void swipeRightAndLeft() throws InterruptedException {
         TestUtilities.swipe(driver, true);
         TestUtilities.swipe(driver, false);
     }
 
 
     @Rule public TestRule timeout6 = new Timeout(30000);
-    @Test(priority = 5 , dependsOnMethods = {"swipeRightAndLeft"})
-    @Parameters({"deviceName"})
-    public void settings(String deviceName)
-            throws InterruptedException {
-            if (deviceName.isEmpty()) {
+    @Test(priority = 5, dependsOnMethods = { "swipeRightAndLeft" })
+    @Parameters({ "deviceName" })
+    public void settings(String deviceName) throws InterruptedException {
+        if (deviceName.isEmpty()) {
             return;
         }
         if (deviceName.contains("Nexus")) {
-         // Clicking on Feedback option
-        TestUtilities.clickFeedback(driver, WAIT_TIME);
-         // Clicking on Settings option
-        TestUtilities.clickSettingOptionAndChangeSettings(
-                 driver, WAIT_TIME, deviceName);
+            // Clicking on Feedback option
+            TestUtilities.clickFeedback(driver, WAIT_TIME);
+            // Clicking on Settings option
+            TestUtilities.clickSettingOptionAndChangeSettings(driver,
+                    WAIT_TIME, deviceName);
         } else {
-         System.out.println("Non-Nexus test device with a hardware Settings button"
-                 + " hence Settings page cannot be tested correctly button hence "
-                 + "Settings page cannot be tested correctly.");
-    }
+            System.out
+                    .println("Non-Nexus test device with a hardware Settings button"
+                            + " hence Settings page cannot be tested correctly.");
+        }
         driver.navigate().back();
     }
 
 
-     @Ignore ("TAUR-1120: Failing because 'add-annotation-pop-up' crashes")
-     public void addAnnotation()
-             throws InterruptedException {
-         TestUtilities.longPressOnInstance(driver);
-         TestUtilities.waitClick(ADD_ANOTATION_POP_UP, driver, WAIT_TIME);
-         String annotation = TestUtilities.waitGetText(ADD_ANOTATION_POP_UP, driver, WAIT_TIME);
-         AssertJUnit.assertEquals(annotation, "Add Annotation");
-         driver.findElement(ANOTATION_NAME).sendKeys("Invalid");
-         driver.findElement(ANOTATION_DESCRIPTION).sendKeys("Anomoly detected");
-         TestUtilities.waitClick(DATE, driver, WAIT_TIME);
-     }
+    @Ignore("TAUR-1120: Failing because 'add-annotation-pop-up' crashes")
+    public void addAnnotation() throws InterruptedException {
+        TestUtilities.longPressOnInstance(driver);
+        TestUtilities.waitClick(ADD_ANOTATION_POP_UP, driver, WAIT_TIME);
+        String annotation = TestUtilities.waitGetText(ADD_ANOTATION_POP_UP,
+                driver, WAIT_TIME);
+        AssertJUnit.assertEquals(annotation, "Add Annotation");
+        driver.findElement(ANOTATION_NAME).sendKeys("Invalid");
+        driver.findElement(ANOTATION_DESCRIPTION).sendKeys("Anomoly detected");
+        TestUtilities.waitClick(DATE, driver, WAIT_TIME);
+    }
 
 
     @AfterClass
