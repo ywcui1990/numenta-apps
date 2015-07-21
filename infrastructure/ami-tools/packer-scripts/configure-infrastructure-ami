@@ -60,21 +60,7 @@ cat /etc/salt/minion_id
 echo "Stopping Salt..."
 service salt-minion stop
 
-# echo "Setting search list in /etc/resolv.conf to numenta.com"
-# # sed 's/^search .*/search numenta.com/g' /etc/resolv.conf -i''
-# cat /etc/resolv.conf
-# host salt.numenta.com
-
 echo "Salt minion_id: $(cat /etc/salt/minion_id)"
-
-# echo "Purging salt minion key data..."
-# rm -fr /etc/salt/pki/minion/*
-
-# echo "Restarting salt minion..."
-# service salt-minion restart
-
-# echo "Wait for master to sign key..."
-# sleep 10
 
 echo
 echo "Running Salt..."
