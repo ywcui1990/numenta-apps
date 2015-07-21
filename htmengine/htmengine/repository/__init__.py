@@ -26,8 +26,9 @@ import traceback
 from sqlalchemy import create_engine
 
 from nta.utils import sqlalchemy_utils
+from nta.utils.config import Config
 
-from htmengine import htmengine_logging
+from htmengine.repository.migrate import migrate
 from htmengine.repository.queries import (
     addMetric,
     addMetricData,
@@ -190,3 +191,29 @@ def engineFactory(config, reset=False):
 
   return _EngineSingleton(getDbDSN(config), pool_recycle=179, pool_size=0,
                           max_overflow=-1)
+
+
+
+def reset():
+  """
+  Reset the htmengine database; upon successful completion, the necessary schema
+  are created, but the tables are not populated
+  """
+  # Make sure we have the latest version of configuration
+  config = Config("application.conf",
+                  os.environ.get("APPLICATION_CONFIG_PATH"))
+  dbName = config.get("repository", "db")
+  print dbName;
+
+  resetDatabaseSQL = (
+      "DROP DATABASE IF EXISTS %(database)s; "
+      "CREATE DATABASE %(database)s;" % {"database": dbName})
+  statements = resetDatabaseSQL.split(";")
+
+  engine = getUnaffiliatedEngine(config)
+  with engine.connect() as connection:
+    for s in statements:
+      if s.strip():
+        connection.execute(s)
+
+  migrate()

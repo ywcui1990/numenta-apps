@@ -102,7 +102,6 @@ class ResultQualityTests(test_case_base.TestCaseBase):
 
 
     self.plaintextPort = self.config.getint("metric_listener", "plaintext_port")
-    self.apiKey = self.config.get("security", "apikey")
 
     self.initialLoggingString = "Running result quality test using metric: %s"
 

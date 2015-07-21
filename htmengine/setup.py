@@ -23,4 +23,10 @@ setup(
   setup_requires = setup_requirements,
   install_requires = install_requirements,
   dependency_links = depLinks,
+  entry_points = {
+    "console_scripts": [
+      "htmengine-create-db = htmengine.repository:reset",
+    ]
+  }
+
 )
