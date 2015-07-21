@@ -27,47 +27,59 @@
 
 set -o errexit
 set -o pipefail
-set -o verbose
 set -o nounset
+set -o verbose
 
 SCRIPT=`which $0`
 REPOPATH=`dirname "${SCRIPT}"`/../../..
 
 pushd "${REPOPATH}"
 
+  # Sync git histories with taurus server
+  git push --force "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products `git rev-parse --abbrev-ref HEAD`
+
+  # Reset server state
+  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
+    "cd /opt/numenta/products &&
+     git reset --hard ${COMMIT_SHA}"
+
+  # /opt/numenta/products/taurus/conf/ssl must exist before we attempt to
+  # upload our self-signed cert required for nginx later
+  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" mkdir -p /opt/numenta/products/taurus/conf/ssl
+
+  # Copy manual overrides, including ssl self-signed cert
+  scp -r taurus/pipeline/scripts/overrides/taurus/conf/* "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/conf/
+
+  # Configure, start Taurus services
+  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
+    "cd /opt/numenta/products &&
+     ./install-taurus.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
+     taurus-set-rabbitmq --host=${RABBITMQ_HOST} --user=${RABBITMQ_USER} --password=${RABBITMQ_PASSWD} &&
+     taurus-set-sql-login --host=${MYSQL_HOST} --user=${MYSQL_USER} --password=${MYSQL_PASSWD} &&
+     taurus-create-db --host=${MYSQL_HOST} --user=${MYSQL_USER} --password=${MYSQL_PASSWD} --suppress-prompt-and-continue-with-deletion &&
+     taurus-set-dynamodb --host= --port= --table-suffix=.\`curl http://169.254.169.254/latest/meta-data/instance-id\` &&
+     cd /opt/numenta/products/taurus/taurus/engine/repository &&
+     python migrate.py &&
+     cd /opt/numenta/products/taurus &&
+     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
+     mkdir -p logs &&
+     supervisord -c conf/supervisord.conf"
+
   # Sync git histories with collector
-  git fetch "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products
-  git push "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products HEAD
+  git push --force "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products `git rev-parse --abbrev-ref HEAD`
 
   # Reset metric collector state, apply database schema updates
   ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products &&
      git reset --hard ${COMMIT_SHA} &&
      ./install-taurus-metric-collectors.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
+     taurus-set-collectorsdb-login --host=${MYSQL_HOST} --user=${MYSQL_USER} --password=${MYSQL_PASSWD} &&
+     taurus-collectors-set-rabbitmq --host=${RABBITMQ_HOST} --user=${RABBITMQ_USER} --password=${RABBITMQ_PASSWD} &&
+     taurus-reset-collectorsdb --suppress-prompt-and-obliterate-database &&
      cd /opt/numenta/products/taurus.metric_collectors/taurus/metric_collectors/collectorsdb &&
      python migrate.py &&
-     taurus-collectors-set-opmode hot_standby &&
+     taurus-collectors-set-opmode active &&
+     cd /opt/numenta/products/taurus.metric_collectors &&
      supervisord -c conf/supervisord.conf"
-
-  # Sync git histories with taurus server
-  git fetch "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products
-  git push "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products HEAD
-
-  # Reset server state, apply database schema, start taurus services
-  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
-    "cd /opt/numenta/products &&
-     git reset --hard ${COMMIT_SHA} &&
-     ./install-taurus.sh /opt/numenta/anaconda/lib/python2.7/site-packages /opt/numenta/anaconda/bin &&
-     cd /opt/numenta/products/taurus/taurus/repository &&
-     python migrate.py &&
-     cd /opt/numenta/products/taurus &&
-     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
-     supervisord -c conf/supervisord.conf"
-
-  # Return metric collector to active state
-  ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
-    "taurus-collectors-set-opmode active
-     cd /opt/numenta/products/taurus.metric_collectors/
-     supervisorctl -s http://127.0.0.1:8001 restart all"
 
 popd
