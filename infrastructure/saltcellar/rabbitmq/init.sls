@@ -44,7 +44,7 @@ rabbitmq_repo:
   pkgrepo.managed:
     - humanname: RabbitMQ Packagecloud Repository
     - baseurl: https://packagecloud.io/rabbitmq/rabbitmq-server/el/6/$basearch
-    - gpgcheck: 1
+    - gpgcheck: 0
     - enabled: True
     - gpgkey: https://packagecloud.io/gpg.key
     - sslverify: 1
