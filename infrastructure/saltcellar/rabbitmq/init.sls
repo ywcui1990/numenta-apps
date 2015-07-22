@@ -59,7 +59,7 @@ rabbitmq-server:
   service.running:
     - enable: true
     - require:
-      - pkgrepo: add-packagecloud-rabbitmq-repo
+      - pkgrepo: rabbitmq_repo
       - file: /etc/rabbitmq
       - pkg: rabbitmq-server
 
