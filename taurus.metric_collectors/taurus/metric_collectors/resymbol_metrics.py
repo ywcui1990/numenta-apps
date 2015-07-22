@@ -43,14 +43,11 @@ from taurus.metric_collectors import (
 from taurus.metric_collectors.collectorsdb import schema
 from taurus.metric_collectors import gen_metrics_config
 from taurus.metric_collectors.twitterdirect import migrate_tweets_to_dynamodb
+
+from taurus.metric_collectors.twitterdirect import twitter_direct_agent
+
 from taurus.metric_collectors.twitterdirect.twitter_direct_agent import (
-    MetricDataForwarder,
-    loadMetricSpecs as loadTwitterMetricSpecs,
     _EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY
-)
-from taurus.metric_collectors.xignite.xignite_stock_agent import (
-    _transmitMetricData as forwardStockBars,
-    loadMetricSpecs as loadStockBarsMetricSpecs
 )
 
 
@@ -170,33 +167,51 @@ def _parseArgs():
 
 
 
-def _renameTweetSampleMetric(oldSymbol, newSymbol, aggPeriod):
-  """
+def _renameTweetVolumeMetric(oldSymbol, newSymbol, aggPeriod):
+  """ Perform the workflow of renaming a tweet volume metric that consists of
+  the following steps:
+    1. Reassign bufferred tweet samples in collectorsdb to the new metric.
+    2. Forward the new metric data samples to HTM Engine
+    3. Forward the tweet media to dynamodb
+
   :param str oldSymbol: old stock symbol, upper case
   :param str newSymbol: new stock symbol, upper case
   :param int aggPeriod: metric aggregation period in seconds
   """
-  g_log.info("Renaming tweet sample metrics")
+  g_log.info(
+    "Renaming tweet sample metric: oldSymbol=%s, newSymbol=%s, aggPeriod=%s",
+    oldSymbol, newSymbol, aggPeriod)
 
   oldMetricName = gen_metrics_config.getTweetVolumeMetricName(oldSymbol)
   newMetricName = gen_metrics_config.getTweetVolumeMetricName(newSymbol)
 
-  dbEngine = collectorsdb.engineFactory()
+  sqlEngine = collectorsdb.engineFactory()
 
   # Rename the metric in tweet sample rows
 
-  with dbEngine.begin() as conn:
-    g_log.info("Verifying that new metric %s doesn't exist in table %s yet",
-               newMetricName, schema.twitterTweetSamples)
-    newMetricRows = conn.execute(
-      sql.select([schema.twitterTweetSamples.c.metric])
-      .where(schema.twitterTweetSamples.c.metric == newMetricName)
-      .limit(1)).fetchall()
-    assert not newMetricRows, newMetricRows
+  with sqlEngine.begin() as conn:
+    # Verify that metric samples with new symbol don't overlap with with samples
+    # corresponding to the old symbol
+    g_log.info("Verifying that newMetric=%s in table=%s doesn't overlap with "
+               "the oldMetric=%s.",
+               newMetricName, schema.twitterTweetSamples, oldMetricName)
 
+    maxOldMetricAggTimestamp = conn.execute(
+      sql.select([sql.func.max(schema.twitterTweetSamples.c.agg_ts)])
+    ).scalar()
+
+    if maxOldMetricAggTimestamp is not None:
+      overlappingRow = conn.execute(
+        sql.select([schema.twitterTweetSamples.c.metric])
+        .where(schema.twitterTweetSamples.c.metric == newMetricName)
+        .where(schema.twitterTweetSamples.c.agg_ts <= maxOldMetricAggTimestamp)
+        .order_by(schema.twitterTweetSamples.c.agg_ts.asc())
+        .limit(1)).first()
+      assert overlappingRow is None, overlappingRow
+
+    # Re-symbol the tweet sample metric rows
     g_log.info("Renaming tweet sample metric %s with %s",
                oldMetricName, newMetricName)
-
     conn.execute(
       schema.twitterTweetSamples  # pylint: disable=E1120
       .update()
@@ -206,7 +221,8 @@ def _renameTweetSampleMetric(oldSymbol, newSymbol, aggPeriod):
 
   # Forward tweet metric samples to Taurus Engine
 
-  g_log.info("Forwarding new tweet metric samples to Taurus engine...")
+  g_log.info("Forwarding new tweet metric=%s samples to Taurus engine...",
+             newMetricName)
 
   # Get the aggregation timestamp of the starting tweet sample to forward
   #
@@ -217,7 +233,7 @@ def _renameTweetSampleMetric(oldSymbol, newSymbol, aggPeriod):
   timestampScanLowerBound = (datetime.utcnow() -
                              timedelta(days=MAX_METRIC_SAMPLE_BACKLOG_DAYS))
 
-  aggStartDatetime = dbEngine.execute(
+  aggStartDatetime = sqlEngine.execute(
     sql.select([schema.twitterTweetSamples.c.agg_ts],
       order_by=schema.twitterTweetSamples.c.agg_ts.asc())
     .where(schema.twitterTweetSamples.c.metric == newMetricName)
@@ -235,8 +251,8 @@ def _renameTweetSampleMetric(oldSymbol, newSymbol, aggPeriod):
                "deferring metric sample forwarding to Twitter Agent.")
     return
 
-  metricDataForwarder = MetricDataForwarder(
-    metricSpecs=loadTwitterMetricSpecs(),
+  metricDataForwarder = twitter_direct_agent.MetricDataForwarder(
+    metricSpecs=twitter_direct_agent.loadMetricSpecs(),
     aggSec=aggPeriod)
 
   metricDataForwarder.aggregateAndForward(
@@ -248,6 +264,57 @@ def _renameTweetSampleMetric(oldSymbol, newSymbol, aggPeriod):
   # Forward tweet media to dynamodb
   g_log.info("Forwarding twitter tweets to dynamodb using new symbol...")
   migrate_tweets_to_dynamodb.migrate(metrics=[newMetricName])
+
+
+
+def _renameStockMetrics(oldSymbol, newSymbol):
+  """
+  :param str oldSymbol: old stock symbol, upper case
+  :param str newSymbol: new stock symbol, upper case
+  """
+  g_log.info("Renaming stock metrics: oldSymbol=%s, newSymbol=%s",
+             oldSymbol, newSymbol)
+
+  sqlEngine = collectorsdb.engineFactory()
+
+
+  with sqlEngine.begin() as conn:
+    # Re-symbol xignite security rows associated with the old symbol
+    #
+    # TODO TAUR-1327: when we rename this symbol in the xignite_security table,
+    # we leave other columns of the affected xignite_security row likely
+    # inconsitent with the new symbol, which is bad. Once TAUR-1327 is complete,
+    # this problem will go away along with this operation on xignite_security
+    # table.
+    conn.execute(schema.xigniteSecurity  # pylint: disable=E1120
+                 .update()
+                 .where(schema.xigniteSecurity.c.symbol == oldSymbol)
+                 .values(symbol=newSymbol))
+
+    # Update stock bars
+    # NOTE: This becomes necessary once TAUR-1327 is implemented
+    conn.execute(
+      schema.xigniteSecurityBars  # pylint: disable=E1120
+      .update()
+      .where(schema.xigniteSecurityBars.c.symbol == oldSymbol)
+      .values(symbol=newSymbol))
+
+    # Clear emitted stock prices
+    conn.execute(
+      schema.emittedStockPrice  # pylint: disable=E1120
+      .delete()
+      .where(schema.emittedStockPrice.c.symbol == oldSymbol))
+
+    # Clear emitted volumes
+    conn.execute(
+      schema.emittedStockVolume  # pylint: disable=E1120
+      .delete()
+      .where(schema.emittedStockVolume.c.symbol == oldSymbol))
+
+
+  # NOTE: We don't forward stock metric data samples; once in ACTIVE mode, stock
+  # agent will automatically foward to Taurus Engine any buffered stock metric
+  # data samples that are not flagged as emitted
 
 
 
@@ -287,65 +354,19 @@ def main():
                  "old-symbol=%s to new-symbol=%s",
                  options.oldSymbol, options.newSymbol)
 
-    # Rename the metrics in collectorsdb and forward new metrics' samples to HTM
+    # Rename the metrics in collectorsdb and forward new metric samples to HTM
     # Engine
-    with collectorsdb.engineFactory().begin() as conn:
+    g_log.info("Modifying old metrics with new symbol")
 
-      g_log.info("Modifying old metrics with new symbol")
-      if options.twitter:
-        _renameTweetSampleMetric(oldSymbol=options.oldSymbol,
-                                 newSymbol=options.newSymbol,
-                                 aggPeriod=options.aggPeriod)
+    if options.twitter:
+      _renameTweetVolumeMetric(oldSymbol=options.oldSymbol,
+                               newSymbol=options.newSymbol,
+                               aggPeriod=options.aggPeriod)
 
-      if options.stocks:
-        renameStockQuery = (schema.xigniteSecurity  # pylint: disable=E1120
-                            .update()
-                            .where(schema.xigniteSecurity.c.symbol ==
-                                   options.oldSymbol)
-                            .values(symbol=options.newSymbol))
-        conn.execute(renameStockQuery)
+    if options.stocks:
+      _renameStockMetrics(oldSymbol=options.oldSymbol,
+                          newSymbol=options.newSymbol)
 
-        updateStockBarsQuery = (
-          schema.xigniteSecurityBars  # pylint: disable=E1120
-          .update()
-          .where(schema.xigniteSecurityBars.c.symbol == options.oldSymbol)
-          .values(symbol=options.newSymbol))
-        conn.execute(updateStockBarsQuery)
-
-        clearEmittedPriceQuery = (
-          schema.emittedStockPrice  # pylint: disable=E1120
-          .delete()
-          .where(schema.emittedStockPrice.c.symbol == options.oldSymbol))
-        conn.execute(clearEmittedPriceQuery)
-        clearEmittedVolumeQuery = (
-          schema.emittedStockVolume  # pylint: disable=E1120
-          .delete()
-          .where(schema.emittedStockVolume.c.symbol == options.oldSymbol))
-        conn.execute(clearEmittedVolumeQuery)
-
-        updateStockHeadlineQuery = (
-          schema.xigniteSecurityHeadline  # pylint: disable=E1120
-          .update()
-          .where(schema.xigniteSecurityHeadline.c.symbol == options.oldSymbol)
-          .values(symbol=options.newSymbol))
-        conn.execute(updateStockHeadlineQuery)
-
-        updateStockReleaseQuery = (
-          schema.xigniteSecurityRelease  # pylint: disable=E1120
-          .update()
-          .where(schema.xigniteSecurityRelease.c.symbol == options.oldSymbol)
-          .values(symbol=options.newSymbol))
-        conn.execute(updateStockReleaseQuery)
-
-
-      g_log.info("Forwarding new metric data to Taurus engine...")
-
-      if options.stocks:
-        forwardStockBars(metricSpecs=[spec for spec
-                                      in loadStockBarsMetricSpecs()
-                                      if spec.symbol == options.newSymbol],
-                         symbol=options.newSymbol,
-                         engine=conn)
 
     g_log.info("Unmonitoring and deleting existing metrics associated with "
                "symbol=%s", options.oldSymbol)

@@ -534,9 +534,7 @@ def forward(metricSpecs, data, security, server=DEFAULT_SERVER,
     if g_opMode != ApplicationConfig.OP_MODE_ACTIVE:
       return
 
-    _transmitMetricData(metricSpecs=metricSpecs,
-                        symbol=symbol,
-                        engine=engine)
+    _transmitMetricData(metricSpecs=metricSpecs, symbol=symbol, engine=engine)
 
   except Exception:
     _LOG.exception("forward failed for metricSpecs=%s", metricSpecs)
@@ -546,6 +544,10 @@ def forward(metricSpecs, data, security, server=DEFAULT_SERVER,
 
 def _transmitMetricData(metricSpecs, symbol, engine):
   """ Send unsent metric data samples for the given symbol to Taurus
+
+  NOTE: this is also used externally by friends of the agent; e.g.,
+  `resymbol_metrics.py`.
+
   :param metricSpecs: Sequence of one or more StockMetricSpec objects associated
     with the same stock symbol for which polling was conducted
   :param symbol: stock symbol
@@ -604,12 +606,12 @@ def _transmitMetricData(metricSpecs, symbol, engine):
               _EASTERN_TZ.localize(
                 datetime.datetime.combine(sample.StartDate, sample.StartTime)))
             value = sample[spec.sampleKey]
-  
+
             _LOG.info("Sending: %s %r %d", spec.metricName, value, epochTs)
             putSample(metricName=spec.metricName,
                       value=value,
                       epochTimestamp=epochTs)
-  
+
       # Update history of emitted samples
       #
       # NOTE: If this fails once in a while and we end up resending the samples,
@@ -670,16 +672,16 @@ def _purgeOldRecords():
       _EASTERN_TZ)
     deleteBeforeDatetime -= datetime.timedelta(days=RETAIN_DAYS)
     # NOTE: old emittedStockPrice and emittedStockVolume get removed as the
-    # result of the foreign key relationships with xigniteSecurityBars 
+    # result of the foreign key relationships with xigniteSecurityBars
     cleanupQuery = (
       xigniteSecurityBars.delete()
       .where(xigniteSecurityBars.c.EndDate < deleteBeforeDatetime.date())
     )
-  
+
     @collectorsdb.retryOnTransientErrors
     def runQueryWithRetries():
       return collectorsdb.engineFactory().execute(cleanupQuery).rowcount
-  
+
     deletedRowCount = runQueryWithRetries()
     if deletedRowCount > 0:
       _LOG.info("Garbage-collected numRows=%d from table=%s",
