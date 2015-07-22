@@ -50,7 +50,7 @@ rabbitmq-server:
   service.running:
     - enable: true
     - require:
-      - pkgrepo: add-packagecloud-rabbitmq-repo
+      - cmd: add-packagecloud-rabbitmq-repo
       - file: /etc/rabbitmq
       - pkg: rabbitmq-server
 
