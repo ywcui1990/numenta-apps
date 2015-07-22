@@ -38,19 +38,28 @@
     - group: root
     - mode: 0755
 
-# TODO: Use pkgrepo instead of cmd.
-add-packagecloud-rabbitmq-repo:
-  cmd.run:
-    - name: curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh > /tmp/script.rpm.sh && bash /tmp/script.rpm.sh && rm -f /tmp/script.rpm.sh
-    - user: root
+# Pulled from https://github.com/saltstack-formulas/rabbitmq-formula, which we
+# should consider using the entirety of.
+rabbitmq_repo:
+  pkgrepo.managed:
+    - humanname: RabbitMQ Packagecloud Repository
+    - baseurl: https://packagecloud.io/rabbitmq/rabbitmq-server/el/6/$basearch
+    - gpgcheck: 1
+    - enabled: True
+    - gpgkey: https://packagecloud.io/gpg.key
+    - sslverify: 1
+    - sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    - require_in:
+      - pkg: rabbitmq-server
 
 rabbitmq-server:
   pkg.installed:
     - name: rabbitmq-server
+    - version: 3.5.3-1
   service.running:
     - enable: true
     - require:
-      - cmd: add-packagecloud-rabbitmq-repo
+      - pkgrepo: rabbitmq_repo
       - file: /etc/rabbitmq
       - pkg: rabbitmq-server
 
