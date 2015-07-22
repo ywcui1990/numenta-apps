@@ -167,8 +167,8 @@ def _parseArgs():
 
 
 
-def _renameTweetVolumeMetric(oldSymbol, newSymbol, aggPeriod):
-  """ Perform the workflow of renaming a tweet volume metric that consists of
+def _resymbolTweetVolumeMetric(oldSymbol, newSymbol, aggPeriod):
+  """ Perform the workflow of resymboling a tweet volume metric that consists of
   the following steps:
     1. Reassign bufferred tweet samples in collectorsdb to the new metric.
     2. Forward the new metric data samples to HTM Engine
@@ -267,8 +267,9 @@ def _renameTweetVolumeMetric(oldSymbol, newSymbol, aggPeriod):
 
 
 
-def _renameStockMetrics(oldSymbol, newSymbol):
-  """
+def _resymboltockMetrics(oldSymbol, newSymbol):
+  """ Resymbol stock metrics
+
   :param str oldSymbol: old stock symbol, upper case
   :param str newSymbol: new stock symbol, upper case
   """
@@ -359,13 +360,13 @@ def main():
     g_log.info("Modifying old metrics with new symbol")
 
     if options.twitter:
-      _renameTweetVolumeMetric(oldSymbol=options.oldSymbol,
-                               newSymbol=options.newSymbol,
-                               aggPeriod=options.aggPeriod)
+      _resymbolTweetVolumeMetric(oldSymbol=options.oldSymbol,
+                                 newSymbol=options.newSymbol,
+                                 aggPeriod=options.aggPeriod)
 
     if options.stocks:
-      _renameStockMetrics(oldSymbol=options.oldSymbol,
-                          newSymbol=options.newSymbol)
+      _resymboltockMetrics(oldSymbol=options.oldSymbol,
+                           newSymbol=options.newSymbol)
 
 
     g_log.info("Unmonitoring and deleting existing metrics associated with "
