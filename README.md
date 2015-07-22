@@ -30,7 +30,7 @@ Each code directory defined below contains its own `LICENSE.txt` file and define
 
 ### Grok
 
-See http://numenta.com/grok. 
+See http://numenta.com/grok.
 
 ### [`/grok`](grok)
 
@@ -69,7 +69,7 @@ Custom metric collectors for Grok for Stocks data providers.
 
 #### [`/taurus.monitoring`](taurus.monitoring)
 
-Monitoring scripts and related utilities for monitoring Grok for Stocks 
+Monitoring scripts and related utilities for monitoring Grok for Stocks
 (Code name: Taurus).
 
 **Languages**: Python
@@ -96,3 +96,10 @@ support for custom metrics.
 Shared library used in taurus-mobile and grok-mobile mobile applications.
 
 **Languages**: Java
+
+#### [`/unicorn`](unicorn)
+
+Cross-platform Desktop Application to demonstrate basic HTM functionality
+to users using their own data files.
+
+**Languages**: Javascript, Python
