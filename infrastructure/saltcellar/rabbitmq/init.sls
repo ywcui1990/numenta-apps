@@ -38,11 +38,29 @@
     - group: root
     - mode: 0755
 
+# TODO: Find out a way to remove 'humanname' key
+add-packagecloud-rabbitmq-repo:
+  pkgrepo.managed:
+    - name: rabbitmq_rabbitmq-server
+    - humanname: rabbitmq_rabbitmq-server
+    - file: /etc/yum.repos.d/rabbitmq_rabbitmq-server.repo
+    - repo_gpgcheck: 1
+    - gpgcheck: 0
+    - baseurl: https://packagecloud.io/rabbitmq/rabbitmq-server/el/6/$basearch
+    - gpgkey: https://packagecloud.io/gpg.key
+    - enabled: 1
+    - sslverify: 1
+    - sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+
+
 rabbitmq-server:
-  pkg.installed: []
+  pkg.installed:
+    - name: rabbitmq-server
+    - version: 3.5.3
   service.running:
     - enable: true
     - require:
+      - pkgrepo: add-packagecloud-rabbitmq-repo
       - file: /etc/rabbitmq
       - pkg: rabbitmq-server
 
