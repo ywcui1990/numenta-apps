@@ -38,20 +38,11 @@
     - group: root
     - mode: 0755
 
-# TODO: Find out a way to remove 'humanname' key
+# TODO: Use pkgrepo instead of cmd.
 add-packagecloud-rabbitmq-repo:
-  pkgrepo.managed:
-    - name: rabbitmq_rabbitmq-server
-    - humanname: rabbitmq_rabbitmq-server
-    - file: /etc/yum.repos.d/rabbitmq_rabbitmq-server.repo
-    - repo_gpgcheck: 1
-    - gpgcheck: 0
-    - baseurl: https://packagecloud.io/rabbitmq/rabbitmq-server/el/6/$basearch
-    - gpgkey: https://packagecloud.io/gpg.key
-    - enabled: 1
-    - sslverify: 1
-    - sslcacert: /etc/pki/tls/certs/ca-bundle.crt
-
+  cmd.run:
+    - name: curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh > /tmp/script.rpm.sh && bash /tmp/script.rpm.sh && rm -f /tmp/script.rpm.sh
+    - user: root
 
 rabbitmq-server:
   pkg.installed:
