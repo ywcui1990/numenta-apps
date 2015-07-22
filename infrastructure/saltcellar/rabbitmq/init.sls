@@ -56,7 +56,6 @@ add-packagecloud-rabbitmq-repo:
 rabbitmq-server:
   pkg.installed:
     - name: rabbitmq-server
-    - version: 3.5.3
   service.running:
     - enable: true
     - require:
