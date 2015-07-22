@@ -3,6 +3,18 @@
   "version": "0.0.1",
   "description": "Cross-platform HTM Example Desktop Application",
   "main": "index.js",
+  "engines": {
+    "node": ">=0.12.7",
+    "npm": ">=2.11.3"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,10 +34,32 @@
     "Desktop",
     "Application"
   ],
-  "author": "Numenta",
-  "license": "GPL",
+  "homepage": "http://numenta.com",
+  "bugs": "https://github.com/numenta/numenta-apps/issues",
+  "author": {
+    "name": "Numenta",
+    "email": "info@numenta.com",
+    "url": "http://numenta.com"
+  },
+  "contributors": [
+    {
+      "name": "Brev Patterson",
+      "email": "bpatterson@numenta.com",
+      "url": "http://numenta.com"
+    }
+  ],
+  "license": "GPL-3.0",
   "dependencies": {
-    "electron": "^0.4.1",
-    "react": "^0.13.3"
+    "electron": "0.4.1",
+    "node-sass": "3.2.0",
+    "react": "0.13.3"
+  },
+  "devDependencies": {
+    "casperjs": "1.1.0-beta3",
+    "gulp": "3.9.0",
+    "mocha": "2.2.5",
+    "mocha-casperjs": "0.5.4",
+    "node-libs-browser": "0.5.2",
+    "webpack": "1.10.1"
   }
 }
