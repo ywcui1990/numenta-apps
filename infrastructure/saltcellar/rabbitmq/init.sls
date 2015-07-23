@@ -72,6 +72,7 @@ rabbitmq_user_taurus:
     - password: taurus
     {%- endif %}
     - tags: administrator
+    - force: True
     - perms:
       - '/':
         - '.*'
