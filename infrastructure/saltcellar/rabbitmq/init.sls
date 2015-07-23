@@ -63,6 +63,24 @@ rabbitmq-server:
       - file: /etc/rabbitmq
       - pkg: rabbitmq-server
 
+rabbitmq_user_taurus:
+  rabbitmq_user.present:
+    - name: taurus
+    {%- if 'taurus_user_password' in salt['pillar.get']('rabbitmq', {}) %}
+    - password: {{ salt['pillar.get']('rabbitmq:taurus_user_password') }}
+    {%- else %}
+    - password: taurus
+    {%- endif %}
+    - tags: administrator
+    - perms:
+      - '/':
+        - '.*'
+        - '.*'
+        - '.*'
+    - runas: root
+    - require:
+      - service: rabbitmq-server
+
 enable-rabbitmq-management:
   cmd.run:
     - name: /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
