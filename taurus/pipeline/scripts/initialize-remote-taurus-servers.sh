@@ -166,7 +166,9 @@ pushd "${REPOPATH}"
     export APPLICATION_CONFIG_PATH=/opt/numenta/products/taurus/conf
     export TAURUS_RMQ_METRIC_DEST=${TAURUS_RMQ_METRIC_DEST}
     export TAURUS_RMQ_METRIC_PREFIX=${TAURUS_RMQ_METRIC_PREFIX}
-    export TAURUS_API_KEY=${TAURUS_API_KEY}" | \
+    export TAURUS_API_KEY=${TAURUS_API_KEY}
+    export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+    export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" | \
     sed -e 's/^[ \t]*//' > \
     taurus/pipeline/scripts/taurus-env.sh
 
