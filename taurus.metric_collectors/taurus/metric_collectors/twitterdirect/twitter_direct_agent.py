@@ -1224,45 +1224,51 @@ class MetricDataForwarder(object):
     :param metrics: optional sequence of metric names; if specified (non-None),
       the operation will be limited to the given metric names
     """
-    periodTimedelta = timedelta(seconds=self._aggSec)
+    def getSamples(aggStartDatetime):
+      """Retrieve and yield metric data samples of interest"""
+      periodTimedelta = timedelta(seconds=self._aggSec)
 
-    while aggStartDatetime < stopDatetime:
-      # Query Tweet Volume metrics for one aggregation interval
-      metricToVolumeMap = defaultdict(int,
-                                      self._queryTweetVolumes(aggStartDatetime,
-                                                              metrics))
+      while aggStartDatetime < stopDatetime:
+        # Query Tweet Volume metrics for one aggregation interval
+        metricToVolumeMap = defaultdict(
+          int,
+          self._queryTweetVolumes(aggStartDatetime, metrics))
 
-      # Generate metric samples
-      epochTimestamp = date_time_utils.epochFromNaiveUTCDatetime(
-        aggStartDatetime)
+        # Generate metric samples
+        epochTimestamp = date_time_utils.epochFromNaiveUTCDatetime(
+          aggStartDatetime)
 
-      samples = tuple(
-        dict(
-          metricName=spec.metric,
-          value=metricToVolumeMap[spec.metric],
-          epochTimestamp=epochTimestamp)
-        for spec in self._metricSpecs
-      )
+        samples = tuple(
+          dict(
+            metricName=spec.metric,
+            value=metricToVolumeMap[spec.metric],
+            epochTimestamp=epochTimestamp)
+          for spec in self._metricSpecs
+          if metrics is None or spec.metric in metrics
+        )
 
-      if g_log.isEnabledFor(logging.DEBUG):
-        g_log.debug("samples=%s", pprint.pformat(samples))
+        if g_log.isEnabledFor(logging.DEBUG):
+          g_log.debug("samples=%s", pprint.pformat(samples))
 
-      # Emit samples to Taurus
-      try:
-        with metric_utils.metricDataBatchWrite(log=g_log) as putSample:
-          for sample in samples:
-            putSample(**sample)
-      except Exception:
-        g_log.exception("Failure while emitting metric data for agg=%s "
-                        "containing numSamples=%d",
-                        aggStartDatetime, len(samples))
-        raise
-      else:
-        g_log.info("Forwarded numSamples=%d for agg=%s",
+        for sample in samples:
+          yield sample
+
+        g_log.info("Yielded numSamples=%d for agg=%s",
                    len(samples), aggStartDatetime)
 
-      # Set up for next iteration
-      aggStartDatetime += periodTimedelta
+        # Set up for next iteration
+        aggStartDatetime += periodTimedelta
+
+
+    # Emit samples to Taurus Engine
+    with metric_utils.metricDataBatchWrite(log=g_log) as putSample:
+      for sample in getSamples(aggStartDatetime):
+        try:
+          putSample(**sample)
+        except Exception:
+          g_log.exception("Failure while emitting metric data sample=%s",
+                          sample)
+          raise
 
 
   def _forwardTweetVolumeMetrics(self, lastEmittedAggTime, stopDatetime):

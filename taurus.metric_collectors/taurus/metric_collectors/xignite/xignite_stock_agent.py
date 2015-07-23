@@ -534,7 +534,7 @@ def forward(metricSpecs, data, security, server=DEFAULT_SERVER,
     if g_opMode != ApplicationConfig.OP_MODE_ACTIVE:
       return
 
-    _transmitMetricData(metricSpecs=metricSpecs, symbol=symbol, engine=engine)
+    transmitMetricData(metricSpecs=metricSpecs, symbol=symbol, engine=engine)
 
   except Exception:
     _LOG.exception("forward failed for metricSpecs=%s", metricSpecs)
@@ -542,7 +542,7 @@ def forward(metricSpecs, data, security, server=DEFAULT_SERVER,
 
 
 
-def _transmitMetricData(metricSpecs, symbol, engine):
+def transmitMetricData(metricSpecs, symbol, engine):
   """ Send unsent metric data samples for the given symbol to Taurus
 
   NOTE: this is also used externally by friends of the agent; e.g.,

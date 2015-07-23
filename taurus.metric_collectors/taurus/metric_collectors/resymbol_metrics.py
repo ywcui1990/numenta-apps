@@ -45,6 +45,7 @@ from taurus.metric_collectors import gen_metrics_config
 from taurus.metric_collectors.twitterdirect import migrate_tweets_to_dynamodb
 
 from taurus.metric_collectors.twitterdirect import twitter_direct_agent
+from taurus.metric_collectors.xignite import xignite_stock_agent
 
 from taurus.metric_collectors.twitterdirect.twitter_direct_agent import (
     _EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY
@@ -267,7 +268,7 @@ def _resymbolTweetVolumeMetric(oldSymbol, newSymbol, aggPeriod):
 
 
 
-def _resymboltockMetrics(oldSymbol, newSymbol):
+def _resymbolStockMetrics(oldSymbol, newSymbol):
   """ Resymbol stock metrics
 
   :param str oldSymbol: old stock symbol, upper case
@@ -280,17 +281,49 @@ def _resymboltockMetrics(oldSymbol, newSymbol):
 
 
   with sqlEngine.begin() as conn:
-    # Re-symbol xignite security rows associated with the old symbol
+    # NOTE: the foreign key cascade-on-update relationship between
+    # emitted_stock_price/emitted_stock_volume tables and the
+    # xignite_security_bars table causes the symbol to be automatically updated
+    # in the xignite_security_* tables
+
+    # Delete emitted stock price rows for old symbol
+    conn.execute(
+      schema.emittedStockPrice  # pylint: disable=E1120
+      .delete()
+      .where(schema.emittedStockPrice.c.symbol == oldSymbol)
+    )
+
+    # Delete emitted stock volume rows for old symbol
+    conn.execute(
+      schema.emittedStockVolume  # pylint: disable=E1120
+      .delete()
+      .where(schema.emittedStockVolume.c.symbol == oldSymbol)
+    )
+
+    # Re-symbol xignite security row associated with the old symbol
     #
     # TODO TAUR-1327: when we rename this symbol in the xignite_security table,
     # we leave other columns of the affected xignite_security row likely
     # inconsitent with the new symbol, which is bad. Once TAUR-1327 is complete,
     # this problem will go away along with this operation on xignite_security
     # table.
-    conn.execute(schema.xigniteSecurity  # pylint: disable=E1120
-                 .update()
-                 .where(schema.xigniteSecurity.c.symbol == oldSymbol)
-                 .values(symbol=newSymbol))
+    #
+    # NOTE: we use IGNORE to ignore integrity errors (most likely duplicate),
+    # because stock agent might insert a security row for the new symbol before
+    # we do.
+    conn.execute(
+      schema.xigniteSecurity  # pylint: disable=E1120
+      .update().prefix_with('IGNORE', dialect="mysql")
+      .where(schema.xigniteSecurity.c.symbol == oldSymbol)
+      .values(symbol=newSymbol)
+    )
+    # Delete old xignite security row just in case the rename aborted due to
+    # integrity error
+    conn.execute(
+      schema.xigniteSecurity  # pylint: disable=E1120
+      .delete()
+      .where(schema.xigniteSecurity.c.symbol == oldSymbol)
+    )
 
     # Update stock bars
     # NOTE: This becomes necessary once TAUR-1327 is implemented
@@ -300,22 +333,39 @@ def _resymboltockMetrics(oldSymbol, newSymbol):
       .where(schema.xigniteSecurityBars.c.symbol == oldSymbol)
       .values(symbol=newSymbol))
 
-    # Clear emitted stock prices
-    conn.execute(
-      schema.emittedStockPrice  # pylint: disable=E1120
-      .delete()
-      .where(schema.emittedStockPrice.c.symbol == oldSymbol))
+  # Forward stock metric data samples to Taurus Engine
+  g_log.info("Forwarding new stock metric data samples for symbol=%s to Taurus "
+             "engine...", newSymbol)
+  xignite_stock_agent.transmitMetricData(
+    metricSpecs=[spec for spec
+                 in xignite_stock_agent.loadMetricSpecs()
+                 if spec.symbol == newSymbol],
+      symbol=newSymbol,
+      engine=sqlEngine
+  )
 
-    # Clear emitted volumes
-    conn.execute(
-      schema.emittedStockVolume  # pylint: disable=E1120
-      .delete()
-      .where(schema.emittedStockVolume.c.symbol == oldSymbol))
 
+def _deleteSymbolMetricsFromEngine(host, apiKey, symbol):
+  """Delete metrics corresponding to the given stock symbol from Taurus Engine
 
-  # NOTE: We don't forward stock metric data samples; once in ACTIVE mode, stock
-  # agent will automatically foward to Taurus Engine any buffered stock metric
-  # data samples that are not flagged as emitted
+  :param host: API server's hostname or IP address
+  :param apiKey: API server's API Key
+  :param symbol: Stock symbol
+  """
+  g_log.info("Unmonitoring and deleting existing metrics linked to stock "
+             "symbol=%s", symbol)
+
+  # Get matching metrics
+  allMetrics = metric_utils.getAllCustomMetrics(host=host, apiKey=apiKey)
+
+  metricsToDelete = tuple(obj["name"]
+                          for obj in allMetrics
+                          if ".{symbol}.".format(symbol=symbol) in obj["name"])
+
+  g_log.info("Deleteing metrics=%s", metricsToDelete)
+  for metricName in metricsToDelete:
+    g_log.info("Deleting metric=%s", metricName)
+    metric_utils.deleteMetric(host, apiKey, metricName)
 
 
 
@@ -365,18 +415,15 @@ def main():
                                  aggPeriod=options.aggPeriod)
 
     if options.stocks:
-      _resymboltockMetrics(oldSymbol=options.oldSymbol,
-                           newSymbol=options.newSymbol)
+      _resymbolStockMetrics(oldSymbol=options.oldSymbol,
+                            newSymbol=options.newSymbol)
 
 
-    g_log.info("Unmonitoring and deleting existing metrics associated with "
-               "symbol=%s", options.oldSymbol)
-    oldModels = metric_utils.getSymbolModels(options.htmServer,
-                                             options.apikey,
-                                             options.oldSymbol)
-    for model in oldModels:
-      metric_utils.unmonitorMetric(options.htmServer, options.apikey, model.uid)
-      metric_utils.deleteMetric(options.htmServer, options.apikey, model.name)
+    # Delete metrics linked to old stock symbol from Taurus Engine
+    _deleteSymbolMetricsFromEngine(host=options.htmServer,
+                                   apiKey=options.apikey,
+                                   symbol=options.oldSymbol)
+
 
   except SystemExit as e:
     if e.code != 0:
