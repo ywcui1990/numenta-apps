@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 #
 
-USAGE="Usage: `basename $0`
+USAGE="Usage: `basename ${0}`
 
 This script configures a pair of Taurus Server and Metric Collector
 instances in which the taurus services are not already running.  For example,
@@ -95,14 +95,19 @@ pair of Taurus instances suitable for use and/or testing.
 "
 
 if [ "${1}" == "-h" ]; then
-  echo "$USAGE"
+  echo "${USAGE}"
   exit 0
 fi
 
 set -o errexit
 set -o pipefail
+
+if [ "${DEBUG}" ]; then
+  set -o verbose
+  set -o xtrace
+fi
+
 set -o nounset
-set -o verbose
 
 SCRIPT=`which $0`
 REPOPATH=`dirname "${SCRIPT}"`/../../..
@@ -114,7 +119,7 @@ pushd "${REPOPATH}"
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products \
     `git rev-parse --abbrev-ref HEAD`
 
-  # Reset server state
+  # Reset server git state
   ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "cd /opt/numenta/products &&
      git reset --hard ${COMMIT_SHA}"
@@ -124,7 +129,7 @@ pushd "${REPOPATH}"
     "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products \
     `git rev-parse --abbrev-ref HEAD`
 
-  # Reset server state
+  # Reset collector git state
   ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products &&
      git reset --hard ${COMMIT_SHA}"
@@ -140,7 +145,7 @@ pushd "${REPOPATH}"
     export PATH=/opt/numenta/anaconda/bin:\$PATH
     export PYTHONPATH=/opt/numenta/anaconda/lib/python2.7/site-packages:\$PYTHONPATH
     export APPLICATION_CONFIG_PATH=/opt/numenta/products/taurus.metric_collectors/conf
-    export TAURUS_HTM_SERVER=${TAURUS_SERVER_HOST}
+    export TAURUS_HTM_SERVER=${TAURUS_SERVER_HOST_PRIVATE}
     export XIGNITE_API_TOKEN=${XIGNITE_API_TOKEN}
     export TAURUS_TWITTER_ACCESS_TOKEN=${TAURUS_TWITTER_ACCESS_TOKEN}
     export TAURUS_TWITTER_ACCESS_TOKEN_SECRET=${TAURUS_TWITTER_ACCESS_TOKEN_SECRET}
@@ -183,7 +188,7 @@ pushd "${REPOPATH}"
         /opt/numenta/anaconda/lib/python2.7/site-packages \
         /opt/numenta/anaconda/bin &&
      taurus-set-rabbitmq \
-        --host=127.0.0.1 \
+        --host=${RABBITMQ_HOST} \
         --user=${RABBITMQ_USER} \
         --password=${RABBITMQ_PASSWD} &&
      taurus-set-sql-login \
@@ -206,12 +211,9 @@ pushd "${REPOPATH}"
      mkdir -p logs &&
      supervisord -c conf/supervisord.conf"
 
-exit 0;
-
   # Reset metric collector state, apply database schema updates
   ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products &&
-     git reset --hard ${COMMIT_SHA} &&
      ./install-taurus-metric-collectors.sh \
         /opt/numenta/anaconda/lib/python2.7/site-packages \
         /opt/numenta/anaconda/bin &&
