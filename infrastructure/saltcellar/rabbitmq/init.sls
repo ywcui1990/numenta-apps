@@ -63,6 +63,27 @@ rabbitmq-server:
       - file: /etc/rabbitmq
       - pkg: rabbitmq-server
 
+# Add Taurus user via cmd.run until https://github.com/saltstack/salt/issues/25683
+# is resolved
+rabbitmq_user_taurus_create:
+  cmd.run:
+    - name: rabbitmqctl add_user taurus taurus
+    - unless: rabbitmqctl list_users | grep taurus
+    - require:
+      - service: rabbitmq-server
+
+rabbitmq_user_taurus_tag:
+  cmd.run:
+    - name: rabbitmqctl set_user_tags taurus administrator
+    - watch:
+      - cmd: rabbitmq_user_taurus_create
+
+rabbitmq_user_taurus_permissions:
+  cmd.run:
+    - name: rabbitmqctl set_permissions -p / taurus ".*" ".*" ".*"
+    - watch:
+      - cmd: rabbitmq_user_taurus_tag
+
 enable-rabbitmq-management:
   cmd.run:
     - name: /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
