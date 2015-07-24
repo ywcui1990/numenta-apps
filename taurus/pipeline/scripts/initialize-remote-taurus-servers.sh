@@ -136,11 +136,13 @@ pushd "${REPOPATH}"
     emailAddress=${SSL_EMAIL_ADDRESS}
     " | sed -e 's/^[ \t]*//'`
 
+    PASSWD=`openssl passwd $RANDOM`
+
     # Generate the server private key
     openssl genrsa \
       -des3 \
       -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
-      -passout pass:myvoiceismypassportverifyme \
+      -passout pass:${PASSWD} \
       1024
 
     # Generate the CSR
@@ -150,7 +152,7 @@ pushd "${REPOPATH}"
         -subj "$(echo -n "${subj}" | tr "\n" "/")" \
         -key taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
         -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.csr \
-        -passin pass:myvoiceismypassportverifyme
+        -passin pass:${PASSWD}
     cp \
       taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
       taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key.bak
@@ -159,7 +161,7 @@ pushd "${REPOPATH}"
     openssl rsa \
       -in taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key.bak \
       -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
-      -passin pass:myvoiceismypassportverifyme
+      -passin pass:${PASSWD}
 
     # Generate the cert (good for 1 year)
     openssl x509 \
