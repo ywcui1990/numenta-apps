@@ -10,7 +10,7 @@ You can install Maven via the following methods :
 Upload APK in Sauce Storage by following command :
 * Download apk
 * Run this command :
-`curl -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY -X POST "http://saucelabs.com/rest/v1/storage/$SAUCE_USERNAME/my_app.apk?overwrite=true" -H "Content-Type: application/octet-stream" --data-binary @<path_where_apk_present>/my_app.apk`
+`curl -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY -X POST "http://saucelabs.com/rest/v1/storage/$SAUCE_USERNAME/grok-mobile-app-release.apk?overwrite=true" -H "Content-Type: application/octet-stream" --data-binary @<path_where_apk_present>/grok-mobile-app-release.apk`
 
 
 Instructions to run the script :
