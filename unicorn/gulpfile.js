@@ -46,6 +46,7 @@ var WebServer = null; // TODO: not global
  * Gulp task to run mocha-casperjs web test suite
  */
 gulp.task('mocha-casperjs', function (callback) {
+  /*
   var stream = spawn('mocha-casperjs', [
     '--bail',
     '--TEST_HOST=' + host,
@@ -81,17 +82,14 @@ gulp.task('mocha-casperjs', function (callback) {
   stream.on('error', console.error);
 
   return stream;
+  */
 });
 
 /**
  * Gulp task to serve site from the _site/ build dir
  */
 gulp.task('serve', function () {
-  if(! host.match('localhost')) {
-    console.log("TEST_HOST is external (%s), NOT serving local build.", host);
-    return true;
-  }
-
+  /*
   var stream = gulp
     .src('.') // TODO: fix
     .pipe(gwebserver({ port: port }))
@@ -100,6 +98,7 @@ gulp.task('serve', function () {
   WebServer = stream;
 
   return stream;
+  */
 });
 
 /**
@@ -107,7 +106,7 @@ gulp.task('serve', function () {
  */
 gulp.task('webpack', function() {
   var target = util.env.target || 'web';
-  return gulp.src('browser/js/app.js')
+  return gulp.src('gui/browser/js/app.js')
     .pipe(webpack({
       module: {
         loaders: [
@@ -119,7 +118,7 @@ gulp.task('webpack', function() {
       },
       target: target
     }))
-    .pipe(gulp.dest('browser/'));
+    .pipe(gulp.dest('gui/browser/'));
 });
 
 

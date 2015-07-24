@@ -2,7 +2,7 @@
   "name": "unicorn",
   "version": "0.0.1",
   "description": "Cross-platform HTM Example Desktop Application",
-  "main": "main.js",
+  "main": "gui/main.js",
   "engines": {
     "node": ">=0.12.7",
     "npm": ">=2.11.3"
@@ -21,7 +21,7 @@
     "electron": "electron .",
     "pack-electron": "gulp webpack --target atom",
     "pack-web": "gulp webpack",
-    "serve": "http-server -p 9999 ./browser/",
+    "serve": "http-server -p 9999 ./gui/browser/",
     "start": "npm run pack-electron && npm run electron",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -55,7 +55,7 @@
       "url": "http://numenta.com"
     }
   ],
-  "license": "GPL-3.0",
+  "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
     "electron": "0.4.1",
     "moment": "2.10.3",
