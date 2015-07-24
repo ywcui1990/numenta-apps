@@ -2,7 +2,7 @@
   "name": "unicorn",
   "version": "0.0.1",
   "description": "Cross-platform HTM Example Desktop Application",
-  "main": "index.js",
+  "main": "main.js",
   "engines": {
     "node": ">=0.12.7",
     "npm": ">=2.11.3"
@@ -16,6 +16,13 @@
     "x64"
   ],
   "scripts": {
+    "dev": "npm run pack-web && npm run dev-note && npm run serve",
+    "dev-note": "echo \"Dev web app ready for Chrome browser: http://localhost:9999\"",
+    "electron": "electron .",
+    "pack-electron": "gulp webpack --target atom",
+    "pack-web": "gulp webpack",
+    "serve": "http-server -p 9999 ./browser/",
+    "start": "npm run pack-electron && npm run electron",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -51,15 +58,20 @@
   "license": "GPL-3.0",
   "dependencies": {
     "electron": "0.4.1",
+    "moment": "2.10.3",
     "node-sass": "3.2.0",
     "react": "0.13.3"
   },
   "devDependencies": {
     "casperjs": "1.1.0-beta3",
+    "electron-prebuilt": "0.30.0",
     "gulp": "3.9.0",
+    "gulp-util": "3.0.6",
+    "gulp-webpack": "1.5.0",
+    "http-server": "0.8.0",
     "mocha": "2.2.5",
     "mocha-casperjs": "0.5.4",
     "node-libs-browser": "0.5.2",
-    "webpack": "1.10.1"
+    "webpack": "1.10.5"
   }
 }

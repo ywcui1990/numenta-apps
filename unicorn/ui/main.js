@@ -18,7 +18,48 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
+
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files.
+ *
+ * Main Electron code Application entry point, initializes browser app.
  */
+
+// externals
+
+var app = require('app');
+var BrowserWindow = require('browser-window');
+var crashReporter = require('crash-reporter');
+
+// internals
+
+var mainWindow = null; // global reference to keep window object from JS GC
+
+
+// main
+
+crashReporter.start({
+  product_name: 'Unicorn',
+  company_name: 'Numenta'
+});
+
+app.on('window-all-closed', function () {
+  // OS X apps stay active until the user quits explicitly Cmd + Q
+  if (process.platform != 'darwin') {
+    app.quit();
+  }
+});
+
+// Electron finished init and ready to create browser windows
+app.on('ready', function () {
+  mainWindow = new BrowserWindow({
+    width:  1200,
+    height: 720
+  });
+  mainWindow.loadUrl('file://' + __dirname + '/browser/index.html');
+  mainWindow.openDevTools();
+  mainWindow.on('closed', function () {
+    mainWindow = null; // dereference single main window object
+  });
+});

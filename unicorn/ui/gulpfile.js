@@ -18,16 +18,18 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
+
 /**
  * Gulp config
  */
 
-
 // externals
 
-var gulp =        require('gulp');
-var package =     require('./package.json');
-var spawn =       require('child_process').spawn;
+var gulp =    require('gulp');
+var package = require('./package.json');
+var spawn =   require('child_process').spawn;
+var util =    require('gulp-util');
+var webpack = require('gulp-webpack');
 
 // internals
 
@@ -100,9 +102,28 @@ gulp.task('serve', function () {
   return stream;
 });
 
+/**
+ * Gulp task to run WebPack to transpile require/modules/Babel into bundle
+ */
+gulp.task('webpack', function() {
+  var target = util.env.target || 'web';
+  return gulp.src('browser/js/app.js')
+    .pipe(webpack({
+      module: {
+        loaders: [
+          // { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' }
+        ]
+      },
+      output: {
+        filename: 'bundle.js'
+      },
+      target: target
+    }))
+    .pipe(gulp.dest('browser/'));
+});
+
 
 // Task Compositions
 
-gulp.task('default', [], function () {});
-
+gulp.task('default', []);
 gulp.task('webtest', [ 'serve', 'mocha-casperjs' ]);
