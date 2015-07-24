@@ -50,22 +50,34 @@ package.json        # Node.js `npm` packages, dependencies, and App config
 
 > See: `engine/requirements.txt`
 
-* [Python 2.7]()
-* [NuPIC]() 0.2.6
+* Languages:
+  * [Python](http://python.org) 2.7
+  * [C++](https://isocpp.org/)
+* [NuPIC](htts://github.com/numenta/nupic) 0.2.x
 
 ### GUI
 
 > See: `package.json`
 
+* Languages:
+  * Javascript
+    * [ECMAScript 5.1](https://es5.github.io/) (>= IE9)
+    * [ECMAScript 6](https://babeljs.io/docs/learn-es2015/) (aka ES2015) via
+      [Babel](https://babeljs.io/)
+  * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
+  * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
+    [SASS](http://sass-lang.com/) via
+    [node-sass](https://github.com/sass/node-sass)
 * Framework: [Electron](https://github.com/atom/electron)
   * Engines: [Chromium](https://www.chromium.org/Home),
     [IO.js](https://iojs.org/), [Node](https://github.com/joyent/node)
   * Module Loader: [WebPack](https://github.com/webpack/webpack)
   * User Interface:
-    * Architecture: [Fluxible](htts://fluxible.io/)
+    * Architecture: [Fluxible](http://fluxible.io/)
+      ([Flux](https://facebook.github.io/flux/docs/overview.html#content)
+      Uni-directional data flow)
     * View Components: [React](https://github.com/facebook/react),
       [JSX](https://facebook.github.io/jsx/)
-    * CSS Transpiler: [SASS](https://github.com/sass/node-sass)
 * Testing:
   * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)
   * Web Tests: [Casper](https://github.com/n1k0/casperjs)

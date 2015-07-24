@@ -26,8 +26,6 @@
  * Main browser web code Application GUI entry point.
  */
 
-var moment = require('moment');
+import Fluxible from 'fluxible';
 
-document.write('it is now: ', moment(), "<br/>");
-document.write('io.js v ', process.version, "<br/>");
-document.write('electron v ', process.versions['electron'], "<br/>");
+// BREV IN PROGRESS: https://github.com/yahoo/fluxible

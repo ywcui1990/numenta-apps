@@ -16,8 +16,7 @@
     "x64"
   ],
   "scripts": {
-    "dev": "npm run pack-web && npm run dev-note && npm run serve",
-    "dev-note": "echo \"Dev web app ready for Chrome browser: http://localhost:9999\"",
+    "dev": "npm run pack-web && npm run serve",
     "electron": "electron .",
     "pack-electron": "gulp webpack --target atom",
     "pack-web": "gulp webpack",
@@ -58,11 +57,13 @@
   "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
     "electron": "0.4.1",
-    "moment": "2.10.3",
+    "fluxible": "0.5.1",
     "node-sass": "3.2.0",
     "react": "0.13.3"
   },
   "devDependencies": {
+    "babel-core": "5.8.5",
+    "babel-loader": "5.3.2",
     "casperjs": "1.1.0-beta3",
     "electron-prebuilt": "0.30.0",
     "gulp": "3.9.0",
