@@ -61,6 +61,7 @@ Taurus instance credentials:
   ☞  TAURUS_COLLECTOR_HOST
   ☞  TAURUS_SERVER_USER
   ☞  TAURUS_SERVER_HOST
+  ☞  TAURUS_SERVER_HOST_PRIVATE
 
 AWS credentials
   ☞  AWS_ACCESS_KEY_ID
@@ -83,6 +84,14 @@ Taurus Server configuration details:
   ☞  TAURUS_RMQ_METRIC_DEST
   ☞  TAURUS_RMQ_METRIC_PREFIX
   ☞  TAURUS_API_KEY
+
+SSL self-signed certificate details:
+
+  ☞  SSL_ORG_NAME
+  ☞  SSL_LOCALITY
+  ☞  SSL_DOMAIN_NAME
+  ☞  SSL_ORGANIZATIONAL_UNIT_NAME
+  ☞  SSL_EMAIL_ADDRESS
 
 ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★
 
@@ -113,6 +122,54 @@ SCRIPT=`which $0`
 REPOPATH=`dirname "${SCRIPT}"`/../../..
 
 pushd "${REPOPATH}"
+
+  mkdir -p taurus/pipeline/scripts/overrides/taurus/conf/ssl/
+
+  if [ ! -f "taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.crt" ]; then
+    subj=`echo "
+    C=US
+    ST=CA
+    O=${SSL_ORG_NAME}
+    localityName=${SSL_LOCALITY}
+    commonName=${SSL_DOMAIN_NAME}
+    organizationalUnitName=${SSL_ORGANIZATIONAL_UNIT_NAME}
+    emailAddress=${SSL_EMAIL_ADDRESS}
+    " | sed -e 's/^[ \t]*//'`
+
+    # Generate the server private key
+    openssl genrsa \
+      -des3 \
+      -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
+      -passout pass:myvoiceismypassportverifyme \
+      1024
+
+    # Generate the CSR
+    openssl req \
+        -new \
+        -batch \
+        -subj "$(echo -n "${subj}" | tr "\n" "/")" \
+        -key taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
+        -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.csr \
+        -passin pass:myvoiceismypassportverifyme
+    cp \
+      taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
+      taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key.bak
+
+    # Strip the password so we don't have to type it every time we restart nginx
+    openssl rsa \
+      -in taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key.bak \
+      -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
+      -passin pass:myvoiceismypassportverifyme
+
+    # Generate the cert (good for 1 year)
+    openssl x509 \
+      -req \
+      -days 365 \
+      -in taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.csr \
+      -signkey taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
+      -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.crt
+
+  fi
 
   # Sync git histories with taurus server for current HEAD
   git push --force \
