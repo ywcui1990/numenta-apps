@@ -123,9 +123,9 @@ REPOPATH=`dirname "${SCRIPT}"`/../../..
 
 pushd "${REPOPATH}"
 
-  mkdir -p taurus/pipeline/scripts/overrides/taurus/conf/ssl/
+  mkdir -p taurus/pipeline/scripts/ssl/
 
-  if [ ! -f "taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.crt" ]; then
+  if [ ! -f "taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.crt" ]; then
     subj=`echo "
     C=US
     ST=CA
@@ -141,7 +141,7 @@ pushd "${REPOPATH}"
     # Generate the server private key
     openssl genrsa \
       -des3 \
-      -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
+      -out taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.key \
       -passout pass:${PASSWD} \
       1024
 
@@ -150,26 +150,26 @@ pushd "${REPOPATH}"
         -new \
         -batch \
         -subj "$(echo -n "${subj}" | tr "\n" "/")" \
-        -key taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
-        -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.csr \
+        -key taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.key \
+        -out taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.csr \
         -passin pass:${PASSWD}
     cp \
-      taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
-      taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key.bak
+      taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.key \
+      taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.key.bak
 
     # Strip the password so we don't have to type it every time we restart nginx
     openssl rsa \
-      -in taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key.bak \
-      -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
+      -in taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.key.bak \
+      -out taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.key \
       -passin pass:${PASSWD}
 
     # Generate the cert (good for 1 year)
     openssl x509 \
       -req \
       -days 365 \
-      -in taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.csr \
-      -signkey taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.key \
-      -out taurus/pipeline/scripts/overrides/taurus/conf/ssl/${TAURUS_SERVER_HOST}.crt
+      -in taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.csr \
+      -signkey taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.key \
+      -out taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.crt
 
   fi
 
@@ -231,7 +231,15 @@ pushd "${REPOPATH}"
     sed -e 's/^[ \t]*//' > \
     taurus/pipeline/scripts/taurus-env.sh
 
-  # Copy manual overrides, including ssl self-signed cert
+  # Copy self-signed cert
+  scp -r \
+    taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.crt \
+    "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/conf/ssl/localhost.crt
+  scp -r \
+    taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.key \
+    "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/conf/ssl/localhost.key
+
+  # Copy manual overrides
   scp -r \
     taurus/pipeline/scripts/overrides/taurus/* \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/
