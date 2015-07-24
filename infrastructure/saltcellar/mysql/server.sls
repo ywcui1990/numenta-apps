@@ -58,3 +58,12 @@ mysqld.service:
   {% endif %}
 
 {% endif %}
+
+# Add agamotto tests
+local-mysqld-agamotto-tests:
+  file.managed:
+    - name: /etc/numenta/tests/test_local_mysqld.py
+    - source: salt://mysql/files/tests/test_local_mysqld.py
+    - mode: 0755
+    - require:
+      - file: ami-test-directory
