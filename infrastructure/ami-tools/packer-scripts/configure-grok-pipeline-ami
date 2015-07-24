@@ -31,11 +31,6 @@ PRODUCTS="${NUMENTA}/products"
 touch "${AMIBUILD_LOCK}"
 S3_ROOT_URL="https://s3-us-west-2.amazonaws.com/public.numenta.com/yum/x86_64"
 
-complain() {
-  echo "$@"
-  logger -t ami-bake "$@"
-}
-
 splat() {
   # Make it easier to distinguish phases of the script in the scrollback
   echo "
@@ -150,7 +145,7 @@ install-grok() {
   chown -R ec2-user:ec2-user "${PRODUCTS}"
 
   pushd "${PRODUCTS}"
-    complain "Running install-grok.sh"
+    echo "Running install-grok.sh"
 
     ./install-grok.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
     if [ $? != 0 ]; then
