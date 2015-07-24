@@ -46,6 +46,15 @@ package.json        # Node.js `npm` packages, dependencies, and App config
 
 ## Technology
 
+### Engine
+
+> See: `engine/requirements.txt`
+
+* [Python 2.7]()
+* [NuPIC]() 0.2.6
+
+### GUI
+
 > See: `package.json`
 
 * Framework: [Electron](https://github.com/atom/electron)
