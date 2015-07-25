@@ -1,9 +1,9 @@
 # Numenta Unicorn
 
-> CURRENTLY UNDER HEAVY DEVELOPMENT!
+> Cross-platform Desktop Application to demonstrate basic HTM functionality to
+> users using their own data files.
 
-Cross-platform Desktop Application to demonstrate basic HTM functionality to
-users using their own data files.
+<p style="color:red; font-size:200%;">CURRENTLY UNDER HEAVY DEVELOPMENT!</p>
 
 
 ## Repository
@@ -51,9 +51,14 @@ package.json        # Node.js `npm` packages, dependencies, and App config
 > See: `engine/requirements.txt`
 
 * Languages:
-  * [Python](http://python.org) 2.7
+  * [Python](http://python.org)
   * [C++](https://isocpp.org/)
-* [NuPIC](htts://github.com/numenta/nupic) 0.2.x
+* Machine Intelligence:
+  * [NuPIC](htts://github.com/numenta/nupic)
+
+The Machine Intelligence behind this app is a technology known as Hierarchical
+Temporal Memory (HTM). NuPIC is Numenta's open source HTM engine. NuPIC runs
+on streams of data, predicting future values, and detecting pattern anomalies.
 
 ### GUI
 
@@ -81,44 +86,77 @@ package.json        # Node.js `npm` packages, dependencies, and App config
 * Testing:
   * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)
   * Web Tests: [Casper](https://github.com/n1k0/casperjs)
+* Tooling:
+  * Streaming builder: [Gulp](https://github.com/gulpjs/gulp)
+  * JS transpiling (ES6, JSX, etc): [Babel](https://github.com/babel/babel)
+* @TODO for future:
+  * JS formatting: [jsfmt](https://github.com/rdio/jsfmt) - no ES6 yet
+
+The GUI for this application is web code. Javascript, HTML, and CSS are loaded
+into a browser. For Desktop, this browser is a bare-bones Chrome window opened
+by the Electron framework. Electron also runs IO.js (Node.js edge) to connect
+with the host Operating System, allowing for cross-platform native controls.
+
+In the browser, we run a one-way Uni-directional data flow, an Architecture
+known as "Flux".
+
+Below is an example of tracing of our way through GUI initialization, GUI first
+loop run, and GUI loop continuation:
+
+1. Electron loads `gui/main.js`
+1. .. which (or Browser directly) loads `gui/browser/index.html`
+1. .. which loads `gui/browser/js/app.js`
+1. .. which inits Fluxible
+1. .. and then Fluxible fires off an initial Action
+1. .. which dispatches Events with state data to Stores
+1. .. which then integrate state data into themselves
+1. .. and then View Components tied to updated Stores render
+1. .. and then The User interacts with the app firing off a new Action
+1. .. GOTO #6, RINSE and REPEAT.
 
 
 ## Development
 
-### Dependencies
+### Setup
 
 Example of setting up development environment:
 
-```
+```shell
 brew install git node  # darwin
 git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/unicorn
 npm install
 ```
 
-### Development: Desktop
+### Targets
+
+#### Desktop App
 
 Start code via Electron as a Desktop App:
 
-```
+```shell
 npm run start
 ```
 
-### Development: Web
+#### Web App
+
+This is *nice-to-have*, and *not* required like the Desktop App. The more this
+Web version stays synced with the Desktop version, the easier it will be to
+later port this to a real Web App, or to Android/iOS mobile via
+[React Native](https://facebook.github.io/react-native/).
 
 Start app on local webserver, you can open it with Chrome Browser
-at http://localhost:9999:
+at `http://localhost:9999`:
 
-```
+```shell
 npm run dev
 ```
 
 
 ## Guidelines
 
-* [ES5 Styleguide](https://github.com/felixge/node-style-guide) (Javascript)
-  * [ES6 Styleguide]() TBD ?
-  * [ES7 Styleguide]() TBD ?
-* [HTML5 Spec](https://html.spec.whatwg.org/)
-* [CSS3 Spec](https://developer.mozilla.org/en-US/docs/Web/CSS)
-  * [SASS Spec](http://sass-lang.com/)
+* HTML and CSS
+  * [Living Styleguide]() @TODO
+* Javascript
+  * [ES5 Styleguide](https://github.com/felixge/node-style-guide)
+  * ES6 styleguide? AirBnB? @TODO

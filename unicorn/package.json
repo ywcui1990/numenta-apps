@@ -1,7 +1,7 @@
 {
   "name": "unicorn",
   "version": "0.0.1",
-  "description": "Cross-platform HTM Example Desktop Application",
+  "description": "Numenta Unicorn Cross-platform HTM Example Desktop Application",
   "main": "gui/main.js",
   "engines": {
     "node": ">=0.12.7",
@@ -16,6 +16,8 @@
     "x64"
   ],
   "scripts": {
+    "check": "npm install && npm prune && npm outdated -depth 0",
+    "clean": "rm -Rf node_modules/",
     "dev": "npm run pack-web && npm run serve",
     "electron": "electron .",
     "pack-electron": "gulp webpack --target atom",
@@ -57,7 +59,9 @@
   "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
     "electron": "0.4.1",
+    "es6-promise": "2.3.0",
     "fluxible": "0.5.1",
+    "fluxible-addons-react": "0.1.6",
     "node-sass": "3.2.0",
     "react": "0.13.3"
   },
@@ -65,14 +69,14 @@
     "babel-core": "5.8.5",
     "babel-loader": "5.3.2",
     "casperjs": "1.1.0-beta3",
-    "electron-prebuilt": "0.30.0",
+    "electron-prebuilt": "0.30.1",
     "gulp": "3.9.0",
     "gulp-util": "3.0.6",
-    "gulp-webpack": "1.5.0",
     "http-server": "0.8.0",
     "mocha": "2.2.5",
     "mocha-casperjs": "0.5.4",
     "node-libs-browser": "0.5.2",
-    "webpack": "1.10.5"
+    "webpack": "1.10.5",
+    "webpack-stream": "2.0.0"
   }
 }

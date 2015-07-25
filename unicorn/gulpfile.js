@@ -25,11 +25,12 @@
 
 // externals
 
-var gulp =    require('gulp');
-var package = require('./package.json');
-var spawn =   require('child_process').spawn;
-var util =    require('gulp-util');
-var webpack = require('gulp-webpack');
+var gulp =      require('gulp');
+var package =   require('./package.json');
+var spawn =     require('child_process').spawn;
+var util =      require('gulp-util');
+var webpack =   require('webpack');
+var webpacker = require('webpack-stream');
 
 // internals
 
@@ -107,7 +108,7 @@ gulp.task('serve', function () {
 gulp.task('webpack', function() {
   var target = util.env.target || 'web';
   return gulp.src('gui/browser/js/app.js')
-    .pipe(webpack({
+    .pipe(webpacker({
       module: {
         loaders: [
           { test: /\.jsx?$/, exclude: /node_modules/, loader: 'babel-loader' }
@@ -116,6 +117,9 @@ gulp.task('webpack', function() {
       output: {
         filename: 'bundle.js'
       },
+      plugins: [
+        new webpack.IgnorePlugin(/vertx/)  // remove in fluxible 4.x
+      ],
       target: target
     }))
     .pipe(gulp.dest('gui/browser/'));
