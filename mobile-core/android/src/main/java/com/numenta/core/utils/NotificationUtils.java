@@ -135,12 +135,15 @@ public class NotificationUtils {
         if (showSummary) {
             // Display summary as title and list below
             _inboxStyle.setBigContentTitle(groupedTitle);
+            notificationBuilder.setContentTitle(groupedTitle);
             for (Notification notification : notificationList) {
                 _inboxStyle.addLine(notification.getDescription());
             }
         } else {
             // Show first item as title and other items below
-            _inboxStyle.setBigContentTitle(notificationList.get(0).getDescription());
+            String description = notificationList.get(0).getDescription();
+            _inboxStyle.setBigContentTitle(description);
+            notificationBuilder.setContentTitle(description).setContentText(groupedTitle);
             for (int i = 1; i < notificationList.size(); i++) {
                 _inboxStyle.addLine(notificationList.get(i).getDescription());
             }

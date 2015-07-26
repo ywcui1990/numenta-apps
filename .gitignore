@@ -24,6 +24,7 @@ grok-supervisor.sock
 grok-supervisord.pid
 logs/
 node_modules/
+npm-debug.log
 sauce_connect.*
 tests/py/integration/engine/utils/logs
 tests/py/unit/engine/utils/logs
@@ -71,4 +72,3 @@ robotium-solo-5.0.1.jar.properties
 gradle.properties
 .keys
 .vagrant
-

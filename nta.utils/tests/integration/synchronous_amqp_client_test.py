@@ -117,6 +117,8 @@ class SynchronousAmqpClientTest(unittest.TestCase):
         auth=(self.connParams.username,
               self.connParams.password)
     ).json()
+    self.assertIn("name", exchange)
+    self.assertIn("type", exchange)
     self.assertEqual(exchange["name"], testExchangeName)
     self.assertEqual(exchange["type"], testExchangeType)
 
@@ -160,6 +162,9 @@ class SynchronousAmqpClientTest(unittest.TestCase):
         auth=(self.connParams.username,
               self.connParams.password)
     ).json()
+    self.assertIn("name", queue)
+    self.assertIn("consumers", queue)
+    self.assertIn("messages", queue)
     self.assertEqual(queue["name"], testQueueName)
     self.assertEqual(queue["consumers"], testConsumerCount)
     self.assertEqual(queue["messages"], testMessageCount)
@@ -193,6 +198,7 @@ class SynchronousAmqpClientTest(unittest.TestCase):
             queueName),
         auth=(self.connParams.username, self.connParams.password)
     ).json()
+    self.assertIn("messages_ready", queue)
     self.assertEqual(queue["messages_ready"], _NUM_TEST_MESSAGES)
 
 
@@ -206,6 +212,7 @@ class SynchronousAmqpClientTest(unittest.TestCase):
             queueName),
         auth=(self.connParams.username, self.connParams.password)
     ).json()
+    self.assertIn("messages_unacknowledged", queue)
     self.assertEqual(queue["messages_unacknowledged"], _NUM_TEST_MESSAGES)
 
 
@@ -223,6 +230,8 @@ class SynchronousAmqpClientTest(unittest.TestCase):
             queueName),
         auth=(self.connParams.username, self.connParams.password)
     ).json()
+    self.assertIn("messages", queue)
+    self.assertIn("message_stats", queue)
     self.assertEqual(queue["messages"], 0)
     self.assertIn("ack", queue["message_stats"])
     self.assertEqual(queue["message_stats"]["ack"], _NUM_TEST_MESSAGES)

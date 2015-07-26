@@ -170,8 +170,12 @@ public class TaurusNotificationService extends NotificationService {
             // Check for anomalies
             List<Pair<Long, AnomalyValue>> data = database.getInstanceData(instance, from, to);
             for (Pair<Long, AnomalyValue> value : data) {
-                // Check for "red" anomalies (val >= 0.99999)
-                if (value.second != null && value.second.anomaly >= 0.99999f) {
+                if (value.second == null) {
+                    continue;
+                }
+                // Check for "red" anomalies
+                float logScale = (float) DataUtils.logScale(Math.abs(value.second.anomaly));
+                if (logScale >= TaurusApplication.getRedBarFloor()) {
                     // Check if found new stock related anomaly
                     mask = MetricType.fromMask(value.second.metricMask);
                     if (!anomalies.containsKey(instance) &&

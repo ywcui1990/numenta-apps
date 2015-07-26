@@ -1,6 +1,7 @@
 This is the umbrella project for all of the components that make up the
 Numenta product-line.
 
+
 ## Installation
 
 All python packages include a setuptools-compatible
@@ -22,7 +23,8 @@ You can see coverage across multiple projects as follows:
 
 ## Licenses
 
-Each code directory defined below contains its own `LICENSE.txt` file and defines program dependencies within a `DEPENDENCIES.md` file.
+Each code directory defined below contains its own `LICENSE.txt` file and
+defines program dependencies within a `DEPENDENCIES.md` file.
 
 
 ## Main Products
@@ -30,15 +32,15 @@ Each code directory defined below contains its own `LICENSE.txt` file and define
 
 ### Grok
 
-See http://numenta.com/grok. 
+See http://numenta.com/grok.
 
-### [`/grok`](grok)
+#### [`/grok`](grok)
 
 AWS/Cloudwatch integration for HTM Engine.
 
 **Languages**: Python, JavaScript, HTML
 
-### [`/grok-mobile`](grok-mobile)
+#### [`/grok-mobile`](grok-mobile)
 
 Grok mobile client.
 
@@ -69,12 +71,22 @@ Custom metric collectors for Grok for Stocks data providers.
 
 #### [`/taurus.monitoring`](taurus.monitoring)
 
-Monitoring scripts and related utilities for monitoring Grok for Stocks 
+Monitoring scripts and related utilities for monitoring Grok for Stocks
 (Code name: Taurus).
 
 **Languages**: Python
 
+
+### [`/unicorn`](unicorn)
+
+Cross-platform Desktop Application to demonstrate basic HTM functionality
+to users using their own data files.
+
+**Languages**: Javascript, Python
+
+
 ## Support Code
+
 
 #### [`/nta.utils`](nta.utils)
 

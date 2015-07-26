@@ -21,32 +21,28 @@
 # ----------------------------------------------------------------------
 
 """
-Integration tests for Grok output quality.
+Integration tests for htmengine output quality.
 """
 
-import json
+import csv
+import datetime
 import logging
+import os
 import socket
 import time
-# Make sure we're using the same version of unttest as our base class
-from grok.test_utils.app.test_case_base import unittest
-import csv
-import os
+import unittest
 import uuid
 
-import requests
-
-import datetime
 from dateutil.parser import parse as parsedate
 
 from nta.utils import amqp
+from nta.utils.config import Config
 from nta.utils.date_time_utils import epochFromNaiveUTCDatetime
+from nta.utils.logging_support_raw import LoggingSupport
 
 from htmengine.runtime.anomaly_service import AnomalyService
-from grok import logging_support
-from grok.app import config
-from grok.test_utils.app import test_case_base
-from grok.test_utils.app.confusion_matrix import WindowedConfusionMatrix
+from htmengine.test_utils import test_case_base
+from htmengine.test_utils.confusion_matrix import WindowedConfusionMatrix
 
 
 
@@ -55,7 +51,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def setUpModule():
-  logging_support.LoggingSupport.initTestApp()
+  LoggingSupport.initTestApp()
 
 
 
@@ -96,13 +92,17 @@ def genConfusionMatrix(recordLabels,
 
 class ResultQualityTests(test_case_base.TestCaseBase):
   """
-  Tests the output of Grok with known data.
+  Tests the output of htmengine with known data.
   """
 
 
   def setUp(self):
-    self.plaintextPort = config.getint("metric_listener", "plaintext_port")
-    self.apiKey = config.get("security", "apikey")
+    self.config = Config("application.conf",
+                         os.environ.get("APPLICATION_CONFIG_PATH"))
+
+
+    self.plaintextPort = self.config.getint("metric_listener", "plaintext_port")
+    self.apiKey = self.config.get("security", "apikey")
 
     self.initialLoggingString = "Running result quality test using metric: %s"
 
@@ -115,7 +115,7 @@ class ResultQualityTests(test_case_base.TestCaseBase):
           amqpClient):
         amqpClient.deleteQueue(queue=queue, ifUnused=False, ifEmpty=False)
 
-    self.resultsQueueName = "grok.result_quality_test.likelihood_results.%s" % (
+    self.resultsQueueName = "htmengine.result_quality_test.likelihood_results.%s" % (
       uuid.uuid1().hex,)
 
     with amqp.synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
@@ -125,7 +125,7 @@ class ResultQualityTests(test_case_base.TestCaseBase):
 
       amqpClient.bindQueue(
         queue=self.resultsQueueName,
-        exchange=config.get("metric_streamer", "results_exchange_name"),
+        exchange=self.config.get("metric_streamer", "results_exchange_name"),
         routingKey="")
 
 
@@ -171,14 +171,14 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     self._runQualityTest(dataIdentifier, knownDataFile, expectedResults)
 
 
-  def testGrokRPMBuildData(self):
+  def testRPMBuildData(self):
     """
-    Grok RPM Build Caught Anomaly - Network In
+    RPM Build Caught Anomaly - Network In
 
     7428 rows
     """
-    dataIdentifier = "GRK"
-    knownDataFile = "grok_rpmbuild_realanomaly_networkIn.csv"
+    dataIdentifier = "RPM"
+    knownDataFile = "rpmbuild_realanomaly_networkIn.csv"
     expectedResults = {"fn": 48,
                        "fp": 58,
                        "tn": 7130,
@@ -247,9 +247,6 @@ class ResultQualityTests(test_case_base.TestCaseBase):
       dttm = epochFromNaiveUTCDatetime(dttm)
       dttm = int(dttm)
 
-      #LOGGER.info("{TAG:CLIENT.METRIC} metric=%s:%s:%s", metricName, dttm,
-      #            value)
-
       # Add data
       sock.sendall("%s %r %s\n" % (metricName, float(value), dttm))
 
@@ -276,17 +273,6 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     sock.connect(("localhost", self.plaintextPort))
 
     return sock
-
-
-  def _createModel(self, uid):
-    """
-    Sends the API request to create a model. This is a small abstraction
-    in case of change.
-    """
-    payload = {"uid": uid, "datasource": "custom"}
-    requests.post("https://localhost/_models",
-                  auth=(self.apiKey, ""), verify=False,
-                  data=json.dumps(payload))
 
 
   def _reapAnomalyServiceResults(self, metricId, numRowsExpected):
@@ -319,7 +305,7 @@ class ResultQualityTests(test_case_base.TestCaseBase):
       return message
 
 
-    connParams = amqp.connection.getRabbitmqConnectionParameters()
+    amqp.connection.getRabbitmqConnectionParameters()
     with amqp.synchronous_amqp_client.SynchronousAmqpClient(
         amqp.connection.getRabbitmqConnectionParameters()) as amqpClient:
 
@@ -379,11 +365,6 @@ class ResultQualityTests(test_case_base.TestCaseBase):
       <Date string>, <Value>, <Likelihood Score>,  <Record Number>
     """
 
-    # data is a list of rows like this:
-    # Date - Value - Anomaly Likelihood* - Record Number
-    # e.g. [u'2013-08-31 00:20:00', 405.8, 0.135666, 1440]
-    # * Due to a naming error this is CALLED "Anomaly Score" in the db but
-    # in reality is that it is the likelihood score.
     lastRowId = len(labels)
     data = self.getModelResults(uid, lastRowId)
 
@@ -423,20 +404,20 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     # Compare timestamp and value sequence in results against known data
     knownData = tuple((ts, float(value)) for ts, value, _label in
       self._loadDataGen(knownDataFilePath))
-    dataFromGrokApi = tuple((ts, value) for ts, value, _, _ in data)
-    self.fastCheckSequenceEqual(dataFromGrokApi, knownData)
+    engineData = tuple((ts.strftime("%Y-%m-%d %H:%M:%S"), value) for ts, value, _, _ in data)
+    self.fastCheckSequenceEqual(engineData, knownData)
 
-    # Compare data from grok-api results with AMQP-dispatched data from Anomaly
+    # Compare data from htmengine with AMQP-dispatched data from Anomaly
     # Service
     places = 9
     dataFromAnomalyService = tuple(
       (row["ts"], row["value"],
        round(row["anomaly"], places), row["rowid"])
       for row in anomalyServiceResults)
-    dataFromGrokApi = tuple(
-      (ts, value, round(score, places), rowid)
+    engineData = tuple(
+      (ts.strftime("%Y-%m-%d %H:%M:%S"), value, round(score, places), rowid)
       for ts, value, score, rowid in data)
-    self.fastCheckSequenceEqual(dataFromGrokApi, dataFromAnomalyService)
+    self.fastCheckSequenceEqual(engineData, dataFromAnomalyService)
 
     # Compute the confusion matrix
     cMatrix = genConfusionMatrix(labels, data)
@@ -491,14 +472,14 @@ class ResultQualityTests(test_case_base.TestCaseBase):
 
   def _runQualityTest(self, dataIdentifier, knownDataFile, expectedResults):
     """
-    Runs the data from knownDataFile (a csv) through Grok and verifies Grok
-    returns the expected values in terms of a confusion matrix dict
+    Runs the data from knownDataFile (a csv) through htmengine and verifies
+    htmengine returns the expected values in terms of a confusion matrix dict
     expectedResults.
 
     :param dataIdentifier: A string to identify this data in logs
     :param knownDataFile: A csv filename that exist in local data/ dir
     :param expectedResults: The confusion matrix and quality score we expect
-                            out of grok.
+                            out of htmengine.
     :type expectedResults: dict
 
     :returns: A sequence of results from the model; each result is a sequence of
@@ -507,9 +488,7 @@ class ResultQualityTests(test_case_base.TestCaseBase):
 
     metricName = self._genUniqueMetricName(dataIdentifier)
 
-    self.addCleanup(requests.delete,
-                    "https://localhost/_metrics/custom/%s" % metricName,
-                    auth=(self.apiKey, ""), verify=False)
+    self.addCleanup(self._deleteMetric, metricName)
 
     LOGGER.info(self.initialLoggingString, metricName)
 
@@ -523,7 +502,7 @@ class ResultQualityTests(test_case_base.TestCaseBase):
 
     # Make sure the metric was properly created and wait for the expected
     # records to be stored. NOTE: Waiting for all records to be stored
-    # facilitates constistent stats calculation in Grok, resulting in
+    # facilitates constistent stats calculation in htmengine, resulting in
     # consistency of results from one run of the test to the next.
     uid = self.checkMetricCreated(metricName, numRecords=len(labels))
 
@@ -531,7 +510,13 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     LOGGER.info("Metric %s has uid: %s", metricName, uid)
 
     # Send model creation request
-    self._createModel(uid)
+    nativeMetric = {"datasource": "custom",
+                    "metricSpec": {"uid": uid}}
+
+    model = self._createModel(nativeMetric)
+    self.assertEqual(model.uid, uid)
+    self.assertEqual(model.name, metricName)
+    self.assertEqual(model.server, metricName)
 
     return self._verifyResults(uid, metricName, knownDataFilePath, labels,
                                expectedResults)

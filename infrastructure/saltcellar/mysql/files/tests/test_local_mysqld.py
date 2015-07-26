@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
@@ -19,21 +19,39 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-# Install devtools
+"""
+mysql.server tests for local MySQLd
+"""
 
-echo "Installing developer tools..."
-echo "Installing devtools-2.repo..."
-cp -v /tmp/devtools-2.repo /etc/yum.repos.d
-cp -v /tmp/devtools-pathaddition.sh /etc/profile.d
+import unittest
 
-yum makecache
+import agamotto
+from agamotto.file import isExecutable, isFile
+from agamotto.process import running
 
-yum install -y cmake \
-  devtoolset-2-binutils \
-  devtoolset-2-gcc \
-  devtoolset-2-gcc-c++ \
-  libjpeg-turbo-devel \
-  libX11-devel \
-  libXt-devel \
-  openssl-devel \
-  rpm-build
+
+
+class TestLocalMySQLdInstallation(unittest.TestCase):
+
+  def testLocalMySQLdEnabled(self):
+    """MySQLd service is enabled"""
+    self.assertTrue(agamotto.service.enabled("mysqld"),
+                    "mysqld is not configured to start at boot")
+
+
+  def testLocalMySQLdInitScript(self):
+    """mysqld server init script is present and executable"""
+    self.assertTrue(isFile("/etc/init.d/mysqld"),
+                    "mysqld init script is missing")
+    self.assertTrue(isExecutable("/etc/init.d/mysqld"),
+                    "mysqld init script is not executable")
+
+
+  def testLocalMySQLdIsRunning(self):
+    """MySQLd service is running"""
+    self.assertTrue(running("mysqld --basedir=/usr --datadir=/var/lib/mysql"))
+
+
+
+if __name__ == "__main__":
+  unittest.main()
