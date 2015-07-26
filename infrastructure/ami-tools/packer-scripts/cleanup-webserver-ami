@@ -22,11 +22,6 @@
 
 # Webserver specific cleanups.
 
-complain() {
-  echo "$@"
-  logger -t ami-bake "$@"
-}
-
 echo
 echo "********************************"
 echo "Cleaning webserver AMI candidate"
@@ -39,10 +34,10 @@ rm -frv /opt/numenta/git/live /opt/numenta/git/staging
 
 echo
 echo "********************************"
-complain "Zapping logfiles..."
+echo "Zapping logfiles..."
 logger -t image-cleanup "Zapping logfiles..."
 for logf in /var/log/nginx/*
 do
-  complain "Resetting ${logf}"
+  echo "Resetting ${logf}"
   cat /dev/null > "${logf}"
 done
