@@ -23,6 +23,7 @@
 
 /**
  * Gulp config
+ * @flow
  */
 
 // externals
@@ -109,21 +110,25 @@ gulp.task('serve', () => {
 /**
  * Gulp task to run WebPack to transpile require/modules/Babel into bundle
  */
-gulp.task('webpack', () => {
+gulp.task('webpack', ()  => {
   let target = util.env.target || 'web';
   return gulp.src('gui/browser/app.js')
     .pipe(webpacker({
+      devtool: 'source-map',
       module: {
         loaders: [
-          { test: /\.jsx?$/, exclude: /node_modules/, loader: 'babel-loader' }
+          { test: /\.(js|jsx)$/, loader: 'babel-loader', exclude: /node_modules/ }
         ]
       },
       output: {
         filename: 'bundle.js'
       },
       plugins: [
-        new webpack.IgnorePlugin(/vertx/)  // remove in fluxible 4.x
+        new webpack.IgnorePlugin(/vertx/)  // @TODO remove in fluxible 4.x
       ],
+      resolve: {
+        extensions: [ '', '.js', '.jsx' ]
+      },
       target
     }))
     .pipe(gulp.dest('gui/browser/'));
