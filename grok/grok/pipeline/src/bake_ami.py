@@ -39,35 +39,13 @@ from infrastructure.utilities.jenkins import (
 )
 from infrastructure.utilities.logger import initPipelineLogger
 from infrastructure.utilities.path import changeToWorkingDir
-from infrastructure.utilities.s3 import getMappingsFromShaToRpm, uploadToS3
+from infrastructure.utilities.s3 import uploadToS3
 
 
 g_config = yaml.load(resource_stream(__name__, "../conf/config.yaml"))
 
 
 S3_YUM_BUCKET = "public.numenta.com"
-
-
-
-def writeRpmDetails(nameOfFile, sha, bucketName, artifactsDir):
-  """
-  Get the rpm name for the corresponding sha and write it to a file.
-
-  :param nameOfFile: grok to describe the rpm name
-  :param sha: rpm name with the corresponding sha
-  :param bucketName: bucket name from where the sha file would be downloaded
-  :param artifactsDir: location of build artifacts to store the file
-  """
-  try:
-    rpmName = getMappingsFromShaToRpm(repo=nameOfFile,
-                                      sha=sha,
-                                      s3MappingBucket=bucketName,
-                                      logger=g_logger)
-    with open(os.path.join(artifactsDir, "%s.txt" % nameOfFile), "w") as fp:
-      fp.write(rpmName.strip())
-  except Exception:
-    g_logger.exception("Caught an exception while writing to file")
-    raise
 
 
 
@@ -184,7 +162,6 @@ def main(jsonArgs=None):
     parsedArgs = addAndParseArgs(jsonArgs)
 
     amiName = parsedArgs["amiName"]
-    grokSha = parsedArgs["grokSha"]
 
     if not (os.environ.get("AWS_ACCESS_KEY_ID") and
             os.environ.get("AWS_SECRET_ACCESS_KEY")):
@@ -195,13 +172,6 @@ def main(jsonArgs=None):
       g_config["AWS_SECRET_ACCESS_KEY"] = os.environ["AWS_SECRET_ACCESS_KEY"]
 
     artifactsDir = createOrReplaceArtifactsDir()
-
-    # Write RPM details for later use by the promote-marketplace pipeline
-    if os.environ.get("JENKINS_HOME"):
-      writeRpmDetails(nameOfFile="grok",
-                      sha=grokSha,
-                      bucketName=g_config['S3_MAPPING_BUCKET'],
-                      artifactsDir=artifactsDir)
 
     g_logger.info("Creating the Ami")
     pipeLineSrc = os.path.join(os.environ["PRODUCTS"], "grok", "grok",
