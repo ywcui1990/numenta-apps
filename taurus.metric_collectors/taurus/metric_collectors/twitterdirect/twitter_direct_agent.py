@@ -1189,10 +1189,16 @@ class MetricDataForwarder(object):
       aggSec=aggSec)
 
     # Calculate next aggregation end time using lastEmittedAggTime as base
+    #
+    # NOTE: an aggregation timestamp is the time of the beginning of the
+    # aggregation window
     nextAggEndEpoch = (
       date_time_utils.epochFromNaiveUTCDatetime(lastEmittedAggTime) +
       aggSec + aggSec)
+
+    # Fudge factor to account for streaming and processing latencies upstream
     latencyAllowanceSec = aggSec
+
     while True:
       # Sleep until it's time to aggregate metric data
       aggHarvestEpoch = nextAggEndEpoch + latencyAllowanceSec
