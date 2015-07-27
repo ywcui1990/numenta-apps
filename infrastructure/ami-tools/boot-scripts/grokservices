@@ -49,10 +49,7 @@ UPDATE_IS_RUNNING=/tmp/gs-perform-grok-update.lock
 
 run-rootboot-helper() {
   # Run the firstboot things we need to do as root here, before we drop
-  # privileges to ec2-user
-
-  # Ensure ec2-user has r/w permission on the /opt/numenta/anaconda tree
-  chown -R ec2-user:ec2-user /opt/numenta/anaconda
+  # privileges to centos
 
   if [ -x "${ROOTBOOT_HELPER}" ]; then
     "${ROOTBOOT_HELPER}" 2>&1 | tee >(logger -t rootboot-helper)
@@ -82,7 +79,7 @@ start()
   echo -n "Starting ${prog}: "
   logger -t grok-nginx "grokservices: start()"
   cd "${GROK_HOME}"
-  su ec2-user -c "${supervisor_helper} start"
+  su centos -c "${supervisor_helper} start"
   echo
   kill_preload
   /sbin/service nginx restart
@@ -94,7 +91,7 @@ stop()
   echo -n "Shutting down ${prog}: "
   logger -t grok-nginx "grokservices: stop()"
   cd "${GROK_HOME}"
-  su ec2-user -c "${supervisor_helper} stop"
+  su centos -c "${supervisor_helper} stop"
   service grok-preload grok-stopped
   echo
 }
@@ -105,7 +102,7 @@ status()
   echo -n "Status of ${prog}: "
   logger -t grok-nginx "grokservices: status()"
   cd "${GROK_HOME}"
-  su ec2-user -c "${supervisor_helper} status"
+  su centos -c "${supervisor_helper} status"
   echo
 }
 
@@ -116,7 +113,7 @@ restart()
   echo -n "Restarting ${prog}: "
   logger -t grok-nginx "grokservices: restart()"
   cd "${GROK_HOME}"
-  su ec2-user -c "${supervisor_helper} restart"
+  su centos -c "${supervisor_helper} restart"
   /sbin/service nginx restart
   echo
 }
@@ -132,7 +129,7 @@ tickle()
     echo -n "Tickling $prog: "
     logger -t grok-nginx "grokservices: tickle()"
     cd "${GROK_HOME}"
-    su ec2-user -c "${supervisor_helper} tickle"
+    su centos -c "${supervisor_helper} tickle"
   else
     echo "skipping tickle; firtboot hasn't run."
   fi

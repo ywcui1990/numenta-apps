@@ -24,9 +24,6 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-export NUMENTA=/opt/numenta
-export PATH=${NUMENTA}/anaconda/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
-
 mkdir -p /etc/grok
 
 # If you stop writing to $STAMPFILE, or change the path, you will break
@@ -59,18 +56,7 @@ fi
 
 ${GROK_HOME:?"You must set the GROK_HOME env var"}
 
-setup_logdirs() {
-  # setup logdir if missing
-  NUMENTA_LOGS_D=/opt/numenta/nta/eng/logs/numenta-logs-ec2-user
-  mkdir -p ${NUMENTA_LOGS_D}
-  chown ec2-user:ec2-user ${NUMENTA_LOGS_D}
-}
-
-setup_logdirs
 wait-until-network-up --tries 300 --delay 1 --pinghost google.com
-
-# Make sure that /etc/motd shows the correct rpm entries
-/etc/cron.daily/update-motd
 
 # Everything after this check is run only on the very first boot for
 # an instance.
@@ -80,6 +66,6 @@ if [ -f ${STAMPFILE} ]; then
   exit 0
 fi
 
-chown -R ec2-user:ec2-user /opt/numenta/products/grok
+chown -R centos:centos /opt/numenta/
 
 date > ${STAMPFILE}
