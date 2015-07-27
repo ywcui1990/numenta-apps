@@ -24,15 +24,13 @@
 
 import optparse
 import os
-import sys
 
 import alembic
 import alembic.config
 import pkg_resources
 
 ALEMBIC_CONFIG = alembic.config.Config(pkg_resources.resource_filename(
-    "taurus", os.path.join("engine", "repository", "migrations",
-                           "alembic.ini")))
+    "taurus.engine", os.path.join("repository", "migrations", "alembic.ini")))
 
 
 

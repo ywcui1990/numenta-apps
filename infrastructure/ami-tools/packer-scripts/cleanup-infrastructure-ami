@@ -24,17 +24,11 @@
 
 saltConfigured=/etc/numenta/salt_configured
 
-complain() {
-  echo "$@"
-  logger -t ami-bake "$@"
-}
-
 echo
 echo "Infrastructure AMI cleanups"
 
 service salt-minion stop
 
-echo
 echo "**********"
 echo "Purging salt minion id..."
 rm -fr /etc/salt/minion_id

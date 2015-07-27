@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
@@ -19,25 +19,39 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+"""
+mysql.server tests for local MySQLd
+"""
 
-# Webserver specific cleanups.
+import unittest
 
-echo
-echo "********************************"
-echo "Cleaning webserver AMI candidate"
-echo "********************************"
+import agamotto
+from agamotto.file import isExecutable, isFile
+from agamotto.process import running
 
-echo
-echo "********************************"
-echo "Zapping webroots"
-rm -frv /opt/numenta/git/live /opt/numenta/git/staging
 
-echo
-echo "********************************"
-echo "Zapping logfiles..."
-logger -t image-cleanup "Zapping logfiles..."
-for logf in /var/log/nginx/*
-do
-  echo "Resetting ${logf}"
-  cat /dev/null > "${logf}"
-done
+
+class TestLocalMySQLdInstallation(unittest.TestCase):
+
+  def testLocalMySQLdEnabled(self):
+    """MySQLd service is enabled"""
+    self.assertTrue(agamotto.service.enabled("mysqld"),
+                    "mysqld is not configured to start at boot")
+
+
+  def testLocalMySQLdInitScript(self):
+    """mysqld server init script is present and executable"""
+    self.assertTrue(isFile("/etc/init.d/mysqld"),
+                    "mysqld init script is missing")
+    self.assertTrue(isExecutable("/etc/init.d/mysqld"),
+                    "mysqld init script is not executable")
+
+
+  def testLocalMySQLdIsRunning(self):
+    """MySQLd service is running"""
+    self.assertTrue(running("mysqld --basedir=/usr --datadir=/var/lib/mysql"))
+
+
+
+if __name__ == "__main__":
+  unittest.main()

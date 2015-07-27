@@ -37,11 +37,6 @@ CONF_D="${GROK_HOME}/conf"
 UPDATERS_D="${GROK_HOME}/bin/updaters"
 RECEIPTS_D=/etc/grok/updater_statuses
 
-complain() {
-  echo "$@"
-  logger -t ami-bake "$@"
-}
-
 get_password(){
   if [ -r $1 ]; then
     echo $(<$1)  | xargs
@@ -97,7 +92,7 @@ cleanup_grok_conf_files(){
 }
 
 confirm_authorized_keys_removal(){
-  complain "Confirming authorized_keys removal"
+  echo "Confirming authorized_keys removal"
   find /home -name authorized_keys -print
   find /home -iname '*.pub' -print
   find /root -name authorized_keys -print
@@ -106,24 +101,24 @@ confirm_authorized_keys_removal(){
 
 cleanup_grok_logfiles() {
   echo "**********"
-  complain "Cleaning rabbit logs"
+  echo "Cleaning rabbit logs"
   rm -frv "${NUMENTA_D}"/logs/rabbitmq/*
 
   echo "**********"
-  complain "Cleaning updater logs..."
+  echo "Cleaning updater logs..."
   rm -fv "${NUMENTA_D}"/updater/logs/*
 
   echo "**********"
-  complain "Removing firstboot tag files"
+  echo "Removing firstboot tag files"
   rm -fv /etc/grok/firstboot.run /etc/grok/firstboot-root.run
 
   echo "**********"
-  complain "Clearing grok uuid"
+  echo "Clearing grok uuid"
   rm -vf "${CONF_D}/.grok_id"
 
   # Fix MER-2120
   if [ -d "${UPDATERS_D}" ]; then
-    complain "Marking all existing updaters as having been run"
+    echo "Marking all existing updaters as having been run"
     for old_updater in "${UPDATERS_D}"/*
     do
       touch "${RECEIPTS_D}"/$(basename ${old_updater})

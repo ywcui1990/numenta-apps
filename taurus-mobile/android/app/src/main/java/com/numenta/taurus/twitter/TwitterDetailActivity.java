@@ -96,9 +96,13 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
     public static final String SELECTED_TIMESTAMP_ARG = "selected";
 
     /** Sort tweets by time > retweet count > retweet total > id */
-    static Comparator<Tweet> SORT_BY_DATE = new Comparator<Tweet>() {
+    public static Comparator<Tweet> SORT_BY_DATE = new Comparator<Tweet>() {
         @Override
         public int compare(Tweet lhs, Tweet rhs) {
+            if (lhs.equals(rhs)) {
+                return 0;
+            }
+
             // First Sort by time
             int res = (int) (rhs.getAggregated() - lhs.getAggregated());
             if (res == 0) {
@@ -118,7 +122,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
     };
 
     /** Sort tweets by text and filter retweets */
-    static Comparator<Tweet> SORT_BY_TEXT = new Comparator<Tweet>() {
+    public static Comparator<Tweet> SORT_BY_TEXT = new Comparator<Tweet>() {
         @Override
         public int compare(Tweet lhs, Tweet rhs) {
             // Compare tweets based on text
