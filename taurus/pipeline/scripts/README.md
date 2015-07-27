@@ -1,8 +1,9 @@
 A set of helper scripts are provided to automate the process of initializing,
 updating, and refreshing a pair of Taurus Server and Taurus Metric Collector
 instances:
-- initialize-remote-taurus-servers.sh
-- update-remote-taurus-servers.sh
+- `initialize-remote-taurus-servers.sh`
+- `update-remote-taurus-servers.sh`
+- `refresh-remote-taurus-servers.sh`
 
 Usage
 -----
@@ -44,6 +45,21 @@ For a verbose, debug version, also set `DEBUG` environment variable to `1`:
 
 `update-remote-taurus-servers.sh` will run unit and integration tests.
 
+Refreshing Taurus
+-----------------
+
+To completely refresh Taurus, including clearing out metrics and model
+checkpoints, ensure that your environment has been set up to specify all of the
+required environment variables, then run:
+
+        ./refresh-remote-taurus-servers.sh
+
+For a verbose, debug version, also set `DEBUG` environment variable to `1`:
+
+        DEBUG=1 ./refresh-remote-taurus-servers.sh
+
+`refresh-remote-taurus-servers.sh` will run unit and integration tests.
+
 Design Philosophy
 -----------------
 
@@ -71,14 +87,15 @@ Humans are prone to mistakes, computers less so.  This should be obvious.
 ### Keep it simple
 
 If you take a look at the sources, you might notice a remarkable similarity
-between `initialize-remote-taurus-servers.sh` and
-`update-remote-taurus-servers.sh`.  While it goes against the Don't Repeat
-Yourself (DRY) mantra to duplicate, rather than share, code between the two
-scripts.  The scripts themselves stand on their own as single, plain-text files
-with no outside dependencies, and can be read as they are executed: linearly,
-from top to bottom.  There is also a single nexus of configuration (the
-environment), from which an installation may be reproduced, or altered
-deterministically.  An entire environment setup may exist in a single
-revision-control-system-, and configuration-management-system-, friendly text
-file that may be `source`ed in a shell before the script(s) are executed.
+between `initialize-remote-taurus-servers.sh`,
+`update-remote-taurus-servers.sh`, and `refresh-remote-taurus-servers.sh`.
+While it goes against the Don't Repeat Yourself (DRY) mantra to duplicate,
+rather than share, code between the two scripts.  The scripts themselves stand
+on their own as single, plain-text files with no outside dependencies, and can
+be read as they are executed: linearly, from top to bottom.  There is also a
+single nexus of configuration (the environment), from which an installation may
+be reproduced, or altered deterministically.  An entire environment setup may
+exist in a single revision-control-system-, and
+configuration-management-system-, friendly text file that may be `source`ed in
+a shell before the script(s) are executed.
 

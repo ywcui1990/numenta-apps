@@ -24,7 +24,8 @@
 USAGE="Usage: `basename ${0}`
 
 This script updates and reconfigures a pair of Taurus Server and Metric
-Collector instances in which the taurus services are already running.
+Collector instances in which the taurus services are already running,
+preserving the already-monitored metrics.
 
 ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★
 
