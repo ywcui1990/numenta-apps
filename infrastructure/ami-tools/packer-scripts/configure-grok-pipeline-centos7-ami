@@ -127,7 +127,8 @@ install-grok() {
   pip install paver==1.2.4 uwsgi==2.0.4 agamotto==0.5.1 --user
 
   # Clone Numenta Apps Repo
-  git clone https://github.com/numenta/numenta-apps.git
+  cd "${NUMENTA}"
+  git clone https://github.com/numenta/numenta-apps.git 
 
   echo "Creating symlink to ${NUMENTA}/grok"
   ln -s "${GROK_HOME}" "${NUMENTA}/grok"
