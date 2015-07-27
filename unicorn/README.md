@@ -73,7 +73,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * [ECMAScript 5.1](https://es5.github.io/) (>= IE9)
     * [ECMAScript 6](https://babeljs.io/docs/learn-es2015/) (aka ES2015) via
       [Babel](https://babeljs.io/)
-    * [TypeScript](https://github.com/Microsoft/TypeScript) Typed JS variable
+    * Facebook [Flow]() JS Typing @TODO
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
     [SASS](http://sass-lang.com/) via
@@ -87,7 +87,6 @@ on streams of data, predicting future values, and detecting pattern anomalies.
       ([Flux](https://facebook.github.io/flux/docs/overview.html#content)
       Uni-directional data flow)
     * View Components: [React](https://github.com/facebook/react),
-      [typed-react](https://github.com/Asana/typed-react),
       [JSX](https://facebook.github.io/jsx/)
 * Testing:
   * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)
@@ -164,5 +163,5 @@ npm run dev
 * Javascript
   * [ES5 Styleguide](https://github.com/felixge/node-style-guide)
   * ES6 styleguide AirBnB? @TODO
-  * TypeScript styleguide @TODO
+  * Flow Typing styleguide? @TODO
 * HTML and CSS @TODO
