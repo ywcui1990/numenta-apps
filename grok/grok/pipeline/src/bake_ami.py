@@ -39,8 +39,7 @@ from infrastructure.utilities.jenkins import (
 )
 from infrastructure.utilities.logger import initPipelineLogger
 from infrastructure.utilities.path import changeToWorkingDir
-from infrastructure.utilities.s3 import (downloadFileFromS3,
-  getMappingsFromShaToRpm, uploadToS3)
+from infrastructure.utilities.s3 import getMappingsFromShaToRpm, uploadToS3
 
 
 g_config = yaml.load(resource_stream(__name__, "../conf/config.yaml"))
@@ -105,10 +104,6 @@ def addAndParseArgs(jsonArgs):
                                    "given version of GROK")
   parser.add_argument("--grok-sha", dest="grokSha", type=str,
                       help="SHA from Grok used for this build")
-  parser.add_argument("--deploy-track", dest="deployTrack", type=str,
-                      help="Deploy track that should be used for tracking RPM")
-  parser.add_argument("--track-rpm-version", dest="trackVersion", type=str,
-                      help="Tracking RPM version")
   parser.add_argument("--release-version", dest="releaseVersion", type=str,
                       help="Current release version, this will be used as base")
   parser.add_argument("--grok-deploy-track", dest="grokDeployTrack", type=str,
@@ -123,8 +118,6 @@ def addAndParseArgs(jsonArgs):
                       "have all parameters required by this script. Provide"
                       "parameters either as a command line parameters or as"
                       "individial parameters")
-  parser.add_argument("--grok-rpm-name", dest="grokRpmName",
-                      type=str, help="Grok RPM name to installed on the AMI")
   parser.add_argument("--log", dest="logLevel", type=str, default="warning",
                       help="Logging level, optional parameter and defaulted to"
                       "level warning")
@@ -160,24 +153,14 @@ def addAndParseArgs(jsonArgs):
 
   grokSha = pipelineParams.get("grokSha",
               pipelineParams.get("build", {}).get("grokSha"))
-  deployTrack = pipelineParams.get("deployTrack",
-                  pipelineParams.get("build", {}).get("deployTrack"))
-  grokDeployTrack = pipelineParams.get("grokDeployTrack",
-                      pipelineParams.get("build", {}).get("grokDeployTrack"))
   amiName = pipelineParams.get("amiName",
               pipelineParams.get("build", {}).get("amiName"))
-  grokRpmName = pipelineParams.get("grokRpmName",
-                  pipelineParams.get("packageRpm", {}).get("grokRpmName"))
   pipelineJson = args["pipelineJson"]
-  if (releaseVersion and buildWorkspace and grokSha
-      and deployTrack and grokDeployTrack  and amiName and grokRpmName):
+  if releaseVersion and buildWorkspace and grokSha and amiName:
     return {"releaseVersion": releaseVersion,
             "buildWorkspace": buildWorkspace,
             "grokSha": grokSha,
-            "deployTrack": deployTrack,
-            "grokDeployTrack": grokDeployTrack,
             "amiName": amiName,
-            "grokRpmName": grokRpmName,
             "pipelineJson": pipelineJson}
   else:
     parser.error("Please provide all parameters, "
@@ -201,9 +184,7 @@ def main(jsonArgs=None):
     parsedArgs = addAndParseArgs(jsonArgs)
 
     amiName = parsedArgs["amiName"]
-    grokDeployTrack = parsedArgs["grokDeployTrack"]
     grokSha = parsedArgs["grokSha"]
-    grokRpmName = parsedArgs["grokRpmName"]
 
     if not (os.environ.get("AWS_ACCESS_KEY_ID") and
             os.environ.get("AWS_SECRET_ACCESS_KEY")):
@@ -231,8 +212,7 @@ def main(jsonArgs=None):
 
       # Baking AMI takes around 15 mins, so print as it runs so we see
       # progress in the jenkins console during the run
-      runWithOutput("./bake_ami %s %s" % (grokRpmName, amiName), env=os.environ,
-                    logger=g_logger)
+      runWithOutput("./bake_ami %s" % amiName, env=os.environ, logger=g_logger)
 
       amiIDPath = os.path.join(os.getcwd(), "ami.txt")
 
@@ -266,13 +246,12 @@ def main(jsonArgs=None):
     # Upload the ami-id to S3 if the pipeline was triggred with production
     # forks.
     if integrationTestStatus:
-      if grokDeployTrack == "groksolutions":
-        g_logger.info("Uploading %s to S3 which contains the generated AMI: %s",
-                      os.path.basename(artifactAmiIdPath), amiID)
-        uploadToS3(config=g_config,
-                   filePath=artifactAmiIdPath,
-                   s3Folder="stable_ami",
-                   logger=g_logger)
+      g_logger.info("Uploading %s to S3 which contains the generated AMI: %s",
+                    os.path.basename(artifactAmiIdPath), amiID)
+      uploadToS3(config=g_config,
+                 filePath=artifactAmiIdPath,
+                 s3Folder="stable_ami",
+                 logger=g_logger)
 
   except TestsFailed:
     g_logger.error("There was a failure executing the Grok integration tests")
