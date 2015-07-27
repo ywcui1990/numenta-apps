@@ -132,7 +132,7 @@ install-grok() {
 
   echo "Creating symlink for supervisord-helper"
   ln -s "${BOOTSCRIPTS_D}/supervisord-helper" "${NUMENTA}"
-  sudo chmod +x "${NUMENTA}/supervisord-helper/
+  sudo chmod +x "${NUMENTA}/supervisord-helper"
 
   cd "${PRODUCTS}"
   ./install-grok.sh /home/centos/.local/lib/python2.7/site-packages /home/centos/.local/bin

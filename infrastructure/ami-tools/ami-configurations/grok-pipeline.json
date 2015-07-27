@@ -1,6 +1,5 @@
 {
   "variables": {
-    "grok_rpm_name": "{{env `GROK_RPM_NAME`}}",
     "ami_name":"{{env `AMI_NAME`}}"
   },
   "builders": [
@@ -42,10 +41,7 @@
     },
     {
       "type": "shell",
-      "script": "packer-scripts/configure-grok-pipeline-centos7-ami",
-      "environment_vars": [
-        "GROK_RPM_NAME={{user `grok_rpm_name`}}"
-      ]
+      "script": "packer-scripts/configure-grok-pipeline-centos7-ami"
     },
     {
       "destination": "/opt/numenta/supervisord-helper",

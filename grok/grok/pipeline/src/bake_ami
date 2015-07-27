@@ -36,9 +36,9 @@ amidir="${reporoot}/infrastructure/ami-tools"
 scratch_f=$(mktemp /tmp/packer-output.XXXXXX)
 
 cleanUp() {
-  echo "Cleaning up ${scratch_f} and ${GROK_INSTALL_MANIFEST}"
+  echo "Cleaning up ${scratch_f}"
   if [ -z "${KEEPFILES}" ]; then
-    rm -rfv "${scratch_f}" "${GROK_INSTALL_MANIFEST}"
+    rm -rfv "${scratch_f}"
   fi
 }
 
