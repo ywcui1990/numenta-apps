@@ -16,17 +16,16 @@ if "linux" in sys.platform and platform.linux_distribution()[0] == "CentOS":
   depLinks = [ "https://pypi.numenta.com/pypi/nupic", ]
 
 setup(
-  name = "htmengine",
-  description = "HTM Engine",
-  packages = find_packages(),
-  include_package_data=True,
-  setup_requires = setup_requirements,
-  install_requires = install_requirements,
-  dependency_links = depLinks,
-  entry_points = {
-    "console_scripts": [
-      "htmengine-create-db = htmengine.repository:reset",
-    ]
-  }
-
+    name = "htmengine",
+    description = "HTM Engine",
+    packages = find_packages(),
+    include_package_data=True,
+    setup_requires = setup_requirements,
+    install_requires = install_requirements,
+    dependency_links = depLinks,
+    entry_points = {
+        "console_scripts": [
+            "htmengine-create-db = htmengine.repository:reset",
+        ]
+    }
 )

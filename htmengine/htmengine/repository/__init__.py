@@ -203,7 +203,6 @@ def reset():
   config = Config("application.conf",
                   os.environ.get("APPLICATION_CONFIG_PATH"))
   dbName = config.get("repository", "db")
-  print dbName;
 
   resetDatabaseSQL = (
       "DROP DATABASE IF EXISTS %(database)s; "
