@@ -134,6 +134,8 @@ install-grok() {
 
   echo "Creating symlink for supervisord.vars"
   ln -s "${GROK_HOME}/supervisord.vars" /etc/grok/
+  # TODO : Remove this debug line
+  ls -l /etc/grok
   echo "Sourcing supervisord.vars..."
   source /etc/grok/supervisord.vars
 
