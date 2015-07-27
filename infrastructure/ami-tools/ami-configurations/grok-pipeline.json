@@ -12,7 +12,7 @@
       "source_ami": "ami-c7d092f7",
       "ssh_port": 22,
       "ssh_timeout": "5m",
-      "ssh_username": "root",
+      "ssh_username": "centos",
       "tags": {
         "OS_Version": "CentOS",
         "Release": "7"
@@ -49,11 +49,7 @@
     },
     {
       "type": "shell",
-      "script": "packer-scripts/cleanup-grok-pipeline-ami"
-    },
-    {
-      "type": "shell",
-      "script": "packer-scripts/cleanup-image"
+      "script": "packer-scripts/cleanup-grok-pipeline-centos7-ami"
     }
   ]
 }
