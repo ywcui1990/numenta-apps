@@ -1,6 +1,13 @@
 {
   "variables": {
-    "ami_name":"{{env `AMI_NAME`}}"
+    "ami_name":"{{env `AMI_NAME`}}",
+    "log_uploader_s3_access_key_id": "{{env `LOG_UPLOADER_S3_ACCESS_KEY_ID`}}",
+    "log_uploader_s3_secret_access_key": "{{env `LOG_UPLOADER_S3_SECRET_ACCESS_KEY`}}",
+    "wufoo_url": "{{env `WUFOO_URL`}}",
+    "wufoo_user": "{{env `WUFOO_USER`}}",
+    "notifications_aws_access_key_id": "{{env `NOTIFICATIONS_AWS_ACCESS_KEY_ID`}}",
+    "notifications_aws_secret_access_key": "{{env `NOTIFICATIONS_AWS_SECRET_ACCESS_KEY`}}",
+    "notifications_sender_email": "{{env `NOTIFICATIONS_SENDER_EMAIL`}}"
   },
   "builders": [
     {
@@ -41,7 +48,16 @@
     },
     {
       "type": "shell",
-      "script": "packer-scripts/configure-grok-pipeline-centos7-ami"
+      "script": "packer-scripts/configure-grok-pipeline-centos7-ami",
+      "environment_vars": [
+        "LOG_UPLOADER_S3_ACCESS_KEY_ID={{user `log_uploader_s3_access_key_id`}}",
+        "LOG_UPLOADER_S3_SECRET_ACCESS_KEY={{user `log_uploader_s3_secret_access_key`}}",
+        "WUFOO_URL={{user `wufoo_url`}}",
+        "WUFOO_USER={{user `wufoo_user`}}",
+        "NOTIFICATIONS_AWS_ACCESS_KEY_ID={{user `notifications_aws_access_key_id`}}",
+        "NOTIFICATIONS_AWS_SECRET_ACCESS_KEY={{user `notifications_aws_secret_access_key`}}",
+        "NOTIFICATIONS_SENDER_EMAIL={{user `notifications_sender_email`}}"
+      ]
     }
   ]
 }

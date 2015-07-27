@@ -44,8 +44,6 @@
 
 set -o errexit
 set -o pipefail
-# TODO Remove the xtrace option
-set -o xtrace
 
 NUMENTA=/opt/numenta
 PRODUCTS="${NUMENTA}/numenta-apps"
@@ -135,13 +133,8 @@ install-grok() {
 
   echo "Creating symlink for supervisord.vars"
   ln -s "${GROK_HOME}/supervisord.vars" /etc/grok/
-  # TODO : Remove this debug line
-  ls -l /etc/grok
   echo "Sourcing supervisord.vars..."
   source /etc/grok/supervisord.vars
-
-  # TODO : Remove this debug line
-  env | sort
 
   BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts"
   echo "Creating symlink for firstboot.sh"
