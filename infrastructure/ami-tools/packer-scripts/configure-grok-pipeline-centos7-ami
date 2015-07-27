@@ -117,27 +117,27 @@ install-grok() {
   BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts"
   echo "Creating symlink for firstboot.sh"
   sudo ln -s "${BOOTSCRIPTS_D}/firstboot.sh" /usr/local/sbin/
-  chmod +x "${BOOTSCRIPTS_D}/firstboot.sh"
+  chmod +x /usr/local/sbin/firstboot.sh
 
   echo "Creating symlink for firstboot-root.sh"
   sudo ln -s "${BOOTSCRIPTS_D}/firstboot-root.sh" /usr/local/sbin/
-  chmod +x "${BOOTSCRIPTS_D}/firstboot-root.sh"
+  chmod +x /usr/local/sbin/firstboot-root.sh
 
   echo "Creating symlink for grokservices init script"
   sudo ln -s "${BOOTSCRIPTS_D}/grokservices" /etc/init.d/
-  chmod +x "${BOOTSCRIPTS_D}/grokservices"
+  chmod +x /etc/init.d/grokservices
 
   echo "Creating symlink for set-mysql-root-password"
   sudo ln -s "${BOOTSCRIPTS_D}/set-mysql-root-password" /usr/local/sbin/
-  chmod +x "${BOOTSCRIPTS_D}/set-mysql-root-password"
+  chmod +x /usr/local/sbin/set-mysql-root-password
 
   echo "Creating symlink for set-rabbitmq-root-password"
   sudo ln -s "${BOOTSCRIPTS_D}/set-rabbitmq-root-password" /usr/local/sbin/
-  chmod +x "${BOOTSCRIPTS_D}/set-rabbitmq-root-password"
+  chmod +x /usr/local/sbin/set-rabbitmq-root-password
 
   echo "Creating symlink for supervisord-helper"
   ln -s "${BOOTSCRIPTS_D}/supervisord-helper" "${NUMENTA}"
-  chmod +x "${BOOTSCRIPTS_D}/supervisord-helper"
+  chmod +x "${NUMENTA}/supervisord-helper"
 
   cd "${PRODUCTS}"
   ./install-grok.sh /home/centos/.local/lib/python2.7/site-packages /home/centos/.local/bin
