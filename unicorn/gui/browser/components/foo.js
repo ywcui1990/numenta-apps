@@ -18,16 +18,62 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
+'use strict';
+
 
 /**
- * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
- *  to a user using their own data stream or files.
- *
- * Main browser web code Application GUI entry point.
+ * React View Component: Foo
  */
 
-var moment = require('moment');
+// externals
 
-document.write('it is now: ', moment(), "<br/>");
-document.write('io.js v ', process.version, "<br/>");
-document.write('electron v ', process.versions['electron'], "<br/>");
+import Material from 'material-ui';
+import React from 'react';
+
+// internals
+
+let LeftNav = Material.LeftNav;
+let Theme = new Material.Styles.ThemeManager();
+
+let menuItems = [
+  { text: 'Get Started' },
+  { text: 'Explore App' },
+  { text: 'Send Feedback' }
+];
+
+
+// MAIN
+
+/**
+ *
+ */
+module.exports = React.createClass({
+  /**
+   *
+   */
+  childContextTypes: {
+    muiTheme: React.PropTypes.object
+  },
+
+  /**
+   *
+   */
+  getChildContext () {
+    return {
+      muiTheme: Theme.getCurrentTheme()
+    };
+  },
+
+  /**
+   *
+   */
+  render () {
+    return (
+      <div>
+        <LeftNav ref="leftNav" menuItems={menuItems} />
+        <h1>Welcome</h1>
+        <p>{this.props.foo}</p>
+      </div>
+    );
+  }
+});

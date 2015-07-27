@@ -1,5 +1,0 @@
-# Installed with NuPIC
-nupic==0.2.6
-
-# Other numenta projects
-nta.utils>=0.0.0

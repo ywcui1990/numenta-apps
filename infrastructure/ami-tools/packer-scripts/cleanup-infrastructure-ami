@@ -24,23 +24,17 @@
 
 saltConfigured=/etc/numenta/salt_configured
 
-logline() {
-  echo "$@"
-  logger -t ami-bake "$@"
-}
-
 echo
-logline "Infrastructure AMI cleanups"
+echo "Infrastructure AMI cleanups"
 
 service salt-minion stop
 
-logline
-logline "**********"
-logline "Purging salt minion id..."
+echo "**********"
+echo "Purging salt minion id..."
 rm -fr /etc/salt/minion_id
 
-logline "Clearing salt configuration flag"
+echo "Clearing salt configuration flag"
 rm -f "${saltConfigured}"
 
-logline "Purging salt-solo formulas"
+echo "Purging salt-solo formulas"
 rm -fr /srv/salt/*

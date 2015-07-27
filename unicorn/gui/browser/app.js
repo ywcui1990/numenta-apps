@@ -18,48 +18,61 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
+'use strict';
+
 
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files.
  *
- * Main Electron code Application entry point, initializes browser app.
+ * Main browser web code Application GUI entry point.
  */
 
 // externals
 
-var app = require('app');
-var BrowserWindow = require('browser-window');
-var crashReporter = require('crash-reporter');
+import Fluxible from 'fluxible';
+import FluxibleReact from 'fluxible-addons-react';
+import React from 'react';
+import tapEventInject from 'react-tap-event-plugin';
 
 // internals
 
-var mainWindow = null; // global reference to keep window object from JS GC
+import FooAction from './actions/foo';
+import FooComponent from './components/foo';
+import FooStore from './stores/foo';
+
+let FooView = FluxibleReact.provideContext(
+  FluxibleReact.connectToStores(
+    FooComponent,
+    [ FooStore ],
+    (context, props) => {
+      return context.getStore(FooStore).getState();
+    }
+  )
+);
 
 
-// main
+// MAIN
 
-crashReporter.start({
-  product_name: 'Unicorn',
-  company_name: 'Numenta'
+window.React = React; // dev tools @TODO remove for non-dev
+
+tapEventInject(); // remove when >= React 1.0
+
+// create fluxible app
+let app = new Fluxible({
+  component:  FooComponent,
+  stores:     [ FooStore ]
 });
 
-app.on('window-all-closed', function () {
-  // OS X apps stay active until the user quits explicitly Cmd + Q
-  if (process.platform != 'darwin') {
-    app.quit();
-  }
-});
+// add context to app
+let context = app.createContext();
 
-// Electron finished init and ready to create browser windows
-app.on('ready', function () {
-  mainWindow = new BrowserWindow({
-    width:  1200,
-    height: 720
-  });
-  mainWindow.loadUrl('file://' + __dirname + '/browser/index.html');
-  mainWindow.openDevTools();
-  mainWindow.on('closed', function () {
-    mainWindow = null; // dereference single main window object
-  });
+// fire initial action
+context.executeAction(FooAction, 'bar', (err) => {
+  let output = React.renderToString(
+    FluxibleReact.createElementWithContext(context)
+  );
+
+  console.log(output);
+  if(document) document.write(output);
 });

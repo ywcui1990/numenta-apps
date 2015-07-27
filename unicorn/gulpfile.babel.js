@@ -18,6 +18,8 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
+'use strict';
+
 
 /**
  * Gulp config
@@ -25,19 +27,23 @@
 
 // externals
 
-var gulp =    require('gulp');
-var package = require('./package.json');
-var spawn =   require('child_process').spawn;
-var util =    require('gulp-util');
-var webpack = require('gulp-webpack');
+import child from 'child_process';
+import gulp from 'gulp';
+import util from 'gulp-util';
+import webpack from 'webpack';
+import webpacker from 'webpack-stream';
+
+const spawn = child.spawn;
 
 // internals
 
-var host = process.env.TEST_HOST || 'http://localhost';
-var port = process.env.TEST_PORT || 8008;
-var path = process.env.TEST_PATH || '';
+import config from './package.json';
 
-var WebServer = null; // TODO: not global
+const HOST = process.env.TEST_HOST || 'http://localhost';
+const PORT = process.env.TEST_PORT || 8008;
+const PATH = process.env.TEST_PATH || '';
+
+let WebServer = null; // @TODO not global
 
 
 // Individual Tasks
@@ -45,22 +51,23 @@ var WebServer = null; // TODO: not global
 /**
  * Gulp task to run mocha-casperjs web test suite
  */
-gulp.task('mocha-casperjs', function (callback) {
-  var stream = spawn('mocha-casperjs', [
+gulp.task('mocha-casperjs', (callback) => {
+  /*
+  let stream = spawn('mocha-casperjs', [
     '--bail',
-    '--TEST_HOST=' + host,
-    '--TEST_PORT=' + port,
-    '--TEST_PATH=' + path
+    '--TEST_HOST=' + HOST,
+    '--TEST_PORT=' + PORT,
+    '--TEST_PATH=' + PATH
   ]);
 
   console.log('Mocha-Casper: started. Output will follow soon...');
 
-  stream.stdout.on('data', function (data) {
+  stream.stdout.on('data', (data) => {
     process.stdout.write(data);
   });
 
-  stream.on('close', function (code) {
-    var success = code === 0; // Will be 1 in the event of failure
+  stream.on('close', (code) => {
+    let success = code === 0; // Will be 1 in the event of failure
 
     if(WebServer) {
       WebServer.emit('kill');
@@ -81,45 +88,45 @@ gulp.task('mocha-casperjs', function (callback) {
   stream.on('error', console.error);
 
   return stream;
+  */
 });
 
 /**
  * Gulp task to serve site from the _site/ build dir
  */
-gulp.task('serve', function () {
-  if(! host.match('localhost')) {
-    console.log("TEST_HOST is external (%s), NOT serving local build.", host);
-    return true;
-  }
-
-  var stream = gulp
-    .src('.') // TODO: fix
-    .pipe(gwebserver({ port: port }))
+gulp.task('serve', () => {
+  /*
+  let stream = gulp.src('.')
+    .pipe(gwebserver({ port: PORT }))
     .on('error', console.error);
 
   WebServer = stream;
 
   return stream;
+  */
 });
 
 /**
  * Gulp task to run WebPack to transpile require/modules/Babel into bundle
  */
-gulp.task('webpack', function() {
-  var target = util.env.target || 'web';
-  return gulp.src('browser/js/app.js')
-    .pipe(webpack({
+gulp.task('webpack', () => {
+  let target = util.env.target || 'web';
+  return gulp.src('gui/browser/app.js')
+    .pipe(webpacker({
       module: {
         loaders: [
-          // { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' }
+          { test: /\.jsx?$/, exclude: /node_modules/, loader: 'babel-loader' }
         ]
       },
       output: {
         filename: 'bundle.js'
       },
-      target: target
+      plugins: [
+        new webpack.IgnorePlugin(/vertx/)  // remove in fluxible 4.x
+      ],
+      target
     }))
-    .pipe(gulp.dest('browser/'));
+    .pipe(gulp.dest('gui/browser/'));
 });
 
 

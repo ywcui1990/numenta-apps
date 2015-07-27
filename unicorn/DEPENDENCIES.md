@@ -7,19 +7,11 @@ the program to run are declared. Development dependencies are excluded.
 * * *
 
 
-## Python
-
-> See [`htm/requirements.txt`](htm/requirements.txt).
-
-Package | Version | License
-------- | ------- | -------
-package-name | 0.0.1 | [MIT](https://github.com/link/to/license)
-
-
 ## JavaScript
 
-> See [`ui/package.json`](ui/package.json).
+See: [`package.json`](package.json).
 
-Package | Version | License
-------- | ------- | -------
-package-name | 0.0.1 | [MIT](https://github.com/link/to/license)
+
+## Python
+
+See: [`engine/requirements.txt`](engine/requirements.txt).
