@@ -89,6 +89,33 @@ install-prerequisites-and-update-repos() {
   sudo chown -R centos:centos /etc/grok
 }
 
+configure-private-settings() {
+  splat
+
+  echo "Write private settings from env vars to private-settings.sh file"
+  
+  if [ -f /etc/grok/private-settings.sh ]; then
+    sudo rm -f /etc/grok/private-settings.sh
+  fi
+
+  echo "# Configure S3 credentials for log uploading
+    export LOG_UPLOADER_S3_ACCESS_KEY_ID=${LOG_UPLOADER_S3_ACCESS_KEY_ID}
+    export LOG_UPLOADER_S3_SECRET_ACCESS_KEY=${LOG_UPLOADER_S3_SECRET_ACCESS_KEY}
+
+    # Configure Wufoo
+    export WUFOO_URL=${WUFOO_URL}
+    export WUFOO_USER=${WUFOO_USER}
+
+    # Configure notifications
+    export NOTIFICATIONS_AWS_ACCESS_KEY_ID=${NOTIFICATIONS_AWS_ACCESS_KEY_ID}
+    export NOTIFICATIONS_AWS_SECRET_ACCESS_KEY=${NOTIFICATIONS_AWS_SECRET_ACCESS_KEY}
+    export NOTIFICATIONS_SENDER_EMAIL=${NOTIFICATIONS_SENDER_EMAIL}
+    " >> /etc/grok/private-settings.sh
+
+    # TODO : Remove this debug line
+    cat /etc/grok/private-settings.sh
+}
+
 install-grok() {
   splat
 
@@ -98,15 +125,18 @@ install-grok() {
   pip install paver==1.2.4 uwsgi==2.0.4 agamotto==0.5.1 --user
 
   # Clone Numenta Apps Repo
-  git clone https://github.com/numenta/numenta-apps.git "${PRODUCTS}"
+  git clone https://github.com/numenta/numenta-apps.git
 
   echo "Creating symlink to ${NUMENTA}/grok"
   ln -s "${GROK_HOME}" "${NUMENTA}/grok"
 
   echo "Creating symlink for supervisord.vars"
-  ln -s "${PRODUCTS}/grok/supervisord.vars" /etc/grok/
+  ln -s "${GROK_HOME}/supervisord.vars" /etc/grok/
   echo "Sourcing supervisord.vars..."
   source /etc/grok/supervisord.vars
+
+  # TODO : Remove this debug line
+  env | sort
 
   BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts"
   echo "Creating symlink for firstboot.sh"
@@ -163,6 +193,7 @@ bootstrap-and-start-grok() {
 }
 
 install-prerequisites-and-update-repos
+configure-private-settings
 install-grok
 start-3rd-party-services
 bootstrap-and-start-grok
