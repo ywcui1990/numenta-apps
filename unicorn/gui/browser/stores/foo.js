@@ -18,40 +18,25 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
+'use strict';
+
 
 /**
- * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
- *  to a user using their own data stream or files.
- *
- * Main browser web code Application GUI entry point.
+ * Fluxible Store: Foo
  */
 
 // externals
 
-import Fluxible       from 'fluxible';
 import FluxibleAddons from 'fluxible/addons';
-import FluxibleReact  from 'fluxible-addons-react';
-import React          from 'react';
 
 // internals
 
-const { createStore } = FluxibleAddons;
-const {
-  connectToStores,
-  createElementWithContext,
-  provideContext
-} = FluxibleReact;
+let { createStore } = FluxibleAddons;
 
 
-// FLUX
+// MAIN
 
-// Action
-const action = (actionContext, payload) => {
-  actionContext.dispatch('FOO_ACTION', payload);
-};
-
-// Store
-const FooStore = createStore({
+module.exports = createStore({
   storeName: 'FooStore',
   handlers: {
     'FOO_ACTION': 'fooHandler'
@@ -67,29 +52,4 @@ const FooStore = createStore({
       foo: this.foo
     };
   }
-});
-
-// Component
-class App extends React.Component {
-  render () {
-    return <span>{this.props.foo}</span>
-  }
-};
-App = provideContext(connectToStores(App, [FooStore], (context, props) => {
-  return context.getStore(FooStore).getState();
-}));
-
-
-// MAIN
-
-const app = new Fluxible({
-  component:  App,
-  stores:     [FooStore]
-});
-
-const context = app.createContext();
-
-context.executeAction(action, 'bar', (err) => {
-  console.log(React.renderToString(createElementWithContext(context)));
-  if(document) document.write(React.renderToString(createElementWithContext(context)));
 });

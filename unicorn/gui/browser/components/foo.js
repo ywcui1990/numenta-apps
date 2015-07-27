@@ -22,46 +22,58 @@
 
 
 /**
- * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
- *  to a user using their own data stream or files.
- *
- * Main Electron code Application entry point, initializes browser app.
+ * React View Component: Foo
  */
 
 // externals
 
-import app from 'app';
-import BrowserWindow from 'browser-window';
-import crashReporter from 'crash-reporter';
+import Material from 'material-ui';
+import React from 'react';
 
 // internals
 
-let mainWindow = null; // global reference to keep window object from JS GC
+let LeftNav = Material.LeftNav;
+let Theme = new Material.Styles.ThemeManager();
+
+let menuItems = [
+  { text: 'Get Started' },
+  { text: 'Explore App' },
+  { text: 'Send Feedback' }
+];
 
 
 // MAIN
 
-crashReporter.start({
-  product_name: 'Unicorn',
-  company_name: 'Numenta'
-});
+/**
+ *
+ */
+module.exports = React.createClass({
+  /**
+   *
+   */
+  childContextTypes: {
+    muiTheme: React.PropTypes.object
+  },
 
-app.on('window-all-closed', () => {
-  // OS X apps stay active until the user quits explicitly Cmd + Q
-  if (process.platform != 'darwin') {
-    app.quit();
+  /**
+   *
+   */
+  getChildContext () {
+    return {
+      muiTheme: Theme.getCurrentTheme()
+    };
+  },
+
+  /**
+   *
+   */
+  render () {
+    return (
+      <div>
+        <LeftNav ref="leftNav" menuItems={menuItems} />
+        <h1>Welcome</h1>
+        <p>{this.props.foo}</p>
+      </div>
+    );
   }
-});
-
-// Electron finished init and ready to create browser windows
-app.on('ready', () => {
-  mainWindow = new BrowserWindow({
-    width:  1200,
-    height: 720
-  });
-  mainWindow.loadUrl('file://' + __dirname + '/browser/index.html');
-  mainWindow.openDevTools();
-  mainWindow.on('closed', function () {
-    mainWindow = null; // dereference single main window object
-  });
 });

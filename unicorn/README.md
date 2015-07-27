@@ -1,9 +1,9 @@
-# Numenta Unicorn
+## Numenta Unicorn
 
 > Cross-platform Desktop Application to demonstrate basic HTM functionality to
 > users using their own data files.
 
-<p style="color:red; font-size:200%;">CURRENTLY UNDER HEAVY DEVELOPMENT!</p>
+# UNDER HEAVY DEVELOPMENT
 
 
 ## Repository
@@ -24,23 +24,25 @@ LICENSE.txt         # Dual: Commercial and GPLv3
 README.md           # This file, a project overview
 engine/             # NuPIC HTM Engine and Utils, Python/C++ code here!
   README.md         # Overview for HTM/NuPIC part of project
-  requirements.txt  # Engine main Python module dependencies
 gui/                # GUI that exposes NuPIC HTM functionality to the User
+  README.md         # Overview for GUI part of project
   browser/          # Javascript, HTML, CSS act as GUI inside browser window
+    app.js          # Fluxible GUI Web App entry point, compiles to bundle.js
     bundle.js       # WebPack automated output compiled Javascript bundle
     index.html      # App main startup browser window contents
-    css/            # GUI Styles for App in browser
-    img/            # GUI Imagery for App in browser
-    js/             # GUI Javascript for App in browser
-      app.js        # GUI Web App entry point script, compiles to bundle.js
+    actions/        # Fluxible Actions
+    components/     # React view components JSX
+    stores/         # Fluxible Stores
   lib/              # Javascript that lives outside the browser window
-  main.js           # Electron App entry point, creates browser GUI window(s)
+  loader.js         # Electron App entry point loader for main.js ES5 => ES6
+  main.js           # ES6 Electron App main entry, creates browser GUI window(s)
   test/             # GUI Unit and Web tests run by Mocha
     unit/           # GUI Unit tests (code)
     web/            # GUI Web tests (user)
 gulpfile.js         # Config file for the Gulp build tool
 node_modules/       # Where `npm` installs packages to
 package.json        # Node.js `npm` packages, dependencies, and App config
+requirements.txt    # Engine main Python module dependencies
 ```
 
 
@@ -48,7 +50,7 @@ package.json        # Node.js `npm` packages, dependencies, and App config
 
 ### Engine
 
-> See: `engine/requirements.txt`
+> See: `requirements.txt`
 
 * Languages:
   * [Python](http://python.org)
