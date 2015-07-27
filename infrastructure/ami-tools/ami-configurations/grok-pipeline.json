@@ -48,8 +48,9 @@
       ]
     },
     {
-      "type": "shell",
-      "script": "packer-scripts/cleanup-grok-pipeline-centos7-ami"
+      "destination": "/opt/numenta/supervisord-helper",
+      "source": "boot-scripts/supervisord-helper",
+      "type": "file"
     }
   ]
 }

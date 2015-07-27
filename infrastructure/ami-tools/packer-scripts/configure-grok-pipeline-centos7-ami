@@ -84,7 +84,9 @@ install-prerequisites-and-update-repos() {
 
   # Create /opt/numenta folder
   sudo mkdir -p "${NUMENTA}"
+  sudo mkdir -p /etc/grok
   sudo chown -R centos:centos "${NUMENTA}"
+  sudo chown -R centos:centos /etc/grok
 }
 
 install-grok() {
@@ -98,13 +100,32 @@ install-grok() {
   # Clone Numenta Apps Repo
   git clone https://github.com/numenta/numenta-apps.git "${PRODUCTS}"
 
+  echo "Creating symlink to ${NUMENTA}/grok"
+  ln -s "${GROK_HOME}" "${NUMENTA}/grok"
+
   echo "Creating symlink for supervisord.vars"
-  ln -s "${PRODUCTS}/grok/supervisord.vars" /etc/grok/supervisord.vars
+  ln -s "${PRODUCTS}/grok/supervisord.vars" /etc/grok/
   echo "Sourcing supervisord.vars..."
   source /etc/grok/supervisord.vars
 
-  echo "Creating symlink to ${NUMENTA}/grok"
-  ln -s "${GROK_HOME}" "${NUMENTA}/grok"
+  BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts"
+  echo "Creating symlink for firstboot.sh"
+  ln -s "${BOOTSCRIPTS_D}/firstboot.sh" /usr/local/sbin/
+
+  echo "Creating symlink for firstboot-root.sh"
+  ln -s "${BOOTSCRIPTS_D}/firstboot-root.sh" /usr/local/sbin/
+
+  echo "Creating symlink for grokservices init script"
+  ln -s "${BOOTSCRIPTS_D}/grokservices" /etc/init.d/
+
+  echo "Creating symlink for set-mysql-root-password"
+  ln -s "${BOOTSCRIPTS_D}/set-mysql-root-password" /usr/local/sbin/
+
+  echo "Creating symlink for set-rabbitmq-root-password"
+  ln -s "${BOOTSCRIPTS_D}/set-rabbitmq-root-password" /usr/local/sbin/
+
+  echo "Creating symlink for supervisord-helper"
+  ln -s "${BOOTSCRIPTS_D}/supervisord-helper" "${NUMENTA}"
 
   cd "${PRODUCTS}"
   ./install-grok.sh /home/centos/.local/lib/python2.7/site-packages /home/centos/.local/bin
@@ -118,40 +139,24 @@ start-3rd-party-services() {
   sudo service mysqld start
 
   # Add Rabbit Admin scripts and start Rabbit
-  cp "${PRODUCTS}/infrastructure/saltcellar/rabbitmq/files/rabbitmqadmin" /usr/local/bin
+  sudo ln -s "${PRODUCTS}/infrastructure/saltcellar/rabbitmq/files/rabbitmqadmin" /usr/local/bin/rabbitmqadmin
   sudo rabbitmq-server -detached
 }
 
-bootstrap-grok() {
+bootstrap-and-start-grok() {
   splat
 
   echo "Bootstrap Grok"
-  # Bootstrap Grok
-  export APPLICATION_CONFIG_PATH="${GROK_HOME}/conf"
-  export GROK_LOG_DIR="${GROK_HOME}/logs"
-
   # Increase max connections for Grok
   sudo sysctl -w net.core.somaxconn=1024
 
   cd "${GROK_HOME}"
   mkdir -p "${GROK_LOG_DIR}"/
 
-  python setup.py init
-}
-
-start-grok() {
-  splat
-
-  echo "Starting Grok"
-  # Start Nginx and Grok
-  sudo nginx -p . -c conf/grok-api.conf
-  supervisord -c conf/supervisord.conf
-
-  echo "Grok is now running!"
+  sudo service grokservices start
 }
 
 install-prerequisites-and-update-repos
 install-grok
 start-3rd-party-services
-bootstrap-grok
-start-grok
+bootstrap-and-start-grok
