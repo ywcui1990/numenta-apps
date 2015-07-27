@@ -20,28 +20,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
-# ----------------------------------------------------------------------
-#
-# README
-#
-# ----------------------------------------------------------------------
-# This is a convenience script to install Grok onto a bare Centos 7 machine.
-# 
-# It was tested against a Centos 7 instance in AWS on 9 July 2015:
-#   AWS Marketplace: https://aws.amazon.com/marketplace/pp/B00O7WM7QW
-#   AMI ID: ami-c7d092f7 in us-west-2
-#
-# To run this:
-#
-# 1. Launch a Centos 7 AMI or VM
-# 2. scp /path/to/install-grok-from-bare-centos7.sh centos@<server_ip>:~
-# 3. ssh centos@<server_ip>
-# 4. chmod +x install-grok-from-bare-centos7.sh
-# 5. ./install-grok-from-bare-centos7.sh
-#
-# ----------------------------------------------------------------------
-
 set -o errexit
 set -o pipefail
 
@@ -111,9 +89,6 @@ configure-private-settings() {
     export NOTIFICATIONS_AWS_SECRET_ACCESS_KEY=${NOTIFICATIONS_AWS_SECRET_ACCESS_KEY}
     export NOTIFICATIONS_SENDER_EMAIL=${NOTIFICATIONS_SENDER_EMAIL}
     " >> /etc/grok/private-settings.sh
-
-    # TODO : Remove this debug line
-    cat /etc/grok/private-settings.sh
 }
 
 install-grok() {
@@ -126,7 +101,10 @@ install-grok() {
 
   # Clone Numenta Apps Repo
   cd "${NUMENTA}"
-  git clone https://github.com/numenta/numenta-apps.git 
+  git clone "${GIT_REMOTE}"
+  cd "${PRODUCTS}"
+  git checkout "${GIT_BRANCH}"
+  git reset --hard "${GIT_COMMIT_SHA}"
 
   echo "Creating symlink to ${NUMENTA}/grok"
   ln -s "${GROK_HOME}" "${NUMENTA}/grok"

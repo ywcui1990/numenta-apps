@@ -7,7 +7,10 @@
     "wufoo_user": "{{env `WUFOO_USER`}}",
     "notifications_aws_access_key_id": "{{env `NOTIFICATIONS_AWS_ACCESS_KEY_ID`}}",
     "notifications_aws_secret_access_key": "{{env `NOTIFICATIONS_AWS_SECRET_ACCESS_KEY`}}",
-    "notifications_sender_email": "{{env `NOTIFICATIONS_SENDER_EMAIL`}}"
+    "notifications_sender_email": "{{env `NOTIFICATIONS_SENDER_EMAIL`}}",
+    "git_remote": "{{env `REMOTE`}}",
+    "git_branch": "{{env `BRANCH`}}",
+    "git_commit_sha": "{{env `COMMIT_SHA`}}"
   },
   "builders": [
     {
@@ -56,7 +59,10 @@
         "WUFOO_USER={{user `wufoo_user`}}",
         "NOTIFICATIONS_AWS_ACCESS_KEY_ID={{user `notifications_aws_access_key_id`}}",
         "NOTIFICATIONS_AWS_SECRET_ACCESS_KEY={{user `notifications_aws_secret_access_key`}}",
-        "NOTIFICATIONS_SENDER_EMAIL={{user `notifications_sender_email`}}"
+        "NOTIFICATIONS_SENDER_EMAIL={{user `notifications_sender_email`}}",
+        "GIT_REMOTE={{user `git_remote`}}",
+        "GIT_BRANCH={{user `git_branch`}}",
+        "GIT_COMMIT_SHA={{user `git_commit_sha`}}"
       ]
     }
   ]
