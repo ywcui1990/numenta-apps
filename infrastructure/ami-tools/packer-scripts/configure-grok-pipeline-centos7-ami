@@ -44,6 +44,8 @@
 
 set -o errexit
 set -o pipefail
+# TODO Remove the xtrace option
+set -o xtrace
 
 NUMENTA=/opt/numenta
 PRODUCTS="${NUMENTA}/numenta-apps"
