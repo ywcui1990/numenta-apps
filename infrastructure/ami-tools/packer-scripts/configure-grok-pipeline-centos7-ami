@@ -132,6 +132,9 @@ install-grok() {
   echo "Creating symlink for wait-until-network-up"
   sudo ln -s "${BOOTSCRIPTS_D}/wait-until-network-up" /usr/local/sbin/
 
+  echo "Creating symlink for lockrun"
+  sudo ln -s "${BOOTSCRIPTS_D}/lockrun" /usr/local/sbin/
+
   echo "Creating symlink for grokservices init script"
   sudo ln -s "${BOOTSCRIPTS_D}/grokservices" /etc/init.d/
 
