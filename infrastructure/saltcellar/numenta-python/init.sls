@@ -28,6 +28,7 @@
 
 include:
   - devtools
+  - nta-nucleus
 
 anaconda-python:
   pkg:
