@@ -121,10 +121,11 @@ rabbitmqctl start_app
 
 Setup the htmengine MySQL database:
 (don't do this if you're testing on Grok, Taurus, or another HTMEngine application)
-`./tests/integration/skeleton-app/reset_db.py`
+`./tests/support/skeleton-app/reset_db.py`
 
 Start `supervisord`:
-```supervisord -c tests/support/skeleton-app/conf/supervisord.conf```
+```cd tests/support/skeleton-app```
+```supervisord -c conf/supervisord.conf```
 *NOTE: Be sure to run `mkdir logs` within the `skeleton-app` directory so
 supervisor has a place to store its logs*
 
