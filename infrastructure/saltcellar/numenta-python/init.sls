@@ -26,6 +26,9 @@
 # Numenta style requires we lock to specific versions so we don't get
 # burned again by mystery bugs when new module versions come out.
 
+include:
+  - devtools
+
 anaconda-python:
   pkg:
     - installed
