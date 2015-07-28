@@ -152,7 +152,7 @@ install-grok() {
   sudo ln -s "${BOOTSCRIPTS_D}/pregrok.html" /usr/share/nginx/html/
 
   cd "${PRODUCTS}"
-  ./install-grok.sh /home/centos/.local/lib/python2.7/site-packages /home/centos/.local/bin
+  ./install-grok.sh "${NUMENTA}/lib/python2.7/site-packages" "${NUMENTA}/bin"
 }
 
 start-3rd-party-services() {
