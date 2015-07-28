@@ -61,11 +61,10 @@ install-prerequisites-and-update-repos() {
   sudo /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
 
   # Create folders with appropriate permissions
-  FOLDERS="${NUMENTA}
-  ${NUMENTA}/bin
-  ${NUMENTA}/lib/python2.7/site-packages
-  /etc/grok"
-  for folder in "${FOLDERS}"
+  for folder in "${NUMENTA}" \
+    "${NUMENTA}/bin" \
+    "${NUMENTA}/lib/python2.7/site-packages" \
+    /etc/grok
   do
     sudo mkdir -p "${folder}"
     sudo chown -R centos:centos "${folder}"
@@ -127,23 +126,19 @@ install-grok() {
 
   BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts"
 
-  SBIN_FILES="firstboot.sh
-  firstboot-root.sh
-  set-mysql-root-password
-  set-rabbitmq-root-password
-  wait-until-network-up
-  shuffle_groklogs
-  groklog_rotator
-  lockrun"
-  for file in "${SBIN_FILES}"
+  for file in firstboot.sh \
+    firstboot-root.sh \
+    set-mysql-root-password \
+    set-rabbitmq-root-password \
+    wait-until-network-up shuffle_groklogs \
+    groklog_rotator \
+    lockrun
   do
     echo "Creating symlink for ${file}"
     sudo ln -s "${BOOTSCRIPTS_D}/${file}" /usr/local/sbin/
   done
 
-  INIT_SCRIPTS="grokservices
-  grok-preload"
-  for file in "${INIT_SCRIPTS}"
+  for file in grokservices grok-preload
   do
     echo "Creating symlink for ${file} init script"
     sudo ln -s "${BOOTSCRIPTS_D}/${file}" /etc/init.d/
