@@ -8,8 +8,10 @@
 
 * brev @TODO mention to team IPC API could match HTTP API for easy future expansion
 * @TODO Add in Flow type checking
+* @TODO add in Dygraph/FaceOfGrok
 * @TODO make real tests and make tests work
 * @TODO setup linting
+* @TODO add retina.js for hd images
 * @TODO setup css and image assets etc
 * @TODO make dev plan, plan tasks, create jiras, etc.
 * @TODO build app
@@ -96,6 +98,9 @@ on streams of data, predicting future values, and detecting pattern anomalies.
       Uni-directional data flow)
     * View Components: [React](https://github.com/facebook/react),
       [JSX](https://facebook.github.io/jsx/)
+    * @TODO Graphing and Charting: [DyGraphs]() works with React, no jQuery
+      * @TODO Alternatives? react-chartjs, react-d3
+    * @TODO HD Images: [Retina.js]() @TODO
 * Testing:
   * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)
   * Web Tests: [Casper](https://github.com/n1k0/casperjs)
