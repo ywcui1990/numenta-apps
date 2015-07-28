@@ -42,6 +42,7 @@ nginx=/usr/sbin/nginx
 error_conf="${GROK_HOME}/conf/nginx-error.conf"
 loading_conf="${GROK_HOME}/conf/nginx-loading.conf"
 stopped_conf="${GROK_HOME}/conf/nginx-stopped.conf"
+standard_conf="${GROK_HOME}/conf/grok-api.conf"
 
 lockfile=${LOCKFILE-/var/lock/subsys/nginx}
 pidfile=${PIDFILE-/var/run/nginx.pid}
@@ -91,7 +92,7 @@ grok_stopped() {
 start() {
   echo -n $"Starting ${prog}: "
   logger -t grok-preload "starting: "
-  daemon --pidfile="${pidfile}" "${nginx}" -c "${loading_conf}"
+  daemon --pidfile="${pidfile}" "${nginx}" -c "${standard_conf}"
   RETVAL=$?
   echo
   [ "${RETVAL}" = 0 ] && touch "${lockfile}"

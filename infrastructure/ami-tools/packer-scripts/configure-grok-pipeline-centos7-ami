@@ -138,8 +138,7 @@ install-grok() {
   done
 
   INIT_SCRIPTS="grokservices
-  grok-preload
-  nginx"
+  grok-preload"
   for file in "${INIT_SCRIPTS}"
   do
     echo "Creating symlink for ${file} init script"
