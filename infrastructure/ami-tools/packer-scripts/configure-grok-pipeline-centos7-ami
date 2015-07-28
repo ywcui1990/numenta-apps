@@ -117,35 +117,30 @@ install-grok() {
   BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts"
   echo "Creating symlink for firstboot.sh"
   sudo ln -s "${BOOTSCRIPTS_D}/firstboot.sh" /usr/local/sbin/
-  chmod +x /usr/local/sbin/firstboot.sh
 
   echo "Creating symlink for firstboot-root.sh"
   sudo ln -s "${BOOTSCRIPTS_D}/firstboot-root.sh" /usr/local/sbin/
-  chmod +x /usr/local/sbin/firstboot-root.sh
 
   echo "Creating symlink for set-mysql-root-password"
   sudo ln -s "${BOOTSCRIPTS_D}/set-mysql-root-password" /usr/local/sbin/
-  chmod +x /usr/local/sbin/set-mysql-root-password
 
   echo "Creating symlink for set-rabbitmq-root-password"
   sudo ln -s "${BOOTSCRIPTS_D}/set-rabbitmq-root-password" /usr/local/sbin/
-  chmod +x /usr/local/sbin/set-rabbitmq-root-password
+
+  echo "Creating symlink for wait-until-network-up"
+  sudo ln -s "${BOOTSCRIPTS_D}/wait-until-network-up" /usr/local/sbin/
 
   echo "Creating symlink for grokservices init script"
   sudo ln -s "${BOOTSCRIPTS_D}/grokservices" /etc/init.d/
-  chmod +x /etc/init.d/grokservices
 
   echo "Creating symlink for grok-preload init script"
   sudo ln -s "${BOOTSCRIPTS_D}/grok-preload" /etc/init.d/
-  chmod +x /etc/init.d/grok-preload
 
   echo "Creating symlink for nginx init script"
   sudo ln -s "${BOOTSCRIPTS_D}/nginx" /etc/init.d/
-  chmod +x /etc/init.d/nginx
 
   echo "Creating symlink for supervisord-helper"
   ln -s "${BOOTSCRIPTS_D}/supervisord-helper" "${NUMENTA}"
-  chmod +x "${NUMENTA}/supervisord-helper"
 
   echo "Creating symlink for pregrok.html"
   sudo mkdir -p /usr/share/nginx/html/

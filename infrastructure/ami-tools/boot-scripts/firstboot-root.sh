@@ -54,8 +54,6 @@ else
   die "Could not load supervisord.vars"
 fi
 
-${GROK_HOME:?"You must set the GROK_HOME env var"}
-
 wait-until-network-up --tries 300 --delay 1 --pinghost google.com
 
 # Everything after this check is run only on the very first boot for
