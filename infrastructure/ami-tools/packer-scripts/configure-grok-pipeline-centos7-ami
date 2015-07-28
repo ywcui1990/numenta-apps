@@ -129,6 +129,7 @@ install-grok() {
   set-rabbitmq-root-password
   wait-until-network-up
   shuffle_groklogs
+  groklog_rotator
   lockrun"
   for file in "${SBIN_FILES}"
   do
