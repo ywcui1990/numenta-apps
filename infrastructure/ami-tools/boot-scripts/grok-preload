@@ -89,7 +89,7 @@ grok_stopped() {
   return "${RETVAL}"
 }
 
-start() {
+start_grok() {
   echo -n $"Starting ${prog}: "
   logger -t grok-preload "starting: "
   daemon --pidfile="${pidfile}" "${nginx}" -c "${standard_conf}"
@@ -146,6 +146,9 @@ case "$1" in
     grok-stopped)
         grok_stopped
         ;;
+    grok-start)
+        start_grok
+        ;;
     status)
         rh_status
         RETVAL=$?
@@ -154,6 +157,11 @@ case "$1" in
         # configtest -q || exit $RETVAL
         stop
         start
+        ;;
+    restart-grok)
+        # configtest -q || exit $RETVAL
+        stop
+        start_grok
         ;;
     upgrade)
         upgrade

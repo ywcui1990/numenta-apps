@@ -82,7 +82,7 @@ start()
   su centos -c "${supervisor_helper} start"
   echo
   kill_preload
-  service nginx restart
+  service grok-preload restart-grok
 }
 
 stop()
@@ -114,7 +114,7 @@ restart()
   logger -t grokservices "restart()"
   cd "${GROK_HOME}"
   su centos -c "${supervisor_helper} restart"
-  service nginx restart
+  service grok-preload restart-grok
   echo
 }
 
