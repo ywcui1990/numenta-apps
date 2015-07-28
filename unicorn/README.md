@@ -1,10 +1,18 @@
-# UNDER HEAVY DEVELOPMENT
-
-
 # Numenta Unicorn
 
 > Cross-platform Desktop Application to demonstrate basic HTM functionality to
 > users using their own data files.
+
+
+## UNDER HEAVY DEVELOPMENT
+
+* brev @TODO mention to team IPC API could match HTTP API for easy future expansion
+* @TODO Add in Flow type checking
+* @TODO make real tests and make tests work
+* @TODO setup linting
+* @TODO setup css and image assets etc
+* @TODO make dev plan, plan tasks, create jiras, etc.
+* @TODO build app
 
 
 ## Repository
