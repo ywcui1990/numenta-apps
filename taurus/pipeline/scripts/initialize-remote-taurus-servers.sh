@@ -276,9 +276,20 @@ pushd "${REPOPATH}"
      cd /opt/numenta/products/taurus/taurus/engine/repository &&
      python migrate.py &&
      cd /opt/numenta/products/taurus &&
-     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
+     if [ -f /var/run/nginx.pid ]; then
+       sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s reload
+     else
+       sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf
+     fi &&
      mkdir -p logs &&
-     supervisord -c conf/supervisord.conf"
+     if [ -f taurus-supervisord.pid ]; then
+       supervisorctl supervisorctl --serverurl http://localhost:9001 reload
+     else
+       supervisord -c conf/supervisord.conf
+     fi &&
+     py.test ../nta.utils/tests &&
+     py.test ../htmengine/tests &&
+     py.test tests"
 
   # Reset metric collector state, apply database schema updates
   ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
@@ -298,9 +309,18 @@ pushd "${REPOPATH}"
         --suppress-prompt-and-obliterate-database &&
      cd /opt/numenta/products/taurus.metric_collectors/taurus/metric_collectors/collectorsdb &&
      python migrate.py &&
-     taurus-collectors-set-opmode active &&
      cd /opt/numenta/products/taurus.metric_collectors &&
-     supervisord -c conf/supervisord.conf"
+     taurus-collectors-set-opmode hot_standby &&
+     if [ -f supervisord.pid ]; then
+       supervisorctl --serverurl http://localhost:8001 reload
+     else
+       supervisord -c conf/supervisord.conf
+     fi &&
+     py.test ../nta.utils/tests &&
+     py.test tests &&
+     taurus-collectors-set-opmode active &&
+     supervisorctl restart all"
+
 
 popd
 

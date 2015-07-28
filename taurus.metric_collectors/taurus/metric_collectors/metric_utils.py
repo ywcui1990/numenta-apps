@@ -25,15 +25,14 @@ from datetime import datetime, timedelta
 import json
 import logging
 import os
-import requests
-import socket
-import sys
 import time
 
+import requests
 import sqlalchemy as sql
 
-from nta.utils import message_bus_connector
+from nta.utils.error_handling import retry
 from nta.utils import date_time_utils
+from nta.utils import message_bus_connector
 
 from taurus import metric_collectors
 from taurus.metric_collectors import collectorsdb
@@ -89,6 +88,20 @@ class RetriesExceededError(Exception):
 
 
 g_log = logging.getLogger("metric_collectors.metric_utils")
+
+
+
+# Retry decorator for specific `requests` errors
+def _retry_on_requests_errors(timeoutSec=10, pauseSec=0.2):
+  return retry(
+    timeoutSec=timeoutSec,
+    initialRetryDelaySec=pauseSec,
+    maxRetryDelaySec=pauseSec,
+    retryExceptions=(
+      # requests retries on DNS errors, but not on connection errors
+      requests.exceptions.ConnectionError,
+    ),
+    logger=g_log)
 
 
 
@@ -320,7 +333,7 @@ def deleteMetric(host, apiKey, metricName):
 
       if response.status_code == 200:
         g_log.debug("Deleteted metric=%s", metricName)
-        return
+        break
 
       raise MetricDeleteRequestError(
         "Unable to delete metric=%s: %s (%s)" % (
@@ -331,6 +344,27 @@ def deleteMetric(host, apiKey, metricName):
       time.sleep(0.2)
   else:
     raise RetriesExceededError("Unmonitor-metric retries exceeded")
+
+
+
+@_retry_on_requests_errors()
+def getAllCustomMetrics(host, apiKey):
+  """Retrieve all custom metrics
+
+  :param host: API server's hostname or IP address
+  :param apiKey: API server's API Key
+
+  :returns: a sequence of objects returned by the HTM server's
+    GET _metrics/custom API
+  """
+  url = "https://%s/_metrics/custom" % (host,)
+
+  g_log.info("Retrieving custom metrics")
+
+  response = requests.get(url, auth=(apiKey, ""), verify=False)
+  response.raise_for_status()
+
+  return tuple(metric for metric in json.loads(response.text))
 
 
 
@@ -421,44 +455,6 @@ def getAllModelIds(host, apiKey):
   :raises: RetriesExceededError
   """
   return tuple(obj["uid"] for obj in getAllModels(host, apiKey))
-
-
-
-def getSymbolModels(host, apiKey, symbol):
-  """ Retrieve IDs of all models associated with a particular symbol
-
-  :param host: API server's hostname or IP address
-  :param apiKey: API server's API Key
-  :param symbol: Stock symbol to look up
-
-  :returns: a sequence of namedtuples containing information about the model
-      modelResult.uid = uid of the model
-      modelResult.name = name of the model
-
-  :raises: GetModelsRequestError
-  :raises: RetriesExceededError
-  """
-  modelResult = namedtuple("modelResult", "uid name")
-  return tuple(modelResult(obj["uid"], obj["name"])
-               for obj in getAllModels(host, apiKey)
-               if ".{symbol}.".format(symbol=symbol) in obj["name"])
-
-
-
-def getSymbolModelNames(host, apiKey, symbol):
-  """ Retrieve IDs of all models associated with a particular symbol
-
-  :param host: API server's hostname or IP address
-  :param apiKey: API server's API Key
-  :param symbol: Stock symbol to look up
-
-  :returns: a sequence of unique model id strings
-
-  :raises: GetModelsRequestError
-  :raises: RetriesExceededError
-  """
-  return tuple(obj["uid"] for obj in getAllModels(host, apiKey)
-               if ".%s." % symbol in obj["name"])
 
 
 
