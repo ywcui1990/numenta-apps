@@ -70,6 +70,10 @@ install-prerequisites-and-update-repos() {
     sudo mkdir -p "${folder}"
     sudo chown -R centos:centos "${folder}"
   done
+
+  # Add www-data user for nginx
+  sudo groupadd -g 502 www-data
+  sudo useradd -u 502 -g 502 -m www-data
 }
 
 configure-private-settings() {
