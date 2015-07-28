@@ -71,7 +71,8 @@ compiler-toolchain:
 # First, client tools. If they need a server, they should include mysql.server
 # in their machine role, or use an RDS instance for anything long-lived.
 include:
-- mysql.client
+  - mysql.client
+  - nta-yum
 
 # And development tools
 mysql-development-tools:
