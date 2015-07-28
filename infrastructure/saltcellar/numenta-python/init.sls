@@ -60,28 +60,9 @@ anaconda-pip:
     - require:
       - pkg: anaconda-python
 
-# Install this from an S3 wheel so we don't need devtools on everything
-anaconda-psutil:
-  pip.installed:
-    - name: psutil == 1.0.1
-    - bin_env: /opt/numenta/anaconda/bin/pip
-    - watch_in:
-      - cmd: enforce-anaconda-permissions
-    - require:
-      - pkg: anaconda-python
-
 anaconda-setuptools:
   pip.installed:
     - name: setuptools == 18.0.1
-    - bin_env: /opt/numenta/anaconda/bin/pip
-    - watch_in:
-      - cmd: enforce-anaconda-permissions
-    - require:
-      - pkg: anaconda-python
-
-anaconda-supervisor:
-  pip.installed:
-    - name: supervisor == 3.1.3
     - bin_env: /opt/numenta/anaconda/bin/pip
     - watch_in:
       - cmd: enforce-anaconda-permissions
