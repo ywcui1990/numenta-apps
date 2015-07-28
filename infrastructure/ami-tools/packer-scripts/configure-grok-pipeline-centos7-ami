@@ -60,11 +60,16 @@ install-prerequisites-and-update-repos() {
   sudo yum install mysql-server mysql mariadb-devel rabbitmq-server nginx git -y
   sudo /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
 
-  # Create /opt/numenta folder
-  sudo mkdir -p "${NUMENTA}"
-  sudo mkdir -p /etc/grok
-  sudo chown -R centos:centos "${NUMENTA}"
-  sudo chown -R centos:centos /etc/grok
+  # Create folders with appropriate permissions
+  FOLDERS="${NUMENTA}
+  ${NUMENTA}/bin
+  ${NUMENTA}/lib/python2.7/site-packages
+  /etc/grok"
+  for folder in "${FOLDERS}"
+  do
+    sudo mkdir -p "${folder}"
+    sudo chown -R centos:centos "${folder}"
+  done
 }
 
 configure-private-settings() {
@@ -97,7 +102,7 @@ install-grok() {
   echo "Installing Grok"
 
   # Install Grok pre-requisites
-  pip install paver==1.2.4 uwsgi==2.0.4 agamotto==0.5.1 --user
+  pip install paver==1.2.4 uwsgi==2.0.4 agamotto==0.5.1 --target "${NUMENTA}/lib/python2.7/site-packages"
 
   # Clone Numenta Apps Repo
   cd "${NUMENTA}"
@@ -117,35 +122,28 @@ install-grok() {
   source /etc/grok/supervisord.vars
 
   BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts"
-  echo "Creating symlink for firstboot.sh"
-  sudo ln -s "${BOOTSCRIPTS_D}/firstboot.sh" /usr/local/sbin/
 
-  echo "Creating symlink for firstboot-root.sh"
-  sudo ln -s "${BOOTSCRIPTS_D}/firstboot-root.sh" /usr/local/sbin/
+  SBIN_FILES="firstboot.sh
+  firstboot-root.sh
+  set-mysql-root-password
+  set-rabbitmq-root-password
+  wait-until-network-up
+  shuffle_groklogs
+  lockrun"
+  for file in "${SBIN_FILES}"
+  do
+    echo "Creating symlink for ${file}"
+    sudo ln -s "${BOOTSCRIPTS_D}/${file}" /usr/local/sbin/
+  done
 
-  echo "Creating symlink for set-mysql-root-password"
-  sudo ln -s "${BOOTSCRIPTS_D}/set-mysql-root-password" /usr/local/sbin/
-
-  echo "Creating symlink for set-rabbitmq-root-password"
-  sudo ln -s "${BOOTSCRIPTS_D}/set-rabbitmq-root-password" /usr/local/sbin/
-
-  echo "Creating symlink for wait-until-network-up"
-  sudo ln -s "${BOOTSCRIPTS_D}/wait-until-network-up" /usr/local/sbin/
-
-  echo "Creating symlink for shuffle_groklogs"
-  sudo ln -s "${BOOTSCRIPTS_D}/shuffle_groklogs" /usr/local/sbin/
-
-  echo "Creating symlink for lockrun"
-  sudo ln -s "${BOOTSCRIPTS_D}/lockrun" /usr/local/sbin/
-
-  echo "Creating symlink for grokservices init script"
-  sudo ln -s "${BOOTSCRIPTS_D}/grokservices" /etc/init.d/
-
-  echo "Creating symlink for grok-preload init script"
-  sudo ln -s "${BOOTSCRIPTS_D}/grok-preload" /etc/init.d/
-
-  echo "Creating symlink for nginx init script"
-  sudo ln -s "${BOOTSCRIPTS_D}/nginx" /etc/init.d/
+  INIT_SCRIPTS="grokservices
+  grok-preload
+  nginx"
+  for file in "${INIT_SCRIPTS}"
+  do
+    echo "Creating symlink for ${file} init script"
+    sudo ln -s "${BOOTSCRIPTS_D}/${file}" /etc/init.d/
+  done
 
   echo "Creating symlink for supervisord-helper"
   ln -s "${BOOTSCRIPTS_D}/supervisord-helper" "${NUMENTA}"
