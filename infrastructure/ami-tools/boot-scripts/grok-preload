@@ -53,7 +53,7 @@ grok_error() {
   stop
   cd "${GROK_HOME}"
   echo -n $"Setting ${prog} status to grok_error: "
-  logger -t grok-nginx "grok-preload: Setting ${prog} status to grok_error: "
+  logger -t grok-preload "Setting ${prog} status to grok_error: "
 
   daemon --pidfile="${pidfile}" "${nginx}" -c "${error_conf}"
   RETVAL=$?
@@ -66,7 +66,7 @@ grok_loading() {
   stop
   cd "${GROK_HOME}"
   echo -n $"Setting ${prog} status to grok_loading: "
-  logger -t grok-nginx "grok-preload: Setting ${prog} status to grok_loading: "
+  logger -t grok-preload "Setting ${prog} status to grok_loading: "
 
   daemon --pidfile="${pidfile}" "${nginx}" -c "${loading_conf}"
   RETVAL=$?
@@ -79,7 +79,7 @@ grok_stopped() {
   stop
   cd "${GROK_HOME}"
   echo -n $"Setting ${prog} status to grok_stopped: "
-  logger -t grok-nginx "grok-preload: Setting ${prog} status to grok_stopped: "
+  logger -t grok-preload "Setting ${prog} status to grok_stopped: "
 
   daemon --pidfile="${pidfile}" "${nginx}" -c "${stopped_conf}"
   RETVAL=$?
@@ -90,7 +90,7 @@ grok_stopped() {
 
 start() {
   echo -n $"Starting ${prog}: "
-  logger -t grok-nginx "grok-preload: starting: "
+  logger -t grok-preload "starting: "
   daemon --pidfile="${pidfile}" "${nginx}" -c "${loading_conf}"
   RETVAL=$?
   echo
@@ -100,7 +100,7 @@ start() {
 
 stop() {
     echo -n $"Stopping ${prog}: "
-    logger -t grok-nginx "grok-preload: stopping: "
+    logger -t grok-preload "stopping: "
     killproc -p "${pidfile}" "${prog}"
     RETVAL=$?
     echo
@@ -110,20 +110,20 @@ stop() {
 reload() {
     cd "${GROK_HOME}"
     echo -n $"Reloading ${prog}: "
-    logger -t grok-nginx "grok-preload: reloading: "
+    logger -t grok-preload "reloading: "
     killproc -p "${pidfile}" "${prog}" -HUP
     RETVAL=$?
     echo
 }
 
 configtest() {
-    logger -t grok-nginx "grok-preload: configtest: "
+    logger -t grok-preload "configtest: "
     nginx -c "${GROK_HOME}/${GROK_NGINX_CONF}" -t
 }
 
 rh_status() {
     cd "${GROK_HOME}"
-    logger -t grok-nginx "grok-preload: rh_status: "
+    logger -t grok-preload "rh_status: "
     status -p "${pidfile}" "${nginx}"
 }
 

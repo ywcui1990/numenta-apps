@@ -69,7 +69,7 @@ syslog-rabbit-status() {
   # don't get jumbled up
   lockrun --lockfile=/var/lock/rabbit-status.lock -- \
     rabbitmqctl status 2>&1 | \
-    logger -t taurus-rabbit
+    logger -t grok-rabbit
 }
 
 start()
@@ -77,7 +77,7 @@ start()
   run-rootboot-helper
   syslog-rabbit-status
   echo -n "Starting ${prog}: "
-  logger -t grok-nginx "grokservices: start()"
+  logger -t grokservices "start()"
   cd "${GROK_HOME}"
   su centos -c "${supervisor_helper} start"
   echo
@@ -89,7 +89,7 @@ stop()
 {
   syslog-rabbit-status
   echo -n "Shutting down ${prog}: "
-  logger -t grok-nginx "grokservices: stop()"
+  logger -t grokservices "stop()"
   cd "${GROK_HOME}"
   su centos -c "${supervisor_helper} stop"
   service grok-preload grok-stopped
@@ -100,7 +100,7 @@ status()
 {
   syslog-rabbit-status
   echo -n "Status of ${prog}: "
-  logger -t grok-nginx "grokservices: status()"
+  logger -t grokservices "status()"
   cd "${GROK_HOME}"
   su centos -c "${supervisor_helper} status"
   echo
@@ -111,7 +111,7 @@ restart()
   syslog-rabbit-status
   run-rootboot-helper
   echo -n "Restarting ${prog}: "
-  logger -t grok-nginx "grokservices: restart()"
+  logger -t grokservices "restart()"
   cd "${GROK_HOME}"
   su centos -c "${supervisor_helper} restart"
   /sbin/service nginx restart
@@ -121,13 +121,13 @@ restart()
 tickle()
 {
   if [ -d "${UPDATE_IS_RUNNING}" ]; then
-    logger -t grok-nginx "grokservices: tickle() - Skipping, updater running"
+    logger -t grokservices "tickle() - Skipping, updater running"
     exit 0
   fi
   syslog-rabbit-status
   if [ -f "${FIRSTBOOT_RECEIPT}" ]; then
     echo -n "Tickling $prog: "
-    logger -t grok-nginx "grokservices: tickle()"
+    logger -t grokservices "tickle()"
     cd "${GROK_HOME}"
     su centos -c "${supervisor_helper} tickle"
   else
