@@ -111,6 +111,8 @@ install-grok() {
 
   echo "Creating symlink for supervisord.vars"
   ln -s "${GROK_HOME}/supervisord.vars" /etc/grok/
+  echo "Enabling wufoo"
+  touch /etc/grok/enable_wufoo
   echo "Sourcing supervisord.vars..."
   source /etc/grok/supervisord.vars
 
