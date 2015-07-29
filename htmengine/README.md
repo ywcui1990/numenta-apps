@@ -103,7 +103,7 @@ Running HTMEngine Integration Tests
 The HTM engine has a basic skeleton application exclusively for running tests.
 To run the tests, you must have MySQL, RabbitMQ, and Supervisor running.
 
-Make sure that `APPLICATION_CONFIG_PATH` is set to point to tests/
+Make sure that `APPLICATION_CONFIG_PATH` is set to point to `tests/support/skeleton-app/conf`
 For example:
 ```export APPLICATION_CONFIG_PATH=/Users/{name}/nta/numenta-apps/htmengine/tests/support/skeleton-app/conf```
 (alternatively you can use the `APPLICATION_CONFIG_PATH` from an app based off
@@ -111,13 +111,6 @@ of the HTMEngine, just be careful to not reset an existing MySQL database)
 
 With MySQL already started start/restart RabbitMQ:
 `rabbitmq-server -detached`
-
-And if you have an old copy of any of the numenta apps, run:
-```
-rabbitmqctl stop_app
-rabbitmqctl reset
-rabbitmqctl start_app
-```
 
 Setup the htmengine MySQL database:
 (don't do this if you're testing on Grok, Taurus, or another HTMEngine application)
@@ -129,5 +122,5 @@ Start `supervisord`:
 *NOTE: Be sure to run `mkdir logs` within the `skeleton-app` directory so
 supervisor has a place to store its logs*
 
-Run the integration tests (currently only `result_quality_test.py`):
-`py.test tests/integration/result_quality_test.py`
+Run the integration tests:
+`py.test tests/integration`
