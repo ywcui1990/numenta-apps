@@ -1,0 +1,14 @@
+[Unit]
+Description=GROK pre-load
+ 
+[Install]
+Alias=grok-preload.service
+ 
+[Service]
+Type=forking
+PIDFile=-/var/run/nginx
+RootDirectory=/opt/numenta/grok
+ExecStart=/usr/sbin/nginx -c /opt/numenta/grok/conf/nginx-load.conf
+ExecStop=/usr/sbin/nginx -c /opt/numenta/grok/conf/nginx-loading.conf -s stop
+ExecReload=/usr/sbin/nginx -c /opt/numenta/grok/conf/nginx-loading.conf -s reload
+Restart=on-abort
