@@ -6,7 +6,6 @@
 
 ## UNDER HEAVY DEVELOPMENT
 
-* brev @TODO mention to team IPC API could match HTTP API for easy future expansion
 * @TODO Add in Flow type checking
 * @TODO add in Dygraph/FaceOfGrok
 * @TODO make real tests and make tests work
@@ -83,7 +82,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * [ECMAScript 5.1](https://es5.github.io/) (>= IE9)
     * [ECMAScript 6](https://babeljs.io/docs/learn-es2015/) (aka ES2015) via
       [Babel](https://babeljs.io/)
-    * Facebook [Flow]() JS Typing @TODO
+    * Facebook [Flow](http://flowtype.org/) JS Typing
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
     [SASS](http://sass-lang.com/) via
@@ -98,16 +97,17 @@ on streams of data, predicting future values, and detecting pattern anomalies.
       Uni-directional data flow)
     * View Components: [React](https://github.com/facebook/react),
       [JSX](https://facebook.github.io/jsx/)
-    * @TODO Graphing and Charting: [DyGraphs]() works with React, no jQuery
-      * @TODO Alternatives? react-chartjs, react-d3
-    * @TODO HD Images: [Retina.js]() @TODO
+    * Graphing and Charting: [DyGraphs](http://dygraphs.com/)
+      * @TODO Alternatives: [react-chartjs](https://github.com/jhudson8/react-chartjs)
+        Canvas, [react-d3](https://github.com/esbullington/react-d3) SVG
+    * HD Images: [Retina.js](http://imulus.github.io/retinajs/)
 * Testing:
   * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)
   * Web Tests: [Casper](https://github.com/n1k0/casperjs)
 * Tooling:
   * Streaming task runner: [Gulp](https://github.com/gulpjs/gulp)
   * JS transpiling (ES6, JSX, etc): [Babel](https://github.com/babel/babel)
-  * @TODO Linting
+  * Linting: [eslint](http://eslint.org/)
   * @TODO JS formatting: [jsfmt](https://github.com/rdio/jsfmt) - NO ES6 yet!
 
 The GUI for this application is web code. Javascript, HTML, and CSS are loaded
