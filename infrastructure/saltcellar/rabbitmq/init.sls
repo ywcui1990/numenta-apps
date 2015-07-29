@@ -64,6 +64,17 @@ rabbitmq-server:
       - file: /etc/rabbitmq
       - pkg: rabbitmq-server
 
+# NOTE: SELinux should be disabled to get rabbitmq working with systemd
+rabbitmq-create-systemd:
+  file.managed:
+    - name: /etc/systemd/system/rabbitmq-server.service
+    - source: salt://rabbitmq/files/rabbitmq-server.service
+    - user: root
+    - group: root
+    - mode: 0644
+    - watch_in:
+      - pkg: rabbitmq-server
+
 enable-rabbitmq-management:
   cmd.run:
     - name: /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
@@ -74,8 +85,9 @@ enable-rabbitmq-management:
       - cmd: restart-rabbit-service
 
 restart-rabbit-service:
-  cmd.wait:
-    - name: service rabbitmq-server restart
-    - require:
+  service.running:
+    - enable: True
+    - reload: True
+    - name: rabbitmq-server
+    - watch:
       - pkg: rabbitmq-server
-      - service: rabbitmq-server
