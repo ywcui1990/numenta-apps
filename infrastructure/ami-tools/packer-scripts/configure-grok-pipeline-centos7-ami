@@ -124,7 +124,7 @@ install-grok() {
   echo "Sourcing supervisord.vars..."
   source /etc/grok/supervisord.vars
 
-  BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts"
+  BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts/centos7"
 
   for file in firstboot.sh \
     firstboot-root.sh \
