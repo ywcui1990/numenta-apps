@@ -63,6 +63,8 @@ public class InstanceDetailPageFragment extends Fragment {
 
     private boolean _scrolling;
 
+    private boolean _collapseAfterHours;
+
     /**
      * Handles date/time scrolling
      */
@@ -245,32 +247,37 @@ public class InstanceDetailPageFragment extends Fragment {
         _timeView.setEndDate(endTime);
 
         // Check if need to collapse to market hours
-        EnumSet<MetricType> anomalousMetrics = _chartData.getAnomalousMetrics();
-        if (anomalousMetrics.contains(MetricType.TwitterVolume)) {
-            // Collapse to market hours if twitter anomalies occurred during market hours
-            MarketCalendar marketCalendar = TaurusApplication.getMarketCalendar();
-            boolean collapsed = true;
+        if (_collapseAfterHours) {
+            EnumSet<MetricType> anomalousMetrics = _chartData.getAnomalousMetrics();
+            if (anomalousMetrics.contains(MetricType.TwitterVolume)) {
+                // Collapse to market hours if twitter anomalies occurred during market hours
+                MarketCalendar marketCalendar = TaurusApplication.getMarketCalendar();
+                boolean collapsed = true;
 
-            // Check if is there any twitter anomaly on the last visible bars
-            List<Pair<Long, Float>> data = _chartData.getData();
-            ListIterator<Pair<Long, Float>> iterator = data.listIterator(data.size());
-            for (int i = 0; i < TaurusApplication.getTotalBarsOnChart() && iterator.hasPrevious();
-                    i++) {
-                Pair<Long, Float> value = iterator.previous();
-                if (value != null && value.second != null && !Float.isNaN(value.second)) {
-                    double scaled = DataUtils.logScale(value.second);
-                    if (scaled >= TaurusApplication.getYellowBarFloor() &&
-                            !marketCalendar.isOpen(value.first)) {
-                        // Found anomaly, don't collapse
-                        collapsed = false;
-                        break;
+                // Check if is there any twitter anomaly on the last visible bars
+                List<Pair<Long, Float>> data = _chartData.getData();
+                ListIterator<Pair<Long, Float>> iterator = data.listIterator(data.size());
+                for (int i = 0;
+                        i < TaurusApplication.getTotalBarsOnChart() && iterator.hasPrevious();
+                        i++) {
+                    Pair<Long, Float> value = iterator.previous();
+                    if (value != null && value.second != null && !Float.isNaN(value.second)) {
+                        double scaled = DataUtils.logScale(value.second);
+                        if (scaled >= TaurusApplication.getYellowBarFloor() &&
+                                !marketCalendar.isOpen(value.first)) {
+                            // Found anomaly, don't collapse
+                            collapsed = false;
+                            break;
+                        }
                     }
                 }
+                _marketHoursCheckbox.setChecked(collapsed);
+            } else {
+                // Collapse to market hours if we only have stock anomalies
+                _marketHoursCheckbox.setChecked(true);
             }
-            _marketHoursCheckbox.setChecked(collapsed);
-        } else {
-            // Collapse to market hours if we only have stock anomalies
-            _marketHoursCheckbox.setChecked(true);
+            // Prevent collapsing during scroll
+            _collapseAfterHours = false;
         }
     }
 
@@ -313,6 +320,8 @@ public class InstanceDetailPageFragment extends Fragment {
                     }
                 });
 
+        // Collapse after hours when opening the view
+        _collapseAfterHours = true;
         return view;
     }
 
