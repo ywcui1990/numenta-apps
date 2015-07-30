@@ -50,6 +50,10 @@
       "type": "shell"
     },
     {
+      "inline": "sudo yum update -y",
+      "type": "shell"
+    },
+    {
       "type": "shell",
       "script": "packer-scripts/configure-grok-pipeline-centos7-ami",
       "environment_vars": [
