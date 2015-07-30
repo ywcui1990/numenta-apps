@@ -44,10 +44,10 @@ if [ $(/usr/bin/id -u) -ne 0 ]; then
 fi
 
 # Source function library.
-. /etc/rc.d/init.d/functions
+source /etc/rc.d/init.d/functions
 
 if [ -f /etc/sysconfig/nginx ]; then
-    . /etc/sysconfig/nginx
+    source /etc/sysconfig/nginx
 fi
 
 # We don't want to use the system nginx.conf - we want to use the
