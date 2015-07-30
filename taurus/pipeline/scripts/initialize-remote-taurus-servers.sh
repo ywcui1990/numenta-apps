@@ -293,7 +293,7 @@ pushd "${REPOPATH}"
      fi &&
      mkdir -p logs &&
      if [ -f taurus-supervisord.pid ]; then
-       supervisorctl supervisorctl --serverurl http://localhost:9001 reload
+       supervisorctl --serverurl http://localhost:9001 reload
      else
        supervisord -c conf/supervisord.conf
      fi &&
