@@ -6,6 +6,7 @@ Alias=grok-preload.service
 
 [Service]
 Type=forking
+PreExecStart=/etc/init.d/grok-preload configtest
 ExecStart=/etc/init.d/grok-preload start
 ExecStop=/etc/init.d/grok-preload stop
 ExecReload=/etc/init.d/grok-preload reload

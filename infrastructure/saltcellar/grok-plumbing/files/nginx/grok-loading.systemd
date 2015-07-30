@@ -6,7 +6,7 @@ Alias=grok-error.service
 
 [Service]
 Type=forking
-ExecStart=/etc/init.d/grok-preload grok-error
+ExecStart=/etc/init.d/grok-preload grok-loading
 ExecStop=/etc/init.d/grok-preload stop
 ExecReload=/etc/init.d/grok-preload reload
 Restart=on-abort

@@ -6,9 +6,8 @@ Alias=grok-stopped.service
  
 [Service]
 Type=forking
-PIDFile=/var/run/nginx
-RootDirectory=/opt/numenta/grok
-ExecStart=/usr/sbin/nginx -c /opt/numenta/grok/conf/nginx-stopped.conf
-ExecStop=/usr/sbin/nginx -c /opt/numenta/grok/conf/nginx-stopped.conf -s stop
-ExecReload=/usr/sbin/nginx -c /opt/numenta/grok/conf/nginx-stopped.conf -s reload
+ExecStart=/etc/init.d/grok-preload grok-stopped
+ExecStop=/etc/init.d/grok-preload stop
+ExecReload=/etc/init.d/grok-preload reload
 Restart=on-abort
+
