@@ -1,4 +1,11 @@
-                    GNU GENERAL PUBLIC LICENSE
+Dual License: Numenta Commercial, and GPLv3.
+
+See: http://numenta.org/licenses/
+
+---
+
+GNU GENERAL PUBLIC LICENSE
+
                        Version 3, 29 June 2007
 
  Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
@@ -619,4 +626,3 @@ Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
 
                      END OF TERMS AND CONDITIONS
-

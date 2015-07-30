@@ -38,29 +38,28 @@
     - group: root
     - mode: 0755
 
-# TODO: Find out a way to remove 'humanname' key
-add-packagecloud-rabbitmq-repo:
+# Pulled from https://github.com/saltstack-formulas/rabbitmq-formula, which we
+# should consider using the entirety of.
+rabbitmq_repo:
   pkgrepo.managed:
-    - name: rabbitmq_rabbitmq-server
-    - humanname: rabbitmq_rabbitmq-server
-    - file: /etc/yum.repos.d/rabbitmq_rabbitmq-server.repo
-    - repo_gpgcheck: 1
-    - gpgcheck: 0
+    - humanname: RabbitMQ Packagecloud Repository
     - baseurl: https://packagecloud.io/rabbitmq/rabbitmq-server/el/6/$basearch
+    - gpgcheck: 0
+    - enabled: True
     - gpgkey: https://packagecloud.io/gpg.key
-    - enabled: 1
     - sslverify: 1
     - sslcacert: /etc/pki/tls/certs/ca-bundle.crt
-
+    - require_in:
+      - pkg: rabbitmq-server
 
 rabbitmq-server:
   pkg.installed:
     - name: rabbitmq-server
-    - version: 3.5.3
+    - version: 3.5.3-1
   service.running:
     - enable: true
     - require:
-      - pkgrepo: add-packagecloud-rabbitmq-repo
+      - pkgrepo: rabbitmq_repo
       - file: /etc/rabbitmq
       - pkg: rabbitmq-server
 
@@ -74,6 +73,27 @@ rabbitmq-create-systemd:
     - mode: 0644
     - watch_in:
       - pkg: rabbitmq-server
+
+# Add Taurus user via cmd.run until https://github.com/saltstack/salt/issues/25683
+# is resolved
+rabbitmq_user_taurus_create:
+  cmd.run:
+    - name: rabbitmqctl add_user taurus taurus
+    - unless: rabbitmqctl list_users | grep taurus
+    - require:
+      - service: rabbitmq-server
+
+rabbitmq_user_taurus_tag:
+  cmd.run:
+    - name: rabbitmqctl set_user_tags taurus administrator
+    - watch:
+      - cmd: rabbitmq_user_taurus_create
+
+rabbitmq_user_taurus_permissions:
+  cmd.run:
+    - name: rabbitmqctl set_permissions -p / taurus ".*" ".*" ".*"
+    - watch:
+      - cmd: rabbitmq_user_taurus_tag
 
 enable-rabbitmq-management:
   cmd.run:

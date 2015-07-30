@@ -100,7 +100,7 @@ def logEmulatorStatus(logger):
   runWithOutput("adb devices", env=os.environ, logger=logger)
 
 
-def runTests(publicDnsName, apiKey, buildDir, artifactsDir, logger):
+def runTests(publicDnsName, apiKey, buildDir, reportsDir, artifactsDir, logger):
   """
     Run the grok-mobile tests and copy the results to the artifacts folder.
 
@@ -109,6 +109,8 @@ def runTests(publicDnsName, apiKey, buildDir, artifactsDir, logger):
     :param apiKey: The API Key to connect to the server
 
     :param buildDir: The build directory from which to copy artifacts
+    
+    :param reportsDir: The reports directory from which to copy artifacts
 
     :param artifactsDir: The artifactsDir to which test results should be saved
 
@@ -131,9 +133,9 @@ def runTests(publicDnsName, apiKey, buildDir, artifactsDir, logger):
                      g_initialVersionCodeParameter))
       runWithOutput(command, env=os.environ, logger=logger)
     # copy test results to the artifacts folder
+    os.makedirs(os.path.join(artifactsDir, "reports"))
+    copy_tree(reportsDir, os.path.join(artifactsDir, "reports"))
     with changeToWorkingDir(buildDir):
-      os.makedirs(os.path.join(artifactsDir, "reports"))
-      copy_tree("reports", os.path.join(artifactsDir, "reports"))
       os.makedirs(os.path.join(artifactsDir, "apk"))
       copy_tree("apk", os.path.join(artifactsDir, "apk"))
   except CommandFailedError:
@@ -318,6 +320,7 @@ def main(args):
 
     rootBuildDir = os.path.join(GROK_MOBILE_HOME, "android", "build")
     grokBuildDir = os.path.join(rootBuildDir, "grok-mobile", "outputs")
+    reportsDir = os.path.join(rootBuildDir, "grok-mobile", "reports")
     coreBuildDir = os.path.join(rootBuildDir, "mobile-core", "outputs")
 
     shutil.copy2(os.path.join(grokBuildDir, "lint-results.xml"),
@@ -332,7 +335,8 @@ def main(args):
     apiKey = args.apiKey or getApiKey(instanceId, publicDnsName, awsConfig,
                                       logger)
     logEmulatorStatus(logger)
-    runTests(publicDnsName, apiKey, grokBuildDir, artifactsDir, logger)
+    runTests(publicDnsName, apiKey, grokBuildDir, reportsDir, artifactsDir, 
+            logger)
     apkPath = os.path.join(artifactsDir, "apk")
 
     uploadToSauceLab(apkPath=apkPath, apkName="app-release.apk",

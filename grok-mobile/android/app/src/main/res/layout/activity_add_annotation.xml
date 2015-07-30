@@ -35,6 +35,7 @@
         style="@style/AddAnnotation.Header">
 
         <fragment
+            android:id="@+id/instance_anomaly_chart"
             android:name="com.groksolutions.grok.mobile.instance.InstanceAnomalyChartFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -214,7 +214,11 @@ public abstract class AbstractAnomalyChartFragment extends Fragment {
     }
 
     public AnomalyChartView getBarChart() {
-        return (AnomalyChartView) getView().findViewById(R.id.anomaly_chart_view);
+        final View layout = getView();
+        if (layout == null) {
+            return null;
+        }
+        return (AnomalyChartView) layout.findViewById(R.id.anomaly_chart_view);
     }
 
     /**

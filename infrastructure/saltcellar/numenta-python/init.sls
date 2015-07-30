@@ -26,6 +26,10 @@
 # Numenta style requires we lock to specific versions so we don't get
 # burned again by mystery bugs when new module versions come out.
 
+include:
+  - devtools
+  - nta-nucleus
+
 anaconda-python:
   pkg:
     - installed
@@ -56,28 +60,9 @@ anaconda-pip:
     - require:
       - pkg: anaconda-python
 
-# Install this from an S3 wheel so we don't need devtools on everything
-anaconda-psutil:
-  pip.installed:
-    - name: psutil == 1.0.1
-    - bin_env: /opt/numenta/anaconda/bin/pip
-    - watch_in:
-      - cmd: enforce-anaconda-permissions
-    - require:
-      - pkg: anaconda-python
-
 anaconda-setuptools:
   pip.installed:
     - name: setuptools == 18.0.1
-    - bin_env: /opt/numenta/anaconda/bin/pip
-    - watch_in:
-      - cmd: enforce-anaconda-permissions
-    - require:
-      - pkg: anaconda-python
-
-anaconda-supervisor:
-  pip.installed:
-    - name: supervisor == 3.1.3
     - bin_env: /opt/numenta/anaconda/bin/pip
     - watch_in:
       - cmd: enforce-anaconda-permissions
@@ -91,16 +76,6 @@ anaconda-wheel:
     - watch_in:
       - cmd: enforce-anaconda-permissions
     - require:
-      - pkg: anaconda-python
-
-anaconda-yaml:
-  pip.installed:
-    - name: PyYAML == 3.10
-    - bin_env: /opt/numenta/anaconda/bin/pip
-    - watch_in:
-      - cmd: enforce-anaconda-permissions
-    - require:
-      - pip: anaconda-pip
       - pkg: anaconda-python
 
 # Install a python2.7 symlink so /usr/bin/env python2.7 will work

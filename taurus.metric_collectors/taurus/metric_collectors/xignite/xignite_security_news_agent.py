@@ -505,7 +505,7 @@ class _HistoricalNewsTaskBase(object):
 
     if self.dryRun:
       g_log.info("%r.process(dryRun=True): security=%s, news=%s", self,
-                 securityRow, headlineRows)
+                 xigniteSecurity, headlineRows)
       return 0
 
     engine = collectorsdb.engineFactory()
