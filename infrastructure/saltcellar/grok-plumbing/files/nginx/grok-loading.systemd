@@ -1,8 +1,8 @@
 [Unit]
-Description=GROK error
+Description=GROK loading
 
 [Install]
-Alias=grok-error.service
+Alias=grok-loading.service
 
 [Service]
 Type=forking
