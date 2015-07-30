@@ -57,7 +57,7 @@ LOGGER = logging.getLogger(__name__)
 
 # Decorator for retrying dynamodb operations that failed due to transient error
 _RETRY_ON_ITEM_NOT_FOUND_DYNAMODB_ERROR = error_handling.retry(
-  timeoutSec=10, initialRetryDelaySec=0.5, maxRetryDelaySec=2,
+  timeoutSec=300, initialRetryDelaySec=0.5, maxRetryDelaySec=10,
   retryExceptions=(ItemNotFound,),
   logger=LOGGER
 )
