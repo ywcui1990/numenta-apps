@@ -8,6 +8,4 @@ Alias=grokservices.service
 Type=forking
 ExecStart=/etc/init.d/grokservices start
 ExecStop=/etc/init.d/grokservices stop
-ExecRestart=/etc/init.d/grokservices restart
-ExecStatus=/etc/init.d/grokservices status
 Restart=on-abort
