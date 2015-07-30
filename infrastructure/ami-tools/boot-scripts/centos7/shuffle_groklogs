@@ -34,10 +34,10 @@ UPLOADER="${NUMENTA}/grok/bin/upload_logs.py"
 STAMPFILE=/etc/grok/firstboot.run
 
 if [ -f "${STAMPFILE}" ]; then
-  groklog_rotator "${LOG_D}"
+  /usr/local/sbin/groklog_rotator "${LOG_D}"
   rotate_result=$?
   if [ "${rotate_result}" != 0 ]; then
-    logger -t grok "groklog_rotator exited abnormally with [${rotate_result}]"
+    /usr/bin/logger -t grok "groklog_rotator exited abnormally with [${rotate_result}]"
   fi
 fi
 
@@ -46,6 +46,6 @@ if [ -f "${STAMPFILE}" ]; then
   "${UPLOADER}" "${LOG_D}"
   upload_result=$?
   if [ ${upload_result} != 0  ]; then
-    logger -t grok "${UPLOADER}: grok log upload exited abnormally with [${upload_result}]"
+    /usr/bin/logger -t grok "${UPLOADER}: grok log upload exited abnormally with [${upload_result}]"
   fi
 fi

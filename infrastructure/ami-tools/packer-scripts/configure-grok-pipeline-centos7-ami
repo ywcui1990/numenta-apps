@@ -129,6 +129,7 @@ install-grok() {
   for file in firstboot.sh \
     firstboot-root.sh \
     set-mysql-root-password \
+    set-rabbitmq-root-password \
     wait-until-network-up shuffle_groklogs \
     groklog_rotator \
     lockrun
