@@ -215,7 +215,7 @@ pushd "${REPOPATH}"
     `git rev-parse --abbrev-ref HEAD`
 
   # Reset collector git state
-  ssh -v -t {$SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
+  ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products &&
      git reset --hard ${GIT_COMMIT}"
 
