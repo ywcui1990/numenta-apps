@@ -1,0 +1,15 @@
+[Unit]
+Description=GROK error
+ 
+[Install]
+Alias=grok-error.service
+ 
+[Service]
+Type=forking
+PIDFile=-/var/run/nginx
+RootDirectory=/opt/numenta/grok
+ExecStart=/usr/sbin/nginx -c /opt/numenta/grok/conf/nginx-error.conf
+ExecStop=/usr/sbin/nginx -c /opt/numenta/grok/conf/nginx-error.conf -s stop
+ExecReload=/usr/sbin/nginx -c /opt/numenta/grok/conf/nginx-error.conf -s reload
+Restart=on-abort
+
