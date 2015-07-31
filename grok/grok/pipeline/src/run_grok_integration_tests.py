@@ -188,8 +188,8 @@ def main():
                         % os.environ["AWS_SECRET_ACCESS_KEY"] +
                         " && source /etc/grok/supervisord.vars" +
                         " && cd $GROK_HOME" +
-                        " && ./run_tests.sh --ami --integration" +
-                        " --language py --results xunit jenkins")
+                        " && ./run_tests.sh --integration --language py" +
+                        " --results xunit jenkins")
       run(runTestCommand)
       g_logger.debug("Retreiving results")
       get("%s" % (g_remotePath), resultsDir)

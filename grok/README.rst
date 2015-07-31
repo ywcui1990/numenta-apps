@@ -99,6 +99,26 @@ manually.
 
 `PRODUCTS`: directory path of the `products` tree; used by the build pipeline
 
+`LOG_UPLOADER_S3_ACCESS_KEY_ID`: AWS Access Key for uploading log files
+
+`LOG_UPLOADER_S3_SECRET_ACCESS_KEY`: AWS Secret Access Key for uploading log files
+
+`WUFOO_URL`: Wufoo form URL
+
+`WUFOO_USER`: User token to be able to submit data to Wufoo
+
+`NOTIFICATIONS_AWS_ACCESS_KEY_ID`: AWS Access Key for sending email notifications
+
+`NOTIFICATIONS_AWS_SECRET_ACCESS_KEY`: AWS Secret Access Key for sending email notifcations
+
+`NOTIFICATIONS_SENDER_EMAIL`: Email address from which to send email notifications
+
+`REMOTE`: Git remote to pull from, generally https://github.com/Numenta/numenta-apps
+
+`BRANCH`: Git branch to checkout, generally master
+
+`COMMIT_SHA`: Git commit SHA to reset to, generally master
+
 
 Run
 ===

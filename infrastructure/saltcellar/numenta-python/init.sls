@@ -62,7 +62,8 @@ anaconda-pip:
 
 anaconda-setuptools:
   pip.installed:
-    - name: setuptools == 18.0.1
+    - name: setuptools
+    - upgrade: True
     - bin_env: /opt/numenta/anaconda/bin/pip
     - watch_in:
       - cmd: enforce-anaconda-permissions
