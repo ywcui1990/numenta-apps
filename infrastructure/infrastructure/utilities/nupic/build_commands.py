@@ -154,7 +154,7 @@ def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSHA, logger):
     :raises: infrastructure.utilities.exceptions.MissingSHAError
       if the given SHA is not found.
   """
-  logger.info("Cloning nupic.core from GitHub.")
+  logger.info("Cloning nupic.core from GitHub.: {}".format(nupicCoreRemote))
 
   with changeToWorkingDir(buildWorkspace):
     git.clone(nupicCoreRemote)
