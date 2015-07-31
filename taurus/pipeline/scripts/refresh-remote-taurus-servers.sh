@@ -191,7 +191,7 @@ pushd "${REPOPATH}"
        --server=\"${TAURUS_SERVER_HOST_PRIVATE}\" \
        --apikey=\"${TAURUS_API_KEY}\" \
        --all \
-       --modelsout=./unmonitor.json"
+       --modelsout=./unmonitor.json || true"
 
   # Stop taurus server instance
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
