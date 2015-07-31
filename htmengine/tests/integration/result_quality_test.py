@@ -115,8 +115,8 @@ class ResultQualityTests(test_case_base.TestCaseBase):
         amqpClient.deleteQueue(queue=queue, ifUnused=False, ifEmpty=False)
 
     self.resultsQueueName = (
-        "htmengine.result_quality_test.likelihood_results.%s" %
-        (uuid.uuid1().hex,))
+      "htmengine.result_quality_test.likelihood_results.%s" %
+      (uuid.uuid1().hex,))
 
     with amqp.synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
         amqpClient):
@@ -124,9 +124,9 @@ class ResultQualityTests(test_case_base.TestCaseBase):
       self.addCleanup(deleteAmqpQueue, self.resultsQueueName)
 
       amqpClient.bindQueue(
-          queue=self.resultsQueueName,
-          exchange=self.config.get("metric_streamer", "results_exchange_name"),
-          routingKey="")
+        queue=self.resultsQueueName,
+        exchange=self.config.get("metric_streamer", "results_exchange_name"),
+        routingKey="")
 
 
   def testIIOData(self):
@@ -379,8 +379,8 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     # Retrieve results broadcast by Anomaly Service and compare against known
     # data
     anomalyServiceResults = self._reapAnomalyServiceResults(
-        metricId=uid,
-        numRowsExpected=len(labels))
+      metricId=uid,
+      numRowsExpected=len(labels))
 
     # Fix up timestamps for compatibility with our known data and for saving to
     # csv file
@@ -413,12 +413,12 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     # Service
     places = 9
     dataFromAnomalyService = tuple(
-        (row["ts"], row["value"],
-         round(row["anomaly"], places), row["rowid"])
-        for row in anomalyServiceResults)
+      (row["ts"], row["value"],
+       round(row["anomaly"], places), row["rowid"])
+      for row in anomalyServiceResults)
     engineData = tuple(
-        (ts.strftime("%Y-%m-%d %H:%M:%S"), value, round(score, places), rowid)
-        for ts, value, score, rowid in data)
+      (ts.strftime("%Y-%m-%d %H:%M:%S"), value, round(score, places), rowid)
+      for ts, value, score, rowid in data)
     self.fastCheckSequenceEqual(engineData, dataFromAnomalyService)
 
     # Compute the confusion matrix
@@ -427,13 +427,13 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     def formatMessage(statusMessage):
       substitutions = dict(expectedResults)
       substitutions.update({
-          "statusMessage": statusMessage,
-          "boundingRange": boundingRange,
-          "afn": cMatrix.fn,
-          "afp": cMatrix.fp,
-          "atn": cMatrix.tn,
-          "atp": cMatrix.tp,
-          "aquality": cMatrix.quality})
+        "statusMessage": statusMessage,
+        "boundingRange": boundingRange,
+        "afn": cMatrix.fn,
+        "afp": cMatrix.fp,
+        "atn": cMatrix.tn,
+        "atp": cMatrix.tp,
+        "aquality": cMatrix.quality})
       message = ("%(statusMessage)s\n"
                  "Expected:\n"
                  "    False negatives: %(fn)i\n"
@@ -458,8 +458,8 @@ class ResultQualityTests(test_case_base.TestCaseBase):
       boundB = value + spread
 
       failMessage = formatMessage(
-          "Change in %s - %.2f boundary violation." %
-          (key, boundingRange))
+        "Change in %s - %.2f boundary violation." %
+        (key, boundingRange))
 
       self.assertTrue((boundA <= actual <= boundB) or
                       (boundB <= actual <= boundA),
