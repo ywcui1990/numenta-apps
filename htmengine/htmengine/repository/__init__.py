@@ -27,7 +27,6 @@ from sqlalchemy import create_engine
 
 from nta.utils import sqlalchemy_utils
 
-from htmengine import htmengine_logging
 from htmengine.repository.queries import (
     addMetric,
     addMetricData,
