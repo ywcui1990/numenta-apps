@@ -108,14 +108,6 @@ def main(args):
   logger.debug("#############################################")
   run_unit_tests.main(commonOptions)
 
-  # Package RPM's
-  logger.debug("#############################################")
-  package.main(commonOptions)
-
-  # Updating yum repo with the new RPM's
-  logger.debug("#############################################")
-  sync_yum_repo_s3.main(commonOptions)
-
   try:
     # Bake Ami
     logger.debug("#############################################")

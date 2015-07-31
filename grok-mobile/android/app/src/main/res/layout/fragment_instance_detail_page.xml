@@ -23,6 +23,7 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_instance_detail_page"
     style="@style/InstanceDetail"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
@@ -30,14 +31,13 @@
 
     <FrameLayout style="@style/InstanceDetail.Header" >
         <fragment
-            tools:ignore="MissingId"
+            android:id="@+id/instance_anomaly_chart"
             android:name="com.groksolutions.grok.mobile.instance.InstanceAnomalyChartFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </FrameLayout>
 
     <ImageView
-        tools:ignore="MissingId"
         android:layout_width="match_parent"
         android:layout_height="6.7dp"
         android:layout_gravity="top"
@@ -46,7 +46,7 @@
         android:src="@drawable/ic_down_marker" />
 
     <fragment
-        tools:ignore="MissingId"
+        tools:id="@+id/fragment_metric_list"
         android:name="com.groksolutions.grok.mobile.metric.MetricListFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
