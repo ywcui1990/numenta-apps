@@ -262,10 +262,18 @@ class DynamoDBServiceTest(TestCaseBase):
 
     metricTweetsTable = Table(MetricTweetsDynamoDBDefinition().tableName,
                               connection=dynamodb)
-    metricTweetItem =  metricTweetsTable.lookup(
-      "-".join((metricName, uid)),
-      "2015-02-19T19:43:24.870118"
-    )
+    for _ in xrange(60):
+      try:
+        metricTweetItem = metricTweetsTable.lookup("-".join((metricName, uid)),
+          "2015-02-19T19:43:24.870118"
+        )
+        break
+      except ItemNotFound as exc:
+        time.sleep(1)
+        continue
+    else:
+      self.fail("Metric tweet item not found within 60 seconds")
+
     # There is no server-side cleanup for tweet data, so remove it here for
     # now to avoid accumulating test data
     self.addCleanup(metricTweetItem.delete)
