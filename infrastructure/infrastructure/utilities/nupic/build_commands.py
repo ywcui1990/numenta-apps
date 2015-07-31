@@ -53,7 +53,6 @@ from infrastructure.utilities.cli import runWithOutput
 
 NUPIC_CORE_REMOTE = "git@github.com:akhilaananthram/nupic.core.git"
 NUPIC_CORE_COMMITISH = "96fedeef68527588f1856a6dedb32d6e2af37c49"
-NUPIC_CORE_BRANCH = "numpy_fix"
 SCRIPTS_DIR = os.path.join(git.getGitRootFolder(), "nupic-pipeline", "scripts")
 ARTIFACTS_DIR = createOrReplaceArtifactsDir()
 
@@ -139,11 +138,11 @@ def getNuPICCoreDetails(env, logger):
   with changeToWorkingDir(env["NUPIC"]):
     locals = {}
     execfile(".nupic_modules", {}, locals)
-  return locals["NUPIC_CORE_REMOTE"], locals["NUPIC_CORE_COMMITISH"], locals["NUPIC_CORE_BRANCH"]
+  return locals["NUPIC_CORE_REMOTE"], locals["NUPIC_CORE_COMMITISH"]
 
 
 
-def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSHA, nupicCoreBranch, logger):
+def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSHA, logger):
   """
     Fetch nupic.core from github
 
@@ -162,7 +161,7 @@ def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSHA, nupicCor
 
   nupicCoreDir = buildWorkspace + "/nupic.core"
   with changeToWorkingDir(nupicCoreDir):
-    git.checkout(nupicCoreBranch)
+    git.checkout("numpy_fix")
     if nupicCoreSHA:
       try:
         git.resetHard(nupicCoreSHA)
@@ -473,7 +472,7 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger):
         logger.debug("\tUpdating %s...", targetFile)
         replaceInFile(devVersion, nupicSha, targetFile)
 
-  nupicCoreRemote, nupicCoreSHA, nupicCoreBranch = getNuPICCoreDetails(env, logger)
+  nupicCoreRemote, nupicCoreSHA = getNuPICCoreDetails(env, logger)
 
   boolBuildNupicCore = False
   nupicCoreDir = ""
@@ -490,7 +489,7 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger):
     logger.debug("Retrieved nupic.core from S3; saved to: %s", nupicCoreDir)
   else:
     logger.debug("Did not find nupic.core locally or in S3.")
-    fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSHA, nupicCoreBranch,
+    fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSHA, 
                          logger)
     nupicCoreDir = "%s/nupic.core" % buildWorkspace
     logger.debug("Building nupic.core at: %s", nupicCoreDir)
