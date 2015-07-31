@@ -52,6 +52,7 @@ from infrastructure.utilities.cli import runWithOutput
 
 
 NUPIC_CORE_REMOTE = "git@github.com:akhilaananthram/nupic.core.git"
+NUPIC_CORE_COMMITISH = "96fedeef68527588f1856a6dedb32d6e2af37c49"
 SCRIPTS_DIR = os.path.join(git.getGitRootFolder(), "nupic-pipeline", "scripts")
 ARTIFACTS_DIR = createOrReplaceArtifactsDir()
 
