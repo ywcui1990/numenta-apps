@@ -198,9 +198,15 @@ class DynamoDBServiceTest(TestCaseBase):
                             connection=dynamodb)
     instanceDataAnomalyScores = {}
     for metricValue, ts in data:
-      metricDataItem = _RETRY_ON_ITEM_NOT_FOUND_DYNAMODB_ERROR(
-        metricDataTable.lookup
-      )(uid, ts.isoformat())
+      for _ in xrange(60):
+        try:
+          metricDataItem = metricDataTable.lookup(uid, ts.isoformat())
+          break
+        except ItemNotFound as exc:
+          time.sleep(1)
+          continue
+      else:
+        self.fail("Metric data not found within 60 seconds")
       # There is no server-side cleanup for metric data, so remove it here for
       # now to avoid accumulating test data
       self.addCleanup(metricDataItem.delete)
