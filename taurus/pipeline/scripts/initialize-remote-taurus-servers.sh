@@ -35,7 +35,7 @@ instances!
 
 Git commit:
 
-  ☞  COMMIT_SHA
+  ☞  GIT_COMMIT
 
 DynamoDB credentials:
 
@@ -96,7 +96,7 @@ SSL self-signed certificate details:
 ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★ ☆ ★
 
 This script will push the local numenta-apps repository to the remote Taurus
-instances, and reset to the commit sha specified in \$COMMIT_SHA.  The
+instances, and reset to the commit sha specified in \$GIT_COMMIT.  The
 requisite python packages will be installed, configuration commands executed,
 and services started.  The end result upon successful completion of this script
 (as evidenced by a return code of 0), will be a fully configured, and running
@@ -114,6 +114,14 @@ set -o pipefail
 if [ "${DEBUG}" ]; then
   set -o verbose
   set -o xtrace
+fi
+
+if [ ! "${GIT}" ]; then
+  GIT=`which git`
+fi
+
+if [ ! "${SSH_ARGS}" ]; then
+  SSH_ARGS=""
 fi
 
 set -o nounset
@@ -174,28 +182,28 @@ pushd "${REPOPATH}"
   fi
 
   # Sync git histories with taurus server for current HEAD
-  git push --force \
+  ${GIT} push --force \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products \
     `git rev-parse --abbrev-ref HEAD`
 
   # Reset server git state
-  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
+  ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "cd /opt/numenta/products &&
-     git reset --hard ${COMMIT_SHA}"
+     git reset --hard ${GIT_COMMIT}"
 
   # Sync git histories with taurus collector for current HEAD
-  git push --force \
+  ${GIT} push --force \
     "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products \
     `git rev-parse --abbrev-ref HEAD`
 
   # Reset collector git state
-  ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
+  ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products &&
-     git reset --hard ${COMMIT_SHA}"
+     git reset --hard ${GIT_COMMIT}"
 
   # /opt/numenta/products/taurus/conf/ssl must exist before we attempt to
   # upload our self-signed cert required for nginx later
-  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
+  ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "mkdir -p /opt/numenta/products/taurus/conf/ssl"
 
   # Generate env.sh credential files, to be copied to respective remote
@@ -232,26 +240,26 @@ pushd "${REPOPATH}"
     taurus/pipeline/scripts/taurus-env.sh
 
   # Copy self-signed cert
-  scp -r \
+  scp ${SSH_ARGS} -r \
     taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.crt \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/conf/ssl/localhost.crt
-  scp -r \
+  scp ${SSH_ARGS} -r \
     taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.key \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/conf/ssl/localhost.key
 
   # Copy manual overrides
-  scp -r \
+  scp ${SSH_ARGS} -r \
     taurus/pipeline/scripts/overrides/taurus/* \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/
-  scp -r \
+  scp ${SSH_ARGS} -r \
     taurus/pipeline/scripts/taurus.metric_collectors-env.sh \
     "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products/taurus.metric_collectors/env.sh
-  scp -r \
+  scp ${SSH_ARGS} -r \
     taurus/pipeline/scripts/taurus-env.sh \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/env.sh
 
   # Configure, start Taurus services
-  ssh -v -t "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
+  ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "cd /opt/numenta/products &&
      ./install-taurus.sh \
         /opt/numenta/anaconda/lib/python2.7/site-packages \
@@ -277,13 +285,13 @@ pushd "${REPOPATH}"
      python migrate.py &&
      cd /opt/numenta/products/taurus &&
      if [ -f /var/run/nginx.pid ]; then
-       sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s reload
+       sudo /usr/sbin/nginx -p /opt/numenta/products/taurus -c conf/nginx-taurus.conf -s reload
      else
-       sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf
+       sudo /usr/sbin/nginx -p /opt/numenta/products/taurus -c conf/nginx-taurus.conf
      fi &&
      mkdir -p logs &&
      if [ -f taurus-supervisord.pid ]; then
-       supervisorctl supervisorctl --serverurl http://localhost:9001 reload
+       supervisorctl --serverurl http://localhost:9001 reload
      else
        supervisord -c conf/supervisord.conf
      fi &&
@@ -292,7 +300,7 @@ pushd "${REPOPATH}"
      py.test tests"
 
   # Reset metric collector state, apply database schema updates
-  ssh -v -t "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
+  ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products &&
      ./install-taurus-metric-collectors.sh \
         /opt/numenta/anaconda/lib/python2.7/site-packages \
