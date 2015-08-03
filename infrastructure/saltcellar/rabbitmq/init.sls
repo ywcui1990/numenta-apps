@@ -98,4 +98,4 @@ restart-rabbit-service:
     - name: service rabbitmq-server restart
     - require:
       - pkg: rabbitmq-server
-      - service: rabbitmq-server 
+      - service: rabbitmq-server
