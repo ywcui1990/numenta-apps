@@ -132,6 +132,7 @@ def addAndParseArgs():
     try:
       buildWorkspace = baseDir + "/build-%s" % buildNumber
       os.makedirs(buildWorkspace)
+      args["buildWorkspace"] = buildWorkspace
     except:
       raise PipelineError("Could not create the build workspace.")
 
