@@ -63,17 +63,6 @@ rabbitmq-server:
       - file: /etc/rabbitmq
       - pkg: rabbitmq-server
 
-# NOTE: SELinux should be disabled to get rabbitmq working with systemd
-rabbitmq-create-systemd:
-  file.managed:
-    - name: /etc/systemd/system/rabbitmq-server.service
-    - source: salt://rabbitmq/files/rabbitmq-server.service
-    - user: root
-    - group: root
-    - mode: 0644
-    - watch_in:
-      - pkg: rabbitmq-server
-
 # Add Taurus user via cmd.run until https://github.com/saltstack/salt/issues/25683
 # is resolved
 rabbitmq_user_taurus_create:
@@ -105,9 +94,8 @@ enable-rabbitmq-management:
       - cmd: restart-rabbit-service
 
 restart-rabbit-service:
-  service.running:
-    - enable: True
-    - reload: True
-    - name: rabbitmq-server
-    - watch:
+  cmd.wait:
+    - name: service rabbitmq-server restart
+    - require:
       - pkg: rabbitmq-server
+      - service: rabbitmq-server 

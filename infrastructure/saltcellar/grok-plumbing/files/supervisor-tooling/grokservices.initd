@@ -57,7 +57,7 @@ run-rootboot-helper() {
   if [ -x "${ROOTBOOT_HELPER}" ]; then
     "${ROOTBOOT_HELPER}" 2>&1 | tee >(logger -t rootboot-helper)
     if [ $? != "0" ]; then
-      /etc/init.d/grok-preload grok-error
+      service grok-preload grok-error
       exit 1
     fi
   fi
@@ -95,7 +95,7 @@ stop()
   logger -t grok-nginx "grokservices: stop()"
   cd "${GROK_HOME}"
   su ec2-user -c "${supervisor_helper} stop"
-  /etc/init.d/grok-preload grok-stopped
+  service grok-preload grok-stopped
   echo
 }
 
