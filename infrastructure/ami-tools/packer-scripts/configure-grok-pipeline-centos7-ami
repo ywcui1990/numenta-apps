@@ -148,7 +148,8 @@ install-grok() {
     grok-preload.service \
     grok-stopped.service \
     grokservices-tickle.service \
-    grokservices.service
+    grokservices.service \
+    rabbitmq-server.service
   do
     echo "Creating symlink for ${file} systemd script"
     sudo ln -s "${BOOTSCRIPTS_D}/${file}" /etc/systemd/system/
