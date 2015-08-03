@@ -127,12 +127,8 @@ def invokeGrokMobileBuild(gitRemote, branch, buildSha):
 
 def invokeTaurusBuild(gitRemote, branch, buildSha):
   """
-    TODO: Define params, flesh out implementation details, and uncomment the
-    actual `invokeBuild` command
-
-
-    This function will be used to invoke the Jenkins job related to Taurus
-    builds as appropriate.
+    Invoke `refresh-taurus-servers` pipeline, overriding USER_GIT_URL,
+    USER_GIT_BRANCH_NAME, and USER_GIT_COMMIT environment variable defaults.
 
     :param gitRemote: The remote to be used when accessing git (e.g.:
       git@github.com:Numenta/numenta-apps.git)
@@ -141,11 +137,10 @@ def invokeTaurusBuild(gitRemote, branch, buildSha):
 
     :param buildSha: The commit SHA to set the git repo to before building.
   """
-  params = {"GIT_REMOTE": gitRemote,
-            "BRANCH": branch,
-            "COMMIT_SHA": buildSha}
-  #don"t actually invoke tauras build yet; need to flesh this out a lot!
-  #invokeBuild("taurus-pipeline", params)
+  params = {"USER_GIT_URL": gitRemote,
+            "USER_GIT_BRANCH_NAME": branch,
+            "USER_GIT_COMMIT": buildSha}
+  invokeBuild("refresh-taurus-servers", params)
   g_logger.info("Invoking Taurus Build")
 
 
