@@ -91,7 +91,7 @@ public class AddAnnotationActivity extends GrokActivity implements TimePickerDia
         if (showTime) {
             // If we are showing time then we allow the user to change it as well.
             // Add callback to allow time to change when the user clicks on the chart
-            View instanceChartView = getWindow().findViewById(R.id.instance_anomaly_chart);
+            View instanceChartView = findViewById(R.id.instance_anomaly_chart);
             InstanceAnomalyChartFragment chartFrag = (InstanceAnomalyChartFragment) instanceChartView
                     .getTag();
             chartFrag.getBarChart().setOnClickListener(new View.OnClickListener() {
@@ -109,22 +109,22 @@ public class AddAnnotationActivity extends GrokActivity implements TimePickerDia
             });
         } else {
             // Hide date/time related fields
-            View view = getWindow().findViewById(R.id.txt_time_label);
+            View view = findViewById(R.id.txt_time_label);
             view.setVisibility(View.GONE);
-            view = getWindow().findViewById(R.id.txt_date);
+            view = findViewById(R.id.txt_date);
             view.setVisibility(View.GONE);
-            view = getWindow().findViewById(R.id.txt_time);
+            view = findViewById(R.id.txt_time);
             view.setVisibility(View.GONE);
         }
 
         // Update user name
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        EditText txtUserName = (EditText) getWindow().findViewById(R.id.txt_name);
+        EditText txtUserName = (EditText) findViewById(R.id.txt_name);
         String userName = prefs.getString(PreferencesConstants.PREF_USER_NAME, "");
         txtUserName.setText(userName);
 
         // Update focus
-        TextView txtMessage = (TextView) getWindow().findViewById(R.id.txt_annotation_message);
+        TextView txtMessage = (TextView) findViewById(R.id.txt_annotation_message);
         if (userName.isEmpty()) {
             txtUserName.requestFocus();
         } else {
@@ -142,13 +142,13 @@ public class AddAnnotationActivity extends GrokActivity implements TimePickerDia
         // Format time
         java.text.DateFormat timeFormat = java.text.DateFormat.getTimeInstance(
                 java.text.DateFormat.SHORT, Locale.getDefault());
-        TextView view = (TextView) getWindow().findViewById(R.id.txt_time);
+        TextView view = (TextView) findViewById(R.id.txt_time);
         view.setText(timeFormat.format(new Date(_timestamp)));
 
         // Format date
         java.text.DateFormat dateFormat = java.text.DateFormat.getDateInstance(
                 java.text.DateFormat.MEDIUM, Locale.getDefault());
-        view = (TextView) getWindow().findViewById(R.id.txt_date);
+        view = (TextView) findViewById(R.id.txt_date);
         view.setText(dateFormat.format(new Date(_timestamp)));
 
         // Create Instance Data based on the instance passed to the intent
@@ -180,7 +180,7 @@ public class AddAnnotationActivity extends GrokActivity implements TimePickerDia
                 }
 
                 // Update fragment with new data
-                View instanceChartView = getWindow().findViewById(R.id.instance_anomaly_chart);
+                View instanceChartView = findViewById(R.id.instance_anomaly_chart);
                 InstanceAnomalyChartFragment chartFrag = (InstanceAnomalyChartFragment) instanceChartView
                         .getTag();
                 // Prevent fragment from loading annotations from database
@@ -200,7 +200,7 @@ public class AddAnnotationActivity extends GrokActivity implements TimePickerDia
      */
     public void saveAnnotation(View view) {
         // Validate user name
-        EditText txtUserName = (EditText) getWindow().findViewById(R.id.txt_name);
+        EditText txtUserName = (EditText) findViewById(R.id.txt_name);
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this).edit();
         final String userName = txtUserName.getText().toString().trim();
         if (userName.isEmpty()) {
@@ -211,7 +211,7 @@ public class AddAnnotationActivity extends GrokActivity implements TimePickerDia
         prefs.putString(PreferencesConstants.PREF_USER_NAME, userName);
         prefs.apply();
 
-        TextView txtMessage = (TextView) getWindow().findViewById(R.id.txt_annotation_message);
+        TextView txtMessage = (TextView) findViewById(R.id.txt_annotation_message);
         final String message = txtMessage.getText().toString().trim();
         if (message.isEmpty()) {
             txtMessage.setError(getString(R.string.error_empty_message));

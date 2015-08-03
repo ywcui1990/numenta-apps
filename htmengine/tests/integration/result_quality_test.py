@@ -102,7 +102,6 @@ class ResultQualityTests(test_case_base.TestCaseBase):
 
 
     self.plaintextPort = self.config.getint("metric_listener", "plaintext_port")
-    self.apiKey = self.config.get("security", "apikey")
 
     self.initialLoggingString = "Running result quality test using metric: %s"
 
@@ -115,11 +114,12 @@ class ResultQualityTests(test_case_base.TestCaseBase):
           amqpClient):
         amqpClient.deleteQueue(queue=queue, ifUnused=False, ifEmpty=False)
 
-    self.resultsQueueName = "htmengine.result_quality_test.likelihood_results.%s" % (
-      uuid.uuid1().hex,)
+    self.resultsQueueName = (
+      "htmengine.result_quality_test.likelihood_results.%s" %
+      (uuid.uuid1().hex,))
 
     with amqp.synchronous_amqp_client.SynchronousAmqpClient(connParams) as (
-          amqpClient):
+        amqpClient):
       amqpClient.declareQueue(self.resultsQueueName)
       self.addCleanup(deleteAmqpQueue, self.resultsQueueName)
 
@@ -402,9 +402,11 @@ class ResultQualityTests(test_case_base.TestCaseBase):
         writer.writerow(fields)
 
     # Compare timestamp and value sequence in results against known data
-    knownData = tuple((ts, float(value)) for ts, value, _label in
-      self._loadDataGen(knownDataFilePath))
-    engineData = tuple((ts.strftime("%Y-%m-%d %H:%M:%S"), value) for ts, value, _, _ in data)
+    knownData = tuple((ts, float(value))
+                      for ts, value, _label
+                      in self._loadDataGen(knownDataFilePath))
+    engineData = tuple((ts.strftime("%Y-%m-%d %H:%M:%S"), value)
+                       for ts, value, _, _ in data)
     self.fastCheckSequenceEqual(engineData, knownData)
 
     # Compare data from htmengine with AMQP-dispatched data from Anomaly
