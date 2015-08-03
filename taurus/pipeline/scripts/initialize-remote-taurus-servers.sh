@@ -182,10 +182,9 @@ pushd "${REPOPATH}"
   fi
 
   # Sync git histories with taurus server for current HEAD
-  ${GIT} fetch "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products
   ${GIT} push --force \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products \
-    `git rev-parse --symbolic-full-name HEAD`
+    `git rev-parse --abbrev-ref HEAD`
 
   # Reset server git state
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
@@ -193,10 +192,9 @@ pushd "${REPOPATH}"
      git reset --hard ${GIT_COMMIT}"
 
   # Sync git histories with taurus collector for current HEAD
-  ${GIT} fetch "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products
   ${GIT} push --force \
     "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products \
-    `git rev-parse --symbolic-full-name HEAD`
+    `git rev-parse --abbrev-ref HEAD`
 
   # Reset collector git state
   ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
