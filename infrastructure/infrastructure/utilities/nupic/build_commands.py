@@ -137,7 +137,7 @@ def getNuPICCoreDetails(env, logger, nupicCoreRemote, nupicCoreBranch, nupicCore
     core = {}
     execfile(".nupic_modules", {}, core)
   remote = core["NUPIC_CORE_REMOTE"] if not nupicCoreRemote else nupicCoreRemote
-  committish = core["NUPIC_CORE_COMMITISH"] if not nupicCoreSha else nupicCoreSha
+  committish = core["NUPIC_CORE_COMMITISH"] if nupicCoreSha == "None" else nupicCoreSha
   branch = core["NUPIC_CORE_BRANCH"] if not nupicCoreBranch else nupicCoreBranch
   return remote, committish, branch
 
