@@ -109,6 +109,6 @@ def runWithOutput(command, env=os.environ, logger=None):
     raise CommandFailedError("Failed to execute command: %s" % command)
   # Catch other exceptions like empty environment variable
   except Exception as ex:
-    template = "An exception of type {0} occured.\nArguments:{1!r}"
-    logger.exception(template.format(type(ex).__name__, ex.args))
+    if logger:
+      logger.exception("check_call failed for command=%s" % command)
     raise
