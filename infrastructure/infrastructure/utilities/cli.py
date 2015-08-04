@@ -110,4 +110,5 @@ def runWithOutput(command, env=os.environ, logger=None):
   # Catch other exceptions like empty environment variable
   except Exception as ex:
     template = "An exception of type {0} occured.\nArguments:{1!r}"
-    logger.debug(template.format(type(ex).__name__, ex.args))
+    logger.exception(template.format(type(ex).__name__, ex.args))
+    raise
