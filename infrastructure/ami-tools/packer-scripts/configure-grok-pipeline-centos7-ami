@@ -105,7 +105,7 @@ install-grok() {
   echo "Installing Grok"
 
   # Install Grok pre-requisites
-  pip install paver==1.2.4 uwsgi==2.0.4 agamotto==0.5.1 --install-options="--prefix=${NUMENTA}"
+  pip install paver==1.2.4 uwsgi==2.0.4 agamotto==0.5.1 --install-option="--prefix=${NUMENTA}"
 
   # Clone Numenta Apps Repo
   cd "${NUMENTA}"
