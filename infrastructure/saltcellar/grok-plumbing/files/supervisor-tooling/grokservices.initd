@@ -85,7 +85,7 @@ start()
   su ec2-user -c "${supervisor_helper} start"
   echo
   kill_preload
-  /sbin/service nginx restart
+  service nginx restart
 }
 
 stop()
@@ -117,7 +117,7 @@ restart()
   logger -t grok-nginx "grokservices: restart()"
   cd "${GROK_HOME}"
   su ec2-user -c "${supervisor_helper} restart"
-  /sbin/service nginx restart
+  service nginx restart
   echo
 }
 

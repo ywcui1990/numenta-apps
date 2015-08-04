@@ -1,0 +1,11 @@
+[Unit]
+Description=GROK services
+
+[Install]
+Alias=grokservices.service
+
+[Service]
+Type=forking
+ExecStart=/etc/init.d/grokservices start
+ExecStop=/etc/init.d/grokservices stop
+Restart=on-abort
