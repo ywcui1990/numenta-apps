@@ -235,8 +235,10 @@ def buildNuPICCore(env, nupicCoreSHA, logger):
       git.resetHard(nupicCoreSHA)
       runWithOutput("mkdir -p build/scripts", env, logger)
       with changeToWorkingDir("build/scripts"):
-        runWithOutput("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release", env,
-                      logger)
+        runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
+                       "-DPYTHON_LIBRARY=`python -c \"import sysconfig; print "
+                       "sysconfig.get_config_var('LIBDIR'),\"`/libpython2.7.so"),
+                      env, logger)
         runWithOutput("make -j 4", env, logger)
         runWithOutput("make install", env, logger)
     except CommandFailedError:
