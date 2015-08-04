@@ -124,7 +124,7 @@ def replaceInFile(fromValue, toValue, filePath):
 
 
 
-def getNuPICCoreDetails(env, logger, nupicCoreRemote, nupicCoreBranch, nupicCoreSha):
+def getNuPICCoreDetails(env, logger, nupicCoreRemote, nupicCoreSha, nupicCoreBranch):
   """
     Reads .nupic_modules to find nupic.core SHA and remote.
 

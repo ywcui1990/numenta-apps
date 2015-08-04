@@ -115,7 +115,7 @@ def addAndParseArgs():
   parser.add_argument("--nupic-core-branch", dest="nupicCoreBranch", type=str,
                       default="",
                       help="The NuPIC core branch to add in deploy track")
-  parser.add_argument("--sha-core", dest="nupicCoreSha", type=str, default="",
+  parser.add_argument("--sha-core", dest="nupicCoreSha", type=str, default="None",
                       help="The NuPIC Core SHA that needs to be built.")
   parser.add_argument("--log", dest="logLevel", type=str, default="warning",
                       help="Logging level, by default it takes warning")
