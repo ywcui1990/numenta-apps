@@ -28,6 +28,7 @@ import os
 import re
 import shutil
 import sys
+import sysconfig
 
 from pkg_resources import resource_stream
 
@@ -239,7 +240,8 @@ def buildNuPICCore(env, nupicCoreSha, logger):
       git.resetHard(nupicCoreSha)
       runWithOutput("mkdir -p build/scripts", env, logger)
       with changeToWorkingDir("build/scripts"):
-        runWithOutput("cmake ../../src -DPYTHON_LIBRARY=`python -c 'import sysconfig; print sysconfig.get_config_var('LIBDIR'),'`/libpython2.7.so -DCMAKE_INSTALL_PREFIX=../release", env,
+        pythonLibrary = "{}/libpython2.7.so".format(sysconfig.get_config_var('LIBDIR'))
+        runWithOutput("cmake ../../src -DPYTHON_LIBRARY={} -DCMAKE_INSTALL_PREFIX=../release".format(pythonLibrary), env,
                       logger)
         runWithOutput("make -j 4", env, logger)
         runWithOutput("make install", env, logger)
