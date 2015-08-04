@@ -35,29 +35,14 @@ amidir="${reporoot}/infrastructure/ami-tools"
 
 scratch_f=$(mktemp /tmp/packer-output.XXXXXX)
 
-# Exported so packer can read it
-export GROK_INSTALL_MANIFEST=$(mktemp /tmp/grok-manifest.XXXXXX)
-
 cleanUp() {
-  echo "Cleaning up ${scratch_f} and ${GROK_INSTALL_MANIFEST}"
+  echo "Cleaning up ${scratch_f}"
   if [ -z "${KEEPFILES}" ]; then
-    rm -rfv "${scratch_f}" "${GROK_INSTALL_MANIFEST}"
+    rm -rfv "${scratch_f}"
   fi
 }
 
 trap cleanUp SIGQUIT SIGKILL SIGTERM
-
-makeManifest() {
-  "${amidir}"/create-grok-manifest --manifest-file "${GROK_INSTALL_MANIFEST}" \
-    --install-package "${GROK_RPM_NAME}" \
-    --description "Grok Manifest, Build ${BUILD_NUMBER}" \
-    --log-level warning
-  if [ -n "${DEBUG}" ]; then
-    echo "Manifest:"
-    cat "${GROK_INSTALL_MANIFEST}"
-    echo
-  fi
-}
 
 # TODO TAUR-824 use "aws ec2 describe-images" to retrieve AMI Id
 real_ami_bake() {
@@ -76,9 +61,9 @@ real_ami_bake() {
   echo "AMI_ID: ${ami_id}" > ami.txt
 }
 
-if [[ -z "$1"  || -z "$2" ]]; then
-  echo "USAGE: $0 <grok_rpm_version> <ami_name>"
-  echo "EXAMPLE: bake_ami nta-products-grok-1.7.0-9198.noarch.rpm numenta-master"
+if [[ -z "$1" ]]; then
+  echo "USAGE: $0 <ami_name>"
+  echo "EXAMPLE: bake_ami numenta-master"
   exit 1
 fi
 
@@ -90,10 +75,7 @@ if [ -z "${BUILD_NUMBER}" ]; then
     exit 1
   fi
 fi
+export AMI_NAME="$1"
 
-export GROK_RPM_NAME="$1"
-export AMI_NAME="$2"
-
-makeManifest
 real_ami_bake
 cleanUp

@@ -1,4 +1,4 @@
-#
+# ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
 # Numenta, Inc. a separate commercial license for this software code, the
@@ -17,12 +17,31 @@
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
-#
-#
+# ----------------------------------------------------------------------
 
-#Sun Nov 30 21:05:50 PST 2014
-distributionBase=GRADLE_USER_HOME
-distributionPath=wrapper/dists
-zipStoreBase=GRADLE_USER_HOME
-zipStorePath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-2.5-bin.zip
+"""${message}
+
+Revision ID: ${up_revision}
+Revises: ${down_revision}
+Create Date: ${create_date}
+"""
+
+from alembic import op
+import sqlalchemy as sa
+${imports if imports else ""}
+
+# Revision identifiers, used by Alembic. Do not change.
+revision = ${repr(up_revision)}
+down_revision = ${repr(down_revision)}
+
+
+
+def upgrade():
+    """TODO"""
+    ${upgrades if upgrades else "pass"}
+
+
+
+def downgrade():
+    """TODO"""
+    ${downgrades if downgrades else "pass"}

@@ -1,21 +1,30 @@
 {
   "variables": {
-    "grok_rpm_name": "{{env `GROK_RPM_NAME`}}",
-    "ami_name":"{{env `AMI_NAME`}}"
+    "ami_name":"{{env `AMI_NAME`}}",
+    "log_uploader_s3_access_key_id": "{{env `LOG_UPLOADER_S3_ACCESS_KEY_ID`}}",
+    "log_uploader_s3_secret_access_key": "{{env `LOG_UPLOADER_S3_SECRET_ACCESS_KEY`}}",
+    "wufoo_url": "{{env `WUFOO_URL`}}",
+    "wufoo_user": "{{env `WUFOO_USER`}}",
+    "notifications_aws_access_key_id": "{{env `NOTIFICATIONS_AWS_ACCESS_KEY_ID`}}",
+    "notifications_aws_secret_access_key": "{{env `NOTIFICATIONS_AWS_SECRET_ACCESS_KEY`}}",
+    "notifications_sender_email": "{{env `NOTIFICATIONS_SENDER_EMAIL`}}",
+    "git_remote": "{{env `REMOTE`}}",
+    "git_branch": "{{env `BRANCH`}}",
+    "git_commit_sha": "{{env `COMMIT_SHA`}}"
   },
   "builders": [
     {
-      "ami_description": "CentOS 6.5 + yum updates + build tools + Grok",
+      "ami_description": "CentOS 7 + Grok",
       "ami_name": "packer-{{user `ami_name`}}-{{isotime | clean_ami_name}}",
       "instance_type": "m3.large",
       "region": "us-west-2",
-      "source_ami": "ami-e32219d3",
+      "source_ami": "ami-c7d092f7",
       "ssh_port": 22,
       "ssh_timeout": "5m",
-      "ssh_username": "root",
+      "ssh_username": "centos",
       "tags": {
         "OS_Version": "CentOS",
-        "Release": "6.5"
+        "Release": "7"
       },
       "ami_block_device_mappings": [
         {
@@ -34,62 +43,31 @@
       "type": "file"
     },
     {
-      "destination": "/tmp/grok-development.repo",
-      "source": "repos/grok-development.repo",
-      "type": "file"
-    },
-    {
-      "destination": "/tmp/grok-release-candidates.repo",
-      "source": "repos/grok-release-candidates.repo",
-      "type": "file"
-    },
-    {
-      "destination": "/tmp/grok-releases.repo",
-      "source": "repos/grok-releases.repo",
-      "type": "file"
-    },
-    {
-      "destination": "/tmp/nta-carbonite.repo",
-      "source": "repos/nta-carbonite.repo",
-      "type": "file"
-    },
-    {
-      "destination": "/tmp/nta-thirdparty.repo",
-      "source": "repos/nta-thirdparty.repo",
-      "type": "file"
-    },
-    {
       "inline": [
         "echo 'Sleeping for 30s, waiting for system to settle down.'",
-        "sleep 30",
-        "mkdir -p /etc/grok",
-        "mkdir -p /etc/numenta",
-        "mkdir -p /srv/salt"
+        "sleep 30"
       ],
       "type": "shell"
     },
     {
-      "type": "shell",
-      "script": "packer-scripts/install-epel-repo-6.5"
+      "inline": "sudo yum update -y",
+      "type": "shell"
     },
     {
       "type": "shell",
-      "script": "packer-scripts/configure-grok-pipeline-ami",
+      "script": "packer-scripts/configure-grok-pipeline-centos7-ami",
       "environment_vars": [
-        "GROK_RPM_NAME={{user `grok_rpm_name`}}"
+        "LOG_UPLOADER_S3_ACCESS_KEY_ID={{user `log_uploader_s3_access_key_id`}}",
+        "LOG_UPLOADER_S3_SECRET_ACCESS_KEY={{user `log_uploader_s3_secret_access_key`}}",
+        "WUFOO_URL={{user `wufoo_url`}}",
+        "WUFOO_USER={{user `wufoo_user`}}",
+        "NOTIFICATIONS_AWS_ACCESS_KEY_ID={{user `notifications_aws_access_key_id`}}",
+        "NOTIFICATIONS_AWS_SECRET_ACCESS_KEY={{user `notifications_aws_secret_access_key`}}",
+        "NOTIFICATIONS_SENDER_EMAIL={{user `notifications_sender_email`}}",
+        "GIT_REMOTE={{user `git_remote`}}",
+        "GIT_BRANCH={{user `git_branch`}}",
+        "GIT_COMMIT_SHA={{user `git_commit_sha`}}"
       ]
-    },
-    {
-      "type": "shell",
-      "script": "packer-scripts/run-grok-ami-tests"
-    },
-    {
-      "type": "shell",
-      "script": "packer-scripts/cleanup-grok-pipeline-ami"
-    },
-    {
-      "type": "shell",
-      "script": "packer-scripts/cleanup-image"
     }
   ]
 }

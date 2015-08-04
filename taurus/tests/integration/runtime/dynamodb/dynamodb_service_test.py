@@ -57,7 +57,7 @@ LOGGER = logging.getLogger(__name__)
 
 # Decorator for retrying dynamodb operations that failed due to transient error
 _RETRY_ON_ITEM_NOT_FOUND_DYNAMODB_ERROR = error_handling.retry(
-  timeoutSec=10, initialRetryDelaySec=0.5, maxRetryDelaySec=2,
+  timeoutSec=300, initialRetryDelaySec=0.5, maxRetryDelaySec=10,
   retryExceptions=(ItemNotFound,),
   logger=LOGGER
 )
@@ -198,9 +198,15 @@ class DynamoDBServiceTest(TestCaseBase):
                             connection=dynamodb)
     instanceDataAnomalyScores = {}
     for metricValue, ts in data:
-      metricDataItem = _RETRY_ON_ITEM_NOT_FOUND_DYNAMODB_ERROR(
-        metricDataTable.lookup
-      )(uid, ts.isoformat())
+      for _ in xrange(60):
+        try:
+          metricDataItem = metricDataTable.lookup(uid, ts.isoformat())
+          break
+        except ItemNotFound as exc:
+          time.sleep(1)
+          continue
+      else:
+        self.fail("Metric data not found within 60 seconds")
       # There is no server-side cleanup for metric data, so remove it here for
       # now to avoid accumulating test data
       self.addCleanup(metricDataItem.delete)
@@ -256,10 +262,18 @@ class DynamoDBServiceTest(TestCaseBase):
 
     metricTweetsTable = Table(MetricTweetsDynamoDBDefinition().tableName,
                               connection=dynamodb)
-    metricTweetItem =  metricTweetsTable.lookup(
-      "-".join((metricName, uid)),
-      "2015-02-19T19:43:24.870118"
-    )
+    for _ in xrange(60):
+      try:
+        metricTweetItem = metricTweetsTable.lookup("-".join((metricName, uid)),
+          "2015-02-19T19:43:24.870118"
+        )
+        break
+      except ItemNotFound as exc:
+        time.sleep(1)
+        continue
+    else:
+      self.fail("Metric tweet item not found within 60 seconds")
+
     # There is no server-side cleanup for tweet data, so remove it here for
     # now to avoid accumulating test data
     self.addCleanup(metricTweetItem.delete)
