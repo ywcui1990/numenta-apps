@@ -108,7 +108,7 @@ def runWithOutput(command, env=os.environ, logger=None):
   except CalledProcessError:
     raise CommandFailedError("Failed to execute command: %s" % command)
   # Catch other exceptions like empty environment variable
-  except Exception as ex:
+  except Exception:
     if logger:
-      logger.exception("check_call failed for command=%s" , command)
+      logger.exception("check_call failed for command=%s", command)
     raise
