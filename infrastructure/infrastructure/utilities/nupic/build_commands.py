@@ -239,7 +239,7 @@ def buildNuPICCore(env, nupicCoreSha, logger):
       git.resetHard(nupicCoreSha)
       runWithOutput("mkdir -p build/scripts", env, logger)
       with changeToWorkingDir("build/scripts"):
-        runWithOutput("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release", env,
+        runWithOutput("cmake ../../src -DPYTHON_LIBRARY=`python -c 'import sysconfig; print sysconfig.get_config_var('LIBDIR'),'`/libpython2.7.so -DCMAKE_INSTALL_PREFIX=../release", env,
                       logger)
         runWithOutput("make -j 4", env, logger)
         runWithOutput("make install", env, logger)
