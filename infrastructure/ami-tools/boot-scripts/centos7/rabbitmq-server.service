@@ -1,0 +1,10 @@
+[Unit]
+Description=RabbitMQ
+
+[Install]
+Alias=rabbitmq.service
+
+[Service]
+ExecStart=/usr/sbin/rabbitmq-server
+ExecStop=/usr/sbin/rabbitmqctl stop
+Restart=always

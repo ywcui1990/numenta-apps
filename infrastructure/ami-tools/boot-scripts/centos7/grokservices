@@ -54,14 +54,14 @@ run-rootboot-helper() {
   if [ -x "${ROOTBOOT_HELPER}" ]; then
     "${ROOTBOOT_HELPER}" 2>&1 | tee >(logger -t rootboot-helper)
     if [ $? != "0" ]; then
-      service grok-preload grok-error
+      /etc/init.d/grok-preload grok-error
       exit 1
     fi
   fi
 }
 
 kill_preload() {
-  service grok-preload stop
+  /etc/init.d/grok-preload stop
 }
 
 syslog-rabbit-status() {
@@ -82,7 +82,7 @@ start()
   su centos -c "${supervisor_helper} start"
   echo
   kill_preload
-  service grok-preload restart-grok
+  /etc/init.d/grok-preload restart-grok
 }
 
 stop()
@@ -92,7 +92,7 @@ stop()
   logger -t grokservices "stop()"
   cd "${GROK_HOME}"
   su centos -c "${supervisor_helper} stop"
-  service grok-preload grok-stopped
+  /etc/init.d/grok-preload grok-stopped
   echo
 }
 
@@ -114,7 +114,7 @@ restart()
   logger -t grokservices "restart()"
   cd "${GROK_HOME}"
   su centos -c "${supervisor_helper} restart"
-  service grok-preload restart-grok
+  /etc/init.d/grok-preload restart-grok
   echo
 }
 
