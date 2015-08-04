@@ -2,7 +2,7 @@
 Description=RabbitMQ
 
 [Install]
-Alias=rabbitmq.service
+Alias=rabbitmq-server.service
 
 [Service]
 ExecStart=/usr/sbin/rabbitmq-server
