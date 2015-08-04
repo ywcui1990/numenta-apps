@@ -1,8 +1,11 @@
 [Unit]
 Description=RabbitMQ
+After=network.target
+After=syslog.target
 
 [Install]
 Alias=rabbitmq-server.service
+WantedBy=multi-user.target
 
 [Service]
 ExecStart=/usr/sbin/rabbitmq-server

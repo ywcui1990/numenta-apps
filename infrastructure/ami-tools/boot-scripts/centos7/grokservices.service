@@ -1,8 +1,11 @@
 [Unit]
-Description=GROK services
+Description=Grok services
+After=mysql.service
+After=rabbitmq.service
 
 [Install]
 Alias=grokservices.service
+WantedBy=multi-user.target
 
 [Service]
 Type=forking
