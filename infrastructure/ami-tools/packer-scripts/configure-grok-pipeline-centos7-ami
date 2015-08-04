@@ -105,7 +105,7 @@ install-grok() {
   echo "Installing Grok"
 
   # Install Grok pre-requisites
-  pip install paver==1.2.4 uwsgi==2.0.4 agamotto==0.5.1 --target "${NUMENTA}/lib/python2.7/site-packages"
+  pip install paver==1.2.4 uwsgi==2.0.4 agamotto==0.5.1 --install-options="--prefix=${NUMENTA}"
 
   # Clone Numenta Apps Repo
   cd "${NUMENTA}"
@@ -143,7 +143,7 @@ install-grok() {
     sudo ln -s "${BOOTSCRIPTS_D}/${file}" /etc/init.d/
   done
 
-  for file in grok-error.service \
+  for service in grok-error.service \
     grok-loading.service \
     grok-preload.service \
     grok-stopped.service \
@@ -151,8 +151,21 @@ install-grok() {
     grokservices.service \
     rabbitmq-server.service
   do
-    echo "Creating symlink for ${file} systemd script"
-    sudo ln -s "${BOOTSCRIPTS_D}/${file}" /etc/systemd/system/
+    echo "Creating symlink for ${service} systemd script"
+    sudo ln -s "${BOOTSCRIPTS_D}/${service}" /etc/systemd/system/
+  done
+
+  sudo systemctl daemon-reload
+
+  # NOTE: Per https://bugzilla.redhat.com/show_bug.cgi?id=955379 we need to use
+  # the absolute path to the file instead of the symlink in /etc/systemd to
+  # enable the services
+  for service in grok-loading.service \
+    grokservices.service \
+    rabbitmq-server.service
+  do
+    echo "Enabling ${service} to start at boot"
+    sudo systemctl enable "${BOOTSCRIPTS_D}/${service}"
   done
 
   echo "Creating symlink for supervisord-helper"
@@ -175,7 +188,7 @@ start-3rd-party-services() {
 
   # Add Rabbit Admin scripts and start Rabbit
   sudo ln -s "${PRODUCTS}/infrastructure/saltcellar/rabbitmq/files/rabbitmqadmin" /usr/local/bin/
-  sudo rabbitmq-server -detached
+  sudo systemctl start rabbitmq-server
 }
 
 bootstrap-and-start-grok() {
@@ -184,11 +197,12 @@ bootstrap-and-start-grok() {
   echo "Bootstrap Grok"
   # Increase max connections for Grok
   sudo sysctl -w net.core.somaxconn=1024
+  echo "net.core.somaxconn=1024" | sudo tee -a /etc/sysctl.conf
 
   cd "${GROK_HOME}"
   mkdir -p "${GROK_LOG_DIR}"/
 
-  sudo service grokservices start
+  sudo systemctl start grokservices
 }
 
 install-prerequisites-and-update-repos
