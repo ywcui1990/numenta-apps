@@ -106,8 +106,17 @@ def addAndParseArgs():
   parser.add_argument("--nupic-branch", dest="nupicBranch", type=str,
                       default="master",
                       help="The NuPIC branch to add in deploy track")
-  parser.add_argument("--sha", dest="sha", type=str,
+  parser.add_argument("--sha", dest="nupicSha", type=str,
                       help="The NuPIC SHA that needs to be built.")
+  parser.add_argument("--nupic-core-remote", dest="nupicCoreRemote", type=str,
+                      default="",
+                      help="Which NuPIC Core remote to build from, e.g., "
+                           "git@github.com:numenta/nupic.core.git")
+  parser.add_argument("--nupic-core-branch", dest="nupicCoreBranch", type=str,
+                      default="",
+                      help="The NuPIC core branch to add in deploy track")
+  parser.add_argument("--sha-core", dest="nupicCoreSha", type=str, default="None",
+                      help="The NuPIC Core SHA that needs to be built.")
   parser.add_argument("--log", dest="logLevel", type=str, default="warning",
                       help="Logging level, by default it takes warning")
 
@@ -123,11 +132,12 @@ def addAndParseArgs():
     try:
       buildWorkspace = baseDir + "/build-%s" % buildNumber
       os.makedirs(buildWorkspace)
+      args["buildWorkspace"] = buildWorkspace
     except:
       raise PipelineError("Could not create the build workspace.")
 
   if buildWorkspace:
-    return buildWorkspace, args["nupicRemote"], args["nupicBranch"], args["sha"]
+    return args
   else:
     parser.error("Either set the WORKSPACE env var, or pass the "
                  "--build-workspace parameter")
@@ -139,18 +149,20 @@ def main():
     Entry point to run the nupic pipeline
 
   """
-  buildWorkspace, nupicRemote, nupicBranch, nupicSha = addAndParseArgs()
+  args = addAndParseArgs()
 
-  env = prepareEnv(buildWorkspace, None, os.environ)
+  env = prepareEnv(args["buildWorkspace"], None, os.environ)
   log.printEnv(env, g_logger)
 
-  if not nupicSha:
-    nupicSha = git.getShaFromRemoteBranch(nupicRemote, nupicBranch)
+  if not args["nupicSha"]:
+    args["nupicSha"] = git.getShaFromRemoteBranch(args["nupicRemote"], args["nupicBranch"])
 
-  if not checkIfProjectExistsLocallyForSHA("nupic", nupicSha, g_logger):
-    fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, g_logger)
+  if not checkIfProjectExistsLocallyForSHA("nupic", args["nupicSha"], g_logger):
+    fullBuild(env, args["buildWorkspace"], args["nupicRemote"],
+        args["nupicBranch"], args["nupicSha"], args["nupicCoreRemote"],
+        args["nupicCoreSha"], args["nupicCoreBranch"], g_logger)
   else:
-    g_logger.info("Skipping NuPIC build for SHA : %s", nupicSha)
+    g_logger.info("Skipping NuPIC build for SHA : %s", args["nupicSha"])
 
 
 
