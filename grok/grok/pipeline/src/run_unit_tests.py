@@ -38,6 +38,22 @@ from infrastructure.utilities.cli import runWithOutput
 
 g_logger = None
 
+
+def prepareResultsDir():
+  """
+    Make sure that a results directory exists in the right place. Return the
+    path of the results directory.
+
+    :returns: The full path of the results directory
+    :rtype: String
+  """
+  resultsDir = os.path.join(getWorkspace(), "results")
+  if not os.path.exists(resultsDir):
+    os.makedirs(resultsDir)
+  return resultsDir
+
+
+
 def runTestCommand(testCommand, env, outputFile=None):
   """
     Runs given test command with provided environment
@@ -117,7 +133,7 @@ def recordXunitTestsResults():
     it. Results are archived by jenkins for each build.
   """
   jobResultsDir = os.path.join(os.environ["BUILD_WORKSPACE"], "products")
-  masterResults = os.path.join(getWorkspace(), "results")
+  masterResults = prepareResultsDir()
   jobNumber = getBuildNumber()
 
   def attemptResultUpdate(task):
