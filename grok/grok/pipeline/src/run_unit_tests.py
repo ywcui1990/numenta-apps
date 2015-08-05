@@ -24,17 +24,21 @@ import argparse
 import json
 import os
 import shutil
-import uuid
 
 from subprocess import check_call
 
 from infrastructure.utilities.env import prepareEnv
 from infrastructure.utilities.exceptions import CommandFailedError
+from infrastructure.utilities.jenkins import getBuildNumber, getWorkspace
 from infrastructure.utilities.logger import initPipelineLogger, printEnv
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput
 
-def runTestCommand(testCommand, env, logger, outputFile=None):
+
+
+g_logger = None
+
+def runTestCommand(testCommand, env, outputFile=None):
   """
     Runs given test command with provided environment
 
@@ -52,22 +56,20 @@ def runTestCommand(testCommand, env, logger, outputFile=None):
       check_call(testCommand, shell=True, env=env,
                  stdout=open(outputFile, "w"))
       # Updating console
-      runWithOutput("cat %s" % outputFile)
+      runWithOutput("cat %s" % outputFile, env=env, logger=g_logger)
     else:
-      runWithOutput(testCommand, env=env, logger=logger)
-
-    logger.info("\n\n###### COMPLETED %s tests ######\n\n" % testCommand)
+      runWithOutput(testCommand, env=env, logger=g_logger)
     return True
   except CommandFailedError:
     if outputFile:
       runWithOutput("cat %s" % outputFile)
-    logger.error("Error executing %s\n*Most likely cause is a test FAILURE*\n",
-                 testCommand)
+    g_logger.error("Error executing %s\n*Most likely cause is a test FAILURE*",
+                   testCommand)
     return False
 
 
 
-def runUnitTests(env, pipeline, grokSha, logger):
+def runUnitTests(env):
   """
     Runs tests listed in files present at {GROK_HOME}/tests/ci/
 
@@ -79,10 +81,8 @@ def runUnitTests(env, pipeline, grokSha, logger):
 
   """
   # Print environment for debug purposes
-  printEnv(env, logger)
+  printEnv(env, g_logger)
   buildWorkspace = os.environ["BUILD_WORKSPACE"]
-
-  task = "_".join([pipeline, grokSha, str(uuid.uuid4())])
 
   xunitSuccess = True
   with open(os.path.join(env["GROK_HOME"],
@@ -93,54 +93,43 @@ def runUnitTests(env, pipeline, grokSha, logger):
   with changeToWorkingDir(os.path.join(buildWorkspace, "products")):
     g_logger.debug(os.getcwd())
     for xunitTest in xunitTests:
-      logger.info("-------Running %s -------" % xunitTest)
-      xunitSuccess = runTestCommand(xunitTest, env, logger)
-      logger.info("\n\n###### COMPLETED %s tests ######\n\n" % xunitTest)
-      if "WORKSPACE" in os.environ:
-        # `WORKSPACE` should only be set by Jenkins and we only want to record
-        # the test results if we're on Jenkins
-        logger.info("\n\n###### Recording Results %s######\n\n" % xunitTest)
-        recordXunitTestsResults(task)
+      g_logger.info("-------Running %s -------", xunitTest)
+      xunitSuccess = runTestCommand(xunitTest, env)
+      g_logger.info("\n\n###### COMPLETED %s tests ######\n\n", xunitTest)
       if not xunitSuccess:
-        logger.error("-------Failed %s -------" % xunitTest)
+        g_logger.error("-------Failed %s -------", xunitTest)
         break
+
+  if "WORKSPACE" in os.environ:
+    # `WORKSPACE` should only be set by Jenkins and we only want to record
+    # the test results if we're on Jenkins
+    recordXunitTestsResults()
 
   return xunitSuccess
 
 
 
-def recordXunitTestsResults(taskIdentifier):
+def recordXunitTestsResults():
   """
     This updates result generated for tests which does report formatted test
     result.
     Results are updated to a directory name masterResults where jenkins can find
     it. Results are archived by jenkins for each build.
-
-    :param taskIdentifier: Unique task identifier; used in the construction of
-      the results filename to avoid collisions
-      e.g task = pipeline + grokSha + uuid
   """
-  grokResults = os.path.join(os.environ["BUILD_WORKSPACE"],
-                             "products/grok/tests/results/py2/xunit/jenkins")
-  htmEngineResults = os.path.join(os.environ["BUILD_WORKSPACE"],
-                                  "products/htmengine/tests")
-  ntaUtilsResults = os.path.join(os.environ["BUILD_WORKSPACE"],
-                                 "products/nta.utils/tests")
-  masterResults = os.path.join(os.environ["BUILD_WORKSPACE"],
-                               "masterResults")
+  jobResultsDir = os.path.join(os.environ["BUILD_WORKSPACE"], "products")
+  masterResults = os.path.join(getWorkspace(), "results")
+  jobNumber = getBuildNumber()
 
-  def attemptResultUpdate(targetResultDir, resultFile, currentTest):
-    if os.path.exists(os.path.join(targetResultDir, resultFile)):
-      shutil.move(os.path.join(targetResultDir, resultFile),
-                  os.path.join(targetResultDir,
-                               "%s_results_%s.xml" %
-                               (currentTest, taskIdentifier)))
-      shutil.move(os.path.join(targetResultDir, "%s_results_%s.xml" % (
-                  currentTest, taskIdentifier)), masterResults)
+  def attemptResultUpdate(task):
+    originalResultsFile = "%s_unit_test_results.xml" % task
+    newResultsFile = "%s_unit_test_results_%s.xml" % (task, jobNumber)
+    if os.path.exists(os.path.join(jobResultsDir, originalResultsFile)):
+      shutil.move(os.path.join(jobResultsDir, originalResultsFile),
+                  os.path.join(masterResults, newResultsFile))
 
-  attemptResultUpdate(grokResults, "results.xml", "grok")
-  attemptResultUpdate(htmEngineResults, "results.xml", "htmengine")
-  attemptResultUpdate(ntaUtilsResults, "results.xml", "ntautils")
+  attemptResultUpdate("grok")
+  attemptResultUpdate("htmengine")
+  attemptResultUpdate("nta.utils")
 
 
 
@@ -157,13 +146,8 @@ def addAndParseArgs(jsonArgs):
                                    "commandline is prohibited. "
                                    "Use help for detailed information for "
                                    "parameters")
-  parser.add_argument("--trigger-pipeline", dest="pipeline", type=str,
-                      help="Repository name which triggered this pipeline",
-                      choices=["grok"])
   parser.add_argument("--build-workspace", dest="buildWorkspace", type=str,
                       help="Common dir prefix for grok")
-  parser.add_argument("--grok-sha", dest="grokSha", type=str,
-                      help="SHA from Grok used for this build")
   parser.add_argument("--pipeline-json", dest="pipelineJson", type=str,
                       help="Path locator for build json file. This file should "
                       "have all parameters required by this script. Provide "
@@ -197,17 +181,12 @@ def addAndParseArgs(jsonArgs):
   else:
     pipelineParams = saneParams
 
-  pipeline = pipelineParams.get("pipeline", pipelineParams.get("manifest",
-                                {}).get("pipeline"))
   buildWorkspace = os.environ.get("BUILD_WORKSPACE",
                      pipelineParams.get("buildWorkspace",
                      pipelineParams.get("manifest", {}).get("buildWorkspace")))
-  grokSha = pipelineParams.get("grokSha",
-                               pipelineParams.get("build", {}).get("grokSha"))
 
-  if pipeline and buildWorkspace and grokSha:
-    return (pipeline, buildWorkspace, grokSha, pipelineParams,
-            args["pipelineJson"])
+  if buildWorkspace and pipelineParams:
+    return (buildWorkspace, pipelineParams, args["pipelineJson"])
   else:
     parser.error("Please provide all parameters, "
                  "use --help for further details")
@@ -227,18 +206,12 @@ def main(jsonArgs=None):
   jsonArgs = jsonArgs or {}
   testResult = False
   try:
-    (pipeline, buildWorkspace, grokSha,
-     pipelineParams, pipelineJson) = addAndParseArgs(jsonArgs)
+    (buildWorkspace, pipelineParams, pipelineJson) = addAndParseArgs(jsonArgs)
 
     os.environ["BUILD_WORKSPACE"] = buildWorkspace
     env = prepareEnv(buildWorkspace, None, os.environ)
 
-    # Tests are failing without LD_LIBRARY_PATH, HACK
-    env.update(
-      LD_LIBRARY_PATH="/opt/numenta/anaconda/lib:/usr/lib64:/usr/lib"
-    )
-
-    testResult = runUnitTests(env, pipeline, grokSha, g_logger)
+    testResult = runUnitTests(env=env)
     # Write testResult to JSON file if JSON file driven run
     if pipelineJson:
       pipelineParams["test"] = {"testStatus" : testResult}
