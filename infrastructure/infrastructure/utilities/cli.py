@@ -29,7 +29,7 @@ from infrastructure.utilities.exceptions import CommandFailedError
 
 
 
-def executeCommand(command, env=os.environ, logger=None):
+def executeCommand(command, env=os.environ, printEnv=False, logger=None):
   """
   Execute a command and return the raw output
 
@@ -37,6 +37,8 @@ def executeCommand(command, env=os.environ, logger=None):
 
   @param env: The environment required to execute the command which is passed.
               By default use os.environ
+
+  @param printEnv: whether or not to print the environment passed to command
 
   @param logger: logger for additional debug info if desired
 
@@ -50,17 +52,21 @@ def executeCommand(command, env=os.environ, logger=None):
   """
   try:
     if logger:
-      log.printEnv(env, logger)
+      if printEnv:
+        log.printEnv(env, logger)
       logger.debug(command)
     if isinstance(command, basestring):
       command = command.strip().split(" ")
     return check_output(command, env=env).strip()
   except CalledProcessError:
-    raise CommandFailedError("Failed to execute command: %s", command)
+    if isinstance(command, basestring):
+      errMessage = "Failed to execute command: %s" % command
+    else:
+      errMessage = "Failed to execute command: %s" % " ".join(command)
+    raise CommandFailedError(errMessage)
 
 
-
-def runWithRetries(command, retries=1, delay=1, logger=None):
+def runWithRetries(command, retries=1, delay=1, printEnv=False, logger=None):
   """
   Run a command up to retries times until it succeeds.
 
@@ -70,6 +76,10 @@ def runWithRetries(command, retries=1, delay=1, logger=None):
 
   @param delay: delay in seconds between retries
 
+  @param printEnv: whether or not to print the environment passed to command
+
+  @param logger: logger for additional debug info if desired
+
   @raises infrastructure.utilities.exceptions.CommandFailedError
   if the command doesn't succeed after trying retries times
   """
@@ -77,18 +87,23 @@ def runWithRetries(command, retries=1, delay=1, logger=None):
   while attempts < retries:
     attempts = attempts + 1
     try:
-      runWithOutput(command)
+      runWithOutput(command, printEnv=printEnv, logger=logger)
       return
     except CommandFailedError:
       if logger:
         logger.debug("Attempt %s to '%s' failed, retrying in %s seconds...",
                      attempts, command, delay)
       time.sleep(delay)
-  raise CommandFailedError("%s failed after %s attempts" % (command, retries))
+
+  if isinstance(command, basestring):
+    errMessage = "% failed after %s attempts" % (command, retries)
+  else:
+    errMessage = "% failed after %s attempts" % (" ".join(command), retries)
+
+  raise CommandFailedError(errMessage)
 
 
-
-def runWithOutput(command, env=os.environ, logger=None):
+def runWithOutput(command, env=os.environ, printEnv=False, logger=None):
   """
   Run a command, printing as the command executes.
 
@@ -96,14 +111,21 @@ def runWithOutput(command, env=os.environ, logger=None):
 
   @param env: environment variables to use while running command
 
+  @param printEnv: Whether or not to print the environment passed to command
+
   @param logger: optional logger for additional debug info if desired
   """
   try:
     if logger:
-      log.printEnv(env, logger)
+      if printEnv:
+        log.printEnv(env, logger)
       logger.debug(command)
     if isinstance(command, basestring):
       command = command.strip().split(" ")
     check_call(command, env=env)
   except CalledProcessError:
-    raise CommandFailedError("Failed to execute command: %s" % command)
+    if isinstance(command, basestring):
+      errMessage = "Failed to execute command: %s" % command
+    else:
+      errMessage = "Failed to execute command: %s" % " ".join(command)
+    raise CommandFailedError(errMessage)
