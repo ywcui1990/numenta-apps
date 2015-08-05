@@ -125,5 +125,6 @@ def runWithOutput(command, env=None, logger=None):
   # Catch other exceptions, add info about what command triggered them
   except Exception as e:
     errMessage = "Failed to execute: %s; original=%r" % (command, e,)
-    logger.exception(errMessage)
+    if logger is not None:
+      logger.exception(errMessage)
     raise
