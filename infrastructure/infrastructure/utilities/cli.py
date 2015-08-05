@@ -18,6 +18,7 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+# TODO: TAUR-1363 - Clean up the logger=None throughout this file.
 
 import os
 import time
@@ -29,7 +30,7 @@ from infrastructure.utilities.exceptions import CommandFailedError
 
 
 
-def executeCommand(command, env=None, printEnv=False, logger=None):
+def executeCommand(command, env=None, logger=None):
   """
   Execute a command and return the raw output
 
@@ -51,24 +52,22 @@ def executeCommand(command, env=None, printEnv=False, logger=None):
   @rtype: string
   """
   try:
-    if not env:
+    if env is None:
       env = os.environ
-    if printEnv:
-      diagnostics.printEnv(env, logger)
-    if logger:
-      logger.debug(command)
+    diagnostics.printEnv(env, logger)
+    if logger is not None:
+      logger.debug("**********>")
+      logger.debug("**********> %s", command)
+      logger.debug("**********>")
     if isinstance(command, basestring):
       command = command.strip().split(" ")
     return check_output(command, env=env).strip()
-  except CalledProcessError:
-    if isinstance(command, basestring):
-      errMessage = "Failed to execute command: %s" % command
-    else:
-      errMessage = "Failed to execute command: %s" % " ".join(command)
+  except CalledProcessError as e:
+    errMessage = "Failed to execute: %s; original=%r" % (command, e,)
     raise CommandFailedError(errMessage)
 
 
-def runWithRetries(command, retries=1, delay=1, printEnv=False, logger=None):
+def runWithRetries(command, retries=1, delay=1, logger=None):
   """
   Run a command up to retries times until it succeeds.
 
@@ -92,20 +91,16 @@ def runWithRetries(command, retries=1, delay=1, printEnv=False, logger=None):
       runWithOutput(command, printEnv=printEnv, logger=logger)
       return
     except CommandFailedError:
-      if logger:
+      if logger is not None:
         logger.debug("Attempt %s to '%s' failed, retrying in %s seconds...",
                      attempts, command, delay)
       time.sleep(delay)
 
-  if isinstance(command, basestring):
-    errMessage = "% failed after %s attempts" % (command, retries)
-  else:
-    errMessage = "% failed after %s attempts" % (" ".join(command), retries)
-
+  errMessage = "%s failed after %s attempts" % (command, retries)
   raise CommandFailedError(errMessage)
 
 
-def runWithOutput(command, env=None, printEnv=False, logger=None):
+def runWithOutput(command, env=None, logger=None):
   """
   Run a command, printing as the command executes.
 
@@ -118,27 +113,21 @@ def runWithOutput(command, env=None, printEnv=False, logger=None):
   @param logger: optional logger for additional debug info if desired
   """
   try:
-    if not env:
+    if env is None:
       env = os.environ
-    if printEnv:
-      diagnostics.printEnv(env, logger)
-    if logger:
-      logger.debug(command)
+    diagnostics.printEnv(env, logger)
+    if logger is not None:
+      logger.debug("**********>")
+      logger.debug("**********> %s", command)
+      logger.debug("**********>")
     if isinstance(command, basestring):
       command = command.strip().split(" ")
     check_call(command, env=env)
   except CalledProcessError:
-    if isinstance(command, basestring):
-      errMessage = "Failed to execute command: %s" % command
-    else:
-      errMessage = "Failed to execute command: %s" % " ".join(command)
+    errMessage = "Failed to execute: %s" % (command,)
     raise CommandFailedError(errMessage)
-  # Catch other exceptions like empty environment variable
-  except Exception:
-    if logger:
-      if isinstance(command, basestring):
-        errMessage = "check_call failed for command=%s", command
-      else:
-        errMessage = "check_call failed for command=%s" % " ".join(command)
-      logger.exception(errMessage)
+  # Catch other exceptions, add info about what command triggered them
+  except Exception as e:
+    errMessage = "Failed to execute: %s; original=%r" % (command, e,)
+    logger.exception(errMessage)
     raise
