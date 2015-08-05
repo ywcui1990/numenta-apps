@@ -24,7 +24,7 @@ import time
 
 from subprocess import CalledProcessError, check_call, check_output
 
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import logger as diagnostics
 from infrastructure.utilities.exceptions import CommandFailedError
 
 
@@ -52,7 +52,7 @@ def executeCommand(command, env=os.environ, printEnv=False, logger=None):
   """
   try:
     if printEnv:
-      log.printEnv(env, logger)
+      diagnostics.printEnv(env, logger)
     if logger:
       logger.debug(command)
     if isinstance(command, basestring):
@@ -117,7 +117,7 @@ def runWithOutput(command, env=os.environ, printEnv=False, logger=None):
   """
   try:
     if printEnv:
-      log.printEnv(env, logger)
+      diagnostics.printEnv(env, logger)
     if logger:
       logger.debug(command)
     if isinstance(command, basestring):
