@@ -51,9 +51,9 @@ def executeCommand(command, env=os.environ, printEnv=False, logger=None):
   @rtype: string
   """
   try:
+    if printEnv:
+      log.printEnv(env, logger)
     if logger:
-      if printEnv:
-        log.printEnv(env, logger)
       logger.debug(command)
     if isinstance(command, basestring):
       command = command.strip().split(" ")
@@ -116,9 +116,9 @@ def runWithOutput(command, env=os.environ, printEnv=False, logger=None):
   @param logger: optional logger for additional debug info if desired
   """
   try:
+    if printEnv:
+      log.printEnv(env, logger)
     if logger:
-      if printEnv:
-        log.printEnv(env, logger)
       logger.debug(command)
     if isinstance(command, basestring):
       command = command.strip().split(" ")
