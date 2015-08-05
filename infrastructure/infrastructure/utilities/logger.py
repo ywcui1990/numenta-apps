@@ -38,7 +38,7 @@ def initPipelineLogger(name, logLevel="info"):
   logger = logging.getLogger(name)
   consoleHandler = logging.StreamHandler(stream=sys.stderr)
   formatter  = logging.Formatter(
-    "%(levelname)s -%(name)s - %(asctime)s - %(message)s")
+    "%(name)s:%(levelname)s:%(asctime)s:%(message)s")
   consoleHandler.setFormatter(formatter)
   logger.setLevel(logLevel.upper())
   logger.addHandler(consoleHandler)
