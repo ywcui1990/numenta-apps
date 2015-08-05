@@ -97,3 +97,30 @@ example:
     [include]
     files = ../../htmengine/conf/supervisord-base.conf
 
+Running HTMEngine Integration Tests
+-----------------------------------
+
+The HTM engine has a basic skeleton application exclusively for running tests.
+To run the tests, you must have MySQL, RabbitMQ, and Supervisor running.
+
+Make sure that `APPLICATION_CONFIG_PATH` is set to point to `tests/support/skeleton-app/conf`
+For example:
+```export APPLICATION_CONFIG_PATH=/Users/{name}/nta/numenta-apps/htmengine/tests/support/skeleton-app/conf```
+(alternatively you can use the `APPLICATION_CONFIG_PATH` from an app based off
+of the HTMEngine, just be careful to not reset an existing MySQL database)
+
+With MySQL already started start/restart RabbitMQ:
+`rabbitmq-server -detached`
+
+Setup the htmengine MySQL database:
+(don't do this if you're testing on Grok, Taurus, or another HTMEngine application)
+`./tests/support/skeleton-app/reset_db.py`
+
+Start `supervisord`:
+```cd tests/support/skeleton-app```
+```supervisord -c conf/supervisord.conf```
+*NOTE: Be sure to run `mkdir logs` within the `skeleton-app` directory so
+supervisor has a place to store its logs*
+
+Run the integration tests:
+`py.test tests/integration`

@@ -325,6 +325,7 @@ class XigniteStockAgentTestCase(unittest.TestCase):
     self.assertFalse(result[1])
 
 
+  @unittest.skip("TAUR-1335")
   @patch(
     "taurus.metric_collectors.xignite.xignite_stock_agent._getLatestSample",
     autospec=True)
@@ -523,6 +524,7 @@ class XigniteStockAgentTestCase(unittest.TestCase):
     #import pdb; pdb.set_trace()
 
 
+  @unittest.skip("TAUR-1335")
   @patch(
     "taurus.metric_collectors.xignite.xignite_stock_agent._getLatestSample",
     autospec=True)

@@ -129,3 +129,12 @@ def runWithOutput(command, env=os.environ, printEnv=False, logger=None):
     else:
       errMessage = "Failed to execute command: %s" % " ".join(command)
     raise CommandFailedError(errMessage)
+  # Catch other exceptions like empty environment variable
+  except Exception:
+    if logger:
+      if isinstance(command, basestring):
+        errMessage = "check_call failed for command=%s", command
+      else:
+        errMessage = "check_call failed for command=%s" % " ".join(command)
+      logger.exception(errMessage)
+    raise

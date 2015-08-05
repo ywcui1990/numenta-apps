@@ -6,6 +6,7 @@
 
 ## UNDER HEAVY DEVELOPMENT
 
+* @TODO Dev tool resources for Web, Node, Electron, Browser addons, etc.
 * @TODO Add in Flow type checking
 * @TODO add in Dygraph/FaceOfGrok
 * @TODO make real tests and make tests work
