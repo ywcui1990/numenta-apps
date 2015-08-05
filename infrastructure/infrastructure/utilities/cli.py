@@ -29,7 +29,7 @@ from infrastructure.utilities.exceptions import CommandFailedError
 
 
 
-def executeCommand(command, env=os.environ, printEnv=False, logger=None):
+def executeCommand(command, env=None, printEnv=False, logger=None):
   """
   Execute a command and return the raw output
 
@@ -51,6 +51,8 @@ def executeCommand(command, env=os.environ, printEnv=False, logger=None):
   @rtype: string
   """
   try:
+    if not env:
+      env = os.environ
     if printEnv:
       diagnostics.printEnv(env, logger)
     if logger:
@@ -103,7 +105,7 @@ def runWithRetries(command, retries=1, delay=1, printEnv=False, logger=None):
   raise CommandFailedError(errMessage)
 
 
-def runWithOutput(command, env=os.environ, printEnv=False, logger=None):
+def runWithOutput(command, env=None, printEnv=False, logger=None):
   """
   Run a command, printing as the command executes.
 
@@ -116,6 +118,8 @@ def runWithOutput(command, env=os.environ, printEnv=False, logger=None):
   @param logger: optional logger for additional debug info if desired
   """
   try:
+    if not env:
+      env = os.environ
     if printEnv:
       diagnostics.printEnv(env, logger)
     if logger:
