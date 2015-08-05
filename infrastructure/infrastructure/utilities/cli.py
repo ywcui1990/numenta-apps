@@ -18,18 +18,19 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+# TODO: TAUR-1363 - Clean up the logger=None throughout this file.
 
 import os
 import time
 
 from subprocess import CalledProcessError, check_call, check_output
 
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import logger as diagnostics
 from infrastructure.utilities.exceptions import CommandFailedError
 
 
 
-def executeCommand(command, env=os.environ, logger=None):
+def executeCommand(command, env=None, logger=None):
   """
   Execute a command and return the raw output
 
@@ -37,6 +38,8 @@ def executeCommand(command, env=os.environ, logger=None):
 
   @param env: The environment required to execute the command which is passed.
               By default use os.environ
+
+  @param printEnv: whether or not to print the environment passed to command
 
   @param logger: logger for additional debug info if desired
 
@@ -49,15 +52,17 @@ def executeCommand(command, env=os.environ, logger=None):
   @rtype: string
   """
   try:
-    if logger:
-      log.printEnv(env, logger)
-      logger.debug(command)
+    if env is None:
+      env = os.environ
+    diagnostics.printEnv(env, logger)
+    if logger is not None:
+      logger.debug("**********> %s", command)
     if isinstance(command, basestring):
       command = command.strip().split(" ")
     return check_output(command, env=env).strip()
-  except CalledProcessError:
-    raise CommandFailedError("Failed to execute command: %s", command)
-
+  except CalledProcessError as e:
+    errMessage = "Failed to execute: %s; original=%r" % (command, e,)
+    raise CommandFailedError(errMessage)
 
 
 def runWithRetries(command, retries=1, delay=1, logger=None):
@@ -70,6 +75,10 @@ def runWithRetries(command, retries=1, delay=1, logger=None):
 
   @param delay: delay in seconds between retries
 
+  @param printEnv: whether or not to print the environment passed to command
+
+  @param logger: logger for additional debug info if desired
+
   @raises infrastructure.utilities.exceptions.CommandFailedError
   if the command doesn't succeed after trying retries times
   """
@@ -77,18 +86,19 @@ def runWithRetries(command, retries=1, delay=1, logger=None):
   while attempts < retries:
     attempts = attempts + 1
     try:
-      runWithOutput(command)
+      runWithOutput(command, printEnv=printEnv, logger=logger)
       return
     except CommandFailedError:
-      if logger:
+      if logger is not None:
         logger.debug("Attempt %s to '%s' failed, retrying in %s seconds...",
                      attempts, command, delay)
       time.sleep(delay)
-  raise CommandFailedError("%s failed after %s attempts" % (command, retries))
+
+  errMessage = "%s failed after %s attempts" % (command, retries)
+  raise CommandFailedError(errMessage)
 
 
-
-def runWithOutput(command, env=os.environ, logger=None):
+def runWithOutput(command, env=None, logger=None):
   """
   Run a command, printing as the command executes.
 
@@ -96,19 +106,25 @@ def runWithOutput(command, env=os.environ, logger=None):
 
   @param env: environment variables to use while running command
 
+  @param printEnv: Whether or not to print the environment passed to command
+
   @param logger: optional logger for additional debug info if desired
   """
   try:
-    if logger:
-      log.printEnv(env, logger)
-      logger.debug(command)
+    if env is None:
+      env = os.environ
+    diagnostics.printEnv(env, logger)
+    if logger is not None:
+      logger.debug("**********> %s", command)
     if isinstance(command, basestring):
       command = command.strip().split(" ")
     check_call(command, env=env)
   except CalledProcessError:
-    raise CommandFailedError("Failed to execute command: %s" % command)
-  # Catch other exceptions like empty environment variable
-  except Exception:
-    if logger:
-      logger.exception("check_call failed for command=%s", command)
+    errMessage = "Failed to execute: %s" % (command,)
+    raise CommandFailedError(errMessage)
+  # Catch other exceptions, add info about what command triggered them
+  except Exception as e:
+    errMessage = "Failed to execute: %s; original=%r" % (command, e,)
+    if logger is not None:
+      logger.exception(errMessage)
     raise
