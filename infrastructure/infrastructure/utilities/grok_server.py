@@ -117,8 +117,14 @@ def waitForGrokServerToBeReady(publicDnsName, serverKey, user, logger):
                 connection_attempts = 30, warn_only = True):
     for _ in xrange(MAX_RETRIES_FOR_INSTANCE_READY):
       logger.info("Checking to see if nginx and Grok Services are running")
-      nginx = checkNginxStatus(logger)
-      grokServices = checkGrokServicesStatus(logger)
+      try:
+        nginx = checkNginxStatus(logger)
+        grokServices = checkGrokServicesStatus(logger)
+      except EOFError:
+        # If SSH hasn't started completely on the remote system, we may get an
+        # EOFError trying to provide a password for the user. Instead, just log
+        # a warning and continue to retry
+        logger.warning("SSH hasn't started completely on the remote machine")
       if nginx and grokServices:
         break
       sleep(SLEEP_DELAY)
