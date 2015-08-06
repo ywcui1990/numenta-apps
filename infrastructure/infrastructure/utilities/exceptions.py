@@ -129,6 +129,11 @@ class NupicBuildFailed(PipelineError):
 
 
 
+class PermissionsFailure(Exception):
+  pass
+
+
+
 class RPMBuildingError(PipelineError):
   pass
 
