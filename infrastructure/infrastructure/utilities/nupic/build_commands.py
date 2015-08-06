@@ -125,7 +125,7 @@ def replaceInFile(fromValue, toValue, filePath):
 
 
 
-def getNuPICCoreDetails(env, logger, nupicCoreRemote, nupicCoreSha, nupicCoreBranch):
+def getNuPICCoreDetails(env, logger, nupicCoreRemote, nupicCoreSha):
   """
     Reads .nupic_modules to find nupic.core SHA and remote.
 
@@ -139,12 +139,11 @@ def getNuPICCoreDetails(env, logger, nupicCoreRemote, nupicCoreSha, nupicCoreBra
     execfile(".nupic_modules", {}, core)
   remote = core["NUPIC_CORE_REMOTE"] if not nupicCoreRemote else nupicCoreRemote
   committish = core["NUPIC_CORE_COMMITISH"] if nupicCoreSha == "None" else nupicCoreSha
-  branch = core["NUPIC_CORE_BRANCH"] if not nupicCoreBranch else nupicCoreBranch
-  return remote, committish, branch
+  return remote, committish
 
 
 
-def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha, nupicCoreBranch, logger):
+def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha, logger):
   """
     Fetch nupic.core from github
 
@@ -164,7 +163,6 @@ def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha, nupicCor
 
   nupicCoreDir = buildWorkspace + "/nupic.core"
   with changeToWorkingDir(nupicCoreDir):
-    git.checkout(nupicCoreBranch)
     if nupicCoreSha:
       try:
         git.resetHard(nupicCoreSha)
@@ -463,7 +461,7 @@ def installNuPICWheel(env, installDir, wheelFilePath, logger):
 # TODO Refactor and fix the cyclic calls between fullBuild() and buildNuPIC()
 # Fix https://jira.numenta.com/browse/TAUR-749
 def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
-  nupicCoreRemote, nupicCoreSha, nupicCoreBranch, logger):
+  nupicCoreRemote, nupicCoreSha, logger):
   """
     Run a full build of the NuPIC pipeline, including validating and, if
     necessary, installing nupic.core
@@ -481,8 +479,8 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
         logger.debug("\tUpdating %s...", targetFile)
         replaceInFile(devVersion, nupicSha, targetFile)
 
-  nupicCoreRemote, nupicCoreSha, nupicCoreBranch = getNuPICCoreDetails(env,
-    logger, nupicCoreRemote, nupicCoreSha, nupicCoreBranch)
+  nupicCoreRemote, nupicCoreSha = getNuPICCoreDetails(env,
+    logger, nupicCoreRemote, nupicCoreSha)
 
   boolBuildNupicCore = False
   nupicCoreDir = ""
@@ -499,7 +497,7 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
     logger.debug("Retrieved nupic.core from S3; saved to: %s", nupicCoreDir)
   else:
     logger.debug("Did not find nupic.core locally or in S3.")
-    fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha, nupicCoreBranch,
+    fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha,
                          logger)
     nupicCoreDir = "%s/nupic.core" % buildWorkspace
     logger.debug("Building nupic.core at: %s", nupicCoreDir)

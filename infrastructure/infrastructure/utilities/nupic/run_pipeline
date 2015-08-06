@@ -112,9 +112,6 @@ def addAndParseArgs():
                       default="",
                       help="Which NuPIC Core remote to build from, e.g., "
                            "git@github.com:numenta/nupic.core.git")
-  parser.add_argument("--nupic-core-branch", dest="nupicCoreBranch", type=str,
-                      default="",
-                      help="The NuPIC core branch to add in deploy track")
   parser.add_argument("--sha-core", dest="nupicCoreSha", type=str, default="None",
                       help="The NuPIC Core SHA that needs to be built.")
   parser.add_argument("--log", dest="logLevel", type=str, default="warning",
@@ -160,7 +157,7 @@ def main():
   if not checkIfProjectExistsLocallyForSHA("nupic", args["nupicSha"], g_logger):
     fullBuild(env, args["buildWorkspace"], args["nupicRemote"],
         args["nupicBranch"], args["nupicSha"], args["nupicCoreRemote"],
-        args["nupicCoreSha"], args["nupicCoreBranch"], g_logger)
+        args["nupicCoreSha"], g_logger)
   else:
     g_logger.info("Skipping NuPIC build for SHA : %s", args["nupicSha"])
 
