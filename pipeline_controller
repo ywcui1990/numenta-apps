@@ -241,8 +241,7 @@ def parseArgs():
   parser.add_argument("--branch", dest="branch", type=str,
                       help=("**OPTIONAL** If specified, this determines which "
                             "branch to work off of. Otherwise, this will be "
-                            "set to the active branch, which could be a commit "
-                            "SHA if the repo is in a detached head state."))
+                            "set to the active branch."))
   return parser.parse_args()
 
 
