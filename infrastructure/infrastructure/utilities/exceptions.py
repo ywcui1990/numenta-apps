@@ -44,6 +44,11 @@ class CommandForbiddenError(PipelineError):
 
 
 
+class DetachedHeadError(PipelineError):
+  pass
+
+
+
 class ErrorGettingInstanceID(PipelineError):
   pass
 
