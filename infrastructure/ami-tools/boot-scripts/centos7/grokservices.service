@@ -1,5 +1,7 @@
 [Unit]
 Description=Grok services
+After=network.target
+After=syslog.target
 After=mysql.service
 After=rabbitmq-server.service
 
