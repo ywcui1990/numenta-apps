@@ -238,6 +238,11 @@ def parseArgs():
                             "have changed. If unspecified, the script will use "
                             "the latest green build commit SHA from the "
                             "product-master-build Jenkins job."))
+  parser.add_argument("--branch", dest="branch", type=str,
+                      help=("**OPTIONAL** If specified, this determines which "
+                            "branch to work off of. Otherwise, this will be "
+                            "set to the active branch, which could be a commit "
+                            "SHA if the repo is in a detached head state."))
   return parser.parse_args()
 
 
@@ -261,7 +266,7 @@ def main(args):
     #STEP 1: Determine which folders have been modified
     startSha = args.startSha or getLatestGreenRevision("product-master-build")
     currentSha = getCurrentSha()
-    branch = getActiveBranch()
+    branch = args.branch or getActiveBranch()
 
     rootFolders = getChangedFoldersBetweenRevisions(startSha, currentSha)
     g_logger.info("Folders with modifications: %s", rootFolders)
