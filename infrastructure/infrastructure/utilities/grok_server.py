@@ -112,6 +112,7 @@ def waitForGrokServerToBeReady(publicDnsName, serverKey, user, logger):
     :raises infrastructure.utilities.exceptions.InstanceLaunchError:
       If a Grok service fails to startup.
   """
+  nginx = grokServices = False
   with settings(host_string = publicDnsName,
                 key_filename = serverKey, user = user,
                 connection_attempts = 30, warn_only = True):
@@ -120,9 +121,9 @@ def waitForGrokServerToBeReady(publicDnsName, serverKey, user, logger):
       try:
         nginx = checkNginxStatus(logger)
         grokServices = checkGrokServicesStatus(logger)
-      except:
+      except EOFError:
         # If SSH hasn't started completely on the remote system, we may get an
-        # error trying to provide a password for the user. Instead, just log
+        # EOFError trying to provide a password for the user. Instead, just log
         # a warning and continue to retry
         logger.warning("SSH hasn't started completely on the remote machine")
       if nginx and grokServices:
