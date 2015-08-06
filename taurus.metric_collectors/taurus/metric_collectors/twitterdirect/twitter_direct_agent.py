@@ -821,7 +821,7 @@ class TweetStorer(object):
       uid=msgId,
       created_at=createdAt,
       retweet=isRetweet,
-      lang=msg["lang"],
+      lang=msg.get("lang"),
       text=self._sanitizeTextForDb(msg.get("text")),
       userid=msg["user"]["id_str"],
       username=msg["user"]["screen_name"],
@@ -877,7 +877,6 @@ class TweetStorer(object):
                                                               aggRefDatetime)
       except Exception:
         g_log.exception("Failed to reap tweet=%s", msg)
-        pass
       else:
         tweetRows.append(tweet)
         referenceRows.extend(references)
@@ -1132,6 +1131,7 @@ class TweetForwarder(object):
         "retweet_count": row.retweet_count
       }
       for row in rows
+      if row.created_at and row.agg_ts
     ]
 
     return (rows[-1].seq, items)
