@@ -1,7 +1,7 @@
 [Unit]
 Description=Grok services
 After=mysql.service
-After=rabbitmq.service
+After=rabbitmq-server.service
 
 [Install]
 Alias=grokservices.service
