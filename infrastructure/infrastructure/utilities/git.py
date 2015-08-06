@@ -24,7 +24,8 @@
 """
 import subprocess
 
-from infrastructure.utilities.exceptions import CommandFailedError
+from infrastructure.utilities.exceptions import (CommandFailedError,
+                                                 DetachedHeadError)
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import executeCommand
 
@@ -122,7 +123,9 @@ def getActiveBranch():
 
   @raises
     infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+      the command fails
+    infrastructure.utilities.exceptions.DetachedHeadError: if the git checkout
+      is in a detached head state
 
   @returns: The active branch name or the current SHA if in a detached head
     state
@@ -130,7 +133,7 @@ def getActiveBranch():
   """
   branch = executeCommand("git rev-parse --abbrev-ref HEAD")
   if branch == "HEAD":
-    branch = getCurrentSha()
+    raise DetachedHeadError("There is no active branch; the head is detached.")
 
   return branch
 
