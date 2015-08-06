@@ -54,8 +54,8 @@ def executeCommand(command, env=None, logger=None):
   try:
     if env is None:
       env = os.environ
-    diagnostics.printEnv(env, logger)
     if logger is not None:
+      diagnostics.printEnv(env, logger)
       logger.debug("**********> %s", command)
     if isinstance(command, basestring):
       command = command.strip().split(" ")
@@ -113,8 +113,8 @@ def runWithOutput(command, env=None, logger=None):
   try:
     if env is None:
       env = os.environ
-    diagnostics.printEnv(env, logger)
     if logger is not None:
+      diagnostics.printEnv(env, logger)
       logger.debug("**********> %s", command)
     if isinstance(command, basestring):
       command = command.strip().split(" ")
