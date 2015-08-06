@@ -185,8 +185,9 @@ def getApiKey(instanceId, publicDnsName, config, logger):
     logger.debug("Trying to setup Grok AWS Credentials.")
     try:
       grokApiKey = setupGrokAWSCredentials(publicDnsName, config)
-    except GrokConfigError:
-      # We want to retry this, so just keep going on a config error
+    except GrokConfigError, AttributeError:
+      # We want to retry this, so just keep going on a config error or
+      # AttributeError (which probably indicates that the response was empty)
       pass
     if grokApiKey:
       logger.info("GROK API Key: %s" % grokApiKey)
