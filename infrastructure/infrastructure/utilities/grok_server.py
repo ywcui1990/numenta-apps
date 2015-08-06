@@ -112,13 +112,20 @@ def waitForGrokServerToBeReady(publicDnsName, serverKey, user, logger):
     :raises infrastructure.utilities.exceptions.InstanceLaunchError:
       If a Grok service fails to startup.
   """
+  nginx = grokServices = False
   with settings(host_string = publicDnsName,
                 key_filename = serverKey, user = user,
                 connection_attempts = 30, warn_only = True):
     for _ in xrange(MAX_RETRIES_FOR_INSTANCE_READY):
       logger.info("Checking to see if nginx and Grok Services are running")
-      nginx = checkNginxStatus(logger)
-      grokServices = checkGrokServicesStatus(logger)
+      try:
+        nginx = checkNginxStatus(logger)
+        grokServices = checkGrokServicesStatus(logger)
+      except EOFError:
+        # If SSH hasn't started completely on the remote system, we may get an
+        # EOFError trying to provide a password for the user. Instead, just log
+        # a warning and continue to retry
+        logger.warning("SSH hasn't started completely on the remote machine")
       if nginx and grokServices:
         break
       sleep(SLEEP_DELAY)
@@ -178,8 +185,9 @@ def getApiKey(instanceId, publicDnsName, config, logger):
     logger.debug("Trying to setup Grok AWS Credentials.")
     try:
       grokApiKey = setupGrokAWSCredentials(publicDnsName, config)
-    except GrokConfigError:
-      # We want to retry this, so just keep going on a config error
+    except GrokConfigError, AttributeError:
+      # We want to retry this, so just keep going on a config error or
+      # AttributeError (which probably indicates that the response was empty)
       pass
     if grokApiKey:
       logger.info("GROK API Key: %s" % grokApiKey)

@@ -22,6 +22,7 @@
 import argparse
 import json
 import os
+import shutil
 import signal
 import yaml
 
@@ -30,7 +31,6 @@ from pkg_resources import resource_stream
 from fabric.api import settings, run, get
 import xml.etree.ElementTree as ET
 
-from infrastructure.utilities import jenkins
 from infrastructure.utilities.ec2 import (
   launchInstance,
   stopInstance,
@@ -41,7 +41,7 @@ from infrastructure.utilities.exceptions import (
 )
 from infrastructure.utilities.grok_server import (
   getApiKey, waitForGrokServerToBeReady)
-from infrastructure.utilities.jenkins import getWorkspace
+from infrastructure.utilities.jenkins import getBuildNumber, getWorkspace
 from infrastructure.utilities.logger import initPipelineLogger
 
 
@@ -49,13 +49,14 @@ from infrastructure.utilities.logger import initPipelineLogger
 # Prepare configuration
 g_config = yaml.load(resource_stream(__name__, "../conf/config.yaml"))
 g_config["JOB_NAME"] = os.environ.get("JOB_NAME", "Local Run")
-g_config["BUILD_NUMBER"] = jenkins.getBuildNumber()
 
 g_dirname = os.path.abspath(os.path.dirname(__file__))
 g_remotePath = "/opt/numenta/grok/tests/results/py2/xunit/jenkins/results.xml"
 g_rpmBuilder = "rpmbuild.groksolutions.com"
 g_s3RepoPath = "/opt/numenta/s3repo/s3/x86_64"
 s3Bucket = "public.numenta.com"
+
+g_logger = None
 
 FIRST_BOOT_RUN_TRIES = 18
 GROK_SERVICES_TRIES = 6
@@ -81,8 +82,8 @@ def analyzeResults(resultsPath):
 
 def prepareResultsDir():
   """
-    Make sure that a results directory exists in the right place and clean up
-    old results if they exist. Return the path of the results directory.
+    Make sure that a results directory exists in the right place. Return the
+    path of the results directory.
 
     :returns: The full path of the results directory
     :rtype: String
@@ -138,7 +139,6 @@ def main():
     This is the main class.
   """
   args = parseArgs()
-
 
   global g_logger
   g_logger = initPipelineLogger("run-integration-tests", logLevel=args.logLevel)
@@ -199,7 +199,18 @@ def main():
       raise
     else:
       g_logger.info("Tests have finished.")
-      successStatus = analyzeResults("%s/results.xml" % resultsDir)
+
+      # Rename the results file to be job specific
+      newResultsFile = "grok_integration_test_results_%s.xml" % getBuildNumber()
+      if os.path.exists(os.path.join(resultsDir, "results.xml")):
+        shutil.move(os.path.join(resultsDir, "results.xml"),
+                    os.path.join(resultsDir, newResultsFile))
+      if os.path.exists(os.path.join(resultsDir, newResultsFile)):
+        successStatus = analyzeResults("%s/%s" % (resultsDir, newResultsFile))
+      else:
+        g_logger.error("Could not find results file: %s", newResultsFile)
+        successStatus = False
+
       if args.pipelineJson:
         with open(args.pipelineJson) as jsonFile:
           pipelineParams = json.load(jsonFile)

@@ -195,7 +195,7 @@ def main(jsonArgs=None):
     artifactAmiIdPath = os.path.join(artifactsDir, "ami_%s.txt" % buildNumber)
     shutil.copy(amiIDPath, artifactAmiIdPath)
     print "#############################################################"
-    print "Running the AMI Tests"
+    print "Running the Integration Tests"
     runIntegrationTestScriptPath = os.path.join(os.environ["PRODUCTS"], "grok",
                                     "grok", "pipeline", "src")
     runIntegrationTestCommand = ("python " +
