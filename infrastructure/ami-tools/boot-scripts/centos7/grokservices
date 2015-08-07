@@ -74,6 +74,10 @@ syslog-rabbit-status() {
 
 start()
 {
+  # There is an issue with rabbitmq, erlang, systemd notify, and systemd that
+  # means it's difficult to get rabbitmq to run as an independent service.
+  # Therefore, we start and stop rabbitmq inside the grokservices scripts to
+  # ensure it is running when needed.
   /usr/sbin/rabbitmq-server -detached
   run-rootboot-helper
   syslog-rabbit-status
@@ -88,7 +92,6 @@ start()
 
 stop()
 {
-  /usr/sbin/rabbitmqctl stop
   syslog-rabbit-status
   echo -n "Shutting down ${prog}: "
   logger -t grokservices "stop()"
@@ -96,6 +99,11 @@ stop()
   su centos -c "${supervisor_helper} stop"
   /etc/init.d/grok-preload grok-stopped
   echo
+  # There is an issue with rabbitmq, erlang, systemd notify, and systemd that
+  # means it's difficult to get rabbitmq to run as an independent service.
+  # Therefore, we start and stop rabbitmq inside the grokservices scripts to
+  # ensure it is running when needed.
+  /usr/sbin/rabbitmqctl stop
 }
 
 status()
