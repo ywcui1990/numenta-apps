@@ -157,12 +157,11 @@ install-grok() {
   # NOTE: Per https://bugzilla.redhat.com/show_bug.cgi?id=955379 we need to use
   # the absolute path to the file instead of the symlink in /etc/systemd to
   # enable the services
-  for service in grokservices.service \
-    rabbitmq-server.service
-  do
-    echo "Enabling ${service} to start at boot"
-    sudo systemctl enable "${BOOTSCRIPTS_D}/${service}"
-  done
+  echo "Enabling grokservices.service to start at boot"
+  sudo systemctl enable "${BOOTSCRIPTS_D}/grokservices.service"
+  
+  # Add Rabbit Admin scripts
+  sudo ln -s "${PRODUCTS}/infrastructure/saltcellar/rabbitmq/files/rabbitmqadmin" /usr/local/bin/
 
   sudo systemctl daemon-reload
 
@@ -177,19 +176,7 @@ install-grok() {
   ./install-grok.sh "${NUMENTA}/lib/python2.7/site-packages" "${NUMENTA}/bin"
 }
 
-start-3rd-party-services() {
-  splat
-
-  echo "Starting MySQL and Rabbit"
-  # Start MySQL
-  sudo service mysqld start
-
-  # Add Rabbit Admin scripts and start Rabbit
-  sudo ln -s "${PRODUCTS}/infrastructure/saltcellar/rabbitmq/files/rabbitmqadmin" /usr/local/bin/
-  sudo systemctl start rabbitmq-server
-}
-
-bootstrap-and-start-grok() {
+bootstrap-grok() {
   splat
 
   echo "Bootstrap Grok"
@@ -199,12 +186,9 @@ bootstrap-and-start-grok() {
 
   cd "${GROK_HOME}"
   mkdir -p "${GROK_LOG_DIR}"/
-
-  sudo systemctl start grokservices
 }
 
 install-prerequisites-and-update-repos
 configure-private-settings
 install-grok
-start-3rd-party-services
-bootstrap-and-start-grok
+bootstrap-grok

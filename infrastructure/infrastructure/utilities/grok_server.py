@@ -49,8 +49,9 @@ def checkGrokServicesStatus(logger):
     :returns: True if GrokServices are running properly.
     :rtype: boolean
   """
-  cmd = "supervisorctl -c /opt/numenta/grok/conf/supervisord.conf status"
-  grokServicesState = run(cmd, quiet=True)
+  cmd = ("source /etc/grok/supervisord.vars && "
+         "supervisorctl -c /opt/numenta/grok/conf/supervisord.conf status")
+  grokServicesState = run(cmd)
 
   for service in grokServicesState.split("\r\n"):
     if set(["FATAL", "EXITED"]) & set(service.split(" ")):
@@ -185,8 +186,8 @@ def getApiKey(instanceId, publicDnsName, config, logger):
     logger.debug("Trying to setup Grok AWS Credentials.")
     try:
       grokApiKey = setupGrokAWSCredentials(publicDnsName, config)
-    except GrokConfigError, AttributeError:
-      # We want to retry this, so just keep going on a config error or
+    except (GrokConfigError, AttributeError):
+      # We want to retry this, so just keep going on a GrokConfigError or
       # AttributeError (which probably indicates that the response was empty)
       pass
     if grokApiKey:
