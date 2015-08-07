@@ -1,13 +1,14 @@
 [Unit]
 Description=RabbitMQ
-After=network.target syslog.target
+After=network.target
+After=syslog.target
 
 [Install]
-Alias=rabbitmq-server.service
 WantedBy=multi-user.target
 
 [Service]
 Type=notify
+WorkingDirectory=/var/lib/rabbitmq
 ExecStart=/usr/sbin/rabbitmq-server
 ExecStop=/usr/sbin/rabbitmqctl stop
 Restart=always

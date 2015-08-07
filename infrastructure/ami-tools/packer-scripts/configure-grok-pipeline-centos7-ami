@@ -164,6 +164,9 @@ install-grok() {
     sudo systemctl enable "${BOOTSCRIPTS_D}/${service}"
   done
 
+  # Add Rabbit Admin scripts
+  sudo ln -s "${PRODUCTS}/infrastructure/saltcellar/rabbitmq/files/rabbitmqadmin" /usr/local/bin/
+
   sudo systemctl daemon-reload
 
   echo "Creating symlink for supervisord-helper"
@@ -177,19 +180,7 @@ install-grok() {
   ./install-grok.sh "${NUMENTA}/lib/python2.7/site-packages" "${NUMENTA}/bin"
 }
 
-start-3rd-party-services() {
-  splat
-
-  echo "Starting MySQL and Rabbit"
-  # Start MySQL
-  sudo service mysqld start
-
-  # Add Rabbit Admin scripts and start Rabbit
-  sudo ln -s "${PRODUCTS}/infrastructure/saltcellar/rabbitmq/files/rabbitmqadmin" /usr/local/bin/
-  sudo systemctl start rabbitmq-server
-}
-
-bootstrap-and-start-grok() {
+bootstrap-grok() {
   splat
 
   echo "Bootstrap Grok"
@@ -199,12 +190,9 @@ bootstrap-and-start-grok() {
 
   cd "${GROK_HOME}"
   mkdir -p "${GROK_LOG_DIR}"/
-
-  sudo systemctl start grokservices
 }
 
 install-prerequisites-and-update-repos
 configure-private-settings
 install-grok
-start-3rd-party-services
-bootstrap-and-start-grok
+bootstrap-grok
