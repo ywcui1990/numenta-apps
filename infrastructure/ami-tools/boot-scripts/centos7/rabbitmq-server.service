@@ -7,7 +7,6 @@ After=syslog.target
 WantedBy=multi-user.target
 
 [Service]
-Type=notify
 WorkingDirectory=/var/lib/rabbitmq
 ExecStart=/usr/sbin/rabbitmq-server
 ExecStop=/usr/sbin/rabbitmqctl stop
