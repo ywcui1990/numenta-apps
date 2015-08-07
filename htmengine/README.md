@@ -26,6 +26,10 @@ Environment Variables
 `APPLICATION_CONFIG_PATH` **(REQUIRED)**: Directory path where active
 application-specific configuration files are located.
 
+Quick Start
+-----------
+
+For a quick and easy way to get an application up an running with HTM Engine, see the [skeleton-htmengine-app](https://github.com/nupic-community/skeleton-htmengine-app). It provides a basic application scaffolding for the HTM Engine that you can easily interface with over HTTP using your favorite programming environment.
 
 Usage
 -----
