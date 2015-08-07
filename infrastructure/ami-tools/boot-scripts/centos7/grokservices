@@ -74,6 +74,7 @@ syslog-rabbit-status() {
 
 start()
 {
+  /usr/sbin/rabbitmq-server -detached
   run-rootboot-helper
   syslog-rabbit-status
   echo -n "Starting ${prog}: "
@@ -87,6 +88,7 @@ start()
 
 stop()
 {
+  /usr/sbin/rabbitmqctl stop
   syslog-rabbit-status
   echo -n "Shutting down ${prog}: "
   logger -t grokservices "stop()"

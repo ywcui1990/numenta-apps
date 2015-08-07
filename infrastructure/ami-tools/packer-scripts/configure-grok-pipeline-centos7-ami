@@ -157,13 +157,9 @@ install-grok() {
   # NOTE: Per https://bugzilla.redhat.com/show_bug.cgi?id=955379 we need to use
   # the absolute path to the file instead of the symlink in /etc/systemd to
   # enable the services
-  for service in grokservices.service \
-    rabbitmq-server.service
-  do
-    echo "Enabling ${service} to start at boot"
-    sudo systemctl enable "${BOOTSCRIPTS_D}/${service}"
-  done
-
+  echo "Enabling grokservices.service to start at boot"
+  sudo systemctl enable "${BOOTSCRIPTS_D}/grokservices.service"
+  
   # Add Rabbit Admin scripts
   sudo ln -s "${PRODUCTS}/infrastructure/saltcellar/rabbitmq/files/rabbitmqadmin" /usr/local/bin/
 
