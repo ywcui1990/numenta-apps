@@ -49,7 +49,8 @@ def checkGrokServicesStatus(logger):
     :returns: True if GrokServices are running properly.
     :rtype: boolean
   """
-  cmd = "supervisorctl -c /opt/numenta/grok/conf/supervisord.conf status"
+  cmd = ("source /etc/grok/supervisord.vars && "
+         "supervisorctl -c /opt/numenta/grok/conf/supervisord.conf status")
   grokServicesState = run(cmd)
 
   for service in grokServicesState.split("\r\n"):
