@@ -189,7 +189,7 @@ class _ModelRunner(object):
 
   @classmethod
   def _readInputMessages(cls):
-    """Create a generator that waits for and yields next input message from
+    """Create a generator that waits for and yields input messages from
     stdin
 
     yields two-tuple (<timestamp>, <scalar-value>), where <timestamp> is the
