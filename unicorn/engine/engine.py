@@ -40,8 +40,6 @@ from nupic.frameworks.opf.modelfactory import ModelFactory
 # TODO: can we reuse htmengine primitives here?
 from htmengine.algorithms.modelSelection.clusterParams import (
   getScalarMetricWithTimeOfDayParams)
-from htmengine.runtime.scalar_metric_utils import (
-  MODEL_CREATION_RECORD_THRESHOLD)
 
 
 g_log = logging.getLogger(__name__)
