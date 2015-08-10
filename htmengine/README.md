@@ -1,8 +1,16 @@
 HTM Engine
 ==========
 
-HTM Engine is the framework upon which anomaly detection applications may be
-built.
+HTM Engine is a framework used for creating and running hundreds of NuPIC anomaly detection models simultaneously. It manages memory and CPU usage by serializing models to disk when they are inactive. This means models only utilize system resources when they are learning new data and returning anomaly indications.
+
+Tutorial Application
+--------------------
+
+An [example application of HTM Engine](https://github.com/nupic-community/htmengine-traffic-tutorial) is available with an [accompanying screencast](https://www.youtube.com/watch?v=lzJd_a6y6-E).
+
+[![YouTube Screenshot of HTM Engine Tutorial](http://img.youtube.com/vi/lzJd_a6y6-E/hqdefault.jpg)](https://www.youtube.com/watch?v=lzJd_a6y6-E)
+> A walkthrough of the HTM Engine with an example application of New York City live traffic speeds.
+
 
 Installation
 ------------
