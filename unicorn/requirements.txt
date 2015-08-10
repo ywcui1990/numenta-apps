@@ -1,5 +1,5 @@
 # NuPIC HTM
-nupic==0.2.6
+nupic==0.2.7
 
 # Other Numenta projects
 nta.utils>=0.0.0
