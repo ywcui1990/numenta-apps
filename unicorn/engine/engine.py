@@ -100,7 +100,6 @@ def _parseArgs():
   if not options.stats:
     parser.error("Missing or empty --stats option value")
 
-
   stats = json.loads(options.stats)
 
   try:
