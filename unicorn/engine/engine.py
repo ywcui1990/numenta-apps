@@ -36,10 +36,10 @@ import validictory
 from nupic.data import fieldmeta
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
-
 # TODO: can we reuse htmengine primitives here?
 from htmengine.algorithms.modelSelection.clusterParams import (
   getScalarMetricWithTimeOfDayParams)
+
 
 
 g_log = logging.getLogger(__name__)
