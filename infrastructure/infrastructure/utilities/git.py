@@ -138,6 +138,48 @@ def getActiveBranch():
   return branch
 
 
+def clean(path, logger):
+  """
+  Changes to path, then runs git clean -fd.
+
+  @param path: git directory to clean
+
+  @param logger: An initialized logger object
+
+  @raises CommandFailedError: if git clean fails
+  """
+  assert path
+  assert logger
+
+  logger.debug("* Cleaning %s", path)
+  with changeToWorkingDir(path):
+    return executeCommand(command="git clean -fd", logger=logger)
+
+
+def setRemoteURL(remote, url, path, logger):
+  """
+  Sets a git remote's url.
+
+  @param remote: Which git remote to alter
+
+  @param url: What to set the url to
+
+  @param path: git directory to reset
+
+  @param logger: An initialized logger object
+
+  @raises CommandFailedError: if git set-url fails
+  """
+  assert logger
+  assert path
+  assert remote
+  assert url
+
+  logger.debug("* Setting url for %s to %s in %s", remote, url, path)
+  with changeToWorkingDir(path):
+    return executeCommand(command="git set-url %s %s", remote, url,
+                          logger=logger)
+
 
 def clone(gitURL, **kwargs):
   """
