@@ -28,9 +28,10 @@ from datetime import datetime
 import json
 import logging
 from optparse import OptionParser
+import pkg_resources
 import sys
 
-import numpy
+import validictory
 
 from nupic.data import fieldmeta
 from nupic.frameworks.opf.modelfactory import ModelFactory
@@ -48,12 +49,19 @@ g_log = logging.getLogger(__name__)
 
 
 class _Options(object):
+  """Options returned by _parseArgs"""
 
-  def __init__(self, modelId):
+
+  __slots__ = ("modelId", "stats",)
+
+
+  def __init__(self, modelId, stats):
     """
     :param str modelId: model identifier
+    :param dict stats: Metric data stats per engine/stats_schema.json.
     """
     self.modelId = modelId
+    self.stats = stats
 
 
 
@@ -73,28 +81,46 @@ def _parseArgs():
     action="store",
     type="string",
     dest="modelId",
-    help="Model id string")
+    help="Required: Model id string")
+
+  parser.add_option(
+    "--stats",
+    action="store",
+    type="string",
+    dest="stats",
+    help=("Required: see engine/stats_schema.json"))
 
 
   options, positionalArgs = parser.parse_args()
 
   if len(positionalArgs) != 0:
-    msg = ("Command accepts no positional args")
-    g_log.error(msg)
-    parser.error(msg)
+    parser.error("Command accepts no positional args")
 
   if not options.modelId:
-    msg = ("Missing or empty model id")
-    g_log.error(msg)
-    parser.error(msg)
+    parser.error("Missing or empty --modelId option value")
+
+  if not options.stats:
+    parser.error("Missing or empty --stats option value")
 
 
-  return _Options(modelId=options.modelId)
+  stats = json.loads(options.stats)
+
+  try:
+    validictory.validate(
+      stats,
+      json.load(pkg_resources.resource_stream(__name__, "stats_schema.json")))
+  except validictory.ValidationError as ex:
+    parser.error("--stats option value failed schema validation: %r" % (ex,))
+
+
+  return _Options(modelId=options.modelId, stats=stats)
 
 
 
 class _Anomalizer(object):
-  """ This class is responsible for anomaly likelihood processing
+  """ This class is responsible for anomaly likelihood processing. Its instance
+  maintains a buffer of results (of the necessary window size) and anomaly state
+  in memory.
 
   NOTE: consider modifying htmengine's anomaly_likelihood_helper.py so that we
   can share it with htmengine's Anomaly Service
@@ -133,56 +159,29 @@ class _ModelRunner(object):
   )
 
 
-  # minimum resolution of metric; used to set up encoders; if None,
-  # getScalarMetricWithTimeOfDayParams will apply its default.
-  #
-  # TODO: is default acceptable?
-  _MIN_METRIC_RESOLUTION = None
-
-
-  def __init__(self, modelId):
+  def __init__(self, modelId, stats):
+    """
+    :param str modelId: model identifier
+    :param dict stats: Metric data stats per engine/stats_schema.json.
+    """
     self._modelId = modelId
-    self._model = None
+    self._model = self._createModel(stats=stats)
     self._anomalizer = _Anomalizer()
 
 
   @classmethod
-  def _getInputMessage(cls):
-    """Wait for and return next input message from stdin
-
-    NOTE: broken out to be helpful with unit tests
-
-    :returns: newline-terminated json-encoded input message
-    :rtype: str
-    """
-    return sys.stdin.readline()
-
-
-  @classmethod
-  def _emitOutputMessage(cls, message):
-    """Emit output message to stdout
-
-    NOTE: broken out to be helpful with unit tests
-
-    :param str message: output message
-    """
-    sys.stdout.write(message)
-    sys.stdout.flush()
-
-
-  @classmethod
-  def _createModel(cls, samples):
+  def _createModel(cls, stats):
     """Instantiate and configure an OPF model
 
-    :param list samples: metric data samples used to calculate minVal and
-      maxVal; each element is a two-tuple of
-      (<datetime-timestamp>, <float-scalar>)
+    :param dict stats: Metric data stats per engine/stats_schema.json.
     :returns: OPF Model instance
     """
     # Generate swarm params
     possibleModels = getScalarMetricWithTimeOfDayParams(
-      metricData=numpy.array(zip(*samples)[1]),
-      minResolution=cls._MIN_METRIC_RESOLUTION)
+      metricData=[0],
+      minVal=stats["min"],
+      maxVal=stats["max"],
+      minResolution=stats.get("minResolution"))
 
     swarmParams = possibleModels[0]
 
@@ -191,12 +190,47 @@ class _ModelRunner(object):
     model.enableInference(swarmParams["inferenceArgs"])
 
 
-  def _processInputRow(self, inputRow, rowIndex):
-    """ Compute anomaly likelihood and emit it via stdout
+  @classmethod
+  def _readInputMessages(cls):
+    """Create a generator that waits for and yields next input message from
+    stdin
 
-    :param tuple inputRow: two-tuple input metric data row
+    yields two-tuple (<timestamp>, <scalar-value>), where <timestamp> is the
+    `datetime.datetime` timestamp of the metric data sample and <scalar-value>
+    is the floating point value of the metric data sample.
+    """
+    while True:
+      message = sys.stdin.readline()
+
+      if message:
+        timestamp, scalarValue = json.loads(message)
+        yield (datetime.utcfromtimestamp(timestamp), scalarValue)
+      else:
+        # Front End closed the pipe (or died)
+        break
+
+
+  @classmethod
+  def _emitOutputMessage(cls, rowIndex, anomalyLikelihood):
+    """Emit output message to stdout
+
+    :param int rowIndex: 0-based index of corresponding input sample
+    :param float anomalyLikelihood: computed anomaly likelihood value
+    """
+    message = "%s\n" % (json.dumps([rowIndex, anomalyLikelihood]),)
+
+    sys.stdout.write(message)
+    sys.stdout.flush()
+
+
+  def _computeAnomalyLikelihood(self, inputRow):
+    """ Compute anomaly likelihood
+
+    :param tuple inputRow: Two-tuple input metric data row
       (<datetime-timestamp>, <float-scalar>)
-    :param int rowIndex: 0-based index of input row
+
+    :returns: Anomaly likelihood
+    :rtype: float
     """
     # Generate raw anomaly score
     # TODO: opfModelInputRecordFromSequence doesn't exist yet
@@ -205,52 +239,23 @@ class _ModelRunner(object):
     rawAnomalyScore = self._model.run(inputRecord).inferences["anomalyScore"]
 
     # Generate anomaly likelihood
-    anomalyLikelihood = self._anomalizer.process(
+    return self._anomalizer.process(
       timestamp=inputRow[0],
       metricValue=inputRow[1],
       rawAnomalyScore=rawAnomalyScore)
 
-    # Build output message
-    outputMessage = "%s\n" % (
-      json.dumps([rowIndex, anomalyLikelihood]),)
-
-    # Emit result
-    self._emitOutputMessage(outputMessage)
-
 
   def run(self):
+    """ Run the model: ingest and process the input metric data and emit output
+    messages containing anomaly scores
+    """
     g_log.info("Processing model=%s", self._modelId)
 
-    metricBuffer = []
+    for rowIndex, inputRow in enumerate(self._readInputMessages()):
+      anomalyLikelihood = self._computeAnomalyLikelihood(inputRow)
 
-    rxRowCount = 0
-    while True:
-      # Read and decode the next sample
-      inputMessage = self._getInputMessage()
-      timestamp, scalarValue = json.loads(inputMessage)
-      timestamp = datetime.utcfromtimestamp(timestamp)
-      inputFields = (timestamp, scalarValue)
-
-      rxRowCount += 1
-
-      if self._model is None:
-        # Didn't have enough input samples for stats yet
-        metricBuffer.append(inputFields)
-
-        if rxRowCount == MODEL_CREATION_RECORD_THRESHOLD:
-          # We now have enough data samples to get stats and create the model
-          self._model = self._createModel(metricBuffer)
-
-          # Process accumulated input metric data samples
-          for inputFields, rowIndex in zip(metricBuffer, xrange(rxRowCount)):
-            self._processInputRow(inputRow=inputFields, rowIndex=rowIndex)
-
-
-        continue
-
-      else:
-        # Already have a model
-        self._processInputRow(inputRow=inputFields, rowIndex=rxRowCount-1)
+      self._emitOutputMessage(rowIndex=rowIndex,
+                              anomalyLikelihood=anomalyLikelihood)
 
 
 
@@ -259,8 +264,7 @@ def main():
 
     options = _parseArgs()
 
-    # Process
-    _ModelRunner(options.modelId).run()
+    _ModelRunner(modelId=options.modelId, stats=options.stats).run()
 
   except Exception as ex:  # pylint: disable=W0703
     g_log.exception("Engine failed")
