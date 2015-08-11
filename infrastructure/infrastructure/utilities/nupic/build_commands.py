@@ -52,7 +52,10 @@ from infrastructure.utilities.cli import runWithOutput
 
 
 
-SCRIPTS_DIR = os.path.join(git.getGitRootFolder(), "nupic-pipeline", "scripts")
+# TODO: Find out where SCRIPTS_DIR is being used. Accordingly modify
+# the getGitRootFolder parameter. Commenting it till then.
+#SCRIPTS_DIR = os.path.join(git.getGitRootFolder(), "nupic-pipeline", "scripts")
+
 ARTIFACTS_DIR = createOrReplaceArtifactsDir()
 
 DOXYFILE = "docs/Doxyfile"
@@ -81,11 +84,11 @@ def fetchNuPIC(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger):
   try:
     with changeToWorkingDir(buildWorkspace):
       if not os.path.isdir(env["NUPIC"]):
-        git.clone(nupicRemote)
+        git.clone(nupicRemote, logger=logger)
 
     with changeToWorkingDir(env["NUPIC"]):
-      git.fetch(nupicRemote, nupicBranch)
-      git.resetHard(nupicSha)
+      git.fetch(nupicRemote, nupicBranch, logger=logger)
+      git.resetHard(nupicSha, logger=logger)
   except CommandFailedError:
     logger.exception("NuPIC checkout failed with %s,"
                      " this sha might not exist.", nupicSha)
@@ -159,13 +162,13 @@ def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha, logger):
 
   with changeToWorkingDir(buildWorkspace):
     if not os.path.isdir("nupic.core"):
-      git.clone(nupicCoreRemote)
+      git.clone(nupicCoreRemote, logger=logger)
 
   nupicCoreDir = buildWorkspace + "/nupic.core"
   with changeToWorkingDir(nupicCoreDir):
     if nupicCoreSha:
       try:
-        git.resetHard(nupicCoreSha)
+        git.resetHard(nupicCoreSha, logger=logger)
       except CommandFailedError:
         logger.exception("nupic.core checkout failed with %s,"
                            " this sha might not exist.", nupicCoreSha)
@@ -235,7 +238,7 @@ def buildNuPICCore(env, nupicCoreSha, logger):
   with changeToWorkingDir(env["NUPIC_CORE_DIR"]):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
-      git.resetHard(nupicCoreSha)
+      git.resetHard(nupicCoreSha, logger=logger)
       runWithOutput("mkdir -p build/scripts", env, logger)
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var('LIBDIR')
