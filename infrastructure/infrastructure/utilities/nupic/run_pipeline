@@ -152,7 +152,9 @@ def main():
   log.printEnv(env, g_logger)
 
   if not args["nupicSha"]:
-    args["nupicSha"] = git.getShaFromRemoteBranch(args["nupicRemote"], args["nupicBranch"])
+    args["nupicSha"] = git.getShaFromRemoteBranch(args["nupicRemote"],
+                                                  args["nupicBranch"],
+                                                  logger=g_logger)
 
   if not checkIfProjectExistsLocallyForSHA("nupic", args["nupicSha"], g_logger):
     fullBuild(env, args["buildWorkspace"], args["nupicRemote"],
