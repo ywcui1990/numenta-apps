@@ -31,11 +31,6 @@ from infrastructure.utilities.exceptions import (CommandFailedError,
 from infrastructure.utilities.path import changeToWorkingDir
 
 
-# Default logger. Need to find a better way for initializing global
-# logger for the module
-
-g_logger = diagnostics.initPipelineLogger(name="git",
-                                          logLevel=diagnostics.LOG_LEVELS[1])
 
 def checkIfOptionSet(option, **kwargs):
   """
@@ -54,7 +49,7 @@ def checkIfOptionSet(option, **kwargs):
 
 
 
-def getCommitCount(path, logger=g_logger):
+def getCommitCount(path, logger):
   """
   Get the commit count from a git directory tree
 
@@ -74,7 +69,7 @@ def getCommitCount(path, logger=g_logger):
 
 
 
-def getGitRootFolder(logger=g_logger):
+def getGitRootFolder(logger):
   """
   Return the root folder of the current git repo
 
@@ -92,7 +87,7 @@ def getGitRootFolder(logger=g_logger):
 
 
 
-def getModifiedFilesBetweenRevisions(startSha, endSha, logger=g_logger):
+def getModifiedFilesBetweenRevisions(startSha, endSha, logger):
   """
   Get a list of all files modified between revisions
 
@@ -117,7 +112,7 @@ def getModifiedFilesBetweenRevisions(startSha, endSha, logger=g_logger):
 
 
 
-def getCurrentSha(logger=g_logger):
+def getCurrentSha(logger):
   """
   Get the current SHA of a given repo
 
@@ -136,7 +131,7 @@ def getCurrentSha(logger=g_logger):
 
 
 
-def getActiveBranch(logger=g_logger):
+def getActiveBranch(logger):
   """
   Get the active branch name for the repository
 
@@ -161,7 +156,7 @@ def getActiveBranch(logger=g_logger):
 
 
 
-def clone(gitURL, logger=g_logger, **kwargs):
+def clone(gitURL, logger, **kwargs):
   """
   Clones the given git repository
 
@@ -189,7 +184,7 @@ def clone(gitURL, logger=g_logger, **kwargs):
 
 
 
-def checkout(pathspec, logger=g_logger, **kwargs):
+def checkout(pathspec, logger, **kwargs):
   """
   Switches to a given commit-ish
 
@@ -220,7 +215,7 @@ def checkout(pathspec, logger=g_logger, **kwargs):
 
 
 
-def checkoutNewBranch(pathspec, logger=g_logger):
+def checkoutNewBranch(pathspec, logger):
   """
   Convenience function to create and switch to a new branch.
 
@@ -240,7 +235,7 @@ def checkoutNewBranch(pathspec, logger=g_logger):
 
 
 
-def checkoutOrphan(pathspec, logger=g_logger):
+def checkoutOrphan(pathspec, logger):
   """
   Convenience function to create a orphan branch and switch to it.
 
@@ -260,7 +255,7 @@ def checkoutOrphan(pathspec, logger=g_logger):
 
 
 
-def reset(sha="", logger=g_logger, **kwargs):
+def reset(sha="", logger, **kwargs):
   """
   Resets the repository to a optional SHA. Optional argument for --hard
 
@@ -284,7 +279,7 @@ def reset(sha="", logger=g_logger, **kwargs):
 
 
 
-def resetHard(sha="", logger=g_logger):
+def resetHard(sha="", logger):
   """
   A convenience function that runs 'git reset --hard' for the given SHA.
   Calls reset(SHA, **kwargs).
@@ -305,7 +300,7 @@ def resetHard(sha="", logger=g_logger):
 
 
 
-def revParse(commitish, logger=g_logger, **kwargs):
+def revParse(commitish, logger, **kwargs):
   """
   Helper method to execute git rev-parse commands. Used to print the SHA1
   given a revision specifier (e.g HEAD). This function can return the output
@@ -350,7 +345,7 @@ def revParse(commitish, logger=g_logger, **kwargs):
 
 
 
-def fetch(repository, refspec, logger=g_logger):
+def fetch(repository, refspec, logger):
   """
   Download objects and refs from another repository
 
@@ -369,7 +364,7 @@ def fetch(repository, refspec, logger=g_logger):
 
 
 
-def showRef(refList, logger=g_logger, **kwargs):
+def showRef(refList, logger, **kwargs):
   """
   List references in a local repository
 
@@ -398,7 +393,7 @@ def showRef(refList, logger=g_logger, **kwargs):
 
 
 
-def add(pathspec, logger=g_logger):
+def add(pathspec, logger):
   """
   Add file contents to the index
 
@@ -415,7 +410,7 @@ def add(pathspec, logger=g_logger):
 
 
 
-def commit(message, logger=g_logger, **kwargs):
+def commit(message, logger, **kwargs):
   """
   Record changes to the repository
   Current implementation is supporting options like --amend
@@ -437,7 +432,7 @@ def commit(message, logger=g_logger, **kwargs):
 
 
 
-def merge(path, message, logger=g_logger, **kwargs):
+def merge(path, message, logger, **kwargs):
   """
   Join two or more development histories together
   Current implementation supports --no-ff
@@ -461,7 +456,7 @@ def merge(path, message, logger=g_logger, **kwargs):
 
 
 
-def removeFileFromGit(path, logger=g_logger):
+def removeFileFromGit(path, logger):
   """
   Remove files from the working tree and from the index.
 
@@ -482,7 +477,7 @@ def removeFileFromGit(path, logger=g_logger):
 
 
 
-def getShaFromRemoteBranch(gitRemoteRepo, gitRemoteBranch, logger=g_logger):
+def getShaFromRemoteBranch(gitRemoteRepo, gitRemoteBranch, logger):
   """
   Get the actual SHA of the current HEAD of a remote repo / branch.
 
