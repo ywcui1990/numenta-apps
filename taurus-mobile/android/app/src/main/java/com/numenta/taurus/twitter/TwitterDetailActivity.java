@@ -281,7 +281,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                         _listView.post(new Runnable() {
                             @Override
                             public void run() {
-                                _listView.setSelection(totalItemCount - 2);
+                                _listView.smoothScrollToPosition(totalItemCount - 2);
                             }
                         });
                     }
