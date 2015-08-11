@@ -25,8 +25,8 @@ First, install [`nta.utils`](../nta.utils).  Then, to install `htmengine`:
 
 ### Requirements
 
-- [MySQL](https://www.mysql.com/)
-- [RabbitMQ](https://www.rabbitmq.com/)
+- [rabbitmq](https://www.rabbitmq.com/download.html) 3.5 (or higher)
+- [mysql](http://dev.mysql.com/downloads/mysql/) 5.6 (or higher)
 
 Environment Variables
 ---------------------
