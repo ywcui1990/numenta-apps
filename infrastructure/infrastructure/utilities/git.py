@@ -138,37 +138,42 @@ def getActiveBranch():
   return branch
 
 
-def clean(path, logger):
+def clean(path, arguments, logger):
   """
   Changes to path, then runs git clean -fd.
 
-  @param path: git directory to clean
+  :param path: git directory to clean
 
-  @param logger: An initialized logger object
+  :param arguments: optional extra command line arguments for git clean
 
-  @raises CommandFailedError: if git clean fails
+  :param logger: An initialized logger object
+
+  :raises CommandFailedError: if git clean fails
   """
   assert path
   assert logger
 
   logger.debug("* Cleaning %s", path)
+  command = "git clean"
+  if arguments:
+    command = command + arguments
   with changeToWorkingDir(path):
-    return executeCommand(command="git clean -fd", logger=logger)
+    return executeCommand(command=command, logger=logger)
 
 
 def setRemoteURL(remote, url, path, logger):
   """
   Sets a git remote's url.
 
-  @param remote: Which git remote to alter
+  :param remote: Which git remote to alter
 
-  @param url: What to set the url to
+  :param url: What to set the url to
 
-  @param path: git directory to reset
+  :param path: git directory to reset
 
-  @param logger: An initialized logger object
+  :param logger: An initialized logger object
 
-  @raises CommandFailedError: if git set-url fails
+  :raises CommandFailedError: if git set-url fails
   """
   assert logger
   assert path
@@ -177,7 +182,7 @@ def setRemoteURL(remote, url, path, logger):
 
   logger.debug("* Setting url for %s to %s in %s", remote, url, path)
   with changeToWorkingDir(path):
-    return executeCommand(command="git set-url %s %s", remote, url,
+    return executeCommand(command="git set-url %s %s" % (remote, url),
                           logger=logger)
 
 
