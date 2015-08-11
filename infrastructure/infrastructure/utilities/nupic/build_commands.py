@@ -39,7 +39,7 @@ from infrastructure.utilities.jenkins import (
   createOrReplaceResultsDir,
   createOrReplaceArtifactsDir
 )
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import diagnostics
 from infrastructure.utilities import s3
 from infrastructure.utilities.env import addNupicCoreToEnv
 from infrastructure.utilities.exceptions import (
@@ -231,7 +231,7 @@ def buildNuPICCore(env, nupicCoreSha, logger):
       This exception is raised if build fails.
   """
   print "\n----------Building nupic.core------------"
-  log.printEnv(env, logger)
+  diagnostics.printEnv(env, logger)
   with changeToWorkingDir(env["NUPIC_CORE_DIR"]):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
@@ -265,7 +265,7 @@ def buildNuPIC(env, logger):
       This exception is raised if build fails.
   """
   print "\n----------Building NuPIC------------"
-  log.printEnv(env, logger)
+  diagnostics.printEnv(env, logger)
 
   # Build
   with changeToWorkingDir(env["NUPIC"]):
@@ -313,7 +313,7 @@ def runTests(env, logger):
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
     try:
-      log.printEnv(env, logger)
+      diagnostics.printEnv(env, logger)
       runWithOutput("bin/py_region_test", env, logger)
       testCommand = "scripts/run_nupic_tests -u --coverage --results xml"
       runWithOutput(testCommand, env, logger)

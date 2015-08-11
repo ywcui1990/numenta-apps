@@ -25,7 +25,7 @@ from distutils.dir_util import copy_tree, mkpath
 from tempfile import mkdtemp
 
 from infrastructure.utilities import git
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import diagnostics
 from infrastructure.utilities import rpm
 from infrastructure.utilities.cli import runWithOutput
 from infrastructure.utilities.exceptions import InvalidParametersError
@@ -67,8 +67,8 @@ class NumentaRPM(object):
     self.config = config
     self.environment = dict(os.environ)
     self.fakeroot = None
-    self.logger = log.initPipelineLogger(name="create-numenta-rpm",
-                                         logLevel=config.logLevel)
+    self.logger = diagnostics.initPipelineLogger(name="create-numenta-rpm",
+                                                 logLevel=config.logLevel)
     self.productsDirectory = None
 
 

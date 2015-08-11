@@ -25,7 +25,7 @@ import time
 
 from subprocess import CalledProcessError, check_call, check_output
 
-from infrastructure.utilities import logger as diagnostics
+from infrastructure.utilities import diagnostics
 from infrastructure.utilities.exceptions import CommandFailedError
 
 

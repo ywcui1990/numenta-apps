@@ -66,7 +66,7 @@ import yaml
 
 from infrastructure.utilities import git
 from infrastructure.utilities import jenkins
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import diagnostics
 from infrastructure.utilities.env import prepareEnv
 from infrastructure.utilities.exceptions import PipelineError
 from infrastructure.utilities.nupic.build_commands import (
@@ -120,7 +120,7 @@ def addAndParseArgs():
   args = vars(parser.parse_args())
 
   global g_logger
-  g_logger = log.initPipelineLogger("build", logLevel=args["logLevel"])
+  g_logger = diagnostics.initPipelineLogger("build", logLevel=args["logLevel"])
 
   buildWorkspace = args["buildWorkspace"]
   if not buildWorkspace:
@@ -149,7 +149,7 @@ def main():
   args = addAndParseArgs()
 
   env = prepareEnv(args["buildWorkspace"], None, os.environ)
-  log.printEnv(env, g_logger)
+  diagnostics.printEnv(env, g_logger)
 
   if not args["nupicSha"]:
     args["nupicSha"] = git.getShaFromRemoteBranch(args["nupicRemote"], args["nupicBranch"])
