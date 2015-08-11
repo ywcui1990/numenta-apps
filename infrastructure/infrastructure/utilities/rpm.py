@@ -177,6 +177,7 @@ def gitCloneIntoFakeroot(fakeroot,
   with a specific SHA (we normally build tip of master, for example), but we
   always want to include the exact SHA packaged in our RPM descriptions.
   """
+  # TODO: TAUR-1369 Make logger parameter mandatory.
   if logger:
     logger.debug("Prepping fakeroot in %s", fakeroot)
   installPath = "%s/%s" % (fakeroot, installDirectory)
@@ -187,14 +188,14 @@ def gitCloneIntoFakeroot(fakeroot,
                    fakeroot,
                    installDirectory,
                    repoDirectory)
-    git.clone(gitURL, directory=repoDirectory)
+    git.clone(gitURL, directory=repoDirectory, logger=logger)
     workDirectory = "%s/%s/%s" % (fakeroot, installDirectory, repoDirectory)
     with changeToWorkingDir(workDirectory):
       if sha:
-        git.resetHard()
+        git.resetHard(logger=logger)
         logger.debug("Checking out SHA %s in %s", sha, workDirectory)
-        git.checkout(sha)
+        git.checkout(sha, logger=logger)
       else:
         logger.debug("No SHA specified, using head of master")
-      return git.getCurrentSha()
+      return git.getCurrentSha(logger=logger)
 
