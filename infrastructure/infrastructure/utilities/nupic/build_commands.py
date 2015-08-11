@@ -52,11 +52,9 @@ from infrastructure.utilities.cli import runWithOutput
 
 
 
-# TODO: Find out where SCRIPTS_DIR is being used. Accordingly modify
+# TODO: TAUR-1369 Find out where SCRIPTS_DIR is being used. Accordingly modify
 # the getGitRootFolder parameter. Commenting it till then.
 #SCRIPTS_DIR = os.path.join(git.getGitRootFolder(), "nupic-pipeline", "scripts")
-
-ARTIFACTS_DIR = createOrReplaceArtifactsDir()
 
 DOXYFILE = "docs/Doxyfile"
 INIT_FILE = "nupic/__init__.py"
@@ -375,10 +373,13 @@ def cacheNuPIC(env, nupicSha, uploadToS3, logger):
                               s3Folder, logger)
       createTextFileAndUpload(nupicSha, wheelFileName, fileDir, s3Folder,
                               logger)
-      shutil.move("nupic-package-version.txt", ARTIFACTS_DIR)
+
+      artifacts_dir = createOrReplaceArtifactsDir(logger=logger)
+
+      shutil.move("nupic-package-version.txt", artifacts_dir)
       with open("nupicSHA.txt", "w") as fHandle:
         fHandle.write(nupicSha)
-      shutil.move("nupicSHA.txt", ARTIFACTS_DIR)
+      shutil.move("nupicSHA.txt", artifacts_dir)
 
     except:
       logger.exception("Caching NuPIC failed.")

@@ -51,15 +51,19 @@ def getTestResult(filename):
   return True if int(result) is 0 else False
 
 
-def getResultsDir():
+def getResultsDir(logger):
   """
+    :param logger: logger for additional debug info
+
     :return Returns path to given keyFileName
   """
-  return os.path.join(getWorkspace(), "results")
+  return os.path.join(getWorkspace(logger=logger), "results")
 
 
-def getWorkspace():
+def getWorkspace(logger):
   """
+    :param logger: logger for additional debug info
+
     :raises:
       infrastructure.utilities.exceptions.CommandFailedError if
         the workspace env variable isn't set and you are running from outside of
@@ -73,11 +77,11 @@ def getWorkspace():
   if "WORKSPACE" in os.environ:
     workspace = os.environ["WORKSPACE"]
   else:
-    workspace = getGitRootFolder()
+    workspace = getGitRootFolder(logger)
   return workspace
 
 
-def createOrReplaceDir(dirname):
+def createOrReplaceDir(dirname, logger):
   """
     Creates a dirname dir in workspace. As a initial cleanup also
     deletes dirname if already present
@@ -86,25 +90,29 @@ def createOrReplaceDir(dirname):
 
     :returns path to created dirname
   """
-  workspace = getWorkspace()
+  workspace = getWorkspace(logger=logger)
   if os.path.exists(os.path.join(workspace, dirname)):
     shutil.rmtree("%s/%s" % (workspace, dirname))
   os.makedirs("%s/%s" % (workspace, dirname))
   return os.path.join(workspace, dirname)
 
 
-def createOrReplaceResultsDir():
+def createOrReplaceResultsDir(logger):
   """
     Creates a "results" dir in workspace. As a initial cleanup also
     deletes "results" if already present
 
+    :param logger: logger for additional debug info
+
     :returns path to created "results"
   """
-  return createOrReplaceDir("results")
+  return createOrReplaceDir("results", logger=logger)
 
 
-def getBuildNumber():
+def getBuildNumber(logger):
   """
+    :param logger: logger for additional debug info
+
     :raises:
       infrastructure.utilities.exceptions.CommandFailedError if
         the workspace env variable isn't set and you are running from outside of
@@ -117,7 +125,7 @@ def getBuildNumber():
   if "BUILD_NUMBER" in os.environ:
     buildNumber = os.environ["BUILD_NUMBER"]
   else:
-    buildNumber = getCurrentSha()
+    buildNumber = getCurrentSha(logger=logger)
   return buildNumber
 
 
@@ -132,11 +140,11 @@ def getKeyPath(keyFileName="chef_west.pem"):
   return os.path.join(os.environ.get("HOME"), ".ssh", keyFileName)
 
 
-def createOrReplaceArtifactsDir():
+def createOrReplaceArtifactsDir(logger=logger):
   """
     Creates a "artifacts" dir in workspace. As a initial cleanup also
     deletes "artifacts" if already present
 
     :returns path to created "artifacts"
   """
-  return createOrReplaceDir("artifacts")
+  return createOrReplaceDir("artifacts", logger=logger)

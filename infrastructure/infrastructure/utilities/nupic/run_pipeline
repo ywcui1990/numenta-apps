@@ -124,8 +124,8 @@ def addAndParseArgs():
 
   buildWorkspace = args["buildWorkspace"]
   if not buildWorkspace:
-    baseDir = jenkins.getWorkspace()
-    buildNumber = jenkins.getBuildNumber()
+    baseDir = jenkins.getWorkspace(logger=g_logger)
+    buildNumber = jenkins.getBuildNumber(logger=g_logger)
     try:
       buildWorkspace = baseDir + "/build-%s" % buildNumber
       os.makedirs(buildWorkspace)
