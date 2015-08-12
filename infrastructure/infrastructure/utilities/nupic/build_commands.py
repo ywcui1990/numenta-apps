@@ -35,18 +35,14 @@ from pkg_resources import resource_stream
 import yaml
 
 from infrastructure.utilities import git
-from infrastructure.utilities.jenkins import (
-  createOrReplaceResultsDir,
-  createOrReplaceArtifactsDir
-)
+from infrastructure.utilities.jenkins import (createOrReplaceResultsDir,
+                                              createOrReplaceArtifactsDir)
 from infrastructure.utilities import diagnostics
 from infrastructure.utilities import s3
 from infrastructure.utilities.env import addNupicCoreToEnv
-from infrastructure.utilities.exceptions import (
-  CommandFailedError,
-  NupicBuildFailed,
-  PipelineError
-)
+from infrastructure.utilities.exceptions import (CommandFailedError,
+                                                 NupicBuildFailed,
+                                                 PipelineError)
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput
 
@@ -59,8 +55,8 @@ DOXYFILE = "docs/Doxyfile"
 INIT_FILE = "nupic/__init__.py"
 VERSION_FILE = "VERSION"
 
-g_config = yaml.load(
-            resource_stream(__name__, "../../../conf/nupic/config.yaml"))
+g_config = yaml.load(resource_stream(__name__,
+                                     "../../../conf/nupic/config.yaml"))
 
 
 
