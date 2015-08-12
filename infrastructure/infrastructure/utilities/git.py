@@ -22,8 +22,6 @@
 """
   Many git utilities needed by the pipelines
 """
-import subprocess
-
 from infrastructure.utilities import diagnostics
 from infrastructure.utilities.cli import executeCommand
 from infrastructure.utilities.exceptions import (CommandFailedError,
