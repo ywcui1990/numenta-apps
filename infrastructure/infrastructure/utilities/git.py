@@ -151,8 +151,9 @@ def clean(path, arguments, logger):
   :raises CommandFailedError: if git clean fails
   """
   assert logger
-  assert isinstance(arguments, basestring), "arguments not str: %r" % arguments
-  assert isinstance(path, basestring), "path is not a str: %r" % path
+  assert isinstance(arguments, basestring), (
+    "arguments must be a str, but is %r" % arguments)
+  assert isinstance(path, basestring), "path must be a str, but is %r" % path
 
   command = "git clean"
   if arguments:
@@ -177,9 +178,11 @@ def setRemoteURL(remote, url, path, logger):
   :raises CommandFailedError: if git set-url fails
   """
   assert logger
-  assert isinstance(path, basestring), "path is not a string: %r" % (path)
-  assert isinstance(remote, basestring), "remote is not a string: %r" % (remote)
-  assert isinstance(url, basestring), "url is not a string: %r" % (url)
+  assert isinstance(path, basestring), (
+    "path must be a str, but is %r" % path)
+  assert isinstance(remote, basestring), (
+    "remote must be a str, but is %r" % (remote))
+  assert isinstance(url, basestring), "url must be a str, but is %r" % (url)
 
   logger.debug("* Setting url for %s to %s in %s", remote, url, path)
   with changeToWorkingDir(path):
