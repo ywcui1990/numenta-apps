@@ -152,8 +152,8 @@ def clean(path, arguments, logger):
   """
   assert logger
   assert isinstance(arguments, basestring), (
-    "arguments must be a str, but is %r" % arguments)
-  assert isinstance(path, basestring), "path must be a str, but is %r" % path
+    "arguments must be a string, but is %r" % arguments)
+  assert isinstance(path, basestring), "path must be a string, but is %r" % path
 
   command = "git clean"
   if arguments:
@@ -179,10 +179,10 @@ def setRemoteURL(remote, url, path, logger):
   """
   assert logger
   assert isinstance(path, basestring), (
-    "path must be a str, but is %r" % path)
+    "path must be a string, but is %r" % path)
   assert isinstance(remote, basestring), (
-    "remote must be a str, but is %r" % (remote))
-  assert isinstance(url, basestring), "url must be a str, but is %r" % (url)
+    "remote must be a string, but is %r" % (remote))
+  assert isinstance(url, basestring), "url must be a string, but is %r" % (url)
 
   logger.debug("* Setting url for %s to %s in %s", remote, url, path)
   with changeToWorkingDir(path):
