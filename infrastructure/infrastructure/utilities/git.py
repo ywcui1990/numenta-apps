@@ -143,7 +143,8 @@ def clean(path, arguments, logger):
   :param path: git directory to clean
 
   :param arguments: str containing optional extra command line arguments
-  for git clean
+  for git clean, as you would type them on the command line. If you wanted
+  to do `git clean -fd`, you'd set arguments to "-fd".
 
   :param logger: An initialized logger object
 
