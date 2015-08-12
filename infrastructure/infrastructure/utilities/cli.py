@@ -65,7 +65,7 @@ def executeCommand(command, env=None, logger=None):
     raise CommandFailedError(errMessage)
 
 
-def runWithRetries(command, retries=1, delay=1, logger=None):
+def runWithRetries(command, retries=1, delay=1, logger=None, env=None):
   """
   Run a command up to retries times until it succeeds.
 
@@ -82,11 +82,13 @@ def runWithRetries(command, retries=1, delay=1, logger=None):
   @raises infrastructure.utilities.exceptions.CommandFailedError
   if the command doesn't succeed after trying retries times
   """
+  if env is None:
+    env = os.environ
   attempts = 0
   while attempts < retries:
     attempts = attempts + 1
     try:
-      runWithOutput(command, printEnv=printEnv, logger=logger)
+      runWithOutput(command, env=env, logger=logger)
       return
     except CommandFailedError:
       if logger is not None:
