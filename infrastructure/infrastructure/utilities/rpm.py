@@ -154,8 +154,8 @@ def gitCloneIntoFakeroot(fakeroot,
                          installDirectory,
                          repoDirectory,
                          gitURL,
-                         sha=None,
-                         logger=None):
+                         logger,
+                         sha=None):
   """
   Clone a git repository into a specific path in a fakeroot
 
