@@ -120,7 +120,8 @@ def addAndParseArgs():
   args = vars(parser.parse_args())
 
   global g_logger
-  g_logger = diagnostics.initPipelineLogger("build", logLevel=args["logLevel"])
+  g_logger = diagnostics.initPipelineLogger(name="build",
+                                            logLevel=args["logLevel"])
 
   buildWorkspace = args["buildWorkspace"]
   if not buildWorkspace:
@@ -149,7 +150,7 @@ def main():
   args = addAndParseArgs()
 
   env = prepareEnv(args["buildWorkspace"], None, os.environ)
-  diagnostics.printEnv(env, g_logger)
+  diagnostics.printEnv(env=env, logger=g_logger)
 
   if not args["nupicSha"]:
     args["nupicSha"] = git.getShaFromRemoteBranch(args["nupicRemote"], args["nupicBranch"])

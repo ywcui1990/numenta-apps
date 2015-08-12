@@ -231,7 +231,7 @@ def buildNuPICCore(env, nupicCoreSha, logger):
       This exception is raised if build fails.
   """
   print "\n----------Building nupic.core------------"
-  diagnostics.printEnv(env, logger)
+  diagnostics.printEnv(env=env, logger=logger)
   with changeToWorkingDir(env["NUPIC_CORE_DIR"]):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
@@ -265,7 +265,7 @@ def buildNuPIC(env, logger):
       This exception is raised if build fails.
   """
   print "\n----------Building NuPIC------------"
-  diagnostics.printEnv(env, logger)
+  diagnostics.printEnv(env=env, logger=logger)
 
   # Build
   with changeToWorkingDir(env["NUPIC"]):
@@ -313,7 +313,7 @@ def runTests(env, logger):
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
     try:
-      diagnostics.printEnv(env, logger)
+      diagnostics.printEnv(env=env, logger=logger)
       runWithOutput("bin/py_region_test", env, logger)
       testCommand = "scripts/run_nupic_tests -u --coverage --results xml"
       runWithOutput(testCommand, env, logger)
