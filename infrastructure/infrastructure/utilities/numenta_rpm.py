@@ -29,10 +29,9 @@ from infrastructure.utilities import diagnostics
 from infrastructure.utilities import rpm
 from infrastructure.utilities.cli import runWithOutput
 from infrastructure.utilities.exceptions import InvalidParametersError
-from infrastructure.utilities.path import (
-  changeToWorkingDir,
-  purgeDirectory,
-  rmrf)
+from infrastructure.utilities.path import (changeToWorkingDir,
+                                           purgeDirectory,
+                                           rmrf)
 
 
 class NumentaRPM(object):
@@ -251,9 +250,9 @@ class NumentaRPM(object):
     logger.debug("%s/infrastructure/saltcellar", productsPath)
 
     logger.debug("Checking for %s/infrastructure/saltcellar",
-                   productsPath)
+                 productsPath)
     logger.debug(os.path.exists("%s/infrastructure/saltcellar" %
-                                  productsPath))
+                                productsPath))
 
     os.rename(os.path.join(productsPath, "infrastructure",
                            "saltcellar"),
@@ -530,8 +529,8 @@ class NumentaRPM(object):
     if config.sitePackagesTarball:
       with changeToWorkingDir(libPython):
         logger.debug("Bursting %s in %s",
-                       config.sitePackagesTarball,
-                       libPython)
+                     config.sitePackagesTarball,
+                     libPython)
         runWithOutput("tar xf %s" % config.sitePackagesTarball)
 
     return realSHA
@@ -542,7 +541,10 @@ class NumentaRPM(object):
     fakeroot = mkdtemp(prefix=config.tempdir)
     self.fakeroot = fakeroot
     logger = self.logger
-    self.productsDirectory = os.path.join(fakeroot, "opt", "numenta", "products")
+    self.productsDirectory = os.path.join(fakeroot,
+                                          "opt",
+                                          "numenta",
+                                          "products")
     logger.debug("Creating fakeroot in %s", fakeroot)
     (iteration, fakerootSHA) = self.constructFakeroot()
 
