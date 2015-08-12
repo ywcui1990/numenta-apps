@@ -203,8 +203,7 @@ public class InstanceListActivity extends TaurusBaseActivity {
         MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                ((AnomalyListAdapter)_listFragment.getListAdapter()).sort(
-                        DataUtils.<InstanceAnomalyChartData>getSortByAnomalyComparator());
+                ((AnomalyListAdapter)_listFragment.getListAdapter()).sort();
                 if (_favorites.getCheckedRadioButtonId() == R.id.filter_none) {
                     _listFragment.clearFilter();
                 } else {
