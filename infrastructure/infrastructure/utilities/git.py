@@ -22,8 +22,6 @@
 """
   Many git utilities needed by the pipelines
 """
-import subprocess
-
 from infrastructure.utilities.exceptions import (CommandFailedError,
                                                  DetachedHeadError)
 from infrastructure.utilities.path import changeToWorkingDir
@@ -140,23 +138,25 @@ def getActiveBranch():
 
 def clean(path, arguments, logger):
   """
-  Changes to path, then runs git clean -fd.
+  Changes to path, then runs git clean.
 
   :param path: git directory to clean
 
-  :param arguments: optional extra command line arguments for git clean
+  :param arguments: str containing optional extra command line arguments
+  for git clean
 
   :param logger: An initialized logger object
 
   :raises CommandFailedError: if git clean fails
   """
-  assert path
   assert logger
+  assert isinstance(arguments, basestring), "arguments not str: %r" % arguments
+  assert isinstance(path, basestring), "path is not a str: %r" % path
 
-  logger.debug("* Cleaning %s", path)
   command = "git clean"
   if arguments:
     command = command + arguments
+  logger.debug("* Running %s in %s", command, path)
   with changeToWorkingDir(path):
     return executeCommand(command=command, logger=logger)
 
@@ -176,9 +176,9 @@ def setRemoteURL(remote, url, path, logger):
   :raises CommandFailedError: if git set-url fails
   """
   assert logger
-  assert path
-  assert remote
-  assert url
+  assert isinstance(path, basestring), "path is not a string: %r" % (path)
+  assert isinstance(remote, basestring), "remote is not a string: %r" % (remote)
+  assert isinstance(url, basestring), "url is not a string: %r" % (url)
 
   logger.debug("* Setting url for %s to %s in %s", remote, url, path)
   with changeToWorkingDir(path):
