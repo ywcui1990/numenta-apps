@@ -245,7 +245,14 @@ def checkout(pathspec, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :param kwargs:
+  :param new: Boolean. If True, create a new branch. *
+
+  :param orphan: Boolean. If True, create a new orphan branch. *
+
+  :param theirs: Boolean. If True, when checking out paths from the index,
+                 check out stage #3 (theirs) for unmerged paths. *
+
+  :note *: Only one of the parameter will be used. Priority: new, orphan, theirs
 
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
