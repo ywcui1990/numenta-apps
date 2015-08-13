@@ -22,7 +22,6 @@
 """
   Many git utilities needed by the pipelines
 """
-from infrastructure.utilities import diagnostics
 from infrastructure.utilities.cli import executeCommand
 from infrastructure.utilities.exceptions import (CommandFailedError,
                                                  DetachedHeadError)
@@ -257,7 +256,7 @@ def checkoutOrphan(pathspec, logger):
 
 
 
-def reset(sha="", logger, **kwargs):
+def reset(sha="", logger=None, **kwargs):
   """
   Resets the repository to a optional SHA. Optional argument for --hard
 
@@ -273,6 +272,7 @@ def reset(sha="", logger, **kwargs):
 
   :rtype: int
   """
+  assert logger
   command = ["git", "reset"]
   if checkIfOptionSet("hard", **kwargs):
     command.append("--hard")
@@ -281,7 +281,7 @@ def reset(sha="", logger, **kwargs):
 
 
 
-def resetHard(sha="", logger):
+def resetHard(sha="", logger=None):
   """
   A convenience function that runs 'git reset --hard' for the given SHA.
   Calls reset(SHA, **kwargs).
@@ -298,6 +298,7 @@ def resetHard(sha="", logger):
 
   :rtype: int
   """
+  assert logger
   return reset(sha, hard=True, logger=logger)
 
 
@@ -342,7 +343,7 @@ def revParse(commitish, logger, **kwargs):
   elif checkIfOptionSet("abbrevRef", **kwargs):
     command.append("--abbrev-ref")
 
-  commad.append(commitish)
+  command.append(commitish)
   return executeCommand(command=command, logger=logger)
 
 
@@ -429,7 +430,7 @@ def commit(message, logger, **kwargs):
   command = ["git", "commit"]
   if checkIfOptionSet("amend", **kwargs):
     command.append("--amend")
-  commandappend(message)
+  command.append(message)
   return executeCommand(command=command, logger=logger)
 
 
