@@ -75,7 +75,7 @@ from infrastructure.utilities.nupic.build_commands import (
 
 g_config = yaml.load(resource_stream(__name__,
                                      "../../../conf/nupic/config.yaml"))
-
+g_logger = None
 
 
 def addAndParseArgs():
@@ -117,7 +117,8 @@ def addAndParseArgs():
                       dest="nupicSha",
                       type=str,
                       help="The NuPIC SHA that needs to be built.")
-  parser.add_argument("--nupic-core-remote", dest="nupicCoreRemote",
+  parser.add_argument("--nupic-core-remote",
+                      dest="nupicCoreRemote",
                       type=str,
                       default="",
                       help="Which NuPIC Core remote to build from, e.g., "
@@ -131,6 +132,7 @@ def addAndParseArgs():
                       dest="logLevel",
                       type=str,
                       default="warning",
+                      choices=diagnostics.LOG_LEVELS,
                       help="Logging level, by default it takes warning")
 
   args = vars(parser.parse_args())

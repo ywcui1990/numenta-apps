@@ -88,7 +88,7 @@ def runWithRetries(command, retries=1, delay=1, logger=None, env=None):
   while attempts < retries:
     attempts = attempts + 1
     try:
-      runWithOutput(command, env=env, logger=logger)
+      runWithOutput(command=command, env=env, logger=logger)
       return
     except CommandFailedError:
       if logger is not None:
