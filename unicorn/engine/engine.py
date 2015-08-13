@@ -120,8 +120,9 @@ class _Anomalizer(object):
   maintains a buffer of results (of the necessary window size) and anomaly state
   in memory.
 
-  NOTE: consider modifying htmengine's anomaly_likelihood_helper.py so that we
-  can share it with htmengine's Anomaly Service
+  NOTE: consider using nupic.algorithms.anomaly_likelihood directly or modifying
+  htmengine's anomaly_likelihood_helper.py so that we can share it with
+  htmengine's Anomaly Service
 
 
   TODO Flesh me out
