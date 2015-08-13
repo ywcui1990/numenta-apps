@@ -194,7 +194,7 @@ def gitCloneIntoFakeroot(fakeroot,
       if sha:
         git.resetHard(logger=logger)
         logger.debug("Checking out SHA %s in %s", sha, workDirectory)
-        git.checkout(sha, logger=logger)
+        git.checkout(sha=sha, logger=logger)
       else:
         logger.debug("No SHA specified, using head of master")
       return git.getCurrentSha(logger=logger)
