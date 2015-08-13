@@ -19,6 +19,10 @@ setup(
        "%s.models_monitor.taurus_models_monitor:main" % name),
       ("taurus-metric-order-monitor = "
        "%s.metric_order_monitor.metric_order_monitor:main" % name),
+      ("taurus-server-supervisor-monitor = "
+       "%s.supervisord_monitor.taurus_server_supervisord_monitor:main" % name),
+      ("taurus-collector-supervisor-monitor = "
+       "%s.supervisord_monitor.taurus_collector_supervisord_monitor:main" % name)
     ]
   }
 )
