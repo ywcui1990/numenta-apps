@@ -73,9 +73,9 @@ from infrastructure.utilities.nupic.build_commands import (
   checkIfProjectExistsLocallyForSHA,
   fullBuild)
 
-g_config = yaml.load(
-            resource_stream(__name__, "../../../conf/nupic/config.yaml"))
-
+g_config = yaml.load(resource_stream(__name__,
+                                     "../../../conf/nupic/config.yaml"))
+g_logger = None
 
 
 def addAndParseArgs():
@@ -152,14 +152,20 @@ def main():
   log.printEnv(env, g_logger)
 
   if not args["nupicSha"]:
-    args["nupicSha"] = git.getShaFromRemoteBranch(args["nupicRemote"],
-                                                  args["nupicBranch"],
-                                                  logger=g_logger)
+    args["nupicSha"] = \
+      git.getShaFromRemoteBranch(gitRemoteRepo=args["nupicRemote"],
+                                 gitRemoteBranch=args["nupicBranch"],
+                                 logger=g_logger)
 
   if not checkIfProjectExistsLocallyForSHA("nupic", args["nupicSha"], g_logger):
-    fullBuild(env, args["buildWorkspace"], args["nupicRemote"],
-        args["nupicBranch"], args["nupicSha"], args["nupicCoreRemote"],
-        args["nupicCoreSha"], g_logger)
+    fullBuild(env=env,
+              buildWorkspace=args["buildWorkspace"],
+              nupicRemote=args["nupicRemote"],
+              nupicBranch=args["nupicBranch"],
+              nupicSha=args["nupicSha"],
+              nupicCoreRemote=args["nupicCoreRemote"],
+              nupicCoreSha=args["nupicCoreSha"],
+              logger=g_logger)
   else:
     g_logger.info("Skipping NuPIC build for SHA : %s", args["nupicSha"])
 
