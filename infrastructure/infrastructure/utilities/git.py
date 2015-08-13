@@ -245,14 +245,15 @@ def checkout(pathspec, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :param new: Boolean. If True, create a new branch. *
+  :param kwargs: Optional switches to git checkout. Following switches are
+                 supported at the moment.
 
-  :param orphan: Boolean. If True, create a new orphan branch. *
+    new: Boolean. If True, create a new branch.
 
-  :param theirs: Boolean. If True, when checking out paths from the index,
-                 check out stage #3 (theirs) for unmerged paths. *
+    orphan: Boolean. If True, create a new orphan branch.
 
-  :note *: Only one of the parameter will be used. Priority: new, orphan, theirs
+    theirs: Boolean. If True, when checking out paths from the index, check out
+            stage #3 (theirs) for unmerged paths. *
 
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
@@ -323,6 +324,9 @@ def reset(sha="", logger=None, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
+  :param hard: Boolean. If true, resets the index and working tree. Any changes
+               to tracked files in the working tree since <commit> are
+               discarded.
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
     the command fails
@@ -345,7 +349,7 @@ def resetHard(sha="", logger=None):
   A convenience function that runs 'git reset --hard' for the given SHA.
   Calls reset(SHA, **kwargs).
 
-  :params SHA: The SHA or commit-sh to which the code needs to be reset to.
+  :param SHA: The SHA or commit-sh to which the code needs to be reset to.
 
   :param logger: logger for additional debug info if desired
 
@@ -438,10 +442,10 @@ def showRef(refList, logger, **kwargs):
   :param kwargs: Optional switches to git show-ref. Following switches are
   supported at the moment.
 
-    --verify: Enable stricter reference checking by requiring an exact
+    verify: Enable stricter reference checking by requiring an exact
               ref path.
-    --quiet: Aside from returning an error code of 1, it will also print an
-             error message, if --quiet was not specified.
+    quiet: Aside from returning an error code of 1, it will also print an
+             error message, if quiet was not specified.
 
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError if
