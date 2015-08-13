@@ -232,7 +232,7 @@ def checkoutNewBranch(pathspec, logger):
 
   :rtype: string
   """
-  return checkout(pathspec, new=True, logger=logger)
+  return checkout(pathspec=pathspec, new=True, logger=logger)
 
 
 
@@ -252,7 +252,7 @@ def checkoutOrphan(pathspec, logger):
 
   :rtype: string
   """
-  return checkout(pathspec, orphan=True, logger=logger)
+  return checkout(pathspec=pathspec, orphan=True, logger=logger)
 
 
 
@@ -299,7 +299,7 @@ def resetHard(sha="", logger=None):
   :rtype: int
   """
   assert logger
-  return reset(sha, hard=True, logger=logger)
+  return reset(sha=sha, hard=True, logger=logger)
 
 
 
