@@ -174,9 +174,9 @@ def clean(path, arguments, logger):
     "arguments must be a string, but is %r" % arguments)
   assert isinstance(path, basestring), "path must be a string, but is %r" % path
 
-  command = "git clean"
+  command = ["git", "clean"]
   if arguments:
-    command = command + arguments
+    command.append(arguments)
   logger.debug("* Running %s in %s", command, path)
   with changeToWorkingDir(path):
     return executeCommand(command=command, logger=logger)
