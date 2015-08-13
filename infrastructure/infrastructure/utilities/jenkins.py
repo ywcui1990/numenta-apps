@@ -28,13 +28,12 @@ import shutil
 
 import xml.etree.ElementTree as ET
 
-from infrastructure.utilities.git import (
-  getCurrentSha,
-  getGitRootFolder)
+from infrastructure.utilities.git import (getCurrentSha,
+                                          getGitRootFolder)
 
 
-XUNIT_TEST_RESULTS_FILE_PATH = (
-  "/opt/numenta/grok/tests/results/py2/xunit/jenkins/results.xml")
+XUNIT_TEST_RESULTS_FILE_PATH = ("/opt/numenta/grok/tests/results/py2/xunit"
+                                "/jenkins/results.xml")
 
 def getTestResult(filename):
   """
@@ -77,7 +76,7 @@ def getWorkspace(logger):
   if "WORKSPACE" in os.environ:
     workspace = os.environ["WORKSPACE"]
   else:
-    workspace = getGitRootFolder(logger)
+    workspace = getGitRootFolder(logger=logger)
   return workspace
 
 
@@ -106,7 +105,7 @@ def createOrReplaceResultsDir(logger):
 
     :returns path to created "results"
   """
-  return createOrReplaceDir("results", logger=logger)
+  return createOrReplaceDir(dirname="results", logger=logger)
 
 
 def getBuildNumber(logger):
@@ -140,11 +139,11 @@ def getKeyPath(keyFileName="chef_west.pem"):
   return os.path.join(os.environ.get("HOME"), ".ssh", keyFileName)
 
 
-def createOrReplaceArtifactsDir(logger=logger):
+def createOrReplaceArtifactsDir(logger):
   """
     Creates a "artifacts" dir in workspace. As a initial cleanup also
     deletes "artifacts" if already present
 
     :returns path to created "artifacts"
   """
-  return createOrReplaceDir("artifacts", logger=logger)
+  return createOrReplaceDir(dirname="artifacts", logger=logger)
