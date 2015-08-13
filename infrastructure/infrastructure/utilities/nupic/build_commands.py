@@ -52,10 +52,6 @@ from infrastructure.utilities.cli import runWithOutput
 
 
 
-# TODO: TAUR-1369 Find out where SCRIPTS_DIR is being used. Accordingly modify
-# the getGitRootFolder parameter. Commenting it till then.
-#SCRIPTS_DIR = os.path.join(git.getGitRootFolder(), "nupic-pipeline", "scripts")
-
 DOXYFILE = "docs/Doxyfile"
 INIT_FILE = "nupic/__init__.py"
 VERSION_FILE = "VERSION"
