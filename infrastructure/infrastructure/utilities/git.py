@@ -63,7 +63,8 @@ def getCommitCount(path, logger):
   :rtype: string
   """
   with changeToWorkingDir(path):
-    return executeCommand("git rev-list HEAD --count", logger=logger)
+    command = ("git", "rev-list", "HEAD", "--count")
+    return executeCommand(command=command, logger=logger)
 
 
 
@@ -81,7 +82,8 @@ def getGitRootFolder(logger):
 
   :rtype: string
   """
-  return executeCommand("git rev-parse --show-toplevel", logger=logger)
+  command = ("git", "rev-parse", "--show-toplevel")
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -104,9 +106,9 @@ def getModifiedFilesBetweenRevisions(startSha, endSha, logger):
 
   :rtype: set
   """
-  return set(executeCommand(
-             "git diff --name-only %s...%s" % (startSha, endSha),
-             logger=logger).split("\n"))
+  command = ("git", "diff", "--name-only", "%s...%s" % (startSha, endSha))
+  return set(executeCommand(command=command,
+                            logger=logger).split("\n"))
 
 
 
@@ -125,7 +127,8 @@ def getCurrentSha(logger):
 
   :rtype: string
   """
-  return executeCommand("git log -n1 --pretty=%H", logger=logger)
+  command = ("git", "log", "-n1", "--pretty=%H")
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -146,7 +149,8 @@ def getActiveBranch(logger):
 
   :rtype: string
   """
-  branch = executeCommand("git rev-parse --abbrev-ref HEAD", logger=logger)
+  command = ("git", "rev-parse", "--abbrev-ref", "HEAD")
+  branch = executeCommand(command=command, logger=logger)
   if branch == "HEAD":
     raise DetachedHeadError("There is no active branch; the head is detached.")
 
@@ -175,10 +179,10 @@ def clone(gitURL, logger, **kwargs):
 
   :rtype: string
   """
-  command = "git clone %s" % gitURL
+  command = ["git", "clone", gitURL]
   if checkIfOptionSet("directory", **kwargs):
-    command += " " + kwargs["directory"]
-  return executeCommand(command, logger=logger)
+    command.append(kwargs["directory"])
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -200,16 +204,16 @@ def checkout(pathspec, logger, **kwargs):
 
   :rtype: string
   """
-  command = "git checkout"
+  command = ["git", "checkout"]
   if checkIfOptionSet("new", **kwargs):
-    command += " -b "
+    command.append("-b")
   elif checkIfOptionSet("orphan", **kwargs):
-    command += " --orphan"
+    command.append("--orphan")
   elif checkIfOptionSet("theirs", **kwargs):
-    command += " --theirs"
+    command.append("--theirs")
 
-  command += " %s" % pathspec
-  return executeCommand(command, logger=logger)
+  command.append(pathspec)
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -269,11 +273,11 @@ def reset(sha="", logger, **kwargs):
 
   :rtype: int
   """
-  command = "git reset "
+  command = ["git", "reset"]
   if checkIfOptionSet("hard", **kwargs):
-    command += "--hard"
-  command += " %s" % sha
-  return executeCommand(command, logger=logger)
+    command.append("--hard")
+  command.append(sha)
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -330,16 +334,16 @@ def revParse(commitish, logger, **kwargs):
 
   :rtype: string or int
   """
-  command = "git rev-parse"
+  command = ["git", "rev-parse"]
   if checkIfOptionSet("verify", **kwargs):
-    command += " --verify"
+    command.append("--verify")
   elif checkIfOptionSet("quiet", **kwargs):
-    command += " --quiet"
+    command.append("--quiet")
   elif checkIfOptionSet("abbrevRef", **kwargs):
-    command += " --abbrev-ref"
+    command.append("--abbrev-ref")
 
-  command += " %s" % commitish
-  return executeCommand(command, logger=logger)
+  commad.append(commitish)
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -357,8 +361,8 @@ def fetch(repository, refspec, logger):
     infrastructure.utilities.exceptions.CommandFailedError: if
     the command fails
   """
-  command = "git fetch %s %s" % (repository, refspec)
-  return executeCommand(command, logger=logger)
+  command = ("git", "fetch", repository, refspec)
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -383,11 +387,11 @@ def showRef(refList, logger, **kwargs):
     infrastructure.utilities.exceptions.CommandFailedError if
     the command fails
   """
-  command = "git show-ref"
+  command = ["git", "show-ref"]
   if checkIfOptionSet("verify", **kwargs):
-    command += " --verify"
-  command += " %s" % refList
-  return executeCommand(command, logger=logger)
+    command.append("--verify")
+  command.append(refList)
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -403,8 +407,8 @@ def add(pathspec, logger):
     infrastructure.utilities.exceptions.CommandFailedError: if
     the command fails
   """
-  command = "git add %s" % pathspec
-  return executeCommand(command, logger=logger)
+  command = ("git", "add", pathspec)
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -422,11 +426,11 @@ def commit(message, logger, **kwargs):
     infrastructure.utilities.exceptions.CommandFailedError: if
     the command fails
   """
-  command = "git commit "
+  command = ["git", "commit"]
   if checkIfOptionSet("amend", **kwargs):
-    command += " --amend"
-  command += " %s" % message
-  return executeCommand(command, logger=logger)
+    command.append("--amend")
+  commandappend(message)
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -446,11 +450,11 @@ def merge(path, message, logger, **kwargs):
     infrastructure.utilities.exceptions.CommandFailedError: if
     the command fails
   """
-  command = "git merge "
+  command = ["git", "merge"]
   if checkIfOptionSet("noFF", **kwargs):
-    command += " --no-ff"
-  command += " -m %s %s" % (message, path)
-  return executeCommand(command, logger=logger)
+    command.append("--no-ff")
+  command.extend(["-m", message, path])
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -470,8 +474,8 @@ def removeFileFromGit(path, logger):
 
   :rtype: str
   """
-  command = "git rm -rf %s" % path
-  return executeCommand(command, logger=logger)
+  command = ("git", "rm", "-rf", path)
+  return executeCommand(command=command, logger=logger)
 
 
 
@@ -493,7 +497,8 @@ def getShaFromRemoteBranch(gitRemoteRepo, gitRemoteBranch, logger):
 
   :rtype: String
   """
-  shaList = executeCommand("git ls-remote %s" % gitRemoteRepo, logger=logger)
+  command = ("git", "ls-remote", gitRemoteRepo)
+  shaList = executeCommand(command=command, logger=logger)
   if gitRemoteBranch == "master":
     return shaList.split("\t")[0]
   else:
