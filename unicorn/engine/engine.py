@@ -34,6 +34,7 @@ import sys
 import validictory
 
 from nupic.data import fieldmeta
+from nupic.data import record_stream
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
 # TODO: can we reuse htmengine primitives here?
@@ -162,7 +163,14 @@ class _ModelRunner(object):
     :param dict stats: Metric data stats per engine/stats_schema.json.
     """
     self._modelId = modelId
+
+    # NOTE: ModelRecordEncoder is implemented in the pull request
+    # https://github.com/numenta/nupic/pull/2432 that is not yet in master.
+    self._modelRecordEncoder = record_stream.ModelRecordEncoder(
+      fields=self._INPUT_RECORD_SCHEMA)
+
     self._model = self._createModel(stats=stats)
+
     self._anomalizer = _Anomalizer()
 
 
@@ -230,9 +238,7 @@ class _ModelRunner(object):
     :rtype: float
     """
     # Generate raw anomaly score
-    # TODO: opfModelInputRecordFromSequence doesn't exist yet
-    inputRecord = opfModelInputRecordFromSequence(inputRow,
-                                                  self._INPUT_RECORD_SCHEMA)
+    inputRecord = self._modelRecordEncoder.encode(inputRow)
     rawAnomalyScore = self._model.run(inputRecord).inferences["anomalyScore"]
 
     # Generate anomaly likelihood
