@@ -278,20 +278,22 @@ def buildNuPIC(env, logger):
         pass
 
       # install requirements
-      runWithOutput("pip install --install-option=--prefix=%s --requirement "
-                    "external/common/requirements.txt" % env["NTA"],
-                    env=env, logger=logger)
+      command = ("pip", "install", "--install-option=--prefix=%s" % env["NTA"],
+                 "--requirement", "external/common/requirements.txt")
+
+      runWithOutput(command=command, env=env, logger=logger)
       # need to remove this folder for wheel build to work
       shutil.rmtree("external/linux32arm")
 
       # build the wheel
-      command = ("python setup.py bdist_wheel bdist_egg --nupic-core-dir=%s" %
-          os.path.join(env["NUPIC_CORE_DIR"], "build", "release"))
+      command = ["python", "setup.py", "bdist_wheel", "bdist_egg",
+                 "--nupic-core-dir=%s" % os.path.join(env["NUPIC_CORE_DIR"],
+                                                      "build", "release")]
       # Building on jenkins, not local
       if "JENKINS_HOME" in env:
-        command += " upload -r numenta-pypi"
+        command.extend(["upload", "-r", "numenta-pypi"])
 
-      runWithOutput(command, env=env, logger=logger)
+      runWithOutput(command=command, env=env, logger=logger)
     except:
       logger.exception("Failed while building nupic")
       raise NupicBuildFailed("NuPIC building failed.")
@@ -374,12 +376,12 @@ def cacheNuPIC(env, nupicSha, uploadToS3, logger):
       createTextFileAndUpload(nupicSha, wheelFileName, fileDir, s3Folder,
                               logger)
 
-      artifacts_dir = createOrReplaceArtifactsDir(logger=logger)
+      artifactsDir = createOrReplaceArtifactsDir(logger=logger)
 
-      shutil.move("nupic-package-version.txt", artifacts_dir)
+      shutil.move("nupic-package-version.txt", artifactsDir)
       with open("nupicSHA.txt", "w") as fHandle:
         fHandle.write(nupicSha)
-      shutil.move("nupicSHA.txt", artifacts_dir)
+      shutil.move("nupicSHA.txt", artifactsDir)
 
     except:
       logger.exception("Caching NuPIC failed.")
