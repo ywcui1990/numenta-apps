@@ -55,7 +55,7 @@ def getCommitCount(path, logger):
   :param logger: logger for additional debug info if desired
 
   :raises: infrastructure.utilities.exceptions.CommandFailedError:
-  if path isn't in a git checkout
+           if path isn't in a git checkout
 
   :returns: total commit count for the git directory
 
@@ -118,9 +118,8 @@ def getCurrentSha(logger):
   :param logger: logger for additional debug info if desired
 
   :raises:
-    infrastructure.utilities.exceptions.CommandFailedError if
-    the command fails; typically because you are not executing from within a
-    git repository
+    infrastructure.utilities.exceptions.CommandFailedError if the command fails;
+      typically because you are not executing from within a git repository
 
   :returns: The current SHA
 
