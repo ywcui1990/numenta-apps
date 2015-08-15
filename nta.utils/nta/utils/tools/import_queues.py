@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from optparse import OptionGroup, OptionParser
+from argparse import ArgumentParser
 import re
 
 import requests
@@ -30,28 +30,33 @@ from nta.utils.amqp.synchronous_amqp_client import SynchronousAmqpClient
 
 
 
-parser = OptionParser(description=("Copy queues from one rabbitmq instance to"
+parser = ArgumentParser(description=("Copy queues from one rabbitmq instance to"
                                    " another."))
 
-destinationGroup = OptionGroup(parser, "Destination")
-destinationGroup.add_option("--destination-host", metavar="HOST")
-destinationGroup.add_option("--destination-user", metavar="USER")
-destinationGroup.add_option("--destination-passwd", metavar="PASSWD")
-parser.add_option_group(destinationGroup)
+destinationGroup = parser.add_argument_group("Destination")
+destinationGroup.add_argument("--destination-host",
+                              metavar="HOST",
+                              required=True)
+destinationGroup.add_argument("--destination-user", metavar="USER")
+destinationGroup.add_argument("--destination-passwd", metavar="PASSWD")
 
-sourceGroup = OptionGroup(parser, "Source")
-sourceGroup.add_option("--source-host", metavar="HOST")
-sourceGroup.add_option("--source-user", metavar="USER")
-sourceGroup.add_option("--source-passwd", metavar="PASSWD")
-sourceGroup.add_option("--source-port", metavar="PORT", default=15672,
-                       help="RabbitMQ Administration port (for http API)")
-parser.add_option_group(sourceGroup)
+sourceGroup = parser.add_argument_group("Source")
+sourceGroup.add_argument("--source-host",
+                         metavar="HOST",
+                         required=True)
+sourceGroup.add_argument("--source-user", metavar="USER")
+sourceGroup.add_argument("--source-passwd", metavar="PASSWD")
+sourceGroup.add_argument("--source-port",
+                         metavar="PORT",
+                         type=int,
+                         default=15672,
+                         help="RabbitMQ Administration port (for http API)")
 
-parser.add_option("--queue-regex", metavar="PATTERN", default=".*",
-                  help=("Queues with names that match this pattern will be"
-                        " copied from source into destination.  If not"
-                        " specified, the default pattern '.*' will be used to"
-                        " copy all queues."))
+parser.add_argument("--queue-regex", metavar="PATTERN", default=".*",
+                    help=("Queues with names that match this pattern will be"
+                          " copied from source into destination.  If not"
+                          " specified, the default pattern '.*' will be used"
+                          " to copy all queues."))
 
 
 
@@ -102,19 +107,7 @@ def _replicateQueueInDestination(queue, host, user, passwd):
 
 
 def main():
-
-  (options, args) = parser.parse_args()
-
-  if args:
-    parser.error(("Unexpected positional arguments.  See `{} --help` for full"
-                  " set of command-line arguments"
-                  .format(parser.get_prog_name())))
-
-  if not options.destination_host:
-    parser.error("Required `--destination-host` host not specified.")
-
-  if not options.source_host:
-    parser.error("Required `--source-host` host not specified.")
+  options = parser.parse_args()
 
   pattern = re.compile(options.queue_regex)
 
