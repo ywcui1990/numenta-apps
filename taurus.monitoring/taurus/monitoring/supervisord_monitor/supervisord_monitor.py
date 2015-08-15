@@ -49,7 +49,13 @@ class SupervisorChecker(object):
   parser = OptionParser()
 
   parser.add_option("--monitorConfPath",
-                    help="Specify full path to monitor conf file")
+                    help=("Specify full path to ConfigParser-compatible"
+                          " monitor conf file, containing a [S1] section and"
+                          " the following configuration directives:\n\n"
+                          "MODELS_MONITOR_EMAIL_SENDER_ADDRESS\n"
+                          "MODELS_MONITOR_EMAIL_RECIPIENTS\n"
+                          "MODELS_MONITOR_EMAIL_AWS_REGION\n"
+                          "MODELS_MONITOR_EMAIL_SES_ENDPOINT"))
   parser.add_option("--serverUrl",
                     help="Supervisor API (e.g. http://127.0.0.1:9001)")
 
@@ -63,8 +69,7 @@ class SupervisorChecker(object):
       self.parser.error("Unexpected positional arguments: {}"
                         .format(repr(args)))
 
-    server = xmlrpclib.Server(urljoin(options.serverUrl, "RPC2"))
-    self.server = server
+    self.server = xmlrpclib.Server(urljoin(options.serverUrl, "RPC2"))
 
     confDir = os.path.dirname(options.monitorConfPath)
     confFileName = os.path.basename(options.monitorConfPath)
