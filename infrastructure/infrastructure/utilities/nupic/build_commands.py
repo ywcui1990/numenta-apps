@@ -72,7 +72,7 @@ def fetchNuPIC(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger):
     :param nupicBranch: The NuPIC branch which will be used to build
     :param nupicSha: NuPIC SHA used for current run.
 
-    :raises: infrastructure.utilities.exceptions.MissingSHAError
+    :raises infrastructure.utilities.exceptions.MissingSHAError:
       if the given SHA is not found.
   """
   try:
@@ -149,7 +149,7 @@ def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha, logger):
     :param nupicCoreSha: The SHA of the nupic.core build that needs to be
       fetched
 
-    :raises: infrastructure.utilities.exceptions.MissingSHAError
+    :raises infrastructure.utilities.exceptions.MissingSHAError:
       if the given SHA is not found.
   """
   logger.info("Cloning nupic.core from GitHub.: {}".format(nupicCoreRemote))
@@ -223,8 +223,7 @@ def buildNuPICCore(env, nupicCoreSha, logger):
     :param env: The environment which will be set before building.
     :param nupicCoreSha: The SHA which will be built.
 
-    :raises
-      infrastructure.utilities.exceptions.NupicBuildFailed:
+    :raises infrastructure.utilities.exceptions.NupicBuildFailed:
       This exception is raised if build fails.
   """
   print "\n----------Building nupic.core------------"
@@ -257,8 +256,7 @@ def buildNuPIC(env, logger):
 
     :param env: The environment which will be set before building
 
-    :raises
-      infrastructure.utilities.exceptions.NupicBuildFailed:
+    :raises infrastructure.utilities.exceptions.NupicBuildFailed:
       This exception is raised if build fails.
   """
   print "\n----------Building NuPIC------------"
@@ -305,9 +303,8 @@ def runTests(env, logger):
 
     :param env: The environment which will be set for runnung tests.
 
-    :raises:
-      infrastructure.utilities.exceptions.NupicBuildFailed
-    if the given SHA is not found.
+    :raises: infrastructure.utilities.exceptions.NupicBuildFailed:
+      if the given SHA is not found.
   """
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
@@ -398,7 +395,7 @@ def cacheNuPICCore(env, buildWorkspace, nupicCoreSha, uploadToS3, logger):
     :param nupicSha: A `string` representing SHA
     :param uploadToS3: `boolean` defining whether to upload to S3 or not
 
-    :raises: CommandFailedError if the tar process fails before upload.
+    :raises CommandFailedError: if the tar process fails before upload.
   """
   cachedPath = "/var/build/nupic.core/%s" % nupicCoreSha
 
