@@ -211,4 +211,12 @@ public class MetricParserTests extends GrokAndroidTestCase {
             }
         }
     }
+
+    @SmallTest
+    public void testGuessMetricUnit() {
+        // Standard CPU Utilization metric unit should be "Percent"
+        assertEquals(_expectedStandardMetric.getUnit(), "Percent");
+        // Custom metric unit
+        assertEquals(_expectedCustomMetric.getUnit(), "Count");
+    }
 }

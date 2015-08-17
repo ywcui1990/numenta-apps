@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.service;
 
-import com.numenta.core.app.GrokApplication;
+import com.groksolutions.grok.mobile.GrokApplication;
 import com.numenta.core.data.Metric;
 import com.numenta.core.utils.Log;
 
@@ -251,6 +251,14 @@ final public class MetricParser {
         serverName = serverName == null ? instanceId : serverName;
         Metric metric = GrokApplication.getDatabase().getDataFactory()
                 .createMetric(metricId, name, instanceId, serverName, lastRowId, parameters);
+
+        String unit = metric.getUnit();
+        if (unit == null) {
+            // Guess metric unit based on name if not given by server
+            unit = GrokApplication.getMetricUnit(name);
+            metric.setUnit(unit);
+        }
+
         _results.add(metric);
     }
 

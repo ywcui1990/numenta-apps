@@ -200,12 +200,13 @@ public class NotificationUtils {
         // $3=metric_data.value,
         // $4=metric.unit
         // $5=timestamp
+        String unit = metric.getUnit();
         return String.format(
                 GrokApplication.getContext().getString(R.string.notification_description_template),
                 metric.getServerName(),
                 metric.getName(),
                 metricValue,
-                metric.getUnit(),
+                unit == null ? "" : unit,
                 timestamp);
     }
 

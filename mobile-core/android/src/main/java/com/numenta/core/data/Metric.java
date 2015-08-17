@@ -59,6 +59,8 @@ public final class Metric implements Serializable {
 
     private long _lastTimestamp;
 
+    private String _unit;
+
     /**
      * Create a {@link com.numenta.core.data.Metric} object using the contents of the given
      * {@link android.database.Cursor}. The {@link android.database.Cursor} must contain all
@@ -77,6 +79,10 @@ public final class Metric implements Serializable {
         if (_parameters != null && !_parameters.trim().isEmpty()) {
             try {
                 _parametersJson = new JSONObject(_parameters);
+                _unit = getParameter("unit");
+                if (_unit == null) {
+                    _unit = getMetricSpec("unit");
+                }
             } catch (JSONException e) {
                 _parametersJson = null;
                 Log.e(Metric.class.getSimpleName(), "Failed to parse metric parameters", e);
@@ -209,11 +215,7 @@ public final class Metric implements Serializable {
      * Get the metric unit if available, {@code null} if unknown
      */
     public String getUnit() {
-        String unit = getParameter("unit");
-        if (unit == null) {
-            unit = getMetricSpec("unit");
-        }
-        return unit;
+        return _unit;
     }
 
     /*
@@ -288,5 +290,9 @@ public final class Metric implements Serializable {
                 Log.e(Metric.class.getSimpleName(), "Failed to parse metric parameters", e);
             }
         }
+    }
+
+    public void setUnit(String unit) {
+        _unit = unit;
     }
 }
