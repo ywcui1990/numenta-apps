@@ -102,6 +102,18 @@ public final class Metric implements Serializable {
         this._lastRowId = lastRowId;
         this._parametersJson = parameters;
         this._parameters = parameters != null ? parameters.toString() : null;
+        if (_parameters != null && !_parameters.trim().isEmpty()) {
+            try {
+                _parametersJson = new JSONObject(_parameters);
+                _unit = getParameter("unit");
+                if (_unit == null) {
+                    _unit = getMetricSpec("unit");
+                }
+            } catch (JSONException e) {
+                _parametersJson = null;
+                Log.e(Metric.class.getSimpleName(), "Failed to parse metric parameters", e);
+            }
+        }
 
         // Should be updated with the the last timestamp available in the
         // metric_data table
