@@ -26,7 +26,7 @@ import json
 
 def setRandomEncoderParams(params, minVal, maxVal, minResolution):
   """
-  Given model params, figure out the correct parameters for the 
+  Given model params, figure out the correct parameters for the
   RandomDistributed encoder. Modifies params in place.
   """
   encodersDict= (
@@ -39,8 +39,8 @@ def setRandomEncoderParams(params, minVal, maxVal, minResolution):
                          (maxVal - minVal) / v.pop('numBuckets')
                         )
         encodersDict['c1']['resolution'] = resolution
-        
-  
+
+
 
 def getScalarMetricWithTimeOfDayParams(metricData,
                                        minVal=None,
@@ -53,15 +53,15 @@ def getScalarMetricWithTimeOfDayParams(metricData,
 
 
     Args:
-        metricData:  numpy array of metric data. Used to calculate minVal 
+        metricData:  numpy array of metric data. Used to calculate minVal
                      and maxVal if either is unspecified
 
-        minVal:      minimum value of metric. Used to set up encoders. If None 
+        minVal:      minimum value of metric. Used to set up encoders. If None
                      will be derived from metricData.
 
-        maxVal:      minimum value of metric. Used to set up input encoders. If
+        maxVal:      maximum value of metric. Used to set up input encoders. If
                      None will be derived from metricData
-                     
+
         minResolution: minimum resolution of metric. Used to set up encoders.
                        If None, will use default value of 0.001.
 
@@ -70,7 +70,7 @@ def getScalarMetricWithTimeOfDayParams(metricData,
 
     Assumptions:
         The timeStamp field corresponds to c0
-        The predicted field corresponds to c1   
+        The predicted field corresponds to c1
   """
   # Default values
   if minResolution is None:
@@ -98,7 +98,7 @@ def getScalarMetricWithTimeOfDayParams(metricData,
       minVal = compMinVal
     if maxVal is None:
       maxVal = compMaxVal
-      
+
   # Handle the corner case where the incoming min and max are the same
   if minVal == maxVal:
     maxVal = minVal + 1
@@ -108,7 +108,7 @@ def getScalarMetricWithTimeOfDayParams(metricData,
   for p in paramFiles:
     with open(os.path.join(currDirectory, paramsDirectory, p), 'r') as infile:
       paramSet=json.load(infile)
-      
+
     encodersDict= (
       paramSet['modelConfig']['modelParams']['sensorParams']['encoders']
       )
@@ -119,16 +119,16 @@ def getScalarMetricWithTimeOfDayParams(metricData,
       # TODO Update per MER-1442
       encodersDict['c1']['maxval'] = maxVal
       encodersDict['c1']['minval'] = minVal
-    
+
     paramSets.append(paramSet)
-    
+
   return paramSets
 
 
 
 def rangeGen(data, std=1):
   """
-  Return reasonable min/max values to use given the data. 
+  Return reasonable min/max values to use given the data.
   """
   dataStd = np.std(data)
   if dataStd==0:
