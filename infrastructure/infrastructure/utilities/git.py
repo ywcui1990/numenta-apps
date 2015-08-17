@@ -54,8 +54,8 @@ def getCommitCount(path, logger):
 
   :param logger: logger for additional debug info if desired
 
-  :raises: infrastructure.utilities.exceptions.CommandFailedError:
-           if path isn't in a git checkout
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if path isn't in a git checkout
 
   :returns: total commit count for the git directory
 
@@ -73,9 +73,8 @@ def getGitRootFolder(logger):
 
   :param logger: logger for additional debug info if desired
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails
 
   :returns: The full path of the root folder of the current git repo
 
@@ -96,9 +95,8 @@ def getModifiedFilesBetweenRevisions(startSha, endSha, logger):
 
   :param logger: logger for additional debug info if desired
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError if
-    the command fails; typically because you are not executing from within a
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails; typically because you are not executing from within a
     git repository
 
   :returns: A `set` of modified files or None if the command fails
@@ -117,9 +115,9 @@ def getCurrentSha(logger):
 
   :param logger: logger for additional debug info if desired
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError if the command fails;
-      typically because you are not executing from within a git repository
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails; typically because you are not executing from within a
+    git repository
 
   :returns: The current SHA
 
@@ -136,11 +134,10 @@ def getActiveBranch(logger):
 
   :param logger: logger for additional debug info if desired
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-      the command fails
-    infrastructure.utilities.exceptions.DetachedHeadError: if the git checkout
-      is in a detached head state
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails
+  :raises infrastructure.utilities.exceptions.DetachedHeadError:
+    if the git checkout is in a detached head state
 
   :returns: The active branch name or the current SHA if in a detached head
     state
@@ -222,9 +219,8 @@ def clone(gitURL, logger, **kwargs):
   e.g.
   clone(gitURL, directory=nameOfDirectory)
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails
 
   :returns: The blob output of git clone
 
@@ -255,9 +251,8 @@ def checkout(pathspec, logger, **kwargs):
     theirs: Boolean. If True, when checking out paths from the index, check out
             stage #3 (theirs) for unmerged paths. *
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails
 
   :returns: The text blob output of git checkout
 
@@ -284,9 +279,8 @@ def checkoutNewBranch(pathspec, logger):
 
   :param logger: logger for additional debug info if desired
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails
 
   :returns: The text blob output of git checkout
 
