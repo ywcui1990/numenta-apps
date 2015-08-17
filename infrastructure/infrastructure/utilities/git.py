@@ -38,7 +38,7 @@ def checkIfOptionSet(option, **kwargs):
 
   :param kwargs: Dict containing all the arguments passed to the function.
 
-  :return: True if option is present in kwargs and is set to True.
+  :returns: True if option is present in kwargs and is set to True.
 
   :rtype: boolean
   """
@@ -557,7 +557,7 @@ def getShaFromRemoteBranch(gitRemoteRepo, gitRemoteBranch, logger):
     infrastructure.utilities.exceptions.CommandFailedError: if
     the command fails
 
-  :return: A `String` representing the SHA
+  :returns: A `String` representing the SHA
 
   :rtype: String
   """
