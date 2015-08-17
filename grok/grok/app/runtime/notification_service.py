@@ -263,6 +263,7 @@ class NotificationService(object):
     """
     if message.properties.headers and "dataType" in message.properties.headers:
       # Not a model inference result
+      message.ack()
       return
 
     grok.app.config.loadConfig() # reload config on every batch
@@ -296,11 +297,23 @@ class NotificationService(object):
       for row in batch["results"]:
 
         if row["anomaly"] >= minThreshold:
+          rowDatetime = datetime.utcfromtimestamp(row["ts"])
+
+          if not settings:
+            # There are no device notification settings stored on this server,
+            # no notifications will be generated.  However, log that a
+            # an anomaly was detected and notification would be sent if there
+            # were any configured devices
+            self._log.info("<%r>" % (metricInfo) + (
+                                          "{TAG:APP.NOTIFICATION} Anomaly "
+                                          "detected at %s, but no devices are "
+                                          "configured.") % rowDatetime)
+            continue
+
           for settingObj in settings:
             if row["rowid"] <= 1000:
               continue # Not enough data
 
-            rowDatetime = datetime.utcfromtimestamp(row["ts"])
 
             if rowDatetime < datetime.utcnow() - timedelta(seconds=3600):
               continue # Skip old
@@ -347,17 +360,6 @@ class NotificationService(object):
                 self.sendNotificationEmail(engine,
                                            settingObj,
                                            notificationObj)
-
-          if not settings:
-            # There are no device notification settings stored on this server,
-            # no notifications will be generated.  However, log that a
-            # an anomaly was detected and notification would be sent if there
-            # were any configured devices
-            self._log.info("<%r>" % (metricInfo) + (
-                                          "{TAG:APP.NOTIFICATION} Anomaly "
-                                          "detected at %s, but no devices are "
-                                          "configured.") % rowDatetime)
-
     finally:
       message.ack()
 

@@ -29,5 +29,10 @@ setup(
   packages = find_packages(),
   include_package_data=True,
   install_requires = installRequires,
-  dependency_links = dependencyLinks
+  dependency_links = dependencyLinks,
+  entry_points = {
+    "console_scripts": [
+      "nta-import-queues = nta.utils.tools.import_queues:main"
+    ]
+  }
 )

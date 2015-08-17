@@ -22,8 +22,6 @@
 """
   Many git utilities needed by the pipelines
 """
-import subprocess
-
 from infrastructure.utilities.exceptions import (CommandFailedError,
                                                  DetachedHeadError)
 from infrastructure.utilities.path import changeToWorkingDir
@@ -137,6 +135,59 @@ def getActiveBranch():
 
   return branch
 
+
+def clean(path, arguments, logger):
+  """
+  Changes to path, then runs git clean.
+
+  :param path: git directory to clean
+
+  :param arguments: str containing optional extra command line arguments
+  for git clean, as you would type them on the command line. If you wanted
+  to do `git clean -fd`, you'd set arguments to "-fd".
+
+  :param logger: An initialized logger object
+
+  :raises CommandFailedError: if git clean fails
+  """
+  assert logger
+  assert isinstance(arguments, basestring), (
+    "arguments must be a string, but is %r" % arguments)
+  assert isinstance(path, basestring), "path must be a string, but is %r" % path
+
+  command = "git clean"
+  if arguments:
+    command = command + arguments
+  logger.debug("* Running %s in %s", command, path)
+  with changeToWorkingDir(path):
+    return executeCommand(command=command, logger=logger)
+
+
+def setRemoteURL(remote, url, path, logger):
+  """
+  Sets a git remote's url.
+
+  :param remote: Which git remote to alter
+
+  :param url: What to set the url to
+
+  :param path: git directory to reset
+
+  :param logger: An initialized logger object
+
+  :raises CommandFailedError: if git set-url fails
+  """
+  assert logger
+  assert isinstance(path, basestring), (
+    "path must be a string, but is %r" % path)
+  assert isinstance(remote, basestring), (
+    "remote must be a string, but is %r" % (remote))
+  assert isinstance(url, basestring), "url must be a string, but is %r" % (url)
+
+  logger.debug("* Setting url for %s to %s in %s", remote, url, path)
+  with changeToWorkingDir(path):
+    return executeCommand(command="git set-url %s %s" % (remote, url),
+                          logger=logger)
 
 
 def clone(gitURL, **kwargs):
