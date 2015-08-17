@@ -83,12 +83,12 @@ def addAndParseArgs():
     Parse the command line arguments
 
     :returns: A tuple consisting of build workspace, NuPIC remote, NuPIC branch,
-    NuPIC SHA
+              NuPIC SHA
 
     :rtype: tuple(string, string, string, string)
 
-    :raises parser.error in case wrong combination of arguments or arguments
-    are missing.
+    :raises parser.error:
+      In case wrong combination of arguments or arguments are missing.
   """
   parser = argparse.ArgumentParser(description=("Build tool for NuPIC. To "
                                    "create a release version, set both "
