@@ -63,10 +63,9 @@ def getWorkspace(logger):
   """
     :param logger: logger for additional debug info
 
-    :raises:
-      infrastructure.utilities.exceptions.CommandFailedError if
-        the workspace env variable isn't set and you are running from outside of
-        a git repo or the git command to find your current root folder fails.
+    :raises infrastructure.utilities.exceptions.CommandFailedError:
+       if the workspace env variable isn't set and you are running from outside
+       of a git repo or the git command to find your current root folder fails.
 
     :returns: The value of the `WORKSPACE` environment variable, or the root
     folder of the products repo. This assumes you are executing from any folder
@@ -112,10 +111,9 @@ def getBuildNumber(logger):
   """
     :param logger: logger for additional debug info
 
-    :raises:
-      infrastructure.utilities.exceptions.CommandFailedError if
-        the workspace env variable isn't set and you are running from outside of
-        a git repo or the git command to find your current root folder fails.
+    :raises infrastructure.utilities.exceptions.CommandFailedError:
+      if the workspace env variable isn't set and you are running from outside
+      of a git repo or the git command to find your current root folder fails.
 
     :returns: The value of the `BUILD_NUMBER` environment variable if set, or
     the current commit SHA of the git repo if it's not set.
