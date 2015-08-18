@@ -22,9 +22,9 @@
 
 package com.groksolutions.grok.mobile.test.unit;
 
+import com.groksolutions.grok.mobile.GrokApplication;
 import com.groksolutions.grok.mobile.service.GrokClientImpl;
 import com.groksolutions.grok.mobile.service.MetricParser;
-import com.numenta.core.app.GrokApplication;
 import com.numenta.core.data.CoreDataFactory;
 import com.numenta.core.data.Metric;
 import com.numenta.core.utils.GrokAndroidTestCase;
@@ -50,8 +50,7 @@ public class MetricParserTests extends GrokAndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        CoreDataFactory factory = GrokApplication.getDatabase()
-                .getDataFactory();
+        CoreDataFactory factory = GrokApplication.getDatabase().getDataFactory();
         _expectedStandardMetric = factory.createMetric("3654d3972c1742a0bef5e0022f210544",
                 "AWS/EC2/CPUUtilization", "us-east-1/AWS/EC2/i-d9e211f6",
                 "testN.domain.tld - 2014-03-20", 4289, null);
