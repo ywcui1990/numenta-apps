@@ -122,7 +122,7 @@ public class GrokDatabase extends CoreDatabaseImpl {
             = new LruCache<>(100);
 
     public GrokDatabase(Context context) {
-        super(context);
+        super(context, new GrokDataFactoryImpl());
     }
 
     /**

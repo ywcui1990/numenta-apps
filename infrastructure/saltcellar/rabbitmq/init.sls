@@ -55,7 +55,7 @@ rabbitmq_repo:
 rabbitmq-server:
   pkg.installed:
     - name: rabbitmq-server
-    - version: 3.5.3-1
+    - version: 3.5.4-1
   service.running:
     - enable: true
     - require:
