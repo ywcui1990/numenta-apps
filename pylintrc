@@ -47,7 +47,7 @@ persistent=no
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
-load-plugins=nupic.support.lint.executable
+load-plugins=
 
 
 [MESSAGES CONTROL]
@@ -146,7 +146,7 @@ argument-rgx=_?[a-z][A-Za-z0-9]*$
 
 # Regular expression which should only match correct variable names
 variable-rgx=_{0,2}[a-z][A-Za-z0-9]*$
- 
+
 # Regular expression which should only match correct attribute names in class
 # bodies
 class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$
@@ -176,6 +176,10 @@ max-line-length=80
 
 # String used as indentation unit (2 spaces).
 indent-string='  '
+
+# Number of spaces of indent required inside a hanging or continued line.
+indent-after-paren=2
+
 
 
 [MISCELLANEOUS]
