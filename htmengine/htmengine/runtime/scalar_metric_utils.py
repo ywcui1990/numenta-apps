@@ -63,7 +63,8 @@ MODEL_CREATION_RECORD_THRESHOLD = (60 / 5) * 24
 def generateSwarmParams(stats):
   """ Generate parameters for creating a model
 
-  :param stats: dict with "min" and "max"; values must be integer,float or None.
+  :param stats: dict with "min", "max" and optional "minResolution"; values must
+    be integer, float or None.
 
   :returns: if either minVal or maxVal is None, returns None; otherwise returns
     swarmParams object that is suitable for passing to startMonitoring and
