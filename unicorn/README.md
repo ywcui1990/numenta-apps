@@ -23,17 +23,17 @@ The `gui/` directory contains Cross-platform Desktop Application GUI code,
 running Javascript/HTML/CSS/etc. on [Node.js](https://nodejs.org/),
 [Electron](https://github.com/atom/electron), and
 [Google Chromium](https://www.chromium.org/Home). This code exposes the
-functionality of the HTM Engine in the sibling `engine/` directory.
+functionality of the Unicorn Backend in the sibling `backend/` directory.
 
-The `engine/` directory contains NuPIC HTM Engine and Util code (Python / C++),
-which drives the main functionality of the app, which it is our goal to demo
-to the user.
+The `backend/` directory contains Unicorn ModelRunner and supporting code (
+Python / C++), which drives the main functionality of the app, which it is our
+goal to demo to the user.
 
 ```shell
 DEPENDENCIES.md     # Module dependency overview file
 LICENSE.txt         # Dual: Commercial and GPLv3
 README.md           # This file, a project overview
-engine/             # NuPIC HTM Engine and Utils, Python/C++ code here!
+backend/            # Unicorn ModelRunner and support Python/C++ code here!
   README.md         # Overview for HTM/NuPIC part of project
 gui/                # GUI that exposes NuPIC HTM functionality to the User
   README.md         # Overview for GUI part of project
@@ -54,7 +54,6 @@ gui/                # GUI that exposes NuPIC HTM functionality to the User
 gulpfile.babel.js   # Babel.js ES6 Config file for the Gulp build tool
 node_modules/       # Where `npm` installs packages to
 package.json        # Node.js `npm` packages, dependencies, and App config
-requirements.txt    # Engine main Python module dependencies
 ```
 
 
