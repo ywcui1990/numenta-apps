@@ -109,7 +109,7 @@ def runTests(publicDnsName, apiKey, buildDir, reportsDir, artifactsDir, logger):
     :param apiKey: The API Key to connect to the server
 
     :param buildDir: The build directory from which to copy artifacts
-    
+
     :param reportsDir: The reports directory from which to copy artifacts
 
     :param artifactsDir: The artifactsDir to which test results should be saved
@@ -123,15 +123,15 @@ def runTests(publicDnsName, apiKey, buildDir, reportsDir, artifactsDir, logger):
       serverUrlPrefix = "-DSERVER_URL=https://"
       serverPassPrefix = "-DSERVER_PASS="
 
-      command = ("./gradlew %s%s %s%s %s %s %s connectedCheck" %
-                    (serverUrlPrefix,
-                     publicDnsName,
-                     serverPassPrefix,
-                     apiKey,
-                     g_googleAnalyticsIdParameter,
-                     g_feedbackEmailParameter,
-                     g_initialVersionCodeParameter))
-      runWithOutput(command, env=os.environ, logger=logger)
+      command = ("./gradlew",
+                 "%s%s" % (serverUrlPrefix, publicDnsName),
+                 "%s%s" % (serverPassPrefix, apiKey),
+                 g_googleAnalyticsIdParameter,
+                 g_feedbackEmailParameter,
+                 g_initialVersionCodeParameter,
+                 "connectedCheck",
+                 "--debug")
+      runWithOutput(command=command, env=os.environ, logger=logger)
     # copy test results to the artifacts folder
     os.makedirs(os.path.join(artifactsDir, "reports"))
     copy_tree(reportsDir, os.path.join(artifactsDir, "reports"))
@@ -335,7 +335,7 @@ def main(args):
     apiKey = args.apiKey or getApiKey(instanceId, publicDnsName, awsConfig,
                                       logger)
     logEmulatorStatus(logger)
-    runTests(publicDnsName, apiKey, grokBuildDir, reportsDir, artifactsDir, 
+    runTests(publicDnsName, apiKey, grokBuildDir, reportsDir, artifactsDir,
             logger)
     apkPath = os.path.join(artifactsDir, "apk")
 
