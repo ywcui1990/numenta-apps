@@ -6,15 +6,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -109,7 +109,7 @@ def runTests(publicDnsName, apiKey, buildDir, reportsDir, artifactsDir, logger):
     :param apiKey: The API Key to connect to the server
 
     :param buildDir: The build directory from which to copy artifacts
-    
+
     :param reportsDir: The reports directory from which to copy artifacts
 
     :param artifactsDir: The artifactsDir to which test results should be saved
@@ -123,15 +123,15 @@ def runTests(publicDnsName, apiKey, buildDir, reportsDir, artifactsDir, logger):
       serverUrlPrefix = "-DSERVER_URL=https://"
       serverPassPrefix = "-DSERVER_PASS="
 
-      command = ("./gradlew %s%s %s%s %s %s %s connectedCheck" %
-                    (serverUrlPrefix,
-                     publicDnsName,
-                     serverPassPrefix,
-                     apiKey,
-                     g_googleAnalyticsIdParameter,
-                     g_feedbackEmailParameter,
-                     g_initialVersionCodeParameter))
-      runWithOutput(command, env=os.environ, logger=logger)
+      command = ("./gradlew",
+                 "%s%s" % (serverUrlPrefix, publicDnsName),
+                 "%s%s" % (serverPassPrefix, apiKey),
+                 g_googleAnalyticsIdParameter,
+                 g_feedbackEmailParameter,
+                 g_initialVersionCodeParameter,
+                 "connectedCheck",
+                 "--debug")
+      runWithOutput(command=command, env=os.environ, logger=logger)
     # copy test results to the artifacts folder
     os.makedirs(os.path.join(artifactsDir, "reports"))
     copy_tree(reportsDir, os.path.join(artifactsDir, "reports"))
@@ -312,11 +312,14 @@ def main(args):
 
     # Build mobile client
     with changeToWorkingDir(ANDROID_PATH):
-      runWithOutput("./gradlew clean build %s %s %s" %
-                      (g_googleAnalyticsIdParameter,
-                       g_feedbackEmailParameter,
-                       g_initialVersionCodeParameter),
-                    env=os.environ, logger=logger)
+      command = ("./gradlew",
+                 "clean",
+                 "build",
+                 g_googleAnalyticsIdParameter,
+                 g_feedbackEmailParameter,
+                 g_initialVersionCodeParameter,
+                 "--debug")
+      runWithOutput(command=command, env=os.environ, logger=logger)
 
     rootBuildDir = os.path.join(GROK_MOBILE_HOME, "android", "build")
     grokBuildDir = os.path.join(rootBuildDir, "grok-mobile", "outputs")
@@ -335,7 +338,7 @@ def main(args):
     apiKey = args.apiKey or getApiKey(instanceId, publicDnsName, awsConfig,
                                       logger)
     logEmulatorStatus(logger)
-    runTests(publicDnsName, apiKey, grokBuildDir, reportsDir, artifactsDir, 
+    runTests(publicDnsName, apiKey, grokBuildDir, reportsDir, artifactsDir,
             logger)
     apkPath = os.path.join(artifactsDir, "apk")
 
