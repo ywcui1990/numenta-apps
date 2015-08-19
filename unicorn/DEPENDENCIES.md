@@ -14,4 +14,4 @@ See: [`package.json`](package.json).
 
 ## Python
 
-See: [`engine/requirements.txt`](engine/requirements.txt).
+See: [`backend/requirements.txt`](backend/requirements.txt).
