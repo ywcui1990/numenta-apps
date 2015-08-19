@@ -312,11 +312,14 @@ def main(args):
 
     # Build mobile client
     with changeToWorkingDir(ANDROID_PATH):
-      runWithOutput("./gradlew clean build %s %s %s" %
-                      (g_googleAnalyticsIdParameter,
-                       g_feedbackEmailParameter,
-                       g_initialVersionCodeParameter),
-                    env=os.environ, logger=logger)
+      command = ("./gradlew",
+                 "clean",
+                 "build",
+                 g_googleAnalyticsIdParameter,
+                 g_feedbackEmailParameter,
+                 g_initialVersionCodeParameter,
+                 "--debug")
+      runWithOutput(command=command, env=os.environ, logger=logger)
 
     rootBuildDir = os.path.join(GROK_MOBILE_HOME, "android", "build")
     grokBuildDir = os.path.join(rootBuildDir, "grok-mobile", "outputs")
