@@ -33,7 +33,7 @@ import os
 from tempfile import mkdtemp
 
 from infrastructure.utilities import jenkins
-from infrastructure.utilities.logger import initPipelineLogger
+from infrastructure.utilities.diagnostics import initPipelineLogger
 
 
 def parseArgs():

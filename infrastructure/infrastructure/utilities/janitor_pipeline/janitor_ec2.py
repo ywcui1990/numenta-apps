@@ -27,7 +27,7 @@ from datetime import datetime
 
 from infrastructure.utilities.ec2 import getInstances, terminateInstance
 from infrastructure.utilities.exceptions import MissingAWSKeysInEnvironment
-from infrastructure.utilities.logger import initPipelineLogger, LOG_LEVELS
+from infrastructure.utilities.diagnostics import initPipelineLogger, LOG_LEVELS
 
 
 HOUR_IN_SECS = 3600

@@ -44,7 +44,7 @@ from infrastructure.utilities.exceptions import (
   InstanceLaunchError,
   InstanceNotReadyError,
   InvalidParametersError)
-from infrastructure.utilities.logger import initPipelineLogger
+from infrastructure.utilities.diagnostics import initPipelineLogger
 from infrastructure.utilities.grok_server import waitForGrokServerToBeReady
 from infrastructure.utilities.s3 import getLastStableAmi
 

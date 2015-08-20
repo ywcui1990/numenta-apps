@@ -34,7 +34,7 @@ import signal
 import sys
 import shutil
 
-from infrastructure.utilities.logger import initPipelineLogger
+from infrastructure.utilities.diagnostics import initPipelineLogger
 from infrastructure.utilities.cli import runWithOutput
 from infrastructure.utilities.jenkins import (createOrReplaceArtifactsDir,
                                               getWorkspace)

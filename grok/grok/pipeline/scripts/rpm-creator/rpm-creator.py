@@ -28,7 +28,7 @@ import time
 from shutil import rmtree
 
 from infrastructure.utilities import git
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import diagnostics as log
 from infrastructure.utilities.exceptions import MissingDirectoryError
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput

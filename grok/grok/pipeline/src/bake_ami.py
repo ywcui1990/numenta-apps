@@ -37,7 +37,7 @@ from infrastructure.utilities.jenkins import (
   createOrReplaceArtifactsDir,
   getBuildNumber
 )
-from infrastructure.utilities.logger import initPipelineLogger
+from infrastructure.utilities.diagnostics import initPipelineLogger
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.s3 import uploadToS3
 
