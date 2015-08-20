@@ -66,16 +66,16 @@ import yaml
 
 from infrastructure.utilities import git
 from infrastructure.utilities import jenkins
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import diagnostics
 from infrastructure.utilities.env import prepareEnv
 from infrastructure.utilities.exceptions import PipelineError
 from infrastructure.utilities.nupic.build_commands import (
   checkIfProjectExistsLocallyForSHA,
   fullBuild)
 
-g_config = yaml.load(
-            resource_stream(__name__, "../../../conf/nupic/config.yaml"))
-
+g_config = yaml.load(resource_stream(__name__,
+                                     "../../../conf/nupic/config.yaml"))
+g_logger = None
 
 
 def addAndParseArgs():
@@ -91,36 +91,55 @@ def addAndParseArgs():
     are missing.
   """
   parser = argparse.ArgumentParser(description=("Build tool for NuPIC. To "
-                                   "create a release version, set both "
-                                   "--nupic-branch and --nupic-sha to a git "
-                                   "release tag (e.g., 0.2.3) that already "
-                                   "exists in NuPIC."))
-  parser.add_argument("--build-workspace", dest="buildWorkspace", type=str,
+                                                "create a release version, set "
+                                                "both --nupic-branch and "
+                                                "--nupic-sha to a git release "
+                                                "tag (e.g., 0.2.3) that already"
+                                                " exists in NuPIC."))
+  parser.add_argument("--build-workspace",
+                      dest="buildWorkspace",
+                      type=str,
                       default=os.environ.get("BUILD_WORKSPACE"),
                       help="Common build directory for NuPIC, "
                            "overrides $BUILD_WORKSPACE env var if set.")
-  parser.add_argument("--nupic-remote", dest="nupicRemote", type=str,
+  parser.add_argument("--nupic-remote",
+                      dest="nupicRemote",
+                      type=str,
                       default="git@github.com:numenta/nupic.git",
                       help="Which NuPIC remote to build from, e.g., "
                            "git@github.com:numenta/nupic.git")
-  parser.add_argument("--nupic-branch", dest="nupicBranch", type=str,
+  parser.add_argument("--nupic-branch",
+                      dest="nupicBranch",
+                      type=str,
                       default="master",
                       help="The NuPIC branch to add in deploy track")
-  parser.add_argument("--sha", dest="nupicSha", type=str,
+  parser.add_argument("--sha",
+                      dest="nupicSha",
+                      type=str,
                       help="The NuPIC SHA that needs to be built.")
-  parser.add_argument("--nupic-core-remote", dest="nupicCoreRemote", type=str,
+  parser.add_argument("--nupic-core-remote",
+                      dest="nupicCoreRemote",
+                      type=str,
                       default="",
                       help="Which NuPIC Core remote to build from, e.g., "
                            "git@github.com:numenta/nupic.core.git")
-  parser.add_argument("--sha-core", dest="nupicCoreSha", type=str, default="None",
+  parser.add_argument("--sha-core",
+                      dest="nupicCoreSha",
+                      type=str,
+                      default="None",
                       help="The NuPIC Core SHA that needs to be built.")
-  parser.add_argument("--log", dest="logLevel", type=str, default="warning",
+  parser.add_argument("--log",
+                      dest="logLevel",
+                      type=str,
+                      default="warning",
+                      choices=diagnostics.LOG_LEVELS,
                       help="Logging level, by default it takes warning")
 
   args = vars(parser.parse_args())
 
   global g_logger
-  g_logger = log.initPipelineLogger("build", logLevel=args["logLevel"])
+  g_logger = diagnostics.initPipelineLogger(name="build",
+                                            logLevel=args["logLevel"])
 
   buildWorkspace = args["buildWorkspace"]
   if not buildWorkspace:
@@ -149,15 +168,16 @@ def main():
   args = addAndParseArgs()
 
   env = prepareEnv(args["buildWorkspace"], None, os.environ)
-  log.printEnv(env, g_logger)
+  diagnostics.printEnv(env=env, logger=g_logger)
 
   if not args["nupicSha"]:
-    args["nupicSha"] = git.getShaFromRemoteBranch(args["nupicRemote"], args["nupicBranch"])
+    args["nupicSha"] = git.getShaFromRemoteBranch(args["nupicRemote"],
+                                                  args["nupicBranch"])
 
   if not checkIfProjectExistsLocallyForSHA("nupic", args["nupicSha"], g_logger):
     fullBuild(env, args["buildWorkspace"], args["nupicRemote"],
-        args["nupicBranch"], args["nupicSha"], args["nupicCoreRemote"],
-        args["nupicCoreSha"], g_logger)
+              args["nupicBranch"], args["nupicSha"], args["nupicCoreRemote"],
+              args["nupicCoreSha"], g_logger)
   else:
     g_logger.info("Skipping NuPIC build for SHA : %s", args["nupicSha"])
 

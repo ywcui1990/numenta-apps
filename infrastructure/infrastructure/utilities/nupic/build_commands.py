@@ -35,18 +35,14 @@ from pkg_resources import resource_stream
 import yaml
 
 from infrastructure.utilities import git
-from infrastructure.utilities.jenkins import (
-  createOrReplaceResultsDir,
-  createOrReplaceArtifactsDir
-)
-from infrastructure.utilities import logger as log
+from infrastructure.utilities.jenkins import (createOrReplaceResultsDir,
+                                              createOrReplaceArtifactsDir)
+from infrastructure.utilities import diagnostics
 from infrastructure.utilities import s3
 from infrastructure.utilities.env import addNupicCoreToEnv
-from infrastructure.utilities.exceptions import (
-  CommandFailedError,
-  NupicBuildFailed,
-  PipelineError
-)
+from infrastructure.utilities.exceptions import (CommandFailedError,
+                                                 NupicBuildFailed,
+                                                 PipelineError)
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput
 
@@ -59,8 +55,8 @@ DOXYFILE = "docs/Doxyfile"
 INIT_FILE = "nupic/__init__.py"
 VERSION_FILE = "VERSION"
 
-g_config = yaml.load(
-            resource_stream(__name__, "../../../conf/nupic/config.yaml"))
+g_config = yaml.load(resource_stream(__name__,
+                                     "../../../conf/nupic/config.yaml"))
 
 
 
@@ -231,7 +227,7 @@ def buildNuPICCore(env, nupicCoreSha, logger):
       This exception is raised if build fails.
   """
   print "\n----------Building nupic.core------------"
-  log.printEnv(env, logger)
+  diagnostics.printEnv(env=env, logger=logger)
   with changeToWorkingDir(env["NUPIC_CORE_DIR"]):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
@@ -265,7 +261,7 @@ def buildNuPIC(env, logger):
       This exception is raised if build fails.
   """
   print "\n----------Building NuPIC------------"
-  log.printEnv(env, logger)
+  diagnostics.printEnv(env=env, logger=logger)
 
   # Build
   with changeToWorkingDir(env["NUPIC"]):
@@ -313,7 +309,7 @@ def runTests(env, logger):
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
     try:
-      log.printEnv(env, logger)
+      diagnostics.printEnv(env=env, logger=logger)
       runWithOutput("bin/py_region_test", env, logger)
       testCommand = "scripts/run_nupic_tests -u --coverage --results xml"
       runWithOutput(testCommand, env, logger)
