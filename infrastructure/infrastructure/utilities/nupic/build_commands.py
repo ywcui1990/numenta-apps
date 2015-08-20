@@ -213,12 +213,10 @@ def buildNuPICCore(env, nupicCoreSha, logger):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      command = "python setup.py install bdist_wheel bdist_egg"
+      command = "python setup.py install --force"
       # Building on jenkins, not local
       if "JENKINS_HOME" in os.environ:
-        command += " upload -r numenta-pypi"
-
-      command += " --force"
+        command += " bdist_wheel bdist_egg upload -r numenta-pypi"
       runWithOutput(command=command, env=env, logger=logger)
     except CommandFailedError:
       raise NupicBuildFailed("nupic.core building failed.Exiting")
