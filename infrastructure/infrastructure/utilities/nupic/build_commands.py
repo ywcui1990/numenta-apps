@@ -237,10 +237,10 @@ def buildNuPICCore(env, nupicCoreSha, logger):
         libdir = sysconfig.get_config_var('LIBDIR')
         runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
                        "-DPYTHON_LIBRARY={}/libpython2.7.so").format(libdir),
-                      env, logger)
+                      env=env, logger=logger)
         runWithOutput("make -j 4", env=env, logger=logger)
         runWithOutput("make install", env=env, logger=logger)
-      runWithOutput("python setup.py install", env=env, logger=logger)
+      runWithOutput("python setup.py install --force", env=env, logger=logger)
     except CommandFailedError:
       raise NupicBuildFailed("nupic.core building failed.Exiting")
     except:
@@ -272,6 +272,8 @@ def buildNuPIC(env, logger):
       except OSError:
         # didn't exist, so just pass
         pass
+      # need to remove this folder to allow the caching process to work
+      shutil.rmtree("external/linux32arm")
 
       # build the wheel
       command = ("python setup.py install bdist_wheel bdist_egg "
@@ -304,7 +306,6 @@ def runTests(env, logger):
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
     try:
-      diagnostics.printEnv(env=env, logger=logger)
       runWithOutput("bin/py_region_test", env=env, logger=logger)
       testCommand = "scripts/run_nupic_tests -u --coverage --results xml"
       runWithOutput(testCommand, env=env, logger=logger)
