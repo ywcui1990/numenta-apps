@@ -24,8 +24,16 @@
 """
 from infrastructure.utilities.cli import executeCommand
 from infrastructure.utilities.exceptions import (CommandFailedError,
-                                                 DetachedHeadError)
+                                                 DetachedHeadError,
+                                                 InvalidParametersError)
 from infrastructure.utilities.path import changeToWorkingDir
+
+
+
+def checkKwargs(kwargs, validKwargs):
+  invalidKwargs = set(kwargs) - validKwargs
+  if invalidKwargs:
+    raise InvalidParametersError("Invalid parameters passed %r" % invalidKwargs)
 
 
 
@@ -226,6 +234,8 @@ def clone(gitURL, logger, **kwargs):
 
   :rtype: string
   """
+  validKwargs = {"directory"}
+  checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "clone", gitURL]
   if checkIfOptionSet("directory", **kwargs):
     command.append(kwargs["directory"])
@@ -258,6 +268,8 @@ def checkout(pathspec, logger, **kwargs):
 
   :rtype: string
   """
+  validKwargs = {"new", "orphan", "theirs"}
+  checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "checkout"]
   if checkIfOptionSet("new", **kwargs):
     command.append("-b")
@@ -330,6 +342,8 @@ def reset(sha="", logger=None, **kwargs):
   :rtype: int
   """
   assert logger
+  validKwargs = {"hard"}
+  checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "reset"]
   if checkIfOptionSet("hard", **kwargs):
     command.append("--hard")
@@ -392,6 +406,8 @@ def revParse(commitish, logger, **kwargs):
 
   :rtype: string or int
   """
+  validKwargs = {"verify", "quiet", "abbrevRef}
+  checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "rev-parse"]
   if checkIfOptionSet("verify", **kwargs):
     command.append("--verify")
@@ -445,6 +461,8 @@ def showRef(refList, logger, **kwargs):
     infrastructure.utilities.exceptions.CommandFailedError if
     the command fails
   """
+  validKwargs = {"verify"}
+  checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "show-ref"]
   if checkIfOptionSet("verify", **kwargs):
     command.append("--verify")
@@ -484,6 +502,8 @@ def commit(message, logger, **kwargs):
     infrastructure.utilities.exceptions.CommandFailedError: if
     the command fails
   """
+  validKwargs = {"amend"}
+  checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "commit"]
   if checkIfOptionSet("amend", **kwargs):
     command.append("--amend")
@@ -508,6 +528,8 @@ def merge(path, message, logger, **kwargs):
     infrastructure.utilities.exceptions.CommandFailedError: if
     the command fails
   """
+  validKwargs = {"noFF"}
+  checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "merge"]
   if checkIfOptionSet("noFF", **kwargs):
     command.append("--no-ff")
