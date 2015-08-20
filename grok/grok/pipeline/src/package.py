@@ -38,7 +38,7 @@ from fabric.contrib.files import exists
 
 from infrastructure.utilities import exceptions
 from infrastructure.utilities import jenkins
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import diagnostics as log
 from infrastructure.utilities import s3
 from infrastructure.utilities.env import prepareEnv, prependPath
 from infrastructure.utilities.path import changeToWorkingDir
