@@ -240,6 +240,7 @@ def buildNuPICCore(env, nupicCoreSha, logger):
                       env, logger)
         runWithOutput("make -j 4", env, logger)
         runWithOutput("make install", env, logger)
+      runWithOutput("python setup.py install")
     except CommandFailedError:
       raise NupicBuildFailed("nupic.core building failed.Exiting")
     except:
@@ -272,16 +273,10 @@ def buildNuPIC(env, logger):
         # didn't exist, so just pass
         pass
 
-      # install requirements
-      runWithOutput("pip install --install-option=--prefix=%s --requirement "
-                    "external/common/requirements.txt" % env["NTA"],
-                    env=env, logger=logger)
-      # need to remove this folder for wheel build to work
-      shutil.rmtree("external/linux32arm")
-
       # build the wheel
-      command = ("python setup.py bdist_wheel bdist_egg --nupic-core-dir=%s" %
-          os.path.join(env["NUPIC_CORE_DIR"], "build", "release"))
+      command = ("python setup.py install bdist_wheel bdist_egg "
+                 "--nupic-core-dir=%s" % os.path.join(env["NUPIC_CORE_DIR"],
+                                                      "build", "release"))
       # Building on jenkins, not local
       if "JENKINS_HOME" in env:
         command += " upload -r numenta-pypi"
