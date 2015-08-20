@@ -283,7 +283,7 @@ def buildNuPIC(env, logger):
                  "--nupic-core-dir=%s" % os.path.join(env["NUPIC_CORE_DIR"],
                                                       "build", "release"))
       # Building on jenkins, not local
-      if "JENKINS_HOME" in env:
+      if "JENKINS_HOME" in os.environ:
         command += " upload -r numenta-pypi"
 
       runWithOutput(command, env=env, logger=logger)
