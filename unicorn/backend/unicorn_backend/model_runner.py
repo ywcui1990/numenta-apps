@@ -5,15 +5,15 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3 as
+# it under the terms of the GNU Affero Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details.
+# See the GNU Affero Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
+# You should have received a copy of the GNU Affero Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
@@ -57,7 +57,8 @@ class _Options(object):
   def __init__(self, modelId, stats):
     """
     :param str modelId: model identifier
-    :param dict stats: Metric data stats per engine/stats_schema.json.
+    :param dict stats: Metric data stats per stats_schema.json in the
+      unicorn_backend package
     """
     self.modelId = modelId
     self.stats = stats
@@ -71,7 +72,7 @@ def _parseArgs():
   """
   helpString = (
     "%prog [options]\n\n"
-    "Start Unicorn Engine that runs a single model.")
+    "Start Unicorn ModelRunner that runs a single model.")
 
   parser = OptionParser(helpString)
 
@@ -87,7 +88,7 @@ def _parseArgs():
     action="store",
     type="string",
     dest="stats",
-    help=("Required: see engine/stats_schema.json"))
+    help=("Required: see unicorn_backend/stats_schema.json"))
 
 
   options, positionalArgs = parser.parse_args()
@@ -161,7 +162,8 @@ class _ModelRunner(object):
   def __init__(self, modelId, stats):
     """
     :param str modelId: model identifier
-    :param dict stats: Metric data stats per engine/stats_schema.json.
+    :param dict stats: Metric data stats per stats_schema.json in the
+      unicorn_backend package.
     """
     self._modelId = modelId
 
@@ -179,7 +181,8 @@ class _ModelRunner(object):
   def _createModel(cls, stats):
     """Instantiate and configure an OPF model
 
-    :param dict stats: Metric data stats per engine/stats_schema.json.
+    :param dict stats: Metric data stats per stats_schema.json in the
+      unicorn_backend package.
     :returns: OPF Model instance
     """
     # Generate swarm params
@@ -271,7 +274,7 @@ def main():
     _ModelRunner(modelId=options.modelId, stats=options.stats).run()
 
   except Exception as ex:  # pylint: disable=W0703
-    g_log.exception("Engine failed")
+    g_log.exception("ModelRunner failed")
 
     try:
       # Preserve the original exception context
