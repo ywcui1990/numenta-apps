@@ -232,15 +232,15 @@ def buildNuPICCore(env, nupicCoreSha, logger):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
       git.resetHard(nupicCoreSha)
-      runWithOutput("mkdir -p build/scripts", env, logger)
+      runWithOutput("mkdir -p build/scripts", env=env, logger=logger)
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var('LIBDIR')
         runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
                        "-DPYTHON_LIBRARY={}/libpython2.7.so").format(libdir),
                       env, logger)
-        runWithOutput("make -j 4", env, logger)
-        runWithOutput("make install", env, logger)
-      runWithOutput("python setup.py install")
+        runWithOutput("make -j 4", env=env, logger=logger)
+        runWithOutput("make install", env=env, logger=logger)
+      runWithOutput("python setup.py install", env=env, logger=logger)
     except CommandFailedError:
       raise NupicBuildFailed("nupic.core building failed.Exiting")
     except:
@@ -305,9 +305,9 @@ def runTests(env, logger):
   with changeToWorkingDir(env["NUPIC"]):
     try:
       diagnostics.printEnv(env=env, logger=logger)
-      runWithOutput("bin/py_region_test", env, logger)
+      runWithOutput("bin/py_region_test", env=env, logger=logger)
       testCommand = "scripts/run_nupic_tests -u --coverage --results xml"
-      runWithOutput(testCommand, env, logger)
+      runWithOutput(testCommand, env=env, logger=logger)
     except:
       logger.exception("NuPIC Tests have failed.")
       raise
@@ -406,7 +406,7 @@ def cacheNuPICCore(env, buildWorkspace, nupicCoreSha, uploadToS3, logger):
 
         nupicCoreZipPath = "%s/%s" % (buildWorkspace, nupicCoreZip)
         try:
-          runWithOutput(command, env, logger=logger)
+          runWithOutput(command, env=env, logger=logger)
           logger.debug("Uploading %s to S3.", nupicCoreZip)
           s3.uploadToS3(g_config, nupicCoreZipPath,
                         "builds_nupic_core", logger)
