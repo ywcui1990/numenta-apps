@@ -119,8 +119,8 @@ def runWithOutput(command, env=None, logger=None):
     if isinstance(command, basestring):
       command = command.strip().split(" ")
     check_call(command, env=env)
-  except CalledProcessError:
-    errMessage = "Failed to execute: %s" % (command,)
+  except CalledProcessError as e:
+    errMessage = "Failed to execute: %s; original=%r" % (command, e,)
     raise CommandFailedError(errMessage)
   # Catch other exceptions, add info about what command triggered them
   except Exception as e:
