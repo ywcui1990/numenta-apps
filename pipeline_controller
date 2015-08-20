@@ -43,7 +43,7 @@ from jenkinsapi.custom_exceptions import UnknownJob
 
 from infrastructure.utilities.exceptions import (
   CommandFailedError, InvalidParametersError)
-from infrastructure.utilities.logger import initPipelineLogger
+from infrastructure.utilities.diagnostics import initPipelineLogger
 from infrastructure.utilities.git import (
   getActiveBranch,
   getCurrentSha,

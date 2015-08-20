@@ -30,7 +30,7 @@ from subprocess import check_call
 from infrastructure.utilities.env import prepareEnv
 from infrastructure.utilities.exceptions import CommandFailedError
 from infrastructure.utilities.jenkins import getBuildNumber, getWorkspace
-from infrastructure.utilities.logger import initPipelineLogger, printEnv
+from infrastructure.utilities.diagnostics import initPipelineLogger, printEnv
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput
 

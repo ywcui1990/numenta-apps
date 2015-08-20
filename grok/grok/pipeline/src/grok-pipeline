@@ -32,7 +32,7 @@ import sys
 from grok.pipeline.src import (bake_ami, build, manifest, package,
   run_unit_tests, sync_yum_repo_s3)
 from infrastructure.utilities.exceptions import TestsFailed
-from infrastructure.utilities.logger import initPipelineLogger
+from infrastructure.utilities.diagnostics import initPipelineLogger
 
 
 TOOLS_DIR = os.path.join(os.getcwd(), "pipeline")

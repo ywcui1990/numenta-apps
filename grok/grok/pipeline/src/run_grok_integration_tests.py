@@ -42,7 +42,7 @@ from infrastructure.utilities.exceptions import (
 from infrastructure.utilities.grok_server import (
   getApiKey, waitForGrokServerToBeReady)
 from infrastructure.utilities.jenkins import getBuildNumber, getWorkspace
-from infrastructure.utilities.logger import initPipelineLogger
+from infrastructure.utilities.diagnostics import initPipelineLogger
 
 
 

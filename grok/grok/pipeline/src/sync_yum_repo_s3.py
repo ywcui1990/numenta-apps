@@ -28,7 +28,7 @@ import yaml
 
 from fabric.api import settings, run
 
-from infrastructure.utilities import logger
+from infrastructure.utilities import diagnostics
 
 
 """
