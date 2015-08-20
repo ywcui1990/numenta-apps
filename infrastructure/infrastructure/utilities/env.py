@@ -149,4 +149,5 @@ def addNupicCoreToEnv(env, nupicCoreDir):
   """
   env.update(
     NUPIC_CORE_DIR=nupicCoreDir,
+    NUPIC_CORE_RELEASE=os.path.join(nupicCoreDir, "build", "release")
   )
