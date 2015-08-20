@@ -240,6 +240,9 @@ def buildNuPICCore(env, nupicCoreSha, logger):
                       env=env, logger=logger)
         runWithOutput("make -j 4", env=env, logger=logger)
         runWithOutput("make install", env=env, logger=logger)
+
+      # need to remove this folder to allow the caching process to work
+      shutil.rmtree("external/linux32arm")
       runWithOutput("python setup.py install --force", env=env, logger=logger)
     except CommandFailedError:
       raise NupicBuildFailed("nupic.core building failed.Exiting")
