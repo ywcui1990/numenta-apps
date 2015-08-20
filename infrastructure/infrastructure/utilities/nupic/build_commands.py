@@ -243,7 +243,15 @@ def buildNuPICCore(env, nupicCoreSha, logger):
 
       # need to remove this folder to allow the caching process to work
       shutil.rmtree("external/linux32arm")
-      runWithOutput("python setup.py install --force", env=env, logger=logger)
+
+      # build the distributions
+      command = "python setup.py install bdist_wheel bdist_egg"
+      # Building on jenkins, not local
+      if "JENKINS_HOME" in os.environ:
+        command += " upload -r numenta-pypi"
+
+      command += " --force"
+      runWithOutput(command=command, env=env, logger=logger)
     except CommandFailedError:
       raise NupicBuildFailed("nupic.core building failed.Exiting")
     except:
@@ -278,7 +286,7 @@ def buildNuPIC(env, logger):
       # need to remove this folder to allow the caching process to work
       shutil.rmtree("external/linux32arm")
 
-      # build the wheel
+      # build the distributions
       command = ("python setup.py install bdist_wheel bdist_egg "
                  "--nupic-core-dir=%s" % os.path.join(env["NUPIC_CORE_DIR"],
                                                       "build", "release"))
@@ -286,7 +294,7 @@ def buildNuPIC(env, logger):
       if "JENKINS_HOME" in os.environ:
         command += " upload -r numenta-pypi"
 
-      runWithOutput(command, env=env, logger=logger)
+      runWithOutput(command=command, env=env, logger=logger)
     except:
       logger.exception("Failed while building nupic")
       raise NupicBuildFailed("NuPIC building failed.")
