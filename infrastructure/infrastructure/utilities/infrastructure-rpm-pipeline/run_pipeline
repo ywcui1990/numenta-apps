@@ -56,7 +56,7 @@ from fabric.operations import put
 from infrastructure.utilities import exceptions
 from infrastructure.utilities.cli import runWithOutput
 from infrastructure.utilities.path import changeToWorkingDir
-from infrastructure.utilities.logger import initPipelineLogger
+from infrastructure.utilities.diagnostics import initPipelineLogger
 
 
 

@@ -27,7 +27,6 @@ import glob
 import os
 import re
 import shutil
-import sys
 import sysconfig
 
 from pkg_resources import resource_stream
@@ -35,18 +34,13 @@ from pkg_resources import resource_stream
 import yaml
 
 from infrastructure.utilities import git
-from infrastructure.utilities.jenkins import (
-  createOrReplaceResultsDir,
-  createOrReplaceArtifactsDir
-)
-from infrastructure.utilities import logger as log
-from infrastructure.utilities import s3
+from infrastructure.utilities.jenkins import (createOrReplaceResultsDir,
+                                              createOrReplaceArtifactsDir)
+from infrastructure.utilities import diagnostics
 from infrastructure.utilities.env import addNupicCoreToEnv
-from infrastructure.utilities.exceptions import (
-  CommandFailedError,
-  NupicBuildFailed,
-  PipelineError
-)
+from infrastructure.utilities.exceptions import (CommandFailedError,
+                                                 NupicBuildFailed,
+                                                 PipelineError)
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput
 
@@ -56,8 +50,8 @@ DOXYFILE = "docs/Doxyfile"
 INIT_FILE = "nupic/__init__.py"
 VERSION_FILE = "VERSION"
 
-g_config = yaml.load(
-            resource_stream(__name__, "../../../conf/nupic/config.yaml"))
+g_config = yaml.load(resource_stream(__name__,
+                                     "../../../conf/nupic/config.yaml"))
 
 
 
@@ -122,20 +116,21 @@ def replaceInFile(fromValue, toValue, filePath):
 
 
 
-def getNuPICCoreDetails(env, logger, nupicCoreRemote, nupicCoreSha):
+def getNuPICCoreDetails(env, nupicCoreRemote, nupicCoreSha):
   """
     Reads .nupic_modules to find nupic.core SHA and remote.
 
     :param env: The environment dict.
 
     :returns: A tuple consisting of `string` representing nupic.core remote
-      and `string` representing nupicCoreSha and a `string` representing the branch
+      and `string` representing nupicCoreSha
   """
   with changeToWorkingDir(env["NUPIC"]):
     core = {}
     execfile(".nupic_modules", {}, core)
   remote = core["NUPIC_CORE_REMOTE"] if not nupicCoreRemote else nupicCoreRemote
-  committish = core["NUPIC_CORE_COMMITISH"] if nupicCoreSha == "None" else nupicCoreSha
+  committish = (
+    core["NUPIC_CORE_COMMITISH"] if nupicCoreSha == "None" else nupicCoreSha)
   return remote, committish
 
 
@@ -185,37 +180,6 @@ def checkIfProjectExistsLocallyForSHA(project, sha, logger):
 
 
 
-def fetchNuPICCoreFromS3(buildWorkspace, nupicCoreSha, logger):
-  """
-    Downloads archieved nupic.core from S3
-
-    :param buildWorkspace: The workspace where nupic.core will be built
-    :param nupicCoreSha: The SHA of the nupic.core build that needs to be
-      fetched
-  """
-  logger.info("Downloading nupic.core from S3.")
-  cachedDir = "/var/build/nupic.core/%s" % nupicCoreSha
-  with changeToWorkingDir(buildWorkspace):
-    nupicCoreFilePath = s3.downloadFileFromS3("builds.numenta.com",
-                          "builds_nupic_core/nupic.core-%s.zip" % nupicCoreSha,
-                          logger)
-
-    logger.info("Untarring %s", nupicCoreFilePath)
-    command = "tar xzvf %s -C %s" % (nupicCoreFilePath, cachedDir)
-    try:
-      os.makedirs(cachedDir)
-      runWithOutput(command, logger=logger)
-    except OSError:
-      logger.exception("Cached nupic.core already exists at %s", cachedDir)
-      raise
-    except CommandFailedError:
-      logger.exception("Failed while untarring cached nupic.core: %s", command)
-      raise
-    else:
-      logger.info("nupic.core downloaded from S3 & stored at %s", cachedDir)
-
-
-
 def buildNuPICCore(env, nupicCoreSha, logger):
   """
     Builds nupic.core
@@ -227,25 +191,36 @@ def buildNuPICCore(env, nupicCoreSha, logger):
       This exception is raised if build fails.
   """
   print "\n----------Building nupic.core------------"
-  log.printEnv(env, logger)
+  diagnostics.printEnv(env=env, logger=logger)
   with changeToWorkingDir(env["NUPIC_CORE_DIR"]):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
       git.resetHard(nupicCoreSha, logger=logger)
-      runWithOutput("mkdir -p build/scripts", env, logger)
+      runWithOutput("mkdir -p build/scripts", env=env, logger=logger)
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var('LIBDIR')
         runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
                        "-DPYTHON_LIBRARY={}/libpython2.7.so").format(libdir),
-                      env, logger)
-        runWithOutput("make -j 4", env, logger)
-        runWithOutput("make install", env, logger)
+                      env=env, logger=logger)
+        runWithOutput("make -j 4", env=env, logger=logger)
+        runWithOutput("make install", env=env, logger=logger)
+
+      # need to remove this folder to allow the caching process to work
+      shutil.rmtree("external/linux32arm")
+
+      # build the distributions
+      command = "python setup.py install --force"
+      # Building on jenkins, not local
+      if "JENKINS_HOME" in os.environ:
+        command += " bdist_wheel bdist_egg upload -r numenta-pypi"
+      runWithOutput(command=command, env=env, logger=logger)
     except CommandFailedError:
       raise NupicBuildFailed("nupic.core building failed.Exiting")
     except:
       raise PipelineError("nupic.core building failed due to unknown reason.")
     else:
       logger.info("nupic.core building was successful.")
+
 
 
 # TODO Refactor and fix the cyclic calls between fullBuild() and buildNuPIC()
@@ -260,7 +235,7 @@ def buildNuPIC(env, logger):
       This exception is raised if build fails.
   """
   print "\n----------Building NuPIC------------"
-  log.printEnv(env, logger)
+  diagnostics.printEnv(env=env, logger=logger)
 
   # Build
   with changeToWorkingDir(env["NUPIC"]):
@@ -309,10 +284,9 @@ def runTests(env, logger):
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
     try:
-      log.printEnv(env, logger)
-      runWithOutput("bin/py_region_test", env, logger)
+      runWithOutput("bin/py_region_test", env=env, logger=logger)
       testCommand = "scripts/run_nupic_tests -u --coverage --results xml"
-      runWithOutput(testCommand, env, logger)
+      runWithOutput(testCommand, env=env, logger=logger)
     except:
       logger.exception("NuPIC Tests have failed.")
       raise
@@ -323,25 +297,21 @@ def runTests(env, logger):
       logger.info("NuPIC tests have passed")
 
 
-def createTextFileAndUpload(fileName, fileContents, fileDir, s3Folder, logger):
+
+def createTextFile(fileName, fileContents):
   """
-    Creates file, add the Contents in the file and upload that file to S3.
+    Creates file and write the text to it.
 
     :param fileName: Name of the file to be created
     :param fileContents: Contents of the file
-    :param fileDir: The path of the file to upload
-    :param s3Folder: The S3 folder where the file is to be uploaded
-    :param logger: A valid Numenta logger
+    :raises IOError: if there's a problem accessing the file
   """
-
   with open(fileName, "w") as fHandle:
     fHandle.write(fileContents)
 
-  filePath = os.path.join(fileDir, fileName)
-  s3.uploadToS3(g_config, filePath, s3Folder, logger)
 
 
-def cacheNuPIC(env, nupicSha, uploadToS3, logger):
+def cacheNuPIC(env, nupicSha, logger):
   """
     Caches a green build of NuPIC to /var/build/nupic/<SHA>
 
@@ -356,12 +326,7 @@ def cacheNuPIC(env, nupicSha, uploadToS3, logger):
 
       wheelDir = env["NUPIC"] + "/dist"
       wheelFile = glob.glob("%s/*.whl" % wheelDir)[0]
-      logger.debug("Uploading %s to S3.", wheelFile)
-      s3.uploadToS3(g_config, wheelFile, "builds_nupic_wheel", logger)
-
       wheelFileName = os.path.basename(wheelFile)
-      fileDir = os.getcwd()
-      s3Folder = "stable_nupic_version"
       contents = nupicSha + ":" + wheelFileName
 
       createTextFileAndUpload("nupic-package-version.txt", contents, fileDir,
@@ -380,20 +345,19 @@ def cacheNuPIC(env, nupicSha, uploadToS3, logger):
       logger.exception("Caching NuPIC failed.")
       raise
     else:
-      logger.info("NuPIC cached locally and to S3.")
-
+      logger.info("NuPIC cached locally.")
   else:
     logger.debug("Cached NuPIC already exists.")
 
 
-def cacheNuPICCore(env, buildWorkspace, nupicCoreSha, uploadToS3, logger):
-  """
-    Caches nupic.core to /var/build/NuPIC.core/<SHA> and uploads to S3
 
-    :param env: The environment dict
+def cacheNuPICCore(buildWorkspace, nupicCoreSha, logger):
+  """
+    Caches nupic.core to /var/build/NuPIC.core/<SHA>
+
     :param buildWorkspace: The buildWorkspace were nupic.core is built
     :param nupicSha: A `string` representing SHA
-    :param uploadToS3: `boolean` defining whether to upload to S3 or not
+    :param logger: initialized logger
 
     :raises CommandFailedError: if the tar process fails before upload.
   """
@@ -405,25 +369,6 @@ def cacheNuPICCore(env, buildWorkspace, nupicCoreSha, uploadToS3, logger):
     with changeToWorkingDir(buildWorkspace):
       shutil.copytree("nupic.core", ("/var/build/nupic.core/%s/nupic.core" %
                                      nupicCoreSha))
-
-      if uploadToS3:
-        nupicCoreZip = "nupic.core-%s.zip" % nupicCoreSha
-
-        logger.info("Archiving nupic.core to %s", nupicCoreZip)
-        command = "tar czf %s nupic.core" % nupicCoreZip
-
-        nupicCoreZipPath = "%s/%s" % (buildWorkspace, nupicCoreZip)
-        try:
-          runWithOutput(command, env, logger=logger)
-          logger.debug("Uploading %s to S3.", nupicCoreZip)
-          s3.uploadToS3(g_config, nupicCoreZipPath,
-                        "builds_nupic_core", logger)
-        except:
-          logger.exception("Archiving nupic.core failed.")
-          raise CommandFailedError("Archiving nupic.core failed.")
-        else:
-          logger.info("nupic.core cached locally and to S3.")
-
   else:
     logger.debug("Cached nupic.core already exists.")
 
@@ -478,24 +423,17 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
         logger.debug("\tUpdating %s...", targetFile)
         replaceInFile(devVersion, nupicSha, targetFile)
 
-  nupicCoreRemote, nupicCoreSha = getNuPICCoreDetails(env,
-    logger, nupicCoreRemote, nupicCoreSha)
+  nupicCoreRemote, nupicCoreSha = getNuPICCoreDetails(env=env,
+                                                nupicCoreRemote=nupicCoreRemote,
+                                                nupicCoreSha=nupicCoreSha)
 
   boolBuildNupicCore = False
   nupicCoreDir = ""
   if checkIfProjectExistsLocallyForSHA("nupic.core", nupicCoreSha, logger):
     nupicCoreDir = "/var/build/nupic.core/%s/nupic.core" % nupicCoreSha
     logger.debug("Found local nupic.core at: %s", nupicCoreDir)
-  elif s3.checkIfNuPICCoreInS3(g_config, nupicCoreSha):
-    fetchNuPICCoreFromS3(buildWorkspace, nupicCoreSha, logger)
-    nupicCoreDir = "/var/build/nupic.core/%s/nupic.core" % nupicCoreSha
-    # Cached nupic.core builds don't work on OS X, so clean it up and rebuild
-    if "darwin" in sys.platform:
-      shutil.rmtree(os.path.join(nupicCoreDir, "build"))
-      boolBuildNupicCore = True
-    logger.debug("Retrieved nupic.core from S3; saved to: %s", nupicCoreDir)
   else:
-    logger.debug("Did not find nupic.core locally or in S3.")
+    logger.debug("Did not find nupic.core locally.")
     fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha,
                          logger)
     nupicCoreDir = "%s/nupic.core" % buildWorkspace
@@ -512,9 +450,10 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
   installNuPICWheel(env, installDir, wheelFilePath, logger)
   runTests(env, logger)
 
-  # Cache NuPIC wheel, but only upload to S3 from a linux box
-  cacheNuPIC(env, nupicSha, "darwin" not in sys.platform, logger)
+  # Cache NuPIC
+  cacheNuPIC(env=env, nupicSha=nupicSha, logger=logger)
 
-  # Cache nupic.core, but only upload to S3 from a linux box
-  cacheNuPICCore(env, buildWorkspace, nupicCoreSha,
-                 "darwin" not in sys.platform, logger)
+  # Cache nupic.core
+  cacheNuPICCore(buildWorkspace=buildWorkspace,
+                 nupicCoreSha=nupicCoreSha,
+                 logger=logger)

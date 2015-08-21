@@ -43,7 +43,7 @@ from jenkinsapi.custom_exceptions import UnknownJob
 
 from infrastructure.utilities.exceptions import (
   CommandFailedError, InvalidParametersError)
-from infrastructure.utilities.logger import initPipelineLogger
+from infrastructure.utilities.diagnostics import initPipelineLogger
 from infrastructure.utilities.git import (
   getActiveBranch,
   getCurrentSha,
@@ -80,8 +80,10 @@ def invokeBuild(jobName, buildParams):
     :raises jenkinsapi.custom_exceptions.UnknownJob: if Jenkins isn't able to
       find the specified job.
   """
+  buildNum = os.environ.get("BUILD_NUMBER", "local")
   getConnectionToJenkins()[jobName].invoke(build_params=buildParams,
-                                           cause="product-master-build")
+                                           cause="product-master-build-%s" %
+                                                 buildNum)
 
 
 def invokeGrokBuild(gitRemote, branch, buildSha):

@@ -28,7 +28,7 @@ from grok.pipeline.utils import build_commands as builder
 from grok.pipeline.utils import getGithubUserName
 from grok.pipeline.utils.helpers import checkIfSaneProductionParams
 from infrastructure.utilities import git
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import diagnostics as log
 from infrastructure.utilities.env import prepareEnv
 from infrastructure.utilities.path import changeToWorkingDir
 

@@ -27,7 +27,7 @@ import argparse
 import json
 import os
 
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import diagnostics as log
 from infrastructure.utilities.cli import executeCommand, runWithOutput
 from infrastructure.utilities.exceptions import (
   CommandFailedError,

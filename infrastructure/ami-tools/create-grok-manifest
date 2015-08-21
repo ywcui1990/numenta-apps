@@ -28,7 +28,7 @@ import argparse
 import json
 import re
 
-from infrastructure.utilities import logger as log
+from infrastructure.utilities import diagnostics as log
 from infrastructure.utilities.exceptions import InvalidParametersError
 
 

@@ -1,0 +1,11 @@
+validictory==0.9.1
+
+# NuPIC HTM
+nupic==0.2.11
+
+# Other Numenta projects
+htmengine>=0.0.0
+nta.utils>=0.0.0
+
+# required by tests
+mock==1.0.1
