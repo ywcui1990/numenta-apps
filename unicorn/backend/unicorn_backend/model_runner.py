@@ -219,12 +219,13 @@ class _ModelRunner(object):
     :returns: OPF Model instance
     """
 
-    # TODO fix this once the ILLEGAL INSTRUCTION issue in nupic is resolved;
+    # TODO remove the "DummyModel" code path once the ILLEGAL INSTRUCTION issue
+    # in nupic is resolved;
     # Create a dummy model instead of a real one temporarily, while we're
     # having trouble with the latest nupic builds on the Mac OS Yosemite that
     # result in ILLEGAL INSTRUCTION in nupic.bindings. This is good enough for
     # now to enable FrontEnd development.
-    if True:
+    if False:
       class DummyModel(object):
         class Result(object):
           def __init__(self, inferences):
