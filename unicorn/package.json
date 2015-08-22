@@ -2,7 +2,7 @@
   "name": "unicorn",
   "version": "0.0.1",
   "description": "Numenta Unicorn Cross-platform HTM Example Desktop Application",
-  "main": "gui/loader.js",
+  "main": "frontend/loader.js",
   "engines": {
     "node": ">=0.12.7",
     "npm": ">=2.11.3"
@@ -22,7 +22,7 @@
     "electron": "electron .",
     "pack-electron": "gulp webpack --target atom",
     "pack-web": "gulp webpack",
-    "serve": "http-server -p 9999 ./gui/browser/",
+    "serve": "http-server -p 9999 ./frontend/browser/",
     "start": "npm run pack-electron && npm run electron",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -61,24 +61,24 @@
     "electron": "0.4.1",
     "fluxible": "0.5.1",
     "fluxible-addons-react": "0.1.6",
-    "material-ui": "0.10.2",
+    "material-ui": "0.10.4",
     "node-sass": "3.2.0",
     "react": "0.13.3",
     "react-tap-event-plugin": "0.1.7"
   },
   "devDependencies": {
-    "babel": "5.8.19",
-    "babel-core": "5.8.19",
+    "babel": "5.8.21",
+    "babel-core": "5.8.22",
     "babel-loader": "5.3.2",
     "babel-plugin-typecheck": "1.2.0",
     "casperjs": "1.1.0-beta3",
-    "electron-prebuilt": "0.30.2",
+    "electron-prebuilt": "0.31.0",
     "gulp": "3.9.0",
     "gulp-util": "3.0.6",
     "http-server": "0.8.0",
     "mocha": "2.2.5",
     "mocha-casperjs": "0.5.4",
-    "webpack": "1.10.5",
+    "webpack": "1.11.0",
     "webpack-stream": "2.1.0"
   }
 }
