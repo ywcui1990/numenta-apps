@@ -349,7 +349,7 @@ def main():
                       errorMessage)
 
     # Use os._exit to abort the process instead of an exception to prevent
-    # the python runtime from dumpting traceback to stderr (since we dump a json
+    # the python runtime from dumping traceback to stderr (since we dump a json
     # message to stderr, and don't want the extra text to interfere with parsing
     # in the Front End)
     os._exit(1)  # pylint: disable=W0212

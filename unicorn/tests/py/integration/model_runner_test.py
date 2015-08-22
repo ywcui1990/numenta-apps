@@ -63,7 +63,7 @@ class ModelRunnerTestCase(unittest.TestCase):
     process = subprocess.Popen(
       args=[sys.executable,
             "-m", "unicorn_backend.model_runner",
-            "--model=" + modelId,
+            "--model=%s" % modelId,
             "--stats=%s" % (json.dumps(stats),)],
       stdin=subprocess.PIPE,
       stdout=subprocess.PIPE,
@@ -84,7 +84,7 @@ class ModelRunnerTestCase(unittest.TestCase):
       mrProcess.wait()
 
       stdoutData = mrProcess.stdout.read()
-      stderrData = mrProcess.stdout.read()
+      stderrData = mrProcess.stderr.read()
 
       self.assertEqual(stdoutData, "")
       self.assertEqual(stderrData, "")
@@ -188,7 +188,7 @@ class ModelRunnerTestCase(unittest.TestCase):
       mrProcess.stdin.close()
       mrProcess.wait()
       stdoutData = mrProcess.stdout.read()
-      stderrData = mrProcess.stdout.read()
+      stderrData = mrProcess.stderr.read()
 
       self.assertEqual(stdoutData, "")
       self.assertEqual(stderrData, "")
