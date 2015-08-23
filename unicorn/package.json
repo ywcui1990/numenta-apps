@@ -59,6 +59,7 @@
   "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
     "electron": "0.4.1",
+    "electron-ipc-stream": "0.1.0",
     "fluxible": "0.5.1",
     "fluxible-addons-react": "0.1.6",
     "material-ui": "0.10.4",

@@ -32,6 +32,8 @@
 
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
+import ipc from 'ipc';
+import IPCStream from 'electron-ipc-stream';
 import React from 'react';
 import tapEventInject from 'react-tap-event-plugin';
 
@@ -41,38 +43,65 @@ import FooAction from './actions/foo';
 import FooComponent from './components/foo';
 import FooStore from './stores/foo';
 
-let FooView = FluxibleReact.provideContext(
-  FluxibleReact.connectToStores(
-    FooComponent,
-    [ FooStore ],
-    (context, props) => {
-      return context.getStore(FooStore).getState();
-    }
-  )
-);
+// duplex IPC channels on pipe between this renderer process and main process
+let ipcDatabase = new IPCStream('database');
+let ipcFile = new IPCStream('file');
+let ipcModel = new IPCStream('model');
+
+let app;
+let context;
+let FooView;
 
 
 // MAIN
 
-window.React = React; // dev tools @TODO remove for non-dev
+document.addEventListener('DOMContentLoaded', () => {
 
-tapEventInject(); // remove when >= React 1.0
+  // IPC stream examples: -------------------
+  ipcFile.on('data', (chunk) => {
+    console.log('chunk', chunk);
+  });
+  ipcFile.on('end', () => {});
+  // ipcFile.write({ test: 'from-renderer-to-main' });
+  // ipcFile.end();
+    // ReadableStream.pipe(WriteableStream);
+    // FaucetAbove.pipe(DownDrain);
 
-// create fluxible app
-let app = new Fluxible({
-  component:  FooComponent,
-  stores:     [ FooStore ]
-});
 
-// add context to app
-let context = app.createContext();
+  // GUI APP
 
-// fire initial action
-context.executeAction(FooAction, 'bar', (err) => {
-  let output = React.renderToString(
-    FluxibleReact.createElementWithContext(context)
+  window.React = React; // dev tools @TODO remove for non-dev
+
+  tapEventInject(); // @TODO remove when >= React 1.0
+
+  // prepare inital gui context
+  FooView = FluxibleReact.provideContext(
+    FluxibleReact.connectToStores(
+      FooComponent,
+      [ FooStore ],
+      (context, props) => {
+        return context.getStore(FooStore).getState();
+      }
+    )
   );
 
-  console.log(output);
-  if(document) document.write(output);
-});
+  // init GUI flux/ible app
+  app = new Fluxible({
+    component: FooComponent,
+    stores: [ FooStore ]
+  });
+
+  // add context to app
+  context = app.createContext();
+
+  // fire initial app action
+  context.executeAction(FooAction, 'bar', (err) => {
+    let output = React.renderToString(
+      FluxibleReact.createElementWithContext(context)
+    );
+
+    console.log(output);
+    if(document) document.write(output); // @TODO the right way.
+  });
+
+}); // DOMContentLoaded
