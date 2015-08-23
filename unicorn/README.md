@@ -4,16 +4,38 @@
 > users using their own data files.
 
 
-## UNDER HEAVY DEVELOPMENT
+## @TODOS UNDER HEAVY DEVELOPMENT
 
-* @TODO Dev tool resources for Web, Node, Electron, Browser addons, etc.
-* @TODO Add in Flow type checking
-* @TODO add in Dygraph/FaceOfGrok
-* @TODO make real tests and make tests work
-* @TODO setup linting
-* @TODO add retina.js for hd images
-* @TODO setup css and image assets etc
-* @TODO add Architecture docs and charts
+This is for Brev over the weekend, will clean up soon.
+
+* Setup logging: Winston or Bunyan? check w/Ops
+* Errors can do screenshots:
+  * https://github.com/atom/electron/blob/master/docs/api/browser-window.md#browserwindowcapturepagerect-callback
+* Dev tool resources for Web, Node, Electron, Browser addons, etc.
+  * npm install https://github.com/sindresorhus/electron-debug
+  * Electron-specific --debug flags:
+    * npm install https://github.com/node-inspector/node-inspector
+    * https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md
+  * React and Chrome browser devtools in Electron:
+    * http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/
+  * Node debugger https://nodejs.org/api/debugger.html
+  * Electron-supported Chrome command line switches:
+    * http://electron.atom.io/docs/v0.31.0/api/chrome-command-line-switches/
+  * Set up Debug Symbol Server (windows?)
+    * http://electron.atom.io/docs/v0.31.0/development/setting-up-symbol-server/
+* Use https://github.com/electronjs/electron-rebuild to get npm packages
+  into Electron, instead of using WebPack build? Probably a good idea.
+* Document: Electron/Babel/WebPack - which doing what? and what order?
+  * ES6/7. imports/requires. electron/browser.
+* Add in Flow type checking
+* add in Dygraph/FaceOfGrok
+* make real tests and make tests work
+* setup linting
+* add retina.js for hd images
+* setup css and image assets etc
+* add Architecture docs and charts
+* Sync our FE dir structure w/Electron's:
+  * http://electron.atom.io/docs/v0.31.0/development/source-code-directory-structure/
 
 
 ## Repository
