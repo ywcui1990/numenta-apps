@@ -222,10 +222,7 @@ def clone(gitURL, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :param kwargs: Various options to git clone gitURL can be passed as keyword
-    arguments. For now only directory option is handled.
-  e.g.
-  clone(gitURL, directory=nameOfDirectory)
+  :param directory: Name of the directory where repository will be cloned
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
@@ -251,15 +248,13 @@ def checkout(pathspec, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :param kwargs: Optional switches to git checkout. Following switches are
-                 supported at the moment.
+  :param new: Boolean. If True, create a new branch.
 
-    new: Boolean. If True, create a new branch.
+  :param orphan: Boolean. If True, create a new orphan branch.
 
-    orphan: Boolean. If True, create a new orphan branch.
-
-    theirs: Boolean. If True, when checking out paths from the index, check out
-            stage #3 (theirs) for unmerged paths. *
+  :param theirs:
+    Boolean. If True, when checking out paths from the index, check out
+    stage #3 (theirs) for unmerged paths. *
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
@@ -385,18 +380,16 @@ def revParse(commitish, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :param kwargs: Various options to git rev-parse can be passed as keyword
-  arguments. The following options are currently supported:
-
-  verify: Verify that exactly one parameter is provided, and that it
+  :param verify: Verify that exactly one parameter is provided, and that it
   can be turned into a raw 20-byte SHA-1 that can be used to access the object
   database.
 
-  quiet: Only valid with verify. Do not output an error message if the
-  first argument is not a valid object name; instead exit with non-zero status
-  silently.
+  :param quiet:
+    Only valid with verify. Do not output an error message if the
+    first argument is not a valid object name; instead exit with
+    non-zero status silently.
 
-  abbrevRef: A non-ambiguous short name of the objects name
+  :param abbrevRef: A non-ambiguous short name of the objects name
 
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
@@ -406,7 +399,7 @@ def revParse(commitish, logger, **kwargs):
 
   :rtype: string or int
   """
-  validKwargs = {"verify", "quiet", "abbrevRef}
+  validKwargs = {"verify", "quiet", "abbrevRef"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "rev-parse"]
   if checkIfOptionSet("verify", **kwargs):
@@ -449,17 +442,15 @@ def showRef(refList, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :param kwargs: Optional switches to git show-ref. Following switches are
-  supported at the moment.
+  :param verify:
+    Enable stricter reference checking by requiring an exact ref path.
 
-    verify: Enable stricter reference checking by requiring an exact
-              ref path.
-    quiet: Aside from returning an error code of 1, it will also print an
-             error message, if quiet was not specified.
+  :param quiet:
+    Aside from returning an error code of 1, it will also print an
+    error message, if quiet was not specified.
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails
   """
   validKwargs = {"verify"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
@@ -498,9 +489,8 @@ def commit(message, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails
   """
   validKwargs = {"amend"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
@@ -524,9 +514,8 @@ def merge(path, message, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails
   """
   validKwargs = {"noFF"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
