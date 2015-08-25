@@ -30,6 +30,8 @@
 
 // externals
 
+import 'babel/polyfill';  // es6/7 polyfill Array.from()
+
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import ipc from 'ipc';

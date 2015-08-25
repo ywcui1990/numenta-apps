@@ -1,2 +1,4 @@
-frontend/browser/bundle.js
-frontend/browser/bundle.js.map
+node_modules/
+bundle.js
+bundle.js.map
+*.log
