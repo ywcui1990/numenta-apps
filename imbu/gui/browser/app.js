@@ -20,39 +20,15 @@
 
 'use strict';
 
-
-/**
- * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
- *  to a user using their own data stream or files.
- *
- * Main browser web code Application GUI entry point.
- */
-
-// externals
+// Add ES6/7 polyfills such as "Array.from"
+import 'babel/polyfill';
 
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
 import tapEventInject from 'react-tap-event-plugin';
-
-// internals
-
-import FooAction from './actions/foo';
-import FooComponent from './components/foo';
-import FooStore from './stores/foo';
-
-let FooView = FluxibleReact.provideContext(
-  FluxibleReact.connectToStores(
-    FooComponent,
-    [ FooStore ],
-    (context, props) => {
-      return context.getStore(FooStore).getState();
-    }
-  )
-);
-
-
-// MAIN
+import MainComponent from './components/main.jsx';
+import SearchStore from './stores/search';
 
 window.React = React; // dev tools @TODO remove for non-dev
 
@@ -60,19 +36,14 @@ tapEventInject(); // remove when >= React 1.0
 
 // create fluxible app
 let app = new Fluxible({
-  component:  FooComponent,
-  stores:     [ FooStore ]
+    component: MainComponent,
+    stores: [SearchStore]
 });
 
 // add context to app
 let context = app.createContext();
 
-// fire initial action
-context.executeAction(FooAction, 'bar', (err) => {
-  let output = React.renderToString(
-    FluxibleReact.createElementWithContext(context)
-  );
-
-  console.log(output);
-  if(document) document.write(output);
-});
+React.render(
+    FluxibleReact.createElementWithContext(context),
+    document.body
+);

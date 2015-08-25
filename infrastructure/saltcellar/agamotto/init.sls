@@ -29,6 +29,8 @@ nose:
     - bin_env: /opt/numenta/anaconda/bin/pip
     - require:
       - pkg: anaconda-python
+    - watch_in:
+      - cmd: enforce-anaconda-permissions
 
 # Install the agamotto test helpers. Agamotto is used for AMI testing, health
 # checks on the webservers, and monitoring scripts.
@@ -38,3 +40,5 @@ agamotto:
     - require:
       - pip: nose
       - pkg: anaconda-python
+    - watch_in:
+      - cmd: enforce-anaconda-permissions
