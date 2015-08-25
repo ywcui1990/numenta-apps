@@ -77,7 +77,7 @@ def preBuildSetup(env, pipelineConfig):
     :returns: The updated pipelineConfig dict
     :rtype: dict
   """
-  diagnostics.printEnv(env, g_logger)
+  diagnostics.printEnv(env=env, logger=g_logger)
 
   # Clone Grok if needed, otherwise, setup remote
   with changeToWorkingDir(pipelineConfig["buildWorkspace"]):
@@ -144,7 +144,8 @@ def addAndParseArgs(jsonArgs):
     args = vars(parser.parse_args())
 
   global g_logger
-  g_logger = diagnostics.initPipelineLogger("build", logLevel=args["logLevel"])
+  g_logger = diagnostics.initPipelineLogger(name="build",
+                                            logLevel=args["logLevel"])
   saneParams = {k:v for k, v in args.items() if v is not None}
   del saneParams["logLevel"]
 

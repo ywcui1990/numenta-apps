@@ -138,7 +138,7 @@ def packageDirectory(fakeroot,
   for rpmEntry in fakerootFiles:
     command += "%s " % (rpmEntry)
   g_logger.debug("Running %s ... ", command)
-  runWithOutput(command, g_logger)
+  runWithOutput(command=command, logger=g_logger)
   return rpmName
 
 
@@ -171,7 +171,7 @@ def cleanseFakeroot(fakeroot, installDirectory, repoDirectory):
         else:
           g_logger.info("Found %s, executing", cleanerScript)
           command = (cleanerScript, "--destroy-all-my-work")
-          runWithOutput(command, g_logger)
+          runWithOutput(command=command, logger=g_logger)
       else:
         g_logger.debug("Optional cleanup script %s not found, skipping",
                        cleanerScript)
@@ -201,7 +201,8 @@ def loadGitDescribeFromDirectory(gitDirectory):
   with changeToWorkingDir(gitDirectory):
     try:
       command = ("git", "describe", "--log", "--tags", "--abbrev=40")
-      rawVersion = runWithOutput(command, g_logger).strip().split("-")
+      rawVersion = runWithOutput(command=command,
+                                 logger=g_logger).strip().split("-")
       versionData["version"] = rawVersion[0]
       versionData["commitsSinceTag"] = rawVersion[1]
       versionData["sha"] = rawVersion[2]
@@ -286,7 +287,7 @@ def prepFakerootFromDirectory(fakeroot,
       command = ("rsync", "--exclude", ".*.un~", "-av",
                  os.path.join(sourceDirectory, eachFile),
                  targetDirectory)
-      runWithOutput(command, g_logger)
+      runWithOutput(command=command, logger=g_logger)
       cleanseFakeroot(fakeroot,
                       installDirectory,
                       os.path.join(baseDirectory, eachFile))
