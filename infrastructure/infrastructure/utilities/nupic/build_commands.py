@@ -52,6 +52,9 @@ ARTIFACTS_DIR = createOrReplaceArtifactsDir()
 DOXYFILE = "docs/Doxyfile"
 INIT_FILE = "nupic/__init__.py"
 VERSION_FILE = "VERSION"
+INSTALL_DIR = os.path.join(os.environ.get("WORKSPACE"),
+                           "lib/python2.7/site-packages/")
+SCRIPT_DIR = os.path.join(os.environ.get("WORKSPACE"), "bin")
 
 g_config = yaml.load(resource_stream(__name__,
                                      "../../../conf/nupic/config.yaml"))
@@ -200,7 +203,9 @@ def buildNuPICCore(env, nupicCoreSha, logger):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
       git.resetHard(nupicCoreSha)
-      runWithOutput("mkdir -p build/scripts", env=env, logger=logger)
+      runWithOutput(command="mkdir -p build/scripts", env=env, logger=logger)
+      runWithOutput(command="mkdir -p %s" % INSTALL_DIR, env=env, logger=logger)
+      runWithOutput(command="mkdir -p %s" % SCRIPT_DIR, env=env, logger=logger)
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var('LIBDIR')
         runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
@@ -213,7 +218,8 @@ def buildNuPICCore(env, nupicCoreSha, logger):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      command = "python setup.py install --force"
+      command = "python setup.py install --install-dir=%s --script-dir=%s" % (
+                  INSTALL_DIR, SCRIPT_DIR)
       # Building on jenkins, not local
       if "JENKINS_HOME" in os.environ:
         command += " bdist_wheel bdist_egg upload -r numenta-pypi"
@@ -368,34 +374,6 @@ def cacheNuPICCore(buildWorkspace, nupicCoreSha, logger):
 
 
 
-def installNuPICWheel(env, installDir, wheelFilePath, logger):
-  """
-  Install a NuPIC Wheel to a specified location.
-
-  :param env: The environment dict
-  :param installDir: The root folder to install to. NOTE: pip will automatically
-    create lib/pythonX.Y/site-packages and bin folders to install libraries
-    and executables to. Make sure both of those sub-folder locations are already
-    on your PYTHONPATH and PATH respectively.
-  :param wheelFilePath: location of the NuPIC wheel that will be installed
-  :param logger: initialized logger object
-  """
-  try:
-    if installDir is None:
-      raise PipelineError("Please provide NuPIC install directory.")
-    logger.debug("Installing %s to %s", wheelFilePath, installDir)
-    pipCommand = ("pip install %s --install-option=--prefix=%s" %
-                  (wheelFilePath, installDir))
-    runWithOutput(pipCommand, env=env, logger=logger)
-
-  except:
-    logger.exception("Failed to install NuPIC wheel")
-    raise CommandFailedError("Installing NuPIC wheel failed.")
-  else:
-    logger.debug("NuPIC wheel installed successfully.")
-
-
-
 # TODO Refactor and fix the cyclic calls between fullBuild() and buildNuPIC()
 # Fix https://jira.numenta.com/browse/TAUR-749
 def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
@@ -439,9 +417,7 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
     buildNuPICCore(env, nupicCoreSha, logger)
 
   buildNuPIC(env, logger)
-  installDir = os.path.join(env["NUPIC"], "build/release")
-  wheelFilePath = glob.glob("%s/dist/*.whl" % env["NUPIC"])[0]
-  installNuPICWheel(env, installDir, wheelFilePath, logger)
+
   runTests(env, logger)
 
   # Cache NuPIC
