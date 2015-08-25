@@ -67,6 +67,7 @@ import yaml
 from infrastructure.utilities import git
 from infrastructure.utilities import jenkins
 from infrastructure.utilities import diagnostics
+from infrastructure.utilities.env import prepareEnv
 from infrastructure.utilities.exceptions import PipelineError
 from infrastructure.utilities.nupic.build_commands import (
   checkIfProjectExistsLocallyForSHA,
@@ -166,7 +167,7 @@ def main():
   """
   args = addAndParseArgs()
 
-  env = os.environ
+  env = prepareEnv(args["buildWorkspace"], None, os.environ)
   env.update(PYTHONPATH=os.path.join(env["WORKSPACE"],
                                      "lib/python2.7/site-packages/"))
   env.update(PATH="%s:%s" % (os.path.join(env["WORKSPACE"], "bin"),
