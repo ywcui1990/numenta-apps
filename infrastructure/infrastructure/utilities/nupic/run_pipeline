@@ -99,9 +99,9 @@ def addAndParseArgs():
   parser.add_argument("--build-workspace",
                       dest="buildWorkspace",
                       type=str,
-                      default=os.environ.get("WORKSPACE"),
+                      default=os.environ.get("BUILD_WORKSPACE"),
                       help="Common build directory for NuPIC, "
-                           "overrides $WORKSPACE env var if set.")
+                           "overrides $BUILD_WORKSPACE env var if set.")
   parser.add_argument("--nupic-remote",
                       dest="nupicRemote",
                       type=str,
@@ -155,7 +155,7 @@ def addAndParseArgs():
   if buildWorkspace:
     return args
   else:
-    parser.error("Either set the WORKSPACE env var, or pass the "
+    parser.error("Either set the BUILD_WORKSPACE env var, or pass the "
                  "--build-workspace parameter")
 
 
