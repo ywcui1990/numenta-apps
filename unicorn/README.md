@@ -4,38 +4,13 @@
 > users using their own data files.
 
 
-## @TODOS UNDER HEAVY DEVELOPMENT
+## WARNING! CURRENTLY UNDER HEAVY DEVELOPMENT
 
-This is for Brev over the weekend, will clean up soon.
 
-* Setup logging: Winston or Bunyan? check w/Ops
-* Errors can do screenshots:
-  * https://github.com/atom/electron/blob/master/docs/api/browser-window.md#browserwindowcapturepagerect-callback
-* Dev tool resources for Web, Node, Electron, Browser addons, etc.
-  * npm install https://github.com/sindresorhus/electron-debug
-  * Electron-specific --debug flags:
-    * npm install https://github.com/node-inspector/node-inspector
-    * https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md
-  * React and Chrome browser devtools in Electron:
-    * http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/
-  * Node debugger https://nodejs.org/api/debugger.html
-  * Electron-supported Chrome command line switches:
-    * http://electron.atom.io/docs/v0.31.0/api/chrome-command-line-switches/
-  * Set up Debug Symbol Server (windows?)
-    * http://electron.atom.io/docs/v0.31.0/development/setting-up-symbol-server/
-* Use https://github.com/electronjs/electron-rebuild to get npm packages
-  into Electron, instead of using WebPack build? Probably a good idea.
-* Document: Electron/Babel/WebPack - which doing what? and what order?
-  * ES6/7. imports/requires. electron/browser.
-* Add in Flow type checking
-* add in Dygraph/FaceOfGrok
-* make real tests and make tests work
-* setup linting
-* add retina.js for hd images
-* setup css and image assets etc
-* add Architecture docs and charts
-* Sync our FE dir structure w/Electron's:
-  * http://electron.atom.io/docs/v0.31.0/development/source-code-directory-structure/
+## License
+
+Dual Commercial and AGPLv3 License. See [LICENSE.txt](LICENSE.txt)
+and http://numenta.org/licenses/.
 
 
 ## Repository
@@ -52,10 +27,12 @@ goal to demo to the user.
 
 ```shell
 DEPENDENCIES.md     # Module dependency overview file
-LICENSE.txt         # Dual: Commercial and GPLv3
+LICENSE.txt         # Dual: Commercial and AGPLv3
 README.md           # This file, a project overview
 backend/            # Unicorn ModelRunner and support Python/C++ code here!
   README.md         # Overview for HTM/NuPIC part of project
+  requirements.txt  # Python pip package dependencies
+  setup.py          # Backend Python project initialization tooling
 frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the User
   README.md         # Overview for Frontend+GUI part of project
   browser/          # Javascript, HTML, CSS act as GUI inside browser window
@@ -81,7 +58,7 @@ package.json        # Node.js `npm` packages, dependencies, and App config
 
 ### Backend
 
-> See: `requirements.txt`
+> See: `backend/requirements.txt`
 
 * Languages:
   * [Python](http://python.org)
@@ -161,12 +138,13 @@ loop run, and GUI loop continuation:
 
 ### Setup
 
-Example of setting up development environment:
+Example of setting up development environment on Mac OS/X:
 
 ```shell
-brew install git node  # darwin
+brew install git node
 git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/unicorn
+pip install -r backend/requirements.txt
 npm install
 ```
 
@@ -200,6 +178,44 @@ npm run dev
 * Javascript
   * [ES5 Styleguide](https://github.com/felixge/node-style-guide)
   * ES6 styleguide AirBnB? @TODO
+  * **Exception:** OK to occasionally have non-all-caps `const`, i.e. class
+    constructors, immutable data structures, etc.
   * Flow Typing styleguide? @TODO
   * Web changes fast, keep packages up-to-date with `npm run check`
-* HTML and CSS @TODO
+* HTML @TODO
+* CSS @TODO
+
+
+## @TODOs below
+
+This is for Brev/temp, will clean up soon.
+
+* Setup eslint to run in package.json:scripts or gulp on build
+* Setup logging: Winston or Bunyan? check w/Ops
+* Errors can do screenshots:
+  * https://github.com/atom/electron/blob/master/docs/api/browser-window.md#browserwindowcapturepagerect-callback
+* Dev tool resources for Web, Node, Electron, Browser addons, etc.
+  * Great help list, bit out of date: https://github.com/sindresorhus/awesome-nodejs
+  * npm install https://github.com/sindresorhus/electron-debug
+  * Electron-specific --debug flags:
+    * npm install https://github.com/node-inspector/node-inspector
+    * https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md
+  * React and Chrome browser devtools in Electron:
+    * http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/
+  * Node debugger https://nodejs.org/api/debugger.html
+  * Electron-supported Chrome command line switches:
+    * http://electron.atom.io/docs/v0.31.0/api/chrome-command-line-switches/
+  * Set up Debug Symbol Server (windows?)
+    * http://electron.atom.io/docs/v0.31.0/development/setting-up-symbol-server/
+* Use https://github.com/electronjs/electron-rebuild to get npm packages
+  into Electron, instead of using WebPack build? Probably a good idea.
+* Document: Electron/Babel/WebPack - which doing what? and what order?
+  * ES6/7. imports/requires. electron/browser.
+* Add in Flow type checking
+* add in Dygraph/FaceOfGrok
+* make real tests and make tests work
+* add retina.js for hd images
+* setup css and image assets etc
+* add Architecture docs and charts
+* Sync our FE dir structure w/Electron's:
+  * http://electron.atom.io/docs/v0.31.0/development/source-code-directory-structure/

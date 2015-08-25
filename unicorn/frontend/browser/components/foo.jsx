@@ -32,13 +32,19 @@ import React from 'react';
 
 // internals
 
-let LeftNav = Material.LeftNav;
+import AddAction from '../actions/add';
+import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add'
+
 let Theme = new Material.Styles.ThemeManager();
 
+let {
+  Card, CardHeader, CardText, FloatingActionButton, FontIcon, LeftNav
+} = Material;
+
 let menuItems = [
-  { text: 'Get Started' },
-  { text: 'Explore App' },
-  { text: 'Send Feedback' }
+  { text: 'File One' },
+  { text: 'File Two' },
+  { text: 'File Three' }
 ];
 
 
@@ -48,9 +54,11 @@ let menuItems = [
  *
  */
 module.exports = React.createClass({
-  /**
-   *
-   */
+
+  contextTypes: {
+    executeAction: React.PropTypes.func.isRequired
+  },
+
   childContextTypes: {
     muiTheme: React.PropTypes.object
   },
@@ -65,15 +73,42 @@ module.exports = React.createClass({
   },
 
   /**
+   * Add "+" upload new data/CSV file button onClick event handler
+   */
+  _onClick () {
+    console.log('got clicked! firing AddAction.');
+    this.context.executeAction(AddAction, { /*payload*/ });
+    console.log('AddAction should have fired.');
+  },
+
+  /**
    *
+   * @TODO Migrate inline styles on Card
+   * @TODO Better + ADD fonticon
+   * @TODO Tooltip on + ADD icon - "Upload new CSV file" or something
    */
   render () {
     return (
       <div>
-        <LeftNav ref="leftNav" menuItems={menuItems} />
-        <h1>Welcome</h1>
-        <p>{this.props.foo}</p>
+        <Card style={{ marginLeft: '256px' }}>
+          <CardHeader title="Title" subtitle="Subtitle" />
+          <CardText>
+            <h1>Welcome</h1>
+            <FloatingActionButton onClick={this._onClick}>
+              <SvgIconContentAdd />
+            </FloatingActionButton>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              Donec mattis pretium massa. Aliquam erat volutpat. Nulla facilisi.
+              Donec vulputate interdum sollicitudin. Nunc lacinia auctor quam
+              sed pellentesque. Aliquam dui mauris, mattis quis lacus id,
+              pellentesque lobortis odio.
+            </p>
+          </CardText>
+        </Card>
+        <LeftNav menuItems={menuItems} ref="leftNav" />
       </div>
     );
   }
+
 });
