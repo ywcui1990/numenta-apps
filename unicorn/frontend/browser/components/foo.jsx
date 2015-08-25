@@ -33,6 +33,7 @@ import React from 'react';
 // internals
 
 import AddAction from '../actions/add';
+import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add'
 
 let Theme = new Material.Styles.ThemeManager();
 
@@ -66,7 +67,9 @@ module.exports = React.createClass({
    *
    */
   onClick () {
+    console.log('got clicked! firing AddAction.');
     this.context.executeAction(AddAction, { /*payload*/ });
+    console.log('AddAction should have fired.');
   },
 
   /**
@@ -91,10 +94,9 @@ module.exports = React.createClass({
           <CardHeader title="Title" subtitle="Subtitle" />
           <CardText>
             <h1>Welcome</h1>
-            <FloatingActionButton onClick={this.onClick.bind(this)}>
-              <FontIcon className="material-icons">+</FontIcon>
+            <FloatingActionButton onSubmit={this.onClick.bind(this)}>
+              <SvgIconContentAdd />
             </FloatingActionButton>
-            <p>{this.props.foo}</p>
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               Donec mattis pretium massa. Aliquam erat volutpat. Nulla facilisi.
