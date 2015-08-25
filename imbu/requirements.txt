@@ -2,4 +2,5 @@
 nupic==0.2.11
 
 # Nupic Fluent
-#nupic.fluent
+# Fluent==0.3
+-e git+http://github.com/numenta/nupic.fluent.git@0.2.1#egg=Fluent-0.3
