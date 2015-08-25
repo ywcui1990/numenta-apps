@@ -170,3 +170,5 @@ g_fluent = FluentWrapper(pkg_resources.resource_filename(__name__, "data.csv"))
 
 if __name__ == "__main__":
   app.run()
+
+application = app.wsgifunc()
