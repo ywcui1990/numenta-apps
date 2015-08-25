@@ -53,7 +53,7 @@ anaconda-paver:
 
 anaconda-pip:
   pip.installed:
-    - name: pip == 7.1.1
+    - name: pip == 7.1.2
     - bin_env: /opt/numenta/anaconda/bin/pip
     - watch_in:
       - cmd: enforce-anaconda-permissions
