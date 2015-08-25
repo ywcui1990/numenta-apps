@@ -168,9 +168,9 @@ def main():
   args = addAndParseArgs()
 
   env = prepareEnv(args["buildWorkspace"], None, os.environ)
-  env.update(PYTHONPATH=os.path.join(env["WORKSPACE"],
+  env.update(PYTHONPATH=os.path.join(os.environ.get("WORKSPACE"),
                                      "lib/python2.7/site-packages/"))
-  env.update(PATH="%s:%s" % (os.path.join(env["WORKSPACE"], "bin"),
+  env.update(PATH="%s:%s" % (os.path.join(os.environ.get("WORKSPACE"), "bin"),
                              os.environ.get("PATH")))
   diagnostics.printEnv(env=env, logger=g_logger)
 
