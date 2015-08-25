@@ -27,77 +27,77 @@ import BaseStore from 'fluxible/addons/BaseStore';
 */
 export default class SearchStore extends BaseStore {
 
-    static storeName = 'SearchStore';
+  static storeName = 'SearchStore';
 
-    static handlers = {
-        'SEARCH_RECEIVED_DATA': '_handleReceivedData',
-        'SEARCH_CLEAR_DATA'   : '_handleClearData'
-    };
+  static handlers = {
+    'SEARCH_RECEIVED_DATA': '_handleReceivedData',
+    'SEARCH_CLEAR_DATA': '_handleClearData'
+  };
 
-    constructor(dispatcher) {
-        super();
-        // Text used to query
-        this.query = null;
-        // Last query results
-        this.results = [];
-        // Past queries
-        this.history = new Set();
+  constructor(dispatcher) {
+    super(dispatcher);
+    // Text used to query
+    this.query = null;
+    // Last query results
+    this.results = [];
+    // Past queries
+    this.history = new Set();
+  }
+
+  /**
+   * Return current query
+   */
+  getQuery() {
+    return this.query;
+  }
+
+  /**
+   * Return past queries history
+   */
+  getHistory() {
+    return this.history;
+  }
+
+  /**
+   * Returns current query results
+   */
+  getResults() {
+    return this.results;
+  }
+
+  /**
+   * Handle new data
+   */
+  _handleReceivedData(payload) {
+    // Remove whitespaces
+    if (payload.query) {
+      this.query = payload.query.trim();
+    } else {
+      this.query = '';
     }
-
-    /**
-     * Return current query
-     */
-    getQuery() {
-      return this.query;
+    // Do not add empty queries to history
+    if (query) {
+      this.history.add(this.query);
     }
-
-    /**
-     * Return past queries history
-     */
-    getHistory() {
-        return this.history;
+    if (payload.results) {
+      // Sort results by score
+      this.results = payload.results.sort((a, b) => {
+        return a.score - b.score;
+      });
+    } else {
+      // No data
+      this.results = [];
     }
+    this.emitChange();
+  }
 
-    /**
-     * Returns current query results
-     */
-    getResults() {
-        return this.results;
-    }
-
-    /**
-     * Handle new data
-     */
-    _handleReceivedData(payload) {
-      // Remove whitespaces
-      if (payload.query) {
-        this.query = payload.query.trim();
-      } else {
-        this.query = "";
-      }
-      // Do not add empty queries to history
-      if (query) {
-        this.history.add(this.query);
-      }
-      if (payload.results) {
-        // Sort results by score
-        this.results = payload.results.sort((a, b) => {
-          return a.score - b.score;
-        });
-      } else {
-        // No data
-        this.results = [];
-      }
-      this.emitChange();
-    }
-
-    /**
-     * Handle clear requests
-     */
-    _handleClearData() {
-        this.query = null;
-        this.results = [];
-        this.history.clear();
-        this.emitChange();
-    }
+  /**
+   * Handle clear requests
+   */
+  _handleClearData() {
+    this.query = null;
+    this.results = [];
+    this.history.clear();
+    this.emitChange();
+  }
 };

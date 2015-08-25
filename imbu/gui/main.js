@@ -17,7 +17,7 @@
  *
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
- 
+
 'use strict';
 
 
@@ -45,7 +45,7 @@ crashReporter.start({
 
 app.on('window-all-closed', () => {
   // OS X apps stay active until the user quits explicitly Cmd + Q
-  if (process.platform != 'darwin') {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });

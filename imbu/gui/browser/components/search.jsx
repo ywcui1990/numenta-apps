@@ -27,79 +27,72 @@ import SearchStore from '../stores/search';
 import SearchQueryAction from '../actions/search-query';
 
 const {
-    RaisedButton, TextField, Styles, ClearFix
+  RaisedButton, TextField, Styles, ClearFix
 } = Material;
 
 const {
-    Colors, Spacing
+  Spacing
 } = Styles;
 
 const ThemeManager = new Styles.ThemeManager();
 
 @connectToStores([SearchStore], (context) => ({
-    query: context.getStore(SearchStore).getQuery()
+  query: context.getStore(SearchStore).getQuery()
 }))
 export default class SearchComponent extends React.Component {
 
-    static contextTypes = {
-        executeAction: React.PropTypes.func,
-        getStore: React.PropTypes.func
+  static contextTypes = {
+    executeAction: React.PropTypes.func,
+    getStore: React.PropTypes.func
+  };
+
+  static childContextTypes = {
+    muiTheme: React.PropTypes.object
+  };
+
+  constructor() {
+    super();
+  }
+
+  getChildContext () {
+    return {
+      muiTheme: ThemeManager.getCurrentTheme()
     };
+  }
 
-    static childContextTypes = {
-        muiTheme: React.PropTypes.object
+  componentDidUpdate() {
+    const el = React.findDOMNode(this.refs.query);
+    this.refs.query.setValue(this.props.query);
+    el.focus();
+  }
+
+  _search() {
+    let query = this.refs.query.getValue();
+    this.context.executeAction(SearchQueryAction, query);
+  }
+
+  _getStyles() {
+    return {
+      content: {
+        padding: Spacing.desktopGutterMini + 'px',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        boxSizing: 'border-box'
+      }
     };
+  }
 
-    constructor() {
-        super();
-    }
+  render () {
+    let styles = this._getStyles();
 
-    getChildContext () {
-        return {
-            muiTheme: ThemeManager.getCurrentTheme()
-        };
-    }
-
-    componentDidUpdate() {
-        const el = React.findDOMNode(this.refs.query);
-        this.refs.query.setValue(this.props.query)
-        el.focus();
-    }
-
-    _search() {
-        let query = this.refs.query.getValue();
-        this.context.executeAction(SearchQueryAction, query);
-    }
-
-    _getStyles() {
-        return {
-            content: {
-                padding: Spacing.desktopGutterMini + 'px',
-                maxWidth: '1200px',
-                margin: '0 auto',
-                boxSizing: 'border-box'
-            }
-        };
-    }
-
-    render () {
-        let styles = this._getStyles();
-
-        return (
-            <ClearFix style={styles.content}>
-                    <TextField
-                      floatingLabelText="Sample Text to match"
-                      id="query"
-                      name="query"
-                      fullWidth={true}
-                      onEnterKeyDown={this._search.bind(this)}
-                      ref="query"/>
-                    <RaisedButton
-                      label="Search"
-                      onTouchTap={this._search.bind(this)}
-                      role="search"
-                      secondary={true}/>
-            </ClearFix>
-        );
-    }
+    return (
+      <ClearFix style={styles.content}>
+        <TextField floatingLabelText="Sample Text to match" fullWidth={true}
+                  id="query" name="query"
+                  onEnterKeyDown={this._search.bind(this)} ref="query"/>
+        <RaisedButton label="Search" onTouchTap={this._search.bind(this)}
+                      role="search" secondary={true}/>
+      </ClearFix>
+    );
+  }
 }

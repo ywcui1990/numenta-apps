@@ -36,14 +36,11 @@ tapEventInject(); // remove when >= React 1.0
 
 // create fluxible app
 let app = new Fluxible({
-    component: MainComponent,
-    stores: [SearchStore]
+  component: MainComponent,
+  stores: [SearchStore]
 });
 
 // add context to app
 let context = app.createContext();
 
-React.render(
-    FluxibleReact.createElementWithContext(context),
-    document.body
-);
+React.render(FluxibleReact.createElementWithContext(context), document.body);

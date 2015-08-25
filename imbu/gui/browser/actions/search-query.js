@@ -66,7 +66,8 @@ const MOCK_RESULTS = [
 
 export default (context, query) => {
   if (DEMO) {
-    context.dispatch('SEARCH_RECEIVED_DATA', {'query'  :query, 'results': MOCK_RESULTS});
+    context.dispatch('SEARCH_RECEIVED_DATA', {'query'  :query,
+                                              'results': MOCK_RESULTS});
   } else {
     return new Promise((resolve, reject) => {
       request

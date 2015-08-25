@@ -22,86 +22,87 @@
 
 import React from 'react';
 import Material from 'material-ui';
-import connectToStores from 'fluxible-addons-react/connectToStores';
 import SearchStore from '../stores/search';
 import SearchQueryAction from '../actions/search-query';
 
 const {
-    LeftNav, MenuItem, Styles
+  LeftNav, MenuItem, Styles
 } = Material;
 
 const ThemeManager = new Styles.ThemeManager();
 
 class SearchHistoryComponent extends React.Component {
 
-    static childContextTypes = {
-        muiTheme: React.PropTypes.object
+  static childContextTypes = {
+    muiTheme: React.PropTypes.object
+  };
+
+  static contextTypes = {
+    executeAction: React.PropTypes.func,
+    getStore: React.PropTypes.func
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      history: []
     };
+    this.toggle = this.toggle.bind(this);
+  }
 
-    static contextTypes = {
-        executeAction: React.PropTypes.func,
-        getStore: React.PropTypes.func
+  toggle() {
+    this.refs.leftNav.toggle();
+  }
+  getChildContext() {
+    return {
+      muiTheme: ThemeManager.getCurrentTheme()
     };
+  }
 
-    constructor(props) {
-        super(props);
-        this.state = {history:[]};
-        this.toggle = this.toggle.bind(this);
-    }
+  getStoreState() {
+    return {
+      history: this.context.getStore(SearchStore).getHistory()
+    };
+  }
 
-    toggle() {
-      this.refs.leftNav.toggle();
-    }
-    getChildContext() {
-        return {
-            muiTheme: ThemeManager.getCurrentTheme()
-        };
-    }
+  componentDidMount() {
+    this.context.getStore(SearchStore)
+                  .addChangeListener(this._onStoreChange.bind(this));
+  }
 
-    getStoreState() {
-        return {
-            history: this.context.getStore(SearchStore).getHistory()
-        }
-    }
+  componentWillUnmount() {
+    this.context.getStore(SearchStore)
+                  .removeChangeListener(this._onStoreChange.bind(this));
+  }
 
-    componentDidMount() {
-        this.context.getStore(SearchStore).addChangeListener(this._onStoreChange.bind(this));
-    }
+  _onStoreChange() {
+    this.setState(this.getStoreState());
+  }
 
-    componentWillUnmount(){
-        this.context.getStore(SearchStore).removeChangeListener(this._onStoreChange.bind(this));
-    }
+  _getItems() {
+    let items = [
+      {
+        type: MenuItem.Types.SUBHEADER,
+        text: 'HISTORY'
+      }
+    ];
+    return items.concat(Array.from(this.state.history, q => {
+      return {
+        text: q
+      };
+    }));
+  }
 
-    _onStoreChange() {
-        this.setState(this.getStoreState());
-    }
+  _onChanged(e, key, payload) {
+    this.context.executeAction(SearchQueryAction, payload.text);
+  }
 
-    _getItems() {
-        let items = [
-            {
-                type: MenuItem.Types.SUBHEADER,
-                text: 'HISTORY'
-            }
-        ];
-        return items.concat(Array.from(this.state.history, q => {
-            return {
-                text: q
-            };
-        }));
-    }
-
-    _onChanged(e, key, payload) {
-        this.context.executeAction(SearchQueryAction, payload.text);
-    }
-
-    render() {
-        return (
-            <LeftNav docked={false}
-              menuItems={this._getItems()}
-              onChange={this._onChanged.bind(this)}
-              ref="leftNav"/>
-        );
-    }
+  render() {
+    return (
+      <LeftNav docked={false} menuItems={this._getItems()}
+        onChange={this._onChanged.bind(this)} ref="leftNav"/>
+    );
+  }
 };
 
 export default SearchHistoryComponent;

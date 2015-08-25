@@ -21,5 +21,5 @@
 'use strict';
 
 export default (context, payload) => {
-    return context.dispatch('SEARCH_CLEAR');
+  return context.dispatch('SEARCH_CLEAR');
 };
