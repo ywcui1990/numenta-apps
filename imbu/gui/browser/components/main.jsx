@@ -22,52 +22,48 @@
 
 import React from 'react';
 import Material from 'material-ui';
-import SearchComponent from './search.jsx'
-import SearchResultsComponent from './search-results.jsx'
-import SearchHistoryComponent from './search-history.jsx'
-
+import SearchComponent from './search.jsx';
+import SearchResultsComponent from './search-results.jsx';
+import SearchHistoryComponent from './search-history.jsx';
 const {
-    AppBar, IconButton, Styles
+  AppBar, IconButton, Styles
 } = Material;
 
 const ThemeManager = new Styles.ThemeManager();
 
 export default class Main extends React.Component {
 
-    static childContextTypes = {
-        muiTheme: React.PropTypes.object
+  static childContextTypes = {
+    muiTheme: React.PropTypes.object
+  };
+
+  constructor(props) {
+    super(props);
+  }
+
+  _onLeftIconButtonTouchTap() {
+    this.refs.history.toggle();
+  }
+
+  getChildContext() {
+    return {
+      muiTheme: ThemeManager.getCurrentTheme()
     };
+  }
 
-    constructor(props) {
-        super(props);
-    }
-
-    _onLeftIconButtonTouchTap() {
-        this.refs.history.toggle();
-    }
-
-    getChildContext() {
-        return {
-            muiTheme: ThemeManager.getCurrentTheme()
-        };
-    }
-
-    render() {
-        return (
-            <div>
-                <AppBar
-                  iconElementRight={
-                    <IconButton href="http://www.numenta.com"
-                      linkButton={true}
-                      iconClassName="material-icons"
-                      tooltip="Go to numenta.com"> home
-                    </IconButton>}
-                  onLeftIconButtonTouchTap={this._onLeftIconButtonTouchTap.bind(this)}
-                  title="Numenta Imbu Application"/>
-                <SearchComponent/>
-                <SearchResultsComponent/>
-                <SearchHistoryComponent ref="history"/>
-            </div>
-        );
-    }
+  render() {
+    return (
+      <div>
+        <AppBar title="Numenta Imbu Application"
+          onLeftIconButtonTouchTap={this._onLeftIconButtonTouchTap.bind(this)}
+          iconElementRight={
+            <IconButton href="http://www.numenta.com" linkButton={true}
+              iconClassName="material-icons" tooltip="Go to numenta.com">home
+            </IconButton>}/>
+        <SearchComponent/>
+        <SearchResultsComponent/>
+        <SearchHistoryComponent ref="history"/>
+      </div>
+    );
+  }
 };
