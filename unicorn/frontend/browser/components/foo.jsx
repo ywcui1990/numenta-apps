@@ -36,12 +36,9 @@ import AddAction from '../actions/add';
 
 let Theme = new Material.Styles.ThemeManager();
 
-let Card = Material.Card;
-let CardHeader = Material.CardHeader;
-let CardText = Material.CardText;
-let FloatingActionButton = Material.FloatingActionButton;
-let FontIcon = Material.FontIcon;
-let LeftNav = Material.LeftNav;
+let {
+  Card, CardHeader, CardText, FloatingActionButton, FontIcon, LeftNav
+} = Material;
 
 let menuItems = [
   { text: 'File One' },
@@ -94,7 +91,7 @@ module.exports = React.createClass({
           <CardHeader title="Title" subtitle="Subtitle" />
           <CardText>
             <h1>Welcome</h1>
-            <FloatingActionButton onClick={this.onClick}>
+            <FloatingActionButton onClick={this.onClick.bind(this)}>
               <FontIcon className="material-icons">+</FontIcon>
             </FloatingActionButton>
             <p>{this.props.foo}</p>

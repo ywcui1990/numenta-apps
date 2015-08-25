@@ -23,9 +23,14 @@
 
 /**
  * Fluxible Action: Add (user adding new file)
+ * @param {object} actionContext
+ * @param {object} [payload]
  */
-
 module.exports = (actionContext, payload) => {
-  actionContext.dispatch('ADD_ACTION', payload);
+  let dispatcher;
+
   console.log('ADD_ACTION has been dispatched with payload:', payload);
+
+  dispatcher = actionContext.dispatch('ADD_ACTION', payload);
+  return dispatcher;
 };
