@@ -1,0 +1,5 @@
+# NuPIC HTM
+nupic==0.2.11
+
+# Nupic Fluent
+#nupic.fluent
