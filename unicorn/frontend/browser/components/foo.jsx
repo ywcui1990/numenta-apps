@@ -66,19 +66,19 @@ module.exports = React.createClass({
   /**
    *
    */
-  onClick () {
-    console.log('got clicked! firing AddAction.');
-    this.context.executeAction(AddAction, { /*payload*/ });
-    console.log('AddAction should have fired.');
-  },
-
-  /**
-   *
-   */
   getChildContext () {
     return {
       muiTheme: Theme.getCurrentTheme()
     };
+  },
+
+  /**
+   * Add "+" upload new data/CSV file button onClick event handler
+   */
+  _onClick () {
+    console.log('got clicked! firing AddAction.');
+    this.context.executeAction(AddAction, { /*payload*/ });
+    console.log('AddAction should have fired.');
   },
 
   /**
@@ -94,7 +94,7 @@ module.exports = React.createClass({
           <CardHeader title="Title" subtitle="Subtitle" />
           <CardText>
             <h1>Welcome</h1>
-            <FloatingActionButton onClick={this.onClick.bind(this)}>
+            <FloatingActionButton onClick={this._onClick}>
               <SvgIconContentAdd />
             </FloatingActionButton>
             <p>
