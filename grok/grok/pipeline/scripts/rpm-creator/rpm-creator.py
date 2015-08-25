@@ -138,7 +138,7 @@ def packageDirectory(fakeroot,
   for rpmEntry in fakerootFiles:
     command += "%s " % (rpmEntry)
   g_logger.debug("Running %s ... ", command)
-  runWithOutput(command)
+  runWithOutput(command, g_logger)
   return rpmName
 
 
@@ -170,7 +170,8 @@ def cleanseFakeroot(fakeroot, installDirectory, repoDirectory):
           g_logger.info("Found /tmp/noclean.rpms, skipping cleanup script")
         else:
           g_logger.info("Found %s, executing", cleanerScript)
-          runWithOutput("%s --destroy-all-my-work" % cleanerScript)
+          command = (cleanerScript, "--destroy-all-my-work")
+          runWithOutput(command, g_logger)
       else:
         g_logger.debug("Optional cleanup script %s not found, skipping",
                        cleanerScript)
@@ -199,8 +200,8 @@ def loadGitDescribeFromDirectory(gitDirectory):
   versionData = {}
   with changeToWorkingDir(gitDirectory):
     try:
-      rawVersion = runWithOutput("git describe --long --tags --abbrev=40")\
-                                 .strip().split("-")
+      command = ("git", "describe", "--log", "--tags", "--abbrev=40")
+      rawVersion = runWithOutput(command, g_logger).strip().split("-")
       versionData["version"] = rawVersion[0]
       versionData["commitsSinceTag"] = rawVersion[1]
       versionData["sha"] = rawVersion[2]
@@ -282,12 +283,13 @@ def prepFakerootFromDirectory(fakeroot,
     sourceFiles = os.listdir(sourceDirectory)
     for eachFile in sourceFiles:
       g_logger.info("Copying %s to %s...", eachFile, targetDirectory)
-      runWithOutput("rsync --exclude '.*.un~' -av %s/%s %s" % (sourceDirectory,
-                                                               eachFile,
-                                                               targetDirectory))
+      command = ("rsync", "--exclude", ".*.un~", "-av",
+                 os.path.join(sourceDirectory, eachFile),
+                 targetDirectory)
+      runWithOutput(command, g_logger)
       cleanseFakeroot(fakeroot,
                       installDirectory,
-                      "%s/%s" % (baseDirectory, eachFile))
+                      os.path.join(baseDirectory, eachFile))
 
 def parseArgs():
   """
