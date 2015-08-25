@@ -52,9 +52,6 @@ ARTIFACTS_DIR = createOrReplaceArtifactsDir()
 DOXYFILE = "docs/Doxyfile"
 INIT_FILE = "nupic/__init__.py"
 VERSION_FILE = "VERSION"
-INSTALL_DIR = os.path.join(os.environ.get("WORKSPACE"),
-                           "lib/python2.7/site-packages/")
-SCRIPT_DIR = os.path.join(os.environ.get("WORKSPACE"), "bin")
 
 g_config = yaml.load(resource_stream(__name__,
                                      "../../../conf/nupic/config.yaml"))
@@ -186,12 +183,14 @@ def checkIfProjectExistsLocallyForSHA(project, sha, logger):
 
 
 
-def buildNuPICCore(env, nupicCoreSha, logger):
+def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
   """
     Builds nupic.core
 
-    :param env: The environment which will be set before building.
-    :param nupicCoreSha: The SHA which will be built.
+    :param dict env: The environment which will be set before building.
+    :param str nupicCoreSha: The SHA which will be built.
+    :param logger: An initialized logger
+    :param str buildWorkspace: /path/to/buildWorkspace
 
     :raises
       infrastructure.utilities.exceptions.NupicBuildFailed:
@@ -204,8 +203,6 @@ def buildNuPICCore(env, nupicCoreSha, logger):
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
       git.resetHard(nupicCoreSha)
       runWithOutput(command="mkdir -p build/scripts", env=env, logger=logger)
-      runWithOutput(command="mkdir -p %s" % INSTALL_DIR, env=env, logger=logger)
-      runWithOutput(command="mkdir -p %s" % SCRIPT_DIR, env=env, logger=logger)
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var('LIBDIR')
         runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
@@ -218,8 +215,7 @@ def buildNuPICCore(env, nupicCoreSha, logger):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      command = "python setup.py install --install-dir=%s --script-dir=%s" % (
-                  INSTALL_DIR, SCRIPT_DIR)
+      command = "python setup.py install --prefix=%s" % buildWorkspace
       # Building on jenkins, not local
       if "JENKINS_HOME" in os.environ:
         command += " bdist_wheel bdist_egg upload -r numenta-pypi"
@@ -235,7 +231,7 @@ def buildNuPICCore(env, nupicCoreSha, logger):
 
 # TODO Refactor and fix the cyclic calls between fullBuild() and buildNuPIC()
 # Fix https://jira.numenta.com/browse/TAUR-749
-def buildNuPIC(env, logger):
+def buildNuPIC(env, logger, buildWorkspace):
   """
     Builds NuPIC
 
@@ -260,9 +256,10 @@ def buildNuPIC(env, logger):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      command = ("python setup.py install bdist_wheel bdist_egg "
-                 "--nupic-core-dir=%s" % os.path.join(env["NUPIC_CORE_DIR"],
-                                                      "build", "release"))
+      command = ("python setup.py install bdist_wheel bdist_egg --prefix=%s "
+                 "--nupic-core-dir=%s" % (buildWorkspace,
+                                          os.path.join(env["NUPIC_CORE_DIR"],
+                                                      "build", "release")))
       # Building on jenkins, not local
       if "JENKINS_HOME" in os.environ:
         command += " upload -r numenta-pypi"
@@ -414,9 +411,9 @@ def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
 
   addNupicCoreToEnv(env, nupicCoreDir)
   if boolBuildNupicCore:
-    buildNuPICCore(env, nupicCoreSha, logger)
+    buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace)
 
-  buildNuPIC(env, logger)
+  buildNuPIC(env, logger, buildWorkspace)
 
   runTests(env, logger)
 

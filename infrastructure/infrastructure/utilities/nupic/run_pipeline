@@ -99,9 +99,9 @@ def addAndParseArgs():
   parser.add_argument("--build-workspace",
                       dest="buildWorkspace",
                       type=str,
-                      default=os.environ.get("BUILD_WORKSPACE"),
+                      default=os.environ.get("WORKSPACE"),
                       help="Common build directory for NuPIC, "
-                           "overrides $BUILD_WORKSPACE env var if set.")
+                           "overrides $WORKSPACE env var if set.")
   parser.add_argument("--nupic-remote",
                       dest="nupicRemote",
                       type=str,
@@ -168,9 +168,9 @@ def main():
   args = addAndParseArgs()
 
   env = prepareEnv(args["buildWorkspace"], None, os.environ)
-  env.update(PYTHONPATH=os.path.join(os.environ.get("WORKSPACE"),
+  env.update(PYTHONPATH=os.path.join(args["buildWorkspace"],
                                      "lib/python2.7/site-packages/"))
-  env.update(PATH="%s:%s" % (os.path.join(os.environ.get("WORKSPACE"), "bin"),
+  env.update(PATH="%s:%s" % (os.path.join(args["buildWorkspace"], "bin"),
                              os.environ.get("PATH")))
   diagnostics.printEnv(env=env, logger=g_logger)
 
