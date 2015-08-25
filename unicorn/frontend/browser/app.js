@@ -98,12 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // fire initial app action
   context.executeAction(FooAction, 'bar', (err) => {
-    let output = React.renderToString(
-      FluxibleReact.createElementWithContext(context)
-    );
-
-    console.log(output);
-    if(document) document.write(output); // @TODO the right way.
+    let contextEl = FluxibleReact.createElementWithContext(context);
+    // let outputHtml = React.renderToString(contextEl);
+    if(document && ('body' in document)) {
+      React.render(contextEl, document.body);
+      return;
+    }
+    throw new Error('React cannot find a DOM document.body to render to.');
   });
 
 }); // DOMContentLoaded

@@ -94,7 +94,7 @@ module.exports = React.createClass({
           <CardHeader title="Title" subtitle="Subtitle" />
           <CardText>
             <h1>Welcome</h1>
-            <FloatingActionButton onSubmit={this.onClick.bind(this)}>
+            <FloatingActionButton onClick={this.onClick.bind(this)}>
               <SvgIconContentAdd />
             </FloatingActionButton>
             <p>

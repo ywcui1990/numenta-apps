@@ -178,9 +178,12 @@ npm run dev
 * Javascript
   * [ES5 Styleguide](https://github.com/felixge/node-style-guide)
   * ES6 styleguide AirBnB? @TODO
+  * **Exception:** OK to occasionally have non-all-caps `const`, i.e. class
+    constructors, immutable data structures, etc.
   * Flow Typing styleguide? @TODO
   * Web changes fast, keep packages up-to-date with `npm run check`
-* HTML and CSS @TODO
+* HTML @TODO
+* CSS @TODO
 
 
 ## @TODOs below
