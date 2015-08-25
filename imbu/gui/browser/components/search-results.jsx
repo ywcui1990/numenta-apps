@@ -100,7 +100,7 @@ export default class SearchResultsComponent extends React.Component {
                         style: styles.column.summary
                     },
                     score: {
-                        content: result.score,
+                        content: result.score.toFixed(4),
                         style: styles.column.score
                     }
                 });

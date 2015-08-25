@@ -30,6 +30,12 @@ export PYTHONPATH=$PYTHONPATH:<path to nupic.fluent>
 
 ## Running
 
+Start fluent API:
+
+```shell
+python engine/fluent_api.py
+```
+
 Start app on local webserver, you can open it with Chrome Browser
 at `http://localhost:9999`:
 
