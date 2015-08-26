@@ -190,7 +190,7 @@ def main():
   scriptDir = os.path.join(args["buildWorkspace"], "bin")
   mkdirp(installDir)
   mkdirp(scriptDir)
-  
+
   env.update(PYTHONPATH=installDir)
   env.update(PATH="%s:%s" % (scriptDir, os.environ.get("PATH")))
   diagnostics.printEnv(env=env, logger=g_logger)
