@@ -58,7 +58,6 @@ For each commit to NuPIC
 """
 
 import argparse
-import errno
 import os
 
 from pkg_resources import resource_stream
@@ -72,7 +71,8 @@ from infrastructure.utilities.env import prepareEnv
 from infrastructure.utilities.exceptions import PipelineError
 from infrastructure.utilities.nupic.build_commands import (
   checkIfProjectExistsLocallyForSHA,
-  fullBuild)
+  executeBuildProcess)
+from infrastructure.utilities.path import mkdirp
 
 g_config = yaml.load(resource_stream(__name__,
                                      "../../../conf/nupic/config.yaml"))
@@ -138,7 +138,7 @@ def addAndParseArgs():
 
   args = vars(parser.parse_args())
 
-  global g_logger
+  global g_logger # pylint: disable=W0603
   g_logger = diagnostics.initPipelineLogger(name="build",
                                             logLevel=args["logLevel"])
 
@@ -161,22 +161,6 @@ def addAndParseArgs():
 
 
 
-def mkdirp(path):
-  """
-  Replicate the functionality of `mkdir -p` in python
-  Source pulled from http://stackoverflow.com/a/600612
-
-  :param str path: /path/to/folder
-  """
-  try:
-    os.makedirs(path)
-  except OSError as exc: # Python >2.5
-    if exc.errno == errno.EEXIST and os.path.isdir(path):
-      pass
-    else: raise
-
-
-
 def main():
   """
     Entry point to run the nupic pipeline
@@ -188,8 +172,8 @@ def main():
   installDir = os.path.join(args["buildWorkspace"],
                             "lib/python2.7/site-packages/")
   scriptDir = os.path.join(args["buildWorkspace"], "bin")
-  mkdirp(installDir)
-  mkdirp(scriptDir)
+  mkdirp(path=installDir)
+  mkdirp(path=scriptDir)
 
   env.update(PYTHONPATH=installDir)
   env.update(PATH="%s:%s" % (scriptDir, os.environ.get("PATH")))
@@ -200,9 +184,14 @@ def main():
                                                   args["nupicBranch"])
 
   if not checkIfProjectExistsLocallyForSHA("nupic", args["nupicSha"], g_logger):
-    fullBuild(env, args["buildWorkspace"], args["nupicRemote"],
-              args["nupicBranch"], args["nupicSha"], args["nupicCoreRemote"],
-              args["nupicCoreSha"], g_logger)
+    executeBuildProcess(env=env,
+                        buildWorkspace=args["buildWorkspace"],
+                        nupicRemote=args["nupicRemote"],
+                        nupicBranch=args["nupicBranch"],
+                        nupicSha=args["nupicSha"],
+                        nupicCoreRemote=args["nupicCoreRemote"],
+                        nupicCoreSha=args["nupicCoreSha"],
+                        logger=g_logger)
   else:
     g_logger.info("Skipping NuPIC build for SHA : %s", args["nupicSha"])
 
