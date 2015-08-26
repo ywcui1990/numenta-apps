@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import fcntl
+import errno
 import os
 
 from contextlib import contextmanager
@@ -39,6 +39,23 @@ def changeToWorkingDir(path):
   os.chdir(path)
   yield
   os.chdir(original)
+
+
+
+def mkdirp(path):
+  """
+  Replicate the functionality of `mkdir -p` in python
+  Source pulled from http://stackoverflow.com/a/600612
+
+  :param str path: /path/to/folder
+  """
+  try:
+    os.makedirs(path)
+  except OSError as exc: # Python >2.5
+    if exc.errno == errno.EEXIST and os.path.isdir(path):
+      pass
+    else:
+      raise
 
 
 
