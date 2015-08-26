@@ -42,8 +42,9 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
     index.html      # App main startup browser window contents
     actions/        # Fluxible Actions JS
     components/     # React view components JSX
+    lib/            # Custom JS libs for inside the browser (engine clients)
     stores/         # Fluxible Stores JS
-  lib/              # Javascript that lives outside the browser (engine / model runner)
+  lib/              # Custom JS libs for outside the browser (engine servers)
   loader.js         # Electron App entry point loader for main.js ES5 => ES6
   main.js           # ES6 Electron App main entry, creates browser GUI window + model runner engine
   test/             # Frontend tests run by Mocha: Unit, etc.
