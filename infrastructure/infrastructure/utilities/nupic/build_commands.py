@@ -299,9 +299,10 @@ def runTests(env, logger):
       raise
     else:
       logger.info("NuPIC tests have passed")
-    resultFile = glob.glob("%s/tests/results/xunit/*/*.xml" % env["NUPIC"])[0]
-    logger.debug("Copying results to results folder.")
-    shutil.move(resultFile, createOrReplaceResultsDir())
+    finally:
+      resultFile = glob.glob("%s/tests/results/xunit/*/*.xml" % env["NUPIC"])[0]
+      logger.debug("Copying results to results folder.")
+      shutil.move(resultFile, createOrReplaceResultsDir())
 
 
 
