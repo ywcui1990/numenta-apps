@@ -58,6 +58,7 @@ For each commit to NuPIC
 """
 
 import argparse
+import errno
 import os
 
 from pkg_resources import resource_stream
@@ -160,6 +161,22 @@ def addAndParseArgs():
 
 
 
+def mkdirp(path):
+  """
+  Replicate the functionality of `mkdir -p` in python
+  Source pulled from http://stackoverflow.com/a/600612
+
+  :param str path: /path/to/folder
+  """
+  try:
+    os.makedirs(path)
+  except OSError as exc: # Python >2.5
+    if exc.errno == errno.EEXIST and os.path.isdir(path):
+      pass
+    else: raise
+
+
+
 def main():
   """
     Entry point to run the nupic pipeline
@@ -168,10 +185,14 @@ def main():
   args = addAndParseArgs()
 
   env = prepareEnv(args["buildWorkspace"], None, os.environ)
-  env.update(PYTHONPATH=os.path.join(args["buildWorkspace"],
-                                     "lib/python2.7/site-packages/"))
-  env.update(PATH="%s:%s" % (os.path.join(args["buildWorkspace"], "bin"),
-                             os.environ.get("PATH")))
+  installDir = os.path.join(args["buildWorkspace"],
+                            "lib/python2.7/site-packages/")
+  scriptDir = os.path.join(args["buildWorkspace"], "bin")
+  mkdirp(installDir)
+  mkdirp(scriptDir)
+  
+  env.update(PYTHONPATH=installDir)
+  env.update(PATH="%s:%s" % (scriptDir, os.environ.get("PATH")))
   diagnostics.printEnv(env=env, logger=g_logger)
 
   if not args["nupicSha"]:
