@@ -26,5 +26,6 @@
  */
 
 module.exports = (actionContext, payload) => {
-  actionContext.dispatch('FOO_ACTION', payload);
+  let dispatcher = actionContext.dispatch('FOO_ACTION', payload);
+  return dispatcher;
 };

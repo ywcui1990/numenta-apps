@@ -20,6 +20,17 @@
 
 'use strict';
 
-export default (context, payload) => {
-  return context.dispatch('SEARCH_CLEAR');
+
+/**
+ * Fluxible Action: Add (user adding new file)
+ * @param {object} actionContext
+ * @param {object} [payload]
+ */
+module.exports = (actionContext, payload) => {
+  let dispatcher;
+
+  console.log('ADD_ACTION has been dispatched with payload:', payload);
+
+  dispatcher = actionContext.dispatch('ADD_ACTION', payload);
+  return dispatcher;
 };

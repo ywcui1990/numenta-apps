@@ -96,7 +96,6 @@ gulp.task('mocha-casperjs', (callback) => {
  * Gulp task to serve site from the _site/ build dir
  */
 gulp.task('serve', () => {
-  /*
   let stream = gulp.src('.')
     .pipe(gwebserver({ port: PORT }))
     .on('error', console.error);
@@ -104,7 +103,6 @@ gulp.task('serve', () => {
   WebServer = stream;
 
   return stream;
-  */
 });
 
 /**
@@ -116,18 +114,24 @@ gulp.task('webpack', ()  => {
     .pipe(webpacker({
       devtool: 'source-map',
       module: {
-        loaders: [
-          { test: /\.(js|jsx)$/, loader: 'babel-loader', exclude: /node_modules/ }
-        ]
+        loaders: [{
+          test: /\.(js|jsx)$/,
+          loaders: [ 'react-hot', 'babel-loader?stage=1' ],
+          exclude: /node_modules/
+        }, {
+          test: /\.json$/,
+          loader: 'json-loader'
+        }]
       },
       output: {
         filename: 'bundle.js'
       },
       plugins: [
+        new webpack.HotModuleReplacementPlugin(),
         new webpack.IgnorePlugin(/vertx/)  // @TODO remove in fluxible 4.x
       ],
       resolve: {
-        extensions: [ '', '.js', '.jsx' ]
+        extensions: [ '', '.js', '.json', '.jsx' ]
       },
       target
     }))

@@ -4,38 +4,13 @@
 > users using their own data files.
 
 
-## @TODOS UNDER HEAVY DEVELOPMENT
+## WARNING! CURRENTLY UNDER HEAVY DEVELOPMENT
 
-This is for Brev over the weekend, will clean up soon.
 
-* Setup logging: Winston or Bunyan? check w/Ops
-* Errors can do screenshots:
-  * https://github.com/atom/electron/blob/master/docs/api/browser-window.md#browserwindowcapturepagerect-callback
-* Dev tool resources for Web, Node, Electron, Browser addons, etc.
-  * npm install https://github.com/sindresorhus/electron-debug
-  * Electron-specific --debug flags:
-    * npm install https://github.com/node-inspector/node-inspector
-    * https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md
-  * React and Chrome browser devtools in Electron:
-    * http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/
-  * Node debugger https://nodejs.org/api/debugger.html
-  * Electron-supported Chrome command line switches:
-    * http://electron.atom.io/docs/v0.31.0/api/chrome-command-line-switches/
-  * Set up Debug Symbol Server (windows?)
-    * http://electron.atom.io/docs/v0.31.0/development/setting-up-symbol-server/
-* Use https://github.com/electronjs/electron-rebuild to get npm packages
-  into Electron, instead of using WebPack build? Probably a good idea.
-* Document: Electron/Babel/WebPack - which doing what? and what order?
-  * ES6/7. imports/requires. electron/browser.
-* Add in Flow type checking
-* add in Dygraph/FaceOfGrok
-* make real tests and make tests work
-* setup linting
-* add retina.js for hd images
-* setup css and image assets etc
-* add Architecture docs and charts
-* Sync our FE dir structure w/Electron's:
-  * http://electron.atom.io/docs/v0.31.0/development/source-code-directory-structure/
+## License
+
+Dual Commercial and AGPLv3 License. See [LICENSE.txt](LICENSE.txt)
+and http://numenta.org/licenses/.
 
 
 ## Repository
@@ -52,10 +27,12 @@ goal to demo to the user.
 
 ```shell
 DEPENDENCIES.md     # Module dependency overview file
-LICENSE.txt         # Dual: Commercial and GPLv3
+LICENSE.txt         # Dual: Commercial and AGPLv3
 README.md           # This file, a project overview
 backend/            # Unicorn ModelRunner and support Python/C++ code here!
   README.md         # Overview for HTM/NuPIC part of project
+  requirements.txt  # Python pip package dependencies
+  setup.py          # Backend Python project initialization tooling
 frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the User
   README.md         # Overview for Frontend+GUI part of project
   browser/          # Javascript, HTML, CSS act as GUI inside browser window
@@ -65,8 +42,9 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
     index.html      # App main startup browser window contents
     actions/        # Fluxible Actions JS
     components/     # React view components JSX
+    lib/            # Custom JS libs for inside the browser (engine clients)
     stores/         # Fluxible Stores JS
-  lib/              # Javascript that lives outside the browser (engine / model runner)
+  lib/              # Custom JS libs for outside the browser (engine servers)
   loader.js         # Electron App entry point loader for main.js ES5 => ES6
   main.js           # ES6 Electron App main entry, creates browser GUI window + model runner engine
   test/             # Frontend tests run by Mocha: Unit, etc.
@@ -81,7 +59,9 @@ package.json        # Node.js `npm` packages, dependencies, and App config
 
 ### Backend
 
-> See: `requirements.txt`
+#### Stack
+
+> See: `backend/requirements.txt`
 
 * Languages:
   * [Python](http://python.org)
@@ -89,11 +69,15 @@ package.json        # Node.js `npm` packages, dependencies, and App config
 * Machine Intelligence:
   * [NuPIC](htts://github.com/numenta/nupic)
 
+#### Description
+
 The Machine Intelligence behind this app is a technology known as Hierarchical
 Temporal Memory (HTM). NuPIC is Numenta's open source HTM engine. NuPIC runs
 on streams of data, predicting future values, and detecting pattern anomalies.
 
 ### Frontend
+
+#### Stack
 
 > See: `package.json`
 
@@ -102,6 +86,8 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * [ECMAScript 5.1](https://es5.github.io/) (>= IE9)
     * [ECMAScript 6](https://babeljs.io/docs/learn-es2015/) (aka ES2015) via
       [Babel](https://babeljs.io/)
+    * Some experimental [ECMAScript 7](https://babeljs.io/docs/usage/experimental/)
+      features via [Babel](https://babeljs.io/)
     * Facebook [Flow](http://flowtype.org/) JS Typing
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
@@ -110,7 +96,8 @@ on streams of data, predicting future values, and detecting pattern anomalies.
 * Framework: [Electron](https://github.com/atom/electron)
   * Engines: [Chromium](https://www.chromium.org/Home),
     [IO.js](https://iojs.org/), [Node](https://github.com/joyent/node)
-  * Module Loader: [WebPack](https://github.com/webpack/webpack)
+    * Package Manager: [npm](https://www.npmjs.com/)
+    * Module Loading and Bundling: [WebPack](https://github.com/webpack/webpack)
   * User Interface:
     * Architecture: [Fluxible](http://fluxible.io/)
       ([Flux](https://facebook.github.io/flux/docs/overview.html#content)
@@ -128,7 +115,22 @@ on streams of data, predicting future values, and detecting pattern anomalies.
   * Streaming task runner: [Gulp](https://github.com/gulpjs/gulp)
   * JS transpiling (ES6, JSX, etc): [Babel](https://github.com/babel/babel)
   * Linting: [eslint](http://eslint.org/)
-  * @TODO JS formatting: [jsfmt](https://github.com/rdio/jsfmt) - NO ES6 yet!
+* Development help:
+  * Browser:
+    * [Electron + Chrome debug shortcuts](https://github.com/sindresorhus/electron-debug)
+    * [React Chrome browser plugin](http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/)
+    * [Chrome DevTools plugin](http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/)
+  * Command-line flags:
+    * [Electron debugging switches](https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
+    * [Chrome switches supported in Electron](http://electron.atom.io/docs/v0.31.0/api/chrome-command-line-switches/)
+  * Node/io.js system-level debugging:
+    * [Electron with node-inspector](https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
+    * [Node debugger](https://nodejs.org/api/debugger.html)
+  * Other:
+    * [Awesome Node.js list](https://github.com/sindresorhus/awesome-nodejs)
+    * [Electron and Windows Debug Symbol Server](http://electron.atom.io/docs/v0.31.0/development/setting-up-symbol-server/)
+
+#### Description
 
 The Frontend contains code to manage Models on the Backend. It also contians
 the Graphical User Interface that allows users to explore HTM Models on their
@@ -161,12 +163,13 @@ loop run, and GUI loop continuation:
 
 ### Setup
 
-Example of setting up development environment:
+Example of setting up development environment on Mac OS/X:
 
 ```shell
-brew install git node  # darwin
+brew install git node
 git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/unicorn
+pip install -r backend/requirements.txt
 npm install
 ```
 
@@ -200,6 +203,28 @@ npm run dev
 * Javascript
   * [ES5 Styleguide](https://github.com/felixge/node-style-guide)
   * ES6 styleguide AirBnB? @TODO
+  * **Exception:** OK to occasionally have non-all-caps `const`, i.e. class
+    constructors, immutable data structures, etc.
   * Flow Typing styleguide? @TODO
   * Web changes fast, keep packages up-to-date with `npm run check`
-* HTML and CSS @TODO
+* HTML @TODO
+* CSS @TODO
+
+
+## @TODOs below
+
+This is for Brev/temp, will clean up soon.
+
+* Setup eslint to run in package.json:scripts or gulp on build
+* Setup logging: Winston or Bunyan? => Joe thinking about it.
+* Document where are imports=>requires handled? Babel/Webpack?
+* Add in Flow type checking
+* add in Dygraph/FaceOfGrok
+* make real tests and make tests work
+* add retina.js for hd images
+* setup css and image assets etc
+* add Architecture docs and charts
+  * Copy in ARch doc Errors section to this doc
+    * Errors can do screenshots:
+      https://github.com/atom/electron/blob/master/docs/api/browser-window.md#browserwindowcapturepagerect-callback
+* JS formatting: [jsfmt](https://github.com/rdio/jsfmt) - NO ES6 yet!

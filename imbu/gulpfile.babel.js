@@ -27,24 +27,21 @@
 
 // externals
 
-import child from 'child_process';
 import gulp from 'gulp';
-import path from 'path';
 import util from 'gulp-util';
 import webpack from 'webpack';
 import webpacker from 'webpack-stream';
 
-const spawn = child.spawn;
 
 // internals
 
-import config from './package.json';
-
-const HOST = process.env.TEST_HOST || 'http://localhost';
-const PORT = process.env.TEST_PORT || 8008;
-const PATH = process.env.TEST_PATH || '';
-
-let WebServer = null; // @TODO not global
+// import config from './package.json';
+//
+// const HOST = process.env.TEST_HOST || 'http://localhost';
+// const PORT = process.env.TEST_PORT || 8008;
+// const PATH = process.env.TEST_PATH || '';
+//
+// let WebServer = null; // @TODO not global
 
 
 // Individual Tasks
@@ -53,89 +50,92 @@ let WebServer = null; // @TODO not global
  * Gulp task to run mocha-casperjs web test suite
  */
 gulp.task('mocha-casperjs', (callback) => {
-    /*
-    let stream = spawn('mocha-casperjs', [
-      '--bail',
-      '--TEST_HOST=' + HOST,
-      '--TEST_PORT=' + PORT,
-      '--TEST_PATH=' + PATH
-    ]);
+  /*
+  let stream = spawn('mocha-casperjs', [
+    '--bail',
+    '--TEST_HOST=' + HOST,
+    '--TEST_PORT=' + PORT,
+    '--TEST_PATH=' + PATH
+  ]);
 
-    console.log('Mocha-Casper: started. Output will follow soon...');
+  console.log('Mocha-Casper: started. Output will follow soon...');
 
-    stream.stdout.on('data', (data) => {
-      process.stdout.write(data);
-    });
+  stream.stdout.on('data', (data) => {
+    process.stdout.write(data);
+  });
 
-    stream.on('close', (code) => {
-      let success = code === 0; // Will be 1 in the event of failure
+  stream.on('close', (code) => {
+    let success = code === 0; // Will be 1 in the event of failure
 
-      if(WebServer) {
-        WebServer.emit('kill');
-        WebServer = null;
-      }
+    if(WebServer) {
+      WebServer.emit('kill');
+      WebServer = null;
+    }
 
-      if(! success) {
-        // fail
-        callback(new Error('Mocha-Casper: failed!'));
-        return;
-      }
+    if(! success) {
+      // fail
+      callback(new Error('Mocha-Casper: failed!'));
+      return;
+    }
 
-      // success
-      console.log('Mocha-Casper: success!');
-      callback();
-    });
+    // success
+    console.log('Mocha-Casper: success!');
+    callback();
+  });
 
-    stream.on('error', console.error);
+  stream.on('error', console.error);
 
-    return stream;
-    */
+  return stream;
+  */
+  callback();
 });
 
 /**
  * Gulp task to serve site from the _site/ build dir
  */
 gulp.task('serve', () => {
-    let stream = gulp.src('.')
-      .pipe(gwebserver({ port: PORT }))
-      .on('error', console.error);
+  let stream = gulp.src('.')
+    .pipe(gwebserver({
+      port: PORT
+    }))
+    .on('error', console.error);
 
-    WebServer = stream;
+  WebServer = stream;
 
-    return stream;
+  return stream;
 });
 
 /**
  * Gulp task to run WebPack to transpile require/modules/Babel into bundle
  */
 gulp.task('webpack', () => {
-    let target = util.env.target || 'web';
-    return gulp.src('gui/browser/app.js')
-        .pipe(webpacker({
-            devtool: 'source-map',
-            module: {
-                loaders: [{
-                    test: /\.(js|jsx)$/,
-                    loaders: ['react-hot', 'babel-loader?stage=1'],
-                    exclude: /node_modules/
-                }, {
-                    test: /\.json$/,
-                    loader: 'json-loader'
-                }]
-            },
-            output: {
-                filename: 'bundle.js'
-            },
-            plugins: [
-                new webpack.HotModuleReplacementPlugin(),
-                new webpack.IgnorePlugin(/vertx/) // @TODO remove in fluxible 4.x
-            ],
-            resolve: {
-                extensions: ['', '.js', '.jsx']
-            },
-            target
-        }))
-        .pipe(gulp.dest('gui/browser'));
+  let target = util.env.target || 'web';
+  return gulp.src('gui/browser/app.js')
+    .pipe(webpacker({
+      devtool: 'source-map',
+      module: {
+        loaders: [{
+          test: /\.(js|jsx)$/,
+          loaders: ['react-hot', 'babel-loader?stage=1'],
+          exclude: /node_modules/
+        }, {
+          test: /\.json$/,
+          loader: 'json-loader'
+        }]
+      },
+      output: {
+        filename: 'bundle.js'
+      },
+      plugins: [
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.IgnorePlugin(/vertx/) //@TODO remove in fluxible 4.x
+      ],
+      resolve: {
+        extensions: ['', '.js', '.jsx', '.json']
+      },
+      target
+    }))
+    .pipe(gulp.dest('gui/browser'));
 });
 
 
