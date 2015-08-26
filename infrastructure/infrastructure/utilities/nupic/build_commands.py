@@ -256,7 +256,7 @@ def buildNuPIC(env, logger, buildWorkspace):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      command = ("python setup.py install bdist_wheel bdist_egg --prefix=%s "
+      command = ("python setup.py install --prefix=%s bdist_wheel bdist_egg "
                  "--nupic-core-dir=%s" % (buildWorkspace,
                                           os.path.join(env["NUPIC_CORE_DIR"],
                                                       "build", "release")))
