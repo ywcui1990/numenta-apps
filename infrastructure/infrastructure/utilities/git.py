@@ -37,7 +37,7 @@ def checkKwargs(kwargs, validKwargs):
 
 
 
-def checkIfOptionSet(option, **kwargs):
+def checkIfOptionSet(option, kwargs):
   """
   Convenience function to check if a keyword arg exists and is set to True
   by the caller.
@@ -67,7 +67,7 @@ def getCommitCount(path, logger):
 
   :returns: total commit count for the git directory
 
-  :rtype: string
+  :rtype: str
   """
   with changeToWorkingDir(path):
     command = ("git", "rev-list", "HEAD", "--count")
@@ -86,7 +86,7 @@ def getGitRootFolder(logger):
 
   :returns: The full path of the root folder of the current git repo
 
-  :rtype: string
+  :rtype: str
   """
   command = ("git", "rev-parse", "--show-toplevel")
   return executeCommand(command=command, logger=logger)
@@ -129,7 +129,7 @@ def getCurrentSha(logger):
 
   :returns: The current SHA
 
-  :rtype: string
+  :rtype: str
   """
   command = ("git", "log", "-n1", "--pretty=%H")
   return executeCommand(command=command, logger=logger)
@@ -150,7 +150,7 @@ def getActiveBranch(logger):
   :returns: The active branch name or the current SHA if in a detached head
     state
 
-  :rtype: string
+  :rtype: str
   """
   command = ("git", "rev-parse", "--abbrev-ref", "HEAD")
   branch = executeCommand(command=command, logger=logger)
@@ -229,12 +229,12 @@ def clone(gitURL, logger, **kwargs):
 
   :returns: The blob output of git clone
 
-  :rtype: string
+  :rtype: str
   """
   validKwargs = {"directory"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "clone", gitURL]
-  if checkIfOptionSet("directory", **kwargs):
+  if checkIfOptionSet("directory", kwargs):
     command.append(kwargs["directory"])
   return executeCommand(command=command, logger=logger)
 
@@ -248,29 +248,33 @@ def checkout(pathspec, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :param new: Boolean. If True, create a new branch.
+  :param new: Boolean. Defaults to False. If True, create a new branch.
 
-  :param orphan: Boolean. If True, create a new orphan branch.
+  :param orphan:
+    Boolean. Defaults to False. If True, create a new orphan branch.
+    If 'new' is defined, this parameter will be ignored.
 
   :param theirs:
-    Boolean. If True, when checking out paths from the index, check out
-    stage #3 (theirs) for unmerged paths. *
+    Boolean. Defaults to False. If True, when checking out paths
+    from the index, check out stage #3 (theirs) for unmerged paths.
+    If either of 'new' or 'orphan' is defined, this parameter will
+    be ignored.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
 
   :returns: The text blob output of git checkout
 
-  :rtype: string
+  :rtype: str
   """
   validKwargs = {"new", "orphan", "theirs"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "checkout"]
-  if checkIfOptionSet("new", **kwargs):
+  if checkIfOptionSet("new", kwargs):
     command.append("-b")
-  elif checkIfOptionSet("orphan", **kwargs):
+  elif checkIfOptionSet("orphan", kwargs):
     command.append("--orphan")
-  elif checkIfOptionSet("theirs", **kwargs):
+  elif checkIfOptionSet("theirs", kwargs):
     command.append("--theirs")
 
   command.append(pathspec)
@@ -291,7 +295,7 @@ def checkoutNewBranch(pathspec, logger):
 
   :returns: The text blob output of git checkout
 
-  :rtype: string
+  :rtype: str
   """
   return checkout(pathspec=pathspec, new=True, logger=logger)
 
@@ -311,7 +315,7 @@ def checkoutOrphan(pathspec, logger):
 
   :returns: The text blob output of git checkout
 
-  :rtype: string
+  :rtype: str
   """
   return checkout(pathspec=pathspec, orphan=True, logger=logger)
 
@@ -325,9 +329,11 @@ def reset(sha="", logger=None, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :param hard: Boolean. If true, resets the index and working tree. Any changes
-               to tracked files in the working tree since <commit> are
-               discarded.
+  :param hard:
+    Boolean. Defaults to False. If true, resets the index and working
+    tree. Any changes to tracked files in the working tree since
+    <commit> are discarded.
+
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
     the command fails
@@ -340,7 +346,7 @@ def reset(sha="", logger=None, **kwargs):
   validKwargs = {"hard"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "reset"]
-  if checkIfOptionSet("hard", **kwargs):
+  if checkIfOptionSet("hard", kwargs):
     command.append("--hard")
   command.append(sha)
   return executeCommand(command=command, logger=logger)
@@ -378,35 +384,37 @@ def revParse(commitish, logger, **kwargs):
 
   :param commitish: The commit-ish.
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
-  :param verify: Verify that exactly one parameter is provided, and that it
-  can be turned into a raw 20-byte SHA-1 that can be used to access the object
-  database.
+  :param verify:
+    Verify that exactly one parameter is provided, and that it can
+    be turned into a raw 20-byte SHA-1 that can be used to access
+    the object database.
 
   :param quiet:
     Only valid with verify. Do not output an error message if the
     first argument is not a valid object name; instead exit with
     non-zero status silently.
 
-  :param abbrevRef: A non-ambiguous short name of the objects name
+  :param abbrevRef:
+    A non-ambiguous short name of the objects name. If 'verify' is
+    defined, this parameter will be ignored.
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails
 
   :returns: A `string` representing a SHA or the exit code of the command.
 
-  :rtype: string or int
+  :rtype: str or int
   """
   validKwargs = {"verify", "quiet", "abbrevRef"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "rev-parse"]
-  if checkIfOptionSet("verify", **kwargs):
+  if checkIfOptionSet("verify", kwargs):
     command.append("--verify")
-  elif checkIfOptionSet("quiet", **kwargs):
-    command.append("--quiet")
-  elif checkIfOptionSet("abbrevRef", **kwargs):
+    if checkIfOptionSet("quiet", kwargs):
+      command.append("--quiet")
+  elif checkIfOptionSet("abbrevRef", kwargs):
     command.append("--abbrev-ref")
 
   command.append(commitish)
@@ -455,7 +463,7 @@ def showRef(refList, logger, **kwargs):
   validKwargs = {"verify"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "show-ref"]
-  if checkIfOptionSet("verify", **kwargs):
+  if checkIfOptionSet("verify", kwargs):
     command.append("--verify")
   command.append(refList)
   return executeCommand(command=command, logger=logger)
@@ -489,13 +497,17 @@ def commit(message, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
+  :param amend:
+    Boolean. Defaults to False. If True, replace the tip of the
+    current branch by creating a new commit.
+
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
   """
   validKwargs = {"amend"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "commit"]
-  if checkIfOptionSet("amend", **kwargs):
+  if checkIfOptionSet("amend", kwargs):
     command.append("--amend")
   command.append(message)
   return executeCommand(command=command, logger=logger)
@@ -520,7 +532,7 @@ def merge(path, message, logger, **kwargs):
   validKwargs = {"noFF"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "merge"]
-  if checkIfOptionSet("noFF", **kwargs):
+  if checkIfOptionSet("noFF", kwargs):
     command.append("--no-ff")
   command.extend(["-m", message, path])
   return executeCommand(command=command, logger=logger)
@@ -564,7 +576,7 @@ def getShaFromRemoteBranch(gitRemoteRepo, gitRemoteBranch, logger):
 
   :returns: A `String` representing the SHA
 
-  :rtype: String
+  :rtype: str
   """
   command = ("git", "ls-remote", gitRemoteRepo)
   shaList = executeCommand(command=command, logger=logger)
