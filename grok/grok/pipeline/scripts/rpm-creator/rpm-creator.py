@@ -370,7 +370,7 @@ def parseArgs():
 
   global g_logger
   # Intializing logger
-  g_logger = diagnostics.initPipelineLogger("rpm-creator",
+  g_logger = diagnostics.initPipelineLogger(name="rpm-creator",
                                             logLevel=args.logLevel)
 
   if (not args.gitURL) and (not args.source_dir):
