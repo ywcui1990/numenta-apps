@@ -215,6 +215,10 @@ npm run dev
 
 This is for Brev/temp, will clean up soon.
 
+* Singular config settings file (sync w/@lscheinkman)
+  * Gulp/Webpack config settings for loading differing bundle/code for
+    Desktop or Browser. Split build sources and targets for certain dirs?
+* i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
 * Setup eslint to run in package.json:scripts or gulp on build
 * Setup logging: Winston or Bunyan? => Joe thinking about it.
 * Document where are imports=>requires handled? Babel/Webpack?

@@ -45,10 +45,12 @@ import FooAction from './actions/foo';
 import FooComponent from './components/foo';
 import FooStore from './stores/foo';
 
+import FileClient from './lib/FileClient';
+
 // duplex IPC channels on pipe between this renderer process and main process
-let ipcDatabase = new IPCStream('database');
-let ipcFile = new IPCStream('file');
-let ipcModel = new IPCStream('model');
+let ipcDatabaseStream = new IPCStream('database');
+let ipcFileStream = new IPCStream('file');
+let ipcModelStream = new IPCStream('model');
 
 let app;
 let context;
@@ -59,15 +61,26 @@ let FooView;
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  // @TODO how to switch to HTTP adapter correctly here? sync: README.md todos
+  // let fileClientAdapter = new FileClient.Adapter.HTTP();
+  let fileClientAdapter = new FileClient.Adapter.IPC(ipcFileStream);
+  let fileClient = new FileClient(fileClientAdapter);
+  fileClient.getFiles((error, files) => {
+    if(error) throw new Error(error);
+    console.log('Files!', files);
+  });
+
   // IPC stream examples: -------------------
-  ipcFile.on('data', (chunk) => {
+  /*
+  ipcFileStream.on('data', (chunk) => {
     console.log('chunk', chunk);
   });
-  ipcFile.on('end', () => {});
+  ipcFileStream.on('end', () => {});
   // ipcFile.write({ test: 'from-renderer-to-main' });
   // ipcFile.end();
     // ReadableStream.pipe(WriteableStream);
     // FaucetAbove.pipe(DownDrain);
+  */
 
 
   // GUI APP
