@@ -222,7 +222,9 @@ def clone(gitURL, logger, **kwargs):
 
   :param logger: logger for additional debug info if desired
 
-  :param directory: Name of the directory where repository will be cloned
+  :param directory:
+    Optional. If passed, name of the directory where repository
+    will be cloned.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
@@ -387,18 +389,19 @@ def revParse(commitish, logger, **kwargs):
   :param logger: logger for additional debug info
 
   :param verify:
-    Verify that exactly one parameter is provided, and that it can
-    be turned into a raw 20-byte SHA-1 that can be used to access
-    the object database.
+    Boolean. Defaults to False. If True, verify that exactly one
+    parameter is provided, and that it can be turned into a raw
+    20-byte SHA-1 that can be used to access the object database.
 
   :param quiet:
-    Only valid with verify. Do not output an error message if the
-    first argument is not a valid object name; instead exit with
-    non-zero status silently.
+    Boolean. Defaults to False. Only valid with verify. If True, do
+    not output an error message if the first argument is not a valid
+    object name; instead exit with non-zero status silently.
 
   :param abbrevRef:
-    A non-ambiguous short name of the objects name. If 'verify' is
-    defined, this parameter will be ignored.
+    Boolean. Defaults to False. If True, a non-ambiguous short name
+    of the objects name. If 'verify' is defined, this parameter
+    will be ignored.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
@@ -451,11 +454,8 @@ def showRef(refList, logger, **kwargs):
   :param logger: logger for additional debug info if desired
 
   :param verify:
-    Enable stricter reference checking by requiring an exact ref path.
-
-  :param quiet:
-    Aside from returning an error code of 1, it will also print an
-    error message, if quiet was not specified.
+    Boolean. Defaults to False. If True, enable stricter reference
+    checking by requiring an exact ref path.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
