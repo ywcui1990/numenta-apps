@@ -57,7 +57,7 @@ def getCommitCount(path, logger):
   """
   Get the commit count from a git directory tree
 
-  :param: path to git directory
+  :param str path: path to git directory
 
   :param logger: logger for additional debug info
 
@@ -96,9 +96,9 @@ def getModifiedFilesBetweenRevisions(startSha, endSha, logger):
   """
   Get a list of all files modified between revisions
 
-  :param startSha: SHA to start searching from
+  :param str startSha: SHA to start searching from
 
-  :param endSha: SHA to search until
+  :param str endSha: SHA to search until
 
   :param logger: logger for additional debug info
 
@@ -163,9 +163,9 @@ def clean(path, arguments, logger):
   """
   Changes to path, then runs git clean.
 
-  :param path: git directory to clean
+  :param str path: git directory to clean
 
-  :param arguments: str containing optional extra command line arguments
+  :param str arguments: str containing optional extra command line arguments
     for git clean, as you would type them on the command line. If you wanted
     to do `git clean -fd`, you'd set arguments to "-fd".
 
@@ -190,11 +190,11 @@ def setRemoteURL(remote, url, path, logger):
   """
   Sets a git remote's url.
 
-  :param remote: Which git remote to alter
+  :param str remote: Which git remote to alter
 
-  :param url: What to set the url to
+  :param str url: What to set the url to
 
-  :param path: git directory to reset
+  :param str path: git directory to reset
 
   :param logger: An initialized logger object
 
@@ -217,12 +217,12 @@ def clone(gitURL, logger, **kwargs):
   """
   Clones the given git repository
 
-  :param gitURL: The repository URL.
+  :param str gitURL: The repository URL.
 
-  :param logger: logger for additional debug info
+  :param str logger: logger for additional debug info
 
-  :param directory: Optional. If passed, name of the directory where repository
-    will be cloned.
+  :param str directory: Optional. If passed, name of the directory where
+    repository will be cloned.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
@@ -244,16 +244,16 @@ def checkout(pathspec, logger, **kwargs):
   """
   Switches to a given commit-ish
 
-  :param pathspec: The name of the branch (commit-ish)
+  :param str pathspec: The name of the branch (commit-ish)
 
   :param logger: logger for additional debug info
 
-  :param new: Boolean. Defaults to False. If True, create a new branch.
+  :param bool new: Boolean. Defaults to False. If True, create a new branch.
 
-  :param orphan: Boolean. Defaults to False. If True, create a new orphan
+  :param bool orphan: Boolean. Defaults to False. If True, create a new orphan
     branch.
 
-  :param theirs: Boolean. Defaults to False. If True, when checking out paths
+  :param bool theirs: Boolean. Defaults to False. If True, when checking out paths
     from the index, check out stage #3 (theirs) for unmerged paths.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
@@ -288,7 +288,7 @@ def checkoutNewBranch(pathspec, logger):
   """
   Convenience function to create and switch to a new branch.
 
-  :param pathspec: Name of the branch to be checked out.
+  :param str pathspec: Name of the branch to be checked out.
 
   :param logger: logger for additional debug info
 
@@ -307,7 +307,7 @@ def checkoutOrphan(pathspec, logger):
   """
   Convenience function to create a orphan branch and switch to it.
 
-  :param pathspec: Branch name.
+  :param str pathspec: Branch name.
 
   :param logger: logger for additional debug info
 
@@ -326,17 +326,14 @@ def reset(sha="", logger=None, **kwargs):
   """
   Resets the repository to a optional SHA. Optional argument for --hard
 
-  :param kwargs:
-
   :param logger: logger for additional debug info
 
-  :param hard: Boolean. Defaults to False. If true, resets the index and working
-    tree. Any changes to tracked files in the working tree since
+  :param bool hard: Boolean. Defaults to False. If true, resets the index and
+    working tree. Any changes to tracked files in the working tree since
     <commit> are discarded.
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError: if the
+    command fails
 
   :returns: The exit code
 
@@ -358,7 +355,7 @@ def resetHard(sha="", logger=None):
   A convenience function that runs 'git reset --hard' for the given SHA.
   Calls reset(SHA, **kwargs).
 
-  :param SHA: The SHA or commit-sh to which the code needs to be reset to.
+  :param str SHA: The SHA or commit-sh to which the code needs to be reset to.
 
   :param logger: logger for additional debug info
 
@@ -382,25 +379,25 @@ def revParse(commitish, logger, **kwargs):
   of the command executed or the exit code of the command executed if
   "exitcode" = True is passed as a keyword argument.
 
-  :param commitish: The commit-ish.
+  :param str commitish: The commit-ish.
 
   :param logger: logger for additional debug info
 
-  :param verify: Boolean. Defaults to False. If True, verify that exactly one
+  :param bool verify: Boolean. Defaults to False. If True, verify that exactly one
     parameter is provided, and that it can be turned into a raw
     20-byte SHA-1 that can be used to access the object database.
 
-  :param quiet: Boolean. Defaults to False. Only valid with verify. If True, do
-    not output an error message if the first argument is not a valid
+  :param bool quiet: Boolean. Defaults to False. Only valid with verify. If
+    True, do not output an error message if the first argument is not a valid
     object name; instead exit with non-zero status silently. 'verify' must be
     True.
 
-  :param abbrevRef: Boolean. Defaults to False. If True, a non-ambiguous short
-    name of the objects name. If 'verify' is defined, this parameter will be
-    ignored.
+  :param bool abbrevRef: Boolean. Defaults to False. If True, a non-ambiguous
+    short name of the objects name. If 'verify' is defined, this parameter will
+    be ignored.
 
-  :raises infrastructure.utilities.exceptions.CommandFailedError:
-    if the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError: if the
+    command fails
 
   :raises TypeError: Raised in following cases.
     - Invalid parameter is passed in **kwargs
@@ -434,9 +431,9 @@ def fetch(repository, refspec, logger):
   """
   Download objects and refs from another repository
 
-  :param repository: Name of git repository (e.g origin)
+  :param str repository: Name of git repository (e.g origin)
 
-  :param refspec: Name of the refspec (e.g. master)
+  :param str refspec: Name of the refspec (e.g. master)
 
   :param logger: logger for additional debug info
 
@@ -454,15 +451,15 @@ def showRef(refList, logger, **kwargs):
   List references in a local repository
 
 
-  :param refList: Reference available in the local repository.
+  :param str refList: Reference available in the local repository.
 
   :param logger: logger for additional debug info
 
-  :param verify: Boolean. Defaults to False. If True, enable stricter reference
-    checking by requiring an exact ref path.
+  :param bool verify: Boolean. Defaults to False. If True, enable stricter
+    reference checking by requiring an exact ref path.
 
-  :raises infrastructure.utilities.exceptions.CommandFailedError:
-    if the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError: if the
+    command fails
   """
   validKwargs = {"verify"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
@@ -478,7 +475,7 @@ def add(pathspec, logger):
   """
   Add file contents to the index
 
-  :param pathspec: The file that is to be added to git.
+  :param str pathspec: The file that is to be added to git.
 
   :param logger: logger for additional debug info
 
@@ -497,11 +494,11 @@ def commit(message, logger, **kwargs):
   Current implementation is supporting options like --amend
   This could be extended for other options as when required
 
-  :param message: Commit message.
+  :param str message: Commit message.
 
   :param logger: logger for additional debug info
 
-  :param amend: Boolean. Defaults to False. If True, replace the tip of the
+  :param bool amend: Boolean. Defaults to False. If True, replace the tip of the
     current branch by creating a new commit.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
@@ -523,9 +520,9 @@ def merge(path, message, logger, **kwargs):
   Current implementation supports --no-ff
   This could be extended for other options as when required.
 
-  :param path:
+  :param str path: The file or path that has to be removed.
 
-  :param message: Merge commit message.
+  :param str message: Merge commit message.
 
   :param logger: logger for additional debug info
 
@@ -546,15 +543,14 @@ def removeFileFromGit(path, logger):
   """
   Remove files from the working tree and from the index.
 
-  :param path: The file or path that has to be removed.
+  :param str path: The file or path that has to be removed.
 
   :param logger: logger for additional debug info
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError: if the
+    command fails
 
-  :returns output of git rm
+  :returns: output of git rm
 
   :rtype: str
   """
@@ -567,15 +563,14 @@ def getShaFromRemoteBranch(gitRemoteRepo, gitRemoteBranch, logger):
   """
   Get the actual SHA of the current HEAD of a remote repo / branch.
 
-  :param gitRemoteRepo: The URL of the remote repo,
+  :param str gitRemoteRepo: The URL of the remote repo,
     e.g., git@github.com:numenta/nupic.git
-  :param gitRemoteBranch: The name of the remote branch, e.g., master
+  :param str gitRemoteBranch: The name of the remote branch, e.g., master
 
   :param logger: logger for additional debug info
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError: if the
+    command fails
 
   :returns: A `String` representing the SHA
 
