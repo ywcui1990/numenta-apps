@@ -41,7 +41,7 @@ from infrastructure.utilities.env import addNupicCoreToEnv
 from infrastructure.utilities.exceptions import (CommandFailedError,
                                                  NupicBuildFailed,
                                                  PipelineError)
-from infrastructure.utilities.path import changeToWorkingDir
+from infrastructure.utilities.path import changeToWorkingDir, mkdirp
 from infrastructure.utilities.cli import runWithOutput
 
 
@@ -197,8 +197,19 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
   with changeToWorkingDir(env["NUPIC_CORE_DIR"]):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
+<<<<<<< HEAD
       git.resetHard(nupicCoreSha, logger=logger)
       runWithOutput(command="mkdir -p build/scripts", env=env, logger=logger)
+=======
+      git.resetHard(nupicCoreSha)
+      mkdirp("build/scripts")
+
+      # install pre-reqs into  the build workspace for isolation
+      runWithOutput(command=("pip install -r bindings/py/requirements.txt "
+                             "--install-option=--prefix=%s "
+                             "--ignore-installed" % buildWorkspace),
+                            env=env, logger=logger)
+>>>>>>> master
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var('LIBDIR')
         runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
@@ -225,8 +236,6 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
 
 
 
-# TODO Refactor and fix the cyclic calls between fullBuild() and buildNuPIC()
-# Fix https://jira.numenta.com/browse/TAUR-749
 def buildNuPIC(env, logger, buildWorkspace):
   """
     Builds NuPIC
@@ -294,10 +303,11 @@ def runTests(env, logger):
       logger.exception("NuPIC Tests have failed.")
       raise
     else:
+      logger.info("NuPIC tests have passed")
+    finally:
       resultFile = glob.glob("%s/tests/results/xunit/*/*.xml" % env["NUPIC"])[0]
       logger.debug("Copying results to results folder.")
       shutil.move(resultFile, createOrReplaceResultsDir())
-      logger.info("NuPIC tests have passed")
 
 
 
@@ -377,13 +387,22 @@ def cacheNuPICCore(buildWorkspace, nupicCoreSha, logger):
 
 
 
-# TODO Refactor and fix the cyclic calls between fullBuild() and buildNuPIC()
-# Fix https://jira.numenta.com/browse/TAUR-749
-def fullBuild(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
+def executeBuildProcess(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
   nupicCoreRemote, nupicCoreSha, logger):
   """
     Run a full build of the NuPIC pipeline, including validating and, if
     necessary, installing nupic.core
+
+    :param dict env: dictionary of environment variables
+    :param str buildWorkspace: /path/to/buildWorkspace
+    :param str nupicRemote: location of nupic remote, e.g.,
+                            https://github.com/numenta/nupic
+    :param str nupicBranch: which branch to build, e.g., master
+    :param str nupicSha: which nupic commit SHA to build
+    :param str nupicCoreRemote: location of nupic.core remote, e.g.,
+                                https://github.com/numenta/nupic.core
+    :param str nupicCoreSha: which nupic.core commit SHA to build
+    :param logger:
   """
   fetchNuPIC(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger)
 
