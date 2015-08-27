@@ -34,21 +34,23 @@ import 'babel/polyfill';  // es6/7 polyfill Array.from()
 
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
-import ipc from 'ipc';
-import IPCStream from 'electron-ipc-stream';
+import isElectronRenderer from 'is-electron-renderer';
 import React from 'react';
 import tapEventInject from 'react-tap-event-plugin';
 
 // internals
 
+if(isElectronRenderer) { // desktop
+  var remote = require('remote');
+  var fileClient = remote.require('./lib/FileServer');
+}
+else { // web
+  // var fileClient = require('./browser/lib/FileClientHTTPRequest');
+}
+
 import FooAction from './actions/foo';
 import FooComponent from './components/foo';
 import FooStore from './stores/foo';
-
-// duplex IPC channels on pipe between this renderer process and main process
-let ipcDatabase = new IPCStream('database');
-let ipcFile = new IPCStream('file');
-let ipcModel = new IPCStream('model');
 
 let app;
 let context;
@@ -59,15 +61,16 @@ let FooView;
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // IPC stream examples: -------------------
-  ipcFile.on('data', (chunk) => {
-    console.log('chunk', chunk);
+  // FileClient/Server test
+  fileClient.getFiles(function(error, files) {
+    if(error) throw new Error('cannot get list of files');
+    console.log('sample files:', files);
+
+    fileClient.getFile(files[0], function(error, data) {
+      if(error) throw new Error('cannot get file', files[0]);
+      console.log('first sample file data:', files[0], data.toString());
+    });
   });
-  ipcFile.on('end', () => {});
-  // ipcFile.write({ test: 'from-renderer-to-main' });
-  // ipcFile.end();
-    // ReadableStream.pipe(WriteableStream);
-    // FaucetAbove.pipe(DownDrain);
 
 
   // GUI APP

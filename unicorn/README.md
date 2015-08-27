@@ -47,6 +47,7 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
   lib/              # Custom JS libs for outside the browser (engine servers)
   loader.js         # Electron App entry point loader for main.js ES5 => ES6
   main.js           # ES6 Electron App main entry, creates browser GUI window + model runner engine
+  samples/          # Sample .CSV data files to pre-load for user in GUI
   test/             # Frontend tests run by Mocha: Unit, etc.
     unit/           # Frontend+GUI Unit tests
 gulpfile.babel.js   # Babel.js ES6 Config file for the Gulp build tool
@@ -215,6 +216,13 @@ npm run dev
 
 This is for Brev/temp, will clean up soon.
 
+* Errors are not that helpful so far, need to improve this
+  * Seemed like webpack / babel build errors were not killing the 'npm start'
+    flow, missing exit code in package.json?
+* Singular config settings file (sync w/@lscheinkman)
+  * Gulp/Webpack config settings for loading differing bundle/code for
+    Desktop or Browser. Split build sources and targets for certain dirs?
+* i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
 * Setup eslint to run in package.json:scripts or gulp on build
 * Setup logging: Winston or Bunyan? => Joe thinking about it.
 * Document where are imports=>requires handled? Babel/Webpack?
