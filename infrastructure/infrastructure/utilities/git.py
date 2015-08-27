@@ -24,8 +24,7 @@
 """
 from infrastructure.utilities.cli import executeCommand
 from infrastructure.utilities.exceptions import (CommandFailedError,
-                                                 DetachedHeadError,
-                                                 InvalidParametersError)
+                                                 DetachedHeadError)
 from infrastructure.utilities.path import changeToWorkingDir
 
 
@@ -33,7 +32,7 @@ from infrastructure.utilities.path import changeToWorkingDir
 def checkKwargs(kwargs, validKwargs):
   invalidKwargs = set(kwargs) - validKwargs
   if invalidKwargs:
-    raise InvalidParametersError("Invalid parameters passed %r" % invalidKwargs)
+    raise TypeError("Invalid parameters passed %r" % invalidKwargs)
 
 
 
@@ -167,8 +166,8 @@ def clean(path, arguments, logger):
   :param path: git directory to clean
 
   :param arguments: str containing optional extra command line arguments
-  for git clean, as you would type them on the command line. If you wanted
-  to do `git clean -fd`, you'd set arguments to "-fd".
+    for git clean, as you would type them on the command line. If you wanted
+    to do `git clean -fd`, you'd set arguments to "-fd".
 
   :param logger: An initialized logger object
 
@@ -222,8 +221,7 @@ def clone(gitURL, logger, **kwargs):
 
   :param logger: logger for additional debug info
 
-  :param directory:
-    Optional. If passed, name of the directory where repository
+  :param directory: Optional. If passed, name of the directory where repository
     will be cloned.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
@@ -252,18 +250,18 @@ def checkout(pathspec, logger, **kwargs):
 
   :param new: Boolean. Defaults to False. If True, create a new branch.
 
-  :param orphan:
-    Boolean. Defaults to False. If True, create a new orphan branch.
-    If 'new' is defined, this parameter will be ignored.
+  :param orphan: Boolean. Defaults to False. If True, create a new orphan
+    branch.
 
-  :param theirs:
-    Boolean. Defaults to False. If True, when checking out paths
+  :param theirs: Boolean. Defaults to False. If True, when checking out paths
     from the index, check out stage #3 (theirs) for unmerged paths.
-    If either of 'new' or 'orphan' is defined, this parameter will
-    be ignored.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
+
+  :raises TypeError: Raised in following cases.
+    - If invalid parameter is passed in **kwargs
+    - More than one arguments are passed in **kwargs
 
   :returns: The text blob output of git checkout
 
@@ -272,6 +270,8 @@ def checkout(pathspec, logger, **kwargs):
   validKwargs = {"new", "orphan", "theirs"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
   command = ["git", "checkout"]
+  if len(kwargs) > 1:
+    raise TypeError("Invalid parameters passed.")
   if checkIfOptionSet("new", kwargs):
     command.append("-b")
   elif checkIfOptionSet("orphan", kwargs):
@@ -311,9 +311,8 @@ def checkoutOrphan(pathspec, logger):
 
   :param logger: logger for additional debug info
 
-  :raises:
-    infrastructure.utilities.exceptions.CommandFailedError: if
-    the command fails
+  :raises infrastructure.utilities.exceptions.CommandFailedError:
+    if the command fails
 
   :returns: The text blob output of git checkout
 
@@ -331,8 +330,7 @@ def reset(sha="", logger=None, **kwargs):
 
   :param logger: logger for additional debug info
 
-  :param hard:
-    Boolean. Defaults to False. If true, resets the index and working
+  :param hard: Boolean. Defaults to False. If true, resets the index and working
     tree. Any changes to tracked files in the working tree since
     <commit> are discarded.
 
@@ -388,23 +386,26 @@ def revParse(commitish, logger, **kwargs):
 
   :param logger: logger for additional debug info
 
-  :param verify:
-    Boolean. Defaults to False. If True, verify that exactly one
+  :param verify: Boolean. Defaults to False. If True, verify that exactly one
     parameter is provided, and that it can be turned into a raw
     20-byte SHA-1 that can be used to access the object database.
 
-  :param quiet:
-    Boolean. Defaults to False. Only valid with verify. If True, do
+  :param quiet: Boolean. Defaults to False. Only valid with verify. If True, do
     not output an error message if the first argument is not a valid
-    object name; instead exit with non-zero status silently.
+    object name; instead exit with non-zero status silently. 'verify' must be
+    True.
 
-  :param abbrevRef:
-    Boolean. Defaults to False. If True, a non-ambiguous short name
-    of the objects name. If 'verify' is defined, this parameter
-    will be ignored.
+  :param abbrevRef: Boolean. Defaults to False. If True, a non-ambiguous short
+    name of the objects name. If 'verify' is defined, this parameter will be
+    ignored.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
+
+  :raises TypeError: Raised in following cases.
+    - Invalid parameter is passed in **kwargs
+    - "quiet" parameter is set without setting "verify" parameter
+    - Both "verify" and "abbrevRef" parameters are set.
 
   :returns: A `string` representing a SHA or the exit code of the command.
 
@@ -412,6 +413,10 @@ def revParse(commitish, logger, **kwargs):
   """
   validKwargs = {"verify", "quiet", "abbrevRef"}
   checkKwargs(kwargs=kwargs, validKwargs=validKwargs)
+  if (("quiet" in kwargs and "verify" not in kwargs)
+      or ("abbrevRef" in kwargs and "verify" in kwargs)):
+    raise TypeError("Invalid parameters passed.")
+
   command = ["git", "rev-parse"]
   if checkIfOptionSet("verify", kwargs):
     command.append("--verify")
@@ -453,8 +458,7 @@ def showRef(refList, logger, **kwargs):
 
   :param logger: logger for additional debug info
 
-  :param verify:
-    Boolean. Defaults to False. If True, enable stricter reference
+  :param verify: Boolean. Defaults to False. If True, enable stricter reference
     checking by requiring an exact ref path.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
@@ -497,8 +501,7 @@ def commit(message, logger, **kwargs):
 
   :param logger: logger for additional debug info
 
-  :param amend:
-    Boolean. Defaults to False. If True, replace the tip of the
+  :param amend: Boolean. Defaults to False. If True, replace the tip of the
     current branch by creating a new commit.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
