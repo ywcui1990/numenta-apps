@@ -60,7 +60,7 @@ def getCommitCount(path, logger):
 
   :param: path to git directory
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if path isn't in a git checkout
@@ -79,7 +79,7 @@ def getGitRootFolder(logger):
   """
   Return the root folder of the current git repo
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
@@ -101,7 +101,7 @@ def getModifiedFilesBetweenRevisions(startSha, endSha, logger):
 
   :param endSha: SHA to search until
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails; typically because you are not executing from within a
@@ -121,7 +121,7 @@ def getCurrentSha(logger):
   """
   Get the current SHA of a given repo
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails; typically because you are not executing from within a
@@ -140,7 +140,7 @@ def getActiveBranch(logger):
   """
   Get the active branch name for the repository
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
@@ -220,7 +220,7 @@ def clone(gitURL, logger, **kwargs):
 
   :param gitURL: The repository URL.
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :param directory:
     Optional. If passed, name of the directory where repository
@@ -248,7 +248,7 @@ def checkout(pathspec, logger, **kwargs):
 
   :param pathspec: The name of the branch (commit-ish)
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :param new: Boolean. Defaults to False. If True, create a new branch.
 
@@ -290,7 +290,7 @@ def checkoutNewBranch(pathspec, logger):
 
   :param pathspec: Name of the branch to be checked out.
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
@@ -309,7 +309,7 @@ def checkoutOrphan(pathspec, logger):
 
   :param pathspec: Branch name.
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
@@ -329,7 +329,7 @@ def reset(sha="", logger=None, **kwargs):
 
   :param kwargs:
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :param hard:
     Boolean. Defaults to False. If true, resets the index and working
@@ -362,7 +362,7 @@ def resetHard(sha="", logger=None):
 
   :param SHA: The SHA or commit-sh to which the code needs to be reset to.
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
@@ -433,7 +433,7 @@ def fetch(repository, refspec, logger):
 
   :param refspec: Name of the refspec (e.g. master)
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
@@ -451,7 +451,7 @@ def showRef(refList, logger, **kwargs):
 
   :param refList: Reference available in the local repository.
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :param verify:
     Boolean. Defaults to False. If True, enable stricter reference
@@ -476,7 +476,7 @@ def add(pathspec, logger):
 
   :param pathspec: The file that is to be added to git.
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
@@ -495,7 +495,7 @@ def commit(message, logger, **kwargs):
 
   :param message: Commit message.
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :param amend:
     Boolean. Defaults to False. If True, replace the tip of the
@@ -524,7 +524,7 @@ def merge(path, message, logger, **kwargs):
 
   :param message: Merge commit message.
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
@@ -545,7 +545,7 @@ def removeFileFromGit(path, logger):
 
   :param path: The file or path that has to be removed.
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
@@ -568,7 +568,7 @@ def getShaFromRemoteBranch(gitRemoteRepo, gitRemoteBranch, logger):
     e.g., git@github.com:numenta/nupic.git
   :param gitRemoteBranch: The name of the remote branch, e.g., master
 
-  :param logger: logger for additional debug info if desired
+  :param logger: logger for additional debug info
 
   :raises:
     infrastructure.utilities.exceptions.CommandFailedError: if
