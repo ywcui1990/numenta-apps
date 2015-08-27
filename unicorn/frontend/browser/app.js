@@ -34,23 +34,23 @@ import 'babel/polyfill';  // es6/7 polyfill Array.from()
 
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
-import ipc from 'ipc';
-import IPCStream from 'electron-ipc-stream';
+import isElectronRenderer from 'is-electron-renderer';
 import React from 'react';
 import tapEventInject from 'react-tap-event-plugin';
 
 // internals
 
+if(isElectronRenderer) { // desktop
+  var remote = require('remote');
+  var fileClient = remote.require('./lib/FileServer');
+}
+else { // web
+  // var fileClient = require('./browser/lib/FileClientHTTPRequest');
+}
+
 import FooAction from './actions/foo';
 import FooComponent from './components/foo';
 import FooStore from './stores/foo';
-
-import FileClient from './lib/FileClient';
-
-// duplex IPC channels on pipe between this renderer process and main process
-let ipcDatabaseStream = new IPCStream('database');
-let ipcFileStream = new IPCStream('file');
-let ipcModelStream = new IPCStream('model');
 
 let app;
 let context;
@@ -61,26 +61,16 @@ let FooView;
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // @TODO how to switch to HTTP adapter correctly here? sync: README.md todos
-  // let fileClientAdapter = new FileClient.Adapter.HTTP();
-  let fileClientAdapter = new FileClient.Adapter.IPC(ipcFileStream);
-  let fileClient = new FileClient(fileClientAdapter);
-  fileClient.getFiles((error, files) => {
-    if(error) throw new Error(error);
-    console.log('Files!', files);
-  });
+  // FileClient/Server test
+  fileClient.getFiles(function(error, files) {
+    if(error) throw new Error('cannot get list of files');
+    console.log('sample files:', files);
 
-  // IPC stream examples: -------------------
-  /*
-  ipcFileStream.on('data', (chunk) => {
-    console.log('chunk', chunk);
+    fileClient.getFile(files[0], function(error, data) {
+      if(error) throw new Error('cannot get file', files[0]);
+      console.log('first sample file data:', files[0], data.toString());
+    });
   });
-  ipcFileStream.on('end', () => {});
-  // ipcFile.write({ test: 'from-renderer-to-main' });
-  // ipcFile.end();
-    // ReadableStream.pipe(WriteableStream);
-    // FaucetAbove.pipe(DownDrain);
-  */
 
 
   // GUI APP
