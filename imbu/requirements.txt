@@ -5,4 +5,5 @@ web.py==0.37
 # Nupic
 nupic==0.2.11
 # Fluent
--e git+http://github.com/numenta/nupic.fluent.git@0.2.1#egg=Fluent-0.3
+-e git+https://github.com/numenta/cortipy.git#egg=cortipy-0.1.0
+-e git+https://github.com/numenta/nupic.fluent.git@0.2.1#egg=Fluent-0.2.1

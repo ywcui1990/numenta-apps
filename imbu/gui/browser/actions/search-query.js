@@ -22,7 +22,7 @@
 
 import request from 'superagent';
 
-const API_HOST = 'http://localhost:8080/fluent';
+const API_HOST = '/fluent';
 
 //FIXME: Remove demo data once the API is stable
 const DEMO = false;
@@ -82,7 +82,7 @@ export default (context, query) => {
           } else {
             context.dispatch('SEARCH_RECEIVED_DATA',
                             {'query'  :query, 'results': results.body});
-            resolve(res);
+            resolve(results.body);
           }
         }
       );

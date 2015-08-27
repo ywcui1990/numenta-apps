@@ -81,7 +81,7 @@ class FluentWrapper(object):
                         numClasses=1,  # must be >0 to go through training
                         plots=0,
                         orderedSplit=False,
-                        trainSize=[],
+                        trainSizes=[],
                         verbosity=0)
 
     # Train model with given sample data
