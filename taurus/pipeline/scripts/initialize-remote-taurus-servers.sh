@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 #
 
-USAGE="Usage: `basename ${0}`
+USAGE="Usage: `basename ${0}` [-t destructive-tests]
 
 This script configures a pair of Taurus Server and Metric Collector
 instances in which the taurus services are not already running.  For example,
@@ -101,15 +101,48 @@ requisite python packages will be installed, configuration commands executed,
 and services started.  The end result upon successful completion of this script
 (as evidenced by a return code of 0), will be a fully configured, and running
 pair of Taurus instances suitable for use and/or testing.
-"
 
-if [ "${1}" == "-h" ]; then
-  echo "${USAGE}"
-  exit 0
-fi
+OPTIONS:
+
+-t destructive-tests: run all unit/integration tests, some of which may create
+   adverse side-effects on metrics, models, and data; e.g., you don't want
+   to run such tests on production and staging servers; on the other hand, you
+   may want to run all unit/integration tests on the continuous integration test
+   pipeline. If omitted, defaults to no unit/integration tests.
+"
 
 set -o errexit
 set -o pipefail
+
+
+# Parse command line arguments
+RUN_UNIT_AND_INTEGRATION_TESTS=0
+
+while getopts ":ht:" opt; do
+  case $opt in
+    h)
+      echo "${USAGE}"
+      exit 0
+      ;;
+    t)
+      if [[ $OPTARG == "destructive-tests" ]]; then
+        RUN_UNIT_AND_INTEGRATION_TESTS=1
+      else
+        echo "-$opt was triggered with invalid parameter: $OPTARG" >&2
+        exit 1
+      fi
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
 
 if [ "${DEBUG}" ]; then
   set -o verbose
@@ -258,7 +291,17 @@ pushd "${REPOPATH}"
     taurus/pipeline/scripts/taurus-env.sh \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/env.sh
 
-  # Configure, start Taurus services
+
+  # Configure, start Taurus Engine services
+  if [[ ${RUN_UNIT_AND_INTEGRATION_TESTS} == 1 ]]; then
+    TAURUS_ENGINE_TESTS="
+      py.test ../nta.utils/tests &&
+      py.test ../htmengine/tests &&
+      py.test tests";
+  else
+    TAURUS_ENGINE_TESTS=":";
+  fi
+
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "cd /opt/numenta/products &&
      ./install-taurus.sh \
@@ -295,11 +338,18 @@ pushd "${REPOPATH}"
      else
        supervisord -c conf/supervisord.conf
      fi &&
-     py.test ../nta.utils/tests &&
-     py.test ../htmengine/tests &&
-     py.test tests"
+     ${TAURUS_ENGINE_TESTS}"
+
 
   # Reset metric collector state, apply database schema updates
+  if [[ ${RUN_UNIT_AND_INTEGRATION_TESTS} == 1 ]]; then
+    TAURUS_COLLECTOR_TESTS="
+      py.test ../nta.utils/tests &&
+      py.test tests";
+  else
+    TAURUS_COLLECTOR_TESTS=":";
+  fi
+
   ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products &&
      ./install-taurus-metric-collectors.sh \
@@ -324,8 +374,18 @@ pushd "${REPOPATH}"
      else
        supervisord -c conf/supervisord.conf
      fi &&
-     py.test ../nta.utils/tests &&
-     py.test tests &&
+     for run in {1..6}; do
+       if [[ \$(nta-get-supervisord-state http://localhost:8001) == \"RUNNING\" ]]; then
+         break;
+       fi;
+       if [[ \$run == 6 ]]; then
+         echo \"Timed out waiting for supervisord\" >&2;
+         exit 1;
+       fi;
+       echo \"Waiting for supervisord\" >&2;
+       sleep 5s;
+     done &&
+     ${TAURUS_COLLECTOR_TESTS} &&
      taurus-collectors-set-opmode active &&
      supervisorctl restart all"
 
