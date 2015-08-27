@@ -42,7 +42,7 @@ def changeToWorkingDir(path):
 
 
 
-def mkdirp(path, mode=0755):
+def mkdirp(path, mode=0777):
   """
   Replicate the functionality of `mkdir -p` in python
   Source pulled from http://stackoverflow.com/a/600612
