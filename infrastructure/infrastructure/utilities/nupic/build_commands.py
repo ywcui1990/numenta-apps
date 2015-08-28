@@ -197,10 +197,6 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
   with changeToWorkingDir(env["NUPIC_CORE_DIR"]):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
-<<<<<<< HEAD
-      git.resetHard(nupicCoreSha, logger=logger)
-      runWithOutput(command="mkdir -p build/scripts", env=env, logger=logger)
-=======
       git.resetHard(nupicCoreSha)
       mkdirp("build/scripts")
 
@@ -209,7 +205,6 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
                              "--install-option=--prefix=%s "
                              "--ignore-installed" % buildWorkspace),
                             env=env, logger=logger)
->>>>>>> master
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var('LIBDIR')
         runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
@@ -307,7 +302,7 @@ def runTests(env, logger):
     finally:
       resultFile = glob.glob("%s/tests/results/xunit/*/*.xml" % env["NUPIC"])[0]
       logger.debug("Copying results to results folder.")
-      shutil.move(resultFile, createOrReplaceResultsDir())
+      shutil.move(resultFile, createOrReplaceResultsDir(logger=logger))
 
 
 

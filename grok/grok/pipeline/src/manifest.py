@@ -30,18 +30,17 @@ import argparse
 import json
 import os
 
-from tempfile import mkdtemp
-
 from infrastructure.utilities import jenkins
 from infrastructure.utilities.diagnostics import initPipelineLogger
+from infrastructure.utilities.path import mkdirp
 
 
 def parseArgs():
   """
     Parse the command line arguments
 
-    :returns Parsed object for the command-line arguments from sys.argv
-    :rtype argparse.Namespace
+    :returns: Dict containing parsed command line arguments
+    :rtype: dict
   """
   parser = argparse.ArgumentParser(description="manifest tool to prepare"
                                    "environment for Grok pipeline")
@@ -69,14 +68,15 @@ def main(args):
   """
     Main function for the pipeline. Executes all sub-tasks
 
-    :param args: Parsed command line arguments
+    :param dict args: Parsed command line arguments
+
+    :returns: /path/to/pipelineJson
+    :rtype: str
   """
   logger = initPipelineLogger("manifest", logLevel=args.logLevel)
-  buildWorkspace = os.environ.get("BUILD_WORKSPACE", None)
-  if not buildWorkspace:
-    baseDir = jenkins.getWorkspace()
-    buildId = jenkins.getBuildNumber()
-    buildWorkspace = mkdtemp(prefix=buildId, dir=baseDir)
+  buildWorkspace = os.environ.get("BUILD_WORKSPACE",
+                                  jenkins.defineBuildWorkspace(logger=logger))
+  mkdirp(buildWorkspace)
 
   manifest = vars(args)
   # Update buildWorkspace in manifest section for pipelineJson
