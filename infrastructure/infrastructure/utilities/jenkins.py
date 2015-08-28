@@ -31,43 +31,68 @@ import xml.etree.ElementTree as ET
 from infrastructure.utilities.git import (
   getCurrentSha,
   getGitRootFolder)
+from infrastructure.utilities.path import mkdirp
+
 
 
 XUNIT_TEST_RESULTS_FILE_PATH = (
   "/opt/numenta/grok/tests/results/py2/xunit/jenkins/results.xml")
 
+
+
 def getTestResult(filename):
   """
     Get output by reading filename
 
-    :param filename: Name of .xml to be parsed
+    :param str filename: Name of .xml to be parsed
 
-    :returns True in case of success else False
-
-    :rtype bool
+    :returns: True if the tests passed; false if the tests succeeded
+    :rtype: bool
   """
   tree = ET.parse(filename)
   result = tree.getroot().items()[2][1]
   return True if int(result) is 0 else False
 
 
+
 def getResultsDir():
   """
-    :return Returns path to given keyFileName
+    Returns the path to the test results folder in the workspace
+    :returns: /path/to/resultsFolder
+    :rtype: str
   """
   return os.path.join(getWorkspace(), "results")
 
 
+
+def defineBuildWorkspace():
+  """
+    Define a build workspace
+
+    :returns: /path/to/buildWorkspace as defined by the output of getWorkspace()
+      and getBuildNumber(). Examples:
+      - /opt/numenta/jenkins/workspace/grok-product-pipeline/build-123
+      - ~/nta/numenta-apps/build-aa980430f4ae64d22f9a5327f79fa4dab706459c
+    :rtype: str
+  """
+  return os.path.join(getWorkspace(), "build-" + getBuildNumber())
+
+
+
 def getWorkspace():
   """
+    Returns the path to the workspace in which things are being built
+
     :raises:
       infrastructure.utilities.exceptions.CommandFailedError if
         the workspace env variable isn't set and you are running from outside of
         a git repo or the git command to find your current root folder fails.
 
     :returns: The value of the `WORKSPACE` environment variable, or the root
-    folder of the products repo. This assumes you are executing from any folder
-    within the Products repo.
+      folder of the current repo. This should be a folder path. Examples:
+      - /opt/numenta/jenkins/workspace/grok-product-pipeline
+      - ~/nta/numenta-apps
+    :rtype: str
   """
   workspace = None
   if "WORKSPACE" in os.environ:
@@ -77,41 +102,50 @@ def getWorkspace():
   return workspace
 
 
+
 def createOrReplaceDir(dirname):
   """
     Creates a dirname dir in workspace. As a initial cleanup also
     deletes dirname if already present
 
-    :param dirname: Directory name that should be created inside workspace
+    :param str dirname: Directory name that should be created inside workspace
 
-    :returns path to created dirname
+    :returns: path to created dirname
+    :rtype: str
   """
   workspace = getWorkspace()
   if os.path.exists(os.path.join(workspace, dirname)):
     shutil.rmtree("%s/%s" % (workspace, dirname))
-  os.makedirs("%s/%s" % (workspace, dirname))
+  mkdirp("%s/%s" % (workspace, dirname))
   return os.path.join(workspace, dirname)
+
 
 
 def createOrReplaceResultsDir():
   """
-    Creates a "results" dir in workspace. As a initial cleanup also
-    deletes "results" if already present
+    Creates a "results" dir in workspace. If one already exists, it will be
+    deleted
 
-    :returns path to created "results"
+    :returns: path to created "results"
+    :rtype: str
   """
   return createOrReplaceDir("results")
 
 
+
 def getBuildNumber():
   """
+    Return the build number from either the user specified env var BUILD_NUMBER
+    or use the current SHA of the active repo.
+
     :raises:
       infrastructure.utilities.exceptions.CommandFailedError if
         the workspace env variable isn't set and you are running from outside of
         a git repo or the git command to find your current root folder fails.
 
     :returns: The value of the `BUILD_NUMBER` environment variable if set, or
-    the current commit SHA of the git repo if it's not set.
+      the current commit SHA of the git repo if it's not set.
+    :rtype: str
   """
   buildNumber = None
   if "BUILD_NUMBER" in os.environ:
@@ -121,22 +155,26 @@ def getBuildNumber():
   return buildNumber
 
 
+
 def getKeyPath(keyFileName="chef_west.pem"):
   """
     Returns path to given keyFileName
 
-    :param keyFileName: Name of authorization key
+    :param str keyFileName: Name of authorization key
 
-    :return Returns path to given keyFileName
+    :returns: /path/to/keyFile
+    :rtype: str
   """
   return os.path.join(os.environ.get("HOME"), ".ssh", keyFileName)
 
 
+
 def createOrReplaceArtifactsDir():
   """
-    Creates a "artifacts" dir in workspace. As a initial cleanup also
-    deletes "artifacts" if already present
+    Creates an "artifacts" folder in the active workspace. If one already exists
+    it will be replaced
 
-    :returns path to created "artifacts"
+    :returns: /path/to/artifacts
+    :rtype: str
   """
   return createOrReplaceDir("artifacts")

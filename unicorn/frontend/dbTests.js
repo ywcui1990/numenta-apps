@@ -1,6 +1,7 @@
 var levelup = require('levelup');
 
 var writeReadData = function(db){
+	db.put('foo', 'bar');
 	db.get('foo', function(err, value) {
 	  console.log("foo: " + value);
 	});

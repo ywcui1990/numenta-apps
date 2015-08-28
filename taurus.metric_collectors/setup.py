@@ -29,6 +29,7 @@ setup(
       "taurus-collectors-set-opmode = %s.set_collectors_opmode:main" % name,
       "taurus-collectors-set-rabbitmq = %s.set_rabbitmq_login:main" % name,
       "taurus-create-models = %s.create_models:main" % name,
+      "taurus-delete-metric = %s.delete_metric:main" % name,
       "taurus-unmonitor-metrics = %s.unmonitor_metrics:main" % name,
       "taurus-monitor-metrics = %s.monitor_metrics:main" % name,
       ("taurus-check-twitter-screen-names = "

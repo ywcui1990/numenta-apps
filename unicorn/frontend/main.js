@@ -33,8 +33,6 @@
 import app from 'app';
 import BrowserWindow  from 'browser-window';
 import crashReporter  from 'crash-reporter';
-import ipc from 'ipc';
-import IPCStream from 'electron-ipc-stream';
 
 // internals
 
@@ -55,14 +53,8 @@ app.on('window-all-closed', () => {
   }
 });
 
-
 // Electron finished init and ready to create browser window
 app.on('ready', () => {
-
-  let ipcDatabase;
-  let ipcFile;
-  let ipcModel;
-
   mainWindow = new BrowserWindow({
     width:  1200,
     height: 720
@@ -70,32 +62,17 @@ app.on('ready', () => {
     //  https://github.com/atom/electron/blob/master/docs/api/browser-window.md
   });
 
-  // duplex IPC channels on pipe between this main process and renderer process
-  ipcDatabase = new IPCStream('database', mainWindow);
-  ipcFile = new IPCStream('file', mainWindow);
-  ipcModel = new IPCStream('model', mainWindow);
-
   mainWindow.loadUrl('file://' + __dirname + '/browser/index.html');
   mainWindow.openDevTools();
   mainWindow.on('closed', () => {
     mainWindow = null; // dereference single main window object
   });
   mainWindow.webContents.on('dom-ready', (event) => {
+    console.log('Electron main + renderer, and chrome DOM, all ready.');
 
     // testing DB integration
     console.log("DB tests start ...");
     var dbTests = require(__dirname + '/dbTests');
     dbTests.testLevelUpBackends();
-
-    // IPC stream examples: -------------------
-    ipcFile.on('data', (chunk) => {
-      console.log('chunk', chunk);
-    });
-    ipcFile.on('end', () => {});
-    ipcFile.write({ test: 'from-main-to-renderer' });
-    // ipcFile.end();
-      // ReadableStream.pipe(WriteableStream);
-      // FaucetAbove.pipe(DownDrain);
-
   });
 });
