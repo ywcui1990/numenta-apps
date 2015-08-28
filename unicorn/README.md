@@ -181,7 +181,7 @@ npm install
 Start code via Electron as a Desktop App:
 
 ```shell
-npm run start
+npm run desktop
 ```
 
 #### Web App
@@ -195,7 +195,7 @@ Start app on local webserver, you can open it with Chrome Browser
 at `http://localhost:9999`:
 
 ```shell
-npm run dev
+npm run web
 ```
 
 

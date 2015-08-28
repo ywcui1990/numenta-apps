@@ -32,7 +32,6 @@
 // externals
 
 import isElectronRenderer from 'is-electron-renderer';
-import remote from 'remote';
 
 // internals
 
@@ -42,7 +41,12 @@ let DatabaseClient;
 
 
 // MAIN
-if(isElectronRenderer && remote) { // desktop
+
+if(isElectronRenderer) { // desktop
+  let remote;
+  try {
+    remote = require('remote');
+  } catch(error) {}
   DatabaseClient = remote.require('./lib/DatabaseServer'); // pseduo-DatabaseClientIPC
 }
 else { // web

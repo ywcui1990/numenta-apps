@@ -31,7 +31,6 @@
 // externals
 
 import isElectronRenderer from 'is-electron-renderer';
-import remote from 'remote';
 
 // internals
 
@@ -42,7 +41,11 @@ let FileClient;
 
 // MAIN
 
-if(isElectronRenderer && remote) { // desktop
+if(isElectronRenderer) { // desktop
+  let remote;
+  try {
+    remote = require('remote');
+  } catch(error) {}
   FileClient = remote.require('./lib/FileServer'); // pseduo-FileClientIPC
 }
 else { // web

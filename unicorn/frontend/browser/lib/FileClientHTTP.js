@@ -41,13 +41,17 @@ export default class FileClientHTTP {
   /**
    *
    */
-  getFile() {
+  getFile(callback) {
+    // callback(error, null);
+    // callback(null, { file: [ 'data and such' ] });
   }
 
   /**
    *
    */
-  getFiles() {
+  getFiles(callback) {
+    // callback(error, null);
+    callback(null, { files: [ 'uno.csv', 'dos.csv' ] });
   }
 
 }
