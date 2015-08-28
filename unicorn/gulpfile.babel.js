@@ -116,7 +116,7 @@ gulp.task('webpack', ()  => {
       module: {
         loaders: [{
           test: /\.(js|jsx)$/,
-          loaders: [ 'react-hot', 'babel-loader?stage=1' ],
+          loaders: [ 'babel-loader?stage=1' ],
           exclude: /node_modules/
         }, {
           test: /\.json$/,
@@ -127,7 +127,6 @@ gulp.task('webpack', ()  => {
         filename: 'bundle.js'
       },
       plugins: [
-        new webpack.HotModuleReplacementPlugin(),
         new webpack.IgnorePlugin(/vertx/)  // @TODO remove in fluxible 4.x
       ],
       resolve: {

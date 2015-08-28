@@ -22,46 +22,33 @@
 
 
 /**
- * Unicorn: FileServer - Respond to a FileClient over IPC, sharing our access to
- *  the Node/io.js layer of filesystem, so client can CRUD files.
- *
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
+ * Unicorn: DatabaseClient - Talk to a DatabaseServer over IPC or HTTP, gaining
+ *  access to the Node/io.js layer of filesystem, so we can CRUD against a
+ *  flat-file database. Connects via HTTP or IPC adapter. DatabaseClientIPC
+ *  adpater is currently a pseudo-library, using the magic of Electron's
+ *  `remote` module.
  */
 
 // externals
 
-import fs from 'fs';
-import path from 'path';
+import isElectronRenderer from 'is-electron-renderer';
+import remote from 'remote';
 
 // internals
 
-const FILE_PATH = path.join('frontend', 'samples'); // @TODO move path to config
+import DatabaseClientHTTP from './DatabaseClientHTTP';
+
+let DatabaseClient;
 
 
 // MAIN
-
-/**
- *
- */
-var FileServer = function () {
-  this.FILE_PATH = FILE_PATH;
-};
-
-/**
- *
- */
-FileServer.prototype.getFile = function (filename, callback) {
-  fs.readFile(path.join(this.FILE_PATH, filename), callback);
-};
-
-/**
- *
- */
-FileServer.prototype.getFiles = function (callback) {
-  fs.readdir(this.FILE_PATH, callback);
-};
+if(isElectronRenderer && remote) { // desktop
+  DatabaseClient = remote.require('./lib/DatabaseServer'); // pseduo-DatabaseClientIPC
+}
+else { // web
+  DatabaseClient = DatabaseClientHTTP;
+}
 
 
-// EXPORTS
-
-module.exports = FileServer;
+// EXPORT
+export default DatabaseClient;
