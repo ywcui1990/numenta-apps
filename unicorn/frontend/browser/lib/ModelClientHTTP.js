@@ -22,46 +22,43 @@
 
 
 /**
- * Unicorn: FileServer - Respond to a FileClient over IPC, sharing our access to
- *  the Node/io.js layer of filesystem, so client can CRUD files.
- *
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
+ * Unicorn: ModelClientHTTP - HTTP Adapter (one of many) for ModelClient (talks
+ *  to a ModelServer) to access the backend Py + NuPIC + Model process runner.
  */
-
-// externals
-
-import fs from 'fs';
-import path from 'path';
-
-// internals
-
-const FILE_PATH = path.join('frontend', 'samples'); // @TODO move path to config
 
 
 // MAIN
 
-/**
- *
- */
-var FileServer = function () {
-  this.FILE_PATH = FILE_PATH;
-};
+export default class ModelClientHTTP {
 
-/**
- *
- */
-FileServer.prototype.getFile = function (filename, callback) {
-  fs.readFile(path.join(this.FILE_PATH, filename), callback);
-};
+  /**
+   *
+   */
+  constructor() {
+  }
 
-/**
- *
- */
-FileServer.prototype.getFiles = function (callback) {
-  fs.readdir(this.FILE_PATH, callback);
-};
+  /**
+   *
+   */
+  addModel() {
+  }
 
+  /**
+   *
+   */
+  getModel() {
+  }
 
-// EXPORTS
+  /**
+   *
+   */
+  getModels() {
+  }
 
-module.exports = FileServer;
+  /**
+   *
+   */
+  removeModels() {
+  }
+
+}

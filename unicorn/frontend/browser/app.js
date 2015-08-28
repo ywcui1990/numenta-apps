@@ -34,23 +34,22 @@ import 'babel/polyfill';  // es6/7 polyfill Array.from()
 
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
-import isElectronRenderer from 'is-electron-renderer';
 import React from 'react';
 import tapEventInject from 'react-tap-event-plugin';
 
 // internals
 
-if(isElectronRenderer) { // desktop
-  var remote = require('remote');
-  var fileClient = remote.require('./lib/FileServer');
-}
-else { // web
-  // var fileClient = require('./browser/lib/FileClientHTTPRequest');
-}
-
 import FooAction from './actions/foo';
 import FooComponent from './components/foo';
 import FooStore from './stores/foo';
+
+import DatabaseClient from './lib/DatabaseClient';
+import FileClient from './lib/FileClient';
+import ModelClient from './lib/ModelClient';
+
+var databaseClient = new DatabaseClient();
+var fileClient = new FileClient();
+var modelClient = new ModelClient();
 
 let app;
 let context;
@@ -61,7 +60,7 @@ let FooView;
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // FileClient/Server test
+  // working example/test of FileClient/Server over IPC
   fileClient.getFiles(function(error, files) {
     if(error) throw new Error('cannot get list of files');
     console.log('sample files:', files);

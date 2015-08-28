@@ -38,7 +38,7 @@ import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add'
 let Theme = new Material.Styles.ThemeManager();
 
 let {
-  Card, CardHeader, CardText, FloatingActionButton, FontIcon, LeftNav
+  Card, CardText, FloatingActionButton, FontIcon, LeftNav
 } = Material;
 
 let menuItems = [
@@ -91,7 +91,6 @@ module.exports = React.createClass({
     return (
       <div>
         <Card style={{ marginLeft: '256px' }}>
-          <CardHeader title="Title" subtitle="Subtitle" />
           <CardText>
             <h1>Welcome</h1>
             <FloatingActionButton onClick={this._onClick}>

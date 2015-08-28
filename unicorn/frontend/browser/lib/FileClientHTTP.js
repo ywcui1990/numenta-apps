@@ -22,46 +22,32 @@
 
 
 /**
- * Unicorn: FileServer - Respond to a FileClient over IPC, sharing our access to
- *  the Node/io.js layer of filesystem, so client can CRUD files.
- *
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
+ * Unicorn: FileClientHTTP - HTTP Adapter (one of many) for FileClient (talks to
+ *  a FileServer) to access the Node/io.js layer of filesystem, so we can
+ *  CRUD files.
  */
-
-// externals
-
-import fs from 'fs';
-import path from 'path';
-
-// internals
-
-const FILE_PATH = path.join('frontend', 'samples'); // @TODO move path to config
 
 
 // MAIN
 
-/**
- *
- */
-var FileServer = function () {
-  this.FILE_PATH = FILE_PATH;
-};
+export default class FileClientHTTP {
 
-/**
- *
- */
-FileServer.prototype.getFile = function (filename, callback) {
-  fs.readFile(path.join(this.FILE_PATH, filename), callback);
-};
+  /**
+   *
+   */
+  constructor() {
+  }
 
-/**
- *
- */
-FileServer.prototype.getFiles = function (callback) {
-  fs.readdir(this.FILE_PATH, callback);
-};
+  /**
+   *
+   */
+  getFile() {
+  }
 
+  /**
+   *
+   */
+  getFiles() {
+  }
 
-// EXPORTS
-
-module.exports = FileServer;
+}
