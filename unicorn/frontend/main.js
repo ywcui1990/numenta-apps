@@ -55,8 +55,10 @@ app.on('window-all-closed', () => {
   }
 });
 
+
 // Electron finished init and ready to create browser window
 app.on('ready', () => {
+
   let ipcDatabase;
   let ipcFile;
   let ipcModel;
@@ -79,6 +81,11 @@ app.on('ready', () => {
     mainWindow = null; // dereference single main window object
   });
   mainWindow.webContents.on('dom-ready', (event) => {
+
+    // testing DB integration
+    console.log("DB tests start ...");
+    var dbTests = require(__dirname + '/dbTests');
+    dbTests.testLevelUpBackends();
 
     // IPC stream examples: -------------------
     ipcFile.on('data', (chunk) => {

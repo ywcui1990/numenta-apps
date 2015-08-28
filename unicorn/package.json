@@ -55,6 +55,8 @@
     "electron-ipc-stream": "0.1.0",
     "fluxible": "0.5.1",
     "fluxible-addons-react": "0.1.6",
+    "jsondown": "^0.1.1",
+    "levelup": "^1.2.1",
     "material-ui": "0.11.0",
     "node-sass": "3.2.0",
     "react": "0.13.3",
