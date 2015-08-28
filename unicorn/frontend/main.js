@@ -69,5 +69,10 @@ app.on('ready', () => {
   });
   mainWindow.webContents.on('dom-ready', (event) => {
     console.log('Electron main + renderer, and chrome DOM, all ready.');
+
+    // testing DB integration
+    console.log("DB tests start ...");
+    var dbTests = require(__dirname + '/dbTests');
+    dbTests.testLevelUpBackends();
   });
 });
