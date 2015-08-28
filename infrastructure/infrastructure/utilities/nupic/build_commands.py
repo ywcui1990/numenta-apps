@@ -337,10 +337,10 @@ def cacheNuPIC(env, nupicSha, logger):
       wheelFileName = os.path.basename(wheelFile)
       contents = nupicSha + ":" + wheelFileName
 
-      createTextFileAndUpload("nupic-package-version.txt", contents, fileDir,
-                              s3Folder, logger)
-      createTextFileAndUpload(nupicSha, wheelFileName, fileDir, s3Folder,
-                              logger)
+      createTextFile(fileName="nupic-package-version.txt",
+                     fileContents=contents)
+      createTextFile(fileName="nupicSHA.txt",
+                     fileContents=nupicSha)
 
       artifactsDir = createOrReplaceArtifactsDir(logger=logger)
 
