@@ -383,8 +383,8 @@ def revParse(commitish, logger, **kwargs):
 
   :param logger: logger for additional debug info
 
-  :param bool verify: Boolean. Defaults to False. If True, verify that exactly one
-    parameter is provided, and that it can be turned into a raw
+  :param bool verify: Boolean. Defaults to False. If True, verify that exactly
+    one parameter is provided, and that it can be turned into a raw
     20-byte SHA-1 that can be used to access the object database.
 
   :param bool quiet: Boolean. Defaults to False. Only valid with verify. If
@@ -393,8 +393,8 @@ def revParse(commitish, logger, **kwargs):
     True.
 
   :param bool abbrevRef: Boolean. Defaults to False. If True, a non-ambiguous
-    short name of the objects name. If 'verify' is defined, this parameter will
-    be ignored.
+    short name of the objects name. 'TypeError' exception will be raised if
+    'verify' and/or 'quiet' parameters are passed.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError: if the
     command fails
