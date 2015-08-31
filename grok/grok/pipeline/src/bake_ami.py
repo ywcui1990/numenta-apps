@@ -191,7 +191,7 @@ def main(jsonArgs=None):
       amiID = readAmiId[1].strip()
       g_logger.info("AMI ID generated is: %s", amiID)
 
-    buildNumber = getBuildNumber()
+    buildNumber = getBuildNumber(logger=g_logger)
     artifactAmiIdPath = os.path.join(artifactsDir, "ami_%s.txt" % buildNumber)
     shutil.copy(amiIDPath, artifactAmiIdPath)
     print "#############################################################"

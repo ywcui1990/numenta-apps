@@ -141,7 +141,7 @@ def main(args):
   g_config["SAUCE_USER_NAME"] = os.environ.get("SAUCE_USER_NAME")
   g_config["SAUCE_KEY"] = os.environ.get("SAUCE_KEY")
   g_config["JOB_NAME"] = os.environ.get("JOB_NAME", "Local Run")
-  g_config["BUILD_NUMBER"] = jenkins.getBuildNumber()
+  g_config["BUILD_NUMBER"] = jenkins.getBuildNumber(logger=g_logger)
 
   g_config["KEY"] = supportedRegions[args.region]
   g_config["REGION"] = args.region

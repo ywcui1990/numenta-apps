@@ -62,7 +62,7 @@ g_config = yaml.load(resource_stream(__name__, "pipeline/config.yaml"))
 g_config["AWS_ACCESS_KEY_ID"] = os.environ.get("AWS_ACCESS_KEY_ID")
 g_config["AWS_SECRET_ACCESS_KEY"] = os.environ.get("AWS_SECRET_ACCESS_KEY")
 g_config["JOB_NAME"] = "grok-mobile-product-pipeline"
-g_config["BUILD_NUMBER"] = jenkins.getBuildNumber()
+g_config["BUILD_NUMBER"] = None
 ANDROID_PATH = None
 GROK_MOBILE_HOME = None
 GROK_AWS_CREDENTIALS_SETUP_TRIES = 30
@@ -255,6 +255,7 @@ def main(args):
   GROK_MOBILE_HOME = os.path.join(jenkins.getWorkspace(logger=logger),
                                   "grok-mobile")
   ANDROID_PATH = "%s/android" % GROK_MOBILE_HOME
+  g_config["BUILD_NUMBER"] = jenkins.getBuildNumber(logger=logger)
 
   # use a subset of config options for aws functions.
   awsConfig = {}

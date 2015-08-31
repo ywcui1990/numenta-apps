@@ -120,7 +120,7 @@ def launchInstance(amiID, config, logger):
   instanceTags = {}
   if os.environ.get("JENKINS_HOME"):
     instanceTags["Name"] = "%s-%s" % (os.environ["JOB_NAME"],
-                                      jenkins.getBuildNumber())
+                                      jenkins.getBuildNumber(logger=logger))
   else:
     instanceTags["Name"] = "running-locally-by-user:%s" % os.getlogin()
 
