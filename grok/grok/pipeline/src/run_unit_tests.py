@@ -134,7 +134,7 @@ def recordXunitTestsResults():
   """
   jobResultsDir = os.path.join(os.environ["BUILD_WORKSPACE"], "products")
   masterResults = prepareResultsDir()
-  jobNumber = getBuildNumber()
+  jobNumber = getBuildNumber(logger=g_logger)
 
   def attemptResultUpdate(task):
     originalResultsFile = "%s_unit_test_results.xml" % task
