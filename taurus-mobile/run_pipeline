@@ -46,7 +46,7 @@ JOB_NAME = "taurus-mobile-product-pipeline"
 PROJECT_HOME = os.path.dirname(os.path.abspath(__file__))
 ANDROID_PATH = "%s/android" % PROJECT_HOME
 TAURUS_MOBILE_HOME = None
-artifactsDir = createOrReplaceArtifactsDir()
+artifactsDir = None
 
 g_googleAnalyticsIdParam = "-DGA_TRACKING_ID=%s" % os.environ["GA_TRACKING_ID"]
 g_feedbackEmailParam = "-DFEEDBACK_EMAIL=%s" % os.environ["FEEDBACK_EMAIL"]
@@ -158,8 +158,9 @@ def main(args):
   """
   logger = initPipelineLogger(JOB_NAME, logLevel=args.logLevel)
 
-  global TAURUS_MOBILE_HOME
+  global TAURUS_MOBILE_HOME, artifactsDir
   TAURUS_MOBILE_HOME = os.path.join(getWorkspace(logger=logger), "taurus-mobile")
+  artifactsDir = createOrReplaceArtifactsDir(logger=logger)
   taurusServerUrl = args.server
   logger.debug("Using %s as the server for testing", taurusServerUrl)
 
