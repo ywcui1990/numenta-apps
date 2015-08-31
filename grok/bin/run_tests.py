@@ -192,8 +192,6 @@ def main(parser, parseArgs):
 
   if options.nightly or options.all:
     tests.add(os.path.join(root, "py", "nightly"))
-    tests.add(os.path.join("..", "htmengine", root, "nightly"))
-    tests.add(os.path.join("..", "nta.utils", root, "nightly"))
 
   if options.verbose:
     args.append("-v")
