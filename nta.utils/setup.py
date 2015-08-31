@@ -32,7 +32,8 @@ setup(
   dependency_links = dependencyLinks,
   entry_points = {
     "console_scripts": [
-      "nta-import-queues = nta.utils.tools.import_queues:main"
+      "nta-import-queues = nta.utils.tools.import_queues:main",
+      "nta-get-supervisord-state = nta.utils.tools.get_supervisord_state:main"
     ]
   }
 )
