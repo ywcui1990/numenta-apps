@@ -28,7 +28,7 @@ import time
 from shutil import rmtree
 
 from infrastructure.utilities import git
-from infrastructure.utilities import diagnostics as log
+from infrastructure.utilities import diagnostics
 from infrastructure.utilities.exceptions import MissingDirectoryError
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput
@@ -83,12 +83,12 @@ def packageDirectory(fakeroot,
     removed.
   """
 
-  command = "fpm --verbose "
+  command = ["fpm", "--verbose"]
   if not arch:
     if sys.platform.startswith("darwin"):
       # We're running on OS X, force noarch
       rpmType = "noarch"
-      command += "-a noarch "
+      command.extend(["-a", "noarch"])
     else:
       rpmType = "x86_64"
   else:
@@ -108,37 +108,35 @@ def packageDirectory(fakeroot,
                                    baseVersion,
                                    rpmRelease,
                                    rpmType)
-  command += "--epoch %s -s dir -t rpm --architecture %s " % (epoch, rpmType)
+  command.extend(["--epoch", epoch, "-s", "dir", "-t", "rpm",
+                  "--architecture", rpmType])
 
   if description:
-    command += "--description '%s' " % (description)
-  command += "--name %s " % (packageName)
+    command.extend(["--description", description])
+  command.extend(["--name", packageName])
 
   if depends:
     for dependency in depends.split(","):
-      command += "-d %s " % (dependency)
+      command.extend(["-d", dependency])
 
-  command += "--version %s --iteration %s --package %s -C %s " % (baseVersion,
-                                                                  rpmRelease,
-                                                                  rpmName,
-                                                                  fakeroot)
+  command.extend(["--version", baseVersion, "--iteration", rpmRelease,
+                  "--package", rpmName, "-C", fakeroot])
 
-  if directoriesOwned != None:
-    command += "--directories %s " % directoriesOwned
+  if directoriesOwned is not None:
+    command.extend(["--directories", directoriesOwned])
 
   if workDir:
-    command += "--workdir %s " % (workDir)
+    command.extend(["--workdir", workDir])
 
   if afterInstall:
-    command += "--after-install %s " % (afterInstall)
+    command.extend(["--after-install", afterInstall])
 
   # Find the top level files/dirs in the fakeroot and add them explicitly
   # to fpm's argument list
   fakerootFiles = os.listdir(fakeroot)
-  for rpmEntry in fakerootFiles:
-    command += "%s " % (rpmEntry)
+  command.extend(fakerootFiles)
   g_logger.debug("Running %s ... ", command)
-  runWithOutput(command)
+  runWithOutput(command=command, logger=g_logger)
   return rpmName
 
 
@@ -159,18 +157,21 @@ def cleanseFakeroot(fakeroot, installDirectory, repoDirectory):
   # from the root of the repo checkout, so store the pwd and cd into the repo
   # checkout before running cleaner or removing .git
   g_logger.debug("Cleaning fakeroot: %s", fakeroot)
-  workpath = "%s/%s/%s" % (fakeroot, installDirectory, repoDirectory)
+  workpath = os.path.join(fakeroot, installDirectory, repoDirectory)
   if os.path.isdir(workpath):
     with changeToWorkingDir(workpath):
-      cleanerScript = "%s/%s/%s/prepare_repo_for_packaging" % (fakeroot,
-                                                               installDirectory,
-                                                               repoDirectory)
+      cleanerScript = os.path.join(fakeroot,
+                                   installDirectory,
+                                   repoDirectory,
+                                   "prepare_repo_for_packaging")
+
       if os.path.isfile(cleanerScript):
         if os.path.isfile("/tmp/noclean.rpms"):
           g_logger.info("Found /tmp/noclean.rpms, skipping cleanup script")
         else:
           g_logger.info("Found %s, executing", cleanerScript)
-          runWithOutput("%s --destroy-all-my-work" % cleanerScript)
+          runWithOutput(command=(cleanerScript, "--destroy-all-my-work"),
+                        logger=g_logger)
       else:
         g_logger.debug("Optional cleanup script %s not found, skipping",
                        cleanerScript)
@@ -199,8 +200,12 @@ def loadGitDescribeFromDirectory(gitDirectory):
   versionData = {}
   with changeToWorkingDir(gitDirectory):
     try:
-      rawVersion = runWithOutput("git describe --long --tags --abbrev=40")\
-                                 .strip().split("-")
+      rawVersion = runWithOutput(command=("git",
+                                          "describe",
+                                          "--log",
+                                          "--tags",
+                                          "--abbrev=40"),
+                                 logger=g_logger).strip().split("-")
       versionData["version"] = rawVersion[0]
       versionData["commitsSinceTag"] = rawVersion[1]
       versionData["sha"] = rawVersion[2]
@@ -282,12 +287,13 @@ def prepFakerootFromDirectory(fakeroot,
     sourceFiles = os.listdir(sourceDirectory)
     for eachFile in sourceFiles:
       g_logger.info("Copying %s to %s...", eachFile, targetDirectory)
-      runWithOutput("rsync --exclude '.*.un~' -av %s/%s %s" % (sourceDirectory,
-                                                               eachFile,
-                                                               targetDirectory))
+      runWithOutput(command=("rsync", "--exclude", ".*.un~", "-av",
+                             os.path.join(sourceDirectory, eachFile),
+                             targetDirectory),
+                    logger=g_logger)
       cleanseFakeroot(fakeroot,
                       installDirectory,
-                      "%s/%s" % (baseDirectory, eachFile))
+                      os.path.join(baseDirectory, eachFile))
 
 def parseArgs():
   """
@@ -364,7 +370,8 @@ def parseArgs():
 
   global g_logger
   # Intializing logger
-  g_logger = log.initPipelineLogger("rpm-creator", logLevel=args.logLevel)
+  g_logger = diagnostics.initPipelineLogger(name="rpm-creator",
+                                            logLevel=args.logLevel)
 
   if (not args.gitURL) and (not args.source_dir):
     parser.error("You must specify a repo to clone with --clone-source, or a"

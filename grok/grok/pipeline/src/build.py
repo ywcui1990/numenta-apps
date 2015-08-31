@@ -28,7 +28,7 @@ from grok.pipeline.utils import build_commands as builder
 from grok.pipeline.utils import getGithubUserName
 from grok.pipeline.utils.helpers import checkIfSaneProductionParams
 from infrastructure.utilities import git
-from infrastructure.utilities import diagnostics as log
+from infrastructure.utilities import diagnostics
 from infrastructure.utilities.env import prepareEnv
 from infrastructure.utilities.path import changeToWorkingDir
 
@@ -77,23 +77,26 @@ def preBuildSetup(env, pipelineConfig):
     :returns: The updated pipelineConfig dict
     :rtype: dict
   """
-  log.printEnv(env, g_logger)
+  diagnostics.printEnv(env=env, logger=g_logger)
 
   # Clone Grok if needed, otherwise, setup remote
   with changeToWorkingDir(pipelineConfig["buildWorkspace"]):
     if not os.path.isdir(env["GROK_HOME"]):
-      git.clone(pipelineConfig["grokRemote"], directory="products")
+      git.clone(gitURL=pipelineConfig["grokRemote"],
+                directory="products",
+                logger=g_logger)
 
   with changeToWorkingDir(env["GROK_HOME"]):
     if pipelineConfig["grokSha"]:
       g_logger.debug("Resetting to %s", pipelineConfig["grokSha"])
-      git.resetHard(pipelineConfig["grokSha"])
+      git.resetHard(sha=pipelineConfig["grokSha"], logger=g_logger)
     else:
       grokSha = git.getShaFromRemoteBranch(pipelineConfig["grokRemote"],
-                                           pipelineConfig["grokBranch"])
+                                           pipelineConfig["grokBranch"],
+                                           logger=g_logger)
       pipelineConfig["grokSha"] = grokSha
       g_logger.debug("Resetting to %s", grokSha)
-      git.resetHard(grokSha)
+      git.resetHard(sha=grokSha, logger=g_logger)
 
 
 def addAndParseArgs(jsonArgs):
@@ -141,7 +144,8 @@ def addAndParseArgs(jsonArgs):
     args = vars(parser.parse_args())
 
   global g_logger
-  g_logger = log.initPipelineLogger("build", logLevel=args["logLevel"])
+  g_logger = diagnostics.initPipelineLogger(name="build",
+                                            logLevel=args["logLevel"])
   saneParams = {k:v for k, v in args.items() if v is not None}
   del saneParams["logLevel"]
 

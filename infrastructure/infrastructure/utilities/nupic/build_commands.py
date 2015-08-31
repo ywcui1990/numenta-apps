@@ -46,9 +46,6 @@ from infrastructure.utilities.cli import runWithOutput
 
 
 
-SCRIPTS_DIR = os.path.join(git.getGitRootFolder(), "nupic-pipeline", "scripts")
-ARTIFACTS_DIR = createOrReplaceArtifactsDir()
-
 DOXYFILE = "docs/Doxyfile"
 INIT_FILE = "nupic/__init__.py"
 VERSION_FILE = "VERSION"
@@ -69,17 +66,17 @@ def fetchNuPIC(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger):
     :param nupicBranch: The NuPIC branch which will be used to build
     :param nupicSha: NuPIC SHA used for current run.
 
-    :raises: infrastructure.utilities.exceptions.MissingSHAError
+    :raises infrastructure.utilities.exceptions.MissingSHAError:
       if the given SHA is not found.
   """
   try:
     with changeToWorkingDir(buildWorkspace):
       if not os.path.isdir(env["NUPIC"]):
-        git.clone(nupicRemote)
+        git.clone(nupicRemote, logger=logger)
 
     with changeToWorkingDir(env["NUPIC"]):
-      git.fetch(nupicRemote, nupicBranch)
-      git.resetHard(nupicSha)
+      git.fetch(nupicRemote, nupicBranch, logger=logger)
+      git.resetHard(nupicSha, logger=logger)
   except CommandFailedError:
     logger.exception("NuPIC checkout failed with %s,"
                      " this sha might not exist.", nupicSha)
@@ -147,20 +144,20 @@ def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha, logger):
     :param nupicCoreSha: The SHA of the nupic.core build that needs to be
       fetched
 
-    :raises: infrastructure.utilities.exceptions.MissingSHAError
+    :raises infrastructure.utilities.exceptions.MissingSHAError:
       if the given SHA is not found.
   """
   logger.info("Cloning nupic.core from GitHub.: {}".format(nupicCoreRemote))
 
   with changeToWorkingDir(buildWorkspace):
     if not os.path.isdir("nupic.core"):
-      git.clone(nupicCoreRemote)
+      git.clone(nupicCoreRemote, logger=logger)
 
   nupicCoreDir = buildWorkspace + "/nupic.core"
   with changeToWorkingDir(nupicCoreDir):
     if nupicCoreSha:
       try:
-        git.resetHard(nupicCoreSha)
+        git.resetHard(nupicCoreSha, logger=logger)
       except CommandFailedError:
         logger.exception("nupic.core checkout failed with %s,"
                            " this sha might not exist.", nupicCoreSha)
@@ -192,8 +189,7 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
     :param logger: An initialized logger
     :param str buildWorkspace: /path/to/buildWorkspace
 
-    :raises
-      infrastructure.utilities.exceptions.NupicBuildFailed:
+    :raises infrastructure.utilities.exceptions.NupicBuildFailed:
       This exception is raised if build fails.
   """
   print "\n----------Building nupic.core------------"
@@ -241,8 +237,7 @@ def buildNuPIC(env, logger, buildWorkspace):
 
     :param env: The environment which will be set before building
 
-    :raises
-      infrastructure.utilities.exceptions.NupicBuildFailed:
+    :raises infrastructure.utilities.exceptions.NupicBuildFailed:
       This exception is raised if build fails.
   """
   print "\n----------Building NuPIC------------"
@@ -256,7 +251,13 @@ def buildNuPIC(env, logger, buildWorkspace):
       except OSError:
         # didn't exist, so just pass
         pass
-      # need to remove this folder to allow the caching process to work
+
+      # install requirements
+      command = ("pip", "install", "--install-option=--prefix=%s" % env["NTA"],
+                 "--requirement", "external/common/requirements.txt")
+
+      runWithOutput(command=command, env=env, logger=logger)
+      # need to remove this folder for wheel build to work
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
@@ -265,8 +266,8 @@ def buildNuPIC(env, logger, buildWorkspace):
                                           os.path.join(env["NUPIC_CORE_DIR"],
                                                       "build", "release")))
       # Building on jenkins, not local
-      if "JENKINS_HOME" in os.environ:
-        command += " upload -r numenta-pypi"
+      if "JENKINS_HOME" in env:
+        command.extend(["upload", "-r", "numenta-pypi"])
 
       runWithOutput(command=command, env=env, logger=logger)
     except:
@@ -284,9 +285,8 @@ def runTests(env, logger):
 
     :param env: The environment which will be set for runnung tests.
 
-    :raises:
-      infrastructure.utilities.exceptions.NupicBuildFailed
-    if the given SHA is not found.
+    :raises: infrastructure.utilities.exceptions.NupicBuildFailed:
+      if the given SHA is not found.
   """
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
@@ -302,7 +302,7 @@ def runTests(env, logger):
     finally:
       resultFile = glob.glob("%s/tests/results/xunit/*/*.xml" % env["NUPIC"])[0]
       logger.debug("Copying results to results folder.")
-      shutil.move(resultFile, createOrReplaceResultsDir())
+      shutil.move(resultFile, createOrReplaceResultsDir(logger=logger))
 
 
 
@@ -341,8 +341,14 @@ def cacheNuPIC(env, nupicSha, logger):
                      fileContents=contents)
       createTextFile(fileName="nupicSHA.txt",
                      fileContents=nupicSha)
-      shutil.move("nupic-package-version.txt", ARTIFACTS_DIR)
-      shutil.move("nupicSHA.txt", ARTIFACTS_DIR)
+
+      artifactsDir = createOrReplaceArtifactsDir(logger=logger)
+
+      shutil.move("nupic-package-version.txt", artifactsDir)
+      with open("nupicSHA.txt", "w") as fHandle:
+        fHandle.write(nupicSha)
+      shutil.move("nupicSHA.txt", artifactsDir)
+
     except:
       logger.exception("Caching NuPIC failed.")
       raise

@@ -218,7 +218,9 @@ def getChangedFoldersBetweenRevisions(startSha, endSha):
     :rtype: set
 
   """
-  files = getModifiedFilesBetweenRevisions(startSha, endSha)
+  files = getModifiedFilesBetweenRevisions(startSha=startSha,
+                                           endSha=endSha,
+                                           logger=g_logger)
   rootFolders = []
   for name in files:
     if not name.split("/")[0] in rootFolders:
@@ -266,8 +268,8 @@ def main(args):
   try:
     #STEP 1: Determine which folders have been modified
     startSha = args.startSha or getLatestGreenRevision("product-master-build")
-    currentSha = getCurrentSha()
-    branch = args.branch or getActiveBranch()
+    currentSha = getCurrentSha(logger=g_logger)
+    branch = args.branch or getActiveBranch(logger=g_logger)
 
     rootFolders = getChangedFoldersBetweenRevisions(startSha, currentSha)
     g_logger.info("Folders with modifications: %s", rootFolders)

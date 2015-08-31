@@ -75,7 +75,7 @@ def main(args):
   """
   logger = initPipelineLogger("manifest", logLevel=args.logLevel)
   buildWorkspace = os.environ.get("BUILD_WORKSPACE",
-                                  jenkins.defineBuildWorkspace())
+                                  jenkins.defineBuildWorkspace(logger=logger))
   mkdirp(buildWorkspace)
 
   manifest = vars(args)

@@ -128,7 +128,7 @@ def addAndParseArgs():
                                             logLevel=args["logLevel"])
 
   if not args["buildWorkspace"]:
-    args["buildWorkspace"] = jenkins.defineBuildWorkspace()
+    args["buildWorkspace"] = jenkins.defineBuildWorkspace(logger)
     mkdirp(args["buildWorkspace"])
     g_logger.warning("You did not specify a Build Workspace via the command "
                      "line or via a BUILD_WORKSPACE env var, so one was "
@@ -157,8 +157,10 @@ def main():
   diagnostics.printEnv(env=env, logger=g_logger)
 
   if not args["nupicSha"]:
-    args["nupicSha"] = git.getShaFromRemoteBranch(args["nupicRemote"],
-                                                  args["nupicBranch"])
+    args["nupicSha"] = \
+      git.getShaFromRemoteBranch(gitRemoteRepo=args["nupicRemote"],
+                                 gitRemoteBranch=args["nupicBranch"],
+                                 logger=g_logger)
 
   if not checkIfProjectExistsLocallyForSHA("nupic", args["nupicSha"], g_logger):
     executeBuildProcess(env=env,

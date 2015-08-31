@@ -189,10 +189,10 @@ class NumentaRPM(object):
     logger.debug("Creating %s", productsDirectory)
     mkpath(productsDirectory)
     copy_tree(config.productsDir, productsDirectory)
-    iteration = git.getCommitCount(productsDirectory)
+    iteration = git.getCommitCount(productsDirectory, logger=logger)
 
     with changeToWorkingDir(productsDirectory):
-      actualSHA = git.getCurrentSha()
+      actualSHA = git.getCurrentSha(logger=logger)
 
     # Set extra python path
     self.setPythonPath()
@@ -240,7 +240,7 @@ class NumentaRPM(object):
 
     # Capture the commit count since we're going to trash products once we pull
     # out the saltcellar
-    iteration = git.getCommitCount(productsPath)
+    iteration = git.getCommitCount(productsPath, logger=logger)
     logger.debug("Commit count in %s is %s", productsPath, iteration)
 
     # Move the saltcellar to /srv/salt
@@ -307,7 +307,7 @@ class NumentaRPM(object):
 
     # Capture the commit count since we're going to trash products once we pull
     # out the saltcellar
-    iteration = git.getCommitCount(productsDirectory)
+    iteration = git.getCommitCount(productsDirectory, logger=logger)
     logger.debug("Commit count in %s is %s", productsDirectory, iteration)
     logger.debug("SHA in %s is %s", productsDirectory, fakerootSHA)
 
@@ -370,7 +370,7 @@ class NumentaRPM(object):
 
     productsDirectory = self.productsDirectory
     grokPath = os.path.join(productsDirectory, "grok")
-    iteration = git.getCommitCount(productsDirectory)
+    iteration = git.getCommitCount(productsDirectory, logger=logger)
 
     # Extend PYTHONPATH for setup.py, build & cleanup scripts
     # pythonpathExtensions
