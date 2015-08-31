@@ -128,7 +128,7 @@ def addAndParseArgs():
                                             logLevel=args["logLevel"])
 
   if not args["buildWorkspace"]:
-    args["buildWorkspace"] = jenkins.defineBuildWorkspace(logger)
+    args["buildWorkspace"] = jenkins.defineBuildWorkspace(g_logger)
     mkdirp(args["buildWorkspace"])
     g_logger.warning("You did not specify a Build Workspace via the command "
                      "line or via a BUILD_WORKSPACE env var, so one was "
