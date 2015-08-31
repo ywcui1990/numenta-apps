@@ -85,6 +85,9 @@ class InstanceNotReadyError(PipelineError):
 
 
 class InvalidParametersError(PipelineError):
+  """
+  DEPRECATED, use TypeError instead.
+  """
   pass
 
 
