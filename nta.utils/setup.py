@@ -33,7 +33,10 @@ setup(
   entry_points = {
     "console_scripts": [
       "nta-import-queues = nta.utils.tools.import_queues:main",
-      "nta-get-supervisord-state = nta.utils.tools.get_supervisord_state:main"
+      ("nta-get-supervisord-state = "
+       "nta.utils.tools.supervisord_state:getStateMain"),
+      ("nta-wait-for-supervisord-running = "
+       "nta.utils.tools.supervisord_state:waitForRunningStateMain"),
     ]
   }
 )
