@@ -176,7 +176,7 @@ def main(args):
                                g_logger)
     testCommand = 'cd %s && ./run_selenium_tests %s "%s" "%s"' % (
       g_tests_root, publicDnsName, args.platform.upper(), args.browser.upper())
-    resultsDir = os.path.join(jenkins.getWorkspace(), "results")
+    resultsDir = os.path.join(jenkins.getWorkspace(logger=g_logger), "results")
     check_call(testCommand, shell=True)
     recordResults(resultsDir)
     terminateInstance(instanceId, g_config, g_logger)

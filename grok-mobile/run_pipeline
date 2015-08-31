@@ -63,10 +63,10 @@ g_config["AWS_ACCESS_KEY_ID"] = os.environ.get("AWS_ACCESS_KEY_ID")
 g_config["AWS_SECRET_ACCESS_KEY"] = os.environ.get("AWS_SECRET_ACCESS_KEY")
 g_config["JOB_NAME"] = "grok-mobile-product-pipeline"
 g_config["BUILD_NUMBER"] = jenkins.getBuildNumber()
-GROK_MOBILE_HOME = os.path.join(jenkins.getWorkspace(), "grok-mobile")
-ANDROID_PATH = "%s/android" % GROK_MOBILE_HOME
-S3_MAPPING_BUCKET = os.environ.get("S3_MAPPING_BUCKET")
+ANDROID_PATH = None
+GROK_MOBILE_HOME = None
 GROK_AWS_CREDENTIALS_SETUP_TRIES = 30
+S3_MAPPING_BUCKET = os.environ.get("S3_MAPPING_BUCKET")
 SLEEP_DELAY = 10
 
 g_googleAnalyticsIdParameter = ("-DGA_TRACKING_ID=%s" %
@@ -77,13 +77,13 @@ g_initialVersionCodeParameter = ("-DINITIAL_VERSION_CODE=%s" %
                                  os.environ["INITIAL_VERSION_CODE"])
 
 
-def setupArtifactsDir():
+def setupArtifactsDir(logger):
   """
     If the artifactsDir already exists, then remove it and recreate. Otherwise,
     just create a new folder to store the artifacts in. Then, return the path to
     the artifactsDir.
   """
-  artifactsDir = os.path.join(jenkins.getWorkspace(), "artifacts")
+  artifactsDir = os.path.join(jenkins.getWorkspace(logger=logger), "artifacts")
   if os.path.exists(artifactsDir):
     shutil.rmtree(artifactsDir)
   os.makedirs(artifactsDir)
@@ -251,6 +251,11 @@ def main(args):
   """
   logger = initPipelineLogger(g_config["JOB_NAME"], logLevel=args.logLevel)
 
+  global ANDROID_PATH, GROK_MOBILE_HOME
+  GROK_MOBILE_HOME = os.path.join(jenkins.getWorkspace(logger=logger),
+                                  "grok-mobile")
+  ANDROID_PATH = "%s/android" % GROK_MOBILE_HOME
+
   # use a subset of config options for aws functions.
   awsConfig = {}
   awsConfig["REGION"] = g_config["REGION"]
@@ -308,7 +313,7 @@ def main(args):
     shutil.copy2("/etc/numenta/products/keys/grok.keystore",
                  os.path.join(GROK_MOBILE_HOME, "android"))
 
-    artifactsDir = setupArtifactsDir()
+    artifactsDir = setupArtifactsDir(logger=logger)
 
     # Build mobile client
     with changeToWorkingDir(ANDROID_PATH):
