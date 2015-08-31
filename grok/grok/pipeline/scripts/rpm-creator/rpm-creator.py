@@ -38,6 +38,7 @@ from infrastructure.utilities.cli import runWithOutput
 # Use a global for the timestamp, we will need to use it several times in
 # the course of creating an RPM and it needs to be consistent.
 VERSION_TIMESTAMP = time.strftime("%Y%m%d.%H.%M.%S")
+g_logger = None
 
 
 def packageDirectory(fakeroot,
@@ -237,13 +238,13 @@ def prepFakerootFromGit(fakeroot,
                                         fakeroot,
                                         installDirectory,
                                         repoDirectory)
-    git.clone(gitURL, directory=repoDirectory)
+    git.clone(gitURL=gitURL, logger=g_logger, directory=repoDirectory)
     workDirectory = "%s/%s/%s" % (fakeroot, installDirectory, repoDirectory)
     if sha:
       with changeToWorkingDir(workDirectory):
         g_logger.info("Checking out SHA %s in %s", sha, workDirectory)
-        git.checkout(sha)
-        git.resetHard()
+        git.checkout(pathspec=sha, logger=g_logger)
+        git.resetHard(sha=sha, logger=g_logger)
     else:
       g_logger.info("No sha specified, using head of master")
     gitVersionData = loadGitDescribeFromDirectory(workDirectory)
@@ -368,7 +369,7 @@ def parseArgs():
                       help="Logging level")
   args = parser.parse_args()
 
-  global g_logger
+  global g_logger #pylint: disable=W0603
   # Intializing logger
   g_logger = diagnostics.initPipelineLogger(name="rpm-creator",
                                             logLevel=args.logLevel)
@@ -394,9 +395,9 @@ def parseArgs():
     parser.error("--use-git-tags and --source-dir are incompatible "
                  "with each other")
   if args.timestamp:
-    VERSION_TIMESTAMP = args.timestamp
+    VERSION_TIMESTAMP = args.timestamp #pylint: disable=C0103,W0612
   else:
-    VERSION_TIMESTAMP = time.strftime("%Y%m%d.%H.%M.%S")
+    VERSION_TIMESTAMP = time.strftime("%Y%m%d.%H.%M.%S") #pylint: disable=C0103
 
   return args
 
