@@ -253,8 +253,8 @@ def checkout(pathspec, logger, **kwargs):
   :param bool orphan: Boolean. Defaults to False. If True, create a new orphan
     branch.
 
-  :param bool theirs: Boolean. Defaults to False. If True, when checking out paths
-    from the index, check out stage #3 (theirs) for unmerged paths.
+  :param bool theirs: Boolean. Defaults to False. If True, when checking out
+    paths from the index, check out stage #3 (theirs) for unmerged paths.
 
   :raises infrastructure.utilities.exceptions.CommandFailedError:
     if the command fails
@@ -322,7 +322,7 @@ def checkoutOrphan(pathspec, logger):
 
 
 
-def reset(sha="", logger=None, **kwargs):
+def reset(sha, logger, **kwargs):
   """
   Resets the repository to a optional SHA. Optional argument for --hard
 
@@ -350,7 +350,7 @@ def reset(sha="", logger=None, **kwargs):
 
 
 
-def resetHard(sha="", logger=None):
+def resetHard(sha, logger):
   """
   A convenience function that runs 'git reset --hard' for the given SHA.
   Calls reset(SHA, **kwargs).
@@ -368,7 +368,7 @@ def resetHard(sha="", logger=None):
   :rtype: int
   """
   assert logger
-  return reset(sha=sha, hard=True, logger=logger)
+  return reset(sha=sha, logger=logger, hard=True)
 
 
 

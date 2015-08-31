@@ -36,7 +36,6 @@ import yaml
 from infrastructure.utilities import git
 from infrastructure.utilities.jenkins import (createOrReplaceResultsDir,
                                               createOrReplaceArtifactsDir)
-from infrastructure.utilities import diagnostics
 from infrastructure.utilities.env import addNupicCoreToEnv
 from infrastructure.utilities.exceptions import (CommandFailedError,
                                                  NupicBuildFailed,
@@ -76,7 +75,7 @@ def fetchNuPIC(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha, logger):
 
     with changeToWorkingDir(env["NUPIC"]):
       git.fetch(nupicRemote, nupicBranch, logger=logger)
-      git.resetHard(nupicSha, logger=logger)
+      git.resetHard(sha=nupicSha, logger=logger)
   except CommandFailedError:
     logger.exception("NuPIC checkout failed with %s,"
                      " this sha might not exist.", nupicSha)
@@ -157,7 +156,7 @@ def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha, logger):
   with changeToWorkingDir(nupicCoreDir):
     if nupicCoreSha:
       try:
-        git.resetHard(nupicCoreSha, logger=logger)
+        git.resetHard(sha=nupicCoreSha, logger=logger)
       except CommandFailedError:
         logger.exception("nupic.core checkout failed with %s,"
                            " this sha might not exist.", nupicCoreSha)
@@ -192,12 +191,10 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
     :raises infrastructure.utilities.exceptions.NupicBuildFailed:
       This exception is raised if build fails.
   """
-  print "\n----------Building nupic.core------------"
-  diagnostics.printEnv(env=env, logger=logger)
   with changeToWorkingDir(env["NUPIC_CORE_DIR"]):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
-      git.resetHard(nupicCoreSha)
+      git.resetHard(sha=nupicCoreSha, logger=logger)
       mkdirp("build/scripts")
 
       # install pre-reqs into  the build workspace for isolation
@@ -222,10 +219,9 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       if "JENKINS_HOME" in os.environ:
         command += " bdist_wheel bdist_egg upload -r numenta-pypi"
       runWithOutput(command=command, env=env, logger=logger)
-    except CommandFailedError:
-      raise NupicBuildFailed("nupic.core building failed.Exiting")
-    except:
-      raise PipelineError("nupic.core building failed due to unknown reason.")
+    except Exception as originalException:
+      raise PipelineError("nupic.core building failed due to unknown reason.",
+                          originalException)
     else:
       logger.info("nupic.core building was successful.")
 
@@ -240,9 +236,6 @@ def buildNuPIC(env, logger, buildWorkspace):
     :raises infrastructure.utilities.exceptions.NupicBuildFailed:
       This exception is raised if build fails.
   """
-  print "\n----------Building NuPIC------------"
-  diagnostics.printEnv(env=env, logger=logger)
-
   # Build
   with changeToWorkingDir(env["NUPIC"]):
     try:
