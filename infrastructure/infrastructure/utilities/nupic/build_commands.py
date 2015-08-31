@@ -179,6 +179,44 @@ def checkIfProjectExistsLocallyForSHA(project, sha, logger):
 
 
 
+def buildCapnp(env, logger):
+  """Builds capnp
+
+    :param dict env: The environment which will be set before building.
+    :param logger: An initialized logger
+
+    :returns: Prefix path for capnp.
+
+    :raises infrastructure.utilities.exceptions.NupicBuildFailed:
+      This exception is raised if build fails.
+  """
+  with changeToWorkingDir(env["NUPIC_CORE_DIR"]):
+    try:
+      mkdirp("capnp_tmp")
+      with changeToWorkingDir("capnp_tmp"):
+        runWithOutput(
+            "curl -O https://capnproto.org/capnproto-c++-0.5.2.tar.gz",
+            env=env, logger=logger)
+        runWithOutput("tar zxf capnproto-c++-0.5.2.tar.gz",
+                      env=env, logger=logger)
+        capnpTmp = os.getcwd()
+        with changeToWorkingDir("capnproto-c++-0.5.2"):
+          runWithOutput(
+              "CXXFLAGS=\"-fPIC -std=c++11 -m64 -fvisibility=hidden -Wall "
+              "-Wreturn-type -Wunused -Wno-unused-parameter\" ./configure "
+              "--disable-shared --prefix={}".format(capnpTmp),
+              env=env, logger=logger)
+          runWithOutput("make -j4" env=env, logger=logger)
+          runWithOutput("make install" env=env, logger=logger)
+        return capnpTmp
+    except Exception as originalException:
+      raise PipelineError("capnp building failed due to unknown reason.",
+                          originalException)
+    else:
+      logger.info("capnp building was successful.")
+
+
+
 def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
   """
     Builds nupic.core
@@ -195,17 +233,21 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
     try:
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
       git.resetHard(sha=nupicCoreSha, logger=logger)
-      mkdirp("build/scripts")
+
+      capnpTmp = buildCapnp(env, logger)
 
       # install pre-reqs into  the build workspace for isolation
       runWithOutput(command=("pip install -r bindings/py/requirements.txt "
                              "--install-option=--prefix=%s "
                              "--ignore-installed" % buildWorkspace),
                             env=env, logger=logger)
+      mkdirp("build/scripts")
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var('LIBDIR')
         runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
-                       "-DPYTHON_LIBRARY={}/libpython2.7.so").format(libdir),
+                       "-DCMAKE_PREFIX_PATH={} "
+                       "-DPYTHON_LIBRARY={}/libpython2.7.so").format(
+                           capnpTmp, libdir),
                       env=env, logger=logger)
         runWithOutput("make -j 4", env=env, logger=logger)
         runWithOutput("make install", env=env, logger=logger)
