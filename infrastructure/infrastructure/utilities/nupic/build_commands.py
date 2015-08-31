@@ -219,9 +219,9 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       if "JENKINS_HOME" in os.environ:
         command += " bdist_wheel bdist_egg upload -r numenta-pypi"
       runWithOutput(command=command, env=env, logger=logger)
-    except Exception as originalException:
-      raise PipelineError("nupic.core building failed due to unknown reason.",
-                          originalException)
+    except:
+      logger.exception("Failed to build nupic.core")
+      raise PipelineError("nupic.core building failed due to unknown reason.")
     else:
       logger.info("nupic.core building was successful.")
 
