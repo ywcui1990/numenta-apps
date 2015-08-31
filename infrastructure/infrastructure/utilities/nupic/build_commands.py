@@ -206,8 +206,8 @@ def buildCapnp(env, logger):
               "-Wreturn-type -Wunused -Wno-unused-parameter\" ./configure "
               "--disable-shared --prefix={}".format(capnpTmp),
               env=env, logger=logger)
-          runWithOutput("make -j4" env=env, logger=logger)
-          runWithOutput("make install" env=env, logger=logger)
+          runWithOutput("make -j4", env=env, logger=logger)
+          runWithOutput("make install", env=env, logger=logger)
         return capnpTmp
     except Exception as originalException:
       raise PipelineError("capnp building failed due to unknown reason.",
