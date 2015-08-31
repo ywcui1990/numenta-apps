@@ -428,7 +428,7 @@ def main(jsonArgs=None):
       raise exceptions.MissingAWSKeysInEnvironment("AWS keys are not set")
 
     env = prepareEnv(buildWorkspace, None, os.environ)
-    artifactsDir = jenkins.createOrReplaceArtifactsDir()
+    artifactsDir = jenkins.createOrReplaceArtifactsDir(logger=g_logger)
     syncRpm, rpmNameDetails = buildRpms(env, grokSha,
                                         releaseVersion, artifactsDir,
                                         g_logger, g_config, grokRemote)

@@ -171,7 +171,7 @@ def main(jsonArgs=None):
       g_config["AWS_ACCESS_KEY_ID"] = os.environ["AWS_ACCESS_KEY_ID"]
       g_config["AWS_SECRET_ACCESS_KEY"] = os.environ["AWS_SECRET_ACCESS_KEY"]
 
-    artifactsDir = createOrReplaceArtifactsDir()
+    artifactsDir = createOrReplaceArtifactsDir(logger=g_logger)
 
     g_logger.info("Creating the Ami")
     pipeLineSrc = os.path.join(os.environ["PRODUCTS"], "grok", "grok",
