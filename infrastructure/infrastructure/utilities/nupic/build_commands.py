@@ -201,11 +201,14 @@ def buildCapnp(env, logger):
                       env=env, logger=logger)
         capnpTmp = os.getcwd()
         with changeToWorkingDir("capnproto-c++-0.5.2"):
+          capnpEnv = env.copy()
+          capnpEnv["CXXFLAGS"] = (
+              "-fPIC -std=c++11 -m64 -fvisibility=hidden -Wall -Wreturn-type "
+              "-Wunused -Wno-unused-parameter")
           runWithOutput(
-              ["CXXFLAGS=\"-fPIC -std=c++11 -m64 -fvisibility=hidden -Wall "
-               "-Wreturn-type -Wunused -Wno-unused-parameter\"", "./configure",
-              "--disable-shared", "--prefix={}".format(capnpTmp)],
-              env=env, logger=logger)
+              ["./configure", "--disable-shared",
+               "--prefix={}".format(capnpTmp)],
+              env=capnEnv, logger=logger)
           runWithOutput("make -j4", env=env, logger=logger)
           runWithOutput("make install", env=env, logger=logger)
         return capnpTmp
