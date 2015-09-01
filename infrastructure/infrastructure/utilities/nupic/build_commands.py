@@ -208,7 +208,7 @@ def buildCapnp(env, logger):
           runWithOutput(
               ["./configure", "--disable-shared",
                "--prefix={}".format(capnpTmp)],
-              env=capnEnv, logger=logger)
+              env=capnpEnv, logger=logger)
           runWithOutput("make -j4", env=env, logger=logger)
           runWithOutput("make install", env=env, logger=logger)
         return capnpTmp
