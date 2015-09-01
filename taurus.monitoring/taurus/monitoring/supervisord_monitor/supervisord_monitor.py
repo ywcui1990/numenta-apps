@@ -58,6 +58,8 @@ class SupervisorChecker(object):
                           "MODELS_MONITOR_EMAIL_SES_ENDPOINT"))
   parser.add_option("--serverUrl",
                     help="Supervisor API (e.g. http://127.0.0.1:9001)")
+  parser.add_option("--subjectPrefix",
+                    help="Prefix to add to subject in emails")
 
   _checks = []
 
@@ -70,6 +72,7 @@ class SupervisorChecker(object):
                         .format(repr(args)))
 
     self.server = xmlrpclib.Server(urljoin(options.serverUrl, "RPC2"))
+    self.subjectPrefix = options.subjectPrefix
 
     confDir = os.path.dirname(options.monitorConfPath)
     confFileName = os.path.basename(options.monitorConfPath)
@@ -96,6 +99,7 @@ class SupervisorChecker(object):
           monitorName=__name__ + ":" + check.__name__,
           resourceName=repr(self.server),
           message=traceback.format_exc(),
+          subjectPrefix=self.subjectPrefix,
           params=self.emailParams)
 
 
