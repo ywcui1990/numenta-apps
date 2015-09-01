@@ -195,18 +195,16 @@ def buildCapnp(env, logger):
       mkdirp("capnp_tmp")
       with changeToWorkingDir("capnp_tmp"):
         runWithOutput(
-            "curl -O https://capnproto.org/capnproto-c++-0.5.2.tar.gz",
+            ["curl", "-O", "https://capnproto.org/capnproto-c++-0.5.2.tar.gz"],
             env=env, logger=logger)
-        runWithOutput("tar zxf capnproto-c++-0.5.2.tar.gz",
+        runWithOutput(["tar", "zxf", "capnproto-c++-0.5.2.tar.gz"],
                       env=env, logger=logger)
         capnpTmp = os.getcwd()
-        logger.info("tmp dir contents:\n%s", " ".join(os.listdir(capnpTmp)))
         with changeToWorkingDir("capnproto-c++-0.5.2"):
-          logger.info("capnp dir contents:\n%s", " ".join(os.listdir(os.getcwd())))
           runWithOutput(
-              "CXXFLAGS=\"-fPIC -std=c++11 -m64 -fvisibility=hidden -Wall "
-              "-Wreturn-type -Wunused -Wno-unused-parameter\" ./configure "
-              "--disable-shared --prefix={}".format(capnpTmp),
+              ["CXXFLAGS=\"-fPIC -std=c++11 -m64 -fvisibility=hidden -Wall "
+               "-Wreturn-type -Wunused -Wno-unused-parameter\"", "./configure",
+              "--disable-shared", "--prefix={}".format(capnpTmp)],
               env=env, logger=logger)
           runWithOutput("make -j4", env=env, logger=logger)
           runWithOutput("make install", env=env, logger=logger)
