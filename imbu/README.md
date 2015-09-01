@@ -10,8 +10,6 @@
 
 ## UNDER HEAVY DEVELOPMENT
 
-## Development
-
 ### Setup
 
 ```shell
@@ -19,27 +17,48 @@ brew install git node  # darwin
 git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/imbu
 npm install
-pip install -r requirements.txt
+python setup.py install
 ```
 
-Follow [Nupic Fluent](https://github.com/numenta/nupic.fluent#installation) installation instructions and add `nupic.fluent` to your `PYTHONPATH` to complete the installation.
+### nupic.research dependencies (FIXME)
+
+Currently **Fluent** depends on [nupic.research/classification](https://github.com/numenta/nupic.research/tree/master/classification) project. As of this writings you will need to install this dependency manually.
 
 ```shell
-export PYTHONPATH=$PYTHONPATH:<path to nupic.fluent>
+git clone https://github.com/numenta/nupic.research
+export PYTHONPATH=$PYTHONPATH:<path to "nupic.research/classification">
 ```
+
+#### Cortical.io Setup
+
+1. Get [cortical.io](http://www.cortical.io/) API key from http://www.cortical.io/resources_apikey.html
+1. Update `CORTICAL_API_KEY` value with your new API key in [conf/supervisord.conf](conf/supervisord.conf) configuration file.
 
 ## Running
 
-Start fluent API:
+Change working directory to `numenta-apps/imbu`:
 
 ```shell
-python engine/fluent_api.py
+cd numenta-apps/imbu
 ```
 
-Start app on local webserver, you can open it with Chrome Browser
-at `http://localhost:9999`:
+Build Web App:
 
 ```shell
-npm run dev
-open http://localhost:9999
+npm run pack-web
 ```
+
+Start `nginx`:
+
+```shell
+sudo nginx -p . -c conf/nginx-fluent.conf
+```
+
+Start `Fluent API` services:
+
+```shell
+mkdir -p logs
+supervisord -c conf/supervisord.conf
+```
+
+Open application from this URL: http://localhost:8080

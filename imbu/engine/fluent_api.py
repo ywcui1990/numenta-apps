@@ -81,7 +81,7 @@ class FluentWrapper(object):
                         numClasses=1,  # must be >0 to go through training
                         plots=0,
                         orderedSplit=False,
-                        trainSize=[],
+                        trainSizes=[],
                         verbosity=0)
 
     # Train model with given sample data
@@ -170,3 +170,5 @@ g_fluent = FluentWrapper(pkg_resources.resource_filename(__name__, "data.csv"))
 
 if __name__ == "__main__":
   app.run()
+
+application = app.wsgifunc()
