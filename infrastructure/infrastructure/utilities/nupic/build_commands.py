@@ -259,7 +259,9 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      command = "python setup.py install --prefix=%s" % buildWorkspace
+      command = (
+          "python setup.py install --prefix={} --nupic-core-dir={}".format(
+              buildWorkspace, os.path.join(os.getcwd(), "build", "release")))
       # Building on jenkins, not local
       if "JENKINS_HOME" in os.environ:
         command += " bdist_wheel bdist_egg upload -r numenta-pypi"
