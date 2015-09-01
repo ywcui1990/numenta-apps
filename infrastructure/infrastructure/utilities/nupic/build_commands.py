@@ -209,9 +209,9 @@ def buildCapnp(env, logger):
           runWithOutput("make -j4", env=env, logger=logger)
           runWithOutput("make install", env=env, logger=logger)
         return capnpTmp
-    except Exception as originalException:
-      raise PipelineError("capnp building failed due to unknown reason.",
-                          originalException)
+    except Exception:
+      logger.exception("capnp building failed due to unknown reason.")
+      raise
     else:
       logger.info("capnp building was successful.")
 
@@ -261,9 +261,9 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       if "JENKINS_HOME" in os.environ:
         command += " bdist_wheel bdist_egg upload -r numenta-pypi"
       runWithOutput(command=command, env=env, logger=logger)
-    except Exception as originalException:
-      raise PipelineError("nupic.core building failed due to unknown reason.",
-                          originalException)
+    except Exception:
+      logger.exception("nupic.core building failed due to unknown reason.")
+      raise
     else:
       logger.info("nupic.core building was successful.")
 
