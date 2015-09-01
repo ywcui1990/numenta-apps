@@ -335,7 +335,6 @@ def runTests(env, logger):
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
     try:
-      runWithOutput("bin/py_region_test", env=env, logger=logger)
       testCommand = "scripts/run_nupic_tests -u --coverage --results xml"
       runWithOutput(testCommand, env=env, logger=logger)
     except:
