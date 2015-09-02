@@ -36,8 +36,9 @@ import path from 'path';
 
 // internals
 
-let dbPath = path.join('frontend', 'db', 'data.json');
-let db = levelup(dbPath, { db: jsondown });
+const FILE_PATH = path.join('frontend', 'db', 'data.json');
+
+let db = levelup(FILE_PATH, { db: jsondown });
 
 
 // MAIN
