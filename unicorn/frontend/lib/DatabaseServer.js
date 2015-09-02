@@ -38,8 +38,6 @@ import path from 'path';
 
 const FILE_PATH = path.join('frontend', 'db', 'data.json');
 
-let db = levelup(FILE_PATH, { db: jsondown });
-
 
 // MAIN
 
@@ -47,20 +45,21 @@ let db = levelup(FILE_PATH, { db: jsondown });
  *
  */
 var DatabaseServer = function () {
+  this.db = levelup(FILE_PATH, { db: jsondown });
 };
 
 /**
  *
  */
 DatabaseServer.prototype.get = function (key, callback) {
-  db.get(key, callback);
+  this.db.get(key, callback);
 };
 
 /**
  *
  */
 DatabaseServer.prototype.put = function (key, value, callback) {
-  db.put(key, value, callback);
+  this.db.put(key, value, callback);
 };
 
 
