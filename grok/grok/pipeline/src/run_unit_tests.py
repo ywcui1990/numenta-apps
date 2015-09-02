@@ -118,10 +118,8 @@ def runUnitTests(env, buildWorkspace):
 
   with changeToWorkingDir(os.path.join(buildWorkspace, "numenta-apps", "grok")):
     try:
-      runWithOutput(command=("./run_tests.sh",
-                             "--unit",
-                             "--language py",
-                             "--results xunit jenkins"),
+      runWithOutput(command=("./run_tests.sh --unit --language py --results "
+                             "xunit jenkins"),
                     env=env,
                     logger=g_logger)
     except CommandFailedError:
