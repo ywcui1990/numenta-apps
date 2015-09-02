@@ -85,8 +85,8 @@ def prepareEnv(workspace, nupicBuildDir=None, environ=None):
     BUILD_WORKSPACE=workspace,
     REPOSITORY=os.path.join(nupicBuildDir or workspace, "nupic"),
     PY_VERSION=sys.version[:3],
-    PRODUCTS=os.path.join(workspace, "products"),
-    GROK_HOME=os.path.join(workspace, "products", "grok")
+    PRODUCTS=os.path.join(workspace, "numenta-apps"),
+    GROK_HOME=os.path.join(workspace, "numenta-apps", "grok")
   )
 
   env.update(
