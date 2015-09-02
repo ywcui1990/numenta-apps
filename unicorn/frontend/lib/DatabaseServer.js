@@ -28,6 +28,17 @@
  * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
  */
 
+// externals
+
+import jsondown from 'jsondown';
+import levelup from 'levelup';
+import path from 'path';
+
+// internals
+
+let dbPath = path.join('frontend', 'db', 'data.json');
+let db = levelup(dbPath, { db: jsondown });
+
 
 // MAIN
 
@@ -35,14 +46,20 @@
  *
  */
 var DatabaseServer = function () {
-  this.uhh = 'ipc';
 };
 
 /**
  *
  */
-DatabaseServer.prototype.example = function(callback) {
-  callback(null, { result: 'uhh_is_' + this.uhh });
+DatabaseServer.prototype.get = function (key, callback) {
+  db.get(key, callback);
+};
+
+/**
+ *
+ */
+DatabaseServer.prototype.put = function (key, value, callback) {
+  db.put(key, value, callback);
 };
 
 

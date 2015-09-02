@@ -61,13 +61,23 @@ let FooView;
 document.addEventListener('DOMContentLoaded', () => {
 
   // working example/test of FileClient/Server over IPC
-  fileClient.getFiles(function(error, files) {
+  fileClient.getFiles((error, files) => {
     if(error) throw new Error('cannot get list of files');
     console.log('sample files:', files);
 
-    fileClient.getFile(files[0], function(error, data) {
+    fileClient.getFile(files[0], (error, data) => {
       if(error) throw new Error('cannot get file', files[0]);
       console.log('first sample file data:', files[0], data.toString());
+    });
+  });
+
+  // working example/test of DatabaseClient/Server over IPC
+  databaseClient.put('one', 'two', (error) => {
+    if(error) throw new Error('could not put value into db');
+
+    databaseClient.get('one', (error, data) => {
+      if(error) throw new Error('could not get value from db');
+      console.log('get from db *one* = ', data);
     });
   });
 

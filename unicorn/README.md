@@ -44,6 +44,7 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
     components/     # React view components JSX
     lib/            # Custom JS libs for inside the browser (engine clients)
     stores/         # Fluxible Stores JS
+  db/               # Flat-file JSON database storage (levelup + jsondown)
   lib/              # Custom JS libs for outside the browser (engine servers)
   loader.js         # Electron App entry point loader for main.js ES5 => ES6
   main.js           # ES6 Electron App main entry, creates browser GUI window + model runner engine
@@ -57,6 +58,7 @@ package.json        # Node.js `npm` packages, dependencies, and App config
 
 
 ## Technology
+
 
 ### Backend
 
@@ -75,6 +77,12 @@ package.json        # Node.js `npm` packages, dependencies, and App config
 The Machine Intelligence behind this app is a technology known as Hierarchical
 Temporal Memory (HTM). NuPIC is Numenta's open source HTM engine. NuPIC runs
 on streams of data, predicting future values, and detecting pattern anomalies.
+
+#### Guidelines
+
+* Python coding guidelines @TODO
+* C++ coding guidelines @TODO
+
 
 ### Frontend
 
@@ -116,20 +124,6 @@ on streams of data, predicting future values, and detecting pattern anomalies.
   * Streaming task runner: [Gulp](https://github.com/gulpjs/gulp)
   * JS transpiling (ES6, JSX, etc): [Babel](https://github.com/babel/babel)
   * Linting: [eslint](http://eslint.org/)
-* Development help:
-  * Browser:
-    * [Electron + Chrome debug shortcuts](https://github.com/sindresorhus/electron-debug)
-    * [React Chrome browser plugin](http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/)
-    * [Chrome DevTools plugin](http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/)
-  * Command-line flags:
-    * [Electron debugging switches](https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
-    * [Chrome switches supported in Electron](http://electron.atom.io/docs/v0.31.0/api/chrome-command-line-switches/)
-  * Node/io.js system-level debugging:
-    * [Electron with node-inspector](https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
-    * [Node debugger](https://nodejs.org/api/debugger.html)
-  * Other:
-    * [Awesome Node.js list](https://github.com/sindresorhus/awesome-nodejs)
-    * [Electron and Windows Debug Symbol Server](http://electron.atom.io/docs/v0.31.0/development/setting-up-symbol-server/)
 
 #### Description
 
@@ -159,10 +153,23 @@ loop run, and GUI loop continuation:
 1. .. and then The User interacts with the app firing off a new Action
 1. .. GOTO #6, RINSE and REPEAT.
 
+#### Guidelines
+
+* [ES5 Styleguide](https://github.com/felixge/node-style-guide)
+* ES6 styleguide @TODO
+  * **Exception:** OK to occasionally have non-all-caps `const`, i.e. class
+    constructors, immutable data structures, etc.
+* Flow Typing styleguide @TODO
+* HTML @TODO
+* CSS @TODO
+
 
 ## Development
 
-### Setup
+
+### Instructions
+
+#### Setup
 
 Example of setting up development environment on Mac OS/X:
 
@@ -173,8 +180,6 @@ cd numenta-apps/unicorn
 pip install -r backend/requirements.txt
 npm install
 ```
-
-### Targets
 
 #### Desktop App
 
@@ -199,38 +204,54 @@ npm run web
 ```
 
 
-## Guidelines
+### Debugging
 
-* Javascript
-  * [ES5 Styleguide](https://github.com/felixge/node-style-guide)
-  * ES6 styleguide AirBnB? @TODO
-  * **Exception:** OK to occasionally have non-all-caps `const`, i.e. class
-    constructors, immutable data structures, etc.
-  * Flow Typing styleguide? @TODO
-  * Web changes fast, keep packages up-to-date with `npm run check`
-* HTML @TODO
-* CSS @TODO
+#### Browser
+
+* [Electron + Chrome debug shortcuts](https://github.com/sindresorhus/electron-debug)
+* [React Chrome browser plugin](http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/)
+* [Chrome DevTools plugin](http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/)
+
+#### Command-line
+
+* [Electron debugging switches](https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
+* [Chrome switches supported in Electron](http://electron.atom.io/docs/v0.31.0/api/chrome-command-line-switches/)
+
+#### Node/io.js system-level
+
+* [Electron with node-inspector](https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
+* [Node debugger](https://nodejs.org/api/debugger.html)
+
+#### Other Debugging
+
+* [Electron and Windows Debug Symbol Server](http://electron.atom.io/docs/v0.31.0/development/setting-up-symbol-server/)
+
+#### Problems? and Hints
+
+* Make sure packages are up-to-date: `npm run check`
+* Sometimes `node_modules/` directory can become corrupted, try cleaning and
+  reinstalling: `npm run clean ; npm install`
+* [Awesome Node.js list](https://github.com/sindresorhus/awesome-nodejs)
 
 
-## @TODOs below
+## Pending @TODOs below...
 
-This is for Brev/temp, will clean up soon.
+Highest priority items listed on top. The following need to be JIRA-tized, or
+may be too low priority to worry about yet. -@brev
 
-* Errors are not that helpful so far, need to improve this
-  * Seemed like webpack / babel build errors were not killing the 'npm start'
-    flow, missing exit code in package.json?
 * Singular config settings file (sync w/@lscheinkman)
   * Gulp/Webpack config settings for loading differing bundle/code for
     Desktop or Browser. Split build sources and targets for certain dirs?
-* i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
+* make real tests and make tests work
 * Setup eslint to run in package.json:scripts or gulp on build
 * Setup logging: Winston or Bunyan? => Joe thinking about it.
-* Document where are imports=>requires handled? Babel/Webpack?
-* Add in Flow type checking
-* add in Dygraph/FaceOfGrok
-* make real tests and make tests work
 * add retina.js for hd images
-* setup css and image assets etc
+* Errors are not that helpful so far, need to improve this
+  * Seemed like webpack / babel build errors were not killing the 'npm start'
+    flow, missing exit code in package.json?
+* Add in Flow type checking
+* i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
+* Document where are imports=>requires handled? Babel/Webpack?
 * add Architecture docs and charts
   * Copy in ARch doc Errors section to this doc
     * Errors can do screenshots:
