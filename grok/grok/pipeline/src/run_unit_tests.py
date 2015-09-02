@@ -25,12 +25,13 @@ import json
 import os
 import shutil
 
+import xml.etree.ElementTree as ET
 from subprocess import check_call, CalledProcessError
 
 from infrastructure.utilities.env import prepareEnv
 from infrastructure.utilities.exceptions import CommandFailedError, TestsFailed
 from infrastructure.utilities.jenkins import getBuildNumber, getWorkspace
-from infrastructure.utilities.diagnostics import initPipelineLogger, printEnv
+from infrastructure.utilities.diagnostics import initPipelineLogger
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput
 
@@ -119,14 +120,14 @@ def runUnitTests(env, buildWorkspace):
                   env=env,
                   logger=g_logger)
 
-  return analyzeResults(os.path.join(buildWorkspace,
-                                     "numenta-apps",
-                                     "grok",
-                                     "tests",
-                                     "results",
-                                     "py2",
-                                     "xunit",
-                                     "jenkins"))
+  resultsPath = os.path.join(buildWorkspace, "numenta-apps", "grok", "tests",
+                             "results", "py2", "xunit", "jenkins")
+  jenkinsResultsPath = prepareResultsDir()
+  shutil.move(os.path.join(resultsPath, "results.xml"),
+              os.path.join(jenkinsResultsPath, "unit_tests_%s_results.xml" %
+                            getBuildNumber(logger=g_logger)))
+
+  return analyzeResults(resultsPath=resultsPath)
 
 
 
