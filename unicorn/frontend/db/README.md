@@ -1,1 +1,1 @@
-This directory contains database .JSON files which not saved to source control.
+This directory contains DB `.json` files which are not saved to source control.
