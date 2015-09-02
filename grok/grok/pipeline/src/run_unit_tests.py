@@ -183,7 +183,7 @@ def addAndParseArgs(jsonArgs):
   if saneParams.get("buildWorkspace"):
     buildWorkspace = saneParams.get("buildWorkspace")
   else:
-    buildWorkspace = pipelineParams.get("buildWorkspace")
+    buildWorkspace = pipelineParams.get("manifest", {}).get("buildWorkspace")
 
   if buildWorkspace and pipelineParams:
     return (buildWorkspace, pipelineParams, args["pipelineJson"])
