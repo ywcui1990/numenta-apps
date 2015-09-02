@@ -44,21 +44,20 @@ const FILE_PATH = path.join('frontend', 'samples'); // @TODO move path to config
  *
  */
 var FileServer = function () {
-  this.FILE_PATH = FILE_PATH;
 };
 
 /**
  *
  */
 FileServer.prototype.getFile = function (filename, callback) {
-  fs.readFile(path.join(this.FILE_PATH, filename), callback);
+  fs.readFile(path.join(FILE_PATH, filename), callback);
 };
 
 /**
  *
  */
 FileServer.prototype.getFiles = function (callback) {
-  fs.readdir(this.FILE_PATH, callback);
+  fs.readdir(FILE_PATH, callback);
 };
 
 

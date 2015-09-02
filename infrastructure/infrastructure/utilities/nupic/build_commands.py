@@ -200,11 +200,14 @@ def buildCapnp(env, logger):
                       env=env, logger=logger)
         capnpTmp = os.getcwd()
         with changeToWorkingDir("capnproto-c++-0.5.2"):
+          capnpEnv = env.copy()
+          capnpEnv["CXXFLAGS"] = (
+              "-fPIC -std=c++11 -m64 -fvisibility=hidden -Wall -Wreturn-type "
+              "-Wunused -Wno-unused-parameter")
           runWithOutput(
-              ["CXXFLAGS=\"-fPIC -std=c++11 -m64 -fvisibility=hidden -Wall "
-               "-Wreturn-type -Wunused -Wno-unused-parameter\"", "./configure",
-              "--disable-shared", "--prefix={}".format(capnpTmp)],
-              env=env, logger=logger)
+              ["./configure", "--disable-shared",
+               "--prefix={}".format(capnpTmp)],
+              env=capnpEnv, logger=logger)
           runWithOutput("make -j4", env=env, logger=logger)
           runWithOutput("make install", env=env, logger=logger)
         return capnpTmp
@@ -255,11 +258,18 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      command = "python setup.py install --prefix=%s" % buildWorkspace
+      nupicBindingsEnv = env.copy()
+      nupicBindingsEnv["CPPFLAGS"] = "-I{}".format(
+          os.path.join(capnpTmp, "include"))
+      nupicBindingsEnv["LDFLAGS"] = "-L{}".format(
+          os.path.join(capnpTmp, "lib"))
+      command = (
+          "python setup.py install --prefix={} --nupic-core-dir={}".format(
+              buildWorkspace, os.path.join(os.getcwd(), "build", "release")))
       # Building on jenkins, not local
       if "JENKINS_HOME" in os.environ:
         command += " bdist_wheel bdist_egg upload -r numenta-pypi"
-      runWithOutput(command=command, env=env, logger=logger)
+      runWithOutput(command=command, env=nupicBindingsEnv, logger=logger)
     except:
       logger.exception("Failed to build nupic.core")
       raise
@@ -295,10 +305,9 @@ def buildNuPIC(env, logger, buildWorkspace):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      command = ("python setup.py install --prefix=%s bdist_wheel bdist_egg "
-                 "--nupic-core-dir=%s" % (buildWorkspace,
-                                          os.path.join(env["NUPIC_CORE_DIR"],
-                                                      "build", "release")))
+      command = (
+          "python setup.py install --prefix=%s bdist_wheel bdist_egg " % (
+              buildWorkspace))
       # Building on jenkins, not local
       if "JENKINS_HOME" in env:
         command.extend(["upload", "-r", "numenta-pypi"])
@@ -325,7 +334,6 @@ def runTests(env, logger):
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
     try:
-      runWithOutput("bin/py_region_test", env=env, logger=logger)
       testCommand = "scripts/run_nupic_tests -u --coverage --results xml"
       runWithOutput(testCommand, env=env, logger=logger)
     except:

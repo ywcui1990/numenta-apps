@@ -37,7 +37,7 @@ g_log = logging.getLogger(__name__)
 
 
 def sendMonitorErrorEmail(monitorName, resourceName, message, isTest=False,
-                          params=None):
+                          subjectPrefix=None, params=None):
   """
   Sends an email concerning a monitor related error.
   :param monitorName: Name of monitor detecting error
@@ -55,9 +55,13 @@ def sendMonitorErrorEmail(monitorName, resourceName, message, isTest=False,
                  sesEndpoint,
                  awsAccessKeyId,
                  awsSecretAccessKey
+                 It may optionally contain a subjectPrefix key which will be
+                 used as a prefix to the generated message subject
   :type params: dict
   """
   subject = "Test Email: " if isTest else ""
+  if subjectPrefix is not None:
+    subject += "%s: " % subjectPrefix
   subject += "Monitor {0} has detected an error!".format(monitorName)
 
   # Add current datetime
@@ -166,14 +170,14 @@ def sendEmailViaSES(subject,
     conn = boto.ses.SESConnection(region=regionInfo,
                                   aws_access_key_id=awsAccessKeyId,
                                   aws_secret_access_key=awsSecretAccessKey)
-  
+
     conn.send_email(source=senderAddress,
                     subject=subject,
                     body=body,
                     to_addresses=recipients)
     g_log.info("Called boto.ses.SESConnection.send_email. This does not "
                "necessarily mean that the email was successfully sent.")
-    
+
   except BotoServerError:
     g_log.exception("Failed to send email via AWS/SES. subject='%s'" %
                     (subject,))
