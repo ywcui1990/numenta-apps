@@ -37,9 +37,7 @@ from infrastructure.utilities import git
 from infrastructure.utilities.jenkins import (createOrReplaceResultsDir,
                                               createOrReplaceArtifactsDir)
 from infrastructure.utilities.env import addNupicCoreToEnv
-from infrastructure.utilities.exceptions import (CommandFailedError,
-                                                 NupicBuildFailed,
-                                                 PipelineError)
+from infrastructure.utilities.exceptions import CommandFailedError
 from infrastructure.utilities.path import changeToWorkingDir, mkdirp
 from infrastructure.utilities.cli import runWithOutput
 
@@ -159,7 +157,8 @@ def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha, logger):
         git.resetHard(sha=nupicCoreSha, logger=logger)
       except CommandFailedError:
         logger.exception("nupic.core checkout failed with %s,"
-                           " this sha might not exist.", nupicCoreSha)
+                         " this sha might not exist.", nupicCoreSha)
+        raise
 
 
 
@@ -271,8 +270,8 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       if "JENKINS_HOME" in os.environ:
         command += " bdist_wheel bdist_egg upload -r numenta-pypi"
       runWithOutput(command=command, env=nupicBindingsEnv, logger=logger)
-    except Exception:
-      logger.exception("nupic.core building failed due to unknown reason.")
+    except:
+      logger.exception("Failed to build nupic.core")
       raise
     else:
       logger.info("nupic.core building was successful.")
@@ -316,7 +315,7 @@ def buildNuPIC(env, logger, buildWorkspace):
       runWithOutput(command=command, env=env, logger=logger)
     except:
       logger.exception("Failed while building nupic")
-      raise NupicBuildFailed("NuPIC building failed.")
+      raise
     else:
       open("nupic.stamp", "a").close()
       logger.debug("NuPIC building was successful.")
