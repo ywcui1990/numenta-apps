@@ -305,12 +305,10 @@ def buildNuPIC(env, logger, buildWorkspace):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      command = (
-          "python setup.py install --prefix=%s bdist_wheel bdist_egg " % (
-              buildWorkspace))
+      command = "python setup.py install --prefix=%s" % buildWorkspace
       # Building on jenkins, not local
-      if "JENKINS_HOME" in env:
-        command.extend(["upload", "-r", "numenta-pypi"])
+      if "JENKINS_HOME" in os.environ:
+        command += " bdist_wheel bdist_egg upload -r numenta-pypi"
 
       runWithOutput(command=command, env=env, logger=logger)
     except:
