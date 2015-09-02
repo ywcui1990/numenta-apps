@@ -306,11 +306,11 @@ def buildNuPIC(env, logger, buildWorkspace):
 
       # build the distributions
       command = (
-          "python setup.py install --prefix=%s bdist_wheel bdist_egg " % (
+          "python setup.py install --prefix=%s" % (
               buildWorkspace))
       # Building on jenkins, not local
-      if "JENKINS_HOME" in env:
-        command.extend(["upload", "-r", "numenta-pypi"])
+      if "JENKINS_HOME" in os.environ:
+        command += " bdist_wheel bdist_egg upload -r numenta-pypi"
 
       runWithOutput(command=command, env=env, logger=logger)
     except:
