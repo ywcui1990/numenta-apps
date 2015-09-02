@@ -29,7 +29,7 @@ from optparse import OptionParser
 import pytest
 
 
-def collect_set(option, opt_str, value, parser):
+def collectSet(option, opt_str, value, parser): #pylint: disable=C0103, W0613
   """ Collect multiple option values into a single set.  Used in conjunction
   with callback argument to OptionParser.add_option().
   """
@@ -46,7 +46,7 @@ def collect_set(option, opt_str, value, parser):
   setattr(parser.values, option.dest, value)
 
 
-def collect_list(option, opt_str, value, parser):
+def collectList(option, opt_str, value, parser): #pylint: disable=C0103, W0613
   """ Collect multiple option values into a single list.  Used in conjunction
   with callback argument to OptionParser.add_option().
   """
@@ -101,12 +101,12 @@ parser.add_option(
   "--results",
   dest="results",
   action="callback",
-  callback=collect_list)
+  callback=collectList)
 parser.add_option(
   "-s",
   dest="tests",
   action="callback",
-  callback=collect_set)
+  callback=collectSet)
 parser.add_option(
   "-l", "--language",
   default=None,
@@ -130,7 +130,7 @@ parser.add_option(
   default=False,
   dest="nightly")
 
-def main(parser, parse_args):
+def main(parser, parseArgs):
   """ Parse CLI options and execute tests """
 
   # Extensions to test spec (args not part of official test runner)
@@ -141,7 +141,7 @@ def main(parser, parse_args):
 
   # Parse CLI args
 
-  (options, tests) = parser.parse_args(args=parse_args)
+  (options, tests) = parser.parse_args(args=parseArgs)
 
   tests = set(tests)
 
@@ -160,8 +160,6 @@ def main(parser, parse_args):
   if options.results is not None:
     results = options.results[:2]
 
-    format = results.pop(0)
-
     if results:
       runid = results.pop(0)
     else:
@@ -174,26 +172,23 @@ def main(parser, parse_args):
     except os.error:
       pass
 
-    args.append("--junitxml=" + os.path.join(results, "results.xml"))
+    args.append("--junit-xml=" + os.path.join(results, "results.xml"))
 
   if options.tests is not None:
     tests.update(options.tests)
 
   if options.ami or options.all:
     tests.add(os.path.join(root, "py", "ami"))
-    # When we run the ami tests we always want to run the chef tests as well
-    if os.path.isdir(os.path.join(root, "py", "chef")):
-      tests.add(os.path.join(root, "py", "chef"))
-
-  if options.chef or options.all:
-    if os.path.isdir(os.path.join(root, "py", "chef")):
-      tests.add(os.path.join(root, "py", "chef"))
 
   if options.unit or options.all:
     tests.add(os.path.join(root, "py", "unit"))
+    tests.add(os.path.join("..", "htmengine", root, "unit"))
+    tests.add(os.path.join("..", "nta.utils", root, "unit"))
 
   if options.integration or options.all:
     tests.add(os.path.join(root, "py", "integration"))
+    tests.add(os.path.join("..", "htmengine", root, "integration"))
+    tests.add(os.path.join("..", "nta.utils", root, "integration"))
 
   if options.nightly or options.all:
     tests.add(os.path.join(root, "py", "nightly"))
@@ -206,16 +201,18 @@ def main(parser, parse_args):
 
   if not tests or options.all:
     tests.add(os.path.join(root, "py", "unit"))
+    tests.add(os.path.join("..", "htmengine", root, "unit"))
+    tests.add(os.path.join("..", "nta.utils", root, "unit"))
 
   results = {}
 
   # Run tests
   if options.testLanguage is None or options.testLanguage == "py":
-    print("Running Python tests...")
+    print "Running Python tests..."
     results["py"] = pytest.main(args + list(tests))
 
   if options.testLanguage is None or options.testLanguage == "js":
-    print("Running JavaScript tests...")
+    print "Running JavaScript tests..."
     results["js"] = call(["npm", "test"])
 
   if any(results.values()):

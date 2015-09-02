@@ -83,7 +83,6 @@ def preBuildSetup(env, pipelineConfig):
   with changeToWorkingDir(pipelineConfig["buildWorkspace"]):
     if not os.path.isdir(env["GROK_HOME"]):
       git.clone(gitURL=pipelineConfig["grokRemote"],
-                directory="products",
                 logger=g_logger)
 
   with changeToWorkingDir(env["GROK_HOME"]):
