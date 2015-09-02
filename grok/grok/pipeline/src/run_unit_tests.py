@@ -112,20 +112,25 @@ def runUnitTests(env, buildWorkspace):
     :returns: return True if tests are successful
     :rtype: bool
   """
-  with changeToWorkingDir(os.path.join(buildWorkspace, "numenta-apps", "grok")):
-    runWithOutput(command=("./run_tests.sh",
-                           "--unit",
-                           "--language py",
-                           "--results xunit jenkins"),
-                  env=env,
-                  logger=g_logger)
-
   resultsPath = os.path.join(buildWorkspace, "numenta-apps", "grok", "tests",
                              "results", "py2", "xunit", "jenkins")
   jenkinsResultsPath = prepareResultsDir()
-  shutil.move(os.path.join(resultsPath, "results.xml"),
-              os.path.join(jenkinsResultsPath, "unit_tests_%s_results.xml" %
-                            getBuildNumber(logger=g_logger)))
+
+  with changeToWorkingDir(os.path.join(buildWorkspace, "numenta-apps", "grok")):
+    try:
+      runWithOutput(command=("./run_tests.sh",
+                             "--unit",
+                             "--language py",
+                             "--results xunit jenkins"),
+                    env=env,
+                    logger=g_logger)
+    except CommandFailedError:
+      g_logger.exception("Failed to run unit tests")
+      raise
+    finally:
+      shutil.move(os.path.join(resultsPath, "results.xml"),
+                  os.path.join(jenkinsResultsPath, "unit_tests_%s_results.xml" %
+                                getBuildNumber(logger=g_logger)))
 
   return analyzeResults(resultsPath=resultsPath)
 
