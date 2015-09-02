@@ -139,10 +139,10 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     dataIdentifier = "IIO"
     knownDataFile = "iio_us-east-1_i-a2eb1cd9_NetworkIn.csv"
     expectedResults = {"fn": 5,
-                       "fp": 10,
-                       "tn": 885,
+                       "fp": 12,
+                       "tn": 883,
                        "tp": 0,
-                       "quality": -550}
+                       "quality": -650}
 
     results1 = self._runQualityTest(dataIdentifier, knownDataFile,
                                     expectedResults)
