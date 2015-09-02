@@ -243,7 +243,7 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
                              "--install-option=--prefix=%s "
                              "--ignore-installed" % buildWorkspace),
                             env=env, logger=logger)
-      shutil.rmtree("build")
+      shutil.rmtree("build", ignore_errors=True)
       mkdirp("build/scripts")
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var('LIBDIR')
