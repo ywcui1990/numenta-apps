@@ -180,8 +180,8 @@ def addAndParseArgs(jsonArgs):
   else:
     pipelineParams = saneParams
 
-  if saneParams["buildWorkspace"]:
-    buildWorkspace = saneParams["buildWorkspace"]
+  if saneParams.get("buildWorkspace"):
+    buildWorkspace = saneParams.get("buildWorkspace")
   else:
     buildWorkspace = pipelineParams.get("buildWorkspace")
 
