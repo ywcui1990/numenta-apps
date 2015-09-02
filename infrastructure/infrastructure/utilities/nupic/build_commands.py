@@ -263,14 +263,13 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
           os.path.join(capnpTmp, "include"))
       nupicBindingsEnv["LDFLAGS"] = "-L{}".format(
           os.path.join(capnpTmp, "lib"))
-      with changeToWorkingDir("bindings/py"):
-        command = (
-            "python setup.py install --prefix={} --nupic-core-dir={}".format(
-                buildWorkspace, os.path.join(os.getcwd(), "build", "release")))
-        # Building on jenkins, not local
-        if "JENKINS_HOME" in os.environ:
-          command += " bdist_wheel bdist_egg upload -r numenta-pypi"
-        runWithOutput(command=command, env=nupicBindingsEnv, logger=logger)
+      command = (
+          "python setup.py install --prefix={} --nupic-core-dir={}".format(
+              buildWorkspace, os.path.join(os.getcwd(), "build", "release")))
+      # Building on jenkins, not local
+      if "JENKINS_HOME" in os.environ:
+        command += " bdist_wheel bdist_egg upload -r numenta-pypi"
+      runWithOutput(command=command, env=nupicBindingsEnv, logger=logger)
     except:
       logger.exception("Failed to build nupic.core")
       raise
@@ -457,7 +456,6 @@ def executeBuildProcess(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
                                                 nupicCoreRemote=nupicCoreRemote,
                                                 nupicCoreSha=nupicCoreSha)
 
-  boolBuildNupicCore = False
   nupicCoreDir = ""
   if checkIfProjectExistsLocallyForSHA("nupic.core", nupicCoreSha, logger):
     nupicCoreDir = "/var/build/nupic.core/%s/nupic.core" % nupicCoreSha
@@ -468,11 +466,9 @@ def executeBuildProcess(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
                          logger)
     nupicCoreDir = "%s/nupic.core" % buildWorkspace
     logger.debug("Building nupic.core at: %s", nupicCoreDir)
-    boolBuildNupicCore = True
 
   addNupicCoreToEnv(env, nupicCoreDir)
-  if boolBuildNupicCore:
-    buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace)
+  buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace)
 
   buildNuPIC(env, logger, buildWorkspace)
 
