@@ -32,7 +32,7 @@
 
 import app from 'app';
 import BrowserWindow  from 'browser-window';
-import crashReporter  from 'crash-reporter';
+import crashReporter from 'crash-reporter';
 
 // internals
 
@@ -41,10 +41,13 @@ let mainWindow = null; // global reference to keep window object from JS GC
 
 // MAIN
 
+// electron crash reporting
 crashReporter.start({
   product_name: 'Unicorn',
   company_name: 'Numenta'
 });
+
+// app events
 
 app.on('window-all-closed', () => {
   // OS X apps stay active until the user quits explicitly Cmd + Q

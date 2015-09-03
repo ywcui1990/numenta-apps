@@ -43,9 +43,12 @@ import FooAction from './actions/foo';
 import FooComponent from './components/foo';
 import FooStore from './stores/foo';
 
+import ConfigClient from './lib/ConfigClient';
 import DatabaseClient from './lib/DatabaseClient';
 import FileClient from './lib/FileClient';
 import ModelClient from './lib/ModelClient';
+
+const config = new ConfigClient();
 
 var databaseClient = new DatabaseClient();
 var fileClient = new FileClient();
@@ -58,35 +61,44 @@ let FooView;
 
 // MAIN
 
+
+// CLIENT LIB EXAMPLES
+
+// working example/test of sync ConfigClient/Server
+console.log('Config env = ', config.get('env'));
+console.log('Config target = ', config.get('target'));
+
+// working example/test of async FileClient/Server
+fileClient.getFiles((error, files) => {
+  if(error) throw new Error('cannot get list of files');
+  console.log('sample files:', files);
+
+  fileClient.getFile(files[0], (error, data) => {
+    if(error) throw new Error('cannot get file', files[0]);
+    console.log('first sample file data:', files[0], data.toString());
+  });
+});
+
+// working example/test of async DatabaseClient/Server
+databaseClient.put('one', 'two', (error) => {
+  if(error) throw new Error('could not put value into db');
+
+  databaseClient.get('one', (error, data) => {
+    if(error) throw new Error('could not get value from db');
+    console.log('get from db *one* = ', data);
+  });
+});
+
+
+// GUI APP
+
 document.addEventListener('DOMContentLoaded', () => {
 
-  // working example/test of FileClient/Server over IPC
-  fileClient.getFiles((error, files) => {
-    if(error) throw new Error('cannot get list of files');
-    console.log('sample files:', files);
+  // dev tools @TODO remove for non-dev
+  window.React = React;
 
-    fileClient.getFile(files[0], (error, data) => {
-      if(error) throw new Error('cannot get file', files[0]);
-      console.log('first sample file data:', files[0], data.toString());
-    });
-  });
-
-  // working example/test of DatabaseClient/Server over IPC
-  databaseClient.put('one', 'two', (error) => {
-    if(error) throw new Error('could not put value into db');
-
-    databaseClient.get('one', (error, data) => {
-      if(error) throw new Error('could not get value from db');
-      console.log('get from db *one* = ', data);
-    });
-  });
-
-
-  // GUI APP
-
-  window.React = React; // dev tools @TODO remove for non-dev
-
-  tapEventInject(); // @TODO remove when >= React 1.0
+  // @TODO remove when >= React 1.0
+  tapEventInject();
 
   // prepare inital gui context
   FooView = FluxibleReact.provideContext(

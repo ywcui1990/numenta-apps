@@ -44,10 +44,13 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
     components/     # React view components JSX
     lib/            # Custom JS libs for inside the browser (engine clients)
     stores/         # Fluxible Stores JS
-  db/               # Flat-file JSON database storage (levelup + jsondown)
+  config/           # JS Config files loaded by nconf
+  database/         # File-based JSON database storage (levelup + jsondown)
+    data/           # Local JSON file DB log (not in source control)
+    schema/         # Database defintion schemas in JSON
   lib/              # Custom JS libs for outside the browser (engine servers)
   loader.js         # Electron App entry point loader for main.js ES5 => ES6
-  main.js           # ES6 Electron App main entry, creates browser GUI window + model runner engine
+  main.js           # ES6 Electron App main entry, creates browser GUI window and model runner engine
   samples/          # Sample .CSV data files to pre-load for user in GUI
   test/             # Frontend tests run by Mocha: Unit, etc.
     unit/           # Frontend+GUI Unit tests
@@ -107,6 +110,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     [IO.js](https://iojs.org/), [Node](https://github.com/joyent/node)
     * Package Manager: [npm](https://www.npmjs.com/)
     * Module Loading and Bundling: [WebPack](https://github.com/webpack/webpack)
+    * Configuration: [nconf](https://github.com/indexzero/nconf)
   * User Interface:
     * Architecture: [Fluxible](http://fluxible.io/)
       ([Flux](https://facebook.github.io/flux/docs/overview.html#content)
@@ -186,7 +190,12 @@ npm install
 Start code via Electron as a Desktop App:
 
 ```shell
-npm run desktop
+# desktop dev (same)
+$ npm run desktop
+$ NODE_ENV=development npm run desktop
+
+# desktop prod
+$ NODE_ENV=production npm run desktop
 ```
 
 #### Web App
@@ -200,13 +209,22 @@ Start app on local webserver, you can open it with Chrome Browser
 at `http://localhost:9999`:
 
 ```shell
-npm run web
+# web dev (same)
+$ npm run web
+$ NODE_ENV=development npm run web
+
+# web prod
+$ NODE_ENV=production npm run web
 ```
 
 
 ### Debugging
 
-#### Browser
+#### Backend
+
+* @TODO Python, NuPIC, Models, debugging etc.
+
+#### Frontend + Browser
 
 * [Electron + Chrome debug shortcuts](https://github.com/sindresorhus/electron-debug)
 * [React Chrome browser plugin](http://electron.atom.io/docs/v0.31.0/tutorial/devtools-extension/)
@@ -228,9 +246,12 @@ npm run web
 
 #### Problems? and Hints
 
-* Make sure packages are up-to-date: `npm run check`
+* Make sure to update packages often, especially after pulling an update into
+  your branch:
+  * `npm run check`
+  * `pip list --outdated`
 * Sometimes `node_modules/` directory can become corrupted, try cleaning and
-  reinstalling: `npm run clean ; npm install`
+  reinstalling: `npm run clean ; npm run check`
 * [Awesome Node.js list](https://github.com/sindresorhus/awesome-nodejs)
 
 
@@ -239,9 +260,9 @@ npm run web
 Highest priority items listed on top. The following need to be JIRA-tized, or
 may be too low priority to worry about yet. -@brev
 
-* Singular config settings file (sync w/@lscheinkman)
-  * Gulp/Webpack config settings for loading differing bundle/code for
-    Desktop or Browser. Split build sources and targets for certain dirs?
+* Gulp/Webpack config settings for loading differing bundle/code for
+  Desktop or Browser. Split build sources and targets for certain dirs?
+  Sync with recent `nconf` work.
 * make real tests and make tests work
 * Setup eslint to run in package.json:scripts or gulp on build
 * Setup logging: Winston or Bunyan? => Joe thinking about it.

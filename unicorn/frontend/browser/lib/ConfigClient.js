@@ -22,47 +22,37 @@
 
 
 /**
- * Unicorn: DatabaseServer - Respond to a DatabaseClient over IPC, sharing our
- *  access to a file-based Node/io.js database system, for heavy persistence.
- *
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
+ * Unicorn: ConfigClient - Talk to a ConfigServer over IPC or HTTP, gaining
+ *  access to the Node/io.js-layer configuration settings. Connects via HTTP or
+ *  IPC adapter. ConfigClientIPC adpater is currently a pseudo-library, using
+ *  the magic of Electron's `remote` module.
  */
 
 // externals
 
-import jsondown from 'jsondown';
-import levelup from 'levelup';
-import path from 'path';
+import isElectronRenderer from 'is-electron-renderer';
 
 // internals
 
-const FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
+import ConfigClientHTTP from './ConfigClientHTTP';
+
+let ConfigClient;
 
 
 // MAIN
 
-/**
- *
- */
-var DatabaseServer = function () {
-  this.database = levelup(FILE_PATH, { db: jsondown });
-};
-
-/**
- *
- */
-DatabaseServer.prototype.get = function (key, callback) {
-  this.database.get(key, callback);
-};
-
-/**
- *
- */
-DatabaseServer.prototype.put = function (key, value, callback) {
-  this.database.put(key, value, callback);
-};
+if(isElectronRenderer) { // desktop
+  let remote;
+  try {
+    remote = require('remote');
+  } catch(error) {}
+  ConfigClient = remote.require('./lib/ConfigServer'); // pseduo-ConfigClientIPC
+}
+else { // web
+  ConfigClient = ConfigClientHTTP;
+}
 
 
-// EXPORTS
+// EXPORT
 
-module.exports = DatabaseServer;
+export default ConfigClient;

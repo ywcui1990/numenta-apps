@@ -22,21 +22,22 @@
 
 
 /**
- * Unicorn: DatabaseServer - Respond to a DatabaseClient over IPC, sharing our
- *  access to a file-based Node/io.js database system, for heavy persistence.
+ * Unicorn: ConfigServer - Respond to a ConfigClient over IPC, sharing our
+ *  access to the Node/io.js-layer config settings.
  *
  * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
  */
 
 // externals
 
-import jsondown from 'jsondown';
-import levelup from 'levelup';
+import nconf from 'nconf';
 import path from 'path';
 
 // internals
 
-const FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
+const CONFIG_PATH = path.join('frontend', 'config');
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const UNICORN_TARGET = process.env.UNICORN_TARGET || 'desktop';
 
 
 // MAIN
@@ -44,25 +45,15 @@ const FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 /**
  *
  */
-var DatabaseServer = function () {
-  this.database = levelup(FILE_PATH, { db: jsondown });
-};
-
-/**
- *
- */
-DatabaseServer.prototype.get = function (key, callback) {
-  this.database.get(key, callback);
-};
-
-/**
- *
- */
-DatabaseServer.prototype.put = function (key, value, callback) {
-  this.database.put(key, value, callback);
+var ConfigServer = function () {
+  // init config
+  return nconf.defaults({ NODE_ENV, UNICORN_TARGET })
+    .file(path.join(CONFIG_PATH, 'default.json'))
+    .file('environment', path.join(CONFIG_PATH, 'environment.' + NODE_ENV + '.json'))
+    .file('target', path.join(CONFIG_PATH, 'target.' + UNICORN_TARGET + '.json'));
 };
 
 
 // EXPORTS
 
-module.exports = DatabaseServer;
+module.exports = ConfigServer;

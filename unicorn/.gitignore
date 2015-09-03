@@ -1,4 +1,4 @@
-db/*.json
+database/data/*.json
 node_modules/
 bundle.js
 bundle.js.map
