@@ -98,27 +98,24 @@ document.addEventListener('DOMContentLoaded', () => {
   context = app.createContext();
 
   // fire initial app action to load all files
-  context.executeAction(ListFilesAction, {}, (err) => {
-    if (err) {
-      console.error('Unable to start Application:', err);
-    }
-    // Load all metrics
-    let fileStore = context.getStore(FileStore);
-    let files = fileStore.getFiles();
-    for (let file of files) {
-      context.executeAction(ListMetricsAction, file.filename, (err) => {
-        if (err) {
-          console.error('Unable to load metrics for file:', file.filename, err);
+  context.executeAction(ListFilesAction, {})
+    .then((files) => {
+      // Load all metrics
+      Promise.all(files.map((file) => {
+        return context.executeAction(ListMetricsAction, file.filename);
+      })).then(() => {
+        let contextEl = FluxibleReact.createElementWithContext(context);
+        if (document && ('body' in document)) {
+          React.render(contextEl, document.body);
+          return;
         }
+        throw new Error('React cannot find a DOM document.body to render to.');
       });
-    }
-
-    let contextEl = FluxibleReact.createElementWithContext(context);
-    if (document && ('body' in document)) {
-      React.render(contextEl, document.body);
-      return;
-    }
-    throw new Error('React cannot find a DOM document.body to render to.');
-  });
+    })
+    .catch((err) => {
+      if (err) {
+        throw new Error('Unable to start Application:', err);
+      }
+    });
 
 }); // DOMContentLoaded
