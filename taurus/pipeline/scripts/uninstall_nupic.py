@@ -21,11 +21,10 @@
 # ----------------------------------------------------------------------
 #
 
-"""
-Simple utility to aid in the removal of nupic.  This wraps the
-`pip.commands.uninstall.UninstallCommand` class used in the `pip uninstall`
-command
-"""
+import glob
+import os
+import shutil
+import sys
 
 from pip.commands.uninstall import UninstallCommand
 
@@ -36,7 +35,7 @@ class UnableToCompletelyRemoveNuPICError(Exception):
 
 
 
-def removeNupic(maxAttempts=10):
+def removePackage(packageName, maxAttempts=10):
   """ Iteratively attempt to remove nupic with pip until `import nupic`
   raises an ImportError exception.  Multiple attempts are necessary because
   `pip uninstall` only removes the first match.
@@ -48,17 +47,35 @@ def removeNupic(maxAttempts=10):
     remediate either by changing directories, removing any entries from .pth
     files, or symlinks.
   """
+
+  uninstallArgs = ["--yes", "--disable-pip-version-check"]
+
   for _ in xrange(maxAttempts):
     try:
-      import nupic
+      module = __import__(packageName)
+      UninstallCommand().main([packageName] + uninstallArgs)
+
+      # Remove vestiges of namespace packages, too
+      moduleLocation = module.__path__[0]
+      print "Removing {}".format(moduleLocation)
+      shutil.rmtree(moduleLocation, ignore_errors=True)
+      for filename in glob.glob(os.path.join(os.path.dirname(moduleLocation),
+                                             packageName + "*")):
+        print "Removing {}".format(filename)
+        if os.path.isdir(filename):
+          shutil.rmtree(filename)
+        else:
+          os.unlink(filename)
+      del sys.modules[packageName]
     except ImportError:
+      print "{} not found.".format(packageName)
       break
-    UninstallCommand().main(["nupic", "--disable-pip-version-check", "--yes"])
   else:
     raise UnableToCompletelyRemoveNuPICError(
-      "Giving up after {} attempts to remove `nupic`".format(maxAttempts))
+      "Giving up after {} attempts to remove `{}`".format(maxAttempts,
+                                                          packageName))
 
 
 
 if __name__ == "__main__":
-  removeNupic()
+  removePackage("nupic")
