@@ -33,10 +33,14 @@
 import jsondown from 'jsondown';
 import levelup from 'levelup';
 import path from 'path';
+import { Validator } from 'jsonschema';
 
 // internals
 
-const FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
+import AddressSchema from '../database/schema/Address.json';
+import PersonSchema from '../database/schema/Person.json';
+
+const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 
 
 // MAIN
@@ -45,7 +49,13 @@ const FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
  *
  */
 var DatabaseServer = function () {
-  this.database = levelup(FILE_PATH, { db: jsondown });
+  this.validator = new Validator();
+  this.validator.addSchema(AddressSchema, '/Address');
+
+  this.database = levelup(DB_FILE_PATH, {
+    db: jsondown,
+    valueEncoding: 'json'
+  });
 };
 
 /**
@@ -59,6 +69,12 @@ DatabaseServer.prototype.get = function (key, callback) {
  *
  */
 DatabaseServer.prototype.put = function (key, value, callback) {
+  let validation = this.validator.validate(value, PersonSchema);
+  if(validation.errors.length) {
+    callback(validation.errors, null);
+    return;
+  }
+
   this.database.put(key, value, callback);
 };
 
