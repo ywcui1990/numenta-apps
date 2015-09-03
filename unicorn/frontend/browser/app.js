@@ -58,7 +58,9 @@ var modelClient = new ModelClient();
 let app;
 let context;
 
+
 // MAIN
+
 
 // CLIENT LIB EXAMPLES
 
@@ -67,19 +69,30 @@ console.log('Config env = ', config.get('env'));
 console.log('Config target = ', config.get('target'));
 
 // working example/test of async DatabaseClient/Server
-databaseClient.put('one', 'two', (error) => {
+var testVal = {
+  "name": "Barack Obamar",
+  "address": {
+    "lines": [ "1600 Pennsylvania Avenue Northwest" ],
+    "zip": "DC 20500",
+    "city": "Washington",
+    "country": "USA"
+  },
+  "votes": 123
+};
+databaseClient.put(testVal.name, testVal, (error) => {
   if (error) {
-    throw new Error('could not put value into db');
+    throw new Error(error);
   }
-  databaseClient.get('one', (error, data) => {
+  databaseClient.get(testVal.name, (error, data) => {
     if (error) {
-      throw new Error('could not get value from db');
+      throw new Error(error);
     }
-    console.log('get from db *one* = ', data);
+    console.log('get from db ', testVal.name, data);
   });
 });
 
-  // GUI APP
+
+// GUI APP
 
 document.addEventListener('DOMContentLoaded', () => {
 
