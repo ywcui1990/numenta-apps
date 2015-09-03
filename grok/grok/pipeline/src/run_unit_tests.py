@@ -112,9 +112,13 @@ def runUnitTests(env, buildWorkspace):
     :returns: return True if tests are successful
     :rtype: bool
   """
-  resultsPath = os.path.join(buildWorkspace, "numenta-apps", "grok", "tests",
-                             "results", "py2", "xunit", "jenkins")
-  jenkinsResultsPath = prepareResultsDir()
+  rawResultsFile = os.path.join(buildWorkspace, "numenta-apps", "grok", "tests",
+                                "results", "py2", "xunit", "jenkins",
+                                "results.xml")
+  finalResultsFile = os.path.join(prepareResultsDir(),
+                                  "unit_tests_%s_results.xml" %
+                                    getBuildNumber(logger=g_logger))
+
 
   with changeToWorkingDir(os.path.join(buildWorkspace, "numenta-apps", "grok")):
     try:
@@ -126,11 +130,9 @@ def runUnitTests(env, buildWorkspace):
       g_logger.exception("Failed to run unit tests")
       raise
     finally:
-      shutil.move(os.path.join(resultsPath, "results.xml"),
-                  os.path.join(jenkinsResultsPath, "unit_tests_%s_results.xml" %
-                                getBuildNumber(logger=g_logger)))
+      shutil.move(rawResultsFile, finalResultsFile)
 
-  return analyzeResults(resultsPath=resultsPath)
+  return analyzeResults(resultsPath=finalResultsFile)
 
 
 
