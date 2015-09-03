@@ -33,19 +33,15 @@ import React from 'react';
 // internals
 
 import AddAction from '../actions/add';
+import FileListComponent from '../components/FileListComponent';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add'
 
-let Theme = new Material.Styles.ThemeManager();
 
-let {
-  Card, CardText, FloatingActionButton, FontIcon, LeftNav
+const {
+  Card, CardText, FloatingActionButton, FontIcon, Styles
 } = Material;
 
-let menuItems = [
-  { text: 'File One' },
-  { text: 'File Two' },
-  { text: 'File Three' }
-];
+const ThemeManager = new Styles.ThemeManager();
 
 
 // MAIN
@@ -68,7 +64,7 @@ module.exports = React.createClass({
    */
   getChildContext () {
     return {
-      muiTheme: Theme.getCurrentTheme()
+      muiTheme: ThemeManager.getCurrentTheme()
     };
   },
 
@@ -136,7 +132,7 @@ module.exports = React.createClass({
             </p>
           </CardText>
         </Card>
-        <LeftNav menuItems={menuItems} ref="leftNav" />
+        <FileListComponent/>
       </div>
     );
   }

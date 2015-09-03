@@ -39,9 +39,10 @@ import tapEventInject from 'react-tap-event-plugin';
 
 // internals
 
-import FooAction from './actions/foo';
-import FooComponent from './components/foo';
-import FooStore from './stores/foo';
+import ListFilesAction from './actions/ListFiles';
+import ListMetricsAction from './actions/ListMetrics';
+import MainComponent from './components/Main';
+import FileStore from './stores/FileStore';
 
 import ConfigClient from './lib/ConfigClient';
 import DatabaseClient from './lib/DatabaseClient';
@@ -56,11 +57,8 @@ var modelClient = new ModelClient();
 
 let app;
 let context;
-let FooView;
-
 
 // MAIN
-
 
 // CLIENT LIB EXAMPLES
 
@@ -68,63 +66,55 @@ let FooView;
 console.log('Config env = ', config.get('env'));
 console.log('Config target = ', config.get('target'));
 
-// working example/test of async FileClient/Server
-fileClient.getFiles((error, files) => {
-  if(error) throw new Error('cannot get list of files');
-  console.log('sample files:', files);
-
-  fileClient.getFile(files[0], (error, data) => {
-    if(error) throw new Error('cannot get file', files[0]);
-    console.log('first sample file data:', files[0], data.toString());
-  });
-});
-
 // working example/test of async DatabaseClient/Server
 databaseClient.put('one', 'two', (error) => {
-  if(error) throw new Error('could not put value into db');
-
+  if (error) {
+    throw new Error('could not put value into db');
+  }
   databaseClient.get('one', (error, data) => {
-    if(error) throw new Error('could not get value from db');
+    if (error) {
+      throw new Error('could not get value from db');
+    }
     console.log('get from db *one* = ', data);
   });
 });
 
-
-// GUI APP
+  // GUI APP
 
 document.addEventListener('DOMContentLoaded', () => {
 
   // dev tools @TODO remove for non-dev
   window.React = React;
 
-  // @TODO remove when >= React 1.0
-  tapEventInject();
-
-  // prepare inital gui context
-  FooView = FluxibleReact.provideContext(
-    FluxibleReact.connectToStores(
-      FooComponent,
-      [ FooStore ],
-      (context, props) => {
-        return context.getStore(FooStore).getState();
-      }
-    )
-  );
+  tapEventInject(); // @TODO remove when >= React 1.0
 
   // init GUI flux/ible app
   app = new Fluxible({
-    component: FooComponent,
-    stores: [ FooStore ]
+    component: MainComponent,
+    stores: [FileStore]
   });
 
   // add context to app
   context = app.createContext();
 
-  // fire initial app action
-  context.executeAction(FooAction, 'bar', (err) => {
+  // fire initial app action to load all files
+  context.executeAction(ListFilesAction, {}, (err) => {
+    if (err) {
+      console.error('Unable to start Application:', err);
+    }
+    // Load all metrics
+    let fileStore = context.getStore(FileStore);
+    let files = fileStore.getFiles();
+    for (let file of files) {
+      context.executeAction(ListMetricsAction, file.filename, (err) => {
+        if (err) {
+          console.error('Unable to load metrics for file:', file.filename, err);
+        }
+      });
+    }
+
     let contextEl = FluxibleReact.createElementWithContext(context);
-    // let outputHtml = React.renderToString(contextEl);
-    if(document && ('body' in document)) {
+    if (document && ('body' in document)) {
       React.render(contextEl, document.body);
       return;
     }

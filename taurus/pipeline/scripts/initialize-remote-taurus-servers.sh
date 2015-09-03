@@ -304,6 +304,7 @@ pushd "${REPOPATH}"
 
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "cd /opt/numenta/products &&
+     ./taurus/pipeline/scripts/uninstall_nupic.py &&
      ./install-taurus.sh \
         /opt/numenta/anaconda/lib/python2.7/site-packages \
         /opt/numenta/anaconda/bin &&
