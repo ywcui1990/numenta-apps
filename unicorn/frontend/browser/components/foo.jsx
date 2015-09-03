@@ -79,6 +79,36 @@ module.exports = React.createClass({
     console.log('got clicked! firing AddAction.');
     this.context.executeAction(AddAction, { /*payload*/ });
     console.log('AddAction should have fired.');
+    this.openFileUpload();
+  },
+
+  openFileUpload: function () {
+    var fileInput = React.findDOMNode(this.refs.fileInput);
+    fileInput.value = null;
+    fileInput.click();
+  },
+
+  onFileSelect: function onFileSelect(e) {
+    console.log("processingFile");
+    e.preventDefault();
+
+    this.setState({
+      isDragActive: false
+    });
+
+    var droppedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+    var max = this.props.multiple ? droppedFiles.length : 1;
+    var files = [];
+
+    for (var i = 0; i < max; i++) {
+      var file = droppedFiles[i];
+      file.preview = URL.createObjectURL(file);
+      files.push(file);
+    }
+
+    if (this.props.onDrop) {
+      this.props.onDrop(files, e);
+    }
   },
 
   /**
@@ -96,6 +126,7 @@ module.exports = React.createClass({
             <FloatingActionButton onClick={this._onClick}>
               <SvgIconContentAdd />
             </FloatingActionButton>
+            <input type='file' ref='fileInput' style={{display: 'none'}} onChange={this.onFileSelect} multiple />
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               Donec mattis pretium massa. Aliquam erat volutpat. Nulla facilisi.
