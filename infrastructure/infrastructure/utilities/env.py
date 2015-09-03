@@ -65,7 +65,6 @@ def prepareEnv(workspace, nupicBuildDir=None, environ=None):
         "REPOSITORY": "path/to/nupic/repository",
         "PY_VERSION": "python version",
         "GROK_HOME": "path/to/grok/home",
-        "LD_LIBRARY_PATH": "path/to/lib",
         "NUPIC": "/path/to/nupic",
         "NTA": "/path/to/nupic/build/release",
         "PATH": "path/to/nupic/build/release/bin",
@@ -86,9 +85,8 @@ def prepareEnv(workspace, nupicBuildDir=None, environ=None):
     BUILD_WORKSPACE=workspace,
     REPOSITORY=os.path.join(nupicBuildDir or workspace, "nupic"),
     PY_VERSION=sys.version[:3],
-    PRODUCTS=os.path.join(workspace, "products"),
-    GROK_HOME=os.path.join(workspace, "products", "grok"),
-    LD_LIBRARY_PATH=environ.get("LD_LIBRARY_PATH")
+    PRODUCTS=os.path.join(workspace, "numenta-apps"),
+    GROK_HOME=os.path.join(workspace, "numenta-apps", "grok")
   )
 
   env.update(

@@ -22,47 +22,30 @@
 
 
 /**
- * Unicorn: DatabaseServer - Respond to a DatabaseClient over IPC, sharing our
- *  access to a file-based Node/io.js database system, for heavy persistence.
- *
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
+ * Unicorn: ConfigClientHTTP - HTTP Adapter (one of many) for ConfigClient
+ *  (talks to a ConfigServer) to access the Node/io.js-layer config settings.
  */
-
-// externals
-
-import jsondown from 'jsondown';
-import levelup from 'levelup';
-import path from 'path';
-
-// internals
-
-const FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 
 
 // MAIN
 
-/**
- *
- */
-var DatabaseServer = function () {
-  this.database = levelup(FILE_PATH, { db: jsondown });
-};
+export default class ConfigClientHTTP {
 
-/**
- *
- */
-DatabaseServer.prototype.get = function (key, callback) {
-  this.database.get(key, callback);
-};
+  /**
+   *
+   */
+  constructor() {
+    this.config = {
+      "env": "http",
+      "target": "http"
+    };
+  }
 
-/**
- *
- */
-DatabaseServer.prototype.put = function (key, value, callback) {
-  this.database.put(key, value, callback);
-};
+  /**
+   * Synchronous Getter of key from config hash
+   */
+  get(key) {
+    return key ? this.config[key] : this.config;
+  }
 
-
-// EXPORTS
-
-module.exports = DatabaseServer;
+}

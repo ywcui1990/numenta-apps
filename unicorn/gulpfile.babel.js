@@ -34,15 +34,12 @@ import util from 'gulp-util';
 import webpack from 'webpack';
 import webpacker from 'webpack-stream';
 
-const spawn = child.spawn;
-
 // internals
-
-import config from './package.json';
 
 const HOST = process.env.TEST_HOST || 'http://localhost';
 const PORT = process.env.TEST_PORT || 8008;
 const PATH = process.env.TEST_PATH || '';
+const UNICORN_TARGET = process.env.UNICORN_TARGET;
 
 let WebServer = null; // @TODO not global
 
@@ -54,7 +51,7 @@ let WebServer = null; // @TODO not global
  */
 gulp.task('mocha-casperjs', (callback) => {
   /*
-  let stream = spawn('mocha-casperjs', [
+  let stream = child.spawn('mocha-casperjs', [
     '--bail',
     '--TEST_HOST=' + HOST,
     '--TEST_PORT=' + PORT,
@@ -109,7 +106,8 @@ gulp.task('serve', () => {
  * Gulp task to run WebPack to transpile require/modules/Babel into bundle
  */
 gulp.task('webpack', ()  => {
-  let target = util.env.target || 'web';
+  let target = (UNICORN_TARGET === 'desktop') ? 'atom' : 'web';
+
   return gulp.src('frontend/browser/app.js')
     .pipe(webpacker({
       devtool: 'source-map',

@@ -37,9 +37,7 @@ from infrastructure.utilities import git
 from infrastructure.utilities.jenkins import (createOrReplaceResultsDir,
                                               createOrReplaceArtifactsDir)
 from infrastructure.utilities.env import addNupicCoreToEnv
-from infrastructure.utilities.exceptions import (CommandFailedError,
-                                                 NupicBuildFailed,
-                                                 PipelineError)
+from infrastructure.utilities.exceptions import CommandFailedError
 from infrastructure.utilities.path import changeToWorkingDir, mkdirp
 from infrastructure.utilities.cli import runWithOutput
 
@@ -159,7 +157,8 @@ def fetchNuPICCoreFromGH(buildWorkspace, nupicCoreRemote, nupicCoreSha, logger):
         git.resetHard(sha=nupicCoreSha, logger=logger)
       except CommandFailedError:
         logger.exception("nupic.core checkout failed with %s,"
-                           " this sha might not exist.", nupicCoreSha)
+                         " this sha might not exist.", nupicCoreSha)
+        raise
 
 
 
@@ -244,6 +243,7 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
                              "--install-option=--prefix=%s "
                              "--ignore-installed" % buildWorkspace),
                             env=env, logger=logger)
+      shutil.rmtree("build", ignore_errors=True)
       mkdirp("build/scripts")
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var('LIBDIR')
@@ -259,15 +259,20 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
+      nupicBindingsEnv = env.copy()
+      nupicBindingsEnv["CPPFLAGS"] = "-I{}".format(
+          os.path.join(capnpTmp, "include"))
+      nupicBindingsEnv["LDFLAGS"] = "-L{}".format(
+          os.path.join(capnpTmp, "lib"))
       command = (
           "python setup.py install --prefix={} --nupic-core-dir={}".format(
               buildWorkspace, os.path.join(os.getcwd(), "build", "release")))
       # Building on jenkins, not local
       if "JENKINS_HOME" in os.environ:
         command += " bdist_wheel bdist_egg upload -r numenta-pypi"
-      runWithOutput(command=command, env=env, logger=logger)
-    except Exception:
-      logger.exception("nupic.core building failed due to unknown reason.")
+      runWithOutput(command=command, env=nupicBindingsEnv, logger=logger)
+    except:
+      logger.exception("Failed to build nupic.core")
       raise
     else:
       logger.info("nupic.core building was successful.")
@@ -301,18 +306,15 @@ def buildNuPIC(env, logger, buildWorkspace):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      command = ("python setup.py install --prefix=%s bdist_wheel bdist_egg "
-                 "--nupic-core-dir=%s" % (buildWorkspace,
-                                          os.path.join(env["NUPIC_CORE_DIR"],
-                                                      "build", "release")))
+      command = "python setup.py install --prefix=%s" % buildWorkspace
       # Building on jenkins, not local
-      if "JENKINS_HOME" in env:
-        command.extend(["upload", "-r", "numenta-pypi"])
+      if "JENKINS_HOME" in os.environ:
+        command += " bdist_wheel bdist_egg upload -r numenta-pypi"
 
       runWithOutput(command=command, env=env, logger=logger)
     except:
       logger.exception("Failed while building nupic")
-      raise NupicBuildFailed("NuPIC building failed.")
+      raise
     else:
       open("nupic.stamp", "a").close()
       logger.debug("NuPIC building was successful.")
@@ -331,7 +333,6 @@ def runTests(env, logger):
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
     try:
-      runWithOutput("bin/py_region_test", env=env, logger=logger)
       testCommand = "scripts/run_nupic_tests -u --coverage --results xml"
       runWithOutput(testCommand, env=env, logger=logger)
     except:
@@ -456,7 +457,6 @@ def executeBuildProcess(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
                                                 nupicCoreRemote=nupicCoreRemote,
                                                 nupicCoreSha=nupicCoreSha)
 
-  boolBuildNupicCore = False
   nupicCoreDir = ""
   if checkIfProjectExistsLocallyForSHA("nupic.core", nupicCoreSha, logger):
     nupicCoreDir = "/var/build/nupic.core/%s/nupic.core" % nupicCoreSha
@@ -467,11 +467,9 @@ def executeBuildProcess(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
                          logger)
     nupicCoreDir = "%s/nupic.core" % buildWorkspace
     logger.debug("Building nupic.core at: %s", nupicCoreDir)
-    boolBuildNupicCore = True
 
   addNupicCoreToEnv(env, nupicCoreDir)
-  if boolBuildNupicCore:
-    buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace)
+  buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace)
 
   buildNuPIC(env, logger, buildWorkspace)
 
