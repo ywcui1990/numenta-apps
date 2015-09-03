@@ -33,11 +33,21 @@
 export default class DatabaseClientHTTP {
 
   constructor() {
-    this.uhh = 'http';
+    this.db = {};
   }
 
-  example(callback) {
-    callback(null, { result: 'uhh_is_' + this.uhh });
+  get(key, callback) {
+    let results = key ? this.db[key] : this.db;
+    callback(null, results);
+  }
+
+  put(key, value, callback) {
+    if(! key || ! value) {
+      callback(new Error('missing key or value on db put'), false);
+      return;
+    }
+    this.db[key] = value;
+    callback(null, true);
   }
 
 }
