@@ -29,13 +29,13 @@
  */
 
 // externals
-
+import csv from 'csv-streamify';
 import fs from 'fs';
 import path from 'path';
 
 // internals
 
-const FILE_PATH = path.join('frontend', 'samples'); // @TODO move path to config
+const SAMPLES_FILE_PATH = path.join('frontend', 'samples'); // @TODO move path to config
 
 
 // MAIN
@@ -43,24 +43,177 @@ const FILE_PATH = path.join('frontend', 'samples'); // @TODO move path to config
 /**
  *
  */
-var FileServer = function () {
-  this.FILE_PATH = FILE_PATH;
+var FileServer = function() {
+  this.FILE_PATH = SAMPLES_FILE_PATH;
+};
+
+
+/**
+ * Reads the entire contents of a file
+ *
+ * @param  {String}   filename: The absolute path of the CSV file to load
+ */
+FileServer.prototype.getFile = function(filename, callback) {
+  fs.readFile(filename, function(err, data) {
+    if (err) {
+      console.error(filename + ':' + err);
+    }
+    callback(err, data);
+  });
 };
 
 /**
- *
+ * Get a list of sample files embedded with the application
  */
-FileServer.prototype.getFile = function (filename, callback) {
-  fs.readFile(path.join(this.FILE_PATH, filename), callback);
+FileServer.prototype.getSampleFiles = function(callback) {
+  fs.readdir(SAMPLES_FILE_PATH, function(err, data) {
+    var files = [];
+    if (data) {
+      for (var i = 0; i < data.length; i++) {
+        var item = data[i];
+        var file = {
+          name: path.basename(item),
+          filename: path.resolve(SAMPLES_FILE_PATH, item),
+          type: 'sample'
+        };
+        files.push(file);
+      }
+    }
+    if (err) {
+      console.error(err);
+    }
+    callback(err, files);
+  });
 };
 
 /**
+ * Get all field definitions for the give file guessing data types based on
+ * first record
  *
+ * @param  {String}   filename: The absolute path of the CSV file
+ * @param  {Object}   options:  Optional settings. See #getData()
+ * @param  {Function} callback Called with an array of field definitions in the
+ *                             following format:
+ *                             <code>
+ *                             {
+ *                             	name: 'fieldName',
+ *                             	type: 'number', 'date', 'string'],
+ *                             }
+ *                             </code>
  */
-FileServer.prototype.getFiles = function (callback) {
-  fs.readdir(this.FILE_PATH, callback);
+FileServer.prototype.getFields = function(filename, options, callback) {
+
+  // "options" is optional
+  if (callback === undefined && typeof options == 'function') {
+    callback = options;
+    options = {};
+  }
+  // Update default values
+  if (!('columns' in options)) {
+    options.columns = true;
+  }
+  if (!('objectMode' in options)) {
+    options.objectMode = true;
+  }
+
+  let stream = fs.createReadStream(path.resolve(filename));
+  stream.pipe(csv(options))
+    .once('data', function(data) {
+      if (data) {
+        let metrics = [];
+        for (let field in data) {
+          let val = data[field];
+          let metric = {
+            name: field,
+            type: 'string'
+          };
+          if (Number.isFinite(Number(val))) {
+            metric.type = 'number';
+          } else if (Number.isFinite(Date.parse(val))) {
+            metric.type = 'date';
+          }
+          metrics.push(metric);
+        }
+        callback(null, metrics);
+        stream.unpipe();
+        stream.destroy();
+      }
+    })
+    .on('error', function(error) {
+      console.error('Error loading fields: ', error, filename);
+      callback(error);
+    })
+    .on('end', function() {
+      callback();
+    });
 };
 
+/**
+ * Get data from the given CSV file.
+ *
+ * @param  {String}   filename: The absolute path of the CSV file to load
+ * @param  {Object}   options:  Optional settings
+ *                    See https://github.com/klaemo/csv-stream#options
+ *                    <code>
+ *                     {
+ *                       delimiter: ',', // comma, semicolon, whatever
+ *                       newline: 'n', // newline character
+ *                       quote: '"', // what's considered a quote
+ *                       empty: '', // empty fields are replaced by this,
+ *
+ *                       // if true, emit array of {Object}s
+ *                       // instead of array of strings
+ *                       objectMode: true,
+ *
+ *                       // if set to true, uses first row as keys ->
+ *                       // [ { column1: value1, column2: value2 , ...]}
+ *                       columns: true,
+ *                       // Max Number of records to process
+ *                       limit: Number.MAX_SAFE_INTEGER
+ *                      }
+ *                    </code>
+ * @param  {Function} callback: This callback to be called on every record.
+ *                              <code>function(error, data)</code>
+ */
+FileServer.prototype.getData = function(filename, options, callback) {
+
+  // "options" is optional
+  if (callback === undefined && typeof options == 'function') {
+    callback = options;
+    options = {};
+  }
+  // Update default values
+  if (!('columns' in options)) {
+    options.columns = true;
+  }
+  if (!('objectMode' in options)) {
+    options.objectMode = true;
+  }
+  if (!('limit' in options)) {
+    options.limit = Number.MAX_SAFE_INTEGER;
+  }
+
+  let limit = options.limit;
+  let stream = fs.createReadStream(path.resolve(filename));
+  stream.pipe(csv(options))
+    .on('data', function(data) {
+      if (limit > 0) {
+        callback(null, data);
+      }
+      if (limit === 0) {
+        stream.unpipe();
+        stream.destroy();
+      }
+      limit -= 1;
+    })
+    .on('error', function(error) {
+      console.error('Error loading file: ', filename, error);
+      callback(error);
+    })
+    .on('end', function() {
+      callback();
+    });
+};
 
 // EXPORTS
 
