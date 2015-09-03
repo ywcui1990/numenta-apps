@@ -53,7 +53,7 @@ def removeNupic(maxAttempts=10):
       import nupic
     except ImportError:
       break
-    UninstallCommand().main(["nupic", "--disable-pip-version-check"])
+    UninstallCommand().main(["nupic", "--disable-pip-version-check", "--yes"])
   else:
     raise UnableToCompletelyRemoveNuPICError(
       "Giving up after {} attempts to remove `nupic`".format(maxAttempts))
