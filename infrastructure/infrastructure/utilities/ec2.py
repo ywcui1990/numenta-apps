@@ -234,6 +234,38 @@ def loadInstanceTags(instanceId,
                                 instanceId, region)
 
 
+def setEC2TerminationProtection(instanceId, status, config, logger):
+  """
+  Set termination protection for an instance to a specific value.
+
+  :param str instanceId: The instance ID to turn on termination protection for.
+  :param bool status: New termination protection status for instance.
+  :param dict config: boto connection configuration dict. It must contain the
+    following keys - AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and REGION.
+  :param logger: An initialized logger object
+
+  :returns: Whether the status was successfully changed
+  :rtype: bool
+  """
+  assert isinstance(instanceId, basestring)
+  assert isinstance(status, bool)
+  assert isinstance(config, dict)
+  assert "AWS_ACCESS_KEY_ID" in config.keys(), (
+    "config dictionary is missing the AWS_ACCESS_KEY_ID key")
+  assert "AWS_SECRET_ACCESS_KEY" in config.keys(), (
+    "config dictionary is missing the AWS_SECRET_ACCESS_KEY key")
+  assert "REGION" in config.keys(), (
+    "config dictionary is missing the REGION key")
+  assert logger, "setEC2TerminationProtection requires an initialized logger"
+
+  conn = getEC2Connection(config)
+  logger.debug("Setting termination protection on %s in %s to %s", instanceId,
+               config["REGION"], status)
+  return conn.modify_instance_attribute(instance_id=instanceId,
+                                        attribute="disableApiTermination",
+                                        value=status)
+
+
 def stopInstance(instanceId, config, logger):
   """
     Stops the given running EC2 instance.
