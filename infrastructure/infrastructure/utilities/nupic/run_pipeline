@@ -59,8 +59,10 @@ from infrastructure.utilities import git
 from infrastructure.utilities import jenkins
 from infrastructure.utilities import diagnostics
 from infrastructure.utilities.env import prepareEnv
+from infrastructure.utilities.jenkins import createOrReplaceResultsDir
 from infrastructure.utilities.nupic.build_commands import (
   checkIfProjectExistsLocallyForSHA,
+  createTextFile,
   executeBuildProcess)
 from infrastructure.utilities.path import mkdirp
 
@@ -173,6 +175,13 @@ def main():
                         logger=g_logger)
   else:
     g_logger.info("Skipping NuPIC build for SHA : %s", args["nupicSha"])
+    resultsFile = os.path.join(createOrReplaceResultsDir(logger=g_logger),
+                               "results.xml")
+    createTextFile(fileName=resultsFile, fileContents=(
+                     "<testsuite tests=\"1\">"
+                       "<testcase classname=\"test\" name=\"pass\"/>"
+                     "</testsuite>"))
+
 
 
 
