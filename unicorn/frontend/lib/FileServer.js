@@ -34,8 +34,8 @@ import fs from 'fs';
 import path from 'path';
 
 // internals
-
-const SAMPLES_FILE_PATH = path.join('frontend', 'samples'); // @TODO move path to config
+// @TODO move path to config
+const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
 
 
 // MAIN
@@ -44,7 +44,7 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples'); // @TODO move path t
  *
  */
 var FileServer = function() {
-  this.FILE_PATH = SAMPLES_FILE_PATH;
+
 };
 
 
@@ -53,7 +53,7 @@ var FileServer = function() {
  *
  * @param  {String}   filename: The absolute path of the CSV file to load
  */
-FileServer.prototype.getFile = function(filename, callback) {
+FileServer.prototype.getContents = function(filename, callback) {
   fs.readFile(filename, function(err, data) {
     if (err) {
       console.error(filename + ':' + err);
@@ -120,21 +120,21 @@ FileServer.prototype.getFields = function(filename, options, callback) {
   stream.pipe(csv(options))
     .once('data', function(data) {
       if (data) {
-        let metrics = [];
-        for (let field in data) {
-          let val = data[field];
-          let metric = {
-            name: field,
+        let fields = [];
+        for (let fieldName in data) {
+          let val = data[fieldName];
+          let field = {
+            name: fieldName,
             type: 'string'
           };
           if (Number.isFinite(Number(val))) {
-            metric.type = 'number';
+            field.type = 'number';
           } else if (Number.isFinite(Date.parse(val))) {
-            metric.type = 'date';
+            field.type = 'date';
           }
-          metrics.push(metric);
+          fields.push(field);
         }
-        callback(null, metrics);
+        callback(null, fields);
         stream.unpipe();
         stream.destroy();
       }

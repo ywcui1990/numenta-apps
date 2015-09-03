@@ -40,7 +40,10 @@ export default (actionContext, file) => {
           'filename': file,
           'metrics': fields
         });
-        resolve(fields);
+        resolve({
+          'filename': file,
+          'metrics': fields
+        });
       }
     });
   });

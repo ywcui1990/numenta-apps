@@ -34,7 +34,7 @@ import React from 'react';
 
 import AddAction from '../actions/add';
 import FileListComponent from '../components/FileListComponent';
-import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add'
+import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
 
 
 const {
