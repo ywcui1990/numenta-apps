@@ -30,50 +30,22 @@ from pip.commands.uninstall import UninstallCommand
 
 
 
-class UnableToCompletelyRemoveNuPICError(Exception):
-  pass
-
-
-
 def removePackage(packageName, maxAttempts=10):
-  """ Iteratively attempt to remove nupic with pip until `import nupic`
-  raises an ImportError exception.  Multiple attempts are necessary because
-  `pip uninstall` only removes the first match.
-
-  :raises UnableToCompletelyRemoveNuPICError: nupic may remain importable if
-    installed in development mode (i.e. `python setup.py develop`,
-    `pip install -e`), or the `nupic` directory is in PATH or PYTHONPATH.  In
-    which case, give up trying to remove it and leave it up to the user to
-    remediate either by changing directories, removing any entries from .pth
-    files, or symlinks.
+  """ Attempt to gracefully uninstall package with pip, followed by a an eager
+  approach to remove vestiges of namespace packages and previous installations
   """
 
-  uninstallArgs = ["--yes", "--disable-pip-version-check"]
+  UninstallCommand().main([packageName, "--yes", "--disable-pip-version-check"])
 
-  for _ in xrange(maxAttempts):
-    try:
-      module = __import__(packageName)
-      UninstallCommand().main([packageName] + uninstallArgs)
+  # Remove vestiges of namespace packages, and other previous installations
 
-      # Remove vestiges of namespace packages, too
-      moduleLocation = module.__path__[0]
-      print "Removing {}".format(moduleLocation)
-      shutil.rmtree(moduleLocation, ignore_errors=True)
-      for filename in glob.glob(os.path.join(os.path.dirname(moduleLocation),
-                                             packageName + "*")):
-        print "Removing {}".format(filename)
-        if os.path.isdir(filename):
-          shutil.rmtree(filename)
-        else:
-          os.unlink(filename)
-      del sys.modules[packageName]
-    except ImportError:
-      print "{} not found.".format(packageName)
-      break
-  else:
-    raise UnableToCompletelyRemoveNuPICError(
-      "Giving up after {} attempts to remove `{}`".format(maxAttempts,
-                                                          packageName))
+  for path in sys.path:
+    for filename in glob.glob(os.path.join(path, packageName + "*")):
+      print "Removing {}".format(filename)
+      if os.path.isdir(filename):
+        shutil.rmtree(filename)
+      else:
+        os.unlink(filename)
 
 
 
