@@ -58,7 +58,8 @@ class FileListComponent extends React.Component {
   _getMetricItems(file) {
     return file.metrics.map(metric => {
       return (
-        <ListItem leftCheckbox={<Checkbox />} primaryText={metric.name}/>
+        <ListItem key={file.name + '#' + metric.name} leftCheckbox={<Checkbox />}
+          primaryText={metric.name}/>
       );
     });
   }
@@ -76,8 +77,9 @@ class FileListComponent extends React.Component {
   _getFileItems() {
     return this.props.files.map(file => {
       return (
-        <ListItem initiallyOpen={true} nestedItems={this._getMetricItems(file)}
-          primaryText={file.name}/>
+        <ListItem initiallyOpen={true}
+          key={file.name}
+          nestedItems={this._getMetricItems(file)} primaryText={file.name}/>
       );
     });
   }
@@ -86,7 +88,7 @@ class FileListComponent extends React.Component {
     let styles = this._getStyles();
     return (
       <Paper style={styles.root}>
-        <List subheader="Data Sources">
+        <List subheader="Sample Data">
           {this._getFileItems()}
         </List>
       </Paper>
