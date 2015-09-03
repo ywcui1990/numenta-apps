@@ -189,7 +189,7 @@ def main():
                         " && source /etc/grok/supervisord.vars" +
                         " && cd $GROK_HOME" +
                         " && ./run_tests.sh --integration --language py" +
-                        " --results xunit jenkins")
+                        " --results jenkins")
       run(runTestCommand)
       g_logger.debug("Retreiving results")
       get("%s" % (g_remotePath), resultsDir)
