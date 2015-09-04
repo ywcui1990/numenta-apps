@@ -30,7 +30,7 @@ export default class FileStore extends BaseStore {
   static storeName = 'FileStore';
 
   static handlers = {
-    'UPLOADED_FILES_SUCCESS': '_handleFile',
+    'UPLOADED_FILE_SUCCESS': '_handleFile',
     'LIST_FILES_SUCCESS': '_handleListFiles',
     'LIST_METRICS_SUCCESS': '_handleListMetrics'
   };
