@@ -66,16 +66,15 @@ let context;
 // CLIENT LIB EXAMPLES
 var testMetric = {
   "uid": uuid.v4(),
+  "file_uid": uuid.v4(),
+  "model_uid": null,
   "name": "blah",
-  "parameters": "blah",
-  "status": 0,
-  "message": "blah",
-  "last_timestamp": "2015-09-03T23:56:16+00:00",
-  "model_params": "blah",
-  "last_rowid": 0
+  "data": []
 };
 databaseClient.putMetric(testMetric, (error) => {
+  if(error) throw new Error(error);
   databaseClient.getMetrics({}, (error, results) => {
+    if(error) throw new Error(error);
     console.log(results);
   });
 });

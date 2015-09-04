@@ -14,7 +14,7 @@
       "minLength": 1
     },
     "model_uid": {
-      "type": "string",
+      "type": [ "string", "null" ],
       "maxLength": 40
     },
     "name": {
