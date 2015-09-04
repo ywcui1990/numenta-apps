@@ -32,7 +32,7 @@ const {
 @connectToStores([FileStore], (context) => ({
   files: context.getStore(FileStore).getFiles()
 }))
-class FileListComponent extends React.Component {
+export default class FileList extends React.Component {
 
   static contextTypes = {
     executeAction: React.PropTypes.func,
@@ -42,16 +42,6 @@ class FileListComponent extends React.Component {
 
   constructor(props) {
     super(props);
-  }
-
-  _getMetricItems(file) {
-    return file.metrics.map(metric => {
-      return (
-        <ListItem key={file.name + '#' + metric.name}
-          leftCheckbox={<Checkbox />}
-          primaryText={metric.name}/>
-      );
-    });
   }
 
   _getStyles() {
@@ -68,15 +58,26 @@ class FileListComponent extends React.Component {
       }
     };
   }
-  _getFileItems(filetype) {
+
+  _renderMetrics(file) {
+    return file.metrics.map(metric => {
+      return (
+        <ListItem key={metric.name}
+          leftCheckbox={<Checkbox />}
+          primaryText={metric.name}/>
+      );
+    });
+  }
+
+  _renderFiles(filetype) {
     return this.props.files.map(file => {
       if (file.type == filetype) {
-        return (
-          <ListItem initiallyOpen={true}
-            key={file.name}
-            nestedItems={this._getMetricItems(file)} primaryText={file.name}/>
-        );
-      }
+      	return (
+        	<ListItem initiallyOpen={true}
+         	 key={file.name}
+         	 nestedItems={this._renderMetrics(file)} primaryText={file.name}/>
+      	);
+	  }	
     });
   }
 
@@ -85,14 +86,12 @@ class FileListComponent extends React.Component {
     return (
       <Paper style={styles.root} zDepth={2}>
         <List subheader="Sample Data">
-          {this._getFileItems("sample")}
+          {this._renderFiles("sample")}
         </List>
         <List subheader="Your Data">
-          {this._getFileItems("uploaded")}
+          {this._renderFiles("uploaded")}
         </List>
       </Paper>
     );
   }
 };
-
-export default FileListComponent;
