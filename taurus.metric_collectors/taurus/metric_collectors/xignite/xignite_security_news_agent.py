@@ -84,6 +84,8 @@ _EMITTED_NEWS_VOLUME_SAMPLE_TRACKER_KEY = "xignite-security-news-volume"
 _NEWS_VOLUME_METRIC_PROVIDER = "xignite-security-news"
 
 
+_HTTP_INACTIVITY_TIMEOUT_SEC = 240
+
 
 NewsVolumeMetricSpec = namedtuple(
   "NewsVolumeMetricSpec", "metric symbol")
@@ -159,7 +161,7 @@ def _httpGetWithRetries(session, url, params):
   :returns: requests.models.Response instance. see requests.Session.get for
     details
   """
-  return session.get(url, params=params)
+  return session.get(url, params=params, timeout=_HTTP_INACTIVITY_TIMEOUT_SEC)
 
 
 
@@ -528,7 +530,7 @@ class _HistoricalNewsTaskBase(object):
 
       # Re-insert news after resolving IntegrityError
       return saveNews()
-      
+
 
 
 
