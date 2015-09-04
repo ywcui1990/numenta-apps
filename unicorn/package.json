@@ -66,6 +66,7 @@
     "node-sass": "3.3.2",
     "react": "0.13.3",
     "react-tap-event-plugin": "0.1.7",
+    "retina.js": "1.1.0",
     "uuid": "2.0.1"
   },
   "devDependencies": {
