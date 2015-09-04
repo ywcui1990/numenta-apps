@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "id": "/Metric",
+  "id": "/MetricData",
   "type": "object",
   "properties": {
     "uid": {
@@ -8,24 +8,24 @@
       "maxLength": 40,
       "minLength": 1
     },
-    "file_uid": {
+    "metric_uid": {
       "type": "string",
       "maxLength": 40,
       "minLength": 1
     },
-    "model_uid": {
-      "type": "string",
-      "maxLength": 40
+    "rowid": {
+      "type": "integer",
+      "default": 0
     },
-    "name": {
+    "timestamp": {
       "type": "string",
-      "maxLength": 255
+      "format": "date-time"
     },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "/MetricData"
-      }
+    "metric_value": {
+      "type": "number"
+    },
+    "display_value": {
+      "type": "integer"
     }
   }
 }

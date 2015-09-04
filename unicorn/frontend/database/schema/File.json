@@ -3,8 +3,22 @@
   "id": "/File",
   "type": "object",
   "properties": {
-    "name": { "type": "string" },
-    "address": { "$ref": "/Address" },
-    "votes": { "type": "integer", "minimum": 1 }
+    "uid": {
+      "type": "string",
+      "maxLength": 40,
+      "minLength": 1
+    },
+    "name": {
+      "type": "string"
+    },
+    "filename": {
+      "type": "string"
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "$ref": "/Metric"
+      }
+    }
   }
 }
