@@ -26,33 +26,22 @@ import Material from 'material-ui';
 import React from 'react';
 
 const {
-  List, ListItem, Styles, Checkbox, Paper
+  List, ListItem, Checkbox, Paper
 } = Material;
-
-const ThemeManager = new Styles.ThemeManager();
 
 @connectToStores([FileStore], (context) => ({
   files: context.getStore(FileStore).getFiles()
 }))
 class FileListComponent extends React.Component {
 
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object
-  };
-
   static contextTypes = {
     executeAction: React.PropTypes.func,
-    getStore: React.PropTypes.func
+    getStore: React.PropTypes.func,
+    muiTheme: React.PropTypes.object,
   };
 
   constructor(props) {
     super(props);
-  }
-
-  getChildContext() {
-    return {
-      muiTheme: ThemeManager.getCurrentTheme()
-    };
   }
 
   _getMetricItems(file) {
@@ -66,12 +55,16 @@ class FileListComponent extends React.Component {
   }
 
   _getStyles() {
+    let leftNavStyle = this.context.muiTheme.component.leftNav;
     return {
       root: {
         position: 'fixed',
         height: '100%',
+        width: leftNavStyle.width,
         top: 0,
-        left: 0
+        left: 0,
+        zIndex: 10,
+        backgroundColor: leftNavStyle.color,
       }
     };
   }
@@ -88,7 +81,7 @@ class FileListComponent extends React.Component {
   render() {
     let styles = this._getStyles();
     return (
-      <Paper style={styles.root}>
+      <Paper style={styles.root} zDepth={2}>
         <List subheader="Sample Data">
           {this._getFileItems()}
         </List>
