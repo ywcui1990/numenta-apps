@@ -29,7 +29,7 @@
 etc-skel-shell-fragments-directory:
   file.directory:
     - name: /etc/skel/.sh_fragments.d
-    - mode: 700
+    - mode: 0700
     - user: root
     - group: root
 
@@ -39,19 +39,19 @@ etc-skel-shell-fragments-directory:
 /etc/skel/.bashrc:
   file.managed:
     - source: salt://dotfiles/files/bashrc_skeleton.sh
-    - mode: 644
+    - mode: 0644
 
 # Set standard .bash_profile
 /etc/skel/.bash_profile:
   file.managed:
     - source: salt://dotfiles/files/bash_profile_skeleton.sh
-    - mode: 644
+    - mode: 0644
 
 # Set standard .zshrc
 /etc/skel/.zshrc:
   file.managed:
     - source: salt://dotfiles/files/zshrc_skeleton.zsh
-    - mode: 644
+    - mode: 0644
 
 # Set up global .sh_fragments.d. Files here will be sourced every login
 # by all users with our standard shell init files. This makes it easier
@@ -60,14 +60,14 @@ etc-skel-shell-fragments-directory:
 global-shell-fragments-directory:
   file.directory:
     - name: /etc/.sh_fragments.d
-    - mode: 755
+    - mode: 0755
     - user: root
     - group: root
 
 global-bashrc-fragments-directory:
   file.directory:
     - name: /etc/bashrc.d
-    - mode: 755
+    - mode: 0755
     - user: root
     - group: root
 
@@ -79,55 +79,55 @@ global-bashrc-fragments-directory:
 # For root
 /root/.sh_fragments.d:
   file.directory:
-    - mode: 700
+    - mode: 0700
     - user: root
     - group: root
 
 /root/.bashrc:
   file.managed:
     - source: salt://dotfiles/files/bashrc_skeleton.sh
-    - mode: 644
+    - mode: 0644
     - user: root
     - group: root
 
 /root/.bash_profile:
   file.managed:
     - source: salt://dotfiles/files/bash_profile_skeleton.sh
-    - mode: 644
+    - mode: 0644
     - user: root
     - group: root
 
 /root/.zshrc:
   file.managed:
     - source: salt://dotfiles/files/zshrc_skeleton.zsh
-    - mode: 644
+    - mode: 0644
     - user: root
     - group: root
 
 # For ec2-user
 /home/ec2-user/.sh_fragments.d:
   file.directory:
-    - mode: 700
+    - mode: 0700
     - user: ec2-user
     - group: ec2-user
 
 /home/ec2-user/.bashrc:
   file.managed:
     - source: salt://dotfiles/files/bashrc_skeleton.sh
-    - mode: 644
+    - mode: 0644
     - user: ec2-user
     - group: ec2-user
 
 /home/ec2-user/.bash_profile:
   file.managed:
     - source: salt://dotfiles/files/bash_profile_skeleton.sh
-    - mode: 644
+    - mode: 0644
     - user: ec2-user
     - group: ec2-user
 
 /home/ec2-user/.zshrc:
   file.managed:
     - source: salt://dotfiles/files/zshrc_skeleton.zsh
-    - mode: 644
+    - mode: 0644
     - user: ec2-user
     - group: ec2-user

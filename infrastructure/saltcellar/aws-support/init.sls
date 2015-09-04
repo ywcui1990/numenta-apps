@@ -26,7 +26,7 @@
 /etc/numenta/tests/test_getsshkeys.py:
   file.managed:
     - source: salt://aws-support/files/tests/test_getsshkeys.py
-    - mode: 755
+    - mode: 0755
     - require:
       - file: ami-test-directory
 
@@ -34,7 +34,7 @@
 /etc/numenta/read-iam-role-credentials.sh:
   file.managed:
     - source: salt://aws-support/files/read-iam-role-credentials.sh
-    - mode: 644
+    - mode: 0644
     - require:
       - file: /etc/numenta
 
@@ -42,7 +42,7 @@
 /etc/init.d/getsshkeys:
   file.managed:
     - source: salt://aws-support/files/getsshkeys.initd
-    - mode: 755
+    - mode: 0755
 
 # Add AWS info to /etc/motd
 /etc/update-motd.d/20-aws-info.motd:
@@ -50,7 +50,7 @@
     - source: salt://aws-support/files/20-aws-info.motd
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
     - require:
       - file: /etc/update-motd.d
     - watch_in:
