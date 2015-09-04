@@ -70,7 +70,6 @@ class FileListComponent extends React.Component {
   }
   _getFileItems(filetype) {
     return this.props.files.map(file => {
-      console.log("FILE: ", file);
       if (file.type == filetype) {
         return (
           <ListItem initiallyOpen={true}

@@ -129,8 +129,6 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
  */
  FileServer.prototype.getFields = function(filename, options, callback) {
 
-  debugger;
-
   // "options" is optional
   if (callback === undefined && typeof options == 'function') {
     callback = options;

@@ -100,14 +100,9 @@ module.exports = React.createClass({
       this.props._onFileSelect(files, e);
     }
 
+    /* The file input is limited to 1 file only, so files.length is always 1 */
     var file = files[0];
-
-    console.log("Selected file: ", files);
-
-    console.log('got clicked! firing FileUploadAction.');
-    
     this.context.executeAction(FileUploadAction, file);
-    console.log('FileUploadAction should have fired.');
     
   },
 
