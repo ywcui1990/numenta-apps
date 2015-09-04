@@ -1,4 +1,6 @@
 {
-  "me": "config",
-  "i": "am"
+  "title": "Unicorn",
+  "desc": "HTM Example Application",
+  "company": "Numenta",
+  "entryHtml": "/browser/index.html"
 }

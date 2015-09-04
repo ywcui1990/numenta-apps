@@ -64,30 +64,19 @@ let context;
 
 
 // CLIENT LIB EXAMPLES
-
-// working example/test of sync ConfigClient/Server
-console.log('Config = ', config.get('env'), config.get('target'));
-
-// working example/test of async DatabaseClient/Server
 var testMetric = {
   "uid": uuid.v4(),
-  "datasource": "blah",
   "name": "blah",
-  "description": "blah",
-  "server": "blah",
-  "location": "blah",
   "parameters": "blah",
   "status": 0,
   "message": "blah",
-  "collector_error": "blah",
   "last_timestamp": "2015-09-03T23:56:16+00:00",
-  "poll_interval": 60,
-  "tag_name": "blah",
   "model_params": "blah",
   "last_rowid": 0
 };
 databaseClient.putMetric(testMetric, (error) => {
   databaseClient.getMetrics({}, (error, results) => {
+    console.log(results);
   });
 });
 
@@ -96,15 +85,16 @@ databaseClient.putMetric(testMetric, (error) => {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // dev tools @TODO remove for non-dev
-  window.React = React;
+  if(config.get('NODE_ENV') !== 'production') {
+    window.React = React; // expose to React dev tools
+  }
 
   tapEventInject(); // @TODO remove when >= React 1.0
 
   // init GUI flux/ible app
   app = new Fluxible({
     component: MainComponent,
-    stores: [FileStore]
+    stores: [ FileStore ]
   });
 
   // add context to app
