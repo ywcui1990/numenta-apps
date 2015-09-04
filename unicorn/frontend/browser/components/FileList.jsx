@@ -58,7 +58,8 @@ class FileListComponent extends React.Component {
   _getMetricItems(file) {
     return file.metrics.map(metric => {
       return (
-        <ListItem key={file.name + '#' + metric.name} leftCheckbox={<Checkbox />}
+        <ListItem key={file.name + '#' + metric.name}
+          leftCheckbox={<Checkbox />}
           primaryText={metric.name}/>
       );
     });
