@@ -33,7 +33,7 @@ import React from 'react';
 // internals
 
 import AddAction from '../actions/add';
-import FileListComponent from '../components/FileList';
+import FileList from '../components/FileList';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
 
 
@@ -133,7 +133,7 @@ module.exports = React.createClass({
             </p>
           </CardText>
         </Card>
-        <FileListComponent/>
+        <FileList/>
       </div>
     );
   }
