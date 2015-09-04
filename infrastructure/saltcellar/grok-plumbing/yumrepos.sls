@@ -32,7 +32,7 @@
     - user: root
     - group: root
     - source: salt://grok-plumbing/files/repos/{{ repo }}
-    - mode: 644
+    - mode: 0644
     - require:
       - file: remove-stale-grok-repo
     - watch_in:
