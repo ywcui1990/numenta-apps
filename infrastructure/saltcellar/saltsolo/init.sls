@@ -25,7 +25,7 @@
 /usr/local/bin/run-salt-solo:
   file.managed:
     - source: salt://saltsolo/files/run-salt-solo
-    - mode: 755
+    - mode: 0755
 
 # Install salt crontask.
 #
@@ -37,7 +37,7 @@ salt-cronjob:
   file.managed:
     - source: salt://saltsolo/files/salt-cronjob
     - name: /usr/local/sbin/salt-cronjob
-    - mode: 755
+    - mode: 0755
     - require:
       - file: /usr/local/bin/run-salt-solo
   cron.present:
@@ -55,7 +55,7 @@ salt-cronjob:
 /etc/init.d/saltsolo:
   file.managed:
     - source: salt://saltsolo/files/saltsolo.initd
-    - mode: 755
+    - mode: 0755
 
 # Enable the service
 saltsolo:
