@@ -31,14 +31,18 @@
 // externals
 
 import jsondown from 'jsondown';
+import jsonQuery from 'jsonquery-engine';
+import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
 import path from 'path';
+import sublevel from 'level-sublevel';
 import { Validator } from 'jsonschema';
+
 
 // internals
 
-import AddressSchema from '../database/schema/Address.json';
-import PersonSchema from '../database/schema/Person.json';
+import FileSchema from '../database/schema/File.json';
+import MetricSchema from '../database/schema/Metric.json';
 
 const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 
@@ -50,32 +54,65 @@ const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
  */
 var DatabaseServer = function () {
   this.validator = new Validator();
-  this.validator.addSchema(AddressSchema, '/Address');
+  // this.validator.addSchema(AddressSchema, '/Address');
 
-  this.database = levelup(DB_FILE_PATH, {
+  this.db = sublevel(levelup(DB_FILE_PATH, {
     db: jsondown,
     valueEncoding: 'json'
-  });
+  }));
 };
 
 /**
  *
  */
 DatabaseServer.prototype.get = function (key, callback) {
-  this.database.get(key, callback);
+  this.db.get(key, callback);
 };
 
 /**
  *
  */
 DatabaseServer.prototype.put = function (key, value, callback) {
-  let validation = this.validator.validate(value, PersonSchema);
+  this.db.put(key, value, callback);
+};
+
+/**
+ *
+ */
+DatabaseServer.prototype.putMetric = function (metric, callback) {
+  let table = this.db.sublevel('metric');
+  let validation = this.validator.validate(metric, MetricSchema);
+
   if(validation.errors.length) {
     callback(validation.errors, null);
     return;
   }
 
-  this.database.put(key, value, callback);
+  table.put(metric.uid, metric, callback);
+};
+
+/**
+ *
+ */
+DatabaseServer.prototype.getMetrics = function (query, callback) {
+  let results = [];
+  let table = levelQuery(this.db.sublevel('metric'));
+  table.query.use(jsonQuery());
+  // table.ensureIndex('last_rowid');
+  table.query(query)
+    .on('stats', () => {})
+    .on('error', (error) => {
+      callback(error, null);
+    })
+    .on('data', (result) => {
+      results.push(result);
+    })
+    .on('end', (result) => {
+      if(result) {
+        results.push(result);
+      }
+      callback(null, results);
+    });
 };
 
 

@@ -1,9 +1,0 @@
-{
-  "id": "/Person",
-  "type": "object",
-  "properties": {
-    "name": { "type": "string" },
-    "address": { "$ref": "/Address" },
-    "votes": { "type": "integer", "minimum": 1 }
-  }
-}

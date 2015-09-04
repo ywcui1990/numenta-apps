@@ -36,6 +36,7 @@ import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
 import tapEventInject from 'react-tap-event-plugin';
+import uuid from 'uuid';
 
 // internals
 
@@ -65,29 +66,28 @@ let context;
 // CLIENT LIB EXAMPLES
 
 // working example/test of sync ConfigClient/Server
-console.log('Config env = ', config.get('env'));
-console.log('Config target = ', config.get('target'));
+console.log('Config = ', config.get('env'), config.get('target'));
 
 // working example/test of async DatabaseClient/Server
-var testVal = {
-  "name": "Barack Obamar",
-  "address": {
-    "lines": [ "1600 Pennsylvania Avenue Northwest" ],
-    "zip": "DC 20500",
-    "city": "Washington",
-    "country": "USA"
-  },
-  "votes": 123
+var testMetric = {
+  "uid": uuid.v4(),
+  "datasource": "blah",
+  "name": "blah",
+  "description": "blah",
+  "server": "blah",
+  "location": "blah",
+  "parameters": "blah",
+  "status": 0,
+  "message": "blah",
+  "collector_error": "blah",
+  "last_timestamp": "2015-09-03T23:56:16+00:00",
+  "poll_interval": 60,
+  "tag_name": "blah",
+  "model_params": "blah",
+  "last_rowid": 0
 };
-databaseClient.put(testVal.name, testVal, (error) => {
-  if (error) {
-    throw new Error(error);
-  }
-  databaseClient.get(testVal.name, (error, data) => {
-    if (error) {
-      throw new Error(error);
-    }
-    console.log('get from db ', testVal.name, data);
+databaseClient.putMetric(testMetric, (error) => {
+  databaseClient.getMetrics({}, (error, results) => {
   });
 });
 

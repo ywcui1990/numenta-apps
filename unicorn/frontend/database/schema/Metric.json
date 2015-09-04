@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "id": "/Metric",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "maxLength": 40,
+      "minLength": 1
+    },
+    "datasource": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 255
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "server": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "location": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "parameters": {
+      "type": "string"
+    },
+    "status": {
+      "type": "integer",
+      "default": 0
+    },
+    "message": {
+      "type": "string"
+    },
+    "collector_error": {
+      "type": "string"
+    },
+    "last_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "default": null
+    },
+    "poll_interval": {
+      "type": "integer",
+      "default": 60
+    },
+    "tag_name": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "model_params": {
+      "type": "string"
+    },
+    "last_rowid": {
+      "type": "integer"
+    }
+  }
+}
