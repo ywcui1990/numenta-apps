@@ -13,12 +13,6 @@
     },
     "filename": {
       "type": "string"
-    },
-    "metrics": {
-      "type": "array",
-      "items": {
-        "$ref": "/Metric"
-      }
     }
   }
 }

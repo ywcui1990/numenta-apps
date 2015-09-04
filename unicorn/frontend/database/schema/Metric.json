@@ -20,12 +20,6 @@
     "name": {
       "type": "string",
       "maxLength": 255
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "/MetricData"
-      }
     }
   }
 }

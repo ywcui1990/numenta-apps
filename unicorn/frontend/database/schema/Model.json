@@ -33,12 +33,6 @@
     },
     "last_rowid": {
       "type": "integer"
-    },
-    "data": {
-      "type": "array",
-      "items": {
-        "$ref": "/ModelData"
-      }
     }
   }
 }
