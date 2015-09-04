@@ -181,7 +181,7 @@ class ModelRunnerTestCase(unittest.TestCase):
         rowIndex, anomalyLikelihood = json.loads(outputRecord)
 
         self.assertEqual(rowIndex, i)
-        self.assertIsInstance(anomalyLikelihood, float)
+        self.assertIsInstance(anomalyLikelihood, (float, int))
 
 
       # Close the subprocess's stdin and wait for it to terminate
