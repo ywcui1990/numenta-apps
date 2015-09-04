@@ -69,13 +69,15 @@ export default class FileList extends React.Component {
     });
   }
 
-  _renderFiles() {
+  _renderFiles(filetype) {
     return this.props.files.map(file => {
-      return (
-        <ListItem initiallyOpen={true}
-          key={file.name}
-          nestedItems={this._renderMetrics(file)} primaryText={file.name}/>
-      );
+      if (file.type == filetype) {
+      	return (
+        	<ListItem initiallyOpen={true}
+         	 key={file.name}
+         	 nestedItems={this._renderMetrics(file)} primaryText={file.name}/>
+      	);
+	  }	
     });
   }
 
@@ -84,7 +86,10 @@ export default class FileList extends React.Component {
     return (
       <Paper style={styles.root} zDepth={2}>
         <List subheader="Sample Data">
-          {this._renderFiles()}
+          {this._renderFiles("sample")}
+        </List>
+        <List subheader="Your Data">
+          {this._renderFiles("uploaded")}
         </List>
       </Paper>
     );
