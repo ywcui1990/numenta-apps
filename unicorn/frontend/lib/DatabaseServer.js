@@ -43,6 +43,9 @@ import { Validator } from 'jsonschema';
 
 import FileSchema from '../database/schema/File.json';
 import MetricSchema from '../database/schema/Metric.json';
+import MetricDataSchema from '../database/schema/MetricData.json';
+import ModelSchema from '../database/schema/Model.json';
+import ModelDataSchema from '../database/schema/ModelData.json';
 
 const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 
@@ -189,7 +192,7 @@ DatabaseServer.prototype.getModels = function (query, callback) {
 /**
  * Get all/queried ModelDatas records
  */
-DatabaseServer.prototype.getModels = function (query, callback) {
+DatabaseServer.prototype.getModelDatas = function (query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('modelData'));
   table.query.use(jsonQuery());
