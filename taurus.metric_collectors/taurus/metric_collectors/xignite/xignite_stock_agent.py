@@ -60,6 +60,8 @@ from taurus.metric_collectors.xignite import xignite_agent_utils
 
 
 
+URLOPEN_TIMEOUT_SEC = 240
+
 DATE_FMT = "%m/%d/%Y %I:%M:%S %p"
 DEFAULT_BARLENGTH = 5
 DEFAULT_SERVER = os.environ.get("TAURUS_HTM_SERVER", "127.0.0.1")
@@ -279,7 +281,8 @@ def getData(symbol, apitoken, barlength, startTime, endTime, fields):
 
   queryString = urllib.urlencode(query)
 
-  response = urllib2.urlopen(_API_URL + queryString)
+  response = urllib2.urlopen(_API_URL + queryString,
+                             timeout=URLOPEN_TIMEOUT_SEC)
 
   return json.loads(response.read())
 
