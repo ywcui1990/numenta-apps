@@ -58,6 +58,14 @@ class MetricUtilsTestCase(unittest.TestCase):
       in random.sample(metric_utils.getMetricsConfiguration().items(), 3)
     }
 
+    for resName, resVal in metrics.iteritems():
+      for metricName in resVal["metrics"]:
+        self.addCleanup(requests.delete,
+                        "https://%s/_metrics/custom/%s" % (host, metricName),
+                        auth=(apikey, ""),
+                        verify=False)
+
+
     with patch("taurus.metric_collectors.metric_utils.getMetricsConfiguration",
                return_value=metrics,
                spec_set=metric_utils.getMetricsConfiguration):
@@ -66,10 +74,6 @@ class MetricUtilsTestCase(unittest.TestCase):
     allModels = metric_utils.getAllModels(host, apikey)
 
     for model in createdModels:
-      self.addCleanup(requests.delete,
-                      "https://%s/_metrics/custom/%s" % (host, model["name"]),
-                      auth=(apikey, ""),
-                      verify=False)
       remoteModel = metric_utils.getOneModel(host, apikey, model["uid"])
       self.assertDictEqual(remoteModel, model)
       self.assertIn(model, allModels)

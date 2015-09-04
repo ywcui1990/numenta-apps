@@ -60,7 +60,7 @@ install-prerequisites-and-update-repos() {
   sudo yum install mysql-server mysql mariadb-devel nginx git -y
   curl -O https://www.rabbitmq.com/releases/rabbitmq-server/v3.5.4/rabbitmq-server-3.5.4-1.noarch.rpm
   sudo rpm --import https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
-  sudo yum install rabbitmq-server-3.5.4-1.noarch.rpm
+  sudo yum install rabbitmq-server-3.5.4-1.noarch.rpm -y
   sudo /usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management
   pushd /usr/local/bin
     sudo curl -O https://raw.githubusercontent.com/rabbitmq/rabbitmq-management/rabbitmq_v3_5_4/bin/rabbitmqadmin
