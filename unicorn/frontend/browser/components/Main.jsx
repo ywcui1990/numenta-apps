@@ -33,12 +33,12 @@ import React from 'react';
 // internals
 
 import AddAction from '../actions/add';
-import FileListComponent from '../components/FileListComponent';
+import FileListComponent from '../components/FileList';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
 
 
 const {
-  Card, CardText, FloatingActionButton, FontIcon, Styles
+  Card, CardText, FloatingActionButton, Styles
 } = Material;
 
 const ThemeManager = new Styles.ThemeManager();
@@ -85,7 +85,7 @@ module.exports = React.createClass({
   },
 
   onFileSelect: function onFileSelect(e) {
-    console.log("processingFile");
+    console.log('processingFile');
     e.preventDefault();
 
     this.setState({
@@ -122,7 +122,8 @@ module.exports = React.createClass({
             <FloatingActionButton onClick={this._onClick}>
               <SvgIconContentAdd />
             </FloatingActionButton>
-            <input type='file' ref='fileInput' style={{display: 'none'}} onChange={this.onFileSelect} multiple />
+            <input type='file' ref='fileInput' style={{display: 'none'}}
+              onChange={this.onFileSelect} multiple />
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               Donec mattis pretium massa. Aliquam erat volutpat. Nulla facilisi.
