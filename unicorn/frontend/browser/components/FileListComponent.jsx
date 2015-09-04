@@ -74,13 +74,16 @@ class FileListComponent extends React.Component {
       }
     };
   }
-  _getFileItems() {
+  _getFileItems(filetype) {
     return this.props.files.map(file => {
-      return (
-        <ListItem initiallyOpen={true}
-          key={file.name}
-          nestedItems={this._getMetricItems(file)} primaryText={file.name}/>
-      );
+      console.log("FILE: ", file);
+      if (file.type == filetype) {
+        return (
+          <ListItem initiallyOpen={true}
+            key={file.name}
+            nestedItems={this._getMetricItems(file)} primaryText={file.name}/>
+        );
+      }
     });
   }
 
@@ -89,7 +92,10 @@ class FileListComponent extends React.Component {
     return (
       <Paper style={styles.root}>
         <List subheader="Sample Data">
-          {this._getFileItems()}
+          {this._getFileItems("sample")}
+        </List>
+        <List subheader="Your Data">
+          {this._getFileItems("uploaded")}
         </List>
       </Paper>
     );
