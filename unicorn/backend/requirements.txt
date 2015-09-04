@@ -1,7 +1,7 @@
 validictory==0.9.1
 
 # NuPIC HTM
-nupic==0.2.11
+nupic==0.3.0
 
 # Other Numenta projects
 htmengine>=0.0.0
