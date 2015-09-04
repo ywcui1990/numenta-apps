@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "id": "/Model",
+  "type": "object",
+  "properties": {
+    "uid": {
+      "type": "string",
+      "maxLength": 40,
+      "minLength": 1
+    },
+    "metric_uid": {
+      "type": "string",
+      "maxLength": 40,
+      "minLength": 1
+    },
+    "parameters": {
+      "type": "string"
+    },
+    "status": {
+      "type": "integer",
+      "default": 0
+    },
+    "message": {
+      "type": "string"
+    },
+    "last_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "default": null
+    },
+    "model_params": {
+      "type": "string"
+    },
+    "last_rowid": {
+      "type": "integer"
+    }
+  }
+}

@@ -35,9 +35,16 @@ import path from 'path';
 
 // internals
 
+const CONFIG_FILE = 'default.json';
 const CONFIG_PATH = path.join('frontend', 'config');
-const NODE_ENV = process.env.NODE_ENV || 'development';
-const UNICORN_TARGET = process.env.UNICORN_TARGET || 'desktop';
+
+let Defaults = {
+  NODE_ENV: 'development',
+  UNICORN_TARGET: 'desktop',
+  TEST_HOST: 'http://localhost',
+  TEST_PATH: '',
+  TEST_PORT: 8008
+};
 
 
 // MAIN
@@ -46,11 +53,19 @@ const UNICORN_TARGET = process.env.UNICORN_TARGET || 'desktop';
  *
  */
 var ConfigServer = function () {
-  // init config
-  return nconf.defaults({ NODE_ENV, UNICORN_TARGET })
-    .file(path.join(CONFIG_PATH, 'default.json'))
-    .file('environment', path.join(CONFIG_PATH, 'environment.' + NODE_ENV + '.json'))
-    .file('target', path.join(CONFIG_PATH, 'target.' + UNICORN_TARGET + '.json'));
+  let config = nconf.env().argv().defaults(Defaults);
+
+  config.file(path.join(CONFIG_PATH, CONFIG_FILE));
+  config.file(
+    'environment',
+    path.join(CONFIG_PATH, 'environment.' + config.get('NODE_ENV') + '.json')
+  );
+  config.file(
+    'target',
+    path.join(CONFIG_PATH, 'target.' + config.get('UNICORN_TARGET') + '.json')
+  );
+
+  return config;
 };
 
 

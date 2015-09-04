@@ -36,6 +36,7 @@ import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
 import tapEventInject from 'react-tap-event-plugin';
+import uuid from 'uuid';
 
 // internals
 
@@ -63,31 +64,18 @@ let context;
 
 
 // CLIENT LIB EXAMPLES
-
-// working example/test of sync ConfigClient/Server
-console.log('Config env = ', config.get('env'));
-console.log('Config target = ', config.get('target'));
-
-// working example/test of async DatabaseClient/Server
-var testVal = {
-  "name": "Barack Obamar",
-  "address": {
-    "lines": [ "1600 Pennsylvania Avenue Northwest" ],
-    "zip": "DC 20500",
-    "city": "Washington",
-    "country": "USA"
-  },
-  "votes": 123
+var testMetric = {
+  "uid": uuid.v4(),
+  "file_uid": uuid.v4(),
+  "model_uid": null,
+  "name": "blah",
+  "data": []
 };
-databaseClient.put(testVal.name, testVal, (error) => {
-  if (error) {
-    throw new Error(error);
-  }
-  databaseClient.get(testVal.name, (error, data) => {
-    if (error) {
-      throw new Error(error);
-    }
-    console.log('get from db ', testVal.name, data);
+databaseClient.putMetric(testMetric, (error) => {
+  if(error) throw new Error(error);
+  databaseClient.getMetrics({}, (error, results) => {
+    if(error) throw new Error(error);
+    console.log(results);
   });
 });
 
@@ -96,15 +84,16 @@ databaseClient.put(testVal.name, testVal, (error) => {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // dev tools @TODO remove for non-dev
-  window.React = React;
+  if(config.get('NODE_ENV') !== 'production') {
+    window.React = React; // expose to React dev tools
+  }
 
   tapEventInject(); // @TODO remove when >= React 1.0
 
   // init GUI flux/ible app
   app = new Fluxible({
     component: MainComponent,
-    stores: [FileStore]
+    stores: [ FileStore ]
   });
 
   // add context to app

@@ -56,13 +56,17 @@
     "fluxible-addons-react": "0.1.8",
     "is-electron-renderer": "2.0.0",
     "jsondown": "0.1.1",
+    "jsonquery-engine": "1.0.2",
     "jsonschema": "1.0.2",
+    "level-queryengine": "3.0.1",
+    "level-sublevel": "6.4.6",
     "levelup": "1.2.1",
     "material-ui": "0.11.0",
     "nconf": "0.7.2",
     "node-sass": "3.3.2",
     "react": "0.13.3",
-    "react-tap-event-plugin": "0.1.7"
+    "react-tap-event-plugin": "0.1.7",
+    "uuid": "2.0.1"
   },
   "devDependencies": {
     "babel": "5.8.23",

@@ -104,7 +104,7 @@ module.exports = React.createClass({
     /* The file input is limited to 1 file only, so files.length is always 1 */
     var file = files[0];
     this.context.executeAction(FileUploadAction, file);
-    
+
   },
 
   /**
@@ -123,23 +123,14 @@ module.exports = React.createClass({
     };
     return (
       <div>
-        <Card style={{ marginLeft: '256px' }}>
-          <CardText>
-            <h1>Welcome</h1>
-            <FloatingActionButton onClick={this._onClick}>
-              <SvgIconContentAdd />
-            </FloatingActionButton>
-            <input type='file' ref='fileInput' style={{display: 'none'}}
-              onChange={this._onFileSelect}/>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Donec mattis pretium massa. Aliquam erat volutpat. Nulla facilisi.
-              Donec vulputate interdum sollicitudin. Nunc lacinia auctor quam
-              sed pellentesque. Aliquam dui mauris, mattis quis lacus id,
-              pellentesque lobortis odio.
-            </p>
-          </CardText>
-        </Card>
+        <div style={{ marginLeft: '256px' }}>
+          <h1>Unicorn</h1>
+          <FloatingActionButton onClick={this._onClick}>
+            <SvgIconContentAdd />
+          </FloatingActionButton>
+          <input type="file" ref="fileInput" style={{display: 'none'}} onChange={this._onFileSelect} />
+        </div>
+
         <Card initiallyExpanded={true} style={{ marginLeft: '256px' }}>
           <CardHeader
             title="Metric"
