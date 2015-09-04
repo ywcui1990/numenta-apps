@@ -102,6 +102,7 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
   this.getFields(formattedFile.filename, {} ,(error, fields) => {
     if (error) {
       console.log('Error loading metrics for file:', formattedFile, error);
+      callback(error);
     } else {
       formattedFile.metrics = fields;
       callback(error, formattedFile);
