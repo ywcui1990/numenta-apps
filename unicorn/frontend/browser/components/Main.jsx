@@ -33,12 +33,14 @@ import React from 'react';
 // internals
 
 import AddAction from '../actions/add';
-import FileListComponent from '../components/FileListComponent';
+import FileList from '../components/FileList';
+import FileUploadAction from '../actions/FileUpload';
+import Chart from '../components/Chart';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
 
 
 const {
-  Card, CardText, FloatingActionButton, FontIcon, Styles
+  Card, CardText, CardHeader, FloatingActionButton, Styles
 } = Material;
 
 const ThemeManager = new Styles.ThemeManager();
@@ -71,40 +73,38 @@ module.exports = React.createClass({
   /**
    * Add "+" upload new data/CSV file button onClick event handler
    */
-  _onClick () {
+  _onClick() {
     console.log('got clicked! firing AddAction.');
-    this.context.executeAction(AddAction, { /*payload*/ });
+    this.context.executeAction(AddAction, {/* payload */});
     console.log('AddAction should have fired.');
-    this.openFileUpload();
-  },
 
-  openFileUpload: function () {
+    /* open file upload window */
     var fileInput = React.findDOMNode(this.refs.fileInput);
     fileInput.value = null;
     fileInput.click();
   },
 
-  onFileSelect: function onFileSelect(e) {
-    console.log("processingFile");
+  _onFileSelect(e) {
     e.preventDefault();
 
-    this.setState({
-      isDragActive: false
-    });
-
-    var droppedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
-    var max = this.props.multiple ? droppedFiles.length : 1;
+    var selectedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+    var max = this.props.multiple ? selectedFiles.length : 1;
     var files = [];
 
     for (var i = 0; i < max; i++) {
-      var file = droppedFiles[i];
+      var file = selectedFiles[i];
       file.preview = URL.createObjectURL(file);
       files.push(file);
     }
 
-    if (this.props.onDrop) {
-      this.props.onDrop(files, e);
+    if (this.props._onFileSelect) {
+      this.props._onFileSelect(files, e);
     }
+
+    /* The file input is limited to 1 file only, so files.length is always 1 */
+    var file = files[0];
+    this.context.executeAction(FileUploadAction, file);
+    
   },
 
   /**
@@ -114,6 +114,13 @@ module.exports = React.createClass({
    * @TODO Tooltip on + ADD icon - "Upload new CSV file" or something
    */
   render () {
+    let data = Array.apply(0, Array(500)).map((x, y) => {
+      return [y, Math.sin(y/5)];
+    });
+    let options = {
+      labels: ['Time', 'Value'],
+      showRangeSelector: true,
+    };
     return (
       <div>
         <Card style={{ marginLeft: '256px' }}>
@@ -122,7 +129,8 @@ module.exports = React.createClass({
             <FloatingActionButton onClick={this._onClick}>
               <SvgIconContentAdd />
             </FloatingActionButton>
-            <input type='file' ref='fileInput' style={{display: 'none'}} onChange={this.onFileSelect} multiple />
+            <input type='file' ref='fileInput' style={{display: 'none'}}
+              onChange={this._onFileSelect}/>
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               Donec mattis pretium massa. Aliquam erat volutpat. Nulla facilisi.
@@ -132,7 +140,17 @@ module.exports = React.createClass({
             </p>
           </CardText>
         </Card>
-        <FileListComponent/>
+        <Card initiallyExpanded={true} style={{ marginLeft: '256px' }}>
+          <CardHeader
+            title="Metric"
+            subtitle="File1.csv"
+            showExpandableButton={true}>
+          </CardHeader>
+          <CardText expandable={true}>
+            <Chart data={data} options={options}/>
+          </CardText>
+        </Card>
+        <FileList/>
       </div>
     );
   }

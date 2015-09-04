@@ -50,6 +50,7 @@
   "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
     "csv-streamify": "2.0.0",
+    "dygraphs": "1.1.1",
     "electron": "0.4.1",
     "fluxible": "0.5.2",
     "fluxible-addons-react": "0.1.8",

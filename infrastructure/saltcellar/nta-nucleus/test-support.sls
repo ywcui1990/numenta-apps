@@ -27,7 +27,7 @@ ami-test-directory:
   file.directory:
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
     - name: /etc/numenta/tests
     - require:
       - file: /etc/numenta
@@ -37,7 +37,7 @@ ami-test-helper-directory:
   file.directory:
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
     - name: /etc/numenta/tests/helpers
     - require:
       - file: ami-test-directory
@@ -48,12 +48,12 @@ ami-test-helper-directory:
     - source: salt://nta-nucleus/files/tests/run-ami-tests
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
 
 # Add the generic AMI tests
 /etc/numenta/tests/test_generic_instance.py:
   file.managed:
     - source: salt://nta-nucleus/files/tests/test_generic_instance.py
-    - mode: 755
+    - mode: 0755
     - require:
       - file: ami-test-directory

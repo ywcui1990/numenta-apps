@@ -27,14 +27,14 @@
   file.directory:
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
 {% endfor %}
 
 /opt/numenta:
   file.directory:
     - user: ec2-user
     - group: ec2-user
-    - mode: 755
+    - mode: 0755
     - require:
       - user: ec2-user
 
@@ -46,7 +46,7 @@
     - source: salt://nta-nucleus/files/saltsupport/{{ cmd }}
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
 {% endfor %}
 
 # Populate /usr/local/bin
@@ -59,7 +59,7 @@
     - source: salt://nta-nucleus/files/{{ cmd }}
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
 {% endfor %}
 
 # Populate /usr/local/sbin
@@ -71,5 +71,5 @@
     - source: salt://nta-nucleus/files/{{ cmd }}
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
 {% endfor %}

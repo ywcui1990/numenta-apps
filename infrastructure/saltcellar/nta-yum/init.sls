@@ -63,7 +63,7 @@ install-epel-repo:
     - user: root
     - group: root
     - source: salt://nta-yum/files/{{ repo }}
-    - mode: 644
+    - mode: 0644
     - require:
       - file: remove-stale-grok-repo
     - watch_in:
@@ -101,7 +101,7 @@ rebuild-yum-cache:
 /etc/init.d/yum-housekeeping:
   file.managed:
     - source: salt://nta-yum/files/yum-housekeeping.initd
-    - mode: 755
+    - mode: 0755
     - require:
       - file: remove-stale-yum-housekeeping-script
 

@@ -26,74 +26,72 @@ import Material from 'material-ui';
 import React from 'react';
 
 const {
-  List, ListItem, Styles, Checkbox, Paper
+  List, ListItem, Checkbox, Paper
 } = Material;
-
-const ThemeManager = new Styles.ThemeManager();
 
 @connectToStores([FileStore], (context) => ({
   files: context.getStore(FileStore).getFiles()
 }))
-class FileListComponent extends React.Component {
-
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object
-  };
+export default class FileList extends React.Component {
 
   static contextTypes = {
     executeAction: React.PropTypes.func,
-    getStore: React.PropTypes.func
+    getStore: React.PropTypes.func,
+    muiTheme: React.PropTypes.object,
   };
 
   constructor(props) {
     super(props);
   }
 
-  getChildContext() {
+  _getStyles() {
+    let leftNavStyle = this.context.muiTheme.component.leftNav;
     return {
-      muiTheme: ThemeManager.getCurrentTheme()
+      root: {
+        position: 'fixed',
+        height: '100%',
+        width: leftNavStyle.width,
+        top: 0,
+        left: 0,
+        zIndex: 10,
+        backgroundColor: leftNavStyle.color,
+      }
     };
   }
 
-  _getMetricItems(file) {
+  _renderMetrics(file) {
     return file.metrics.map(metric => {
       return (
-        <ListItem key={file.name + '#' + metric.name} leftCheckbox={<Checkbox />}
+        <ListItem key={metric.name}
+          leftCheckbox={<Checkbox />}
           primaryText={metric.name}/>
       );
     });
   }
 
-  _getStyles() {
-    return {
-      root: {
-        position: 'fixed',
-        height: '100%',
-        top: 0,
-        left: 0
-      }
-    };
-  }
-  _getFileItems() {
+  _renderFiles(filetype) {
     return this.props.files.map(file => {
-      return (
-        <ListItem initiallyOpen={true}
-          key={file.name}
-          nestedItems={this._getMetricItems(file)} primaryText={file.name}/>
-      );
+      if (file.type == filetype) {
+      	return (
+        	<ListItem initiallyOpen={true}
+         	 key={file.name}
+         	 nestedItems={this._renderMetrics(file)} primaryText={file.name}/>
+      	);
+	  }	
     });
   }
 
   render() {
     let styles = this._getStyles();
     return (
-      <Paper style={styles.root}>
+      <Paper style={styles.root} zDepth={2}>
         <List subheader="Sample Data">
-          {this._getFileItems()}
+          {this._renderFiles("sample")}
+        </List>
+        <List subheader="Your Data">
+          {this._renderFiles("uploaded")}
         </List>
       </Paper>
     );
   }
 };
-
-export default FileListComponent;

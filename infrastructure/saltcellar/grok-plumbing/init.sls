@@ -97,7 +97,7 @@ set-saltsolo-formula-rpm-to-grok:
     - source: salt://grok-plumbing/files/run-grok-tests
     - user: ec2-user
     - group: ec2-user
-    - mode: 755
+    - mode: 0755
 
 # Grok boxes should only run salt during bake or during a grok update. They're
 # a special case since they're customer machines and we can't go in and fix
@@ -155,7 +155,7 @@ grok-installer:
     - source: salt://grok-plumbing/files/install-grok-packages
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
     - require:
       - file: etc-grok
       - file: root-s3cmd-configuration
