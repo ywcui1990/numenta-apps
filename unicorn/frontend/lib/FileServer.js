@@ -92,17 +92,18 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
  */
  FileServer.prototype.getUploadedFiles = function(file, callback) {
 
-  console.log(file);
-
-      var formattedFile = {
+    var formattedFile = {
         name: file.name,
         filename: file.path,
         type: 'uploaded',
         metrics: []
       };
+      callback(formattedFile);
 
-      debugger;
-  this.getFields(formattedFile.filename, {} ,(error, fields) => {
+    /*
+    @TODO trying to popuplate metrics with getFields
+    
+    this.getFields(formattedFile.filename, {} ,(error, fields) => {
     if (error) {
       console.log('Error loading metrics for file:', formattedFile, error);
     } else {
@@ -111,6 +112,7 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
 
     }
   });
+    */
 
 };
 
