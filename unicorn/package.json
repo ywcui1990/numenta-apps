@@ -23,10 +23,14 @@
     "lint": "eslint frontend",
     "pack": "gulp webpack  ||  exit 1",
     "serve": "http-server -p 9999 ./frontend/browser/",
-    "web": "UNICORN_TARGET=web  npm run pack  &&  npm run serve",
+    "start": "npm run desktop",
+    "test": "npm run test:unit && npm run test:integration",
     "test:unit": "mocha --opts tests/js/mocha.opts tests/js/unit",
     "test:integration": "mocha --opts tests/js/mocha.opts tests/js/integration",
-    "test": "npm run test:unit && npm run test:integration"
+    "test:pipeline": "npm run test:pipeline:unit && npm run test:pipeline:integration",
+    "test:pipeline:unit": "mocha --opts tests/js/mocha.pipeline.opts tests/js/unit",
+    "test:pipeline:integration": "mocha --opts tests/js/mocha.pipeline.opts tests/js/integration",
+    "web": "UNICORN_TARGET=web  npm run pack  &&  npm run serve"
   },
   "repository": {
     "type": "git",
