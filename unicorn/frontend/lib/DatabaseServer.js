@@ -36,10 +36,7 @@ import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
 import path from 'path';
 import sublevel from 'level-sublevel';
-import {
-  Validator
-}
-from 'jsonschema';
+import { Validator } from 'jsonschema';
 
 
 // internals

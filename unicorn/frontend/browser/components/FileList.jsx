@@ -37,7 +37,7 @@ export default class FileList extends React.Component {
   static contextTypes = {
     executeAction: React.PropTypes.func,
     getStore: React.PropTypes.func,
-    muiTheme: React.PropTypes.object
+    muiTheme: React.PropTypes.object,
   };
 
   constructor(props) {
@@ -54,7 +54,7 @@ export default class FileList extends React.Component {
         top: 0,
         left: 0,
         zIndex: 10,
-        backgroundColor: leftNavStyle.color
+        backgroundColor: leftNavStyle.color,
       }
     };
   }

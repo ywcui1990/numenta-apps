@@ -20,6 +20,7 @@
 
 'use strict';
 
+
 /**
  * React View Component: Foo
  */
@@ -37,11 +38,13 @@ import FileUploadAction from '../actions/FileUpload';
 import Chart from '../components/Chart';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
 
+
 const {
   Card, CardText, CardHeader, FloatingActionButton, Styles
 } = Material;
 
 const ThemeManager = new Styles.ThemeManager();
+
 
 // MAIN
 
@@ -111,14 +114,10 @@ module.exports = React.createClass({
    */
   render () {
     let data = Array.apply(0, Array(500)).map((x, y) => {
-      return [
-        y, Math.sin(y / 5)
-      ];
+      return [y, Math.sin(y / 5)];
     });
     let options = {
-      labels: [
-        'Time', 'Value'
-      ],
+      labels: ['Time', 'Value'],
       showRangeSelector: true
     };
     return (

@@ -50,8 +50,10 @@ export default class DatabaseClientHTTP {
     callback(null, true);
   }
 
-  putMetric() {}
+  putMetric() {
+  }
 
-  getMetrics() {}
+  getMetrics() {
+  }
 
 }

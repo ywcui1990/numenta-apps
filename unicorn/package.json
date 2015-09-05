@@ -20,6 +20,7 @@
     "clean": "rm -Rf node_modules/",
     "desktop": "UNICORN_TARGET=desktop  npm run pack  &&  npm run electron",
     "electron": "electron .",
+    "lint": "eslint frontend",
     "pack": "gulp webpack  ||  exit 1",
     "serve": "http-server -p 9999 ./frontend/browser/",
     "web": "UNICORN_TARGET=web  npm run pack  &&  npm run serve",
