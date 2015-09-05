@@ -20,7 +20,6 @@
 
 'use strict';
 
-
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files.
@@ -30,12 +29,13 @@
 
 // externals
 
-import 'babel/polyfill';  // es6/7 polyfill Array.from()
+import 'babel/polyfill'; // es6/7 polyfill Array.from()
 
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
 import tapEventInject from 'react-tap-event-plugin';
+import uuid from 'uuid';
 
 // internals
 
@@ -58,46 +58,35 @@ var modelClient = new ModelClient();
 let app;
 let context;
 
-
 // MAIN
 
-
 // CLIENT LIB EXAMPLES
-
-// working example/test of sync ConfigClient/Server
-console.log('Config env = ', config.get('env'));
-console.log('Config target = ', config.get('target'));
-
-// working example/test of async DatabaseClient/Server
-var testVal = {
-  "name": "Barack Obamar",
-  "address": {
-    "lines": [ "1600 Pennsylvania Avenue Northwest" ],
-    "zip": "DC 20500",
-    "city": "Washington",
-    "country": "USA"
-  },
-  "votes": 123
+var testMetric = {
+  'uid': uuid.v4(),
+  'file_uid': uuid.v4(),
+  'model_uid': null,
+  'name': 'blah',
+  'data': []
 };
-databaseClient.put(testVal.name, testVal, (error) => {
+databaseClient.putMetric(testMetric, (error) => {
   if (error) {
     throw new Error(error);
   }
-  databaseClient.get(testVal.name, (error, data) => {
+  databaseClient.getMetrics({}, (error, results) => {
     if (error) {
       throw new Error(error);
     }
-    console.log('get from db ', testVal.name, data);
+    console.log(results);
   });
 });
-
 
 // GUI APP
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // dev tools @TODO remove for non-dev
-  window.React = React;
+  if (config.get('NODE_ENV') !== 'production') {
+    window.React = React; // expose to React dev tools
+  }
 
   tapEventInject(); // @TODO remove when >= React 1.0
 
@@ -111,24 +100,22 @@ document.addEventListener('DOMContentLoaded', () => {
   context = app.createContext();
 
   // fire initial app action to load all files
-  context.executeAction(ListFilesAction, {})
-    .then((files) => {
-      // Load all metrics
-      Promise.all(files.map((file) => {
-        return context.executeAction(ListMetricsAction, file.filename);
-      })).then(() => {
-        let contextEl = FluxibleReact.createElementWithContext(context);
-        if (document && ('body' in document)) {
-          React.render(contextEl, document.body);
-          return;
-        }
-        throw new Error('React cannot find a DOM document.body to render to.');
-      });
-    })
-    .catch((err) => {
-      if (err) {
-        throw new Error('Unable to start Application:', err);
+  context.executeAction(ListFilesAction, {}).then((files) => {
+    // Load all metrics
+    Promise.all(files.map((file) => {
+      return context.executeAction(ListMetricsAction, file.filename);
+    })).then(() => {
+      let contextEl = FluxibleReact.createElementWithContext(context);
+      if (document && ('body' in document)) {
+        React.render(contextEl, document.body);
+        return;
       }
+      throw new Error('React cannot find a DOM document.body to render to.');
     });
+  }).catch((err) => {
+    if (err) {
+      throw new Error('Unable to start Application:', err);
+    }
+  });
 
 }); // DOMContentLoaded

@@ -29,7 +29,7 @@ install-devtools-repo:
     - group: root
     - source: salt://devtools/files/devtools-2.repo
     - name: /etc/yum.repos.d/devtools-2.repo
-    - mode: 644
+    - mode: 0644
     - watch_in:
       - cmd: reload-yum-database
 
@@ -62,7 +62,7 @@ compiler-toolchain:
 /etc/.sh_fragments.d/00-add-devtools-to-path.sh:
   file.managed:
     - source: salt://devtools/files/00-add-devtools-to-path.sh
-    - mode: 644
+    - mode: 0644
     - user: ec2-user
     - group: ec2-user
 

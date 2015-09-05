@@ -44,7 +44,7 @@ include:
     - source: salt://nta-nucleus/files/tests/test_user_accounts.py
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
     - require:
       - file: ami-test-directory
 
@@ -54,7 +54,7 @@ include:
     - user: root
     - group: root
     - source: salt://nta-nucleus/files/tests/test_shellshock.py
-    - mode: 755
+    - mode: 0755
     - require:
       - file: ami-test-directory
 
@@ -65,7 +65,7 @@ include:
     - user: root
     - group: root
     - source: salt://nta-nucleus/files/tests/ghost-test-helper.py
-    - mode: 755
+    - mode: 0755
     - require:
       - file: ami-test-helper-directory
 
@@ -75,6 +75,6 @@ include:
     - user: root
     - group: root
     - source: salt://nta-nucleus/files/tests/test_ghost.py
-    - mode: 755
+    - mode: 0755
     - require:
       - file: ami-test-directory

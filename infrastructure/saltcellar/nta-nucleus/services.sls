@@ -26,13 +26,13 @@
 /etc/init.d/fix-resolv-conf:
   file.managed:
     - source: salt://nta-nucleus/files/fix-resolv-conf.initd
-    - mode: 755
+    - mode: 0755
 
 # Install cleantmp init script
 /etc/init.d/cleantmp:
   file.managed:
     - source: salt://nta-nucleus/files/cleantmp.initd
-    - mode: 755
+    - mode: 0755
 
 # Ensure ntp is running - synced time is essential
 ntpd:

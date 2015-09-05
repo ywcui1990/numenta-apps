@@ -42,12 +42,16 @@ export default class DatabaseClientHTTP {
   }
 
   put(key, value, callback) {
-    if(! key || ! value) {
+    if (!key || !value) {
       callback(new Error('missing key or value on db put'), false);
       return;
     }
     this.db[key] = value;
     callback(null, true);
   }
+
+  putMetric() {}
+
+  getMetrics() {}
 
 }

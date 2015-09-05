@@ -37,7 +37,7 @@ export default class FileList extends React.Component {
   static contextTypes = {
     executeAction: React.PropTypes.func,
     getStore: React.PropTypes.func,
-    muiTheme: React.PropTypes.object,
+    muiTheme: React.PropTypes.object
   };
 
   constructor(props) {
@@ -54,7 +54,7 @@ export default class FileList extends React.Component {
         top: 0,
         left: 0,
         zIndex: 10,
-        backgroundColor: leftNavStyle.color,
+        backgroundColor: leftNavStyle.color
       }
     };
   }
@@ -69,13 +69,16 @@ export default class FileList extends React.Component {
     });
   }
 
-  _renderFiles() {
+  _renderFiles(filetype) {
     return this.props.files.map(file => {
-      return (
-        <ListItem initiallyOpen={true}
-          key={file.name}
-          nestedItems={this._renderMetrics(file)} primaryText={file.name}/>
-      );
+      if (file.type === filetype) {
+        return (
+          <ListItem initiallyOpen={true}
+            key={file.name}
+            nestedItems={this._renderMetrics(file)}
+            primaryText={file.name}/>
+        );
+      }
     });
   }
 
@@ -83,8 +86,11 @@ export default class FileList extends React.Component {
     let styles = this._getStyles();
     return (
       <Paper style={styles.root} zDepth={2}>
-        <List subheader="Sample Data">
-          {this._renderFiles()}
+        <List subheader='Sample Data'>
+          {this._renderFiles('sample')}
+        </List>
+        <List subheader='Your Data'>
+          {this._renderFiles('uploaded')}
         </List>
       </Paper>
     );

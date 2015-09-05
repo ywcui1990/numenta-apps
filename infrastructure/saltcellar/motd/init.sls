@@ -31,13 +31,13 @@ acta-diurna:
   file.directory:
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
 
 /etc/update-motd.d.disabled:
   file.directory:
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
 
 # Add Numenta logo to motd
 /etc/update-motd.d/00-print-logo.motd:
@@ -45,7 +45,7 @@ acta-diurna:
     - source: salt://motd/files/motd.logo
     - user: root
     - group: root
-    - mode: 644
+    - mode: 0644
     - require:
       - file: /etc/update-motd.d
     - watch_in:
@@ -55,7 +55,7 @@ acta-diurna:
 /etc/update-motd.d/20-banner.motd:
   file.managed:
     - source: salt://motd/files/20-banner.motd
-    - mode: 755
+    - mode: 0755
     - require:
       - file: /etc/update-motd.d
     - watch_in:
@@ -65,7 +65,7 @@ acta-diurna:
 /etc/update-motd.d/30-salt-version.motd:
   file.managed:
     - source: salt://motd/files/30-salt-version.motd
-    - mode: 755
+    - mode: 0755
     - require:
       - file: /etc/update-motd.d
     - watch_in:
@@ -76,7 +76,7 @@ update-motd:
   file.managed:
     - name: /etc/cron.daily/update-motd
     - source: salt://motd/files/update-motd.centos
-    - mode: 755
+    - mode: 0755
     - require:
       - file: python-27-symlink
       - pkg: acta-diurna

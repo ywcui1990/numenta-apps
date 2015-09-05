@@ -86,6 +86,33 @@ FileServer.prototype.getSampleFiles = function(callback) {
   });
 };
 
+
+/**
+ * Get a list of uploaded files
+ */
+FileServer.prototype.getUploadedFiles = function(file, callback) {
+
+  var formattedFile = {
+    name: file.name,
+    filename: file.path,
+    type: 'uploaded',
+    metrics: []
+  };
+
+  this.getFields(formattedFile.filename, {}, (error, fields) => {
+    if (error) {
+      console.log('Error loading metrics for file:', formattedFile, error);
+      callback(error);
+    } else {
+      formattedFile.metrics = fields;
+      callback(error, formattedFile);
+
+    }
+  });
+
+
+};
+
 /**
  * Get all field definitions for the give file guessing data types based on
  * first record

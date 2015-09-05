@@ -28,7 +28,7 @@
     - source: salt://role-grok/files/tests/gs-run-ami-tests
     - user: ec2-user
     - group: root
-    - mode: 755
+    - mode: 0755
 
 # Install Grok tests
 {% for grok_ami_test in ['__init__',
@@ -42,7 +42,7 @@ grok-ami-test-{{ grok_ami_test }}:
     - source: salt://role-grok/files/tests/{{ grok_ami_test }}.py
     - user: root
     - group: root
-    - mode: 755
+    - mode: 0755
     - require:
       - file: ami-test-directory
 

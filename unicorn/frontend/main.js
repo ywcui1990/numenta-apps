@@ -31,10 +31,14 @@
 // externals
 
 import app from 'app';
-import BrowserWindow  from 'browser-window';
+import BrowserWindow from 'browser-window';
 import crashReporter from 'crash-reporter';
 
 // internals
+
+import Config from './lib/ConfigServer';
+
+const config = new Config();
 
 let mainWindow = null; // global reference to keep window object from JS GC
 
@@ -43,15 +47,15 @@ let mainWindow = null; // global reference to keep window object from JS GC
 
 // electron crash reporting
 crashReporter.start({
-  product_name: 'Unicorn',
-  company_name: 'Numenta'
+  product_name: config.get('title'),
+  company_name: config.get('company')
 });
 
 // app events
 
 app.on('window-all-closed', () => {
   // OS X apps stay active until the user quits explicitly Cmd + Q
-  if (process.platform != 'darwin') {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
@@ -59,13 +63,12 @@ app.on('window-all-closed', () => {
 // Electron finished init and ready to create browser window
 app.on('ready', () => {
   mainWindow = new BrowserWindow({
-    width:  1200,
+    width: 1200,
     height: 720
     // @TODO fill out options
     //  https://github.com/atom/electron/blob/master/docs/api/browser-window.md
   });
-
-  mainWindow.loadUrl('file://' + __dirname + '/browser/index.html');
+  mainWindow.loadUrl('file://' + __dirname + config.get('entryHtml'));
   mainWindow.openDevTools();
   mainWindow.on('closed', () => {
     mainWindow = null; // dereference single main window object

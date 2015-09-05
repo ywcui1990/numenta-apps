@@ -32,7 +32,7 @@
     - source: salt://role-grok/files/grokservices-helper
     - user: ec2-user
     - group: ec2-user
-    - mode: 755
+    - mode: 0755
 
 # Ensure our permissions are correct since we can't count on user vagrant
 # always having the same uid and gid.
@@ -62,7 +62,7 @@ tickle-grok:
     - source: salt://role-grok/files/tickle-grok
     - user: ec2-user
     - group: ec2-user
-    - mode: 755
+    - mode: 0755
   cron.present:
     - name: lockrun --lockfile=/var/lock/tickle-grok.lock -- /usr/local/sbin/tickle-grok > /dev/null 2>&1
     - identifier: tickle-grok

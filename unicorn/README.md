@@ -266,7 +266,6 @@ may be too low priority to worry about yet. -@brev
 * make real tests and make tests work
 * Setup eslint to run in package.json:scripts or gulp on build
 * Setup logging: Winston or Bunyan? => Joe thinking about it.
-* add retina.js for hd images
 * Errors are not that helpful so far, need to improve this
   * Seemed like webpack / babel build errors were not killing the 'npm start'
     flow, missing exit code in package.json?

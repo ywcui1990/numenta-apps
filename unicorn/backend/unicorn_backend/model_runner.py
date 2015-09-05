@@ -30,12 +30,12 @@ import logging
 from optparse import OptionParser
 import os
 import pkg_resources
-import random
 import sys
 import traceback
 
 import validictory
 
+from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 from nupic.data import fieldmeta
 from nupic.data import record_stream
 from nupic.frameworks.opf.modelfactory import ModelFactory
@@ -57,7 +57,6 @@ g_log.addHandler(logging.NullHandler())
 class _CommandLineArgError(Exception):
   """ Error parsing command-line options """
   pass
-
 
 
 
@@ -136,46 +135,6 @@ def _parseArgs():
 
 
 
-
-class _Anomalizer(object):
-  """ This class is responsible for anomaly likelihood processing. Its instance
-  maintains a buffer of results (of the necessary window size) and anomaly state
-  in memory.
-
-  NOTE: consider using nupic.algorithms.anomaly_likelihood directly or modifying
-  htmengine's anomaly_likelihood_helper.py so that we can share it with
-  htmengine's Anomaly Service
-
-
-  TODO Flesh me out
-  """
-
-
-  def __init__(self):
-    # For returning dummy anomaly likelihood values
-    self._random = random.Random()
-
-
-  def process(self, timestamp, metricValue, rawAnomalyScore):
-    """ Perform anomaly likelihood processing
-
-    :param datetime.datetime timestamp: metric data sample's timestamp
-    :param number metricValue: scalar value of metric data sample; float or int
-    :param float rawAnomalyScore: raw anomaly score computed by NuPIC model
-
-    :returns: anomaly likelihood value
-    :rtype: float
-    """
-    # Make pylint happy until this function is properly fleshed out
-    timestamp = timestamp
-    metricValue = metricValue
-    rawAnomalyScore = rawAnomalyScore
-
-    # Return dummy anomaly likelihood value
-    return self._random.random()
-
-
-
 class _ModelRunner(object):
   """ Use OPF Model to process metric data samples from stdin and and emit
   anomaly likelihood results to stdout
@@ -207,7 +166,7 @@ class _ModelRunner(object):
 
     self._model = self._createModel(stats=stats)
 
-    self._anomalizer = _Anomalizer()
+    self._anomalyLikelihood = AnomalyLikelihood()
 
 
   @classmethod
@@ -218,43 +177,20 @@ class _ModelRunner(object):
       unicorn_backend package.
     :returns: OPF Model instance
     """
+    # Generate swarm params
+    possibleModels = getScalarMetricWithTimeOfDayParams(
+      metricData=[0],
+      minVal=stats["min"],
+      maxVal=stats["max"],
+      minResolution=stats.get("minResolution"))
 
-    # TODO remove the "DummyModel" code path once the ILLEGAL INSTRUCTION issue
-    # in nupic is resolved;
-    # Create a dummy model instead of a real one temporarily, while we're
-    # having trouble with the latest nupic builds on the Mac OS Yosemite that
-    # result in ILLEGAL INSTRUCTION in nupic.bindings. This is good enough for
-    # now to enable FrontEnd development.
-    if False:
-      class DummyModel(object):
-        class Result(object):
-          def __init__(self, inferences):
-            self.inferences = inferences
+    swarmParams = possibleModels[0]
 
-        def run(self, inputRecord):
-          inputRecord = inputRecord
-          return self.Result(dict(anomalyScore=0.9999))
+    model = ModelFactory.create(modelConfig=swarmParams["modelConfig"])
+    model.enableLearning()
+    model.enableInference(swarmParams["inferenceArgs"])
 
-      return DummyModel()
-
-    else:
-      # THIS IS THE CORRECT PRODUCTION CODE that is failing with ILLEGAL
-      # INSTRUCTION in  ModelFactory.create on my Mac OS Yosemite laptop.
-
-      # Generate swarm params
-      possibleModels = getScalarMetricWithTimeOfDayParams(
-        metricData=[0],
-        minVal=stats["min"],
-        maxVal=stats["max"],
-        minResolution=stats.get("minResolution"))
-
-      swarmParams = possibleModels[0]
-
-      model = ModelFactory.create(modelConfig=swarmParams["modelConfig"])
-      model.enableLearning()
-      model.enableInference(swarmParams["inferenceArgs"])
-
-      return model
+    return model
 
 
   @classmethod
@@ -278,36 +214,38 @@ class _ModelRunner(object):
 
 
   @classmethod
-  def _emitOutputMessage(cls, rowIndex, anomalyLikelihood):
+  def _emitOutputMessage(cls, rowIndex, anomalyProbability):
     """Emit output message to stdout
 
     :param int rowIndex: 0-based index of corresponding input sample
-    :param float anomalyLikelihood: computed anomaly likelihood value
+    :param float anomalyProbability: computed anomaly probability value
     """
-    message = "%s\n" % (json.dumps([rowIndex, anomalyLikelihood]),)
+    message = "%s\n" % (json.dumps([rowIndex, anomalyProbability]),)
 
     sys.stdout.write(message)
     sys.stdout.flush()
 
 
-  def _computeAnomalyLikelihood(self, inputRow):
-    """ Compute anomaly likelihood
+  def _computeAnomalyProbability(self, inputRow):
+    """ Compute anomaly likelihood score
 
     :param tuple inputRow: Two-tuple input metric data row
       (<datetime-timestamp>, <float-scalar>)
 
-    :returns: Anomaly likelihood
+    :returns: Anomaly probability
     :rtype: float
     """
     # Generate raw anomaly score
     inputRecord = self._modelRecordEncoder.encode(inputRow)
     rawAnomalyScore = self._model.run(inputRecord).inferences["anomalyScore"]
 
-    # Generate anomaly likelihood
-    return self._anomalizer.process(
-      timestamp=inputRow[0],
-      metricValue=inputRow[1],
-      rawAnomalyScore=rawAnomalyScore)
+    # Generate anomaly likelihood score
+    anomalyProbability = self._anomalyLikelihood.anomalyProbability(
+      value=inputRow[1],
+      anomalyScore=rawAnomalyScore,
+      timestamp=inputRow[0])
+
+    return anomalyProbability
 
 
   def run(self):
@@ -317,10 +255,10 @@ class _ModelRunner(object):
     g_log.info("Processing model=%s", self._modelId)
 
     for rowIndex, inputRow in enumerate(self._readInputMessages()):
-      anomalyLikelihood = self._computeAnomalyLikelihood(inputRow)
+      anomalyProbability = self._computeAnomalyProbability(inputRow)
 
       self._emitOutputMessage(rowIndex=rowIndex,
-                              anomalyLikelihood=anomalyLikelihood)
+                              anomalyProbability=anomalyProbability)
 
 
 
