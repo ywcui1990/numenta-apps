@@ -217,6 +217,45 @@ $ NODE_ENV=development npm run web
 $ NODE_ENV=production npm run web
 ```
 
+#### Testing
+
+Write **Unit** and **Integration** tests using [mocha](https://github.com/mochajs/mocha) test framework.
+
+Running the tests:
+
+```shell
+# All tests
+npm run test
+
+# Unit tests only
+npm run test:unit
+
+# Integration tests only
+npm run test:integration
+```
+
+To generate reults appropriate for the **pipeline** `mocha` needs to run with a different set of options (see [mocha.pipeline.opts](tests/js/mocha.pipeline.opts)).
+
+Running the tests using the **pipeline** options:
+
+```shell
+# All tests
+npm run test:pipeline
+
+# Unit tests only
+npm run test:pipeline:unit
+
+# Integration tests only
+npm run test:pipeline:integration
+```
+
+#### Lint
+
+Make sure your code is clean from `lint` errors before creating pull requests:
+
+```shell
+npm run lint
+```
 
 ### Debugging
 
