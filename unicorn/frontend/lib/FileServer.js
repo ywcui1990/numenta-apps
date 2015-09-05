@@ -203,12 +203,16 @@ FileServer.prototype.getData = function(filename, options, callback) {
       if (limit === 0) {
         stream.unpipe();
         stream.destroy();
+        callback();
       }
       limit -= 1;
     })
     .on('error', function(error) {
       console.error('Error loading file: ', filename, error);
       callback(error);
+    })
+    .on('close', function() {
+      callback();
     })
     .on('end', function() {
       callback();

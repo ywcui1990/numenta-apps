@@ -22,7 +22,10 @@
     "electron": "electron .",
     "pack": "gulp webpack  ||  exit 1",
     "serve": "http-server -p 9999 ./frontend/browser/",
-    "web": "UNICORN_TARGET=web  npm run pack  &&  npm run serve"
+    "web": "UNICORN_TARGET=web  npm run pack  &&  npm run serve",
+    "test:unit": "mocha --opts tests/js/mocha.opts tests/js/unit",
+    "test:integration": "mocha --opts tests/js/mocha.opts tests/js/integration",
+    "test": "npm run test:unit && npm run test:integration"
   },
   "repository": {
     "type": "git",
