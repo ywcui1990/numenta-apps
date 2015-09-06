@@ -34,7 +34,6 @@ import grok.app.adapters.datasource as datasource_adapter_factory
 from grok.app.adapters.datasource.cloudwatch import aws_base
 from grok.app import repository
 from grok.app.repository.queries import MetricStatus
-import htmengine.utils
 from htmengine.utils import jsonDecode
 
 from grok.test_utils.app.test_case_base import TestCaseBase, unittest
@@ -191,6 +190,8 @@ class CloudwatchDatasourceAdapterMetricsTest(TestCaseBase):
     return modelId
 
 
+  @unittest.skip("TAUR-386 Skipped until this gets moved to nightly tests since"
+                 " it takes ~15 minutes to run.")
   def testMonitorAndUnmonitorMetric(self):
     """ Test monitorMetric then unmonitorMetric """
     for key in self._supportedResourceTypes:
@@ -205,6 +206,9 @@ class CloudwatchDatasourceAdapterMetricsTest(TestCaseBase):
         self.checkModelDeleted(modelId)
 
 
+
+  @unittest.skip("TAUR-386 Skipped until this gets moved to nightly tests since"
+                 " it takes ~15 minutes to run.")
   def testMonitorMetricWithoutModelParams(self):
     """ Test monitorMetric of Group Total Instances without optional
     modelParams
@@ -222,6 +226,9 @@ class CloudwatchDatasourceAdapterMetricsTest(TestCaseBase):
         adapter.unmonitorMetric(modelId)
 
 
+
+  @unittest.skip("TAUR-386 Skipped until this gets moved to nightly tests since"
+                 " it takes ~15 minutes to run.")
   def testMonitorMetricWithModelParams(self):
     """ Test monitorMetric of Group Total Instances with optional
     modelParams
