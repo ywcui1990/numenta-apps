@@ -23,18 +23,17 @@ import FileClient from '../lib/FileClient';
 /**
  * Get uploaded file
  */
- export default (actionContext, file) => {
- 	
- 	return new Promise((resolve, reject) => {
- 		let fileClient = new FileClient();
- 		fileClient.getUploadedFiles(file, (err, formattedFile) => {
- 			if (err){ 
- 				reject(err)
- 			}
- 			else{
- 				actionContext.dispatch('UPLOADED_FILE_SUCCESS', formattedFile);
- 				resolve(formattedFile);
- 			}
- 		});
- 	});
- };
+export default (actionContext, file) => {
+
+  return new Promise((resolve, reject) => {
+    let fileClient = new FileClient();
+    fileClient.getUploadedFiles(file, (err, formattedFile) => {
+      if (err) {
+        reject(err);
+      } else {
+        actionContext.dispatch('UPLOADED_FILE_SUCCESS', formattedFile);
+        resolve(formattedFile);
+      }
+    });
+  });
+};

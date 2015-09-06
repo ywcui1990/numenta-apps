@@ -75,11 +75,11 @@ module.exports = React.createClass({
    */
   _onClick() {
     console.log('got clicked! firing AddAction.');
-    this.context.executeAction(AddAction, {/* payload */});
+    this.context.executeAction(AddAction, {});
     console.log('AddAction should have fired.');
 
     /* open file upload window */
-    var fileInput = React.findDOMNode(this.refs.fileInput);
+    let fileInput = React.findDOMNode(this.refs.fileInput);
     fileInput.value = null;
     fileInput.click();
   },
@@ -87,12 +87,12 @@ module.exports = React.createClass({
   _onFileSelect(e) {
     e.preventDefault();
 
-    var selectedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
-    var max = this.props.multiple ? selectedFiles.length : 1;
-    var files = [];
+    let selectedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+    let max = this.props.multiple ? selectedFiles.length : 1;
+    let files = [];
 
-    for (var i = 0; i < max; i++) {
-      var file = selectedFiles[i];
+    for (let i = 0; i < max; i++) {
+      let file = selectedFiles[i];
       file.preview = URL.createObjectURL(file);
       files.push(file);
     }
@@ -102,9 +102,8 @@ module.exports = React.createClass({
     }
 
     /* The file input is limited to 1 file only, so files.length is always 1 */
-    var file = files[0];
+    let file = files[0];
     this.context.executeAction(FileUploadAction, file);
-
   },
 
   /**
@@ -115,28 +114,27 @@ module.exports = React.createClass({
    */
   render () {
     let data = Array.apply(0, Array(500)).map((x, y) => {
-      return [y, Math.sin(y/5)];
+      return [y, Math.sin(y / 5)];
     });
     let options = {
       labels: ['Time', 'Value'],
-      showRangeSelector: true,
+      showRangeSelector: true
     };
     return (
       <div>
-        <div style={{ marginLeft: '256px' }}>
+        <div style={{marginLeft: '256px'}}>
           <h1>Unicorn</h1>
           <FloatingActionButton onClick={this._onClick}>
-            <SvgIconContentAdd />
+            <SvgIconContentAdd/>
           </FloatingActionButton>
-          <input type="file" ref="fileInput" style={{display: 'none'}} onChange={this._onFileSelect} />
+          <input onChange={this._onFileSelect} ref="fileInput"
+            style={{display: 'none'}} type="file"/>
         </div>
 
-        <Card initiallyExpanded={true} style={{ marginLeft: '256px' }}>
-          <CardHeader
-            title="Metric"
-            subtitle="File1.csv"
-            showExpandableButton={true}>
-          </CardHeader>
+        <Card initiallyExpanded={true}
+          style={{marginLeft: '256px'}}>
+          <CardHeader showExpandableButton={true}
+            subtitle="File1.csv" title="Metric"/>
           <CardText expandable={true}>
             <Chart data={data} options={options}/>
           </CardText>
@@ -145,5 +143,4 @@ module.exports = React.createClass({
       </div>
     );
   }
-
 });

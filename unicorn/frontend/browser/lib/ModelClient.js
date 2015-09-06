@@ -41,14 +41,13 @@ let ModelClient;
 
 // MAIN
 
-if(isElectronRenderer) { // desktop
+if (isElectronRenderer) { // desktop
   let remote;
   try {
     remote = require('remote');
-  } catch(error) {}
+  } catch (error) {}
   ModelClient = remote.require('./lib/ModelServer'); // pseduo-ModelClientIPC
-}
-else { // web
+} else { // web
   ModelClient = ModelClientHTTP;
 }
 

@@ -18,7 +18,7 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
- 'use strict';
+'use strict';
 
 
 /**
@@ -43,9 +43,9 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
 /**
  *
  */
- var FileServer = function() {
+var FileServer = function() {
 
- };
+};
 
 
 /**
@@ -53,7 +53,7 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
  *
  * @param  {String}   filename: The absolute path of the CSV file to load
  */
- FileServer.prototype.getContents = function(filename, callback) {
+FileServer.prototype.getContents = function(filename, callback) {
   fs.readFile(filename, function(err, data) {
     if (err) {
       console.error(filename + ':' + err);
@@ -65,7 +65,7 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
 /**
  * Get a list of sample files embedded with the application
  */
- FileServer.prototype.getSampleFiles = function(callback) {
+FileServer.prototype.getSampleFiles = function(callback) {
   fs.readdir(SAMPLES_FILE_PATH, function(err, data) {
     var files = [];
     if (data) {
@@ -88,9 +88,9 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
 
 
 /**
- * Get a list of uploaded files 
+ * Get a list of uploaded files
  */
- FileServer.prototype.getUploadedFiles = function(file, callback) {
+FileServer.prototype.getUploadedFiles = function(file, callback) {
 
   var formattedFile = {
     name: file.name,
@@ -99,7 +99,7 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
     metrics: []
   };
 
-  this.getFields(formattedFile.filename, {} ,(error, fields) => {
+  this.getFields(formattedFile.filename, {}, (error, fields) => {
     if (error) {
       console.log('Error loading metrics for file:', formattedFile, error);
       callback(error);
@@ -128,7 +128,7 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
  *                             }
  *                             </code>
  */
- FileServer.prototype.getFields = function(filename, options, callback) {
+FileServer.prototype.getFields = function(filename, options, callback) {
 
   // "options" is optional
   if (callback === undefined && typeof options == 'function') {
@@ -145,34 +145,34 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
 
   let stream = fs.createReadStream(path.resolve(filename));
   stream.pipe(csv(options))
-  .once('data', function(data) {
-    if (data) {
-      let fields = [];
-      for (let fieldName in data) {
-        let val = data[fieldName];
-        let field = {
-          name: fieldName,
-          type: 'string'
-        };
-        if (Number.isFinite(Number(val))) {
-          field.type = 'number';
-        } else if (Number.isFinite(Date.parse(val))) {
-          field.type = 'date';
+    .once('data', function(data) {
+      if (data) {
+        let fields = [];
+        for (let fieldName in data) {
+          let val = data[fieldName];
+          let field = {
+            name: fieldName,
+            type: 'string'
+          };
+          if (Number.isFinite(Number(val))) {
+            field.type = 'number';
+          } else if (Number.isFinite(Date.parse(val))) {
+            field.type = 'date';
+          }
+          fields.push(field);
         }
-        fields.push(field);
+        callback(null, fields);
+        stream.unpipe();
+        stream.destroy();
       }
-      callback(null, fields);
-      stream.unpipe();
-      stream.destroy();
-    }
-  })
-  .on('error', function(error) {
-    console.error('Error loading fields: ', error, filename);
-    callback(error);
-  })
-  .on('end', function() {
-    callback();
-  });
+    })
+    .on('error', function(error) {
+      console.error('Error loading fields: ', error, filename);
+      callback(error);
+    })
+    .on('end', function() {
+      callback();
+    });
 };
 
 /**
@@ -202,7 +202,7 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
  * @param  {Function} callback: This callback to be called on every record.
  *                              <code>function(error, data)</code>
  */
- FileServer.prototype.getData = function(filename, options, callback) {
+FileServer.prototype.getData = function(filename, options, callback) {
 
   // "options" is optional
   if (callback === undefined && typeof options == 'function') {
@@ -223,23 +223,27 @@ const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
   let limit = options.limit;
   let stream = fs.createReadStream(path.resolve(filename));
   stream.pipe(csv(options))
-  .on('data', function(data) {
-    if (limit > 0) {
-      callback(null, data);
-    }
-    if (limit === 0) {
-      stream.unpipe();
-      stream.destroy();
-    }
-    limit -= 1;
-  })
-  .on('error', function(error) {
-    console.error('Error loading file: ', filename, error);
-    callback(error);
-  })
-  .on('end', function() {
-    callback();
-  });
+    .on('data', function(data) {
+      if (limit > 0) {
+        callback(null, data);
+      }
+      if (limit === 0) {
+        stream.unpipe();
+        stream.destroy();
+        callback();
+      }
+      limit -= 1;
+    })
+    .on('error', function(error) {
+      console.error('Error loading file: ', filename, error);
+      callback(error);
+    })
+    .on('close', function() {
+      callback();
+    })
+    .on('end', function() {
+      callback();
+    });
 };
 
 // EXPORTS

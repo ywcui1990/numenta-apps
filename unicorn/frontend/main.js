@@ -31,7 +31,7 @@
 // externals
 
 import app from 'app';
-import BrowserWindow  from 'browser-window';
+import BrowserWindow from 'browser-window';
 import crashReporter from 'crash-reporter';
 
 // internals
@@ -55,7 +55,7 @@ crashReporter.start({
 
 app.on('window-all-closed', () => {
   // OS X apps stay active until the user quits explicitly Cmd + Q
-  if (process.platform != 'darwin') {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
@@ -63,7 +63,7 @@ app.on('window-all-closed', () => {
 // Electron finished init and ready to create browser window
 app.on('ready', () => {
   mainWindow = new BrowserWindow({
-    width:  1200,
+    width: 1200,
     height: 720
     // @TODO fill out options
     //  https://github.com/atom/electron/blob/master/docs/api/browser-window.md

@@ -42,14 +42,16 @@ let DatabaseClient;
 
 // MAIN
 
-if(isElectronRenderer) { // desktop
+if (isElectronRenderer) {
+  // desktop
   let remote;
   try {
     remote = require('remote');
-  } catch(error) {}
-  DatabaseClient = remote.require('./lib/DatabaseServer'); // pseduo-DatabaseClientIPC
-}
-else { // web
+  } catch (error) {}
+  // pseduo-DatabaseClientIPC
+  DatabaseClient = remote.require('./lib/DatabaseServer');
+} else {
+  // web
   DatabaseClient = DatabaseClientHTTP;
 }
 
