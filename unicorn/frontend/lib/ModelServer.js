@@ -18,7 +18,7 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
+ 'use strict';
 
 
 /**
@@ -28,38 +28,64 @@
  * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
  */
 
+ var child_process = require('child_process');
+ var uuid = require('uuid');
+ var path = require("path");
 
 // MAIN
 
 /**
  *
  */
-var ModelServer = function () {
+ var ModelServer = function () {
   this.models = {};
 };
 
 /**
  *
  */
-ModelServer.prototype.addModel = function (model, callback) {
-  // spawn() NuPIC process here
-  this.models[model.modelId] = model;
-  // callback(error, null);
-  callback(null, { model: this.models[model.modelId] });
+ ModelServer.prototype.addModel = function (stats, callback) {
+
+  var modelId = uuid.v1();
+
+  // spawn() NuPIC process 
+  var modelRunnerPath = path.join(__dirname, '..', '..', 'backend', 'unicorn_backend', 'model_runner.py');
+  var child = child_process.spawn('python', [modelRunnerPath, '--model', modelId, '--stats', stats]);
+  var modelInfo = {
+    stdio: child.stdio,
+    stdin : child.stdin,
+    stdout : child.stdout,
+    stderr: child.stderr
+  };
+
+  this.models[modelId] = modelInfo;
+  callback(null, {modelId: modelId});
+};
+
+ModelServer.prototype.addData = function(modelId, data, callback) {
+  var modelStdinStream = this.models[modelId].stdin;
+  modelStdinStream.write(data);  // write to model stdin
+  callback(null, {inputData: data});
+};
+
+ModelServer.prototype.getData = function(modelId, callback) {
+  var modelStdoutStream = this.models[modelId].stdout;
+  var data = modelStdoutStream.read();  // read from model stdout
+  callback(null, {outputData: data});
 };
 
 /**
  *
  */
-ModelServer.prototype.getModels = function (callback) {
+ ModelServer.prototype.getModels = function (callback) {
   // callback(error, null);
-  callback(null, { models: this.models });
+  callback(null, {models: this.models});
 };
 
 /**
  *
  */
-ModelServer.prototype.getModel = function (modelId, callback) {
+ ModelServer.prototype.getModel = function (modelId, callback) {
   // callback(error, null);
   callback(null, { model: this.models[modelId] });
 };
@@ -67,11 +93,11 @@ ModelServer.prototype.getModel = function (modelId, callback) {
 /**
  *
  */
-ModelServer.prototype.removeModel = function (modelId, callback) {
+ ModelServer.prototype.removeModel = function (modelId, callback) {
   // kill spawn() of NuPIC process here
-  delete this.models[model.modelId];
+  delete this.models[modelId];
   // callback(error, null);
-  callback(null, { modelId: modelId });
+  callback(null, { modelId: modelId});
 };
 
 
