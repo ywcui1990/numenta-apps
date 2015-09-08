@@ -20,7 +20,6 @@
 
 'use strict';
 
-
 /**
  * React View Component: Foo
  */
@@ -38,13 +37,9 @@ import FileUploadAction from '../actions/FileUpload';
 import Chart from '../components/Chart';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
 
-
-const {
-  Card, CardText, CardHeader, FloatingActionButton, Styles
-} = Material;
+const {Card, CardText, CardHeader, FloatingActionButton, Styles} = Material;
 
 const ThemeManager = new Styles.ThemeManager();
-
 
 // MAIN
 
@@ -61,7 +56,7 @@ module.exports = React.createClass({
     muiTheme: React.PropTypes.object
   },
 
-  /**
+/**
    *
    */
   getChildContext () {
@@ -70,7 +65,7 @@ module.exports = React.createClass({
     };
   },
 
-  /**
+/**
    * Add "+" upload new data/CSV file button onClick event handler
    */
   _onClick() {
@@ -78,7 +73,7 @@ module.exports = React.createClass({
     this.context.executeAction(AddAction, {});
     console.log('AddAction should have fired.');
 
-    /* open file upload window */
+/* open file upload window */
     let fileInput = React.findDOMNode(this.refs.fileInput);
     fileInput.value = null;
     fileInput.click();
@@ -87,8 +82,12 @@ module.exports = React.createClass({
   _onFileSelect(e) {
     e.preventDefault();
 
-    let selectedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
-    let max = this.props.multiple ? selectedFiles.length : 1;
+    let selectedFiles = e.dataTransfer
+      ? e.dataTransfer.files
+      : e.target.files;
+    let max = this.props.multiple
+      ? selectedFiles.length
+      : 1;
     let files = [];
 
     for (let i = 0; i < max; i++) {
@@ -101,12 +100,12 @@ module.exports = React.createClass({
       this.props._onFileSelect(files, e);
     }
 
-    /* The file input is limited to 1 file only, so files.length is always 1 */
+/* The file input is limited to 1 file only, so files.length is always 1 */
     let file = files[0];
     this.context.executeAction(FileUploadAction, file);
   },
 
-  /**
+/**
    *
    * @TODO Migrate inline styles on Card
    * @TODO Better + ADD fonticon
@@ -117,24 +116,29 @@ module.exports = React.createClass({
       return [y, Math.sin(y / 5)];
     });
     let options = {
-      labels: ['Time', 'Value'],
+      labels: [
+        'Time', 'Value'
+      ],
       showRangeSelector: true
     };
     return (
       <div>
-        <div style={{marginLeft: '256px'}}>
+        <div style={{
+          marginLeft: '256px'
+        }}>
           <h1>Unicorn</h1>
           <FloatingActionButton onClick={this._onClick}>
             <SvgIconContentAdd/>
           </FloatingActionButton>
-          <input onChange={this._onFileSelect} ref="fileInput"
-            style={{display: 'none'}} type="file"/>
+          <input onChange={this._onFileSelect} ref="fileInput" style={{
+            display: 'none'
+          }} type="file"/>
         </div>
 
-        <Card initiallyExpanded={true}
-          style={{marginLeft: '256px'}}>
-          <CardHeader showExpandableButton={true}
-            subtitle="File1.csv" title="Metric"/>
+        <Card initiallyExpanded={true} style={{
+          marginLeft: '256px'
+        }}>
+          <CardHeader showExpandableButton={true} subtitle="File1.csv" title="Metric"/>
           <CardText expandable={true}>
             <Chart data={data} options={options}/>
           </CardText>

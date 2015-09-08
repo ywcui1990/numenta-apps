@@ -100,28 +100,31 @@ document.addEventListener('DOMContentLoaded', () => {
   context = app.createContext();
 
   // fire initial app action to load all files
-  context.executeAction(ListFilesAction, {}).then((files) => {
-    // Load all metrics
-    Promise.all(files.map((file) => {
-      return context.executeAction(ListMetricsAction, file.filename);
-    })).then(() => {
-      let contextEl = FluxibleReact.createElementWithContext(context);
-      if (document && ('body' in document)) {
-        React.render(contextEl, document.body);
-        return;
+  context.executeAction(ListFilesAction, {})
+    .then((files) => {
+      // Load all metrics
+      Promise.all(files.map((file) => {
+        return context.executeAction(ListMetricsAction, file.filename);
+      }))
+        .then(() => {
+          let contextEl = FluxibleReact.createElementWithContext(context);
+          if (document && ('body' in document)) {
+            React.render(contextEl, document.body);
+            return;
+          }
+          throw new Error('React cannot find a DOM document.body to render to');
+        });
+    })
+    .catch((err) => {
+      if (err) {
+        throw new Error('Unable to start Application:', err);
       }
-      throw new Error('React cannot find a DOM document.body to render to.');
     });
-  }).catch((err) => {
-    if (err) {
-      throw new Error('Unable to start Application:', err);
-    }
-  });
 
   /* Example to start a model, write, and read data */
 
   // start model
-  var stats = '{"min": 0, "max": 10}';  // min and max need to be set
+  var stats = '{"min": 0, "max": 10}'; // min and max need to be set
   var modelId;
   var addModelCallback = function(err, data) {
     console.log(data);
@@ -132,17 +135,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // write data
   var inDataCallback = function(err, data) {
     console.log(data);
-    console.log("input: " + data.inputData);
+    console.log('input: ' + data.inputData);
   };
-  var inputData = '[1438649711, 835.93679]\n'
+  var inputData = '[1438649711, 835.93679]\n';
   modelClient.addData(modelId, inputData, inDataCallback);
 
   // read data
   var outDataCallback = function(err, data) {
     console.log(data);
-    console.log("results: " + data.outputData);
+    console.log('results: ' + data.outputData);
   };
   modelClient.getData(modelId, outDataCallback);
-
 
 }); // DOMContentLoaded
