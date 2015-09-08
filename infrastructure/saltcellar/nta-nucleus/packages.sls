@@ -56,3 +56,12 @@ human-use-packages:
       - telnet
       - tmux
       - vim-enhanced
+
+remove-deprecated-packages:
+  pkg:
+    - removed
+    - pkgs:
+      - git
+    - require:
+      - pkg: core-packages
+      - pkg: human-use-packages
