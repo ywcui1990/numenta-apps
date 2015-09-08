@@ -47,7 +47,7 @@ ModelServer.prototype.addModel = function(stats, callback) {
 
   var modelId = uuid.v1();
   // spawn() NuPIC process
-  var modelRunnerPath = path.join(__dirname, '..', '..',
+  const modelRunnerPath = path.join(__dirname, '..', '..',
     'backend', 'unicorn_backend', 'model_runner.py');
   var child = childProcess.spawn('python', [modelRunnerPath,
     '--model', modelId, '--stats', stats
