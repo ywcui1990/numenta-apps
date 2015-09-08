@@ -29,7 +29,6 @@ core-packages:
     - latest
     - pkgs:
       - curl
-      - git
       - logrotate
       - nta-git
       - ntp
