@@ -55,7 +55,7 @@ const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 /**
  *
  */
-var DatabaseServer = function () {
+var DatabaseServer = function() {
   this.validator = new Validator();
   // this.validator.addSchema(AddressSchema, '/Address');
 
@@ -68,14 +68,14 @@ var DatabaseServer = function () {
 /**
  * Get a single DB value
  */
-DatabaseServer.prototype.get = function (key, callback) {
+DatabaseServer.prototype.get = function(key, callback) {
   this.db.get(key, callback);
 };
 
 /**
  * Get a single File
  */
-DatabaseServer.prototype.getFile = function (uid, callback) {
+DatabaseServer.prototype.getFile = function(uid, callback) {
   let table = this.db.sublevel('file');
   table.get(uid, callback);
 };
@@ -83,7 +83,7 @@ DatabaseServer.prototype.getFile = function (uid, callback) {
 /**
  * Get all/queried Files
  */
-DatabaseServer.prototype.getFiles = function (query, callback) {
+DatabaseServer.prototype.getFiles = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('file'));
   table.query.use(jsonQuery());
@@ -96,7 +96,7 @@ DatabaseServer.prototype.getFiles = function (query, callback) {
       results.push(result);
     })
     .on('end', (result) => {
-      if(result) {
+      if (result) {
         results.push(result);
       }
       callback(null, results);
@@ -106,7 +106,7 @@ DatabaseServer.prototype.getFiles = function (query, callback) {
 /**
  * Get a single Metric
  */
-DatabaseServer.prototype.getMetric = function (uid, callback) {
+DatabaseServer.prototype.getMetric = function(uid, callback) {
   let table = this.db.sublevel('metric');
   table.get(uid, callback);
 };
@@ -114,7 +114,7 @@ DatabaseServer.prototype.getMetric = function (uid, callback) {
 /**
  * Get all/queried Metrics
  */
-DatabaseServer.prototype.getMetrics = function (query, callback) {
+DatabaseServer.prototype.getMetrics = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('metric'));
   table.query.use(jsonQuery());
@@ -128,7 +128,7 @@ DatabaseServer.prototype.getMetrics = function (query, callback) {
       results.push(result);
     })
     .on('end', (result) => {
-      if(result) {
+      if (result) {
         results.push(result);
       }
       callback(null, results);
@@ -138,7 +138,7 @@ DatabaseServer.prototype.getMetrics = function (query, callback) {
 /**
  * Get all/queried MetricDatas records
  */
-DatabaseServer.prototype.getMetricDatas = function (query, callback) {
+DatabaseServer.prototype.getMetricDatas = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('metricData'));
   table.query.use(jsonQuery());
@@ -151,7 +151,7 @@ DatabaseServer.prototype.getMetricDatas = function (query, callback) {
       results.push(result);
     })
     .on('end', (result) => {
-      if(result) {
+      if (result) {
         results.push(result);
       }
       callback(null, results);
@@ -161,7 +161,7 @@ DatabaseServer.prototype.getMetricDatas = function (query, callback) {
 /**
  * Get a single Model
  */
-DatabaseServer.prototype.getModel = function (uid, callback) {
+DatabaseServer.prototype.getModel = function(uid, callback) {
   let table = this.db.sublevel('model');
   table.get(uid, callback);
 };
@@ -169,7 +169,7 @@ DatabaseServer.prototype.getModel = function (uid, callback) {
 /**
  * Get all/queried Models
  */
-DatabaseServer.prototype.getModels = function (query, callback) {
+DatabaseServer.prototype.getModels = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('model'));
   table.query.use(jsonQuery());
@@ -182,7 +182,7 @@ DatabaseServer.prototype.getModels = function (query, callback) {
       results.push(result);
     })
     .on('end', (result) => {
-      if(result) {
+      if (result) {
         results.push(result);
       }
       callback(null, results);
@@ -192,7 +192,7 @@ DatabaseServer.prototype.getModels = function (query, callback) {
 /**
  * Get all/queried ModelDatas records
  */
-DatabaseServer.prototype.getModelDatas = function (query, callback) {
+DatabaseServer.prototype.getModelDatas = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('modelData'));
   table.query.use(jsonQuery());
@@ -205,7 +205,7 @@ DatabaseServer.prototype.getModelDatas = function (query, callback) {
       results.push(result);
     })
     .on('end', (result) => {
-      if(result) {
+      if (result) {
         results.push(result);
       }
       callback(null, results);
@@ -215,18 +215,18 @@ DatabaseServer.prototype.getModelDatas = function (query, callback) {
 /**
  * Put a single DB value
  */
-DatabaseServer.prototype.put = function (key, value, callback) {
+DatabaseServer.prototype.put = function(key, value, callback) {
   this.db.put(key, value, callback);
 };
 
 /**
  * Put a single File to DB
  */
-DatabaseServer.prototype.putFile = function (file, callback) {
+DatabaseServer.prototype.putFile = function(file, callback) {
   let table = this.db.sublevel('file');
   let validation = this.validator.validate(file, FileSchema);
 
-  if(validation.errors.length) {
+  if (validation.errors.length) {
     callback(validation.errors, null);
     return;
   }
@@ -237,11 +237,11 @@ DatabaseServer.prototype.putFile = function (file, callback) {
 /**
  * Put a single Metric to DB
  */
-DatabaseServer.prototype.putMetric = function (metric, callback) {
+DatabaseServer.prototype.putMetric = function(metric, callback) {
   let table = this.db.sublevel('metric');
   let validation = this.validator.validate(metric, MetricSchema);
 
-  if(validation.errors.length) {
+  if (validation.errors.length) {
     callback(validation.errors, null);
     return;
   }
@@ -252,11 +252,11 @@ DatabaseServer.prototype.putMetric = function (metric, callback) {
 /**
  * Put a single MetricData record to DB
  */
-DatabaseServer.prototype.putMetricData = function (metricData, callback) {
+DatabaseServer.prototype.putMetricData = function(metricData, callback) {
   let table = this.db.sublevel('metricData');
   let validation = this.validator.validate(metricData, MetricDataSchema);
 
-  if(validation.errors.length) {
+  if (validation.errors.length) {
     callback(validation.errors, null);
     return;
   }
@@ -267,11 +267,11 @@ DatabaseServer.prototype.putMetricData = function (metricData, callback) {
 /**
  * Put a single Model to DB
  */
-DatabaseServer.prototype.putModel = function (model, callback) {
+DatabaseServer.prototype.putModel = function(model, callback) {
   let table = this.db.sublevel('model');
   let validation = this.validator.validate(model, ModelSchema);
 
-  if(validation.errors.length) {
+  if (validation.errors.length) {
     callback(validation.errors, null);
     return;
   }
@@ -282,11 +282,11 @@ DatabaseServer.prototype.putModel = function (model, callback) {
 /**
  * Put a single ModelData record to DB
  */
-DatabaseServer.prototype.putModelData = function (modelData, callback) {
+DatabaseServer.prototype.putModelData = function(modelData, callback) {
   let table = this.db.sublevel('modelData');
   let validation = this.validator.validate(modelData, ModelDataSchema);
 
-  if(validation.errors.length) {
+  if (validation.errors.length) {
     callback(validation.errors, null);
     return;
   }

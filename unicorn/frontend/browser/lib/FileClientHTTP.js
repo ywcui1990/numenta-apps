@@ -51,7 +51,7 @@ export default class FileClientHTTP {
    */
   getFiles(callback) {
     // callback(error, null);
-    callback(null, { files: [ 'uno.csv', 'dos.csv' ] });
+    callback(null, { files: ['uno.csv', 'dos.csv'] });
   }
 
 }

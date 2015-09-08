@@ -41,14 +41,13 @@ let FileClient;
 
 // MAIN
 
-if(isElectronRenderer) { // desktop
+if (isElectronRenderer) { // desktop
   let remote;
   try {
     remote = require('remote');
-  } catch(error) {}
+  } catch (error) {}
   FileClient = remote.require('./lib/FileServer'); // pseduo-FileClientIPC
-}
-else { // web
+} else { // web
   FileClient = FileClientHTTP;
 }
 
