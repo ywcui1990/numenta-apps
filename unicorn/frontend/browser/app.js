@@ -120,31 +120,4 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error('Unable to start Application:', err);
       }
     });
-
-  /* Example to start a model, write, and read data */
-
-  // start model
-  var stats = '{"min": 0, "max": 10}'; // min and max need to be set
-  var modelId;
-  var addModelCallback = function(err, data) {
-    console.log(data);
-    modelId = data.modelId;
-  };
-  modelClient.addModel(stats, addModelCallback);
-
-  // write data
-  var inDataCallback = function(err, data) {
-    console.log(data);
-    console.log('input: ' + data.inputData);
-  };
-  var inputData = '[1438649711, 835.93679]\n';
-  modelClient.addData(modelId, inputData, inDataCallback);
-
-  // read data
-  var outDataCallback = function(err, data) {
-    console.log(data);
-    console.log('results: ' + data.outputData);
-  };
-  modelClient.getData(modelId, outDataCallback);
-
 }); // DOMContentLoaded

@@ -31,6 +31,9 @@ var childProcess = require('child_process');
 var uuid = require('uuid');
 var path = require('path');
 
+const MODEL_RUNNER_PATH = path.join(__dirname, '..', '..',
+  'backend', 'unicorn_backend', 'model_runner.py');
+
 // MAIN
 
 /**
@@ -47,38 +50,43 @@ ModelServer.prototype.addModel = function(stats, callback) {
 
   var modelId = uuid.v1();
   // spawn() NuPIC process
-  const modelRunnerPath = path.join(__dirname, '..', '..',
-    'backend', 'unicorn_backend', 'model_runner.py');
-  var child = childProcess.spawn('python', [modelRunnerPath,
-    '--model', modelId, '--stats', stats
-  ]);
-  var modelInfo = {
-    stdio: child.stdio,
-    stdin: child.stdin,
-    stdout: child.stdout,
-    stderr: child.stderr
-  };
+  var child = childProcess.spawn('python', [MODEL_RUNNER_PATH,
+    '--model', modelId, '--stats', stats]);
 
-  this.models[modelId] = modelInfo;
-  callback(null, {
-    modelId: modelId
+  child.on('error', function (error) {
+    console.log('Failed to start child process: ' + error);
   });
+
+  this.models[modelId] = child;
+  callback(null, {modelId: modelId});
 };
 
-ModelServer.prototype.addData = function(modelId, data, callback) {
-  var modelStdinStream = this.models[modelId].stdin;
-  modelStdinStream.write(data); // write to model stdin
-  callback(null, {
-    inputData: data
-  });
+ModelServer.prototype.addData = function(modelId, inputData, callback) {
+  var child = this.models[modelId];
+  console.log(child.connected);
+  if (child.connected){
+    child.stdin.write(inputData);
+    child.on('error', function (error) {
+      console.log('Failed to write to stdin for child process with ID: '
+      + modelId + '. Error: ' + error);
+    });
+  }
+  callback(null, {inputData: inputData});
 };
 
-ModelServer.prototype.getData = function(modelId, callback) {
-  var modelStdoutStream = this.models[modelId].stdout;
-  var data = modelStdoutStream.read(); // read from model stdout
-  callback(null, {
-    outputData: data
-  });
+ModelServer.prototype.onData = function(modelId, callback) {
+  var child = this.models[modelId];
+  var outputData;
+  if (child.connected) {
+    child.stdout.on('data', function(data) {
+      outputData = data;
+    });
+    child.on('error', function (error) {
+      console.log('Failed to write to stdin for child process with ID: '
+      + modelId + '. Error: ' + error);
+    });
+  }
+  callback(null, {outputData: outputData});
 };
 
 /**
