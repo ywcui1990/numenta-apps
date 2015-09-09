@@ -34,6 +34,7 @@ import React from 'react';
 
 import AddAction from '../actions/add';
 import FileList from '../components/FileList';
+import ModelList from '../components/ModelList';
 import FileUploadAction from '../actions/FileUpload';
 import Chart from '../components/Chart';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
@@ -130,15 +131,7 @@ module.exports = React.createClass({
           <input onChange={this._onFileSelect} ref="fileInput"
             style={{display: 'none'}} type="file"/>
         </div>
-
-        <Card initiallyExpanded={true}
-          style={{marginLeft: '256px'}}>
-          <CardHeader showExpandableButton={true}
-            subtitle="File1.csv" title="Metric"/>
-          <CardText expandable={true}>
-            <Chart data={data} options={options}/>
-          </CardText>
-        </Card>
+        <ModelList/>
         <FileList/>
       </div>
     );

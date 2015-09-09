@@ -19,87 +19,60 @@
 
 'use strict';
 
-import Dygraph from 'dygraphs';
+import connectToStores from 'fluxible-addons-react/connectToStores';
+import ModelStore from '../stores/ModelStore';
 import Material from 'material-ui';
+import Model from '../components/Model';
 import React from 'react';
 
 const {
   Paper
 } = Material;
 
-/**
- * Chart Widget.
- * Wraps http://dygraphs.com/ as a React Component
- */
-export default class Chart extends React.Component {
+
+@connectToStores([ModelStore], (context) => ({
+  models: context.getStore(ModelStore).getModels()
+}))
+export default class ModelList extends React.Component {
 
   static propTypes = {
-    data: React.PropTypes.array.isRequired,
-    options: React.PropTypes.object,
-    zDepth: React.PropTypes.number,
+    zDepth: React.PropTypes.number
   };
-
   static defaultProps = {
-    zDepth: 1,
-    data: [],
-    options: {}
+    zDepth: 1
   };
-
   static contextTypes = {
+    executeAction: React.PropTypes.func,
+    getStore: React.PropTypes.func,
     muiTheme: React.PropTypes.object,
   };
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      chart: null,
-      data: this.props.data,
-      options: this.props.options
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.setState(Object.assign({}, this.state, nextProps));
-  }
-
-  componentDidMount() {
-    let el = React.findDOMNode(this.refs.chart);
-    this.setState({
-      chart: new Dygraph(el, this.state.data, this.state.options)
-    });
-  }
-
-  componentWillUnmount() {
-    let chart = this.state.chart;
-    if (chart) {
-      chart.destroy();
-    }
-  }
-
-  componentDidUpdate() {
-    let chart = this.state.chart;
-    if (chart) {
-      let options = {
-        'file': this.state.data
-      };
-      Object.assign(options, this.state.options);
-      chart.updateOptions(options);
-    }
   }
 
   _getStyles() {
     return {
       root: {
-        width: '100%',
-        height: '300px',
-      },
+        width: '100%'
+      }
     };
+  }
+
+  _renderModels() {
+    return this.props.models.map(model => {
+      return (
+        <Model modelId={model.modelId} />
+      );
+    });
   }
 
   render() {
     let styles = this._getStyles();
     return (
-      <Paper zDepth={this.props.zDepth} style={styles.root} ref='chart'/>
+      <Paper style={styles.root} zDepth={this.props.zDepth}>
+        {this._renderModels()}
+      </Paper>
     );
   }
 };
