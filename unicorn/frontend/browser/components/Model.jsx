@@ -54,11 +54,8 @@ export default class Model extends React.Component {
     this.state = Object.assign({}, model);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextProps.modelId !== this.props.modelId) {
-      return false;
-    }
-    return this.state.active !== nextState.active;
+  shouldComponentUpdate(nextProps) {
+    return nextProps.modelId !== this.props.modelId;
   }
   componentWillReceiveProps(nextProps) {
     let store = this.context.getStore(ModelStore);
