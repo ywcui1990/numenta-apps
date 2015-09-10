@@ -64,9 +64,11 @@ export default class Chart extends React.Component {
 
   componentDidMount() {
     let el = React.findDOMNode(this.refs.chart);
-    this.setState({
-      chart: new Dygraph(el, this.state.data, this.state.options)
-    });
+    if (this.state.data.length) {
+      this.setState({
+        chart: new Dygraph(el, this.state.data, this.state.options)
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -84,6 +86,11 @@ export default class Chart extends React.Component {
       };
       Object.assign(options, this.state.options);
       chart.updateOptions(options);
+    } else if (this.state.data.length) {
+      let el = React.findDOMNode(this.refs.chart);
+      this.setState({
+        chart: new Dygraph(el, this.state.data, this.state.options)
+      });
     }
   }
 

@@ -23,6 +23,7 @@ import connectToStores from 'fluxible-addons-react/connectToStores';
 import Material from 'material-ui';
 import React from 'react';
 import StopModelAction from '../actions/StopModel';
+import ReceiveDataAction from '../actions/ReceiveData';
 import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
 
@@ -30,7 +31,7 @@ const {
   Card, CardHeader, CardText, CardActions, FlatButton
 } = Material;
 
-@connectToStores([ModelStore], (context) => ({
+@connectToStores([ModelStore], () => ({
 }))
 export default class Model extends React.Component {
 
@@ -52,14 +53,21 @@ export default class Model extends React.Component {
     let store = this.context.getStore(ModelStore);
     let model = store.getModel(this.props.modelId);
     this.state = Object.assign({}, model);
+
+    //TODO: Use real data
+    let addData = () => {
+      let data = [new Date(), Math.random()];
+      this.context.executeAction(ReceiveDataAction, {
+        modelId: this.state.modelId,
+        data: data
+      });
+      if (this.state.active) {
+        setTimeout(addData, 1000);
+      }
+    }.bind(this);
+    setTimeout(addData, 1000);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if (nextProps.modelId !== this.props.modelId) {
-      return false;
-    }
-    return this.state.active !== nextState.active;
-  }
   componentWillReceiveProps(nextProps) {
     let store = this.context.getStore(ModelStore);
     let model = store.getModel(nextProps.modelId);
