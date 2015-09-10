@@ -28,7 +28,6 @@
  */
 
 var childProcess = require('child_process');
-var uuid = require('uuid');
 var path = require('path');
 
 const MODEL_RUNNER_PATH = path.join(__dirname, '..', '..',
@@ -44,49 +43,69 @@ var ModelServer = function() {
 };
 
 /**
- *
+ * Create a new HTM model
+ * @param  {String}   modelId  Unique identifier for the model
+ * @param  {Object}   stats    HTM Model parameters. See model_runner.py
+ * @param  {Function} callback On success called with the model id
  */
-ModelServer.prototype.addModel = function(stats, callback) {
+ModelServer.prototype.createModel = function(modelId, stats, callback) {
 
-  var modelId = uuid.v1();
   // spawn() NuPIC process
   var child = childProcess.spawn('python', [MODEL_RUNNER_PATH,
     '--model', modelId, '--stats', stats]);
-
-  child.on('error', function (error) {
-    console.log('Failed to start child process: ' + error);
-  });
-
-  this.models[modelId] = child;
-  callback(null, {modelId: modelId});
+  if (child) {
+    child.on('error', function (error) {
+      console.log('Failed to start child process: ' + error);
+      callback('Failed to start child process: ' + error);
+    });
+    child.stderr.on('data', function(error) {
+      callback('Failed to start child process: ' + error);
+    });
+    var _this = this;
+    child.on('close', function (code) {
+      console.log('child process exited with code ' + code);
+      delete _this.models[modelId];
+      callback('child process for model ' + modelId
+              + ' exited with code ' + code);
+    });
+    if (child.stdin) {
+      this.models[modelId] = child;
+      callback(null, {modelId: modelId});
+    }
+  } else {
+    console.log('Failed to create model ' + modelId);
+  }
 };
 
 ModelServer.prototype.addData = function(modelId, inputData, callback) {
   var child = this.models[modelId];
-  console.log(child.connected);
-  if (child.connected){
+  if (child && child.stdin) {
     child.stdin.write(inputData);
     child.on('error', function (error) {
       console.log('Failed to write to stdin for child process with ID: '
-      + modelId + '. Error: ' + error);
+                  + modelId + '. Error: ' + error);
     });
+    callback(null, {modleId: modelId, input: inputData});
+  } else {
+    console.log('Failed to get stdin for model ' + modelId);
+    callback('Failed to get stdin for model ' + modelId );
   }
-  callback(null, {inputData: inputData});
 };
 
 ModelServer.prototype.onData = function(modelId, callback) {
   var child = this.models[modelId];
-  var outputData;
-  if (child.connected) {
+  if (child && child.stdout) {
+    console.log('Waiting');
     child.stdout.on('data', function(data) {
-      outputData = data;
+      callback(null, {modelId: modelId, output: data});
     });
     child.on('error', function (error) {
       console.log('Failed to write to stdin for child process with ID: '
-      + modelId + '. Error: ' + error);
+                  + modelId + '. Error: ' + error);
     });
+  } else {
+    callback('Failed to get stdout for model ' + modelId);
   }
-  callback(null, {outputData: outputData});
 };
 
 /**
@@ -103,22 +122,29 @@ ModelServer.prototype.getModels = function(callback) {
  *
  */
 ModelServer.prototype.getModel = function(modelId, callback) {
-  // callback(error, null);
-  callback(null, {
-    model: this.models[modelId]
-  });
+  if (modelIs in thi.models) {
+    callback(null, {
+      model: this.models[modelId]
+    });
+  } else {
+    callback('Model ' + modelId + ' was not found');
+  }
 };
 
 /**
  *
  */
 ModelServer.prototype.removeModel = function(modelId, callback) {
-  // kill spawn() of NuPIC process here
-  delete this.models[modelId];
-  // callback(error, null);
-  callback(null, {
-    modelId: modelId
-  });
+  var child = this.models[modelId];
+  if (child) {
+    child.kill();
+    delete this.models[modelId];
+    callback(null, {
+      modelId: modelId
+    });
+  } else {
+    callback('Model ' + modelId + ' was not found');
+  }
 };
 
 // EXPORTS

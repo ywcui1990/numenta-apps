@@ -24,6 +24,7 @@ import ModelServer from '../../../frontend/lib/ModelServer';
 const assert = require('assert');
 
 const STATS = '{"min": 0, "max": 10}';
+const MODEL_ID = '1';
 const INPUT_DATA = '[1438649711, 835.93679]\n';
 const EXPECTED_RESULTS = '[0, 0.5]\n';
 
@@ -32,7 +33,7 @@ describe('ModelServer', () => {
   let modelId = null;
 
   beforeEach(function () {
-    server.addModel(STATS, (error, data) => {
+    server.createModel(MODEL_ID, STATS, (error, data) => {
       assert.ifError(error);
       modelId = data.modelId;
     });
@@ -49,7 +50,7 @@ describe('ModelServer', () => {
     it('Write data to child process stdin', (done) => {
       server.addData(modelId, INPUT_DATA, (error, data) => {
         assert.ifError(error);
-        assert.equal(data.inputData, INPUT_DATA);
+        assert.equal(data.input, INPUT_DATA);
         done();
       });
     });
@@ -58,9 +59,13 @@ describe('ModelServer', () => {
 
   describe('#onData()', () => {
     it('Read data from child process', (done) => {
+      server.addData(modelId, INPUT_DATA, (error, data) => {
+        assert.ifError(error);
+        assert.equal(data.input, INPUT_DATA);
+      });
       server.onData(modelId, (error, data) => {
         assert.ifError(error);
-        assert.equal(data.outputData, EXPECTED_RESULTS);
+        assert.equal(data.output, EXPECTED_RESULTS);
         done();
       });
     });
