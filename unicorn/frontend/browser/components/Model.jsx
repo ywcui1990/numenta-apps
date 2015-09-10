@@ -68,9 +68,6 @@ export default class Model extends React.Component {
     setTimeout(addData, 1000);
   }
 
-  shouldComponentUpdate(nextProps) {
-    return nextProps.modelId !== this.props.modelId;
-  }
   componentWillReceiveProps(nextProps) {
     let store = this.context.getStore(ModelStore);
     let model = store.getModel(nextProps.modelId);
