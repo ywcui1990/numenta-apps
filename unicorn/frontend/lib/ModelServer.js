@@ -69,6 +69,9 @@ ModelServer.prototype.createModel = function(modelId, stats, callback) {
               + ' exited with code ' + code);
     });
     if (child.stdin) {
+      child.stdout.setEncoding('utf8');
+      child.stdin.setDefaultEncoding('utf8');
+      child.stderr.setEncoding('utf8');
       this.models[modelId] = child;
       callback(null, {modelId: modelId});
     }
@@ -95,7 +98,6 @@ ModelServer.prototype.addData = function(modelId, inputData, callback) {
 ModelServer.prototype.onData = function(modelId, callback) {
   var child = this.models[modelId];
   if (child && child.stdout) {
-    console.log('Waiting');
     child.stdout.on('data', function(data) {
       callback(null, {modelId: modelId, output: data});
     });
