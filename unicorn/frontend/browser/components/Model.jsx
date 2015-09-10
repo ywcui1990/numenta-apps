@@ -53,6 +53,19 @@ export default class Model extends React.Component {
     let store = this.context.getStore(ModelStore);
     let model = store.getModel(this.props.modelId);
     this.state = Object.assign({}, model);
+
+    //TODO: Use real data
+    let addData = () => {
+      let data = [new Date(), Math.random()];
+      this.context.executeAction(ReceiveDataAction, {
+        modelId: this.state.modelId,
+        data: data
+      });
+      if (this.state.active) {
+        setTimeout(addData, 1000);
+      }
+    }.bind(this);
+    setTimeout(addData, 1000);
   }
 
   shouldComponentUpdate(nextProps) {
