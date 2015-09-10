@@ -23,6 +23,7 @@ import connectToStores from 'fluxible-addons-react/connectToStores';
 import Material from 'material-ui';
 import React from 'react';
 import StopModelAction from '../actions/StopModel';
+import ReceiveDataAction from '../actions/ReceiveData';
 import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
 
@@ -30,7 +31,7 @@ const {
   Card, CardHeader, CardText, CardActions, FlatButton
 } = Material;
 
-@connectToStores([ModelStore], (context) => ({
+@connectToStores([ModelStore], () => ({
 }))
 export default class Model extends React.Component {
 

@@ -36,20 +36,12 @@ export default class ModelData extends React.Component {
   constructor(props, context) {
     super(props, context);
     let store = this.props.modelStore;
-    this.state = {
-      data : store.getData(this.props.modelId)
-    };
+    this.state = Object.assign({}, store.getData(this.props.modelId));
   }
 
   componentWillReceiveProps(nextProps) {
     let store = this.props.modelStore;
-    this.setState({
-      model: store.getData(nextProps.modelId)
-    });
-  }
-
-  shouldComponentUpdate(nextProps) {
-    return nextProps.modelId !== this.props.modelId;
+    this.setState(Object.assign({}, store.getData(nextProps.modelId)));
   }
 
   render() {
@@ -57,12 +49,12 @@ export default class ModelData extends React.Component {
       labels: ['Time', 'Value'],
       showRangeSelector: true
     };
-    let data = Array.apply(0, Array(500)).map((x, y) => {
-      return [y, Math.random()];
-    });
 
-    return (
-      <Chart data={data} options={options} ref="chart"/>
-    );
+    let data = this.state.data;
+    if (data) {
+      return (
+        <Chart data={data} options={options} ref="chart"/>
+      );
+    }
   }
 };

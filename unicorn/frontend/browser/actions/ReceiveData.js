@@ -21,10 +21,17 @@
 
 /**
  * Receive model data
+ * @param  {Object} payload The action payload in the following format:
+ *                          <code>
+ *                          {
+ *                          	modelId: {String}, // Required model id
+ *                          	data:{Array}},     // New data to be appended
+ *                          }
+ *                          </code>
  */
 export default (actionContext, payload) => {
   return new Promise(resolve => {
     actionContext.dispatch('RECEIVE_DATA_SUCCESS', payload);
-    resolve(model);
+    resolve(payload);
   });
 };

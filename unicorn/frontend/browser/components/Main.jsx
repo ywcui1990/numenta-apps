@@ -36,12 +36,11 @@ import AddAction from '../actions/add';
 import FileList from '../components/FileList';
 import ModelList from '../components/ModelList';
 import FileUploadAction from '../actions/FileUpload';
-import Chart from '../components/Chart';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
 
 
 const {
-  Card, CardText, CardHeader, FloatingActionButton, Styles
+  FloatingActionButton, Styles
 } = Material;
 
 const ThemeManager = new Styles.ThemeManager();
@@ -114,13 +113,6 @@ module.exports = React.createClass({
    * @TODO Tooltip on + ADD icon - "Upload new CSV file" or something
    */
   render () {
-    let data = Array.apply(0, Array(500)).map((x, y) => {
-      return [y, Math.sin(y / 5)];
-    });
-    let options = {
-      labels: ['Time', 'Value'],
-      showRangeSelector: true
-    };
     return (
       <div>
         <div style={{marginLeft: '256px'}}>
