@@ -20,16 +20,21 @@
 
 'use strict';
 
+import AddModelAction from '../actions/AddModel';
+import DeleteModelAction from '../actions/DeleteModel';
 import connectToStores from 'fluxible-addons-react/connectToStores';
+import ModelStore from '../stores/ModelStore';
 import FileStore from '../stores/FileStore';
 import Material from 'material-ui';
 import React from 'react';
+
+var ModelUtils = require('../lib/ModelUtils');
 
 const {
   List, ListItem, Checkbox, Paper
 } = Material;
 
-@connectToStores([FileStore], (context) => ({
+@connectToStores([ FileStore, ModelStore ], (context) => ({
   files: context.getStore(FileStore).getFiles()
 }))
 export default class FileList extends React.Component {
@@ -40,8 +45,12 @@ export default class FileList extends React.Component {
     muiTheme: React.PropTypes.object,
   };
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState(Object.assign({}, this.state, nextProps));
   }
 
   _getStyles() {
@@ -59,11 +68,31 @@ export default class FileList extends React.Component {
     };
   }
 
+  _onMetricCheck(modelId, filename, metric, event, checked) {
+    if (checked) {
+      this.context.executeAction(AddModelAction, {
+        modelId: modelId,
+        filename: filename,
+        metric: metric
+      });
+    } else {
+      this.context.executeAction(DeleteModelAction, modelId);
+    }
+  }
+
   _renderMetrics(file) {
     return file.metrics.map(metric => {
+      let modelId = ModelUtils.generateModelId(file.filename, metric.name);
+      let modelStore = this.context.getStore(ModelStore);
+      let checked = modelStore.getModel(modelId)
+        ? true
+        : false;
       return (
-        <ListItem key={metric.name}
-          leftCheckbox={<Checkbox />}
+        <ListItem key={modelId}
+          leftCheckbox={<Checkbox name={modelId}
+          checked={checked}
+          onCheck={this._onMetricCheck.bind(this, modelId, file.filename,
+            metric.name)}/>}
           primaryText={metric.name}/>
       );
     });

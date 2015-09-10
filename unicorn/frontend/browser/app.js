@@ -43,6 +43,8 @@ import ListFilesAction from './actions/ListFiles';
 import ListMetricsAction from './actions/ListMetrics';
 import MainComponent from './components/Main';
 import FileStore from './stores/FileStore';
+import ModelStore from './stores/ModelStore';
+import ModelDataStore from './stores/ModelDataStore';
 
 import ConfigClient from './lib/ConfigClient';
 import DatabaseClient from './lib/DatabaseClient';
@@ -93,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // init GUI flux/ible app
   app = new Fluxible({
     component: MainComponent,
-    stores: [FileStore]
+    stores: [FileStore, ModelStore, ModelDataStore]
   });
 
   // add context to app

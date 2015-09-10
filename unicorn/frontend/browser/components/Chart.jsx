@@ -39,7 +39,7 @@ export default class Chart extends React.Component {
     zDepth: React.PropTypes.number,
   };
 
-  static defaultProps =  {
+  static defaultProps = {
     zDepth: 1,
     data: [],
     options: {}
@@ -49,19 +49,28 @@ export default class Chart extends React.Component {
     muiTheme: React.PropTypes.object,
   };
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
     this.state = {
-      chart: null
+      chart: null,
+      data: this.props.data,
+      options: this.props.options
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState(Object.assign({}, this.state, nextProps));
   }
 
   componentDidMount() {
     let el = React.findDOMNode(this.refs.chart);
-    this.setState({
-      chart: new Dygraph(el, this.props.data, this.props.options)
-    });
+    if (this.state.data.length) {
+      this.setState({
+        chart: new Dygraph(el, this.state.data, this.state.options)
+      });
+    }
   }
+
   componentWillUnmount() {
     let chart = this.state.chart;
     if (chart) {
@@ -72,9 +81,16 @@ export default class Chart extends React.Component {
   componentDidUpdate() {
     let chart = this.state.chart;
     if (chart) {
-      chart.updateOptions({
-        'file': this.props.data
-      } );
+      let options = {
+        'file': this.state.data
+      };
+      Object.assign(options, this.state.options);
+      chart.updateOptions(options);
+    } else if (this.state.data.length) {
+      let el = React.findDOMNode(this.refs.chart);
+      this.setState({
+        chart: new Dygraph(el, this.state.data, this.state.options)
+      });
     }
   }
 
