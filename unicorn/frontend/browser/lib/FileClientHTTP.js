@@ -20,13 +20,11 @@
 
 'use strict';
 
-
 /**
  * Unicorn: FileClientHTTP - HTTP Adapter (one of many) for FileClient (talks to
  *  a FileServer) to access the Node/io.js layer of filesystem, so we can
  *  CRUD files.
  */
-
 
 // MAIN
 
@@ -35,8 +33,7 @@ export default class FileClientHTTP {
   /**
    *
    */
-  constructor() {
-  }
+  constructor() {}
 
   /**
    *
@@ -51,7 +48,8 @@ export default class FileClientHTTP {
    */
   getFiles(callback) {
     // callback(error, null);
-    callback(null, { files: ['uno.csv', 'dos.csv'] });
+    callback(null, {
+      files: ['uno.csv', 'dos.csv']
+    });
   }
-
 }
