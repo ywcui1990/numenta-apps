@@ -381,7 +381,7 @@ pushd "${REPOPATH}"
      py.test tests/deployment/health_check_test.py &&
      ${TAURUS_COLLECTOR_UNIT_AND_INTEGRATION_TESTS} &&
      taurus-collectors-set-opmode active &&
-     supervisorctl restart all"
+     supervisorctl --serverurl http://localhost:8001 restart all"
 
 
 popd
