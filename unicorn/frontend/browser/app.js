@@ -54,8 +54,6 @@ import ModelClient from './lib/ModelClient';
 const config = new ConfigClient();
 
 var databaseClient = new DatabaseClient();
-var fileClient = new FileClient();
-var modelClient = new ModelClient();
 
 let app;
 let context;
@@ -82,6 +80,57 @@ databaseClient.putMetric(testMetric, (error) => {
   });
 });
 
+// UnicornPlugin plugin exposing unicorn clients from contexts
+// See https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md
+let UnicornPlugin = {
+  name: 'Unicorn',
+
+  plugContext: function (options, context, app) {
+
+    // Get Unicorn options
+    let modelClient = options.modelClient;
+    let fileClient = options.fileClient;
+    let databaseClient = options.databaseClient;
+
+    return {
+      plugComponentContext: function (componentContext, context, app) {
+        componentContext.getModelClient = function () {
+          return modelClient;
+        };
+        componentContext.getFileClient = function () {
+          return fileClient;
+        };
+        componentContext.getDatabaseClient = function () {
+          return databaseClient;
+        };
+      },
+      plugActionContext: function (actionContext, context, app) {
+        actionContext.getModelClient = function () {
+          return modelClient;
+        };
+        actionContext.getFileClient = function () {
+          return fileClient;
+        };
+        actionContext.getDatabaseClient = function () {
+          return databaseClient;
+        };
+      },
+      plugStoreContext: function (storeContext, context, app) {
+        storeContext.getModelClient = function () {
+          return modelClient;
+        };
+        storeContext.getFileClient = function () {
+          return fileClient;
+        };
+        storeContext.getDatabaseClient = function () {
+          return databaseClient;
+        };
+      }
+    };
+  }
+};
+
+
 // GUI APP
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -98,8 +147,18 @@ document.addEventListener('DOMContentLoaded', () => {
     stores: [FileStore, ModelStore, ModelDataStore]
   });
 
+  // Plug Unicorn plugin giving access to Unicorn clients
+  app.plug(UnicornPlugin);
+
+  // Add model client as plugin
+
+
   // add context to app
-  context = app.createContext();
+  context = app.createContext({
+    modelClient: new ModelClient(),
+    fileClient: new FileClient(),
+    databaseClient: new DatabaseClient(),
+  });
 
   // fire initial app action to load all files
   context.executeAction(ListFilesAction, {})
