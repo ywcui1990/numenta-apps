@@ -302,8 +302,6 @@ may be too low priority to worry about yet. -@brev
 * Gulp/Webpack config settings for loading differing bundle/code for
   Desktop or Browser. Split build sources and targets for certain dirs?
   Sync with recent `nconf` work.
-* make real tests and make tests work
-* Setup eslint to run in package.json:scripts or gulp on build
 * Setup logging: Winston or Bunyan? => Joe thinking about it.
 * Errors are not that helpful so far, need to improve this
   * Seemed like webpack / babel build errors were not killing the 'npm start'

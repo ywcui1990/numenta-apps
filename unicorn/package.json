@@ -18,7 +18,7 @@
   "scripts": {
     "check": "npm install  &&  npm prune  &&  npm outdated -depth 0",
     "clean": "rm -Rf node_modules/",
-    "desktop": "UNICORN_TARGET=desktop  npm run pack  &&  npm run electron",
+    "desktop": "UNICORN_TARGET=desktop  npm run lint  &&  npm run pack  &&  npm run electron",
     "electron": "electron .",
     "lint": "eslint frontend",
     "pack": "gulp webpack  ||  exit 1",
@@ -30,7 +30,7 @@
     "test:pipeline": "npm run test:pipeline:unit && npm run test:pipeline:integration",
     "test:pipeline:unit": "mocha --opts tests/js/mocha.pipeline.opts tests/js/unit",
     "test:pipeline:integration": "mocha --opts tests/js/mocha.pipeline.opts tests/js/integration",
-    "web": "UNICORN_TARGET=web  npm run pack  &&  npm run serve"
+    "web": "UNICORN_TARGET=web  npm run lint  &&  npm run pack  &&  npm run serve"
   },
   "repository": {
     "type": "git",
