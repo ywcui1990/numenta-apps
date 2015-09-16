@@ -27,9 +27,9 @@ import com.groksolutions.grok.mobile.service.MetricParser;
 import com.groksolutions.grok.mobile.service.NotificationParser;
 import com.numenta.core.data.MetricData;
 import com.numenta.core.data.Notification;
-import com.numenta.core.service.GrokException;
+import com.numenta.core.service.HTMException;
 import com.numenta.core.utils.Version;
-import com.numenta.core.utils.mock.MockGrokClient;
+import com.numenta.core.utils.mock.MockHTMClient;
 
 import junit.framework.Assert;
 
@@ -46,11 +46,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-public class MockGrokClientWithData extends MockGrokClient {
+public class MockHTMClientWithData extends MockHTMClient {
 
     private final Context _context;
 
-    public MockGrokClientWithData(Context context, Version version) {
+    public MockHTMClientWithData(Context context, Version version) {
         super(version);
         this._context = context;
         // Populate mock with data
@@ -101,7 +101,7 @@ public class MockGrokClientWithData extends MockGrokClient {
                 }
             });
             unpacker.close();
-        } catch (IOException | GrokException e) {
+        } catch (IOException | HTMException e) {
             Assert.fail(e.getLocalizedMessage());
         }
     }

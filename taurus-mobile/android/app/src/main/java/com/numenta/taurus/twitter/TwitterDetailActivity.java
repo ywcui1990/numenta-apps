@@ -23,8 +23,8 @@
 package com.numenta.taurus.twitter;
 
 import com.numenta.core.data.Metric;
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokException;
+import com.numenta.core.service.HTMClient;
+import com.numenta.core.service.HTMException;
 import com.numenta.core.ui.chart.LineChartView;
 import com.numenta.core.utils.DataUtils;
 import com.numenta.core.utils.Log;
@@ -632,7 +632,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                             connection.getTweets(_metric.getName(),
                                     new Date(selectedTimestamp),
                                     new Date(selectedTimestamp + DataUtils.METRIC_DATA_INTERVAL),
-                                    new GrokClient.DataCallback<Tweet>() {
+                                    new HTMClient.DataCallback<Tweet>() {
                                         @Override
                                         public boolean onData(Tweet tweet) {
                                             publishProgress(tweet);
@@ -648,7 +648,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                                 connection.getTweets(_metric.getName(),
                                         new Date(range.first),
                                         new Date(selectedTimestamp),
-                                        new GrokClient.DataCallback<Tweet>() {
+                                        new HTMClient.DataCallback<Tweet>() {
                                             @Override
                                             public boolean onData(Tweet tweet) {
                                                 publishProgress(tweet);
@@ -664,7 +664,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                                 connection.getTweets(_metric.getName(),
                                         new Date(selectedTimestamp),
                                         new Date(range.second),
-                                        new GrokClient.DataCallback<Tweet>() {
+                                        new HTMClient.DataCallback<Tweet>() {
                                             @Override
                                             public boolean onData(Tweet tweet) {
                                                 publishProgress(tweet);
@@ -676,7 +676,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                             // Load everything, no need to load selection first
                             connection.getTweets(_metric.getName(),
                                     new Date(range.first), new Date(range.second),
-                                    new GrokClient.DataCallback<Tweet>() {
+                                    new HTMClient.DataCallback<Tweet>() {
                                         @Override
                                         public boolean onData(Tweet tweet) {
                                             publishProgress(tweet);
@@ -687,7 +687,7 @@ public class TwitterDetailActivity extends TaurusBaseActivity {
                     }
                 } catch (IOException e) {
                     Log.e(TAG, "Failed to get tweets from the server", e);
-                } catch (GrokException e) {
+                } catch (HTMException e) {
                     Log.e(TAG, "Failed to get tweets from the server", e);
                 }
             }

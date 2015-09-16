@@ -20,21 +20,26 @@
  *
  */
 
-package com.groksolutions.grok.mobile.service;
-
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokClientFactory;
+package com.numenta.core.service;
 
 import java.net.MalformedURLException;
 
 /**
- * Default factory used to create {@link com.numenta.core.service.GrokClient}
+ * Factory used to create {@link HTMClient} instances.
+ * <p>
+ * This factory is mainly used to facilitated unit testing allowing the test to replace the
+ * {@link HTMClient} used with a test version returning test data.
  */
-public class GrokClientFactoryImpl implements GrokClientFactory {
+public interface HTMClientFactory {
 
-    @Override
-    public GrokClient createClient(String serverUrl, String pass) throws MalformedURLException {
-        return new GrokClientImpl(serverUrl, pass);
-    }
-
+    /**
+     * Create a new {@link HTMClient} instance connecting to the given serverUrl, using the given
+     * password
+     *
+     * @param serverUrl The server URL to connect
+     * @param pass The server password
+     * @return {@link HTMClient} object used to interact with the server.
+     * @throws MalformedURLException
+     */
+    HTMClient createClient(String serverUrl, String pass) throws MalformedURLException;
 }

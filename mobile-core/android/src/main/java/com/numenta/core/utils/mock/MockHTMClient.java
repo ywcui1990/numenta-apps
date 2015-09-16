@@ -22,15 +22,15 @@
 
 package com.numenta.core.utils.mock;
 
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.Annotation;
 import com.numenta.core.data.CoreDataFactory;
 import com.numenta.core.data.Metric;
 import com.numenta.core.data.MetricData;
 import com.numenta.core.data.Notification;
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokException;
-import com.numenta.core.service.GrokUnauthorizedException;
+import com.numenta.core.service.HTMClient;
+import com.numenta.core.service.HTMException;
+import com.numenta.core.service.HTMUnauthorizedException;
 import com.numenta.core.utils.Version;
 
 import java.io.IOException;
@@ -46,13 +46,13 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
- * Configurable mock {@link GrokClient} to be used in unit tests.
+ * Configurable mock {@link HTMClient} to be used in unit tests.
  * <p>
  * Sample usage:
  *
  * <pre>
  * <code>
- *     MockGrokClient grokClient = new MockGrokClient();
+ *     MockHTMClient htmClient = new MockHTMClient();
  *     Random rnd = new Random();
  *
  *     // Set start date for data
@@ -73,21 +73,21 @@ import java.util.concurrent.ConcurrentSkipListSet;
  *             // New Metric
  *             metricId = "m-" + i + "_" + m;
  *             metricName = "metric_" + m;
- *             grokClient.addMetric(new Metric(metricId, metricName, instanceId, serverName, 1000));
+ *             htmClient.addMetric(new Metric(metricId, metricName, instanceId, serverName, 1000));
  *
  *             // Add Data
  *             for (int rowid = 1; rowid <= 1000; rowid++) {
- *                  grokClient.addMetricData(new MetricData(metricId, cal.getTime(), rnd.nextFloat(), rnd.nextFloat(), rowid));
+ *                  htmClient.addMetricData(new MetricData(metricId, cal.getTime(), rnd.nextFloat(), rnd.nextFloat(), rowid));
  *             }
  *         }
  *     }
  *     // Override default factory
- *     GrokApplication.setGrokClientFactory(new MockGrokClientFactory(grokClient));
+ *     HTMApplication.setClientFactory(new MockHTMClientFactory(htmClient));
  *
  * </code>
  * </pre>
  */
-public class MockGrokClient implements GrokClient {
+public class MockHTMClient implements HTMClient {
     protected final ArrayList<Metric> _metrics = new ArrayList<Metric>();
     protected Version _version;
 
@@ -115,7 +115,7 @@ public class MockGrokClient implements GrokClient {
     final Map<String, Annotation> _annotations = new HashMap<String, Annotation>();
 
 
-    public MockGrokClient(Version version) {
+    public MockHTMClient(Version version) {
 
         this._version = version;
     }
@@ -126,12 +126,12 @@ public class MockGrokClient implements GrokClient {
     }
 
     @Override
-    public void login() throws IOException, GrokException {
+    public void login() throws IOException, HTMException {
         // Ignore
     }
 
     @Override
-    public List<Metric> getMetrics() throws GrokException, IOException {
+    public List<Metric> getMetrics() throws HTMException, IOException {
         return Collections.unmodifiableList(_metrics);
     }
 
@@ -161,7 +161,7 @@ public class MockGrokClient implements GrokClient {
 
     /*
      * (non-Javadoc)
-     * @see com.numenta.core.service.GrokClient#getServerVersion()
+     * @see com.numenta.core.service.HTMClient#getServerVersion()
      */
     @Override
     public Version getServerVersion() {
@@ -182,10 +182,10 @@ public class MockGrokClient implements GrokClient {
 
     /*
      * (non-Javadoc)
-     * @see com.numenta.core.service.GrokClient#getNotifications()
+     * @see com.numenta.core.service.HTMClient#getNotifications()
      */
     @Override
-    public List<Notification> getNotifications() throws GrokException, IOException {
+    public List<Notification> getNotifications() throws HTMException, IOException {
         return new ArrayList<Notification>(_notifications.values());
     }
 
@@ -199,35 +199,37 @@ public class MockGrokClient implements GrokClient {
     }
 
     @Override
-    public List<Annotation> getAnnotations(Date from, Date to) throws GrokException, IOException {
+    public List<Annotation> getAnnotations(Date from, Date to) throws HTMException, IOException {
         return new ArrayList<Annotation>(_annotations.values());
     }
 
     @Override
-    public void deleteAnnotation(Annotation annotation) throws GrokUnauthorizedException, GrokException, IOException {
+    public void deleteAnnotation(Annotation annotation) throws HTMUnauthorizedException,
+            HTMException, IOException {
         // Verify device ID before deleting
-        if (annotation.getDevice().equals(GrokApplication.getDeviceId())) {
-            throw  new GrokUnauthorizedException("Cannot delete annotations created on a different device");
+        if (annotation.getDevice().equals(HTMApplication.getDeviceId())) {
+            throw  new HTMUnauthorizedException("Cannot delete annotations created on a different device");
         }
         _annotations.remove(annotation.getId());
     }
 
     @Override
-    public Annotation addAnnotation(Date timestamp, String server, String message, String user) throws GrokException, IOException {
-        CoreDataFactory factory = GrokApplication.getDatabase()
+    public Annotation addAnnotation(Date timestamp, String server, String message, String user) throws
+            HTMException, IOException {
+        CoreDataFactory factory = HTMApplication.getDatabase()
                 .getDataFactory();
         return factory.createAnnotation(UUID.randomUUID().toString(), timestamp.getTime(),
-                new Date().getTime(), GrokApplication.getDeviceId(), user, server, message, null);
+                new Date().getTime(), HTMApplication.getDeviceId(), user, server, message, null);
     }
 
     /*
      * (non-Javadoc)
      * @see
-     * com.numenta.core.service.GrokClient#deleteNotifications(
+     * com.numenta.core.service.HTMClient#deleteNotifications(
      * java.lang.String[])
      */
     @Override
-    public void acknowledgeNotifications(String[] ids) throws GrokException, IOException {
+    public void acknowledgeNotifications(String[] ids) throws HTMException, IOException {
         for (String id : ids) {
             _notifications.remove(id);
         }
@@ -236,13 +238,13 @@ public class MockGrokClient implements GrokClient {
     /*
      * (non-Javadoc)
      * @see
-     * com.numenta.core.service.GrokClient#getMetricData(java
+     * com.numenta.core.service.HTMClient#getMetricData(java
      * .lang.String, java.util.Date, java.util.Date,
      * com.numenta.core.service.MetricDataParserCallback)
      */
     @Override
     public void getMetricData(String metricId, Date from, Date to,
-            DataCallback<MetricData> callback) throws GrokException, IOException {
+            DataCallback<MetricData> callback) throws HTMException, IOException {
         long now = to.getTime();
         long timestamp;
         for (MetricData data : _metricData) {

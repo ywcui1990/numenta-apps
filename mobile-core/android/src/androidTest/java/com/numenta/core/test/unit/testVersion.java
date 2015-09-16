@@ -22,12 +22,12 @@
 
 package com.numenta.core.test.unit;
 
-import com.numenta.core.utils.GrokAndroidTestCase;
+import com.numenta.core.utils.CoreAndroidTestCase;
 import com.numenta.core.utils.Version;
 
 import android.test.suitebuilder.annotation.SmallTest;
 
-public class testVersion extends GrokAndroidTestCase {
+public class TestVersion extends CoreAndroidTestCase {
     @SmallTest
     public void testMajorMinorMaintBuildShaQualifier() {
         Version ver = new Version("1.2.3-272-gbbeb635-alpha");

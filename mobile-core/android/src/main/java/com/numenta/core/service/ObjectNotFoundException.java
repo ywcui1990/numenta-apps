@@ -25,7 +25,7 @@ package com.numenta.core.service;
 /**
  * The requested object does not exist
  */
-public class ObjectNotFoundException extends GrokException {
+public class ObjectNotFoundException extends HTMException {
     private static final long serialVersionUID = -1608699746561079087L;
 
     public ObjectNotFoundException() {

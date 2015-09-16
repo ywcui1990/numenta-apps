@@ -23,7 +23,7 @@
 package com.numenta.core.ui.chart;
 
 import com.numenta.core.R;
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.utils.DataUtils;
 import com.numenta.core.utils.Pair;
 
@@ -235,7 +235,7 @@ public class LineChartView extends View {
                     .getDimensionPixelOffset(R.styleable.LineChartView_barMarginLeft, 0);
             _barMarginRight = style
                     .getDimensionPixelOffset(R.styleable.LineChartView_barMarginRight, 0);
-            _chartTotalBars = GrokApplication.getTotalBarsOnChart();
+            _chartTotalBars = HTMApplication.getTotalBarsOnChart();
 
             // Setup text style
             _textPaint = new Paint();

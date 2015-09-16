@@ -22,13 +22,13 @@
 
 package com.groksolutions.grok.mobile.test.unit;
 
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
 import com.groksolutions.grok.mobile.service.MetricDataParser;
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.CoreDataFactory;
 import com.numenta.core.data.MetricData;
-import com.numenta.core.service.GrokException;
-import com.numenta.core.utils.GrokAndroidTestCase;
+import com.numenta.core.service.HTMException;
+import com.numenta.core.utils.CoreAndroidTestCase;
 
 import org.msgpack.MessagePack;
 import org.msgpack.unpacker.Unpacker;
@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-public class MetricDataParserTests extends GrokAndroidTestCase {
+public class MetricDataParserTests extends CoreAndroidTestCase {
 
 
     @Override
@@ -57,12 +57,12 @@ public class MetricDataParserTests extends GrokAndroidTestCase {
     public void testParseMetricData_1_3() {
         Unpacker unpacker = null;
         try {
-            CoreDataFactory factory = GrokApplication.getDatabase()
+            CoreDataFactory factory = HTMApplication.getDatabase()
                     .getDataFactory();
             MetricData EXPECTED = factory.createMetricData("3654d3972c1742a0bef5e0022f210544",
                     1404837900000l, 91.308f, 0.274253f, 4296);
 
-            InputStream in = getTestData(GrokClientImpl.GROK_SERVER_1_3, "model_data.msgpack");
+            InputStream in = getTestData(HTMClientImpl.GROK_SERVER_1_3, "model_data.msgpack");
             MessagePack msgpack = new MessagePack();
             unpacker = msgpack.createUnpacker(new BufferedInputStream(in));
             MetricDataParser parser = new MetricDataParser(unpacker);
@@ -74,7 +74,7 @@ public class MetricDataParserTests extends GrokAndroidTestCase {
             assertEquals(EXPECTED.getMetricValue(), value.getMetricValue());
             assertEquals(EXPECTED.getRowid(), value.getRowid());
             assertEquals(EXPECTED.getTimestamp(), value.getTimestamp());
-        } catch (IOException | GrokException e) {
+        } catch (IOException | HTMException e) {
             fail(e.getMessage());
         } finally {
             try {

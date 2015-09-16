@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.metric;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.data.GrokDatabase;
 import com.numenta.core.data.AggregationType;
 import com.numenta.core.data.Metric;
@@ -188,14 +188,14 @@ public class MetricAnomalyChartData implements AnomalyChartData, Serializable {
         }
         _writeLock.lock();
         try {
-            GrokDatabase grokDb = GrokApplication.getDatabase();
+            GrokDatabase grokDb = HTMITApplication.getDatabase();
             this._metric = grokDb.getMetric(getId());
 
             // Query database for aggregated values
             List<Pair<Long, Float>> oldValues = _data;
             if (this._metric != null) {
                 _data = grokDb.getAggregatedScoreByMetricId(getId(), getAggregation(), _endDate,
-                        GrokApplication.getTotalBarsOnChart());
+                        HTMITApplication.getTotalBarsOnChart());
                 if (_endDate <= 0) {
                     _endDate = grokDb.getLastTimestamp();
                 }

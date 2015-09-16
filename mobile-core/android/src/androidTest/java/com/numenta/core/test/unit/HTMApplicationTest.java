@@ -22,7 +22,7 @@
 
 package com.numenta.core.test.unit;
 
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.AggregationType;
 
 import android.test.ApplicationTestCase;
@@ -31,10 +31,10 @@ import android.test.suitebuilder.annotation.SmallTest;
 /**
  * TODO Document
  */
-public class GrokApplicationTest extends ApplicationTestCase<GrokApplication> {
+public class HTMApplicationTest extends ApplicationTestCase<HTMApplication> {
 
-    public GrokApplicationTest() {
-        super(GrokApplication.class);
+    public HTMApplicationTest() {
+        super(HTMApplication.class);
     }
 
     @Override
@@ -50,20 +50,20 @@ public class GrokApplicationTest extends ApplicationTestCase<GrokApplication> {
 
 
     /**
-     * Test method for {@link GrokApplication#getAggregation()}.
+     * Test method for {@link HTMApplication#getAggregation()}.
      */
     @SmallTest
     public final void testGetAggregation() {
-        GrokApplication.setAggregation(AggregationType.Day);
-        assertEquals(AggregationType.Day, GrokApplication.getAggregation());
+        HTMApplication.setAggregation(AggregationType.Day);
+        assertEquals(AggregationType.Day, HTMApplication.getAggregation());
     }
 
     /**
-     * Test method for {@link GrokApplication#getContext()}.
+     * Test method for {@link HTMApplication#getContext()}.
      */
     @SmallTest
     public final void testGetContext() {
-        assertNotNull(GrokApplication.getContext());
+        assertNotNull(HTMApplication.getContext());
     }
 
 }

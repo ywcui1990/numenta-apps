@@ -33,14 +33,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.groksolutions.grok.mobile.annotation.AddAnnotationActivity;
 import com.groksolutions.grok.mobile.annotation.AnnotationListActivity;
 import com.groksolutions.grok.mobile.chart.AbstractAnomalyChartFragment;
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
 import com.numenta.core.ui.chart.AnomalyChartView;
-import com.numenta.core.service.GrokClient;
 
 public class InstanceAnomalyChartFragment extends AbstractAnomalyChartFragment {
 
@@ -100,7 +99,7 @@ public class InstanceAnomalyChartFragment extends AbstractAnomalyChartFragment {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         //TODO:FEATURE_FLAG: Annotations were introduced in version 1.6
-        if (GrokApplication.getInstance().getServerVersion().compareTo(GrokClientImpl.GROK_SERVER_1_6) < 0) {
+        if (HTMITApplication.getInstance().getServerVersion().compareTo(HTMClientImpl.GROK_SERVER_1_6) < 0) {
             return;
         }
         // Get timestamp from the selected bar on the anomaly chart

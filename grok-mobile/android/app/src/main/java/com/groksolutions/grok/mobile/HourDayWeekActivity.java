@@ -167,7 +167,7 @@ public abstract class HourDayWeekActivity extends GrokActivity implements
     }
 
     void restoreTabSelection() {
-        AggregationType aggregation = GrokApplication.getAggregation();
+        AggregationType aggregation = HTMITApplication.getAggregation();
         final ActionBar actionBar = getActionBar();
         if (actionBar == null) {
             return;
@@ -195,8 +195,8 @@ public abstract class HourDayWeekActivity extends GrokActivity implements
             _viewPager.setCurrentItem(tab.getPosition());
             AggregationType aggregationType = (AggregationType) tab.getTag();
             // Update Global State with new aggregation
-            GrokApplication.setAggregation(aggregationType);
-            Tracker tracker = GrokApplication.getInstance().getGoogleAnalyticsTracker();
+            HTMITApplication.setAggregation(aggregationType);
+            Tracker tracker = HTMITApplication.getInstance().getGoogleAnalyticsTracker();
             tracker.setPage(aggregationType.name());
             tracker.send(new HitBuilders.AppViewBuilder().build());
         }

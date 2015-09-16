@@ -25,7 +25,7 @@
     package="com.groksolutions.grok.mobile">
 
     <application
-        android:name=".GrokApplication"
+        android:name=".HTMITApplication"
         android:allowBackup="true"
         xmlns:tools="http://schemas.android.com/tools"
         android:icon="@drawable/ic_launcher"

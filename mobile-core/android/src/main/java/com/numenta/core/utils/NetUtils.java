@@ -26,7 +26,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 
 public class NetUtils {
     /**
@@ -37,7 +37,7 @@ public class NetUtils {
      *         otherwise.
      */
     public static boolean isConnected() {
-        ConnectivityManager cm = (ConnectivityManager) GrokApplication.getContext()
+        ConnectivityManager cm = (ConnectivityManager) HTMApplication.getContext()
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnected();

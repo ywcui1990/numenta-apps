@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.instance;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.data.GrokDatabase;
 import com.numenta.core.data.AggregationType;
 import com.numenta.core.data.Annotation;
@@ -120,7 +120,7 @@ public class InstanceAnomalyChartData implements AnomalyChartData, Serializable 
     public InstanceAnomalyChartData(String instanceId,
                                     AggregationType aggregation) {
         this._instanceId = instanceId;
-        GrokDatabase grokDb = GrokApplication.getDatabase();
+        GrokDatabase grokDb = HTMITApplication.getDatabase();
         this._name = grokDb.getServerName(_instanceId);
         this._aggregation = aggregation;
     }
@@ -254,7 +254,7 @@ public class InstanceAnomalyChartData implements AnomalyChartData, Serializable 
 
         _writeLock.lock();
         try {
-            GrokDatabase grokDb = GrokApplication.getDatabase();
+            GrokDatabase grokDb = HTMITApplication.getDatabase();
 
             // Query database for aggregated values
             List<Pair<Long, Float>> oldValues = _data;
@@ -262,7 +262,7 @@ public class InstanceAnomalyChartData implements AnomalyChartData, Serializable 
                 _endDate = grokDb.getLastTimestamp();
             }
             _data = grokDb.getAggregatedScoreByInstanceId(_instanceId,
-                    _aggregation, _endDate, GrokApplication.getTotalBarsOnChart());
+                    _aggregation, _endDate, HTMITApplication.getTotalBarsOnChart());
 
             // Check if anything changed
             if (oldValues != null && _data.equals(oldValues)) {
@@ -292,7 +292,7 @@ public class InstanceAnomalyChartData implements AnomalyChartData, Serializable 
     public boolean loadAnnotations() {
         _writeLock.lock();
         try {
-            GrokDatabase grokDb = GrokApplication.getDatabase();
+            GrokDatabase grokDb = HTMITApplication.getDatabase();
             if (_endDate <= 0) {
                 _endDate = grokDb.getLastTimestamp();
             }

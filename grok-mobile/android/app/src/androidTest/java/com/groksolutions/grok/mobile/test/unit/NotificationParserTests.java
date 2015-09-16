@@ -22,11 +22,11 @@
 
 package com.groksolutions.grok.mobile.test.unit;
 
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
 import com.groksolutions.grok.mobile.service.NotificationParser;
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.Notification;
-import com.numenta.core.utils.GrokAndroidTestCase;
+import com.numenta.core.utils.CoreAndroidTestCase;
 
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.JsonReader;
@@ -38,7 +38,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-public class NotificationParserTests extends GrokAndroidTestCase {
+public class NotificationParserTests extends CoreAndroidTestCase {
 
     @Override
     protected void setUp() throws Exception {
@@ -55,11 +55,11 @@ public class NotificationParserTests extends GrokAndroidTestCase {
     public void testParseSingleNotificaitonJson_1_3() {
         JsonReader reader = null;
         try {
-            Notification expected = GrokApplication.getDatabase().getDataFactory()
+            Notification expected = HTMApplication.getDatabase().getDataFactory()
                     .createNotification("5fa710b8-ca07-4deb-be64-a7772c3da520",
                             "f0e7145ae0844811bc2b3a83e1e899a8", 1404844860000l, false, null);
 
-            InputStream in = getTestData(GrokClientImpl.GROK_SERVER_1_3, "notification.json");
+            InputStream in = getTestData(HTMClientImpl.GROK_SERVER_1_3, "notification.json");
             reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
             NotificationParser parser = new NotificationParser(reader);
             List<Notification> notifications = parser.parse();

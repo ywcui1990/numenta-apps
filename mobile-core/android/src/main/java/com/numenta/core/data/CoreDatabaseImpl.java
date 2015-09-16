@@ -23,7 +23,7 @@
 package com.numenta.core.data;
 
 import com.numenta.core.R;
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.utils.Log;
 
 import android.content.ContentValues;
@@ -52,7 +52,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * This is the core database interface implementation used to access the local database.
  * You should not instantiate this class directly, use
- * {@link com.numenta.core.app.GrokApplication#getDatabase()} instead.
+ * {@link HTMApplication#getDatabase()} instead.
  * </p>
  * <p>
  * Each application could implement its own version of the core database by extending this class to
@@ -546,14 +546,14 @@ public class CoreDatabaseImpl implements CoreDatabase {
      * <p>
      * Old records are records outside our data time window.
      *
-     * @see com.numenta.core.app.GrokApplication#getNumberOfDaysToSync()
+     * @see HTMApplication#getNumberOfDaysToSync()
      */
     @Override
     public synchronized int deleteOldRecords() {
 
         // Delete records older than a given value
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        cal.add(Calendar.DAY_OF_MONTH, -GrokApplication.getNumberOfDaysToSync());
+        cal.add(Calendar.DAY_OF_MONTH, -HTMApplication.getNumberOfDaysToSync());
         int deleted = 0;
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransactionNonExclusive();

@@ -29,11 +29,11 @@ import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
 
 /**
- * Wake up {@link GrokService} every 15 minutes.
+ * Wake up {@link DataService} every 15 minutes.
  * <p>
  * When the alarm fires, this WakefulBroadcastReceiver receives the broadcast Intent and execute
  * the
- * alarm code {@link GrokService}
+ * alarm code {@link DataService}
  */
 public class AlarmReceiver extends WakefulBroadcastReceiver {
 
@@ -45,7 +45,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Intent service = new Intent(context, GrokService.class);
+        Intent service = new Intent(context, DataService.class);
         startWakefulService(context, service);
     }
 

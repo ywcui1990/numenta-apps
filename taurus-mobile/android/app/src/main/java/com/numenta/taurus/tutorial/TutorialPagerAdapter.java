@@ -42,7 +42,6 @@ public class TutorialPagerAdapter extends FragmentStatePagerAdapter {
             R.drawable.tutorial_3,
             R.drawable.tutorial_4,
             R.drawable.tutorial_5,
-            R.drawable.tutorial_6,
     };
 
     public TutorialPagerAdapter(FragmentManager fragmentManager) {

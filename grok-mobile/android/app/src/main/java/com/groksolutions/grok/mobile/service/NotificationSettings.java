@@ -22,6 +22,8 @@
 
 package com.groksolutions.grok.mobile.service;
 
+import com.numenta.core.service.HTMClient;
+
 import org.json.JSONObject;
 
 /**
@@ -51,7 +53,7 @@ public class NotificationSettings {
      * client
      *
      * @param json JSON Object returned by the server
-     * @see com.numenta.core.service.GrokClient#getNotificationSettings()
+     * @see HTMClient#getNotificationSettings()
      */
     public NotificationSettings(JSONObject json) {
         this._email = json.optString("email_addr");

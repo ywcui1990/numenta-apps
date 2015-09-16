@@ -22,11 +22,11 @@
 
 package com.groksolutions.grok.mobile.service;
 
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.CoreDataFactory;
 import com.numenta.core.data.MetricData;
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokException;
+import com.numenta.core.service.HTMClient;
+import com.numenta.core.service.HTMException;
 import com.numenta.core.utils.DataUtils;
 
 import org.msgpack.unpacker.Unpacker;
@@ -86,7 +86,7 @@ final public class MetricDataParser {
 
     private List<MetricData> _data;
 
-    private GrokClient.DataCallback<MetricData> _callback;
+    private HTMClient.DataCallback<MetricData> _callback;
 
     private Unpacker _unpacker;
 
@@ -114,12 +114,12 @@ final public class MetricDataParser {
         this._unpacker = unpacker;
     }
 
-    private void parseRow() throws IOException, GrokException {
-        CoreDataFactory factory = GrokApplication.getDatabase()
+    private void parseRow() throws IOException, HTMException {
+        CoreDataFactory factory = HTMApplication.getDatabase()
                 .getDataFactory();
         _jsonreader.beginArray();
         while (_jsonreader.hasNext()) {
-            timestamp = DataUtils.parseGrokDate(_jsonreader.nextString()).getTime();
+            timestamp = DataUtils.parseHTMDate(_jsonreader.nextString()).getTime();
             metricValue = (float) _jsonreader.nextDouble();
             anomalyScore = (float) _jsonreader.nextDouble();
             rowid = _jsonreader.nextLong();
@@ -140,7 +140,7 @@ final public class MetricDataParser {
         _jsonreader.endArray();
     }
 
-    private void parseData() throws IOException, GrokException {
+    private void parseData() throws IOException, HTMException {
         _jsonreader.beginArray();
         _data.clear();
         while (_jsonreader.hasNext()) {
@@ -149,7 +149,7 @@ final public class MetricDataParser {
         _jsonreader.endArray();
     }
 
-    private void parseMetrics() throws IOException, GrokException {
+    private void parseMetrics() throws IOException, HTMException {
         String property;
         _jsonreader.beginArray();
         while (_jsonreader.hasNext()) {
@@ -177,7 +177,7 @@ final public class MetricDataParser {
         _jsonreader.endArray();
     }
 
-    private void parseBody() throws IOException, GrokException {
+    private void parseBody() throws IOException, HTMException {
         if (_jsonreader != null) {
             _jsonreader.beginObject();
             String property;
@@ -212,7 +212,7 @@ final public class MetricDataParser {
             // Ignore field names
             _unpacker.skip();
 
-            CoreDataFactory factory = GrokApplication.getDatabase()
+            CoreDataFactory factory = HTMApplication.getDatabase()
                     .getDataFactory();
 
             // Read all rows. Expect 6 fields
@@ -239,8 +239,8 @@ final public class MetricDataParser {
      * @param callback If set this callback will be called on every metric data row with the parsed
      *                 data
      */
-    public void parseAsync(GrokClient.DataCallback<MetricData> callback)
-            throws IOException, GrokException {
+    public void parseAsync(HTMClient.DataCallback<MetricData> callback)
+            throws IOException, HTMException {
         _callback = callback;
         parseBody();
     }
@@ -250,9 +250,9 @@ final public class MetricDataParser {
      *
      * @return List containing all metrics from the stream
      */
-    public List<MetricData> parse() throws IOException, GrokException {
+    public List<MetricData> parse() throws IOException, HTMException {
         final ArrayList<MetricData> results = new ArrayList<>();
-        _callback = new GrokClient.DataCallback<MetricData>() {
+        _callback = new HTMClient.DataCallback<MetricData>() {
             @Override
             public boolean onData(MetricData metricData) {
                 results.add(metricData);
@@ -262,7 +262,7 @@ final public class MetricDataParser {
         try {
             parseBody();
         } catch (IllegalStateException e) {
-            throw new GrokException("Metric Data may be corrupt.  Elements missing from JSON.", e);
+            throw new HTMException("Metric Data may be corrupt.  Elements missing from JSON.", e);
         }
         return results;
     }

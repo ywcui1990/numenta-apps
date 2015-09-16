@@ -22,8 +22,8 @@
 
 package com.numenta.taurus.service;
 
-import com.numenta.core.service.GrokException;
-import com.numenta.core.service.GrokService;
+import com.numenta.core.service.HTMException;
+import com.numenta.core.service.DataService;
 import com.numenta.core.service.NotificationService;
 import com.numenta.core.utils.DataUtils;
 import com.numenta.core.utils.NotificationUtils;
@@ -77,14 +77,14 @@ import static com.numenta.taurus.preference.TaurusPreferenceConstants.PREF_NOTIF
  */
 public class TaurusNotificationService extends NotificationService {
 
-    public TaurusNotificationService(GrokService service) {
+    public TaurusNotificationService(DataService service) {
         super(service);
     }
 
     /**
      * Check if we need to fire new notifications based on the current application data and state
      */
-    protected void synchronizeNotifications() throws GrokException, IOException {
+    protected void synchronizeNotifications() throws HTMException, IOException {
         Context context = getService().getApplicationContext();
         final SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(context);

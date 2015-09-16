@@ -23,10 +23,11 @@
 package com.groksolutions.grok.mobile.mock;
 
 import com.groksolutions.grok.mobile.service.NotificationSettings;
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.Instance;
 import com.numenta.core.data.Metric;
-import com.numenta.core.service.GrokException;
+import com.numenta.core.service.HTMException;
+import com.numenta.core.service.HTMClient;
 import com.numenta.core.utils.Version;
 
 import java.io.IOException;
@@ -35,13 +36,13 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Configurable mock {@link com.numenta.core.service.GrokClient} to be used in unit tests.
+ * Configurable mock {@link HTMClient} to be used in unit tests.
  * <p>
  * Sample usage:
  *
  * <pre>
  * <code>
- *     MockGrokClient grokClient = new MockGrokClient();
+ *     MockHTMClient grokClient = new MockHTMClient();
  *     Random rnd = new Random();
  *
  *     // Set start date for data
@@ -71,45 +72,45 @@ import java.util.List;
  *         }
  *     }
  *     // Override default factory
- *     GrokApplication.setGrokClientFactory(new MockGrokClientFactory(grokClient));
+ *     HTMITApplication.setClientFactory(new MockHTMClientFactory(grokClient));
  *
  * </code>
  * </pre>
  */
-public class MockGrokClient extends com.numenta.core.utils.mock.MockGrokClient {
+public class MockHTMClient extends com.numenta.core.utils.mock.MockHTMClient {
     NotificationSettings _notificationSettings = new NotificationSettings("", 3600);
     protected final HashMap<String, Instance> _instances = new HashMap<>();
 
-    public MockGrokClient(Version version) {
+    public MockHTMClient(Version version) {
         super(version);
     }
 
-    public void updateNotifications(String email, int frequency) throws GrokException, IOException {
+    public void updateNotifications(String email, int frequency) throws HTMException, IOException {
         _notificationSettings = new NotificationSettings(email, frequency);
     }
 
-    public NotificationSettings getNotificationSettings() throws GrokException, IOException {
+    public NotificationSettings getNotificationSettings() throws HTMException, IOException {
         return _notificationSettings;
     }
 
-    public String post(String url, String data) throws GrokException, IOException {
+    public String post(String url, String data) throws HTMException, IOException {
         return "{success:true}";
     }
 
-    public String get(String url) throws GrokException, IOException {
+    public String get(String url) throws HTMException, IOException {
         return null;
     }
 
-    public void delete(String url) throws GrokException, IOException {
+    public void delete(String url) throws HTMException, IOException {
     }
     public void addMetric(Metric metric) {
         super.addMetric(metric);
-        Instance instance = GrokApplication.getDatabase().getDataFactory()
+        Instance instance = HTMApplication.getDatabase().getDataFactory()
                 .createInstance(metric.getInstanceId(), metric.getServerName(), metric.getName(),
                         "us-east-1", null, 1);
         _instances.put(metric.getInstanceId(), instance);
     }
-    public List<Instance> getInstances() throws GrokException, IOException {
+    public List<Instance> getInstances() throws HTMException, IOException {
         return Collections.list(Collections.enumeration(_instances.values()));
     }
 

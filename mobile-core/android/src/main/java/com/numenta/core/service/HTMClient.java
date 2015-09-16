@@ -33,9 +33,9 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * <code>GrokClient</code> interface wraps a connection to the Grok REST API
+ * <code>HTMClient</code> interface wraps a connection to the HTM REST API
  */
-public interface GrokClient {
+public interface HTMClient {
 
     /**
      * Used by the client to notify the caller the when a new data object is ready
@@ -59,9 +59,9 @@ public interface GrokClient {
     boolean isOnline();
 
     /**
-     * Login to Grok server
+     * Login to server
      */
-    void login() throws IOException, GrokException;
+    void login() throws IOException, HTMException;
 
     /**
      * returns the serverUrl
@@ -83,7 +83,7 @@ public interface GrokClient {
      *
      * @return List of {@link Metric}
      */
-    List<Metric> getMetrics() throws GrokException, IOException;
+    List<Metric> getMetrics() throws HTMException, IOException;
 
     /**
      * Returns metric data asynchronously for the given model starting from the given range
@@ -95,13 +95,13 @@ public interface GrokClient {
      */
     void getMetricData(String modelId, Date from, Date to,
             DataCallback<MetricData> callback)
-            throws GrokException, IOException;
+            throws HTMException, IOException;
 
     /**
      * Returns all notifications available for this device. Only unacknowledged notifications will
      * be returned by this call.
      */
-    List<Notification> getNotifications() throws GrokException, IOException;
+    List<Notification> getNotifications() throws HTMException, IOException;
 
     /**
      * Acknowledge notifications on the server. The server may decide to keep or delete
@@ -111,7 +111,7 @@ public interface GrokClient {
      *
      * @param ids Array of notification IDs to be acknowledged
      */
-    void acknowledgeNotifications(String[] ids) throws GrokException, IOException;
+    void acknowledgeNotifications(String[] ids) throws HTMException, IOException;
 
     /**
      * Returns all annotations for the given time range
@@ -122,18 +122,18 @@ public interface GrokClient {
      * matching the criteria. Returns empty list if no annotation is found matching the criteria
      */
     List<Annotation> getAnnotations(Date from, Date to)
-            throws GrokException, IOException;
+            throws HTMException, IOException;
 
     /**
      * Delete annotation from the server.
      * Users are only allowed to delete annotations created on this device.
      * If the user is not allowed to delete the annotation a
-     * {@link com.numenta.core.service.GrokUnauthorizedException} is thrown.
+     * {@link HTMUnauthorizedException} is thrown.
      *
      * @param annotation annotation to delete
      */
     void deleteAnnotation(Annotation annotation)
-            throws GrokUnauthorizedException, GrokException, IOException;
+            throws HTMUnauthorizedException, HTMException, IOException;
 
     /**
      * Add new annotation associating it to the given server and the given timestamp.
@@ -146,5 +146,5 @@ public interface GrokClient {
      * @return The newly created {@link com.numenta.core.data.Annotation}
      */
     Annotation addAnnotation(Date timestamp, String server, String message,
-            String user) throws GrokException, IOException;
+            String user) throws HTMException, IOException;
 }

@@ -26,8 +26,8 @@ package com.groksolutions.grok.mobile;
 import com.groksolutions.grok.mobile.instance.InstanceListActivity;
 import com.groksolutions.grok.mobile.preference.PreferencesConstants;
 import com.numenta.core.service.AuthenticationException;
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokException;
+import com.numenta.core.service.HTMClient;
+import com.numenta.core.service.HTMException;
 import com.numenta.core.utils.Log;
 
 import android.animation.Animator;
@@ -126,15 +126,15 @@ public class LoginActivity extends Activity {
     @Override
     public void onStart() {
         super.onStart();
-        GrokApplication.setActivityLastUsed();
-        GrokApplication.incrementActivityCount();
+        HTMITApplication.setActivityLastUsed();
+        HTMITApplication.incrementActivityCount();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        GrokApplication.setActivityLastUsed();
-        GrokApplication.decrementActivityCount();
+        HTMITApplication.setActivityLastUsed();
+        HTMITApplication.decrementActivityCount();
     }
 
     /**
@@ -144,7 +144,7 @@ public class LoginActivity extends Activity {
         final Intent myIntent = new Intent(LoginActivity.this, InstanceListActivity.class);
         startActivity(myIntent);
         finish();
-        GrokApplication.refresh();
+        HTMITApplication.refresh();
     }
 
     /**
@@ -255,7 +255,7 @@ public class LoginActivity extends Activity {
         @Override
         protected Boolean doInBackground(final Void... params) {
             try {
-                final GrokClient grok = GrokApplication.getInstance().connectToGrok(_serverUrl,
+                final HTMClient grok = HTMITApplication.getInstance().connectToServer(_serverUrl,
                         _password);
                 if (!grok.isOnline()) {
                     _errorMessage = getString(R.string.error_server_unavailable);
@@ -287,7 +287,7 @@ public class LoginActivity extends Activity {
                 return true;
             } catch (MalformedURLException e) {
                 Log.e(TAG, "Failed to connect to Grok", e);
-            } catch (GrokException e) {
+            } catch (HTMException e) {
                 Log.e(TAG, "Failed to connect to Grok", e);
             }
             return false;
