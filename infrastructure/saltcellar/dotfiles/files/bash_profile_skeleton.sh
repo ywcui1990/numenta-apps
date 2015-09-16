@@ -20,7 +20,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# Numenta's standard .bash_profile for ec2-user and root
+# Numenta's standard .bash_profile for user accounts
+
+# If you make changes here, they will not apply to non-interactive sessions.
+# If you want to change the environment in a way that applies to both login
+# non-login sessions, make your changes in .bashrc
 
 # Get the aliases and functions
 if [ -f ~/.bashrc ]; then
