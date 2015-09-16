@@ -33,14 +33,6 @@ fi
 # break the prompt.
 export PS1=$'[\u@\h \W]\$ '
 
-# Set a sane $PATH
-PATH=/opt/numenta/anaconda/bin
-PATH="${PATH}:/usr/local/git/bin"
-PATH="${PATH}:/usr/local/bin"
-PATH="${PATH}:/usr/local/sbin"
-PATH="${PATH}:/usr/bin:/usr/sbin:/bin:/sbin"
-export PATH
-
 # Use anaconda PYTHONPATH
 export PYTHONPATH=/opt/numenta/anaconda/lib/python2.7/site-packages
 
