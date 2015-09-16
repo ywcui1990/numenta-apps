@@ -24,15 +24,15 @@ package com.groksolutions.grok.mobile;
 
 import com.groksolutions.grok.mobile.data.GrokDatabase;
 import com.groksolutions.grok.mobile.preference.PreferencesConstants;
-import com.groksolutions.grok.mobile.service.GrokClientFactoryImpl;
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
+import com.groksolutions.grok.mobile.service.HTMClientFactoryImpl;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
 import com.groksolutions.grok.mobile.service.GrokDataSyncService;
 import com.groksolutions.grok.mobile.service.GrokNotificationService;
 import com.numenta.core.data.CoreDatabase;
+import com.numenta.core.service.DataService;
 import com.numenta.core.service.DataSyncService;
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokException;
-import com.numenta.core.service.GrokService;
+import com.numenta.core.service.HTMClient;
+import com.numenta.core.service.HTMException;
 import com.numenta.core.service.NotificationService;
 import com.numenta.core.utils.Log;
 
@@ -52,9 +52,9 @@ import java.util.Map;
 /**
  * Maintain global application state.
  */
-public class GrokApplication extends com.numenta.core.app.GrokApplication {
+public class HTMITApplication extends com.numenta.core.app.HTMApplication {
 
-    private static final String TAG = GrokApplication.class.getCanonicalName();
+    private static final String TAG = HTMITApplication.class.getCanonicalName();
 
     private volatile SortOrder _sort = SortOrder.Anomaly;
     /**
@@ -69,7 +69,7 @@ public class GrokApplication extends com.numenta.core.app.GrokApplication {
     public void onCreate() {
         super.onCreate();
         // Initialize API Client factory
-        setGrokClientFactory(new GrokClientFactoryImpl());
+        setClientFactory(new HTMClientFactoryImpl());
 
         // Initialize preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -89,7 +89,7 @@ public class GrokApplication extends com.numenta.core.app.GrokApplication {
      * @param value new {@link SortOrder}
      */
     public static void setSort(final SortOrder value) {
-        GrokApplication app = getInstance();
+        HTMITApplication app = getInstance();
 
         if (value != app._sort) {
             SortOrder old = app._sort;
@@ -97,8 +97,9 @@ public class GrokApplication extends com.numenta.core.app.GrokApplication {
             app.firePropertyChange(SORT_PROPERTY, old, value);
         }
     }
-    public static GrokApplication getInstance() {
-        return (GrokApplication) com.numenta.core.app.GrokApplication.getInstance();
+    public static HTMITApplication getInstance() {
+        return (HTMITApplication) com.numenta.core.app.HTMApplication
+                .getInstance();
     }
 
     /**
@@ -109,7 +110,7 @@ public class GrokApplication extends com.numenta.core.app.GrokApplication {
     public static String getMetricUnit(String metricName) {
 
         if (metricName != null) {
-            GrokApplication app = getInstance();
+            HTMITApplication app = getInstance();
             Resources resources = app.getResources();
             final StringBuilder resName = new StringBuilder("Unit_").append(
                     metricName.replace('/', '_'));
@@ -127,7 +128,7 @@ public class GrokApplication extends com.numenta.core.app.GrokApplication {
      * Returns interface to grok database
      */
     public static GrokDatabase getDatabase() {
-        return (GrokDatabase) com.numenta.core.app.GrokApplication.getDatabase();
+        return (GrokDatabase) com.numenta.core.app.HTMApplication.getDatabase();
     }
 
     /**
@@ -146,7 +147,7 @@ public class GrokApplication extends com.numenta.core.app.GrokApplication {
      * @return {@link com.groksolutions.grok.mobile.service.GrokNotificationService} instance
      */
     @Override
-    public DataSyncService createDataSyncService(com.numenta.core.service.GrokService service) {
+    public DataSyncService createDataSyncService(DataService service) {
         return new GrokDataSyncService(service);
     }
 
@@ -156,7 +157,7 @@ public class GrokApplication extends com.numenta.core.app.GrokApplication {
      * @return {@link com.groksolutions.grok.mobile.service.GrokNotificationService} instance
      */
     @Override
-    public NotificationService createNotificationService(GrokService service) {
+    public NotificationService createNotificationService(DataService service) {
         return new GrokNotificationService(service);
     }
 
@@ -164,12 +165,12 @@ public class GrokApplication extends com.numenta.core.app.GrokApplication {
     /**
      * This method should be executed periodically to send logs to the server.
      *
-     * @throws com.numenta.core.service.GrokException
+     * @throws HTMException
      * @throws java.io.IOException
      */
     @Override
-    public void uploadLogs() throws GrokException, IOException {
-        if (!GrokApplication.shouldUploadLog()) {
+    public void uploadLogs() throws HTMException, IOException {
+        if (!HTMITApplication.shouldUploadLog()) {
             return;
         }
         int failedAttempts = 0;
@@ -180,7 +181,7 @@ public class GrokApplication extends com.numenta.core.app.GrokApplication {
         }
 
 
-        GrokClientImpl grok = (GrokClientImpl) connectToServer();
+        HTMClientImpl grok = (HTMClientImpl) connectToServer();
         if (grok == null) {
             return;
         }
@@ -226,21 +227,21 @@ public class GrokApplication extends com.numenta.core.app.GrokApplication {
 
     /**
      * Establish a connection to the Grok server and returns a new instance of
-     * {@link GrokClient} using the the last known stored authentication settings, if any.
+     * {@link HTMClient} using the the last known stored authentication settings, if any.
      *
-     * @return {@link GrokClient} object used to interact with the server.
+     * @return {@link HTMClient} object used to interact with the server.
      */
     @Override
-    public GrokClient connectToServer() {
-        GrokClientImpl connection = null;
+    public HTMClient connectToServer() {
+        HTMClientImpl connection = null;
         final SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(com.numenta.core.app.GrokApplication.getContext());
+                .getDefaultSharedPreferences(com.numenta.core.app.HTMApplication.getContext());
         String serverUrl = prefs.getString(PreferencesConstants.PREF_SERVER_URL, null);
         if (serverUrl != null) {
             serverUrl = serverUrl.trim();
             String password = prefs.getString(PreferencesConstants.PREF_PASSWORD, null);
             try {
-                connection = (GrokClientImpl) connectToGrok(serverUrl, password);
+                connection = (HTMClientImpl) connectToServer(serverUrl, password);
                 connection.login();
                 Log.d(TAG, "Service connected to " + serverUrl);
             } catch (Exception e) {

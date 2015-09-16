@@ -22,7 +22,7 @@
 
 package com.numenta.taurus.service;
 
-import com.numenta.core.service.GrokClientFactory;
+import com.numenta.core.service.HTMClientFactory;
 import com.numenta.taurus.TaurusApplication;
 
 import java.net.MalformedURLException;
@@ -30,7 +30,7 @@ import java.net.MalformedURLException;
 /**
  * Factory used to create {@link TaurusClient} instances.
  */
-public class TaurusClientFactory implements GrokClientFactory {
+public class TaurusClientFactory implements HTMClientFactory {
 
     // Reuse client object
     TaurusClient _client;

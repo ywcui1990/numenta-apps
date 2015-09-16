@@ -23,16 +23,16 @@
 package com.groksolutions.grok.mobile.test.integration;
 
 import com.groksolutions.grok.mobile.BuildConfig;
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
+import com.groksolutions.grok.mobile.HTMITApplication;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
 import com.groksolutions.grok.mobile.service.InstanceParser;
-import com.groksolutions.grok.mobile.GrokApplication;
 import com.groksolutions.grok.mobile.service.NotificationSettings;
 import com.numenta.core.data.Annotation;
 import com.numenta.core.data.CoreDataFactory;
 import com.numenta.core.data.Instance;
 import com.numenta.core.data.Metric;
-import com.numenta.core.service.GrokException;
-import com.numenta.core.service.GrokUnauthorizedException;
+import com.numenta.core.service.HTMException;
+import com.numenta.core.service.HTMUnauthorizedException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,10 +51,10 @@ import java.util.List;
 import java.util.UUID;
 
 // FIXME: TAUR-601 Move all Grok integration tests to the Grok folder path
-public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplication> {
+public class GrokClientIntegrationTests extends ApplicationTestCase<HTMITApplication> {
 
     // Server Info
-    GrokClientImpl _client;
+    HTMClientImpl _client;
 
     String _serverUrl;
 
@@ -72,7 +72,7 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
     boolean _firstRun = true;
 
     public GrokClientIntegrationTests() {
-        super(GrokApplication.class);
+        super(HTMITApplication.class);
     }
 
     /**
@@ -103,7 +103,7 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
         System.out.println("Server URL:" + _serverUrl);
         System.out.println("Server Pass:" + _serverPass);
         try {
-            _client = (GrokClientImpl) GrokApplication.getInstance().connectToGrok(_serverUrl, _serverPass);
+            _client = (HTMClientImpl) HTMITApplication.getInstance().connectToServer(_serverUrl, _serverPass);
             assertNotNull(_client);
             // Create instances
             JSONArray metrics = new JSONArray(_client.get(_serverUrl
@@ -127,14 +127,14 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
 
             // keep track of annotations created by this test
             _annotations = new ArrayList<Annotation>();
-        } catch (JSONException | GrokException | IOException e) {
+        } catch (JSONException | HTMException | IOException e) {
             fail(e.getLocalizedMessage());
         }
     }
 
     @LargeTest
     public void testPreconditions() {
-        assertNotNull("Unable to initialize GrokClient", _client);
+        assertNotNull("Unable to initialize HTMClient", _client);
         assertNotNull("Unable to create test model", _modelId);
         assertNotNull("Unable to get Instance ID", _instanceId);
     }
@@ -175,16 +175,16 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
     public final void testLogin() {
         try {
             _client.login();
-        } catch (IOException | GrokException e) {
+        } catch (IOException | HTMException e) {
             fail(e.getLocalizedMessage());
         }
     }
 
 
     @LargeTest
-    public final void testAnnotationBackwardCompatibility() throws IOException, GrokException {
+    public final void testAnnotationBackwardCompatibility() throws IOException, HTMException {
         // Annotations were introduced in version 1.6
-        if (_client.getServerVersion().compareTo(GrokClientImpl.GROK_SERVER_1_6) >= 0) {
+        if (_client.getServerVersion().compareTo(HTMClientImpl.GROK_SERVER_1_6) >= 0) {
             // If the server version is 1.6 and above then ignore this test and run #testAnnotations
             return;
         }
@@ -194,7 +194,7 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
 
         // If the server version is lower than 1.6 then it should ignore the request and
         // not throw any exception
-        CoreDataFactory factory = GrokApplication.getDatabase()
+        CoreDataFactory factory = HTMITApplication.getDatabase()
                 .getDataFactory();
         _client.deleteAnnotation(factory.createAnnotation(UUID.randomUUID().toString(), 0, 0,
                 "fake_device", "other_user", _instanceId, "Other user's annotation", null));
@@ -203,9 +203,9 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
     }
 
     @LargeTest
-    public final void testAnnotations() throws IOException, GrokException, InterruptedException {
+    public final void testAnnotations() throws IOException, HTMException, InterruptedException {
         // Annotations were introduced in version 1.6
-        if (_client.getServerVersion().compareTo(GrokClientImpl.GROK_SERVER_1_6) < 0) {
+        if (_client.getServerVersion().compareTo(HTMClientImpl.GROK_SERVER_1_6) < 0) {
             // If the server version is lower than 1.6 then ignore this test and
             // run #testAnnotationCompatibility
             return;
@@ -229,7 +229,7 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
         _annotations.add(expected1);
 
         // Validate fields
-        assertEquals("Invalid device", GrokApplication.getDeviceId(), expected1.getDevice());
+        assertEquals("Invalid device", HTMITApplication.getDeviceId(), expected1.getDevice());
         assertNotNull("Invalid uid", expected1.getId());
         assertEquals("Invalid instance", _instanceId, expected1.getInstanceId());
         assertEquals("Invalid message", "test message1", expected1.getMessage());
@@ -285,16 +285,16 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
             Date timestamp4 = cal.getTime();
             // NOTE: This is basically a unit test not integration test.
             // It will use a fake annotation object with fake device id instead of real annotation
-            // object from the server. This test will make sure "GrokClient" does not even attempt
+            // object from the server. This test will make sure "HTMClient" does not even attempt
             // to delete annotations from other devices.
 
-            CoreDataFactory factory = GrokApplication.getDatabase().getDataFactory();
+            CoreDataFactory factory = HTMITApplication.getDatabase().getDataFactory();
             Annotation otherUserAnnotation = factory.createAnnotation(UUID.randomUUID().toString(),
                     timestamp4.getTime(), now.getTime(), "fake_device", "other_user", _instanceId,
                     "Other user's annotation", null);
             _client.deleteAnnotation(otherUserAnnotation);
             fail("Should not be able to delete other user's annotations");
-        } catch (GrokUnauthorizedException e) {
+        } catch (HTMUnauthorizedException e) {
             // Expected exception
         }
     }
@@ -314,19 +314,19 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
                 }
             }
             assertTrue("Failed to get all metrics. Test Metric " + _modelId + " is missing", found);
-        } catch (GrokException | IOException e) {
+        } catch (HTMException | IOException e) {
             fail(e.getMessage());
         }
     }
 
     @LargeTest
     public final void testGetServerVersion() {
-        assertTrue("Server must be " + GrokClientImpl.GROK_SERVER_OLDEST + " or greater",
-                _client.getServerVersion().compareTo(GrokClientImpl.GROK_SERVER_OLDEST) >= 0);
+        assertTrue("Server must be " + HTMClientImpl.GROK_SERVER_OLDEST + " or greater",
+                _client.getServerVersion().compareTo(HTMClientImpl.GROK_SERVER_OLDEST) >= 0);
     }
 
     @LargeTest
-    public final void testGetInstances() throws GrokException, IOException, JSONException {
+    public final void testGetInstances() throws HTMException, IOException, JSONException {
         List<Instance> list = _client.getInstances();
         assertNotNull(list);
         boolean found = false;
@@ -350,7 +350,7 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
     FIXME: This Tests assumes the server does not have any notification settings for the device.
            Suppress until we add an API to clear the notification settings for a specific device.
     */
-    public final void testNotificationSettings() throws IOException, GrokException {
+    public final void testNotificationSettings() throws IOException, HTMException {
         // Should not have any settings for this device
         assertNull("Invalid notification settings", _client.getNotificationSettings());
 
@@ -364,7 +364,7 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<GrokApplicat
     }
 
     @LargeTest
-    public final void testNotifications() throws IOException, GrokException {
+    public final void testNotifications() throws IOException, HTMException {
         //FIXME There is no easy way to add notifications to the server
         // For now just test the notification API is working
         assertNull("Invalid Notification Response", _client.getNotifications());

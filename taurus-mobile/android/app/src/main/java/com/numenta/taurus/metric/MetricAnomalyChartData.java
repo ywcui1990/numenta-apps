@@ -24,7 +24,7 @@ package com.numenta.taurus.metric;
 
 import com.numenta.core.data.AggregationType;
 import com.numenta.core.data.Metric;
-import com.numenta.core.service.GrokException;
+import com.numenta.core.service.HTMException;
 import com.numenta.core.ui.chart.AnomalyChartData;
 import com.numenta.core.utils.DataUtils;
 import com.numenta.core.utils.Log;
@@ -474,7 +474,7 @@ public class MetricAnomalyChartData implements AnomalyChartData, Serializable {
                     refreshData();
                 } catch (IOException e) {
                     Log.e(TAG, "Failed to load metric data", e);
-                } catch (GrokException e) {
+                } catch (HTMException e) {
                     Log.e(TAG, "Failed to load metric data", e);
                 }
             } else {

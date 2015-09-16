@@ -22,19 +22,16 @@
 
 package com.numenta.core.test.unit;
 
-import com.numenta.core.app.GrokApplication;
-import com.numenta.core.data.AggregationType;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.Annotation;
 import com.numenta.core.data.CoreDatabase;
 import com.numenta.core.data.Instance;
 import com.numenta.core.data.Metric;
 import com.numenta.core.data.MetricData;
 import com.numenta.core.data.Notification;
-import com.numenta.core.utils.DataUtils;
-import com.numenta.core.utils.Pair;
 import com.numenta.core.utils.Version;
-import com.numenta.core.utils.mock.MockGrokClient;
-import com.numenta.core.utils.mock.MockGrokClientFactory;
+import com.numenta.core.utils.mock.MockHTMClient;
+import com.numenta.core.utils.mock.MockHTMClientFactory;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,37 +41,36 @@ import android.database.DatabaseUtils;
 import android.os.AsyncTask;
 import android.test.ApplicationTestCase;
 import android.test.UiThreadTest;
-import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
-public class GrokDatabaseTest extends ApplicationTestCase<GrokApplication> {
+public class CoreDatabaseTest extends ApplicationTestCase<HTMApplication> {
 
     CoreDatabase _database;
 
-    public GrokDatabaseTest() {
-        super(GrokApplication.class);
+    public CoreDatabaseTest() {
+        super(HTMApplication.class);
     }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         createApplication();
-        GrokApplication.clearApplicationData(GrokApplication.getContext());
-        GrokApplication.getInstance().setGrokClientFactory(new MockGrokClientFactory(new MockGrokClient(Version.UNKNOWN)));
-        _database = GrokApplication.getDatabase();
+        HTMApplication.clearApplicationData(HTMApplication.getContext());
+        HTMApplication.getInstance().setClientFactory(
+                new MockHTMClientFactory(new MockHTMClient(Version.UNKNOWN)));
+        _database = HTMApplication.getDatabase();
         _database.deleteAll();
     }
 
     @Override
     public void tearDown() throws Exception {
-        GrokApplication.clearApplicationData(GrokApplication.getContext());
+        HTMApplication.clearApplicationData(HTMApplication.getContext());
         _database.deleteAll();
         super.tearDown();
     }
@@ -111,7 +107,7 @@ public class GrokDatabaseTest extends ApplicationTestCase<GrokApplication> {
             @Override
             public void run() {
                 // Access database from background thread
-                GrokApplication.getDatabase().getReadableDatabase();
+                HTMApplication.getDatabase().getReadableDatabase();
             }
         });
     }
@@ -127,7 +123,7 @@ public class GrokDatabaseTest extends ApplicationTestCase<GrokApplication> {
             @Override
             protected void onPostExecute(Void result) {
                 try {
-                    GrokApplication.getDatabase().getReadableDatabase();
+                    HTMApplication.getDatabase().getReadableDatabase();
                 } catch (IllegalStateException t) {
                     // Should fail to access database from UI thread
                     return;
@@ -147,7 +143,7 @@ public class GrokDatabaseTest extends ApplicationTestCase<GrokApplication> {
             @Override
             public void run() {
                 // Access database from background thread
-                GrokApplication.getDatabase().getWritableDatabase();
+                HTMApplication.getDatabase().getWritableDatabase();
             }
         });
     }
@@ -163,7 +159,7 @@ public class GrokDatabaseTest extends ApplicationTestCase<GrokApplication> {
             @Override
             protected void onPostExecute(Void result) {
                 try {
-                    GrokApplication.getDatabase().getWritableDatabase();
+                    HTMApplication.getDatabase().getWritableDatabase();
                 } catch (IllegalStateException t) {
                     // Should fail to access database from UI thread
                     return;
@@ -338,7 +334,7 @@ public class GrokDatabaseTest extends ApplicationTestCase<GrokApplication> {
 
         // Add 5 old data points
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        cal.add(Calendar.DAY_OF_MONTH, -(GrokApplication.getNumberOfDaysToSync() + 1));
+        cal.add(Calendar.DAY_OF_MONTH, -(HTMApplication.getNumberOfDaysToSync() + 1));
         long timestamp = cal.getTimeInMillis();
         ArrayList<MetricData> batch = new ArrayList<MetricData>(5);
         for (int i = 0; i < 5; i++) {

@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.service;
 
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.Notification;
 import com.numenta.core.utils.DataUtils;
 
@@ -47,7 +47,7 @@ import java.util.List;
  *   ]
  * </pre></code>
  *
- * @see GrokClientImpl#getMetrics()
+ * @see HTMClientImpl#getMetrics()
  * @see JsonReader
  */
 final public class NotificationParser {
@@ -80,7 +80,7 @@ final public class NotificationParser {
                     metricId = _reader.nextString();
                     break;
                 case "timestamp":
-                    timestamp = DataUtils.parseGrokDate(_reader.nextString()).getTime();
+                    timestamp = DataUtils.parseHTMDate(_reader.nextString()).getTime();
                     break;
                 default:
                     _reader.skipValue();
@@ -89,7 +89,7 @@ final public class NotificationParser {
         }
         _reader.endObject();
 
-        _results.add(GrokApplication.getDatabase().getDataFactory().createNotification(
+        _results.add(HTMApplication.getDatabase().getDataFactory().createNotification(
                 notificationId, metricId, timestamp, false, null));
     }
 

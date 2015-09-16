@@ -36,10 +36,9 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.webkit.URLUtil;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.groksolutions.grok.mobile.tutorial.TutorialActivity;
-import com.groksolutions.grok.mobile.preference.PreferencesConstants;
 import com.numenta.core.utils.Log;
 
 /**
@@ -58,15 +57,15 @@ public class SettingsActivity extends PreferenceActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-        GrokApplication.setActivityLastUsed();
-        GrokApplication.decrementActivityCount();
+        HTMITApplication.setActivityLastUsed();
+        HTMITApplication.decrementActivityCount();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        GrokApplication.incrementActivityCount();
-        GrokApplication.setActivityLastUsed();
+        HTMITApplication.incrementActivityCount();
+        HTMITApplication.setActivityLastUsed();
     }
 
     private static final String TAG = SettingsActivity.class.getCanonicalName();
@@ -189,8 +188,8 @@ public class SettingsActivity extends PreferenceActivity implements
         Preference preference = findPreference(key);
         // Update preferences Summary with current value
         if (key.equals(PreferencesConstants.PREF_VERSION)) {
-            preference.setSummary(GrokApplication.getInstance().getServerVersion() + " : "
-                    + GrokApplication.getVersion());
+            preference.setSummary(HTMITApplication.getInstance().getServerVersion() + " : "
+                    + HTMITApplication.getVersion());
         } else if (preference instanceof EditTextPreference) {
             EditTextPreference pref = (EditTextPreference) preference;
             String text = pref.getText();

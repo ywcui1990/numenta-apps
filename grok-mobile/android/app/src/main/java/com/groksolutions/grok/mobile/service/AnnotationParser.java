@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.service;
 
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.Annotation;
 import com.numenta.core.utils.DataUtils;
 
@@ -87,10 +87,10 @@ public class AnnotationParser {
                     device = _reader.nextString();
                     break;
                 case "created":
-                    created = DataUtils.parseGrokDate(_reader.nextString()).getTime();
+                    created = DataUtils.parseHTMDate(_reader.nextString()).getTime();
                     break;
                 case "timestamp":
-                    timestamp = DataUtils.parseGrokDate(_reader.nextString()).getTime();
+                    timestamp = DataUtils.parseHTMDate(_reader.nextString()).getTime();
                     break;
                 case "user":
                     user = _reader.nextString();
@@ -111,7 +111,7 @@ public class AnnotationParser {
         }
         _reader.endObject();
 
-        _results.add(GrokApplication.getDatabase().getDataFactory().createAnnotation(annotationId, timestamp, created, device, user,
+        _results.add(HTMApplication.getDatabase().getDataFactory().createAnnotation(annotationId, timestamp, created, device, user,
                 instanceId, message, data));
     }
 

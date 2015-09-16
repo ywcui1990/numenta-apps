@@ -36,7 +36,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.numenta.core.service.DataSyncService;
 
@@ -46,10 +46,10 @@ public class RefreshDialogFragment extends DialogFragment {
     private final BroadcastReceiver _isRefreshingReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (GrokApplication.isRefreshing()) {
+            if (HTMITApplication.isRefreshing()) {
                 dismiss();
             } else {
-                String result = GrokApplication.getLastError();
+                String result = HTMITApplication.getLastError();
                 if (result == null) {
                     dismiss();
                 }

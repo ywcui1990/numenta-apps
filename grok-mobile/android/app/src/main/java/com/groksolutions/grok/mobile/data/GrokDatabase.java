@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.data;
 
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.AggregationType;
 import com.numenta.core.data.CoreDatabaseImpl;
 import com.numenta.core.data.Instance;
@@ -205,7 +205,7 @@ public class GrokDatabase extends CoreDatabaseImpl {
      * @return A {@link java.util.List} containing the aggregated metric data grouped by
      * the {@link AggregationType} interval, sorted by date in
      * descending order
-     * @see com.numenta.core.app.GrokApplication#getTotalBarsOnChart()
+     * @see HTMApplication#getTotalBarsOnChart()
      */
     public List<Pair<Long, Float>> getAggregatedScoreByMetricId(String metricId,
             AggregationType aggregation, long timestamp, int limit) {
@@ -220,7 +220,7 @@ public class GrokDatabase extends CoreDatabaseImpl {
             cached = _aggregateMetricCache.get(key);
             if (cached == null) {
                 // Cache all the data
-                int size = GrokApplication.getNumberOfDaysToSync() * 24 * 60 / aggregation
+                int size = HTMApplication.getNumberOfDaysToSync() * 24 * 60 / aggregation
                         .minutes();
                 cached = getAggregatedAnomalyScore(aggregation, size,
                         AGGREGATED_METRIC_ANOMALY_SCORE, metricId);
@@ -250,7 +250,7 @@ public class GrokDatabase extends CoreDatabaseImpl {
      * <p>
      * Old records are records outside our data time window.
      *
-     * @see com.numenta.core.app.GrokApplication#getNumberOfDaysToSync()
+     * @see HTMApplication#getNumberOfDaysToSync()
      */
     @Override
     public synchronized int deleteOldRecords() {
@@ -287,7 +287,7 @@ public class GrokDatabase extends CoreDatabaseImpl {
         cached = _aggregateInstanceCache.get(key);
         if (cached == null) {
             // Cache all the data
-            int size = GrokApplication.getNumberOfDaysToSync() * 24 * 60
+            int size = HTMApplication.getNumberOfDaysToSync() * 24 * 60
                     / aggregation.minutes();
             cached = getAggregatedAnomalyScore(aggregation, size,
                     AGGREGATED_INSTANCE_ANOMALY_SCORE,
@@ -449,7 +449,7 @@ public class GrokDatabase extends CoreDatabaseImpl {
             int probation = 0;
             // Mark learning period with negative scores
             float probationScore = score;
-            if (rowid < GrokApplication.getLearningThreshold()) {
+            if (rowid < HTMApplication.getLearningThreshold()) {
                 probationScore = -score;
                 probation = 1;
             }
@@ -506,7 +506,7 @@ public class GrokDatabase extends CoreDatabaseImpl {
 
         // Build query based on aggregation interval.
         String query = String.format(Locale.US, queryTemplate, aggregation.milliseconds(),
-                lastTimestamp + timeInterval, size, GrokApplication.getLearningThreshold());
+                lastTimestamp + timeInterval, size, HTMApplication.getLearningThreshold());
         ArrayList<Pair<Long, Float>> results = new ArrayList<>(size);
         Cursor cursor = null;
         try {
@@ -529,7 +529,7 @@ public class GrokDatabase extends CoreDatabaseImpl {
                         float score = cursor.getFloat(anomalyScoreIdx);
                         if (rowidIdx != -1) {
                             int rowid = cursor.getInt(rowidIdx);
-                            if (rowid < GrokApplication.getLearningThreshold()) {
+                            if (rowid < HTMApplication.getLearningThreshold()) {
                                 // Mark probationary period with negative anomaly score
                                 if (probationScoreIdx != -1) {
                                     score = -cursor.getFloat(probationScoreIdx);

@@ -32,15 +32,15 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
 import android.webkit.URLUtil;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.SplashScreenActivity;
 import com.groksolutions.grok.mobile.preference.PreferencesConstants;
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
 import com.numenta.core.service.AuthenticationException;
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokException;
-import com.numenta.core.utils.mock.MockGrokClient;
-import com.numenta.core.utils.mock.MockGrokClientFactory;
+import com.numenta.core.service.HTMClient;
+import com.numenta.core.service.HTMException;
+import com.numenta.core.utils.mock.MockHTMClient;
+import com.numenta.core.utils.mock.MockHTMClientFactory;
 import com.robotium.solo.Solo;
 
 import java.io.IOException;
@@ -53,14 +53,14 @@ public class TestLogin extends ActivityInstrumentationTestCase2<SplashScreenActi
     static final String SERVER_URL = "https://localhost";
     static final String SERVER_PASS = "good";
 
-    static class MockClientForLogin extends MockGrokClient {
+    static class MockClientForLogin extends MockHTMClient {
         String _server;
         String _pass;
-        MockGrokClientLoginFactory _factory;
+        MockHTMClientLoginFactory _factory;
 
-        public MockClientForLogin(MockGrokClientLoginFactory factory, String server, String pass)
+        public MockClientForLogin(MockHTMClientLoginFactory factory, String server, String pass)
                 throws MalformedURLException {
-            super(GrokClientImpl.GROK_SERVER_LATEST);
+            super(HTMClientImpl.GROK_SERVER_LATEST);
             // Parse URL
             if (!URLUtil.isHttpsUrl((server))) {
                 throw new MalformedURLException("Invalid Server URL:" + server);
@@ -71,7 +71,7 @@ public class TestLogin extends ActivityInstrumentationTestCase2<SplashScreenActi
         }
 
         @Override
-        public void login() throws IOException, GrokException {
+        public void login() throws IOException, HTMException {
 
             // Check for valid server and pass
             if (!_factory.pass.equals(_pass) || !_factory.server.equals(_server)) {
@@ -80,20 +80,20 @@ public class TestLogin extends ActivityInstrumentationTestCase2<SplashScreenActi
         }
     }
 
-    static final class MockGrokClientLoginFactory extends MockGrokClientFactory {
+    static final class MockHTMClientLoginFactory extends MockHTMClientFactory {
 
         // Mock valid server and password
         public final String server = SERVER_URL;
         public final String pass = SERVER_PASS;
 
         @Override
-        public GrokClient createClient(String serverUrl, String password)
+        public HTMClient createClient(String serverUrl, String password)
                 throws MalformedURLException {
             return new MockClientForLogin(this, serverUrl, password);
         }
     }
 
-    final MockGrokClientLoginFactory _clientFactory = new MockGrokClientLoginFactory();
+    final MockHTMClientLoginFactory _clientFactory = new MockHTMClientLoginFactory();
 
     public TestLogin() {
         super(SplashScreenActivity.class);
@@ -104,7 +104,7 @@ public class TestLogin extends ActivityInstrumentationTestCase2<SplashScreenActi
         super.setUp();
 
         Instrumentation instrumentation = getInstrumentation();
-        GrokApplication.clearApplicationData(instrumentation.getTargetContext());
+        HTMITApplication.clearApplicationData(instrumentation.getTargetContext());
         Editor prefs = PreferenceManager
                 .getDefaultSharedPreferences(instrumentation.getTargetContext()).edit();
         prefs.remove(PreferencesConstants.PREF_SERVER_URL);
@@ -112,8 +112,8 @@ public class TestLogin extends ActivityInstrumentationTestCase2<SplashScreenActi
         prefs.putBoolean(PreferencesConstants.PREF_SKIP_TUTORIAL, false);
         prefs.apply();
 
-        GrokApplication.getInstance().setGrokClientFactory(_clientFactory);
-        GrokApplication.stopServices();
+        HTMITApplication.getInstance().setClientFactory(_clientFactory);
+        HTMITApplication.stopServices();
 
         _solo = null;
     }

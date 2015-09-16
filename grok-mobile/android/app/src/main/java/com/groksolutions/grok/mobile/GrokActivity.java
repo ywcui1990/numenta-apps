@@ -30,7 +30,7 @@ import com.groksolutions.grok.mobile.preference.SettingsActivity;
 import com.groksolutions.grok.mobile.service.GrokDataSyncService;
 import com.numenta.core.data.AggregationType;
 import com.numenta.core.service.DataSyncService;
-import com.numenta.core.service.GrokService;
+import com.numenta.core.service.DataService;
 import com.numenta.core.utils.DataUtils;
 import com.numenta.core.utils.Log;
 
@@ -140,7 +140,7 @@ public class GrokActivity extends FragmentActivity {
 
     private void updateRefresh() {
         if (_refresh != null) {
-            if (GrokApplication.isRefreshing()) {
+            if (HTMITApplication.isRefreshing()) {
                 _refresh.setActionView(_refreshView);
 
                 // Calculate the interval since last connection to the server
@@ -170,7 +170,7 @@ public class GrokActivity extends FragmentActivity {
                 }
             } else {
                 // Check if we have an error message
-                String refreshError = GrokApplication.getLastError();
+                String refreshError = HTMITApplication.getLastError();
                 if (refreshError == null) {
                     // Restore refresh icon
                     _refresh.setIcon(R.drawable.ic_action_refresh);
@@ -196,26 +196,26 @@ public class GrokActivity extends FragmentActivity {
     @Override
     public void onStart() {
         super.onStart();
-        final long duration = System.currentTimeMillis() - GrokApplication.getActivityLastUsed();
-        if (duration >= GrokApplication.MAX_DURATION &&
-                GrokApplication.getActivityCount() == 0) {
-            GrokApplication.setAggregation(AggregationType.Hour);
-            GrokApplication.setSort(SortOrder.Anomaly);
+        final long duration = System.currentTimeMillis() - HTMITApplication.getActivityLastUsed();
+        if (duration >= HTMITApplication.MAX_DURATION &&
+                HTMITApplication.getActivityCount() == 0) {
+            HTMITApplication.setAggregation(AggregationType.Hour);
+            HTMITApplication.setSort(SortOrder.Anomaly);
             Intent myIntent = new Intent(this, InstanceListActivity.class);
             myIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(myIntent);
             finish();
-            GrokApplication.refresh();
+            HTMITApplication.refresh();
         }
-        GrokApplication.setActivityLastUsed();
-        GrokApplication.incrementActivityCount();
+        HTMITApplication.setActivityLastUsed();
+        HTMITApplication.incrementActivityCount();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        GrokApplication.setActivityLastUsed();
-        GrokApplication.decrementActivityCount();
+        HTMITApplication.setActivityLastUsed();
+        HTMITApplication.decrementActivityCount();
     }
 
     @Override
@@ -238,7 +238,7 @@ public class GrokActivity extends FragmentActivity {
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 _authenticationFailedReceiver,
-                new IntentFilter(GrokService.AUTHENTICATION_FAILED_EVENT));
+                new IntentFilter(DataService.AUTHENTICATION_FAILED_EVENT));
         updateRefresh();
     }
 
@@ -315,9 +315,9 @@ public class GrokActivity extends FragmentActivity {
                 // Refresh
                 Log.i(TAG,
                         "{TAG:ANDROID.ACTION.TAB.REFRESH} Manual refresh initiated");
-                GrokApplication.refresh();
+                HTMITApplication.refresh();
                 // Show error dialog
-                String refreshError = GrokApplication.getLastError();
+                String refreshError = HTMITApplication.getLastError();
                 if (refreshError != null) {
                     RefreshDialogFragment.show(refreshError, getSupportFragmentManager());
                 }
@@ -343,7 +343,7 @@ public class GrokActivity extends FragmentActivity {
 
     private void validateUserSettings() {
         // TODO Validate User Settings, for now just validate server connection
-        GrokApplication.checkConnection();
+        HTMITApplication.checkConnection();
     }
 
     /**

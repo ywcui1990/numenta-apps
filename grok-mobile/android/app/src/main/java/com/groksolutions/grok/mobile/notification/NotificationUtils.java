@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.notification;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.data.GrokDatabase;
 import com.groksolutions.grok.mobile.metric.MetricDetailActivity;
 import com.numenta.core.data.Metric;
@@ -50,7 +50,7 @@ public class NotificationUtils extends com.numenta.core.utils.NotificationUtils 
      */
     public static Intent createMetricDetailIntent(final Context ctx,
             final Notification notification) {
-        final GrokDatabase grokDb = GrokApplication.getDatabase();
+        final GrokDatabase grokDb = HTMITApplication.getDatabase();
         final Metric metric = grokDb.getMetric(notification.getMetricId());
         final Intent resultIntent = new Intent(ctx, MetricDetailActivity.class);
         resultIntent.setFlags(
@@ -82,7 +82,7 @@ public class NotificationUtils extends com.numenta.core.utils.NotificationUtils 
 
         @Override
         protected Intent doInBackground(Void... voids) {
-            final GrokDatabase grokDb = GrokApplication.getDatabase();
+            final GrokDatabase grokDb = HTMITApplication.getDatabase();
             Notification notification = grokDb.getNotificationByLocalId(notificationId);
             return createMetricDetailIntent(ctx, notification);
         }

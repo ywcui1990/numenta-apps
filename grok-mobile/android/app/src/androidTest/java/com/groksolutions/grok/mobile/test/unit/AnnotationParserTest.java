@@ -23,11 +23,11 @@
 package com.groksolutions.grok.mobile.test.unit;
 
 import com.groksolutions.grok.mobile.service.AnnotationParser;
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
-import com.numenta.core.app.GrokApplication;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.Annotation;
 import com.numenta.core.data.CoreDataFactory;
-import com.numenta.core.utils.GrokAndroidTestCase;
+import com.numenta.core.utils.CoreAndroidTestCase;
 
 import android.util.JsonReader;
 
@@ -39,21 +39,21 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 
-public class AnnotationParserTest extends GrokAndroidTestCase {
+public class AnnotationParserTest extends CoreAndroidTestCase {
 
 
     public void testParse() throws Exception {
         JsonReader reader = null;
         try {
 
-            CoreDataFactory factory = GrokApplication.getDatabase()
+            CoreDataFactory factory = HTMApplication.getDatabase()
                     .getDataFactory();
             Annotation expected = factory.createAnnotation("f90057f34e53425194f90794e289fee4",
                     1406274900000l, 1406581436000l, "demo.device", "Demo User",
                     "us-west-2/AWS/ELB/grok-docs-elb", "My Demo Message", null);
 
             // Sample annotation file with 3 annotations
-            InputStream in = getTestData(GrokClientImpl.GROK_SERVER_1_6, "annotation.json");
+            InputStream in = getTestData(HTMClientImpl.GROK_SERVER_1_6, "annotation.json");
             reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
             AnnotationParser parser = new AnnotationParser(reader);
             List<Annotation> annotations = parser.parse();

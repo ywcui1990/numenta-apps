@@ -22,12 +22,12 @@
 
 package com.groksolutions.grok.mobile.test.unit;
 
-import com.groksolutions.grok.mobile.GrokApplication;
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
+import com.groksolutions.grok.mobile.HTMITApplication;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
 import com.groksolutions.grok.mobile.service.MetricParser;
 import com.numenta.core.data.CoreDataFactory;
 import com.numenta.core.data.Metric;
-import com.numenta.core.utils.GrokAndroidTestCase;
+import com.numenta.core.utils.CoreAndroidTestCase;
 
 import org.json.JSONObject;
 
@@ -41,7 +41,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-public class MetricParserTests extends GrokAndroidTestCase {
+public class MetricParserTests extends CoreAndroidTestCase {
 
     Metric _expectedStandardMetric;
     Metric _expectedCustomMetric;
@@ -50,7 +50,7 @@ public class MetricParserTests extends GrokAndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        CoreDataFactory factory = GrokApplication.getDatabase().getDataFactory();
+        CoreDataFactory factory = HTMITApplication.getDatabase().getDataFactory();
         _expectedStandardMetric = factory.createMetric("3654d3972c1742a0bef5e0022f210544",
                 "AWS/EC2/CPUUtilization", "us-east-1/AWS/EC2/i-d9e211f6",
                 "testN.domain.tld - 2014-03-20", 4289, null);
@@ -88,7 +88,7 @@ public class MetricParserTests extends GrokAndroidTestCase {
     public void testParseSingleMetric_1_3() {
         JsonReader reader = null;
         try {
-            InputStream in = getTestData(GrokClientImpl.GROK_SERVER_1_3, "single_model.json");
+            InputStream in = getTestData(HTMClientImpl.GROK_SERVER_1_3, "single_model.json");
             reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
             MetricParser parser = new MetricParser(reader);
             List<Metric> metrics = parser.parse();
@@ -113,7 +113,7 @@ public class MetricParserTests extends GrokAndroidTestCase {
     public void testParseSingleCustomMetric_1_6() {
         JsonReader reader = null;
         try {
-            InputStream in = getTestData(GrokClientImpl.GROK_SERVER_1_6, "single_custom_model.json");
+            InputStream in = getTestData(HTMClientImpl.GROK_SERVER_1_6, "single_custom_model.json");
             reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
             MetricParser parser = new MetricParser(reader);
             List<Metric> metrics = parser.parse();
@@ -139,7 +139,7 @@ public class MetricParserTests extends GrokAndroidTestCase {
     public void testParseMultiMetric_1_3() {
         JsonReader reader = null;
         try {
-            InputStream in = getTestData(GrokClientImpl.GROK_SERVER_1_3, "multi_model.json");
+            InputStream in = getTestData(HTMClientImpl.GROK_SERVER_1_3, "multi_model.json");
             reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
             MetricParser parser = new MetricParser(reader);
             List<Metric> metrics = parser.parse();
@@ -164,7 +164,7 @@ public class MetricParserTests extends GrokAndroidTestCase {
     public void testParseInvalidMetric_1_3() {
         JsonReader reader = null;
         try {
-            InputStream in = getTestData(GrokClientImpl.GROK_SERVER_1_3, "invalid_model.json");
+            InputStream in = getTestData(HTMClientImpl.GROK_SERVER_1_3, "invalid_model.json");
             reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
             MetricParser parser = new MetricParser(reader);
             parser.parse();
@@ -188,7 +188,7 @@ public class MetricParserTests extends GrokAndroidTestCase {
     public void testParseUserInfo_1_6() {
         JsonReader reader = null;
         try {
-            InputStream in = getTestData(GrokClientImpl.GROK_SERVER_1_6, "metric_user_info.json");
+            InputStream in = getTestData(HTMClientImpl.GROK_SERVER_1_6, "metric_user_info.json");
             reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
             MetricParser parser = new MetricParser(reader);
             List<Metric> metrics = parser.parse();

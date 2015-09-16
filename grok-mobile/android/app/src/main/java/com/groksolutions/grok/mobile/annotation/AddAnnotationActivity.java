@@ -23,7 +23,7 @@
 package com.groksolutions.grok.mobile.annotation;
 
 import com.groksolutions.grok.mobile.GrokActivity;
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.groksolutions.grok.mobile.instance.InstanceAnomalyChartData;
 import com.groksolutions.grok.mobile.instance.InstanceAnomalyChartFragment;
@@ -155,12 +155,12 @@ public class AddAnnotationActivity extends GrokActivity implements TimePickerDia
         InstanceAnomalyChartData data = new InstanceAnomalyChartData(_instanceId, AggregationType.Hour);
 
         // Put flag on the middle of the chart
-        long endDate = _timestamp + GrokApplication.getTotalBarsOnChart() * AggregationType.Hour.milliseconds() / 2;
+        long endDate = _timestamp + HTMITApplication.getTotalBarsOnChart() * AggregationType.Hour.milliseconds() / 2;
 
         // make sure to not pass the end of the data
-        endDate = Math.min(endDate, GrokApplication.getDatabase().getLastTimestamp());
+        endDate = Math.min(endDate, HTMITApplication.getDatabase().getLastTimestamp());
 
-        endDate = Math.min(endDate, GrokApplication.getDatabase().getLastTimestamp());
+        endDate = Math.min(endDate, HTMITApplication.getDatabase().getLastTimestamp());
         data.setEndDate(new Date(endDate));
 
         // Load data
@@ -244,7 +244,8 @@ public class AddAnnotationActivity extends GrokActivity implements TimePickerDia
 
             @Override
             protected Boolean doInBackground(Void... params) {
-                return GrokApplication.addAnnotation(new Date(_timestamp), _instanceId, message, userName);
+                return HTMITApplication
+                        .addAnnotation(new Date(_timestamp), _instanceId, message, userName);
             }
         }.execute();
 

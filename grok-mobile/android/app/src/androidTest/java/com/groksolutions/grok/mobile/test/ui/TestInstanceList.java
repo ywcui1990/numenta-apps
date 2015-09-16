@@ -29,11 +29,11 @@ import android.test.ActivityInstrumentationTestCase2;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.test.suitebuilder.annotation.Suppress;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.instance.InstanceListActivity;
-import com.groksolutions.grok.mobile.mock.MockGrokClientWithData;
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
-import com.numenta.core.utils.mock.MockGrokClientFactory;
+import com.groksolutions.grok.mobile.mock.MockHTMClientWithData;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
+import com.numenta.core.utils.mock.MockHTMClientFactory;
 import com.groksolutions.grok.mobile.preference.PreferencesConstants;
 import com.robotium.solo.Solo;
 
@@ -50,12 +50,12 @@ public class TestInstanceList extends ActivityInstrumentationTestCase2<InstanceL
     protected void setUp() throws Exception {
         super.setUp();
         Instrumentation instrumentation = getInstrumentation();
-        MockGrokClientFactory factory = new MockGrokClientFactory(new MockGrokClientWithData(
-                instrumentation.getContext(), GrokClientImpl.GROK_SERVER_LATEST));
-        GrokApplication.getInstance().setGrokClientFactory(factory);
+        MockHTMClientFactory factory = new MockHTMClientFactory(new MockHTMClientWithData(
+                instrumentation.getContext(), HTMClientImpl.GROK_SERVER_LATEST));
+        HTMITApplication.getInstance().setClientFactory(factory);
 
         // Setup dummy prefs
-        GrokApplication.clearApplicationData(instrumentation.getTargetContext());
+        HTMITApplication.clearApplicationData(instrumentation.getTargetContext());
 
         Editor prefs = PreferenceManager
                 .getDefaultSharedPreferences(instrumentation.getTargetContext()).edit();
@@ -63,7 +63,7 @@ public class TestInstanceList extends ActivityInstrumentationTestCase2<InstanceL
         prefs.putString(PreferencesConstants.PREF_PASSWORD, "passw");
         prefs.putBoolean(PreferencesConstants.PREF_SKIP_TUTORIAL, true);
         prefs.apply();
-        GrokApplication.stopServices();
+        HTMITApplication.stopServices();
         solo = new Solo(getInstrumentation(), getActivity());
 
     }
@@ -75,7 +75,7 @@ public class TestInstanceList extends ActivityInstrumentationTestCase2<InstanceL
 
     @Override
     protected void tearDown() throws Exception {
-        GrokApplication.clearApplicationData(getInstrumentation().getTargetContext());
+        HTMITApplication.clearApplicationData(getInstrumentation().getTargetContext());
         solo.finishOpenedActivities();
         super.tearDown();
     }

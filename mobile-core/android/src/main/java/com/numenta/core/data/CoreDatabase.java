@@ -22,6 +22,8 @@
 
 package com.numenta.core.data;
 
+import com.numenta.core.app.HTMApplication;
+
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -83,7 +85,7 @@ public interface CoreDatabase {
      * <p>
      * Old records are records outside our data time window.
      *
-     * @see com.numenta.core.app.GrokApplication#getNumberOfDaysToSync()
+     * @see HTMApplication#getNumberOfDaysToSync()
      */
     int deleteOldRecords();
 

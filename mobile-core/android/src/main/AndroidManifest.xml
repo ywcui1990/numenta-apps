@@ -48,7 +48,7 @@
         </receiver>
 
         <service
-            android:name=".service.GrokService"
+            android:name=".service.DataService"
             android:enabled="true"
             android:exported="false"
             android:label="@string/app_data_service_name"/>

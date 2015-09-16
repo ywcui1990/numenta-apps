@@ -23,7 +23,7 @@
 package com.numenta.core.service;
 
 
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.utils.BackgroundThreadFactory;
 import com.numenta.core.utils.Log;
 
@@ -47,11 +47,11 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * <code>GrokService</code> is a background {@link Service} responsible for
- * fetching data from Grok server and updating its local data cache.
+ * <code>DataService</code> is a background {@link Service} responsible for
+ * fetching data from the server and updating its local data cache.
  */
-public class GrokService extends IntentService {
-    private static final String TAG = "GrokService";
+public class DataService extends IntentService {
+    private static final String TAG = "DataService";
 
     // Upload logs each hour.
     private static final int LOG_UPLOAD_INTERVAL = 60;
@@ -87,7 +87,7 @@ public class GrokService extends IntentService {
     // Background timer thread factory
     private static final ThreadFactory TIMER_THREAD_FACTORY = new BackgroundThreadFactory("Timer");
 
-    private final GrokDataBinder _binder = new GrokDataBinder();
+    private final DataBinder _binder = new DataBinder();
 
     /**
      * This Event is fired whenever the client fails to authenticate with the
@@ -128,9 +128,9 @@ public class GrokService extends IntentService {
      * Force client to synchronize notifications with the server
      *
      * @throws IOException
-     * @throws GrokException
+     * @throws HTMException
      */
-    public void synchronizeNotifications() throws GrokException, IOException {
+    public void synchronizeNotifications() throws HTMException, IOException {
         _notificationService.synchronizeNotifications();
     }
 
@@ -141,20 +141,20 @@ public class GrokService extends IntentService {
         getIOThreadPool().execute(new Runnable() {
             @Override
             public void run() {
-                // Try to connect to Grok
+                // Try to connect to server
                 try {
-                    GrokClient grok = connectToServer();
-                    if (grok != null) {
-                        grok.login();
+                    HTMClient client = connectToServer();
+                    if (client != null) {
+                        client.login();
                     } else {
-                        throw new GrokException("Unable to connect to Grok");
+                        throw new HTMException("Unable to connect to server");
                     }
                 } catch (AuthenticationException e) {
                     fireAuthenticationFailedEvent();
-                } catch (GrokException e) {
-                    Log.e(TAG, "Unable to connect to Grok", e);
+                } catch (HTMException e) {
+                    Log.e(TAG, "Unable to connect to server", e);
                 } catch (IOException e) {
-                    Log.e(TAG, "Unable to connect to Grok", e);
+                    Log.e(TAG, "Unable to connect to server", e);
                 }
             }
         });
@@ -176,11 +176,11 @@ public class GrokService extends IntentService {
      * Class used for the client Binder. Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
-    public class GrokDataBinder extends Binder {
-        public GrokService getService() {
+    public class DataBinder extends Binder {
+        public DataService getService() {
             // Return this instance of LocalService so clients can call public
             // methods
-            return GrokService.this;
+            return DataService.this;
         }
     }
 
@@ -238,8 +238,8 @@ public class GrokService extends IntentService {
         return _workerPool;
     }
 
-    public GrokService() {
-        super("GrokService");
+    public DataService() {
+        super("DataService");
     }
 
     public void cancelScheduledTasks() {
@@ -258,17 +258,17 @@ public class GrokService extends IntentService {
         _cleanupTask = _timer.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                GrokApplication.getDatabase().deleteOldRecords();
+                HTMApplication.getDatabase().deleteOldRecords();
             }
         }, CLEANUP_TASK_INTERVAL / 10, CLEANUP_TASK_INTERVAL, TimeUnit.MINUTES);
 
         // Schedule Log uploads
-        if (GrokApplication.shouldUploadLog()) {
+        if (HTMApplication.shouldUploadLog()) {
             _updateLogsTask = _timer.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        GrokApplication.getInstance().uploadLogs();
+                        HTMApplication.getInstance().uploadLogs();
                     } catch (Exception e) {
                         Log.e(TAG, "Error uploading Logs", e);
                     }
@@ -299,19 +299,19 @@ public class GrokService extends IntentService {
         startScheduledTasks();
 
         // Start Metric Data Sync Service
-        _dataSyncService = GrokApplication.getInstance().createDataSyncService(this);
+        _dataSyncService = HTMApplication.getInstance().createDataSyncService(this);
         _dataSyncService.start();
 
         // TODO: Start Notification Service, taking into account prefs
-        _notificationService = GrokApplication.getInstance().createNotificationService(this);
+        _notificationService = HTMApplication.getInstance().createNotificationService(this);
         _notificationService.start();
     }
 
     /**
-     * Fire {@link GrokService#AUTHENTICATION_FAILED_EVENT}
+     * Fire {@link DataService#AUTHENTICATION_FAILED_EVENT}
      */
     public void fireAuthenticationFailedEvent() {
-        Intent intent = new Intent(GrokService.AUTHENTICATION_FAILED_EVENT);
+        Intent intent = new Intent(DataService.AUTHENTICATION_FAILED_EVENT);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
@@ -334,32 +334,32 @@ public class GrokService extends IntentService {
     }
 
     /**
-     * Establish a connection with grok server.
+     * Establish a connection with server.
      *
-     * @return {@link GrokClient} object used to get data from the server
+     * @return {@link HTMClient} object used to get data from the server
      * @throws IOException
-     * @throws GrokException
+     * @throws HTMException
      */
-    public GrokClient connectToServer() throws GrokException, IOException {
-        GrokClient connection;
+    public HTMClient connectToServer() throws HTMException, IOException {
+        HTMClient connection;
         try {
-            connection = GrokApplication.getInstance().connectToServer();
+            connection = HTMApplication.getInstance().connectToServer();
             if (connection != null) {
                 connection.login();
-                GrokApplication.getInstance().setServerVersion(connection.getServerVersion());
+                HTMApplication.getInstance().setServerVersion(connection.getServerVersion());
                 Log.i(TAG, "Service connected to " + connection.getServerUrl()
-                        + " - Version : " + GrokApplication.getInstance().getServerVersion());
+                        + " - Version : " + HTMApplication.getInstance().getServerVersion());
             } else {
-                Log.e(TAG, "Unable to connect to Grok.");
+                Log.e(TAG, "Unable to connect to server.");
             }
         } catch (AuthenticationException e) {
             Log.w(TAG, "Authentication failure");
             throw e;
-        } catch (GrokException e) {
-            Log.e(TAG, "Unable to connect to Grok.", e);
+        } catch (HTMException e) {
+            Log.e(TAG, "Unable to connect to server.", e);
             throw e;
         } catch (IOException e) {
-            Log.e(TAG, "Unable to connect to Grok.", e);
+            Log.e(TAG, "Unable to connect to server.", e);
             throw e;
         }
 

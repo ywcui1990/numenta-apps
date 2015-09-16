@@ -36,7 +36,7 @@
                android:layout_height="0dp"
                android:layout_gravity="center"
                android:layout_marginBottom="15dp"
-               android:src="@drawable/ic_grok_logo_below"/>
+               android:src="@drawable/ic_logo_below"/>
     <TextView android:text="@string/about_message"
               android:paddingBottom="10dp"
               android:gravity="center"

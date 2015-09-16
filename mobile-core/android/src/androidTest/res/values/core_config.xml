@@ -26,7 +26,6 @@
     <!-- Control whether or not we should start the background services automatically,
     we should disable background services during tests to avoid undesirable side-effects -->
     <item name="start_services" type="bool">false</item>
-    <!-- TODO: Integration tests for Grok need to be moved to the Grok project as part of TAUR-601 -->
     <!-- Application Name -->
-    <string name="application_name">Grok</string>
+    <string name="application_name">HTM</string>
 </resources>

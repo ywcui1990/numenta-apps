@@ -22,14 +22,13 @@
 
 package com.groksolutions.grok.mobile.service;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.data.GrokDatabase;
 import com.numenta.core.data.Metric;
 import com.numenta.core.data.Notification;
 import com.numenta.core.service.AuthenticationException;
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokException;
-import com.numenta.core.service.GrokService;
+import com.numenta.core.service.DataService;
+import com.numenta.core.service.HTMException;
 import com.numenta.core.utils.Log;
 import com.numenta.core.utils.NotificationUtils;
 
@@ -54,7 +53,7 @@ import static com.groksolutions.grok.mobile.preference.PreferencesConstants.PREF
 import static com.numenta.core.preference.PreferencesConstants.PREF_NOTIFICATIONS_ENABLE;
 
 /**
- * This service is managed by {@link com.numenta.core.service.GrokService} and is responsible for
+ * This service is managed by {@link DataService} and is responsible for
  * creating notifications
  * based on the user's preferences.
  */
@@ -105,19 +104,19 @@ public class GrokNotificationService extends com.numenta.core.service.Notificati
         }
     };
 
-    public GrokNotificationService(GrokService service) {
+    public GrokNotificationService(DataService service) {
         super(service);
     }
 
     /**
      * Download and fire new notifications from the server
      */
-    protected void synchronizeNotifications() throws GrokException, IOException {
+    protected void synchronizeNotifications() throws HTMException, IOException {
 
         // Try to update notification settings if necessary
         updateNotificationSettings(false);
 
-        final Resources res = GrokApplication.getContext().getResources();
+        final Resources res = HTMITApplication.getContext().getResources();
 
         Metric metric;
         String description;
@@ -126,7 +125,7 @@ public class GrokNotificationService extends com.numenta.core.service.Notificati
         boolean newNotification = false;
         long notificationCount;
         ArrayList<String> acknowledge = new ArrayList<>();
-        final GrokDatabase grokdb = GrokApplication.getDatabase();
+        final GrokDatabase grokdb = HTMITApplication.getDatabase();
         final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getService()
                 .getApplicationContext());
 
@@ -244,7 +243,7 @@ public class GrokNotificationService extends com.numenta.core.service.Notificati
 
         } catch (AuthenticationException e) {
             getService().fireAuthenticationFailedEvent();
-        } catch (GrokException e) {
+        } catch (HTMException e) {
             Log.e(TAG, "Error unsubscribing from notification emails on old server", e);
         } catch (IOException e) {
             Log.e(TAG, "Unable to connect to Grok");
@@ -305,7 +304,7 @@ public class GrokNotificationService extends com.numenta.core.service.Notificati
             }
         } catch (AuthenticationException e) {
             getService().fireAuthenticationFailedEvent();
-        } catch (GrokException e) {
+        } catch (HTMException e) {
             Log.e(TAG, "Error updating notification settings", e);
         } catch (IOException e) {
             Log.e(TAG, "Unable to connect to Grok");
@@ -316,14 +315,14 @@ public class GrokNotificationService extends com.numenta.core.service.Notificati
      * Returns the API client connection
      */
     @Override
-    public GrokClientImpl getClient() throws IOException, GrokException {
-        return (GrokClientImpl)super.getClient();
+    public HTMClientImpl getClient() throws IOException, HTMException {
+        return (HTMClientImpl)super.getClient();
     }
 
     /**
      * Start the notification service.
      * <p>
-     * Should only be called by {@link com.numenta.core.service.GrokService}
+     * Should only be called by {@link DataService}
      * </p>
      */
     protected void start() {
@@ -335,7 +334,7 @@ public class GrokNotificationService extends com.numenta.core.service.Notificati
     /**
      * Stop the notification service.
      * <p>
-     * Should only be called by {@link com.numenta.core.service.GrokService}
+     * Should only be called by {@link DataService}
      * </p>
      */
     protected void stop() {
