@@ -29,7 +29,6 @@ fi
 
 # Set a sane $PATH
 PATH=/opt/numenta/anaconda/bin
-PATH="${PATH}:/usr/local/git/bin"
 PATH="${PATH}:/usr/local/bin"
 PATH="${PATH}:/usr/local/sbin"
 PATH="${PATH}:/usr/bin:/usr/sbin:/bin:/sbin"

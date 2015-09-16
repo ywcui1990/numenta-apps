@@ -24,7 +24,10 @@
 
 # If you make changes here, they will not apply to non-interactive sessions.
 # If you want to change the environment in a way that applies to both login
-# non-login sessions, make your changes in .bashrc
+# and non-login sessions, make your changes in .bashrc
+#
+# If you want changes made globally on an instance, including for already
+# existing accounts, add a fragment file to /etc/profile.d.
 
 # Get the aliases and functions
 if [ -f ~/.bashrc ]; then
