@@ -20,7 +20,14 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# Numenta's standard .bash_profile for ec2-user and root
+# Numenta's standard .bash_profile for user accounts
+
+# If you make changes here, they will not apply to non-interactive sessions.
+# If you want to change the environment in a way that applies to both login
+# and non-login sessions, make your changes in .bashrc
+#
+# If you want changes made globally on an instance, including for already
+# existing accounts, add a fragment file to /etc/profile.d.
 
 # Get the aliases and functions
 if [ -f ~/.bashrc ]; then
@@ -32,14 +39,6 @@ fi
 # set up bash prompt. Leave the single-quotes in place so Bash doesn't
 # break the prompt.
 export PS1=$'[\u@\h \W]\$ '
-
-# Set a sane $PATH
-PATH=/opt/numenta/anaconda/bin
-PATH="${PATH}:/usr/local/git/bin"
-PATH="${PATH}:/usr/local/bin"
-PATH="${PATH}:/usr/local/sbin"
-PATH="${PATH}:/usr/bin:/usr/sbin:/bin:/sbin"
-export PATH
 
 # Use anaconda PYTHONPATH
 export PYTHONPATH=/opt/numenta/anaconda/lib/python2.7/site-packages
