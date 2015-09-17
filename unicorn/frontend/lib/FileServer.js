@@ -35,7 +35,7 @@ import path from 'path';
 
 // internals
 // @TODO move path to config
-const SAMPLES_FILE_PATH = path.join('frontend', 'samples');
+const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
 
 
 // MAIN
