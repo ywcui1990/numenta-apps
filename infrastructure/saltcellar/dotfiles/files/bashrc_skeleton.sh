@@ -32,7 +32,8 @@ ORIGINAL_PATH="${PATH}"
 PATH=/opt/numenta/anaconda/bin
 PATH="${PATH}:/usr/local/bin"
 PATH="${PATH}:/usr/local/sbin"
-PATH="${PATH}:/usr/bin:/usr/sbin:/bin:/sbin:${ORIGINAL_PATH}"
+PATH="${PATH}:/usr/bin:/usr/sbin:/bin:/sbin"
+PATH="${PATH}:${ORIGINAL_PATH}"
 export PATH
 unset ORIGINAL_PATH
 
