@@ -30,13 +30,13 @@ acta-diurna:
 /etc/update-motd.d:
   file.directory:
     - user: root
-    - group: root
+    - group: wheel
     - mode: 0755
 
 /etc/update-motd.d.disabled:
   file.directory:
     - user: root
-    - group: root
+    - group: wheel
     - mode: 0755
 
 # Add Numenta logo to motd
@@ -44,7 +44,7 @@ acta-diurna:
   file.managed:
     - source: salt://motd/files/motd.logo
     - user: root
-    - group: root
+    - group: wheel
     - mode: 0644
     - require:
       - file: /etc/update-motd.d
@@ -55,6 +55,8 @@ acta-diurna:
 /etc/update-motd.d/20-banner.motd:
   file.managed:
     - source: salt://motd/files/20-banner.motd
+    - user: root
+    - group: wheel
     - mode: 0755
     - require:
       - file: /etc/update-motd.d
@@ -65,6 +67,8 @@ acta-diurna:
 /etc/update-motd.d/30-salt-version.motd:
   file.managed:
     - source: salt://motd/files/30-salt-version.motd
+    - user: root
+    - group: wheel
     - mode: 0755
     - require:
       - file: /etc/update-motd.d
@@ -76,16 +80,17 @@ update-motd:
   file.managed:
     - name: /usr/local/sbin/update-motd
     - source: salt://motd/files/update-motd.centos
+    - user: root
+    - group: wheel
     - mode: 0755
     - require:
       - file: python-27-symlink
       - pkg: acta-diurna
-# Run the update-motd job, but only run if a fragment script is added/changed
+# Run the update-motd job, but only when a fragment script is added or changed
   cmd.wait:
     - name: /usr/local/sbin/update-motd
     - cwd: /
     - require:
-      - file: python-27-symlink
       - pkg: acta-diurna
       - sls: numenta-python
 
