@@ -22,9 +22,20 @@
 
 # Install tooling for automatic motd generation.
 
-# Install the motd driver package.
+# Install the motd driver script
 acta-diurna:
-  pkg.latest
+  file.managed:
+    - name: /usr/local/bin/acta-diurna
+    - source: https://raw.githubusercontent.com/unixorn/acta-diurna/master/acta-diurna.py
+    - source_hash: md5=747f4457e0de9ebb7b5791e3d71cb91f
+    - user: root
+    - group: wheel
+    - mode: 0755
+{% if grains['os_family'] == 'RedHat' %}
+    - require:
+      - file: python-27-symlink
+      - sls: numenta-python
+{% endif %}
 
 # motd fragment scripts go here
 /etc/update-motd.d:
@@ -84,15 +95,13 @@ update-motd:
     - group: wheel
     - mode: 0755
     - require:
-      - file: python-27-symlink
-      - pkg: acta-diurna
+      - file: acta-diurna
 # Run the update-motd job, but only when a fragment script is added or changed
   cmd.wait:
     - name: /usr/local/sbin/update-motd
     - cwd: /
     - require:
-      - pkg: acta-diurna
-      - sls: numenta-python
+      - file: acta-diurna
 
 {% if grains['os_family'] == 'RedHat' %}
 
@@ -107,7 +116,7 @@ motd-cronjob:
       - cron: set-sane-path-in-crontab
       - file: /etc/cron.daily/update-motd
       - file: /etc/update-motd.d
-      - pkg: acta-diurna
+      - file: acta-diurna
 
 update-motd-symlink:
   file.symlink:
