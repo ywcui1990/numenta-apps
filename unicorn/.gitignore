@@ -3,3 +3,7 @@ node_modules/
 bundle.js
 bundle.js.map
 *.log
+*.egg
+*.egg-info
+backend/build
+backend/dist
