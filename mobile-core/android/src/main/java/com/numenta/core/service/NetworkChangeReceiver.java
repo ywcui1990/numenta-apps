@@ -40,7 +40,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
                     Context.CONNECTIVITY_SERVICE);
             final NetworkInfo netInfo = cm.getActiveNetworkInfo();
             if( netInfo != null && netInfo.isConnectedOrConnecting()) {
-                Intent service = new Intent(context, GrokService.class);
+                Intent service = new Intent(context, DataService.class);
                 context.startService(service);
             }
         }

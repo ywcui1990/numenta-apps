@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Helper class used to parse and compare Grok Server versions
+ * Helper class used to parse and compare Server versions
  */
 public class Version implements Comparable<Version> {
 

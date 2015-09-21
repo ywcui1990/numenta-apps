@@ -22,15 +22,14 @@
 
 package com.groksolutions.grok.mobile.instance;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.groksolutions.grok.mobile.SortOrder;
 import com.groksolutions.grok.mobile.annotation.AddAnnotationActivity;
 import com.groksolutions.grok.mobile.annotation.AnnotationListActivity;
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
 import com.numenta.core.data.AggregationType;
 import com.numenta.core.service.DataSyncService;
-import com.numenta.core.service.GrokClient;
 import com.numenta.core.ui.chart.AnomalyChartView;
 import com.numenta.core.utils.Log;
 
@@ -170,11 +169,11 @@ public class InstanceListFragment extends ListFragment {
     }
 
     /**
-     * Sort the contents of the list based on {@link GrokApplication#getSort()}
+     * Sort the contents of the list based on {@link HTMITApplication#getSort()}
      *
      * @param force {@code true} to force the contents to be sorted, otherwise
      *              the contents will only sort if the current sort order is
-     *              different than {@link GrokApplication#getSort()}
+     *              different than {@link HTMITApplication#getSort()}
      */
     private void sort(boolean force) {
         if (_sorting) {
@@ -188,8 +187,8 @@ public class InstanceListFragment extends ListFragment {
         }
         try {
             if (_listAdapter != null && !_listAdapter.isEmpty()
-                    && (force || _sortOrder != GrokApplication.getSort())) {
-                _sortOrder = GrokApplication.getSort();
+                    && (force || _sortOrder != HTMITApplication.getSort())) {
+                _sortOrder = HTMITApplication.getSort();
                 synchronized (_listAdapter) {
                     switch (_sortOrder) {
                         case Name:
@@ -216,7 +215,7 @@ public class InstanceListFragment extends ListFragment {
 
                 @Override
                 protected Set<String> doInBackground(Void... params) {
-                    return GrokApplication.getDatabase().getAllInstances();
+                    return HTMITApplication.getDatabase().getAllInstances();
                 }
 
                 @Override
@@ -307,7 +306,7 @@ public class InstanceListFragment extends ListFragment {
             _listAdapter.setNotifyOnChange(false);
         }
 
-        GrokApplication.removePropertyChangeListener(GrokApplication.SORT_PROPERTY,
+        HTMITApplication.removePropertyChangeListener(HTMITApplication.SORT_PROPERTY,
                 _sortSelectionChangeListener);
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(_metricChangedReceiver);
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(
@@ -327,7 +326,7 @@ public class InstanceListFragment extends ListFragment {
         }
 
         // Attach event listeners
-        GrokApplication.addPropertyChangeListener(GrokApplication.SORT_PROPERTY,
+        HTMITApplication.addPropertyChangeListener(HTMITApplication.SORT_PROPERTY,
                 _sortSelectionChangeListener);
 
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(_metricChangedReceiver,
@@ -361,7 +360,7 @@ public class InstanceListFragment extends ListFragment {
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
         //TODO:FEATURE_FLAG: Annotations were introduced in version 1.6
-        if (GrokApplication.getInstance().getServerVersion().compareTo(GrokClientImpl.GROK_SERVER_1_6) < 0) {
+        if (HTMITApplication.getInstance().getServerVersion().compareTo(HTMClientImpl.GROK_SERVER_1_6) < 0) {
             return ;
         }
         if ( isMenuVisible()) {

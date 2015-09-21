@@ -21,8 +21,9 @@
  */
 package com.groksolutions.grok.mobile.test.unit;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.data.GrokDatabase;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.AggregationType;
 import com.numenta.core.data.Instance;
 import com.numenta.core.data.Metric;
@@ -30,8 +31,8 @@ import com.numenta.core.data.MetricData;
 import com.numenta.core.utils.DataUtils;
 import com.numenta.core.utils.Pair;
 import com.numenta.core.utils.Version;
-import com.numenta.core.utils.mock.MockGrokClient;
-import com.numenta.core.utils.mock.MockGrokClientFactory;
+import com.numenta.core.utils.mock.MockHTMClient;
+import com.numenta.core.utils.mock.MockHTMClientFactory;
 
 import org.json.JSONObject;
 
@@ -44,7 +45,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
+public class GrokDatabaseTests extends ApplicationTestCase<HTMITApplication> {
 
     GrokDatabase _database;
 
@@ -80,13 +81,13 @@ public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
                 metricId = "metric_id_" + i + "_" + m;
                 _database.addMetric(createMetric(metricId, "metric_" + m, "instance_" + i, "server_"
                                 + i,
-                        com.numenta.core.app.GrokApplication.getLearningThreshold() + totalRows,
+                        HTMApplication.getLearningThreshold() + totalRows,
                         null));
                 // Data
                 for (int row = 0; row < totalRows; row++) {
                     batch.add(createMetricData(metricId, timestamp + row * 5
                                     * DataUtils.MILLIS_PER_MINUTE, value, anomaly,
-                            com.numenta.core.app.GrokApplication.getLearningThreshold() + row + 1));
+                            HTMApplication.getLearningThreshold() + row + 1));
                 }
             }
         }
@@ -95,23 +96,25 @@ public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
 
 
     public GrokDatabaseTests() {
-        super(GrokApplication.class);
+        super(HTMITApplication.class);
     }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         createApplication();
-        GrokApplication.clearApplicationData(GrokApplication.getContext());
-        GrokApplication.getInstance().setGrokClientFactory(
-                new MockGrokClientFactory(new MockGrokClient(Version.UNKNOWN)));
-        _database = GrokApplication.getDatabase();
+        HTMITApplication
+                .clearApplicationData(HTMITApplication.getContext());
+        HTMITApplication.getInstance().setClientFactory(
+                new MockHTMClientFactory(new MockHTMClient(Version.UNKNOWN)));
+        _database = HTMITApplication.getDatabase();
         _database.deleteAll();
     }
 
     @Override
     public void tearDown() throws Exception {
-        GrokApplication.clearApplicationData(GrokApplication.getContext());
+        HTMITApplication
+                .clearApplicationData(HTMITApplication.getContext());
         _database.deleteAll();
         super.tearDown();
     }
@@ -308,7 +311,7 @@ public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
 
         // Add Metric
         _database.addMetric(createMetric("metricId", "metricName", "server", "name",
-                com.numenta.core.app.GrokApplication.getLearningThreshold() + probationRecords,
+                HTMApplication.getLearningThreshold() + probationRecords,
                 null));
         assertEquals(1, _database.getAllMetrics().size());
 
@@ -318,13 +321,13 @@ public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
         for (long i = 0; i < probationRecords; i++) {
             batch.add(createMetricData("metricId", i * AggregationType.Hour.milliseconds(), 0.9f,
                     0.9f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
         }
         for (long i = probationRecords; i < totalRecords; i++) {
             batch.add(createMetricData("metricId", i * AggregationType.Hour.milliseconds(), 0.5f,
                     0.5f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
         }
         _database.addMetricDataBatch(batch);
@@ -359,7 +362,7 @@ public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
 
         // Add Metric
         _database.addMetric(createMetric("metricId", "metricName", "server", "name",
-                com.numenta.core.app.GrokApplication.getLearningThreshold() + probationRecords,
+                HTMApplication.getLearningThreshold() + probationRecords,
                 null));
         assertEquals(1, _database.getAllMetrics().size());
 
@@ -369,13 +372,13 @@ public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
         for (long i = 0; i < probationRecords; i++) {
             batch.add(createMetricData("metricId", i * AggregationType.Hour.milliseconds(), 0.9f,
                     0.9f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
         }
         for (long i = probationRecords; i < totalRecords; i++) {
             batch.add(createMetricData("metricId", i * AggregationType.Hour.milliseconds(), 0.5f,
                     0.5f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
         }
         _database.addMetricDataBatch(batch);
@@ -453,10 +456,10 @@ public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
 
         // Add Metric
         _database.addMetric(createMetric("metricId", "metricName", "instanceId", "name",
-                com.numenta.core.app.GrokApplication.getLearningThreshold() + probationRecords,
+                HTMApplication.getLearningThreshold() + probationRecords,
                 null));
         _database.addMetric(createMetric("metricId2", "metricName", "instanceId", "name",
-                com.numenta.core.app.GrokApplication.getLearningThreshold() + probationRecords,
+                HTMApplication.getLearningThreshold() + probationRecords,
                 null));
         assertEquals(2, _database.getAllMetrics().size());
 
@@ -466,21 +469,21 @@ public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
         for (long i = 0; i < probationRecords; i++) {
             batch.add(createMetricData("metricId", i * AggregationType.Hour.milliseconds(), 0.9f,
                     0.9f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
             batch.add(createMetricData("metricId2", i * AggregationType.Hour.milliseconds(), 0.8f,
                     0.8f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
         }
         for (long i = probationRecords; i < totalRecords; i++) {
             batch.add(createMetricData("metricId", i * AggregationType.Hour.milliseconds(), 0.5f,
                     0.5f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
             batch.add(createMetricData("metricId2", i * AggregationType.Hour.milliseconds(), 0.4f,
                     0.4f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
         }
         _database.addMetricDataBatch(batch);
@@ -517,10 +520,10 @@ public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
 
         // Add Metric
         _database.addMetric(createMetric("metricId", "metricName", "instanceId", "name",
-                com.numenta.core.app.GrokApplication.getLearningThreshold() + probationRecords,
+                HTMApplication.getLearningThreshold() + probationRecords,
                 null));
         _database.addMetric(createMetric("metricId2", "metricName", "instanceId", "name",
-                com.numenta.core.app.GrokApplication.getLearningThreshold() + probationRecords,
+                HTMApplication.getLearningThreshold() + probationRecords,
                 null));
         assertEquals(2, _database.getAllMetrics().size());
 
@@ -530,21 +533,21 @@ public class GrokDatabaseTests extends ApplicationTestCase<GrokApplication> {
         for (long i = 0; i < probationRecords; i++) {
             batch.add(createMetricData("metricId2", i * AggregationType.Hour.milliseconds(), 0.8f,
                     0.8f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
             batch.add(createMetricData("metricId", i * AggregationType.Hour.milliseconds(), 0.9f,
                     0.9f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
         }
         for (long i = probationRecords; i < totalRecords; i++) {
             batch.add(createMetricData("metricId2", i * AggregationType.Hour.milliseconds(), 0.3f,
                     0.4f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
             batch.add(createMetricData("metricId", i * AggregationType.Hour.milliseconds(), 0.5f,
                     0.5f,
-                    com.numenta.core.app.GrokApplication.getLearningThreshold() - probationRecords
+                    HTMApplication.getLearningThreshold() - probationRecords
                             + i));
         }
         _database.addMetricDataBatch(batch);

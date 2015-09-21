@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.instance;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.groksolutions.grok.mobile.SortOrder;
 import com.numenta.core.data.AggregationType;
@@ -105,7 +105,7 @@ public class InstanceListAdapter extends ArrayAdapter<InstanceAnomalyChartData> 
     }
 
     public static Comparator<InstanceAnomalyChartData> getComparator() {
-        if (GrokApplication.getSort() == SortOrder.Name) {
+        if (HTMITApplication.getSort() == SortOrder.Name) {
             return InstanceAnomalyChartData.SORT_BY_NAME;
         }
         return InstanceAnomalyChartData.SORT_BY_ANOMALY;

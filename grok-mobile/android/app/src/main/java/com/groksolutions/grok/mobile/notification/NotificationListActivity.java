@@ -23,7 +23,7 @@
 
 package com.groksolutions.grok.mobile.notification;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.groksolutions.grok.mobile.data.GrokDatabase;
 import com.groksolutions.grok.mobile.dialog.ConfirmDialogFragment;
@@ -104,7 +104,7 @@ public class NotificationListActivity extends FragmentActivity implements
                 R.id.notification_delete,
                 R.id.notification_unread
         }; // The TextView in simple_list_item_1
-        grokDb = GrokApplication.getDatabase();
+        grokDb = HTMITApplication.getDatabase();
         adapter = new SimpleCursorAdapter(this,
                 R.layout.fragment_notification_list_item, null,
                 fromColumns, toViews, 0);
@@ -283,15 +283,15 @@ public class NotificationListActivity extends FragmentActivity implements
     @Override
     public void onStart() {
         super.onStart();
-        GrokApplication.setActivityLastUsed();
-        GrokApplication.incrementActivityCount();
+        HTMITApplication.setActivityLastUsed();
+        HTMITApplication.incrementActivityCount();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        GrokApplication.setActivityLastUsed();
-        GrokApplication.decrementActivityCount();
+        HTMITApplication.setActivityLastUsed();
+        HTMITApplication.decrementActivityCount();
     }
 
     protected void removeNotificationAt(int position) {

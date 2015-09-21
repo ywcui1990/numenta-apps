@@ -23,46 +23,46 @@
 package com.numenta.core.service;
 
 /**
- * Generic Grok Exception
+ * Generic HTM Exception
  */
-public class GrokException extends Exception {
+public class HTMException extends Exception {
 
     private static final long serialVersionUID = -6781138897947837629L;
 
     /**
-     * TODO Document {@link GrokException} constructor
+     * TODO Document {@link HTMException} constructor
      */
-    public GrokException() {
+    public HTMException() {
         // TODO Auto-generated constructor stub
     }
 
     /**
-     * TODO Document {@link GrokException} constructor
+     * TODO Document {@link HTMException} constructor
      *
      * @param detailMessage
      */
-    public GrokException(String detailMessage) {
+    public HTMException(String detailMessage) {
         super(detailMessage);
         // TODO Auto-generated constructor stub
     }
 
     /**
-     * TODO Document {@link GrokException} constructor
+     * TODO Document {@link HTMException} constructor
      *
      * @param throwable
      */
-    public GrokException(Throwable throwable) {
+    public HTMException(Throwable throwable) {
         super(throwable);
         // TODO Auto-generated constructor stub
     }
 
     /**
-     * TODO Document {@link GrokException} constructor
+     * TODO Document {@link HTMException} constructor
      *
      * @param detailMessage
      * @param throwable
      */
-    public GrokException(String detailMessage, Throwable throwable) {
+    public HTMException(String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
         // TODO Auto-generated constructor stub
     }

@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
-public class GrokAndroidTestCase extends AndroidTestCase {
+public class CoreAndroidTestCase extends AndroidTestCase {
 
     protected Context _getTestContext() {
         try {

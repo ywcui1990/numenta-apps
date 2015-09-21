@@ -25,11 +25,11 @@ package com.groksolutions.grok.mobile.metric;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.HourDayWeekActivity;
 import com.groksolutions.grok.mobile.R;
 import com.groksolutions.grok.mobile.preference.PreferencesConstants;
-import com.groksolutions.grok.mobile.service.GrokClientImpl;
+import com.groksolutions.grok.mobile.service.HTMClientImpl;
 import com.numenta.core.data.AggregationType;
 import com.numenta.core.data.Metric;
 import com.numenta.core.utils.Log;
@@ -92,15 +92,15 @@ public class MetricDetailActivity extends HourDayWeekActivity {
         if (getDate() != null) {
             final long currentSpan = endDate.getTime() - getDate().getTime();
             final int halfWeekMinutes =
-                    (AggregationType.Week.minutes() * GrokApplication.getTotalBarsOnChart()) / 2;
-            int numMinutes = AggregationType.Hour.minutes() * GrokApplication.getTotalBarsOnChart()
+                    (AggregationType.Week.minutes() * HTMITApplication.getTotalBarsOnChart()) / 2;
+            int numMinutes = AggregationType.Hour.minutes() * HTMITApplication.getTotalBarsOnChart()
                     / 4;
             if (AggregationType.Day.equals(type)) {
-                numMinutes = AggregationType.Day.minutes() * GrokApplication.getTotalBarsOnChart()
+                numMinutes = AggregationType.Day.minutes() * HTMITApplication.getTotalBarsOnChart()
                         / 2;
             } else if (AggregationType.Week.equals(type)) {
-                long maxWeekSpan = MINUTES.convert(GrokApplication.getNumberOfDaysToSync(), DAYS) -
-                        AggregationType.Week.minutes() * GrokApplication.getTotalBarsOnChart();
+                long maxWeekSpan = MINUTES.convert(HTMITApplication.getNumberOfDaysToSync(), DAYS) -
+                        AggregationType.Week.minutes() * HTMITApplication.getTotalBarsOnChart();
                 if (MINUTES.convert(currentSpan, MILLISECONDS) > maxWeekSpan) {
                     numMinutes = (int) maxWeekSpan;
                 } else if (MINUTES.convert(currentSpan, MILLISECONDS) > halfWeekMinutes) {
@@ -114,7 +114,7 @@ public class MetricDetailActivity extends HourDayWeekActivity {
                 endDate.setTime(getDate().getTime() + maxSpan);
             }
         }
-        if (GrokApplication.getAggregation().equals(type)) {
+        if (HTMITApplication.getAggregation().equals(type)) {
             metricData.setEndDate(endDate);
             setCurrentDate(endDate);
         }
@@ -122,7 +122,7 @@ public class MetricDetailActivity extends HourDayWeekActivity {
 
         // Google Analytics: Track metric name as first Custom Dimension for
         // this App.
-        Tracker tracker = GrokApplication.getInstance().getGoogleAnalyticsTracker();
+        Tracker tracker = HTMITApplication.getInstance().getGoogleAnalyticsTracker();
         tracker.send(
                 new HitBuilders.AppViewBuilder().setCustomDimension(1, metric.getName()).build());
         return fragment;
@@ -154,7 +154,7 @@ public class MetricDetailActivity extends HourDayWeekActivity {
         try {
             String id = (String)getIntent().getExtras().getSerializable(EXTRA_METRIC);
             if (id != null) {
-                metric = GrokApplication.getDatabase().getMetric(id);
+                metric = HTMITApplication.getDatabase().getMetric(id);
             }
         } catch (Exception e) {
             Log.e(TAG, "Failed to get Metric from Intent");
@@ -231,15 +231,15 @@ public class MetricDetailActivity extends HourDayWeekActivity {
         String uploadId;
 
         // Connect to grok
-        GrokClientImpl grok = null;
+        HTMClientImpl grok = null;
         final SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(GrokApplication.getContext());
+                .getDefaultSharedPreferences(HTMITApplication.getContext());
         String serverUrl = prefs.getString(PreferencesConstants.PREF_SERVER_URL, null);
         if (serverUrl != null) {
             serverUrl = serverUrl.trim();
             String password = prefs.getString(PreferencesConstants.PREF_PASSWORD, null);
             try {
-                grok = (GrokClientImpl) GrokApplication.getInstance().connectToGrok(serverUrl, password);
+                grok = (HTMClientImpl) HTMITApplication.getInstance().connectToServer(serverUrl, password);
                 grok.login();
                 Log.d(TAG, "Service connected to " + serverUrl);
             } catch (Exception e) {
@@ -296,9 +296,9 @@ public class MetricDetailActivity extends HourDayWeekActivity {
      */
     @Override
     public void onTabSelected(Tab tab, FragmentTransaction fragmentTransaction) {
-        this._oldAggregation = GrokApplication.getAggregation();
+        this._oldAggregation = HTMITApplication.getAggregation();
         super.onTabSelected(tab, fragmentTransaction);
-        this._aggregation = GrokApplication.getAggregation();
+        this._aggregation = HTMITApplication.getAggregation();
     }
 
     /**

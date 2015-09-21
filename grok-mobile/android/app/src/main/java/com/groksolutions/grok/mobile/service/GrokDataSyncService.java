@@ -22,16 +22,16 @@
 
 package com.groksolutions.grok.mobile.service;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.data.GrokDatabase;
 import com.numenta.core.data.CoreDatabase;
 import com.numenta.core.data.Instance;
 import com.numenta.core.data.Metric;
 import com.numenta.core.data.MetricData;
+import com.numenta.core.service.DataService;
 import com.numenta.core.service.DataSyncService;
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokException;
-import com.numenta.core.service.GrokService;
+import com.numenta.core.service.HTMClient;
+import com.numenta.core.service.HTMException;
 import com.numenta.core.utils.DataUtils;
 import com.numenta.core.utils.Log;
 
@@ -57,7 +57,7 @@ import static com.groksolutions.grok.mobile.preference.PreferencesConstants.PREF
 import static com.groksolutions.grok.mobile.preference.PreferencesConstants.PREF_SERVER_URL;
 
 /**
- * This service is managed by {@link GrokService} and is responsible for
+ * This service is managed by {@link DataService} and is responsible for
  * synchronizing the local metric database with the server. It will poll the
  * server at {@link #REFRESH_RATE} interval for new data and download all
  * available data since last update.
@@ -102,7 +102,7 @@ public class GrokDataSyncService extends DataSyncService {
                         getService().cancelPendingIOTasks();
 
                         // Clean database
-                        CoreDatabase database = GrokApplication.getDatabase();
+                        CoreDatabase database = HTMITApplication.getDatabase();
                         database.deleteAll();
 
                         // Disconnect from server
@@ -121,16 +121,16 @@ public class GrokDataSyncService extends DataSyncService {
         }
     };
 
-    public GrokDataSyncService(GrokService service) {
+    public GrokDataSyncService(DataService service) {
         super(service);
     }
 
     /**
      * Loads data for all metrics asynchronous.
      */
-    protected void loadAllData() throws GrokException, IOException {
+    protected void loadAllData() throws HTMException, IOException {
 
-        final GrokDatabase database = GrokApplication.getDatabase();
+        final GrokDatabase database = HTMITApplication.getDatabase();
 
         // Get data since last update
         long lastTimestamp = database.getLastTimestamp();
@@ -138,7 +138,7 @@ public class GrokDataSyncService extends DataSyncService {
 
         // Don't get date older than NUMBER_OF_DAYS_TO_SYNC
         final long lowestTimestampAllowed = DataUtils.floorTo5minutes(System.currentTimeMillis()
-                - GrokApplication.getNumberOfDaysToSync() * DataUtils.MILLIS_PER_DAY);
+                - HTMITApplication.getNumberOfDaysToSync() * DataUtils.MILLIS_PER_DAY);
         long nextTimestamp;
         // Make sure the whole database is not stale by checking if the last
         // known timestamp is greater than NUMBER_OF_DAYS_TO_SYNC
@@ -193,7 +193,7 @@ public class GrokDataSyncService extends DataSyncService {
      */
     @Override
     protected int loadAllMetrics() throws InterruptedException,
-            ExecutionException, GrokException, IOException {
+            ExecutionException, HTMException, IOException {
         if (getClient() == null) {
             Log.w(TAG, "Not connected to any server yet");
             return 0;
@@ -214,7 +214,7 @@ public class GrokDataSyncService extends DataSyncService {
         // Save results to database
         boolean dataChanged = false;
         Metric localMetric;
-        GrokDatabase database = GrokApplication.getDatabase();
+        GrokDatabase database = HTMITApplication.getDatabase();
         for (Metric remoteMetric : remoteMetrics) {
             // Check if it is a new metric
             localMetric = database.getMetric(remoteMetric.getId());
@@ -292,19 +292,19 @@ public class GrokDataSyncService extends DataSyncService {
      *                 loads data for all metrics at once.
      * @param from     return records from this date
      * @param to       return records up to this date
-     * @see com.numenta.core.service.GrokClient#getMetricData
+     * @see HTMClient#getMetricData
      */
     private void loadMetricData(final String metricId, final long from, final long to)
-            throws GrokException, IOException {
+            throws HTMException, IOException {
 
         if (getClient() == null) {
             Log.w(TAG, "Not connected to any server yet");
             return;
         }
-        final CoreDatabase database = GrokApplication.getDatabase();
+        final CoreDatabase database = HTMITApplication.getDatabase();
 
         // Blocking queue holding metric data waiting to be saved to the
-        // database. This queue will be filled by the GrokClient as it downloads
+        // database. This queue will be filled by the HTMClient as it downloads
         // the metric data and it will be emptied by the databaseTask as is
         // saves the data to the database
         final LinkedBlockingQueue<MetricData> pending =
@@ -371,7 +371,7 @@ public class GrokDataSyncService extends DataSyncService {
         try {
             // Get new data from server
             getClient().getMetricData(metricId, new Date(from), new Date(to),
-                    new GrokClient.DataCallback<MetricData>() {
+                    new HTMClient.DataCallback<MetricData>() {
                         @Override
                         public boolean onData(MetricData metricData) {
                             // enqueue data for saving
@@ -409,7 +409,7 @@ public class GrokDataSyncService extends DataSyncService {
      *
      * @return Number of new instances
      */
-    private int loadAllInstances() throws GrokException, IOException {
+    private int loadAllInstances() throws HTMException, IOException {
 
         if (getClient() == null) {
             Log.w(TAG, "Not connected to any server yet");
@@ -426,7 +426,7 @@ public class GrokDataSyncService extends DataSyncService {
         HashSet<String> instancesAdded = new HashSet<>();
         // Save results to database
         boolean dataChanged = false;
-        GrokDatabase database = GrokApplication.getDatabase();
+        GrokDatabase database = HTMITApplication.getDatabase();
         Set<String> localInstances = database.getAllInstances();
         for (Instance remote : remoteInstances) {
             // Check if it is a new instance
@@ -461,7 +461,7 @@ public class GrokDataSyncService extends DataSyncService {
     }
 
     @Override
-    protected GrokClientImpl getClient() {
-        return (GrokClientImpl) super.getClient();
+    protected HTMClientImpl getClient() {
+        return (HTMClientImpl) super.getClient();
     }
 }

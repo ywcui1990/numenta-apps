@@ -22,9 +22,9 @@
 
 package com.groksolutions.grok.mobile.service;
 
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.data.Instance;
-import com.numenta.core.service.GrokClient;
+import com.numenta.core.service.HTMClient;
 import com.numenta.core.utils.Version;
 
 import android.util.JsonReader;
@@ -60,7 +60,7 @@ import java.util.regex.Pattern;
  * ]
  * </pre></code>
  *
- * @see com.numenta.core.service.GrokClient#getMetrics()
+ * @see HTMClient#getMetrics()
  * @see JsonReader
  */
 final public class InstanceParser {
@@ -89,7 +89,7 @@ final public class InstanceParser {
      */
     public static String MER2764InstanceIdHACK(Version version, String instanceId) {
         String server = instanceId;
-        if (version.compareTo(GrokClientImpl.GROK_SERVER_1_4) >= 0) {
+        if (version.compareTo(HTMClientImpl.GROK_SERVER_1_4) >= 0) {
             // Remove Dimension ID from server field
             Matcher regex = SERVER_ID_HACK_1_4_SEARCH_PATTERN.matcher(server);
             if (regex.matches()) {
@@ -157,7 +157,7 @@ final public class InstanceParser {
         }
         _reader.endObject();
 
-        Instance instance = GrokApplication.getDatabase().getDataFactory()
+        Instance instance = HTMApplication.getDatabase().getDataFactory()
                 .createInstance(server, name, namespace, location, message, status);
         _results.add(instance);
     }

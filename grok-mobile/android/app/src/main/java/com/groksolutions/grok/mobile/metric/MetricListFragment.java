@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.metric;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.chart.AbstractAnomalyChartFragment;
 import com.groksolutions.grok.mobile.instance.InstanceAnomalyChartData;
 import com.numenta.core.data.AggregationType;
@@ -116,7 +116,7 @@ public class MetricListFragment extends ListFragment {
                 protected List<Metric> doInBackground(Void... params) {
                     if (isCancelled())
                         return null;
-                    return GrokApplication.getDatabase().getMetricsByInstanceId(_instanceId);
+                    return HTMITApplication.getDatabase().getMetricsByInstanceId(_instanceId);
                 }
 
                 /*

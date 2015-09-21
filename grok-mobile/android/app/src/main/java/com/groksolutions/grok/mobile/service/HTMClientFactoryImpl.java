@@ -20,32 +20,21 @@
  *
  */
 
-package com.numenta.core.utils.mock;
+package com.groksolutions.grok.mobile.service;
 
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokClientFactory;
+import com.numenta.core.service.HTMClient;
+import com.numenta.core.service.HTMClientFactory;
 
 import java.net.MalformedURLException;
 
 /**
- * Mock factory returning a single {@link GrokClient}
- *
- * @see MockGrokClient
+ * Default factory used to create {@link HTMClient}
  */
-public class MockGrokClientFactory implements GrokClientFactory {
-
-    private GrokClient _grokClient;
-
-    public MockGrokClientFactory() {
-
-    }
-
-    public MockGrokClientFactory(GrokClient grokClient) {
-        _grokClient = grokClient;
-    }
+public class HTMClientFactoryImpl implements HTMClientFactory {
 
     @Override
-    public GrokClient createClient(String serverUrl, String pass) throws MalformedURLException {
-        return _grokClient;
+    public HTMClient createClient(String serverUrl, String pass) throws MalformedURLException {
+        return new HTMClientImpl(serverUrl, pass);
     }
+
 }

@@ -23,23 +23,23 @@
 package com.numenta.core.service;
 
 /**
- * This exception is thrown when the user is not authorized to perform the Grok Operation
+ * This exception is thrown when the user is not authorized to perform the Operation
  */
-public class GrokUnauthorizedException extends GrokException {
+public class HTMUnauthorizedException extends HTMException {
     private static final long serialVersionUID = 1809635266016612517L;
 
-    public GrokUnauthorizedException() {
+    public HTMUnauthorizedException() {
     }
 
-    public GrokUnauthorizedException(String detailMessage) {
+    public HTMUnauthorizedException(String detailMessage) {
         super(detailMessage);
     }
 
-    public GrokUnauthorizedException(Throwable throwable) {
+    public HTMUnauthorizedException(Throwable throwable) {
         super(throwable);
     }
 
-    public GrokUnauthorizedException(String detailMessage, Throwable throwable) {
+    public HTMUnauthorizedException(String detailMessage, Throwable throwable) {
         super(detailMessage, throwable);
     }
 }

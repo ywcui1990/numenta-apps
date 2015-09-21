@@ -23,9 +23,9 @@
 package com.numenta.core.service;
 
 /**
- * Failed to authenticate the client against GROK server.
+ * Failed to authenticate the client against server.
  */
-public class AuthenticationException extends GrokException {
+public class AuthenticationException extends HTMException {
     private static final long serialVersionUID = 1809635266016612517L;
 
     public AuthenticationException() {

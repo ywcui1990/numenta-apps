@@ -22,7 +22,7 @@
 
 package com.numenta.core.utils;
 
-import com.numenta.core.app.GrokApplication;
+import com.numenta.core.app.HTMApplication;
 import com.numenta.core.ui.chart.AnomalyChartData;
 
 import java.io.IOException;
@@ -49,9 +49,9 @@ public final class DataUtils {
 
     public static final int MILLIS_PER_DAY = 24 * MILLIS_PER_HOUR;
 
-    public static final String GROK_DATE_FORMAT = "yyyy-MM-dd' 'HH:mm:ss";
+    public static final String HTM_DATE_FORMAT = "yyyy-MM-dd' 'HH:mm:ss";
 
-    public static final String GROK_URL_DATE_FORMAT = "yyyy-MM-dd'+'HH:mm:ss";
+    public static final String HTM_URL_DATE_FORMAT = "yyyy-MM-dd'+'HH:mm:ss";
 
     private static final Pattern DATE_FORMAT_REGEX = Pattern
             .compile("(\\d+)-(\\d+)-(\\d+).(\\d+):(\\d+):(\\d+)");
@@ -157,7 +157,7 @@ public final class DataUtils {
      * @param dateStr The date string to parse
      * @return Parsed {@link Date} object
      */
-    public static Date parseGrokDate(String dateStr) {
+    public static Date parseHTMDate(String dateStr) {
         Date res = null;
         Matcher match = DATE_FORMAT_REGEX.matcher(dateStr);
         if (match.matches()) {
@@ -176,18 +176,18 @@ public final class DataUtils {
     }
 
     /**
-     * Format date into Grok accepted date string using the following format:
+     * Format date into HTM accepted date string using the following format:
      * <p>
      * <b>YYYY-MM-DD HH:MM:SS</b> or <b><YYYY-MM-DD+HH:MM:SS/b> for URL encoded value
      * </p>
      *
      * @param date      The date to format
      * @param urlEncode Whether or not to encode the date to be used in URLs
-     * @return Formatted date suitable for use with the Grok API
+     * @return Formatted date suitable for use with the HTM API
      */
-    public static String formatGrokDate(Date date, boolean urlEncode) {
+    public static String formatHTMDate(Date date, boolean urlEncode) {
         DateFormat sdf = new SimpleDateFormat(urlEncode ?
-                GROK_URL_DATE_FORMAT : GROK_DATE_FORMAT, Locale.US);
+                HTM_URL_DATE_FORMAT : HTM_DATE_FORMAT, Locale.US);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         return sdf.format(date);
     }
@@ -270,10 +270,10 @@ public final class DataUtils {
         }
         boolean active = value > 0;
         double calculated = DataUtils.logScale(Math.abs(value));
-        if (calculated >= GrokApplication.getRedBarFloor()) {
+        if (calculated >= HTMApplication.getRedBarFloor()) {
             // Red
             calculated += RED_SORT_FLOOR;
-        } else if (calculated >= GrokApplication.getYellowBarFloor()) {
+        } else if (calculated >= HTMApplication.getYellowBarFloor()) {
             // Yellow
             calculated += YELLOW_SORT_FLOOR;
         } else {

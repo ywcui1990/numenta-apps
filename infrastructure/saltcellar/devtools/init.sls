@@ -20,7 +20,8 @@
 # ----------------------------------------------------------------------
 # Formula: devtools
 #
-# Install developer tools repository and updated developer tools
+{% if grains['os_family'] == 'RedHat' %}
+# Install developer tools repository and updated developer tools for CentOS
 
 # Install devtool repo - v2
 install-devtools-repo:
@@ -80,3 +81,5 @@ mysql-development-tools:
     - name: mysql-community-devel
     - require:
       - cmd: mysql-community-repository
+
+{% endif %}

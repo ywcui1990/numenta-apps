@@ -27,7 +27,7 @@ import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.numenta.core.data.CoreDatabase;
 import com.numenta.core.service.DataSyncService;
-import com.numenta.core.service.GrokService;
+import com.numenta.core.service.DataService;
 import com.numenta.core.service.NotificationService;
 import com.numenta.core.utils.BackgroundThreadFactory;
 import com.numenta.core.utils.Log;
@@ -51,7 +51,7 @@ import java.util.concurrent.Executors;
 /**
  * Maintain global application state.
  */
-public class TaurusApplication extends com.numenta.core.app.GrokApplication {
+public class TaurusApplication extends com.numenta.core.app.HTMApplication {
 
     private static final String TAG = TaurusApplication.class.getSimpleName();
 
@@ -103,7 +103,7 @@ public class TaurusApplication extends com.numenta.core.app.GrokApplication {
         _dataFactory = new TaurusDataFactory();
 
         // Initialize API Client factory
-        setGrokClientFactory(new TaurusClientFactory());
+        setClientFactory(new TaurusClientFactory());
 
         // Initialize preferences
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -189,7 +189,7 @@ public class TaurusApplication extends com.numenta.core.app.GrokApplication {
     }
 
     public static TaurusApplication getInstance() {
-        return (TaurusApplication) com.numenta.core.app.GrokApplication.getInstance();
+        return (TaurusApplication) com.numenta.core.app.HTMApplication.getInstance();
     }
 
     /**
@@ -206,7 +206,7 @@ public class TaurusApplication extends com.numenta.core.app.GrokApplication {
      * Returns interface to taurus database
      */
     public static TaurusDatabase getDatabase() {
-        return (TaurusDatabase) com.numenta.core.app.GrokApplication.getDatabase();
+        return (TaurusDatabase) com.numenta.core.app.HTMApplication.getDatabase();
     }
 
     /**
@@ -226,7 +226,7 @@ public class TaurusApplication extends com.numenta.core.app.GrokApplication {
      * extend  with their own Synchronization service.
      */
     @Override
-    public DataSyncService createDataSyncService(GrokService service) {
+    public DataSyncService createDataSyncService(DataService service) {
         return new TaurusDataSyncService(service);
     }
 
@@ -235,7 +235,7 @@ public class TaurusApplication extends com.numenta.core.app.GrokApplication {
      * with their own notification service.
      */
     @Override
-    public NotificationService createNotificationService(GrokService service) {
+    public NotificationService createNotificationService(DataService service) {
         return new TaurusNotificationService(service);
     }
 

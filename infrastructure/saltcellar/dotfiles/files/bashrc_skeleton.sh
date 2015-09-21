@@ -27,6 +27,16 @@ if [ -f /etc/bashrc ]; then
   . /etc/bashrc
 fi
 
+# Set a sane $PATH
+ORIGINAL_PATH="${PATH}"
+PATH=/opt/numenta/anaconda/bin
+PATH="${PATH}:/usr/local/bin"
+PATH="${PATH}:/usr/local/sbin"
+PATH="${PATH}:/usr/bin:/usr/sbin:/bin:/sbin"
+PATH="${PATH}:${ORIGINAL_PATH}"
+export PATH
+unset ORIGINAL_PATH
+
 # Source any files in the global bashrc fragments directory. This allows
 # roles to override the values in the default .bashrc, while still permitting
 # multiple roles to add overrides. Loading fragments lets us have a clean

@@ -34,9 +34,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.numenta.core.data.AggregationType;
 import com.groksolutions.grok.mobile.GrokActivity;
-import com.groksolutions.grok.mobile.GrokApplication;
 import com.groksolutions.grok.mobile.R;
 import com.numenta.core.ui.chart.AnomalyChartView;
 import com.groksolutions.grok.mobile.instance.InstanceAnomalyChartData;
@@ -277,7 +277,7 @@ public class AnnotationListActivity extends GrokActivity {
 
                                     @Override
                                     protected Boolean doInBackground(String... id) {
-                                        return GrokApplication.deleteAnnotation(id[0]);
+                                        return HTMITApplication.deleteAnnotation(id[0]);
                                     }
                                 }.execute(spans[0].getValue());
                             }

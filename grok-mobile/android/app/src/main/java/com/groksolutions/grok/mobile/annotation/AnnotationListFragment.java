@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.annotation;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.numenta.core.data.Annotation;
 import com.numenta.core.utils.Pair;
@@ -85,7 +85,7 @@ public class AnnotationListFragment extends ListFragment {
                         // Show or Hide "delete" button if the annotation was created using the
                         // current device. The user can only delete annotations he creates
                         View deleteBtn = view.findViewById(R.id.btn_annotation_delete);
-                        if (GrokApplication.getDeviceId().equals(annotation.getDevice())) {
+                        if (HTMITApplication.getDeviceId().equals(annotation.getDevice())) {
                             deleteBtn.setVisibility(View.VISIBLE);
                         } else {
                             deleteBtn.setVisibility(View.GONE);
@@ -300,7 +300,7 @@ public class AnnotationListFragment extends ListFragment {
 
             @Override
             protected List<Annotation> doInBackground(Void... params) {
-                return GrokApplication.getDatabase().getAnnotations(server, from, to);
+                return HTMITApplication.getDatabase().getAnnotations(server, from, to);
             }
         }.execute();
     }

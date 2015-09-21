@@ -307,7 +307,7 @@ public abstract class TaurusBaseActivity extends Activity {
      * Capture the screen and return the URI of the image
      */
     private Uri takeScreenCapture(boolean isRetryOk) {
-        String fileName = "GROK_" + new SimpleDateFormat(
+        String fileName = "FILE_" + new SimpleDateFormat(
                 "yyyyMMddhhmm'.jpg'",
                 Locale.US).format(new Date());
 

@@ -24,7 +24,7 @@ package com.numenta.core.test.unit;
 
 import com.numenta.core.ui.chart.AnomalyChartData;
 import com.numenta.core.utils.DataUtils;
-import com.numenta.core.utils.GrokAndroidTestCase;
+import com.numenta.core.utils.CoreAndroidTestCase;
 import com.numenta.core.utils.mock.MockAnomalyChartData;
 
 import junit.framework.Assert;
@@ -35,7 +35,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.TimeZone;
 
-public class DataUtilsTests extends GrokAndroidTestCase {
+public class DataUtilsTests extends CoreAndroidTestCase {
 
     @SmallTest
     public void testLogScale() {
@@ -56,11 +56,11 @@ public class DataUtilsTests extends GrokAndroidTestCase {
     }
 
     @SmallTest
-    public void testFormatGrokDate() {
+    public void testFormatHTMDate() {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.set(2014, Calendar.JANUARY, 25, 9, 0, 0);
-        assertEquals("2014-01-25 09:00:00", DataUtils.formatGrokDate(cal.getTime(), false));
-        assertEquals("2014-01-25+09:00:00", DataUtils.formatGrokDate(cal.getTime(), true));
+        assertEquals("2014-01-25 09:00:00", DataUtils.formatHTMDate(cal.getTime(), false));
+        assertEquals("2014-01-25+09:00:00", DataUtils.formatHTMDate(cal.getTime(), true));
     }
 
 

@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.data;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.numenta.core.data.CoreDataFactoryImpl;
 import com.numenta.core.data.Metric;
 
@@ -40,7 +40,7 @@ public class GrokDataFactoryImpl extends CoreDataFactoryImpl {
         Metric metric = super.createMetric(cursor);
         // Check if we need to update metric unit
         if (metric != null && metric.getUnit() == null) {
-            metric.setUnit(GrokApplication.getMetricUnit(metric.getName()));
+            metric.setUnit(HTMITApplication.getMetricUnit(metric.getName()));
         }
         return metric;
     }
@@ -51,7 +51,7 @@ public class GrokDataFactoryImpl extends CoreDataFactoryImpl {
         Metric metric = super.createMetric(metricId, name, instanceId, serverName, lastRowId, parameters);
         // Check if we need to update metric unit
         if (metric != null && metric.getUnit() == null) {
-            metric.setUnit(GrokApplication.getMetricUnit(metric.getName()));
+            metric.setUnit(HTMITApplication.getMetricUnit(metric.getName()));
         }
         return metric;
     }

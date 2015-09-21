@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.service;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.numenta.core.data.Metric;
 import com.numenta.core.utils.Log;
 
@@ -69,7 +69,7 @@ import java.util.List;
  * ]
  * </pre></code>
  *
- * @see GrokClientImpl#getMetrics()
+ * @see HTMClientImpl#getMetrics()
  * @see JsonReader
  */
 final public class MetricParser {
@@ -249,13 +249,13 @@ final public class MetricParser {
         _reader.endObject();
 
         serverName = serverName == null ? instanceId : serverName;
-        Metric metric = GrokApplication.getDatabase().getDataFactory()
+        Metric metric = HTMITApplication.getDatabase().getDataFactory()
                 .createMetric(metricId, name, instanceId, serverName, lastRowId, parameters);
 
         String unit = metric.getUnit();
         if (unit == null) {
             // Guess metric unit based on name if not given by server
-            unit = GrokApplication.getMetricUnit(name);
+            unit = HTMITApplication.getMetricUnit(name);
             metric.setUnit(unit);
         }
 

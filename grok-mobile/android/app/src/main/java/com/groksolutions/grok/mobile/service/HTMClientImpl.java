@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.service;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.numenta.core.data.Annotation;
 import com.numenta.core.data.Instance;
@@ -30,9 +30,9 @@ import com.numenta.core.data.Metric;
 import com.numenta.core.data.MetricData;
 import com.numenta.core.data.Notification;
 import com.numenta.core.service.AuthenticationException;
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokException;
-import com.numenta.core.service.GrokUnauthorizedException;
+import com.numenta.core.service.HTMClient;
+import com.numenta.core.service.HTMException;
+import com.numenta.core.service.HTMUnauthorizedException;
 import com.numenta.core.service.ObjectNotFoundException;
 import com.numenta.core.utils.DataUtils;
 import com.numenta.core.utils.Log;
@@ -76,9 +76,9 @@ import javax.net.ssl.TrustManagerFactory;
 
 
 /**
- * <code>GrokClient</code> class wraps a connection to the Grok REST API
+ * <code>HTMClient</code> class wraps a connection to the Grok REST API
  */
-public class GrokClientImpl implements GrokClient {
+public class HTMClientImpl implements HTMClient {
     @Deprecated
     public static final Version GROK_SERVER_1_0 = new Version("1.0");
     @Deprecated
@@ -93,7 +93,7 @@ public class GrokClientImpl implements GrokClient {
     public static final Version GROK_SERVER_OLDEST = GROK_SERVER_1_3;
     public static final Version GROK_SERVER_LATEST = GROK_SERVER_1_6;
 
-    private static final String TAG = GrokClientImpl.class.getSimpleName();
+    private static final String TAG = HTMClientImpl.class.getSimpleName();
     // Replace "storepass" with stronger password and update "keys/genkeystore.sh" with the new value
     private static final char KEYSTORE_PASS[] = {
             's', 't', 'o', 'r', 'e', 'p', 'a', 's', 's'
@@ -103,8 +103,8 @@ public class GrokClientImpl implements GrokClient {
     private final String _serverUrl;
     private final String _password;
     private static final String USER_AGENT = System.getProperty("http.agent")
-            + " " + GrokApplication.getApplicationName() + "/" + GrokApplication.getVersion();
-    private static final String SERVER_NAME = GrokApplication.getApplicationName();
+            + " " + HTMITApplication.getApplicationName() + "/" + HTMITApplication.getVersion();
+    private static final String SERVER_NAME = HTMITApplication.getApplicationName();
     private Version _serverVersion = GROK_SERVER_OLDEST;
     /**
      * Custom {@link SSLSocketFactory} adding all the certificates embedded with
@@ -130,7 +130,7 @@ public class GrokClientImpl implements GrokClient {
      *            server
      * @throws MalformedURLException
      */
-    public GrokClientImpl(String serverUrl, String password)
+    public HTMClientImpl(String serverUrl, String password)
             throws MalformedURLException {
         if (!URLUtil.isHttpsUrl((serverUrl))) {
             throw new MalformedURLException("Invalid Server URL:" + serverUrl);
@@ -146,7 +146,7 @@ public class GrokClientImpl implements GrokClient {
 
     /*
      * (non-Javadoc)
-     * @see com.numenta.core.service.GrokClient#isOnline()
+     * @see com.numenta.core.service.HTMClient#isOnline()
      */
     @Override
     public boolean isOnline() {
@@ -174,7 +174,7 @@ public class GrokClientImpl implements GrokClient {
                 } else {
                     _serverVersion = GROK_SERVER_OLDEST;
                 }
-                GrokApplication.getInstance().setServerVersion(_serverVersion);
+                HTMITApplication.getInstance().setServerVersion(_serverVersion);
                 Log.i(TAG, "Server Version:" + _serverVersion);
             }
         }
@@ -182,10 +182,10 @@ public class GrokClientImpl implements GrokClient {
 
     /*
      * (non-Javadoc)
-     * @see com.numenta.core.service.GrokClient#login()
+     * @see com.numenta.core.service.HTMClient#login()
      */
     @Override
-    public void login() throws IOException, GrokException {
+    public void login() throws IOException, HTMException {
         if (NetUtils.isConnected()) {
             // Try to access secure end point
             Map<String, List<String>> headers = head(this._serverUrl + "/_models");
@@ -195,7 +195,7 @@ public class GrokClientImpl implements GrokClient {
 
     @Override
     public void getMetricData(String modelId, Date from, Date to,
-            DataCallback<MetricData> callback) throws GrokException, IOException {
+            DataCallback<MetricData> callback) throws HTMException, IOException {
         getMetricDataAsync(modelId, from, to, -1, 0, callback);
 
     }
@@ -208,11 +208,11 @@ public class GrokClientImpl implements GrokClient {
      * @param to return records up to this date
      * @param limit max number of records to return. -1 for all records.
      * @param score anomaly score to filter
-     * @throws GrokException
+     * @throws HTMException
      * @throws IOException
      */
     private void getMetricDataAsync(String modelId, Date from, Date to,
-            int limit, float score, DataCallback<MetricData> callback) throws GrokException,
+            int limit, float score, DataCallback<MetricData> callback) throws HTMException,
             IOException {
 
         StringBuilder url = new StringBuilder();
@@ -226,14 +226,14 @@ public class GrokClientImpl implements GrokClient {
         // Add filters
         StringBuilder query = new StringBuilder();
         if (from != null) {
-            String val = DataUtils.formatGrokDate(from, true);
+            String val = DataUtils.formatHTMDate(from, true);
             query.append("from=").append(val);
         }
         if (to != null) {
             if (query.length() > 0) {
                 query.append("&");
             }
-            String val = DataUtils.formatGrokDate(to, true);
+            String val = DataUtils.formatHTMDate(to, true);
             query.append("to=").append(val);
         }
         if (limit > 0) {
@@ -280,10 +280,10 @@ public class GrokClientImpl implements GrokClient {
      * @param stream
      * @param callback
      * @throws IOException
-     * @throws GrokException
+     * @throws HTMException
      */
     private void processMetricDataBin(InputStream stream, DataCallback<MetricData> callback)
-            throws IOException, GrokException {
+            throws IOException, HTMException {
         Unpacker unpacker = null;
         try {
             if (stream != null) {
@@ -308,7 +308,7 @@ public class GrokClientImpl implements GrokClient {
      * @throws IOException
      */
     private void processMetricDataJSON(String modelId, InputStream stream,
-            DataCallback<MetricData> callback) throws IOException, GrokException {
+            DataCallback<MetricData> callback) throws IOException, HTMException {
         JsonReader reader = null;
         try {
             if (stream != null) {
@@ -329,10 +329,10 @@ public class GrokClientImpl implements GrokClient {
 
     /*
      * (non-Javadoc)
-     * @see com.numenta.core.service.GrokClient#getMetrics()
+     * @see com.numenta.core.service.HTMClient#getMetrics()
      */
     @Override
-    public List<Metric> getMetrics() throws GrokException, IOException {
+    public List<Metric> getMetrics() throws HTMException, IOException {
         String url = this._serverUrl + "/_models";
         JsonReader reader = null;
         try {
@@ -356,11 +356,11 @@ public class GrokClientImpl implements GrokClient {
     }
 
     @Override
-    public List<Notification> getNotifications() throws GrokException, IOException {
+    public List<Notification> getNotifications() throws HTMException, IOException {
         StringBuilder url = new StringBuilder();
         // Get notification history for device
         url.append(this._serverUrl).append("/_notifications/")
-                .append(GrokApplication.getDeviceId()).append("/history");
+                .append(HTMITApplication.getDeviceId()).append("/history");
         Log.d(TAG, "Getting notifications: " + url);
 
         JsonReader reader = null;
@@ -395,7 +395,7 @@ public class GrokClientImpl implements GrokClient {
     }
 
     @Override
-    public List<Annotation> getAnnotations(Date from, Date to) throws GrokException, IOException {
+    public List<Annotation> getAnnotations(Date from, Date to) throws HTMException, IOException {
 
         //TODO:FEATURE_FLAG: Annotations were introduced in version 1.6
         if (_serverVersion.compareTo(GROK_SERVER_1_6) < 0) {
@@ -407,7 +407,7 @@ public class GrokClientImpl implements GrokClient {
         url.append(this._serverUrl).append("/_annotations");
         boolean append = false;
         if (from != null) {
-            url.append("?from=").append(DataUtils.formatGrokDate(from, true));
+            url.append("?from=").append(DataUtils.formatHTMDate(from, true));
             append = true;
         }
         if (to != null) {
@@ -416,7 +416,7 @@ public class GrokClientImpl implements GrokClient {
             } else {
                 url.append('?');
             }
-            url.append("to=").append(DataUtils.formatGrokDate(to, true));
+            url.append("to=").append(DataUtils.formatHTMDate(to, true));
         }
         Log.d(TAG, "Getting annotations: " + url);
 
@@ -441,14 +441,15 @@ public class GrokClientImpl implements GrokClient {
     }
 
     @Override
-    public void deleteAnnotation(Annotation annotation) throws GrokUnauthorizedException, GrokException, IOException {
+    public void deleteAnnotation(Annotation annotation) throws HTMUnauthorizedException,
+            HTMException, IOException {
         //TODO:FEATURE_FLAG: Annotations were introduced in version 1.6
         if (_serverVersion.compareTo(GROK_SERVER_1_6) < 0) {
             return;
         }
         // Verify device ID before deleting
-        if (!annotation.getDevice().equals(GrokApplication.getDeviceId())) {
-            throw  new GrokUnauthorizedException("Cannot delete annotations created on a different device");
+        if (!annotation.getDevice().equals(HTMITApplication.getDeviceId())) {
+            throw  new HTMUnauthorizedException("Cannot delete annotations created on a different device");
         }
         StringBuilder url = new StringBuilder();
         url.append(this._serverUrl).append("/_annotations/").append(annotation.getId());
@@ -457,7 +458,8 @@ public class GrokClientImpl implements GrokClient {
     }
 
     @Override
-    public Annotation addAnnotation(Date timestamp, String server, String message, String user) throws GrokException, IOException {
+    public Annotation addAnnotation(Date timestamp, String server, String message, String user) throws
+            HTMException, IOException {
         //TODO:FEATURE_FLAG: Annotations were introduced in version 1.6
         if (_serverVersion.compareTo(GROK_SERVER_1_6) < 0) {
             return null;
@@ -467,8 +469,8 @@ public class GrokClientImpl implements GrokClient {
         try {
             // Prepare 'Add Annotation' request. See Grok API for reference.
             JSONObject json = new JSONObject();
-            json.put("device", GrokApplication.getDeviceId());
-            json.put("timestamp", DataUtils.formatGrokDate(timestamp, false));
+            json.put("device", HTMITApplication.getDeviceId());
+            json.put("timestamp", DataUtils.formatHTMDate(timestamp, false));
             json.put("user", user);
             json.put("server", server);
             json.put("message", message);
@@ -484,7 +486,7 @@ public class GrokClientImpl implements GrokClient {
             }
         } catch (JSONException e) {
             Log.e(TAG, "Failed to add annotation", e);
-            throw new GrokException(e);
+            throw new HTMException(e);
         } finally {
             if (reader != null) {
                 try {
@@ -505,12 +507,12 @@ public class GrokClientImpl implements GrokClient {
      * @throws IOException
      */
     @Override
-    public void acknowledgeNotifications(String[] notifications) throws GrokException, IOException {
+    public void acknowledgeNotifications(String[] notifications) throws HTMException, IOException {
 
         // Get notification history for device
         Log.d(TAG, "Acknowledging notifications: " + Arrays.toString(notifications));
         JSONArray json = new JSONArray(Arrays.asList(notifications));
-        post(this._serverUrl + "/_notifications/" + GrokApplication.getDeviceId() + "/acknowledge", json.toString());
+        post(this._serverUrl + "/_notifications/" + HTMITApplication.getDeviceId() + "/acknowledge", json.toString());
     }
 
     /**
@@ -538,7 +540,7 @@ public class GrokClientImpl implements GrokClient {
             connection.setRequestProperty("Authorization", _password);
         }
         connection.setRequestProperty("User-Agent", USER_AGENT);
-        connection.setRequestProperty("X-Grok-DeviceId", GrokApplication.getDeviceId());
+        connection.setRequestProperty("X-Grok-DeviceId", HTMITApplication.getDeviceId());
         return connection;
     }
 
@@ -551,11 +553,11 @@ public class GrokClientImpl implements GrokClient {
      *         map. The map values are lists of header field values associated
      *         with a particular key name. HTTP status line is mapped to the
      *         {@code null} key.
-     * @throws GrokException
+     * @throws HTMException
      * @throws IOException
      * @see URLConnection#getHeaderFields()
      */
-    private Map<String, List<String>> head(String url) throws IOException, GrokException {
+    private Map<String, List<String>> head(String url) throws IOException, HTMException {
         HttpURLConnection connection = openConnection(url, "HEAD");
         // HACK: Android Calls GZIPInputStream when getting the HTTP
         // response code causing the HTTP HEAD call crash with
@@ -568,7 +570,7 @@ public class GrokClientImpl implements GrokClient {
         return connection.getHeaderFields();
     }
 
-    private InputStream getStream(String url) throws IOException, GrokException {
+    private InputStream getStream(String url) throws IOException, HTMException {
         HttpURLConnection connection = openConnection(url, "GET");
         try {
             processServerHeaders(connection.getHeaderFields());
@@ -587,12 +589,12 @@ public class GrokClientImpl implements GrokClient {
      * Should be called when the HTTP operation results in {@link IOException}
      *
      * @param connection
-     * @throws GrokException
+     * @throws HTMException
      * @throws IOException
      * @throws com.numenta.core.service.AuthenticationException
      */
     private void handleHttpError(HttpURLConnection connection,
-            IOException ioException) throws GrokException, IOException {
+            IOException ioException) throws HTMException, IOException {
         if (connection != null) {
             int httpStatus;
             httpStatus = connection.getResponseCode();
@@ -602,7 +604,7 @@ public class GrokClientImpl implements GrokClient {
                     if (error != null && error.startsWith("ObjectNotFoundError")) {
                         throw new ObjectNotFoundException();
                     }
-                    throw new GrokException(connection.getResponseMessage() + " - " + error,
+                    throw new HTMException(connection.getResponseMessage() + " - " + error,
                             ioException);
                 case HttpURLConnection.HTTP_BAD_REQUEST:
                 case HttpURLConnection.HTTP_FORBIDDEN:
@@ -654,9 +656,9 @@ public class GrokClientImpl implements GrokClient {
      * @return  The response {@link java.io.InputStream} or
      *          {@code null} if the response code was not valid
      * @throws IOException
-     * @throws GrokException
+     * @throws HTMException
      */
-    private InputStream postStream(String url, String jsonData) throws IOException, GrokException {
+    private InputStream postStream(String url, String jsonData) throws IOException, HTMException {
         InputStream response = null;
         OutputStream os = null;
         HttpURLConnection conn = null;
@@ -702,10 +704,10 @@ public class GrokClientImpl implements GrokClient {
      * @param url
      * @param data
      * @return Response text, or null if the response code was not 200
-     * @throws GrokException
+     * @throws HTMException
      * @throws IOException
      */
-    public String post(String url, String data) throws GrokException, IOException {
+    public String post(String url, String data) throws HTMException, IOException {
         return readStream(postStream(url, data));
     }
 
@@ -720,7 +722,7 @@ public class GrokClientImpl implements GrokClient {
         // Initialize SSL Factory with embedded certificates
         try {
             final KeyStore trustStore = KeyStore.getInstance("BKS");
-            final InputStream inputStream = GrokApplication.getContext()
+            final InputStream inputStream = HTMITApplication.getContext()
                     .getResources().openRawResource(R.raw.certificates);
             trustStore.load(inputStream, KEYSTORE_PASS);
             inputStream.close();
@@ -747,12 +749,12 @@ public class GrokClientImpl implements GrokClient {
     }
 
     public void updateNotifications(String email, int frequency)
-            throws GrokException, IOException {
+            throws HTMException, IOException {
 
         StringBuilder url = new StringBuilder();
         // Get notification history for device
         url.append(this._serverUrl).append("/_notifications/")
-                .append(GrokApplication.getDeviceId()).append("/settings");
+                .append(HTMITApplication.getDeviceId()).append("/settings");
         Log.d(TAG, "Updating notification settings ");
 
         HttpURLConnection conn = null;
@@ -795,13 +797,13 @@ public class GrokClientImpl implements GrokClient {
      *
      * @return {@link NotificationSettings}
      * @throws IOException
-     * @throws GrokException
+     * @throws HTMException
      */
-    public NotificationSettings getNotificationSettings() throws GrokException, IOException {
+    public NotificationSettings getNotificationSettings() throws HTMException, IOException {
         StringBuilder url = new StringBuilder();
         // Get notification history for device
         url.append(this._serverUrl).append("/_notifications/")
-                .append(GrokApplication.getDeviceId()).append("/settings");
+                .append(HTMITApplication.getDeviceId()).append("/settings");
         Log.d(TAG, "Updating notification settings ");
         HttpURLConnection conn = null;
         try {
@@ -826,7 +828,7 @@ public class GrokClientImpl implements GrokClient {
     /**
      * Returns a list of instances from the server
      */
-    public List<Instance> getInstances() throws GrokException, IOException {
+    public List<Instance> getInstances() throws HTMException, IOException {
         String url = this._serverUrl + "/_instances";
         JsonReader reader = null;
         try {
@@ -853,10 +855,10 @@ public class GrokClientImpl implements GrokClient {
      * Returns the time remaining to process data for all models
      *
      * @return The remaining time in seconds
-     * @throws GrokException
+     * @throws HTMException
      * @throws IOException
      */
-    public int getProcessingTimeRemaining() throws GrokException, IOException {
+    public int getProcessingTimeRemaining() throws HTMException, IOException {
         int seconds = 0;
         String url = this._serverUrl + "/_models/data/stats";
         JsonReader reader = null;
@@ -909,10 +911,10 @@ public class GrokClientImpl implements GrokClient {
      *
      * @param url
      * @return Response text, or null if the response code was not 200
-     * @throws GrokException
+     * @throws HTMException
      * @throws IOException
      */
-    public String get(String url) throws GrokException, IOException {
+    public String get(String url) throws HTMException, IOException {
         return readStream(getStream(url));
     }
 
@@ -920,10 +922,10 @@ public class GrokClientImpl implements GrokClient {
      * Delete the given URL
      *
      * @param url
-     * @throws GrokException
+     * @throws HTMException
      * @throws IOException
      */
-    public void delete(String url) throws GrokException, IOException {
+    public void delete(String url) throws HTMException, IOException {
         HttpURLConnection connection = openConnection(url, "DELETE");
         handleHttpError(connection, null);
     }

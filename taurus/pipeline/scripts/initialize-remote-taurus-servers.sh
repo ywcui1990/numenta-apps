@@ -293,13 +293,14 @@ pushd "${REPOPATH}"
 
 
   # Configure, start Taurus Engine services
+  TAURUS_ENGINE_TESTS="py.test tests/deployment"
   if [[ ${RUN_UNIT_AND_INTEGRATION_TESTS} == 1 ]]; then
     TAURUS_ENGINE_TESTS="
       py.test ../nta.utils/tests &&
       py.test ../htmengine/tests &&
-      py.test tests";
-  else
-    TAURUS_ENGINE_TESTS=":";
+      py.test tests/unit &&
+      py.test tests/integration &&
+      ${TAURUS_ENGINE_TESTS}";
   fi
 
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
@@ -344,11 +345,12 @@ pushd "${REPOPATH}"
 
   # Reset metric collector state, apply database schema updates
   if [[ ${RUN_UNIT_AND_INTEGRATION_TESTS} == 1 ]]; then
-    TAURUS_COLLECTOR_TESTS="
+    TAURUS_COLLECTOR_UNIT_AND_INTEGRATION_TESTS="
       py.test ../nta.utils/tests &&
-      py.test tests";
+      py.test tests/unit &&
+      py.test tests/integration";
   else
-    TAURUS_COLLECTOR_TESTS=":";
+    TAURUS_COLLECTOR_UNIT_AND_INTEGRATION_TESTS=":";
   fi
 
   ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
@@ -371,14 +373,15 @@ pushd "${REPOPATH}"
      cd /opt/numenta/products/taurus.metric_collectors &&
      taurus-collectors-set-opmode hot_standby &&
      if [ -f supervisord.pid ]; then
-       supervisorctl --serverurl http://localhost:8001 reload
-     else
-       supervisord -c conf/supervisord.conf
+       supervisorctl --serverurl http://localhost:8001 shutdown
      fi &&
+     py.test tests/deployment/resource_accessibility_test.py &&
+     supervisord -c conf/supervisord.conf &&
      nta-wait-for-supervisord-running http://localhost:8001 &&
-     ${TAURUS_COLLECTOR_TESTS} &&
+     py.test tests/deployment/health_check_test.py &&
+     ${TAURUS_COLLECTOR_UNIT_AND_INTEGRATION_TESTS} &&
      taurus-collectors-set-opmode active &&
-     supervisorctl restart all"
+     supervisorctl --serverurl http://localhost:8001 restart all"
 
 
 popd

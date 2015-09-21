@@ -39,7 +39,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.groksolutions.grok.mobile.preference.PreferencesConstants;
 import com.groksolutions.grok.mobile.service.GrokDataSyncService;
@@ -65,8 +65,8 @@ public class TutorialActivity extends FragmentActivity {
     protected void onStart() {
         // TODO Auto-generated method stub
         super.onStart();
-        GrokApplication.setActivityLastUsed();
-        GrokApplication.incrementActivityCount();
+        HTMITApplication.setActivityLastUsed();
+        HTMITApplication.incrementActivityCount();
         // Cache last metric change event while tutorial is active
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 _metricChangedReceiver,
@@ -81,8 +81,8 @@ public class TutorialActivity extends FragmentActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        GrokApplication.setActivityLastUsed();
-        GrokApplication.decrementActivityCount();
+        HTMITApplication.setActivityLastUsed();
+        HTMITApplication.decrementActivityCount();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(
                 _metricChangedReceiver);
     }
@@ -155,7 +155,7 @@ public class TutorialActivity extends FragmentActivity {
                     intent.putExtra(GrokDataSyncService.EXTRA_NEW_METRICS, _metrics);
                     intent.putExtra(GrokDataSyncService.EXTRA_NEW_INSTANCES, _instances);
                     intent.putExtra(GrokDataSyncService.EXTRA_REMAINING_TIME, _remaining);
-                    LocalBroadcastManager.getInstance(GrokApplication.getContext()).sendBroadcast(
+                    LocalBroadcastManager.getInstance(HTMITApplication.getContext()).sendBroadcast(
                             intent);
                 }
             }, 1000);

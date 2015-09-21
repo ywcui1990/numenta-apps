@@ -30,12 +30,12 @@ import com.numenta.core.R;
 import com.numenta.core.data.AggregationType;
 import com.numenta.core.data.CoreDatabase;
 import com.numenta.core.data.CoreDatabaseImpl;
+import com.numenta.core.service.DataService;
 import com.numenta.core.service.DataSyncService;
-import com.numenta.core.service.GrokClient;
-import com.numenta.core.service.GrokClientFactory;
-import com.numenta.core.service.GrokException;
-import com.numenta.core.service.GrokService;
-import com.numenta.core.service.GrokService.GrokDataBinder;
+import com.numenta.core.service.HTMClient;
+import com.numenta.core.service.HTMClientFactory;
+import com.numenta.core.service.HTMException;
+import com.numenta.core.service.DataService.DataBinder;
 import com.numenta.core.service.NotificationService;
 import com.numenta.core.utils.Log;
 import com.numenta.core.utils.Version;
@@ -71,14 +71,14 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 /**
  * Maintain global application state.
  */
-public class GrokApplication extends Application {
+public class HTMApplication extends Application {
 
     // NOTE: It is guaranteed to only have one instance of the
     // android.app.Application class so it's safe (and recommended by the
     // Google Android team) to treat it as a Singleton.
-    private static GrokApplication _instance;
+    private static HTMApplication _instance;
 
-    private static final String TAG = GrokApplication.class.getCanonicalName();
+    private static final String TAG = HTMApplication.class.getCanonicalName();
 
     /**
      * Activity Action: Opens the Notification List Activity
@@ -126,11 +126,11 @@ public class GrokApplication extends Application {
 
     private String _applicationName;
 
-    private volatile GrokClientFactory _grokClientFactory;
+    private volatile HTMClientFactory _clientFactory;
 
     private CoreDatabase _database;
 
-    private GrokService _dataService;
+    private DataService _dataService;
 
     private volatile boolean _bound;
 
@@ -149,13 +149,13 @@ public class GrokApplication extends Application {
     /**
      * Defines callbacks for service binding, passed to bindService()
      */
-    private final ServiceConnection _grokDataServiceConn = new ServiceConnection() {
+    private final ServiceConnection _dataServiceConn = new ServiceConnection() {
         @Override
         public void onServiceConnected(final ComponentName className,
                 final IBinder service) {
             // We've bound to LocalService, cast the IBinder and get
             // LocalService instance
-            GrokDataBinder dataServiceBinder = (GrokDataBinder) service;
+            DataBinder dataServiceBinder = (DataBinder) service;
             _dataService = dataServiceBinder.getService();
             _bound = true;
         }
@@ -171,7 +171,7 @@ public class GrokApplication extends Application {
      * This method should only be called from unit tests. In a normal android runtime environment
      * the application instance singleton will be initialized via {@link #onCreate()}
      */
-    public static void setStaticInstanceForUnitTestsOnly(GrokApplication testApplicationObject) {
+    public static void setStaticInstanceForUnitTestsOnly(HTMApplication testApplicationObject) {
         _instance = testApplicationObject;
     }
 
@@ -247,7 +247,7 @@ public class GrokApplication extends Application {
     /**
      * Returns this application Singleton instance.
      */
-    public static GrokApplication getInstance() {
+    public static HTMApplication getInstance() {
         return _instance;
     }
 
@@ -332,45 +332,44 @@ public class GrokApplication extends Application {
     }
 
     /**
-     * Overrides the default {@link GrokClientFactory} with a custom factory.
+     * Overrides the default {@link HTMClientFactory} with a custom factory.
      * <p>
      * This is useful for unit tests, allowing the test to create a custom
      * factory returning mock objects
      *
-     * @param factory The factory used to create {@link GrokClient}
-     * @see GrokApplication#connectToGrok(String, String)
+     * @param factory The factory used to create {@link HTMClient}
+     * @see HTMApplication#connectToServer(String, String)
      */
-    public void setGrokClientFactory(final GrokClientFactory factory) {
-        _grokClientFactory = factory;
+    public void setClientFactory(final HTMClientFactory factory) {
+        _clientFactory = factory;
     }
 
     /**
-     * Establish a connection to the Grok server and returns a new instance of
-     * {@link GrokClient}
+     * Establish a connection to the server and returns a new instance of
+     * {@link HTMClient}
      *
-     * @param serverUrl Grok Server URL.
-     * @param password  Password used to connect to Grok server. See Grok Web UI
-     *                  to retrieve password
-     * @return {@link GrokClient} object used to interact with the server.
+     * @param serverUrl Server URL.
+     * @param password  Password used to connect to server. See Web UI to retrieve password
+     * @return {@link HTMClient} object used to interact with the server.
      */
-    public GrokClient connectToGrok(final String serverUrl, final String password)
+    public HTMClient connectToServer(final String serverUrl, final String password)
             throws MalformedURLException {
-        if (_grokClientFactory != null) {
-            return _grokClientFactory.createClient(serverUrl, password);
+        if (_clientFactory != null) {
+            return _clientFactory.createClient(serverUrl, password);
         }
         return null;
     }
 
 
     /**
-     * Establish a connection to the Grok server and returns a new instance of
-     * {@link GrokClient} using the the default authentication settings.
+     * Establish a connection to the server and returns a new instance of
+     * {@link HTMClient} using the the default authentication settings.
      *
-     * @return {@link GrokClient} object used to interact with the server.
+     * @return {@link HTMClient} object used to interact with the server.
      */
-    public GrokClient connectToServer() throws MalformedURLException {
-        if (_grokClientFactory != null) {
-            return _grokClientFactory.createClient(null, null);
+    public HTMClient connectToServer() throws MalformedURLException {
+        if (_clientFactory != null) {
+            return _clientFactory.createClient(null, null);
         }
         return null;
     }
@@ -467,7 +466,7 @@ public class GrokApplication extends Application {
      */
     public static void stopServices() {
         if (_instance != null) {
-            final Intent dataService = new Intent(_instance, GrokService.class);
+            final Intent dataService = new Intent(_instance, DataService.class);
             _instance.stopService(dataService);
         }
     }
@@ -592,7 +591,7 @@ public class GrokApplication extends Application {
     }
 
     /**
-     * Return this application name ("Grok", "Taurus", ...) see "core_config.xml"
+     * Return this application name ("HTMEngine", "Taurus", ...) see "core_config.xml"
      *
      * @see com.numenta.core.R.string#application_name
      */
@@ -666,8 +665,8 @@ public class GrokApplication extends Application {
      * returned
      */
     public ComponentName startBackgroundServices() {
-        final Intent dataService = new Intent(this, GrokService.class);
-        bindService(dataService, _grokDataServiceConn, Context.BIND_AUTO_CREATE);
+        final Intent dataService = new Intent(this, DataService.class);
+        bindService(dataService, _dataServiceConn, Context.BIND_AUTO_CREATE);
         return startService(dataService);
     }
 
@@ -685,7 +684,7 @@ public class GrokApplication extends Application {
      * Factory used to create a new Data Synchronization service allowing subclasses to override
      * and extend  with their own Synchronization service.
      */
-    public DataSyncService createDataSyncService(GrokService service) {
+    public DataSyncService createDataSyncService(DataService service) {
         return new DataSyncService(service);
     }
 
@@ -693,7 +692,7 @@ public class GrokApplication extends Application {
      * Factory used to create a new notification service allowing subclasses to override and extend
      * with their own notification service.
      */
-    public NotificationService createNotificationService(GrokService service) {
+    public NotificationService createNotificationService(DataService service) {
         return new NotificationService(service);
     }
 
@@ -710,7 +709,7 @@ public class GrokApplication extends Application {
      *
      * @param connection The API client connection
      */
-    public void loadApplicationData(GrokClient connection) {
+    public void loadApplicationData(HTMClient connection) {
 
     }
 
@@ -731,9 +730,9 @@ public class GrokApplication extends Application {
     /**
      * This method should be executed periodically to send logs to the server.
      *
-     * @throws com.numenta.core.service.GrokException
+     * @throws HTMException
      * @throws java.io.IOException
      */
-    public void uploadLogs() throws GrokException, IOException { }
+    public void uploadLogs() throws HTMException, IOException { }
 
 }

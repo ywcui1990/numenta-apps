@@ -47,7 +47,7 @@ import com.amazonaws.services.dynamodbv2.util.Tables;
 import com.numenta.core.data.InstanceData;
 import com.numenta.core.data.Metric;
 import com.numenta.core.data.MetricData;
-import com.numenta.core.service.GrokException;
+import com.numenta.core.service.HTMException;
 import com.numenta.core.utils.DataUtils;
 import com.numenta.core.utils.Log;
 import com.numenta.taurus.BuildConfig;
@@ -644,7 +644,7 @@ public class TaurusClientTest extends TestCase {
 
     }
 
-    @Test(expected = GrokException.class)
+    @Test(expected = HTMException.class)
     public void testGetMetricData() throws Exception {
         _taurusClient.getMetricData("id.0",
                 new Date(TEST_START_TIMESTAMP),

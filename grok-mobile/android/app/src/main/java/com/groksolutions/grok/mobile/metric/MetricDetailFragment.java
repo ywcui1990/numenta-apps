@@ -22,7 +22,7 @@
 
 package com.groksolutions.grok.mobile.metric;
 
-import com.groksolutions.grok.mobile.GrokApplication;
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.groksolutions.grok.mobile.R;
 import com.groksolutions.grok.mobile.chart.AbstractAnomalyChartFragment;
 import com.groksolutions.grok.mobile.data.GrokDatabase;
@@ -122,7 +122,7 @@ public class MetricDetailFragment extends Fragment {
             final float x2 = e2.getX();
             final float distance = x1 - x2;
             int width = _lineChartView.getMeasuredWidth();
-            int pixels = width / GrokApplication.getTotalBarsOnChart();
+            int pixels = width / HTMITApplication.getTotalBarsOnChart();
             int scrolledBars = (int) (distance / pixels);
             // Scroll date by aggregation interval
             long interval = _metricAnomalyData.getAggregation().milliseconds();
@@ -273,7 +273,7 @@ public class MetricDetailFragment extends Fragment {
         List<Pair<Long, Float>> metricData = _metricAnomalyData.getData();
         if (metricData != null && !metricData.isEmpty()) {
             // Check if date is valid
-            long timeWindow = GrokApplication.getTotalBarsOnChart()
+            long timeWindow = HTMITApplication.getTotalBarsOnChart()
                     * _metricAnomalyData.getAggregation().milliseconds();
             if (scrolledDate == null || scrolledDate.getTime() >= _endTimestamp) {
                 _currentTimestamp = _endTimestamp;
@@ -346,8 +346,8 @@ public class MetricDetailFragment extends Fragment {
             // the last known timestamp up to the maximum number of days we keep
             // in the local database.
             // This window will be used by the scroller.
-            _endTimestamp = Math.max(to, GrokApplication.getDatabase().getLastTimestamp());
-            _startTimestamp = _endTimestamp - GrokApplication.getNumberOfDaysToSync()
+            _endTimestamp = Math.max(to, HTMITApplication.getDatabase().getLastTimestamp());
+            _startTimestamp = _endTimestamp - HTMITApplication.getNumberOfDaysToSync()
                     * DataUtils.MILLIS_PER_DAY;
 
             // Calculate result size based on the date range and time
@@ -355,7 +355,7 @@ public class MetricDetailFragment extends Fragment {
             int size = (int) (_endTimestamp - _startTimestamp) / METRIC_DATA_INTERVAL;
             _metricValues = new float[size];
             Arrays.fill(_metricValues, Float.NaN);
-            GrokDatabase grokdb = GrokApplication.getDatabase();
+            GrokDatabase grokdb = HTMITApplication.getDatabase();
             Cursor cursor = null;
             try {
                 cursor = grokdb.getMetricData(metricId, new String[] {
@@ -537,7 +537,7 @@ public class MetricDetailFragment extends Fragment {
                     // Round to the closest hour and move the current date to
                     // the middle of the time window.
                     timestamp = (timestamp / DataUtils.MILLIS_PER_HOUR) * DataUtils.MILLIS_PER_HOUR
-                            + GrokApplication.getTotalBarsOnChart()
+                            + HTMITApplication.getTotalBarsOnChart()
                             * AggregationType.Hour.milliseconds() / 2;
                     date = new Date(timestamp);
                 } else if (AggregationType.Day.equals(aggregation)) {
@@ -548,18 +548,18 @@ public class MetricDetailFragment extends Fragment {
                     }
                     else if (AggregationType.Hour.equals(oldAggregation)) {
                         long maxDaySpan = MILLISECONDS.convert(
-                                GrokApplication.getNumberOfDaysToSync(), DAYS)
+                                HTMITApplication.getNumberOfDaysToSync(), DAYS)
                                 - AggregationType.Day.milliseconds()
-                                * GrokApplication.getTotalBarsOnChart();
+                                * HTMITApplication.getTotalBarsOnChart();
                         if (now.getTime() - date.getTime() > maxDaySpan) {
                             date = new Date(now.getTime() - maxDaySpan);
                         }
                     }
                 } else if (AggregationType.Week.equals(aggregation)) {
                     long maxWeekSpan = MILLISECONDS.convert(
-                            GrokApplication.getNumberOfDaysToSync(), DAYS)
+                            HTMITApplication.getNumberOfDaysToSync(), DAYS)
                             - AggregationType.Week.milliseconds()
-                            * GrokApplication.getTotalBarsOnChart();
+                            * HTMITApplication.getTotalBarsOnChart();
                     if (now.getTime() - date.getTime() > maxWeekSpan) {
                         date = new Date(now.getTime() - maxWeekSpan);
                     }

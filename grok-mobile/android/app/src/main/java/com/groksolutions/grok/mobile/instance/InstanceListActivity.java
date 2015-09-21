@@ -29,8 +29,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 
+import com.groksolutions.grok.mobile.HTMITApplication;
 import com.numenta.core.data.AggregationType;
-import com.groksolutions.grok.mobile.GrokApplication;
 import com.groksolutions.grok.mobile.HourDayWeekActivity;
 import com.groksolutions.grok.mobile.R;
 import com.groksolutions.grok.mobile.SortBarFragment;
@@ -77,16 +77,16 @@ public class InstanceListActivity extends HourDayWeekActivity implements
         switch (sortByValue) {
             case R.id.sortByAnomalies:
                 Log.i(TAG, "{TAG:ANDROID.ACTION.SORT.ANOMALIES}");
-                GrokApplication.setSort(SortOrder.Anomaly);
+                HTMITApplication.setSort(SortOrder.Anomaly);
                 break;
             case R.id.sortByName:
                 Log.i(TAG, "{TAG:ANDROID.ACTION.SORT.NAME}");
-                GrokApplication.setSort(SortOrder.Name);
+                HTMITApplication.setSort(SortOrder.Name);
                 break;
             default:
                 // TODO Sort by 'Unknown'
                 Log.i(TAG, "{TAG:ANDROID.ACTION.SORT.UNKNOWN}");
-                GrokApplication.setSort(SortOrder.Unknown);
+                HTMITApplication.setSort(SortOrder.Unknown);
                 break;
         }
     }
