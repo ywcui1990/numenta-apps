@@ -1,5 +1,6 @@
 frontend/database/data/*.json
 node_modules/
+Unicorn-darwin-x64/
 bundle.js
 bundle.js.map
 *.log
