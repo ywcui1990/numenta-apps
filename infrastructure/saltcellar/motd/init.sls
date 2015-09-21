@@ -74,7 +74,7 @@ acta-diurna:
 update-motd:
 # Install our motd cronjob script
   file.managed:
-    - name: /etc/cron.daily/update-motd
+    - name: /usr/local/sbin/update-motd
     - source: salt://motd/files/update-motd.centos
     - mode: 0755
     - require:
@@ -82,12 +82,16 @@ update-motd:
       - pkg: acta-diurna
 # Run the update-motd job, but only run if a fragment script is added/changed
   cmd.wait:
-    - name: /etc/cron.daily/update-motd
+    - name: /usr/local/sbin/update-motd
     - cwd: /
     - require:
       - file: python-27-symlink
       - pkg: acta-diurna
       - sls: numenta-python
+
+{% if grains['os_family'] == 'RedHat' %}
+
+motd-cronjob:
 # Install the actual cronjob
   cron.present:
     - name: /etc/cron.daily/update-motd 2>&1 > /dev/null
@@ -102,5 +106,7 @@ update-motd:
 
 update-motd-symlink:
   file.symlink:
-    - target: /etc/cron.daily/update-motd
-    - name: /usr/local/sbin/update-motd
+    - name: /etc/cron.daily/update-motd
+    - target: /usr/local/sbin/update-motd
+
+{% endif %}
