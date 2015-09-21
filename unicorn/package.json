@@ -16,10 +16,10 @@
     "x64"
   ],
   "scripts": {
-    "build": "UNICORN_TARGET=desktop  npm run pack  && electron-packager . unicorn --prune --ignore=.git --platform=darwin --arch=x64 --version=0.32.3 --overwrite",
+    "build": "npm install && UNICORN_TARGET=desktop  npm run pack  && electron-packager . Unicorn --prune --ignore=.git --platform=darwin --arch=x64 --version=0.32.3 --overwrite && cp unicorn.icns Unicorn.app/Contents/Resources/atom.icns",
     "check": "npm install  &&  npm prune  &&  npm outdated -depth 0",
     "clean": "rm -Rf node_modules/",
-    "desktop": "UNICORN_TARGET=desktop  npm run pack  &&  npm run electron",
+    "desktop": "UNICORN_TARGET=desktop npm run pack  &&  npm run electron",
     "electron": "electron .",
     "lint": "eslint frontend",
     "pack": "gulp webpack  ||  exit 1",
