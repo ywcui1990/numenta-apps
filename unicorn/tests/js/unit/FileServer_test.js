@@ -48,6 +48,14 @@ const EXPECTED_FIELDS = [
   {name: 'metric', type: 'number'},
 ];
 
+// Expected statistics for the whole file
+const EXPECTED_MIN = 16;
+const EXPECTED_MAX = 22;
+
+// Expected statistics for the first 2 lines
+const EXPECTED_MIN_PARTIAL = 17;
+const EXPECTED_MAX_PARTIAL = 21;
+
 // Keep this list up to date with file names in "frontend/samples"
 const EXPECTED_SAMPLE_FILES = ['file1.csv', 'gym.csv'];
 
@@ -111,6 +119,26 @@ describe('FileServer', () => {
         } else {
           done();
         }
+      });
+    });
+  });
+
+  describe('#getStatistics', () => {
+    it('Get statistics for the whole file', (done) => {
+      server.getStatistics(FILENAME, (error, data) => {
+        assert.ifError(error);
+        assert.equal(data['metric'].min, EXPECTED_MIN);
+        assert.equal(data['metric'].max, EXPECTED_MAX);
+        done();
+      });
+    });
+
+    it('Get statistics for some records of the file', (done) => {
+      server.getStatistics(FILENAME, {limit: 2}, (error, data) => {
+        assert.ifError(error);
+        assert.equal(data['metric'].min, EXPECTED_MIN_PARTIAL);
+        assert.equal(data['metric'].max, EXPECTED_MAX_PARTIAL);
+        done();
       });
     });
   });

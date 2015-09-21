@@ -246,6 +246,73 @@ FileServer.prototype.getData = function(filename, options, callback) {
     });
 };
 
+/**
+ * @param  {String}   filename: The absolute path of the CSV file
+ * @param  {Object}   options:  Optional settings
+ *                    See https://github.com/klaemo/csv-stream#options
+ *                    <code>
+ *                     {
+ *                       delimiter: ',', // comma, semicolon, whatever
+ *                       newline: 'n', // newline character
+ *                       quote: '"', // what's considered a quote
+ *                       empty: '', // empty fields are replaced by this,
+ *
+ *                       // if set to true, uses first row as keys ->
+ *                       // [ { column1: value1, column2: value2 , ...]}
+ *                       columns: true,
+ *                       // Max Number of records to process
+ *                       limit: Number.MAX_SAFE_INTEGER
+ *                      }
+ *                    </code>
+ * @param  {Function} callback: This callback will be called with the results in
+ *                              the following format:
+ *                              <code>function(error, stats)</code>
+ *                              stats = {
+ *                              	fieldName : {
+ *                              		min: '0',
+ *                              		max: '10'
+ *                              	}, ...
+ *                              }
+ */
+FileServer.prototype.getStatistics = function(filename, options, callback) {
+  // "options" is optional
+  if (callback === undefined && typeof options == 'function') {
+    callback = options;
+    options = {};
+  }
+
+  let stats = {};
+  options.objectMode = true;
+  this.getData(filename, options, function(error, data) {
+    if (error) {
+      callback(error);
+    } else if (data) {
+      // Update stats on every record
+      for (let field in data) {
+        let val = new Number(data[field]);
+        if (isNaN(val)) {
+          continue;
+        } else {
+          val = val.valueOf();
+        }
+        if (!(field in stats)) {
+          stats[field] = {
+            min: Number.MAX_VALUE,
+            max: Number.MIN_VALUE
+          };
+        }
+        let min = stats[field].min;
+        let max = stats[field].max;
+        stats[field].min = val < min ? val : min;
+        stats[field].max = val > max ? val : max;
+      }
+    } else {
+      // Finished reading data
+      callback(null, stats);
+    }
+  });
+};
+
 // EXPORTS
 
 module.exports = FileServer;
