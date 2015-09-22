@@ -23,9 +23,16 @@
  * Stop running model
  */
 export default (actionContext, modelId) => {
-  return new Promise(resolve => {
-    // TODO: Use model api to stop running model
-    actionContext.dispatch('STOP_MODEL_SUCCESS', modelId);
-    resolve(modelId);
+  return new Promise(function(resolve, reject) {
+    let modelClient = actionContext.getModelClient();
+    modelClient.removeModel(modelId, (error, data) => {
+      if (error) {
+        console.error(error);
+        reject(error);
+      } else if (data) {
+        actionContext.dispatch('STOP_MODEL_SUCCESS', data.modelId);
+        resolve(data.modelId);
+      }
+    });
   });
 };

@@ -23,9 +23,16 @@
  * Delete model
  */
 export default (actionContext, modelId) => {
-  return new Promise(resolve => {
-    // TODO: Remove persisted model reference
-    actionContext.dispatch('DELETE_MODEL_SUCCESS', modelId);
-    resolve(modelId);
+  return new Promise(function(resolve, reject) {
+    let modelClient = actionContext.getModelClient();
+    modelClient.removeModel(modelId, (error, data) => {
+      if (error) {
+        console.error(error);
+        reject(error);
+      } else if (data) {
+        actionContext.dispatch('DELETE_MODEL_SUCCESS', modelId);
+        resolve(modelId);
+      }
+    });
   });
 };

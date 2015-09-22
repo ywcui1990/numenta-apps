@@ -27,7 +27,8 @@ export default class ModelStore extends BaseStore {
     'ADD_MODEL_SUCCESS': '_handleAddModel',
     'DELETE_MODEL_SUCCESS': '_handleDeleteModel',
     'LIST_MODELS_SUCCESS': '_handleListModels',
-    'STOP_MODEL_SUCCESS': '_handleStopModel'
+    'STOP_MODEL_SUCCESS': '_handleStopModel',
+    'START_MODEL_SUCCESS': '_handleStartModel'
   };
 
   constructor(dispatcher) {
@@ -99,6 +100,18 @@ export default class ModelStore extends BaseStore {
     let model = this._models.get(modelId);
     if (model) {
       model.active = false;
+      this.emitChange();
+    }
+  }
+
+  /**
+   * Mark the model as active
+   * @param  {[type]} modelId The model to update
+   */
+  _handleStartModel(modelId) {
+    let model = this._models.get(modelId);
+    if (model) {
+      model.active = true;
       this.emitChange();
     }
   }

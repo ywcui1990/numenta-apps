@@ -20,17 +20,26 @@
 'use strict';
 
 /**
- * Get List of models
+ * Action used to send data to models
+ *
+ * @param  {[type]} actionContext [description]
+ * @param  {Object} payload {
+ *                          	modelId: 'id',
+ *                            data: [timestamp, value]
+ *                          }
  */
-export default (actionContext) => {
-  return new Promise(resolve => {
-    // TODO: Load persisted model references
-    let list = [
-      {modelId: 'id1', filename: 'filename1', metric: 'metric1'},
-      {modelId: 'id2', filename: 'filename2', metric: 'metric2'},
-      {modelId: 'id3', filename: 'filename3', metric: 'metric3'}
-    ];
-    actionContext.dispatch('LIST_MODELS_SUCCESS', list);
-    resolve(list);
+export default (actionContext, payload) => {
+  let modelClient = actionContext.getModelClient();
+  let { modelId, data } = payload;
+  return new Promise((resolve, reject) => {
+    modelClient.sendData(modelId, data , (error) => {
+      if (error) {
+        actionContext.executeAction(StopModelAction, model.modelId);
+        console.error(error);
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
   });
 };

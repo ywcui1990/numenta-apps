@@ -18,6 +18,7 @@
 // http://numenta.org/licenses/
 
 'use strict';
+import StartModelAction from './StartModel';
 
 /**
  * Add new model
@@ -31,12 +32,11 @@
  * @return {Promise}
  */
 export default (actionContext, payload) => {
-  return new Promise(resolve => {
-    // TODO: Create new model and persist model reference
-    let model = Object.assign({
-      active: true
-    }, payload);
-    actionContext.dispatch('ADD_MODEL_SUCCESS', model);
-    resolve(model);
-  });
+  // TODO: Persist model reference
+  let model = Object.assign({
+    active: false
+  }, payload);
+  actionContext.dispatch('ADD_MODEL_SUCCESS', model);
+  // Start model
+  return actionContext.executeAction(StartModelAction, model.modelId);
 };
