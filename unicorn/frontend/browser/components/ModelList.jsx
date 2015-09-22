@@ -62,7 +62,7 @@ export default class ModelList extends React.Component {
   _renderModels() {
     return this.props.models.map(model => {
       return (
-        <Model modelId={model.modelId} />
+        <Model key={model.modelId} modelId={model.modelId} />
       );
     });
   }

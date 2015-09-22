@@ -37,8 +37,11 @@ import crashReporter from 'crash-reporter';
 // internals
 
 import Config from './lib/ConfigServer';
+import ModelServerIPC from './lib/ModelServerIPC';
 
 const config = new Config();
+
+let modelServer =  null;
 
 let mainWindow = null; // global reference to keep window object from JS GC
 
@@ -76,4 +79,8 @@ app.on('ready', () => {
   mainWindow.webContents.on('dom-ready', (event) => {
     console.log('Electron main + renderer, and chrome DOM, all ready.');
   });
+
+  // Handle IPC commuication for the ModelServer
+  modelServer = new ModelServerIPC();
+  modelServer.start(mainWindow.webContents);
 });

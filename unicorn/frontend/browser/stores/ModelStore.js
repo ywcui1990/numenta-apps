@@ -27,7 +27,8 @@ export default class ModelStore extends BaseStore {
     'ADD_MODEL_SUCCESS': '_handleAddModel',
     'DELETE_MODEL_SUCCESS': '_handleDeleteModel',
     'LIST_MODELS_SUCCESS': '_handleListModels',
-    'STOP_MODEL_SUCCESS': '_handleStopModel'
+    'STOP_MODEL_SUCCESS': '_handleStopModel',
+    'START_MODEL_SUCCESS': '_handleStartModel'
   };
 
   constructor(dispatcher) {
@@ -43,6 +44,7 @@ export default class ModelStore extends BaseStore {
    *               modelId: {String},   // Required model id
    *               filename: {String},  // File name
    *               metric: {String},    // Metric Name
+   *               timestampField: {String},    // Timestamp field Name
    *               active: {Boolean}    // Whether or not this model is running
    *             }
    *             </code>
@@ -63,6 +65,7 @@ export default class ModelStore extends BaseStore {
    *      	modelId: "id",
    *      	filename: "filename",
    *      	metric: "metric",
+   *      	timestampField: "timestamp",
    *      	active: true|false
    *      }
    *      ...
@@ -102,6 +105,18 @@ export default class ModelStore extends BaseStore {
   }
 
   /**
+   * Mark the model as active
+   * @param  {[type]} modelId The model to update
+   */
+  _handleStartModel(modelId) {
+    let model = this._models.get(modelId);
+    if (model) {
+      model.active = true;
+      this.emitChange();
+    }
+  }
+
+  /**
    * Get model from store
    * @param  {String} modelId Model to get
    * @return {Object} The model object in the following format:
@@ -110,6 +125,7 @@ export default class ModelStore extends BaseStore {
    *               modelId: {String},  // Required model id
    *               filename: {String}, // File name
    *               metric: {String}    // Metric Name
+   *               timestampField: {String},    // Timestamp field Name
    *               active: {Boolean}    // Whether or not this model is running
    *             }
    *             </code>
@@ -127,6 +143,7 @@ export default class ModelStore extends BaseStore {
    *      	modelId: "id",
    *      	filename: "filename",
    *      	metric: "metric",
+   *      	timestampField: "timestamp",
    *      	active: true|false
    *      }
    *      ...

@@ -20,135 +20,107 @@
 
 'use strict';
 
+import childProcess from 'child_process';
+import EventEmitter from 'events';
+import path from 'path';
+
+const MODEL_RUNNER_PATH = path.join(__dirname, '..', '..', 'backend',
+                                    'unicorn_backend', 'model_runner.py');
+
 /**
  * Unicorn: ModelServer - Respond to a ModelClient over IPC, sharing our access
- *  to Unicorn Backend Model Runner python and NuPIC processes.
- *
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
+ * to Unicorn Backend Model Runner python and NuPIC processes.
  */
+export default class ModelServer extends EventEmitter {
+  constructor() {
+    super();
+    this._models = new Map();
+  }
 
-var childProcess = require('child_process');
-var path = require('path');
+  /**
+   * Creates new HTM model
+   * @param  {String}   modelId  Unique identifier for the model
+   * @param  {Object}   stats    HTM Model parameters. See model_runner.py
+   * @return {Boolean}           True if the the model was create and is ready
+   */
+  createModel(modelId, stats) {
+    if (this._models.has(modelId)) {
+      return false;
+    }
 
-const MODEL_RUNNER_PATH = path.join(__dirname, '..', '..',
-  'backend', 'unicorn_backend', 'model_runner.py');
-
-// MAIN
-
-/**
- *
- */
-var ModelServer = function() {
-  this.models = {};
-};
-
-/**
- * Create a new HTM model
- * @param  {String}   modelId  Unique identifier for the model
- * @param  {Object}   stats    HTM Model parameters. See model_runner.py
- * @param  {Function} callback On success called with the model id
- */
-ModelServer.prototype.createModel = function(modelId, stats, callback) {
-
-  // spawn() NuPIC process
-  var child = childProcess.spawn('python', [MODEL_RUNNER_PATH,
-    '--model', modelId, '--stats', stats]);
-  if (child) {
-    child.on('error', function (error) {
-      console.log('Failed to start child process: ' + error);
-      callback('Failed to start child process: ' + error);
-    });
-    child.stderr.on('data', function(error) {
-      callback('Failed to start child process: ' + error);
-    });
-    var _this = this;
-    child.on('close', function (code) {
-      console.log('child process exited with code ' + code);
-      delete _this.models[modelId];
-      callback('child process for model ' + modelId
-              + ' exited with code ' + code);
-    });
-    if (child.stdin) {
+    let child = childProcess.spawn('python', [MODEL_RUNNER_PATH, '--model',
+                                              modelId, '--stats', stats]);
+    if (child) {
       child.stdout.setEncoding('utf8');
       child.stdin.setDefaultEncoding('utf8');
       child.stderr.setEncoding('utf8');
-      this.models[modelId] = child;
-      callback(null, {modelId: modelId});
+
+      child.on('error', (error) => {
+        this.emit(modelId, 'error', error);
+      });
+
+      child.stderr.on('data', (error) => {
+        this.emit(modelId, 'error', error);
+      });
+
+      child.stdout.on('data', (data) => {
+        this.emit(modelId, 'data', data);
+      });
+
+      child.once('close', (code) => {
+        this._models.delete(modelId);
+        this.emit(modelId, 'close', code);
+      });
+
+      this._models.set(modelId,{
+        modelId: modelId,
+        stats: stats,
+        child: child
+      });
+      return true;
     }
-  } else {
-    console.log('Failed to create model ' + modelId);
+    return false;
+  }
+
+  /**
+   * Sends data to the model
+   * @param {[String]} modelId   The model to send data
+   * @param {[Array]} inputData The data values to be sent to the model,
+   *                             usually in the following format:
+   *                             '[timestamp, value]'
+   * @return {Boolean}          True on success, false otherwise
+   */
+  sendData(modelId, inputData) {
+    if (this._models.has(modelId)) {
+      let model = this._models.get(modelId);
+      model.child.stdin.write(JSON.stringify(inputData) + '\n');
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Returns a list of active models
+   * @return {Array} List of Model IDs with the active models
+   */
+  getModels() {
+    return Array.from(this._models.keys());
+  }
+
+  /**
+   * Stops and remove the model
+   * @param  {String} modelId The model to stop
+   * @return {Boolean}        True on success, false otherwise
+   */
+  removeModel(modelId) {
+    if (this._models.has(modelId)) {
+      let model = this._models.get(modelId);
+      this._models.delete(modelId);
+      model.child.kill();
+      this.removeAllListeners(modelId);
+      return true;
+    }
+    return false;
   }
 };
-
-ModelServer.prototype.addData = function(modelId, inputData, callback) {
-  var child = this.models[modelId];
-  if (child && child.stdin) {
-    child.stdin.write(inputData);
-    child.on('error', function (error) {
-      console.log('Failed to write to stdin for child process with ID: '
-                  + modelId + '. Error: ' + error);
-    });
-    callback(null, {modleId: modelId, input: inputData});
-  } else {
-    console.log('Failed to get stdin for model ' + modelId);
-    callback('Failed to get stdin for model ' + modelId );
-  }
-};
-
-ModelServer.prototype.onData = function(modelId, callback) {
-  var child = this.models[modelId];
-  if (child && child.stdout) {
-    child.stdout.on('data', function(data) {
-      callback(null, {modelId: modelId, output: data});
-    });
-    child.on('error', function (error) {
-      console.log('Failed to write to stdin for child process with ID: '
-                  + modelId + '. Error: ' + error);
-    });
-  } else {
-    callback('Failed to get stdout for model ' + modelId);
-  }
-};
-
-/**
- *
- */
-ModelServer.prototype.getModels = function(callback) {
-  // callback(error, null);
-  callback(null, {
-    models: this.models
-  });
-};
-
-/**
- *
- */
-ModelServer.prototype.getModel = function(modelId, callback) {
-  if (modelIs in thi.models) {
-    callback(null, {
-      model: this.models[modelId]
-    });
-  } else {
-    callback('Model ' + modelId + ' was not found');
-  }
-};
-
-/**
- *
- */
-ModelServer.prototype.removeModel = function(modelId, callback) {
-  var child = this.models[modelId];
-  if (child) {
-    child.kill();
-    delete this.models[modelId];
-    callback(null, {
-      modelId: modelId
-    });
-  } else {
-    callback('Model ' + modelId + ' was not found');
-  }
-};
-
-// EXPORTS
-
-module.exports = ModelServer;

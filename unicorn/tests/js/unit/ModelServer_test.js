@@ -25,49 +25,58 @@ const assert = require('assert');
 
 const STATS = '{"min": 0, "max": 10}';
 const MODEL_ID = '1';
-const INPUT_DATA = '[1438649711, 835.93679]\n';
+const INPUT_DATA = [1438649711, 835.93679];
 const EXPECTED_RESULTS = '[0, 0.5]\n';
 
 describe('ModelServer', () => {
   let server = new ModelServer();;
-  let modelId = null;
 
-  beforeEach(function () {
-    server.createModel(MODEL_ID, STATS, (error, data) => {
-      assert.ifError(error);
-      modelId = data.modelId;
-    });
+  beforeEach(() => {
+    assert(server.createModel(MODEL_ID, STATS));
+  });
+  afterEach(() => {
+    server.removeModel(MODEL_ID);
   });
 
   describe('makeSureModelExists', () => {
-    it('Check model ID', (done) => {
-      assert(modelId, 'Model ID is null');
+    it('Check model', (done) => {
+      let models = server.getModels();
+      assert(models.find(id => id === MODEL_ID), 'Model not found');
       done();
     });
   });
 
-  describe('#writeData()', () => {
-    it('Write data to child process stdin', (done) => {
-      server.addData(modelId, INPUT_DATA, (error, data) => {
-        assert.ifError(error);
-        assert.equal(data.input, INPUT_DATA);
-        done();
-      });
+  describe('#sendData()', () => {
+    it('Send data to child process stdin', (done) => {
+      assert(server.sendData(MODEL_ID, INPUT_DATA));
+      done();
     });
   });
 
-
-  describe('#onData()', () => {
+  describe('Model Events', () => {
     it('Read data from child process', (done) => {
-      server.addData(modelId, INPUT_DATA, (error, data) => {
-        assert.ifError(error);
-        assert.equal(data.input, INPUT_DATA);
+      server.on(MODEL_ID, (type, data) => {
+        assert(type !== 'error', data);
+        if (type === 'data') {
+          assert.equal(data, EXPECTED_RESULTS);
+          done();
+        }
       });
-      server.onData(modelId, (error, data) => {
-        assert.ifError(error);
-        assert.equal(data.output, EXPECTED_RESULTS);
-        done();
+      assert(server.sendData(MODEL_ID, INPUT_DATA));
+    });
+
+    it('Send bad data from child process', (done) => {
+      server.on(MODEL_ID, (type, data) => {
+        if (type === 'close') {
+          return;
+        } else if (type === 'error') {
+          done();
+        } else {
+          assert.fail(type, 'error', 'Expecting "error" got "' + type
+                          + ': ' + data + '"');
+        }
       });
+      assert(server.sendData(MODEL_ID, [0xbadbeef]));
     });
   });
 });

@@ -4,3 +4,7 @@ Unicorn-darwin-x64/
 bundle.js
 bundle.js.map
 *.log
+*.egg
+*.egg-info
+backend/build
+backend/dist

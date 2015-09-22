@@ -68,12 +68,13 @@ export default class FileList extends React.Component {
     };
   }
 
-  _onMetricCheck(modelId, filename, metric, event, checked) {
+  _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
     if (checked) {
       this.context.executeAction(AddModelAction, {
         modelId: modelId,
         filename: filename,
-        metric: metric
+        metric: metric,
+        timestampField: timestampField
       });
     } else {
       this.context.executeAction(DeleteModelAction, modelId);
@@ -81,21 +82,28 @@ export default class FileList extends React.Component {
   }
 
   _renderMetrics(file) {
-    return file.metrics.map(metric => {
-      let modelId = ModelUtils.generateModelId(file.filename, metric.name);
-      let modelStore = this.context.getStore(ModelStore);
-      let checked = modelStore.getModel(modelId)
-        ? true
-        : false;
-      return (
-        <ListItem key={modelId}
-          leftCheckbox={<Checkbox name={modelId}
-          checked={checked}
-          onCheck={this._onMetricCheck.bind(this, modelId, file.filename,
-            metric.name)}/>}
-          primaryText={metric.name}/>
-      );
+    let timestampField = file.metrics.find((metric) => {
+      return metric.type === 'date';
     });
+    if (timestampField) {
+      return file.metrics.map(metric => {
+        if (metric.type !== 'date') {
+          let modelId = ModelUtils.generateModelId(file.filename, metric.name);
+          let modelStore = this.context.getStore(ModelStore);
+          let checked = modelStore.getModel(modelId)
+            ? true
+            : false;
+          return (
+            <ListItem key={modelId}
+              leftCheckbox={<Checkbox name={modelId}
+              checked={checked}
+              onCheck={this._onMetricCheck.bind(this, modelId, file.filename,
+                timestampField.name, metric.name)}/>}
+              primaryText={metric.name}/>
+          );
+        }
+      });
+    }
   }
 
   _renderFiles(filetype) {

@@ -30,8 +30,5 @@
  *                          </code>
  */
 export default (actionContext, payload) => {
-  return new Promise(resolve => {
-    actionContext.dispatch('RECEIVE_DATA_SUCCESS', payload);
-    resolve(payload);
-  });
+  return actionContext.dispatch('RECEIVE_DATA_SUCCESS', payload);
 };
