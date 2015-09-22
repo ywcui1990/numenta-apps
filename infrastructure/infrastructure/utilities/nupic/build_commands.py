@@ -44,7 +44,6 @@ from infrastructure.utilities.cli import runWithOutput
 
 
 DOXYFILE = "docs/Doxyfile"
-INIT_FILE = "nupic/__init__.py"
 VERSION_FILE = "VERSION"
 
 g_config = yaml.load(resource_stream(__name__,
@@ -449,7 +448,7 @@ def executeBuildProcess(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
     with changeToWorkingDir(os.path.join(buildWorkspace, "nupic")):
       with open(VERSION_FILE, "r") as f:
         devVersion = f.read().strip()
-      for targetFile in [VERSION_FILE, DOXYFILE, INIT_FILE]:
+      for targetFile in [VERSION_FILE, DOXYFILE]:
         logger.debug("\tUpdating %s...", targetFile)
         replaceInFile(devVersion, nupicSha, targetFile)
 
