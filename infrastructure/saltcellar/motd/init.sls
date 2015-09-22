@@ -22,21 +22,32 @@
 
 # Install tooling for automatic motd generation.
 
-# Install the motd driver package.
+# Install the motd driver script
 acta-diurna:
-  pkg.latest
+  file.managed:
+    - name: /usr/local/bin/acta-diurna
+    - source: https://raw.githubusercontent.com/unixorn/acta-diurna/master/acta-diurna.py
+    - source_hash: md5=747f4457e0de9ebb7b5791e3d71cb91f
+    - user: root
+    - group: wheel
+    - mode: 0755
+{% if grains['os_family'] == 'RedHat' %}
+    - require:
+      - file: python-27-symlink
+      - sls: numenta-python
+{% endif %}
 
 # motd fragment scripts go here
 /etc/update-motd.d:
   file.directory:
     - user: root
-    - group: root
+    - group: wheel
     - mode: 0755
 
 /etc/update-motd.d.disabled:
   file.directory:
     - user: root
-    - group: root
+    - group: wheel
     - mode: 0755
 
 # Add Numenta logo to motd
@@ -44,7 +55,7 @@ acta-diurna:
   file.managed:
     - source: salt://motd/files/motd.logo
     - user: root
-    - group: root
+    - group: wheel
     - mode: 0644
     - require:
       - file: /etc/update-motd.d
@@ -55,6 +66,8 @@ acta-diurna:
 /etc/update-motd.d/20-banner.motd:
   file.managed:
     - source: salt://motd/files/20-banner.motd
+    - user: root
+    - group: wheel
     - mode: 0755
     - require:
       - file: /etc/update-motd.d
@@ -65,6 +78,8 @@ acta-diurna:
 /etc/update-motd.d/30-salt-version.motd:
   file.managed:
     - source: salt://motd/files/30-salt-version.motd
+    - user: root
+    - group: wheel
     - mode: 0755
     - require:
       - file: /etc/update-motd.d
@@ -74,20 +89,23 @@ acta-diurna:
 update-motd:
 # Install our motd cronjob script
   file.managed:
-    - name: /etc/cron.daily/update-motd
+    - name: /usr/local/sbin/update-motd
     - source: salt://motd/files/update-motd.centos
+    - user: root
+    - group: wheel
     - mode: 0755
     - require:
-      - file: python-27-symlink
-      - pkg: acta-diurna
-# Run the update-motd job, but only run if a fragment script is added/changed
+      - file: acta-diurna
+# Run the update-motd job, but only when a fragment script is added or changed
   cmd.wait:
-    - name: /etc/cron.daily/update-motd
+    - name: /usr/local/sbin/update-motd
     - cwd: /
     - require:
-      - file: python-27-symlink
-      - pkg: acta-diurna
-      - sls: numenta-python
+      - file: acta-diurna
+
+{% if grains['os_family'] == 'RedHat' %}
+
+motd-cronjob:
 # Install the actual cronjob
   cron.present:
     - name: /etc/cron.daily/update-motd 2>&1 > /dev/null
@@ -98,9 +116,11 @@ update-motd:
       - cron: set-sane-path-in-crontab
       - file: /etc/cron.daily/update-motd
       - file: /etc/update-motd.d
-      - pkg: acta-diurna
+      - file: acta-diurna
 
 update-motd-symlink:
   file.symlink:
-    - target: /etc/cron.daily/update-motd
-    - name: /usr/local/sbin/update-motd
+    - name: /etc/cron.daily/update-motd
+    - target: /usr/local/sbin/update-motd
+
+{% endif %}
