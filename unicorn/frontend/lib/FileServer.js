@@ -106,11 +106,8 @@ FileServer.prototype.getUploadedFiles = function(file, callback) {
     } else {
       formattedFile.metrics = fields;
       callback(error, formattedFile);
-
     }
   });
-
-
 };
 
 /**
@@ -139,9 +136,7 @@ FileServer.prototype.getFields = function(filename, options, callback) {
   if (!('columns' in options)) {
     options.columns = true;
   }
-  if (!('objectMode' in options)) {
-    options.objectMode = true;
-  }
+  options.objectMode = true;
 
   let stream = fs.createReadStream(path.resolve(filename));
   stream.pipe(csv(options))
@@ -166,11 +161,11 @@ FileServer.prototype.getFields = function(filename, options, callback) {
         stream.destroy();
       }
     })
-    .on('error', function(error) {
+    .once('error', function(error) {
       console.error('Error loading fields: ', error, filename);
       callback(error);
     })
-    .on('end', function() {
+    .once('end', function() {
       callback();
     });
 };
@@ -190,7 +185,7 @@ FileServer.prototype.getFields = function(filename, options, callback) {
  *
  *                       // if true, emit array of {Object}s
  *                       // instead of array of strings
- *                       objectMode: true,
+ *                       objectMode: false,
  *
  *                       // if set to true, uses first row as keys ->
  *                       // [ { column1: value1, column2: value2 , ...]}
@@ -213,9 +208,6 @@ FileServer.prototype.getData = function(filename, options, callback) {
   if (!('columns' in options)) {
     options.columns = true;
   }
-  if (!('objectMode' in options)) {
-    options.objectMode = true;
-  }
   if (!('limit' in options)) {
     options.limit = Number.MAX_SAFE_INTEGER;
   }
@@ -234,14 +226,14 @@ FileServer.prototype.getData = function(filename, options, callback) {
       }
       limit -= 1;
     })
-    .on('error', function(error) {
+    .once('error', function(error) {
       console.error('Error loading file: ', filename, error);
       callback(error);
     })
-    .on('close', function() {
+    .once('close', function() {
       callback();
     })
-    .on('end', function() {
+    .once('end', function() {
       callback();
     });
 };

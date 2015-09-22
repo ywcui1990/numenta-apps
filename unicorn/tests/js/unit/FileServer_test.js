@@ -33,6 +33,8 @@ const EXPECTED_CONTENT =
 2015-08-26T19:50:31+17:00,16
 2015-08-26T19:51:31+17:00,19
 `;
+
+
 // Expected data
 const EXPECTED_DATA = [
   {timestamp: '2015-08-26T19:46:31+17:00', metric: '21'},
@@ -42,6 +44,7 @@ const EXPECTED_DATA = [
   {timestamp: '2015-08-26T19:50:31+17:00', metric: '16'},
   {timestamp: '2015-08-26T19:51:31+17:00', metric: '19'},
 ];
+
 // Expected fields
 const EXPECTED_FIELDS = [
   {name: 'timestamp', type: 'date'},
@@ -59,9 +62,14 @@ const EXPECTED_MAX_PARTIAL = 21;
 // Keep this list up to date with file names in "frontend/samples"
 const EXPECTED_SAMPLE_FILES = ['file1.csv', 'gym.csv'];
 
+const FILENAME = path.resolve(__dirname, 'fixtures/file.csv');
+
 describe('FileServer', () => {
-  let server = new FileServer();;
-  let filename = path.resolve(__dirname, 'fixtures/file.csv');
+  let server;
+
+  beforeEach(function () {
+    server = new FileServer();
+  });
 
   describe('#getSampleFiles()', () => {
     it('List sample files', (done) => {
@@ -80,7 +88,7 @@ describe('FileServer', () => {
 
   describe('#getContents', () => {
     it('Get File Contents', (done) => {
-      server.getContents(filename, (error, data) => {
+      server.getContents(FILENAME, (error, data) => {
         assert.ifError(error);
         assert.equal(data, EXPECTED_CONTENT, 'Got different file content');
         done();
@@ -90,7 +98,7 @@ describe('FileServer', () => {
 
   describe('#getFields', () => {
     it('Get fields using default options', (done) => {
-      server.getFields(filename, (error, fields) => {
+      server.getFields(FILENAME, (error, fields) => {
         assert.ifError(error);
         assert.deepEqual(fields, EXPECTED_FIELDS, 'Got different fields');
         done();
@@ -101,10 +109,11 @@ describe('FileServer', () => {
   describe('#getData', () => {
     it('Get data using default options', (done) => {
       let i = 0;
-      server.getData(filename, (error, data) => {
+      server.getData(FILENAME, (error, data) => {
         assert.ifError(error);
         if (data) {
-          assert.deepEqual(data, EXPECTED_DATA[i++]);
+          let row = JSON.parse(data);
+          assert.deepEqual(row, EXPECTED_DATA[i++]);
         } else {
           done();
         }
@@ -112,10 +121,11 @@ describe('FileServer', () => {
     });
 
     it('Get data with limit=1', (done) => {
-      server.getData(filename, {limit: 1}, (error, data) => {
+      server.getData(FILENAME, {limit: 1}, (error, data) => {
         assert.ifError(error);
         if (data) {
-          assert.deepEqual(data, EXPECTED_DATA[0]);
+          let row = JSON.parse(data);
+          assert.deepEqual(row, EXPECTED_DATA[0]);
         } else {
           done();
         }
