@@ -68,7 +68,7 @@ app.on('ready', () => {
     // @TODO fill out options
     //  https://github.com/atom/electron/blob/master/docs/api/browser-window.md
   });
-  mainWindow.loadUrl('file://' + __dirname + config.get('entryHtml'));
+  mainWindow.loadUrl('file://' + __dirname + '/browser/index.html');
   mainWindow.openDevTools();
   mainWindow.on('closed', () => {
     mainWindow = null; // dereference single main window object
