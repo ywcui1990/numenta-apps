@@ -154,27 +154,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // add context to app
+  let modelClient = new ModelClient();
+  let fileClient = new FileClient();
+  let databaseClient = new DatabaseClient();
   context = app.createContext({
-    modelClient: new ModelClient(),
-    fileClient: new FileClient(),
-    databaseClient: new DatabaseClient(),
+    'modelClient': modelClient,
+    'fileClient': fileClient,
+    'databaseClient': databaseClient,
   });
+  // Start listening for model events
+  modelClient.start(context);
 
   // fire initial app action to load all files
   context.executeAction(ListFilesAction, {})
     .then((files) => {
-      // Load all metrics
-      Promise.all(files.map((file) => {
+      return Promise.all(files.map((file) => {
         return context.executeAction(ListMetricsAction, file.filename);
-      }))
-        .then(() => {
-          let contextEl = FluxibleReact.createElementWithContext(context);
-          if (document && ('body' in document)) {
-            React.render(contextEl, document.body);
-            return;
-          }
-          throw new Error('React cannot find a DOM document.body to render to');
-        });
+      }));
+    })
+    .then(() => {
+      let contextEl = FluxibleReact.createElementWithContext(context);
+      if (document && ('body' in document)) {
+        React.render(contextEl, document.body);
+        return;
+      }
+      throw new Error('React cannot find a DOM document.body to render to');
     })
     .catch((err) => {
       if (err) {
