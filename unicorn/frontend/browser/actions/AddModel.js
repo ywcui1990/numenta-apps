@@ -25,6 +25,7 @@
  * @param  {Object} payload {
  *                          	modelId: 'id',
  *                            filename: 'file',
+ *                            timestampField: 'timestampField',
  *                            metric: 'metric'
  *                          }
  * @return {Promise}

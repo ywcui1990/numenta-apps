@@ -43,6 +43,7 @@ export default class ModelStore extends BaseStore {
    *               modelId: {String},   // Required model id
    *               filename: {String},  // File name
    *               metric: {String},    // Metric Name
+   *               timestampField: {String},    // Timestamp field Name
    *               active: {Boolean}    // Whether or not this model is running
    *             }
    *             </code>
@@ -63,6 +64,7 @@ export default class ModelStore extends BaseStore {
    *      	modelId: "id",
    *      	filename: "filename",
    *      	metric: "metric",
+   *      	timestampField: "timestamp",
    *      	active: true|false
    *      }
    *      ...
@@ -110,6 +112,7 @@ export default class ModelStore extends BaseStore {
    *               modelId: {String},  // Required model id
    *               filename: {String}, // File name
    *               metric: {String}    // Metric Name
+   *               timestampField: {String},    // Timestamp field Name
    *               active: {Boolean}    // Whether or not this model is running
    *             }
    *             </code>
@@ -127,6 +130,7 @@ export default class ModelStore extends BaseStore {
    *      	modelId: "id",
    *      	filename: "filename",
    *      	metric: "metric",
+   *      	timestampField: "timestamp",
    *      	active: true|false
    *      }
    *      ...
