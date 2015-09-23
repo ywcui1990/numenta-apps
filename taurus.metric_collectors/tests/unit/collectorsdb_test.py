@@ -46,8 +46,7 @@ class CollectorsdbTestCase(unittest.TestCase):
 
     # Explicitly spec out sqlalchemy.create_engine()
     firstCall = Mock(spec_set=sqlalchemy.engine.base.Engine)
-    secondCall = Mock(spec_set=sqlalchemy.engine.base.Engine)
-    sqlalchemyMock.create_engine.side_effect = iter([firstCall, secondCall])
+    sqlalchemyMock.create_engine.side_effect = [firstCall]
 
     # Call collectorsdb.engineFactory()
     engine = collectorsdb.engineFactory()
@@ -58,14 +57,13 @@ class CollectorsdbTestCase(unittest.TestCase):
     self.assertIs(engine2, firstCall)
     self.assertEqual(sqlalchemyMock.create_engine.call_count, 1)
 
-    # Call collectorsdb.engineFactory() in different process, assert new
-    # instance
-    with patch("taurus.metric_collectors.collectorsdb.os",
+    # Call collectorsdb.engineFactory() in different process, assert raises
+    # assertion error
+    with patch("taurus.metric_collectors.collectorsdb.os.getpid",
+               return_value=collectorsdb._EngineSingleton._pid + 1,
                autospec=True) as osMock:
-      osMock.getpid.return_value = collectorsdb._EngineSingleton._pid + 1
-      engine3 = collectorsdb.engineFactory()
-      self.assertTrue(engine.dispose.called)
-      self.assertIs(engine3, secondCall)
+      with self.assertRaises(AssertionError):
+        engine3 = collectorsdb.engineFactory()
 
 
 

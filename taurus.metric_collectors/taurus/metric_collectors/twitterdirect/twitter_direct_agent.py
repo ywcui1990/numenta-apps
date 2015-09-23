@@ -1524,56 +1524,44 @@ def main():
 
       raise
 
+    numPartitions = options["numPartitions"]
+
     opMode = config.get("twitter_direct_agent", "opmode")
 
     g_log.info("Starting TwitterStreamListener(s) with options=%r", options)
 
-    metricSpecs = loadMetricSpecs()
-
-    # Start forwarders
-    metricDataForwarderThread = None
-    tweetForwarderThread = None
-    if opMode == config.OP_MODE_ACTIVE:
-      # Start Metric Data Forwarder
-      metricDataForwarderThread = threading.Thread(
-        target=MetricDataForwarder.runInThread,
-        kwargs=dict(metricSpecs=metricSpecs,
-                    aggSec=options["aggPeriod"]))
-      metricDataForwarderThread.setDaemon(True)
-      metricDataForwarderThread.start()
-      g_log.info("Started MetricDataForwarder thread")
-
-      # Start Tweet Forwarder
-      if options["forwardNonMetric"]:
-        tweetForwarderThread = threading.Thread(
-          target=TweetForwarder.runInThread)
-        tweetForwarderThread.setDaemon(True)
-        tweetForwarderThread.start()
-        g_log.info("Started TweetForwarder thread")
-
-
-    numPartitions = options["numPartitions"]
-    metricPartitions = _partition(metricSpecs, numPartitions)
-
-    assert len(metricPartitions) == numPartitions, (
-      len(metricPartitions), numPartitions)
-    assert len(metricSpecs) == sum(len(part) for part in metricPartitions)
-
-    # Create a process pool with number of processes equal to the number of
-    # partitions
-    taskOptions = dict(options.iteritems())
-    taskOptions.pop("numPartitions")
-    taskOptions.pop("forwardNonMetric")
-
-    tasks = [
-      dict(
-        [["metricSpecs", part]] + taskOptions.items())
-      for part in metricPartitions
-    ]
-
-    g_log.info("Creating multiprocessing pool with numWorkers=%d", len(tasks))
-    workerPool = multiprocessing.Pool(processes=len(tasks))
+    # NOTE: we must fork the process pool before running any other code
+    # in the main process that may invoke collectorsdb.engineFactory(),
+    # because the collectorsdb engine factory implementation is not fork-safe.
+    # The processes must be forked *before* the engine instance is allocated
+    # by the engine factory singleton.
+    g_log.info("Creating multiprocessing pool with numWorkers=%d",
+               numPartitions)
+    workerPool = multiprocessing.Pool(processes=numPartitions)
     try:
+
+      metricSpecs = loadMetricSpecs()
+
+      metricPartitions = _partition(metricSpecs, numPartitions)
+
+      assert len(metricPartitions) == numPartitions, (
+        len(metricPartitions), numPartitions)
+      assert len(metricSpecs) == sum(len(part) for part in metricPartitions)
+
+      # Create a process pool with number of processes equal to the number of
+      # partitions
+      taskOptions = dict(options.iteritems())
+      taskOptions.pop("numPartitions")
+      taskOptions.pop("forwardNonMetric")
+
+      tasks = [
+        dict(
+          [["metricSpecs", part]] + taskOptions.items())
+        for part in metricPartitions
+      ]
+
+      # Start tweet streamers
+      #
       # NOTE: we run workerPool.imap_unordered from a thread because the Pool
       # is otherwise somehow interfering with the processing of SIGINT and our
       # process just hangs when supervisord tries to shut it down.
@@ -1584,7 +1572,28 @@ def main():
       poolRunnerThread.start()
       g_log.info("Started Pool Runner thread")
 
-      # Wait for it to exit, which it never should
+      # Start forwarders
+      metricDataForwarderThread = None
+      tweetForwarderThread = None
+      if opMode == config.OP_MODE_ACTIVE:
+        # Start Metric Data Forwarder
+        metricDataForwarderThread = threading.Thread(
+          target=MetricDataForwarder.runInThread,
+          kwargs=dict(metricSpecs=metricSpecs,
+                      aggSec=options["aggPeriod"]))
+        metricDataForwarderThread.setDaemon(True)
+        metricDataForwarderThread.start()
+        g_log.info("Started MetricDataForwarder thread")
+
+        # Start Tweet Forwarder
+        if options["forwardNonMetric"]:
+          tweetForwarderThread = threading.Thread(
+            target=TweetForwarder.runInThread)
+          tweetForwarderThread.setDaemon(True)
+          tweetForwarderThread.start()
+          g_log.info("Started TweetForwarder thread")
+
+      # Wait for the pooled tasks to complete, which they never should
       while True:
         # Passing a timeout value allows the join call to be interrupted by
         # SIGINT, which results in KeyboardInterrupt exception.

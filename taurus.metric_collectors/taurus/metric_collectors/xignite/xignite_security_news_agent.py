@@ -866,46 +866,48 @@ def main():
   """
   logging_support.LoggingSupport.initService()
 
-  options = _parseArgs()
-
-  # See OP_MODE_ACTIVE, etc. in ApplicationConfig
-  opMode = config.get("xignite_security_news_agent", "opmode")
-  g_log.info("Starting: opMode=%s", opMode)
-
-  aggSec = options.aggIntervalSec
-
-  # Load metric specs from metric configuration
-  metricSpecs = _loadNewsVolumeMetricSpecs()
-
-  # Load securities from metric configuration
-  securities = getAllMetricSecurities()
-  g_log.info("Collecting headlines and releases for %s", securities)
-
-  # Maps security symbols to the datetime.date of most recently-stored headlines
-  lastSecurityHeadlineEndDates = _querySecurityNewsEndDates(
-    schema.xigniteSecurityHeadline)
-
-  # Map security symbols to the datetime.date of most recently-stored releases
-  lastSecurityReleaseEndDates = _querySecurityNewsEndDates(
-    schema.xigniteSecurityRelease)
-
-  # Establish/retrieve datetime of last successfully-emitted metric data batch
-  lastEmittedAggTime = metric_utils.establishLastEmittedSampleDatetime(
-    key=_EMITTED_NEWS_VOLUME_SAMPLE_TRACKER_KEY,
-    aggSec=aggSec)
-
-  # Calculate next aggregation start time using lastEmittedAggTime as base
-  lastAggStart = date_time_utils.epochFromNaiveUTCDatetime(lastEmittedAggTime)
-  nextAggEnd= lastAggStart + (
-    int((time.time() - lastAggStart + aggSec - 1) / aggSec) * aggSec) + aggSec
-
-  # Poll, store and emit samples
-  pollingIntervalSec = aggSec / 2.0
   numPoolWorkers = max(_MIN_POOL_CONCURRENCY, multiprocessing.cpu_count())
-  g_log.info("Entering main loop: pollingIntervalSec=%s; numPoolWorkers=%d",
-             pollingIntervalSec, numPoolWorkers)
   pool = multiprocessing.Pool(processes=numPoolWorkers)
   try:
+
+    options = _parseArgs()
+
+    # See OP_MODE_ACTIVE, etc. in ApplicationConfig
+    opMode = config.get("xignite_security_news_agent", "opmode")
+    g_log.info("Starting: opMode=%s", opMode)
+
+    aggSec = options.aggIntervalSec
+
+    # Load metric specs from metric configuration
+    metricSpecs = _loadNewsVolumeMetricSpecs()
+
+    # Load securities from metric configuration
+    securities = getAllMetricSecurities()
+    g_log.info("Collecting headlines and releases for %s", securities)
+
+    # Maps security symbols to the datetime.date of most recently-stored headlines
+    lastSecurityHeadlineEndDates = _querySecurityNewsEndDates(
+      schema.xigniteSecurityHeadline)
+
+    # Map security symbols to the datetime.date of most recently-stored releases
+    lastSecurityReleaseEndDates = _querySecurityNewsEndDates(
+      schema.xigniteSecurityRelease)
+
+    # Establish/retrieve datetime of last successfully-emitted metric data batch
+    lastEmittedAggTime = metric_utils.establishLastEmittedSampleDatetime(
+      key=_EMITTED_NEWS_VOLUME_SAMPLE_TRACKER_KEY,
+      aggSec=aggSec)
+
+    # Calculate next aggregation start time using lastEmittedAggTime as base
+    lastAggStart = date_time_utils.epochFromNaiveUTCDatetime(lastEmittedAggTime)
+    nextAggEnd= lastAggStart + (
+      int((time.time() - lastAggStart + aggSec - 1) / aggSec) * aggSec) + aggSec
+
+    # Poll, store and emit samples
+    pollingIntervalSec = aggSec / 2.0
+    g_log.info("Entering main loop: pollingIntervalSec=%s; numPoolWorkers=%d",
+               pollingIntervalSec, numPoolWorkers)
+
     while True:
       pollingIntervalEnd = time.time() + pollingIntervalSec
 
