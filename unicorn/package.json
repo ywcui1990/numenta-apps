@@ -16,7 +16,7 @@
     "x64"
   ],
   "scripts": {
-    "build": "npm install && UNICORN_TARGET=desktop npm run pack  && electron-packager . Unicorn --prune --ignore=.git --ignore=node_modules/electron-*  --platform=darwin --arch=x64 --version=0.32.3 --overwrite --icon=assets/unicorn.icns",
+    "build": "npm install && UNICORN_TARGET=desktop npm run pack  && electron-packager . Unicorn --prune --ignore=.git --ignore=node_modules/electron-*  --platform=darwin --arch=x64 --version=0.32.3 --overwrite --icon=assets/unicorn.icns--sign='Developer ID Application: Numenta, Inc. (2589Z673MU)'",
     "check": "npm install  &&  npm prune  &&  npm outdated -depth 0",
     "clean": "rm -Rf node_modules/",
     "desktop": "npm run desktop:pack &&  npm run electron",
