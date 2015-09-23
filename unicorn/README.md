@@ -265,7 +265,7 @@ TODO
 #### Signing
 
 WARNING: In progress and subject to change.
-* Current workaround to sign the electron app: if you have the certificate `Developer ID Application: Numenta, Inc. (2589Z673MU)` you can add `--sign='Developer ID Application: Numenta, Inc. (2589Z673MU)'` at the end the `electron-packager` command of the `build` script in `package.json`. This will build and sign the app.
+* Current workaround to sign the electron app: if you have a "Developer ID Application" certificate you can add `--sign=<your certificate common name>` at the end the `electron-packager` command of the `build` script in `package.json`. This will build and sign the app.
 * Useful blog post about signing Electron apps: http://jbavari.github.io/blog/2015/08/14/codesigning-electron-applications
 
 #### Releasing the app in the AppStore
