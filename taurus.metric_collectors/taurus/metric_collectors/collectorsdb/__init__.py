@@ -98,29 +98,37 @@ class _EngineSingleton(object):
 
     with cls._mpMutex:
       if cls._pid is None:
-        cls._pid = pid
         cls._threadMutex = threading.Lock()
+        cls._pid = pid
       else:
         # NOTE: we've experienced race condition hangs when the non-empty
-        # _EngineSingleton was cloned via multiprocessing forking.
-        # `cls._engine.dispose()` didn't alleviate this problem
+        # _EngineSingleton was cloned via multiprocessing forking. Resetting
+        # and/or `cls._engine.dispose()` didn't alleviate this problem.
         assert cls._pid == pid, "collectorsdb engine factory is not fork-safe"
 
-      with cls._threadMutex:
-        if cls._engine is None:
-          cls._engine = sqlalchemy.create_engine(getDSN())
+    with cls._threadMutex:
+      if cls._engine is None:
+        cls._engine = sqlalchemy.create_engine(getDSN())
 
     return cls._engine
 
 
   @classmethod
   def reset(cls):
-    """ Reset internal engine and pid references
+    """ Reset internal engine and pid references. For use by tests only!
     """
     with cls._mpMutex:
-      cls._pid = None
-      cls._threadMutex = None
-      cls._engine = None
+      if cls._pid is not None:
+        # NOTE: we've experienced race condition hangs when the non-empty
+        # _EngineSingleton was cloned via multiprocessing forking. Resetting
+        # and/or `cls._engine.dispose()` didn't alleviate this problem.
+        assert cls._pid == os.getpid(), (
+          "collectorsdb engine factory is not fork-safe")
+        cls._pid = None
+
+        with cls._threadMutex:
+          cls._engine = None
+          cls._threadMutex = None
 
 
 
@@ -134,7 +142,7 @@ def engineFactory():
 
 
 def resetEngineSingleton():
-  """ Reset engine singleton
+  """ Reset engine singleton. For use by tests only!
   """
   _EngineSingleton.reset()
 
