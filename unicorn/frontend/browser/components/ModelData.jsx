@@ -25,7 +25,7 @@ import ModelDataStore from '../stores/ModelDataStore';
 import Chart from '../components/Chart';
 
 @connectToStores([ModelDataStore], (context) => ({
-  modelStore: context.getStore(ModelDataStore)
+  modelDataStore: context.getStore(ModelDataStore)
 }))
 export default class ModelData extends React.Component {
 
@@ -35,25 +35,19 @@ export default class ModelData extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    let store = this.props.modelStore;
-    this.state = Object.assign({}, store.getData(this.props.modelId));
-  }
-
-  componentWillReceiveProps(nextProps) {
-    let store = this.props.modelStore;
-    this.setState(Object.assign({}, store.getData(nextProps.modelId)));
   }
 
   render() {
-    let options = {
-      labels: ['Time', 'Value'],
-      showRangeSelector: true
-    };
+    let store = this.props.modelDataStore;
+    let modelData = store.getData(this.props.modelId);
+    if (modelData) {
+      let options = {
+        labels: ['Time', 'Value'],
+        showRangeSelector: true
+      };
 
-    let data = this.state.data;
-    if (data) {
       return (
-        <Chart data={data} options={options} ref="chart"/>
+        <Chart data={modelData.data} options={options} ref="chart"/>
       );
     }
   }
