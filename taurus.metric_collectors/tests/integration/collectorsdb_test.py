@@ -36,15 +36,6 @@ def setUpModule():
   logging_support.LoggingSupport.initTestApp()
 
 
-
-def _forkedEngineId():
-  """ Get engine and return id.  Needs to be in global namespace for
-  multiprocessing.Pool().apply() to work properly
-  """
-  return id(collectorsdb.engineFactory())
-
-
-
 def startProxy(host, port, listenPort):
   """ Start a proxy using netcat (nc)
 
@@ -110,11 +101,10 @@ class CollectorsdbTestCase(unittest.TestCase):
     engine2 = collectorsdb.engineFactory()
     self.assertIs(engine2, engine)
 
-    # Call collectorsdb.engineFactory() in different process, assert new
-    # instance
-    originalEngineId = id(engine)
-    engine3 = multiprocessing.Pool(processes=1).apply(_forkedEngineId)
-    self.assertNotEqual(id(engine3), originalEngineId)
+    # Call collectorsdb.engineFactory() in different process, assert raises
+    # AssertionError
+    with self.assertRaises(AssertionError):
+      multiprocessing.Pool(processes=1).apply(collectorsdb.engineFactory)
 
 
 

@@ -19,9 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import multiprocessing
 import optparse
 import random
 import os
+import threading
 
 
 import sqlalchemy
@@ -84,21 +86,29 @@ def getDSN():
 class _EngineSingleton(object):
 
 
-  _engine = None
+  _mpMutex = multiprocessing.Lock()
   _pid = None
+  _threadMutex = None
+  _engine = None
 
 
   @classmethod
   def getEngine(cls):
     pid = os.getpid()
 
-    if cls._pid != pid:
-      if cls._engine is not None:
-        cls._engine.dispose()
-        cls._engine = None
+    with cls._mpMutex:
+      if cls._pid is None:
+        cls._pid = pid
+        cls._threadMutex = threading.Lock()
+      else:
+        # NOTE: we've experienced race condition hangs when the non-empty
+        # _EngineSingleton was cloned via multiprocessing forking.
+        # `cls._engine.dispose()` didn't alleviate this problem
+        assert cls._pid == pid, "collectorsdb engine factory is not fork-safe"
 
-      cls._engine = sqlalchemy.create_engine(getDSN())
-      cls._pid = pid
+      with cls._threadMutex:
+        if cls._engine is None:
+          cls._engine = sqlalchemy.create_engine(getDSN())
 
     return cls._engine
 
@@ -107,8 +117,10 @@ class _EngineSingleton(object):
   def reset(cls):
     """ Reset internal engine and pid references
     """
-    cls._engine = None
-    cls._pid = None
+    with cls._mpMutex:
+      cls._pid = None
+      cls._threadMutex = None
+      cls._engine = None
 
 
 
@@ -144,13 +156,13 @@ def resetCollectorsdbMain():
   parser = optparse.OptionParser(helpString)
 
   parser.add_option(
-      "--suppress-prompt-and-obliterate-database",
-      action="store_true",
-      default=False,
-      dest="suppressPrompt",
-      help=("Suppresses confirmation prompt and proceedes with this "
-            "DESTRUCTIVE operation. This option is intended for scripting. "
-            "[default: %default]"))
+    "--suppress-prompt-and-obliterate-database",
+    action="store_true",
+    default=False,
+    dest="suppressPrompt",
+    help=("Suppresses confirmation prompt and proceedes with this "
+          "DESTRUCTIVE operation. This option is intended for scripting. "
+          "[default: %default]"))
 
   options, remainingArgs = parser.parse_args()
   if remainingArgs:
