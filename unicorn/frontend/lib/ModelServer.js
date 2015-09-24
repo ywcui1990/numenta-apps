@@ -23,63 +23,100 @@
 import childProcess from 'child_process';
 import EventEmitter from 'events';
 import path from 'path';
+import UserError from './UserError';
 
 const MODEL_RUNNER_PATH = path.join(__dirname, '..', '..', 'backend',
                                     'unicorn_backend', 'model_runner.py');
+
+
+
+/**
+ * Thrown when attempting to create more models than allowed by the system
+ */
+export class MaximumConcurrencyError extends UserError {
+  constructor() {
+    super('Too many models running');
+  }
+};
+
+/**
+ * Thrown when attempting to create a model with the same ID as a previous model
+ */
+export class DuplicateIDError extends UserError {
+  constructor() {
+    super('Duplicate model ID');
+  }
+};
+
+/**
+ * Thrown when attempting to perform an operation on an unknown model
+ */
+export class ModelNotFoundError extends UserError {
+  constructor() {
+    super('Model not found');
+  }
+};
 
 /**
  * Unicorn: ModelServer - Respond to a ModelClient over IPC, sharing our access
  * to Unicorn Backend Model Runner python and NuPIC processes.
  */
-export default class ModelServer extends EventEmitter {
+export class ModelServer extends EventEmitter {
   constructor() {
     super();
     this._models = new Map();
+    // FIXME: UNI-149 - Remove hardcoded value. Use calculate concurrency value
+    this._maxConcurrency = 2;
+  }
+
+  /**
+   * Returns the number of slots available to run new models
+   */
+  availableSlots() {
+    return this._maxConcurrency - this._models.size;
   }
 
   /**
    * Creates new HTM model
    * @param  {String}   modelId  Unique identifier for the model
    * @param  {Object}   stats    HTM Model parameters. See model_runner.py
-   * @return {Boolean}           True if the the model was create and is ready
+   * @throws MaximumConcurrencyError, DuplicateIDError
    */
   createModel(modelId, stats) {
-    if (this._models.has(modelId)) {
-      return false;
+    if (this.availableSlots() <= 0) {
+      throw new MaximumConcurrencyError();
     }
-
+    if (this._models.has(modelId)) {
+      throw new DuplicateIDError();
+    }
     let child = childProcess.spawn('python', [MODEL_RUNNER_PATH, '--model',
                                               modelId, '--stats', stats]);
-    if (child) {
-      child.stdout.setEncoding('utf8');
-      child.stdin.setDefaultEncoding('utf8');
-      child.stderr.setEncoding('utf8');
+    child.stdout.setEncoding('utf8');
+    child.stdin.setDefaultEncoding('utf8');
+    child.stderr.setEncoding('utf8');
 
-      child.on('error', (error) => {
-        this.emit(modelId, 'error', error);
-      });
+    child.on('error', (error) => {
+      this.emit(modelId, 'error', error);
+    });
 
-      child.stderr.on('data', (error) => {
-        this.emit(modelId, 'error', error);
-      });
+    child.stderr.on('data', (error) => {
+      this.emit(modelId, 'error', error);
+    });
 
-      child.stdout.on('data', (data) => {
-        this.emit(modelId, 'data', data);
-      });
+    child.stdout.on('data', (data) => {
+      this.emit(modelId, 'data', data);
+    });
 
-      child.once('close', (code) => {
-        this._models.delete(modelId);
-        this.emit(modelId, 'close', code);
-      });
+    child.once('close', (code) => {
+      this._models.delete(modelId);
+      this.emit(modelId, 'close', code);
+    });
 
-      this._models.set(modelId,{
-        modelId: modelId,
-        stats: stats,
-        child: child
-      });
-      return true;
-    }
-    return false;
+    this._models.set(modelId,{
+      modelId: modelId,
+      stats: stats,
+      child: child
+    });
   }
 
   /**
@@ -88,16 +125,14 @@ export default class ModelServer extends EventEmitter {
    * @param {[Array]} inputData The data values to be sent to the model,
    *                             usually in the following format:
    *                             '[timestamp, value]'
-   * @return {Boolean}          True on success, false otherwise
+   * @throws ModelNotFoundError
    */
   sendData(modelId, inputData) {
-    if (this._models.has(modelId)) {
-      let model = this._models.get(modelId);
-      model.child.stdin.write(JSON.stringify(inputData) + '\n');
-      return true;
-    } else {
-      return false;
+    if (!this._models.has(modelId)) {
+      throw new ModelNotFoundError();
     }
+    let model = this._models.get(modelId);
+    model.child.stdin.write(JSON.stringify(inputData) + '\n');
   }
 
   /**
@@ -114,13 +149,13 @@ export default class ModelServer extends EventEmitter {
    * @return {Boolean}        True on success, false otherwise
    */
   removeModel(modelId) {
-    if (this._models.has(modelId)) {
-      let model = this._models.get(modelId);
-      this._models.delete(modelId);
-      model.child.kill();
-      this.removeAllListeners(modelId);
-      return true;
+    if (!this._models.has(modelId)) {
+      throw new ModelNotFoundError();
     }
-    return false;
+
+    let model = this._models.get(modelId);
+    this._models.delete(modelId);
+    model.child.kill();
+    this.removeAllListeners(modelId);
   }
 };
