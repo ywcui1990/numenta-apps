@@ -156,13 +156,13 @@ def resetCollectorsdbMain():
   parser = optparse.OptionParser(helpString)
 
   parser.add_option(
-      "--suppress-prompt-and-obliterate-database",
-      action="store_true",
-      default=False,
-      dest="suppressPrompt",
-      help=("Suppresses confirmation prompt and proceedes with this "
-            "DESTRUCTIVE operation. This option is intended for scripting. "
-            "[default: %default]"))
+    "--suppress-prompt-and-obliterate-database",
+    action="store_true",
+    default=False,
+    dest="suppressPrompt",
+    help=("Suppresses confirmation prompt and proceedes with this "
+          "DESTRUCTIVE operation. This option is intended for scripting. "
+          "[default: %default]"))
 
   options, remainingArgs = parser.parse_args()
   if remainingArgs:

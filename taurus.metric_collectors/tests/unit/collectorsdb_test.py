@@ -22,16 +22,11 @@
 
 import unittest2 as unittest
 
-from mock import DEFAULT, Mock, patch
-import MySQLdb
+from mock import Mock, patch
 import sqlalchemy
-from sqlalchemy.engine import Engine
 import sqlalchemy.exc
 
-from nta.utils.sqlalchemy_utils import _ALL_RETRIABLE_ERROR_CODES
-
 from taurus.metric_collectors import collectorsdb, logging_support
-from taurus.metric_collectors.collectorsdb import retryOnTransientErrors
 
 
 
@@ -61,9 +56,9 @@ class CollectorsdbTestCase(unittest.TestCase):
     # assertion error
     with patch("taurus.metric_collectors.collectorsdb.os.getpid",
                return_value=collectorsdb._EngineSingleton._pid + 1,
-               autospec=True) as osMock:
+               autospec=True):
       with self.assertRaises(AssertionError):
-        engine3 = collectorsdb.engineFactory()
+        collectorsdb.engineFactory()
 
 
 

@@ -33,16 +33,12 @@ from collections import namedtuple
 import itertools
 import json
 import logging
-import operator
 import os
-import socket
 import time
-from collections import deque
 from datetime import datetime, timedelta
 from functools import partial
 import multiprocessing
 from optparse import OptionParser
-from StringIO import StringIO
 
 import requests
 import sqlalchemy as sql
@@ -52,7 +48,6 @@ from nta.utils.error_handling import logExceptions
 from nta.utils.error_handling import retry
 
 from taurus.metric_collectors import collectorsdb
-from taurus.metric_collectors import logging_support
 from taurus.metric_collectors.collectorsdb import schema
 from taurus.metric_collectors import config
 from taurus.metric_collectors import logging_support
@@ -264,7 +259,7 @@ class _HistoricalNewsTaskBase(object):
     for story in headlines:
       localPubDate = datetime.strptime(story["Date"],
                                        self._XIGNITE_DATE_FMT).date()
-      if not (self.startDate <= localPubDate <= self.endDate):
+      if not self.startDate <= localPubDate <= self.endDate:
         # I saw there a lot at time of this writing. Reported to xignite
         # as case 00016736
         g_log.debug("%s: localPubDate=%r outside task's range; story=%s",
@@ -326,9 +321,9 @@ class _HistoricalNewsTaskBase(object):
     """
     params = copy.deepcopy(self._NEWS_URL_ARGS_TEMPLATE)
     params.update({"Identifier": self.security[0],
-                  "StartDate": self.startDate.strftime(self._XIGNITE_DATE_FMT),
-                  "EndDate": self.endDate.strftime(self._XIGNITE_DATE_FMT),
-                  "_Token": apiToken})
+                   "StartDate": self.startDate.strftime(self._XIGNITE_DATE_FMT),
+                   "EndDate": self.endDate.strftime(self._XIGNITE_DATE_FMT),
+                   "_Token": apiToken})
 
     response = _httpGetWithRetries(session, self._BASE_NEWS_URL, params=params)
 
@@ -378,8 +373,9 @@ class _HistoricalNewsTaskBase(object):
     """
     sel = sql.select([table.c.local_pub_date, table.c.url, table.c.source]
       ).where(
-          (table.c.local_pub_date >= startDate) &
-          (table.c.local_pub_date <= endDate))
+        (table.c.symbol == symbol) &
+        (table.c.local_pub_date >= startDate) &
+        (table.c.local_pub_date <= endDate))
 
     return collectorsdb.engineFactory().execute(sel).fetchall()
 
@@ -444,7 +440,8 @@ class _HistoricalNewsTaskBase(object):
     :raises MarketNewsDetailsUnavailable:
     :raises MarketNewsDetailsFetchError:
     """
-    # Reference=http://www.cnbc.com/id/101433706&_fields=Outcome,Message,Delay,Headline,Time,Source,Url,Summary
+    # Reference=http://www.cnbc.com/id/101433706&_fields=Outcome,Message,Delay,\
+    # Headline,Time,Source,Url,Summary
     params = {
       "Reference": url,
       "_fields": "Outcome,Message,Delay,Headline,Time,Source,Url,Summary",
@@ -678,8 +675,7 @@ def _queryNewsVolumes(aggStartDatetime, aggStopDatetime):
 def _forwardNewsVolumeMetrics(metricSpecs,
                               lastEmittedAggTime,
                               stopDatetime,
-                              periodSec,
-                              metricDestAddr):
+                              periodSec):
   """ Query news volume metrics since the given last emitted timestamp through
   stopDatetime and forward them to htmengine's Metric Listener. Update the
   datetime of the last successfully-emitted news volume metric batch in the
@@ -697,7 +693,6 @@ def _forwardNewsVolumeMetrics(metricSpecs,
     batch
   :param stopDatetime: non-inclusive upper bound UTC datetime for forwarding
   :param periodSec: aggregation period in seconds
-  :param metricDestAddr: two-tuple (metricDestHost, metricDestPort)
   :returns: UTC timestamp of the last successfully-emitted sample batch.
   :rtype: datetime.datetime
   """
@@ -725,7 +720,7 @@ def _forwardNewsVolumeMetrics(metricSpecs,
       with metric_utils.metricDataBatchWrite(log=g_log) as putSample:
         for sample in samples:
           putSample(**sample)
-    except Exception:
+    except Exception:  # pylint: disable=W0703
       g_log.exception("Failure while emitting metric data for agg=%s "
                       "containing numSamples=%d",
                       aggStartDatetime, len(samples))
@@ -791,7 +786,7 @@ def _logSummaries(headlineTasksWithCounts,
 
   if releaseErrorTasks:
     totalReleaseErrors = sum(len(tasks) for tasks in
-                              releaseErrorTasks.itervalues())
+                             releaseErrorTasks.itervalues())
     g_log.error("totalReleaseErrors=%d", totalReleaseErrors)
 
 
@@ -885,7 +880,8 @@ def main():
     securities = getAllMetricSecurities()
     g_log.info("Collecting headlines and releases for %s", securities)
 
-    # Maps security symbols to the datetime.date of most recently-stored headlines
+    # Maps security symbols to the datetime.date of most recently-stored
+    # headlines
     lastSecurityHeadlineEndDates = _querySecurityNewsEndDates(
       schema.xigniteSecurityHeadline)
 
@@ -941,8 +937,7 @@ def main():
             metricSpecs=metricSpecs,
             lastEmittedAggTime=lastEmittedAggTime,
             stopDatetime=datetime.utcfromtimestamp(nextAggEnd),
-            periodSec=aggSec,
-            metricDestAddr=options.metricDestAddr)
+            periodSec=aggSec)
 
         nextAggEnd += aggSec
 
@@ -956,7 +951,6 @@ def main():
   except KeyboardInterrupt:
     # Log with exception info to help debug deadlocks
     g_log.info("Observed KeyboardInterrupt", exc_info=True)
-    pass
   finally:
     g_log.info("Closing multiprocessing.Pool")
     pool.close()
@@ -985,37 +979,37 @@ def _parseArgs():
   parser = OptionParser(helpString)
 
   parser.add_option(
-      "--api-token",
-      action="store",
-      type="string",
-      default=_DEFAULT_API_TOKEN,
-      dest="apiToken",
-      help="XIgnite API Token [default: %default]")
+    "--api-token",
+    action="store",
+    type="string",
+    default=_DEFAULT_API_TOKEN,
+    dest="apiToken",
+    help="XIgnite API Token [default: %default]")
 
   parser.add_option(
-      "--agg-interval",
-      action="store",
-      type="int",
-      dest="aggIntervalSec",
-      default=DEFAULT_AGGREGATION_INTERVAL_SEC,
-      help="Metric aggregation interval in seconds [default: %default]")
+    "--agg-interval",
+    action="store",
+    type="int",
+    dest="aggIntervalSec",
+    default=DEFAULT_AGGREGATION_INTERVAL_SEC,
+    help="Metric aggregation interval in seconds [default: %default]")
 
   parser.add_option(
-      "--backfill-days",
-      action="store",
-      type="int",
-      dest="backfillDays",
-      default=DEFAULT_MAX_BACKFILL_DAYS,
-      help=("Max number of days for backfilling headlines and releases; the "
-            "underlying service lacks datetime granularity for backfilled data "
-            "beyond the article's date [default: %default]"))
+    "--backfill-days",
+    action="store",
+    type="int",
+    dest="backfillDays",
+    default=DEFAULT_MAX_BACKFILL_DAYS,
+    help=("Max number of days for backfilling headlines and releases; the "
+          "underlying service lacks datetime granularity for backfilled data "
+          "beyond the article's date [default: %default]"))
 
   parser.add_option(
-      "--dryrun",
-      action="store_true",
-      default=False,
-      dest="dryRun",
-      help="Use this flag to do a dry run (retrieve data, but don't store it)")
+    "--dryrun",
+    action="store_true",
+    default=False,
+    dest="dryRun",
+    help="Use this flag to do a dry run (retrieve data, but don't store it)")
 
   parser.add_option(
     "--metric-addr",
