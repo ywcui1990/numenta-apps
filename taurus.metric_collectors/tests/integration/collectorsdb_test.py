@@ -145,7 +145,7 @@ class TestTransientErrorHandling(unittest.TestCase):
       engine = collectorsdb.engineFactory()
 
       # First, make sure valid query returns expected results
-      res = engine.execute("select 1")
+      res = collectorsdb.retryOnTransientErrors(engine.execute)("select 1")
       self.assertEqual(res.scalar(), 1)
 
       @collectorsdb.retryOnTransientErrors
