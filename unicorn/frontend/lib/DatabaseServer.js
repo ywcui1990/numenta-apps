@@ -53,7 +53,11 @@ const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 // MAIN
 
 /**
- *
+ * Unicorn DatabaseServer
+ * @class
+ * @module
+ * @returns {object} this
+ * @this DatabaseServer
  */
 var DatabaseServer = function() {
   this.validator = new Validator();
@@ -63,13 +67,6 @@ var DatabaseServer = function() {
     db: jsondown,
     valueEncoding: 'json'
   }));
-};
-
-/**
- * Get a single DB value
- */
-DatabaseServer.prototype.get = function(key, callback) {
-  this.db.get(key, callback);
 };
 
 /**
@@ -213,13 +210,6 @@ DatabaseServer.prototype.getModelDatas = function(query, callback) {
 };
 
 /**
- * Put a single DB value
- */
-DatabaseServer.prototype.put = function(key, value, callback) {
-  this.db.put(key, value, callback);
-};
-
-/**
  * Put a single File to DB
  */
 DatabaseServer.prototype.putFile = function(file, callback) {
@@ -232,6 +222,38 @@ DatabaseServer.prototype.putFile = function(file, callback) {
   }
 
   table.put(file.uid, file, callback);
+};
+
+/**
+ * Put multiple Files into DB
+ * @callback
+ * @method
+ * @param {array} files - List of File objects to insert
+ * @param {function} callback - Async result handler: function (error, results)
+ * @public
+ * @this DatabaseServer
+ */
+DatabaseServer.prototype.putFiles = function (files, callback) {
+  let ops = [];
+  let table = this.db.sublevel('file');
+
+  files.forEach((file) => {
+    let validation = this.validator.validate(file, FileSchema);
+    if (validation.errors.length) {
+      callback(validation.errors, null);
+      return;
+    }
+  });
+
+  ops = files.map((file) => {
+    return {
+      type: 'put',
+      key: file.name,
+      value: file
+    };
+  });
+  console.log('OPS', ops);
+  table.batch(ops, callback);
 };
 
 /**

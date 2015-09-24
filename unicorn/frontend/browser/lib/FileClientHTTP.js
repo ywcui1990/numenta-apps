@@ -40,7 +40,7 @@ export default class FileClientHTTP {
    */
   getFile(callback) {
     // callback(error, null);
-    // callback(null, { file: [ 'data and such' ] });
+    callback(null, { file: [ 'data and such' ] });
   }
 
   /**

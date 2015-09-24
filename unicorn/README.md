@@ -103,8 +103,6 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Facebook [Flow](http://flowtype.org/) JS Typing
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
-    [SASS](http://sass-lang.com/) via
-    [node-sass](https://github.com/sass/node-sass)
 * Framework: [Electron](https://github.com/atom/electron)
   * Engines: [Chromium](https://www.chromium.org/Home),
     [IO.js](https://iojs.org/), [Node](https://github.com/joyent/node)
@@ -123,7 +121,6 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * HD Images: [Retina.js](http://imulus.github.io/retinajs/)
 * Testing:
   * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)
-  * Web Tests: [Casper](https://github.com/n1k0/casperjs)
 * Tooling:
   * Streaming task runner: [Gulp](https://github.com/gulpjs/gulp)
   * JS transpiling (ES6, JSX, etc): [Babel](https://github.com/babel/babel)

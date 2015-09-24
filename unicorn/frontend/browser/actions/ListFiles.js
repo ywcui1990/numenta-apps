@@ -19,24 +19,68 @@
 
 'use strict';
 
+import DatabaseClient from '../lib/DatabaseClient';
 import FileClient from '../lib/FileClient';
+
+
 /**
  * Get List of files from backend
  */
 export default (actionContext) => {
   return new Promise((resolve, reject) => {
+
+    let databaseClient = new DatabaseClient();
     let fileClient = new FileClient();
-    fileClient.getSampleFiles((error, files) => {
+
+    databaseClient.getFiles({}, (error, files) => {
       if (error) {
-        console.log('Error getting files:', error);
-        actionContext.dispatch('LIST_FILES_FAILURE', {
-          'error': error
+        actionContext.dispatch('FAILURE', {
+          'error': new Error({
+            name: 'DatabaseClientGetFilesFailure',
+            message: error
+          })
         });
         reject(error);
-      } else {
+      }
+
+      if (files.length) {
+        // files in db already, skip loading from fs
         actionContext.dispatch('LIST_FILES_SUCCESS', files);
         resolve(files);
+        return;
       }
-    });
-  });
+
+      // no files in db, first run, so load them and save to db
+      fileClient.getSampleFiles((error, files) => {
+        if (error) {
+          actionContext.dispatch('FAILURE', {
+            'error': new Error({
+              name: 'FileClientGetSampleFilesFailure',
+              message: error
+            })
+          });
+          reject(error);
+          return;
+        }
+
+        // got file list from fs, saving to db for next runs
+        databaseClient.putFiles(files, (error) => {
+          if (error) {
+            actionContext.dispatch('FAILURE', {
+              'error': new Error({
+                name: 'DatabaseClientPutFilesFailure',
+                message: error
+              })
+            });
+            reject(error);
+          }
+
+          actionContext.dispatch('LIST_FILES_SUCCESS', files);
+          resolve(files);
+        }); // databaseClient.putFiles()
+
+      }); // fileClient.getSampleFiles()
+    }); // databaseClient.getFiles()
+
+  }); // Promise
 };

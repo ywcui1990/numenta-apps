@@ -76,8 +76,8 @@ app.on('ready', () => {
   mainWindow.on('closed', () => {
     mainWindow = null; // dereference single main window object
   });
-  mainWindow.webContents.on('dom-ready', (event) => {
-    console.log('Electron main + renderer, and chrome DOM, all ready.');
+  mainWindow.webContents.on('dom-ready', () => {
+    // Electron Main/Renderer + Chrome DOM = All Ready
   });
 
   // Handle IPC commuication for the ModelServer
