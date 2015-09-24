@@ -13,6 +13,11 @@
     },
     "filename": {
       "type": "string"
+    },
+    "type": {
+      "description": "Sample file from filesystem, or Uploaded file from user?",
+      "enum": [ "sample", "upload" ],
+      "type": "string"
     }
   }
 }

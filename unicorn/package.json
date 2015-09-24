@@ -4,7 +4,7 @@
   "description": "Numenta Unicorn Cross-platform HTM Example Desktop Application",
   "main": "frontend/loader.js",
   "engines": {
-    "node": ">=4.1.0",
+    "node": ">=4.1.1",
     "npm": ">=2.14.4"
   },
   "os": [
@@ -16,26 +16,28 @@
     "x64"
   ],
   "scripts": {
-    "build": "npm install && UNICORN_TARGET=desktop npm run pack  && electron-packager . Unicorn --prune --ignore=.git --ignore=node_modules/electron-*  --platform=darwin --arch=x64 --version=0.32.3 --overwrite --icon=assets/unicorn.icns",
-    "check": "npm install  &&  npm prune  &&  npm outdated -depth 0",
-    "clean": "rm -Rf node_modules/",
-    "desktop": "npm run desktop:pack &&  npm run electron",
-    "desktop:pack": "UNICORN_TARGET=desktop  npm run lint  &&  npm run pack",
-    "desktop:debug": "npm run desktop:pack &&  npm run electron:debug",
+    "build": "UNICORN_TARGET=desktop npm run prepare && npm run electron:packager",
+    "check": "npm install && npm prune && npm outdated -depth 0",
+    "clean": "npm run clean:npm && npm run clean:db",
+    "clean:npm": "rm -Rf node_modules/",
+    "clean:db": "rm -Rf frontend/database/data/*.json",
+    "desktop": "UNICORN_TARGET=desktop npm run prepare && npm run electron",
+    "desktop:debug": "UNICORN_TARGET=desktop npm run prepare && npm run electron:debug",
     "electron": "electron .",
     "electron:debug": "electron --debug=5858 .",
-    "lint": "eslint frontend",
+    "electron:packager": "electron-packager . Unicorn --arch=x64 --icon=assets/unicorn.icns --ignore=.git --ignore=node_modules/electron-* --overwrite --platform=darwin --prune --version=0.32.3",
     "node-inspector": "node-inspector",
-    "pack": "gulp webpack  ||  exit 1",
+    "prepare": "npm run prepare:lint && npm run prepare:webpack",
+    "prepare:lint": "eslint frontend/",
+    "prepare:webpack": "gulp webpack || exit 1",
     "serve": "http-server -p 9999 ./frontend/browser/",
-    "start": "npm run desktop",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "mocha --opts tests/js/mocha.opts tests/js/unit",
     "test:integration": "mocha --opts tests/js/mocha.opts tests/js/integration",
     "test:pipeline": "npm run test:pipeline:unit && npm run test:pipeline:integration",
     "test:pipeline:unit": "mocha --opts tests/js/mocha.pipeline.opts tests/js/unit",
     "test:pipeline:integration": "mocha --opts tests/js/mocha.pipeline.opts tests/js/integration",
-    "web": "UNICORN_TARGET=web  npm run lint  &&  npm run pack  &&  npm run serve"
+    "web": "UNICORN_TARGET=web npm run prepare && npm run serve"
   },
   "repository": {
     "type": "git",

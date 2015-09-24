@@ -32,6 +32,7 @@ export default (actionContext) => {
     let databaseClient = new DatabaseClient();
     let fileClient = new FileClient();
 
+    // load existing files from db, from previous runs
     databaseClient.getFiles({}, (error, files) => {
       if (error) {
         actionContext.dispatch('FAILURE', {
@@ -44,7 +45,7 @@ export default (actionContext) => {
       }
 
       if (files.length) {
-        // files in db already, skip loading from fs
+        // files in db already, not first run, skip loading from fs, send to UI
         actionContext.dispatch('LIST_FILES_SUCCESS', files);
         resolve(files);
         return;
@@ -74,11 +75,11 @@ export default (actionContext) => {
             });
             reject(error);
           }
-
-          actionContext.dispatch('LIST_FILES_SUCCESS', files);
-          resolve(files);
         }); // databaseClient.putFiles()
 
+        // send to UI
+        actionContext.dispatch('LIST_FILES_SUCCESS', files);
+        resolve(files);
       }); // fileClient.getSampleFiles()
     }); // databaseClient.getFiles()
 

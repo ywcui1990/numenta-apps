@@ -21,16 +21,36 @@
 
 import crypto from 'crypto';
 
-module.exports = {
+
+export default {
+
   /**
-   * Genereate unique model id based on the file name and metric name using
-   * based on one-way hash algorithm (SHA1)
-   * @param  {String} filename The absolute path
-   * @param  {String} metric   Metric name
-   * @return {String}          Unique id
+   * Genereate unique model id based on seed string using 1-way hash algo (SHA1)
+   * @param  {string} seed - Seed string to hash
+   * @return {string} Unique id
    */
-  generateModelId: function generateModelId(filename, metric) {
+  generateId (seed) {
     let hash = crypto.createHash('sha1');
-    return hash.update(filename + '#' + metric).digest('hex');
+    return hash.update(seed).digest('hex');
   },
+
+  /**
+   * Genereate unique file id based on the file name using hashing
+   * @param  {string} filename - The absolute path
+   * @return {string} Unique id
+   */
+  generateFileId (filename) {
+    return this.generateId(filename + '#');
+  },
+
+  /**
+   * Genereate unique model id based on the filename and metric name via hashing
+   * @param  {string} filename - The absolute path
+   * @param  {string} metric - Metric name
+   * @return {string} Unique id
+   */
+  generateModelId (filename, metric) {
+    return this.generateId(filename + '#' + metric);
+  }
+
 };

@@ -46,6 +46,7 @@ import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
 import ModelSchema from '../database/schema/Model.json';
 import ModelDataSchema from '../database/schema/ModelData.json';
+import Utils from './Utils';
 
 const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 
@@ -246,13 +247,16 @@ DatabaseServer.prototype.putFiles = function (files, callback) {
   });
 
   ops = files.map((file) => {
+    let fileId = Utils.generateFileId(file.filename);
+    file.uid = fileId;
+
     return {
       type: 'put',
-      key: file.name,
+      key: fileId,
       value: file
     };
   });
-  console.log('OPS', ops);
+
   table.batch(ops, callback);
 };
 
