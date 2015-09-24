@@ -187,7 +187,8 @@ class DynamoDBServiceTest(TestCaseBase):
 
     metricTable = Table(MetricDynamoDBDefinition().tableName,
                         connection=dynamodb)
-    metricItem = metricTable.lookup(uid)
+    metricItem = _RETRY_ON_ITEM_NOT_FOUND_DYNAMODB_ERROR(
+      metricTable.lookup)(uid)
     self.assertEqual(metricItem["uid"], uid)
     self.assertEqual(metricItem["name"], metricName)
     self.assertEqual(metricItem["metricType"], "TwitterVolume")
