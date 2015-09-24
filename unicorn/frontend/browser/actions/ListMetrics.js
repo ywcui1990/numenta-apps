@@ -19,6 +19,7 @@
 
 'use strict';
 
+import {ACTIONS} from '../lib/Constants';
 import FileClient from '../lib/FileClient';
 
 /**
@@ -29,14 +30,13 @@ export default (actionContext, file) => {
     let fileClient = new FileClient();
     fileClient.getFields(file, (error, fields) => {
       if (error) {
-        console.log('Error loading metrics for file:', file, error);
-        actionContext.dispatch('LIST_METRICS_FAILURE', {
+        actionContext.dispatch(ACTIONS.LIST_METRICS_FAILURE, {
           'filename': file,
           'error': error
         });
         reject(error);
       } else {
-        actionContext.dispatch('LIST_METRICS_SUCCESS', {
+        actionContext.dispatch(ACTIONS.LIST_METRICS_SUCCESS, {
           'filename': file,
           'metrics': fields
         });

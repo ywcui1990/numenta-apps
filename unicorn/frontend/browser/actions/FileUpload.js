@@ -19,6 +19,7 @@
 
 'use strict';
 
+import {ACTIONS} from '../lib/Constants';
 import FileClient from '../lib/FileClient';
 /**
  * Get uploaded file
@@ -29,9 +30,13 @@ export default (actionContext, file) => {
     let fileClient = new FileClient();
     fileClient.getUploadedFiles(file, (err, formattedFile) => {
       if (err) {
+        actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
+          'error': err,
+          'filename': formattedFile
+        });
         reject(err);
       } else {
-        actionContext.dispatch('UPLOADED_FILE_SUCCESS', formattedFile);
+        actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, formattedFile);
         resolve(formattedFile);
       }
     });

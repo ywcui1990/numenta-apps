@@ -19,6 +19,7 @@
 
 'use strict';
 
+import {ACTIONS} from '../lib/Constants';
 import FileClient from '../lib/FileClient';
 /**
  * Get List of files from backend
@@ -28,13 +29,12 @@ export default (actionContext) => {
     let fileClient = new FileClient();
     fileClient.getSampleFiles((error, files) => {
       if (error) {
-        console.log('Error getting files:', error);
-        actionContext.dispatch('LIST_FILES_FAILURE', {
+        actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, {
           'error': error
         });
         reject(error);
       } else {
-        actionContext.dispatch('LIST_FILES_SUCCESS', files);
+        actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
         resolve(files);
       }
     });
