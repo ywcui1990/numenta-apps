@@ -45,7 +45,6 @@ export default class FileStore extends BaseStore {
   }
 
   _handleListFiles(files) {
-    console.log(files);
     if (files) {
       files.forEach((f => {
         f.metrics = [];
