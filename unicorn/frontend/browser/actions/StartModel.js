@@ -22,6 +22,7 @@
 import StopModelAction from '../actions/StopModel';
 import SendDataAction from '../actions/SendData';
 import ModelStore from '../stores/ModelStore';
+import {ACTIONS} from '../lib/Constants';
 
 /**
  * Promise to return the file statistics. See FileServer#getStatistics
@@ -31,28 +32,9 @@ function promiseFileStats(actionContext, filename) {
     let fileClient = actionContext.getFileClient();
     fileClient.getStatistics(filename, (error, stats) => {
       if (error) {
-        console.error(error);
         reject(error);
       } else {
         resolve(stats);
-      }
-    });
-  });
-};
-
-/**
- * Promise to create a new nupic model. On success, the nupic model will be
- * active and able to receive data. See ModelServer#createModel
- */
-function promiseModel(actionContext, modelId, params) {
-  return new Promise((resolve, reject) => {
-    let modelClient = actionContext.getModelClient();
-    modelClient.createModel(modelId, params, (error, data) => {
-      if (error) {
-        console.error(error);
-        reject(error);
-      } else {
-        resolve(data.modelId);
       }
     });
   });
@@ -74,10 +56,6 @@ function streamData(actionContext, modelId) {
         actionContext.executeAction(StopModelAction, model.modelId);
         reject(error);
       } else if (data) {
-        if (!model.active) {
-          console.warn('Received data for an inactive model:' + model.modelId);
-          return;
-        }
         try {
           let row = JSON.parse(data);
           actionContext.executeAction(SendDataAction, {
@@ -87,12 +65,10 @@ function streamData(actionContext, modelId) {
               new Number(row[model.metric]).valueOf()
             ]});
         } catch (ex) {
-          console.error('data=' + data, ex);
           reject(error);
         }
       } else {
         // End of data
-        console.log('End of data: ' + model.modelId);
         resolve(model.modelId);
       }
     });
@@ -114,10 +90,9 @@ export default (actionContext, modelId) => {
 
   return promiseFileStats(actionContext, filename)
     .then((stats) => {
-      return promiseModel(actionContext, modelId, stats[metric]);
-    })
-    .then((modelId) => {
-      actionContext.dispatch('START_MODEL_SUCCESS', modelId);
+      let modelClient = actionContext.getModelClient();
+      actionContext.dispatch(ACTIONS.START_MODEL_SUCCESS, modelId);
+      modelClient.createModel(modelId, stats[metric]);
       return streamData(actionContext, modelId);
     });
 };
