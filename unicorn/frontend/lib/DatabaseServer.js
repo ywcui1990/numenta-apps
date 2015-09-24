@@ -238,6 +238,7 @@ DatabaseServer.prototype.putFiles = function (files, callback) {
   let ops = [];
   let table = this.db.sublevel('file');
 
+  // validate
   files.forEach((file) => {
     let validation = this.validator.validate(file, FileSchema);
     if (validation.errors.length) {
@@ -246,6 +247,7 @@ DatabaseServer.prototype.putFiles = function (files, callback) {
     }
   });
 
+  // prepare
   ops = files.map((file) => {
     let fileId = Utils.generateFileId(file.filename);
     file.uid = fileId;
@@ -257,6 +259,7 @@ DatabaseServer.prototype.putFiles = function (files, callback) {
     };
   });
 
+  // execute
   table.batch(ops, callback);
 };
 
@@ -273,6 +276,44 @@ DatabaseServer.prototype.putMetric = function(metric, callback) {
   }
 
   table.put(metric.uid, metric, callback);
+};
+
+/**
+ * Put multiple Metrics into DB
+ */
+DatabaseServer.prototype.putMetrics = function(metrics, callback) {
+  let ops = [];
+  let table = this.db.sublevel('metric');
+
+  // validate
+  metrics.forEach((metric) => {
+    let validation = this.validator.validate(metric, MetricSchema);
+    if (validation.errors.length) {
+      callback(validation.errors, null);
+      return;
+    }
+  });
+
+/*
+  @TODO BREV HERE!
+
+  table.put(metric.uid, metric, callback);
+
+  // prepare
+  ops = files.map((file) => {
+    let fileId = Utils.generateFileId(file.filename);
+    file.uid = fileId;
+
+    return {
+      type: 'put',
+      key: fileId,
+      value: file
+    };
+  });
+*/
+
+  // execute
+  table.batch(ops, callback);
 };
 
 /**

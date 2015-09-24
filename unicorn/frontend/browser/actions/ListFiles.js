@@ -35,12 +35,10 @@ export default (actionContext) => {
     // load existing files from db, from previous runs
     databaseClient.getFiles({}, (error, files) => {
       if (error) {
-        actionContext.dispatch('FAILURE', {
-          'error': new Error({
-            name: 'DatabaseClientGetFilesFailure',
-            message: error
-          })
-        });
+        actionContext.dispatch('FAILURE', new Error({
+          name: 'DatabaseClientGetFilesFailure',
+          message: error
+        }));
         reject(error);
       }
 
@@ -54,12 +52,10 @@ export default (actionContext) => {
       // no files in db, first run, so load them and save to db
       fileClient.getSampleFiles((error, files) => {
         if (error) {
-          actionContext.dispatch('FAILURE', {
-            'error': new Error({
-              name: 'FileClientGetSampleFilesFailure',
-              message: error
-            })
-          });
+          actionContext.dispatch('FAILURE', new Error({
+            name: 'FileClientGetSampleFilesFailure',
+            message: error
+          }));
           reject(error);
           return;
         }
@@ -67,11 +63,9 @@ export default (actionContext) => {
         // got file list from fs, saving to db for next runs
         databaseClient.putFiles(files, (error) => {
           if (error) {
-            actionContext.dispatch('FAILURE', {
-              'error': new Error({
-                name: 'DatabaseClientPutFilesFailure',
-                message: error
-              })
+            actionContext.dispatch('FAILURE', new Error({
+              name: 'DatabaseClientPutFilesFailure',
+              message: error
             });
             reject(error);
           }

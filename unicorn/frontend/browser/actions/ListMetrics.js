@@ -19,32 +19,73 @@
 
 'use strict';
 
+import DatabaseClient from '../lib/DatabaseClient';
 import FileClient from '../lib/FileClient';
+
 
 /**
  * List all available metrics of the given file
  */
 export default (actionContext, file) => {
   return new Promise((resolve, reject) => {
+    let databaseClient = new DatabaseClient();
     let fileClient = new FileClient();
-    fileClient.getFields(file, (error, fields) => {
+    let payload;
+
+    // load existing metrics from db, from previous runs
+    databaseClient.getMetrics({}, (error, metrics) => {
       if (error) {
-        console.log('Error loading metrics for file:', file, error);
-        actionContext.dispatch('LIST_METRICS_FAILURE', {
-          'filename': file,
-          'error': error
-        });
+        actionContext.dispatch('FAILURE', new Error({
+          name: 'DatabaseClientGetMetricsFailure',
+          message: error
+        }));
         reject(error);
-      } else {
-        actionContext.dispatch('LIST_METRICS_SUCCESS', {
-          'filename': file,
-          'metrics': fields
-        });
-        resolve({
-          'filename': file,
-          'metrics': fields
-        });
       }
-    });
-  });
+
+      if (metrics.length) {
+        // metrics in db already, not first run, skip loading from fs, send to UI
+        payload = {
+          filename: file,
+          metrics
+        };
+        console.log('ALPHA^', payload);
+        actionContext.dispatch('LIST_METRICS_SUCCESS', payload);
+        resolve(payload);
+        return;
+      }
+
+      // no metrics in db, first run, so load them and save to db
+      fileClient.getFields(file, (error, fields) => {
+        if (error) {
+          actionContext.dispatch('FAILURE', new Error({
+            'name': 'FileClientGetFieldsFailure',
+            'message': error
+          });
+          reject(error);
+          return;
+        }
+
+        // got file list from fs, saving to db for next runs
+        databaseClient.putMetrics(fields, (error) => {
+          if (error) {
+            actionContext.dispatch('FAILURE', new Error({
+              name: 'DatabaseClientPutMetricsFailure',
+              message: error
+            });
+            reject(error);
+          }
+        }); // databaseClient.putMetrics()
+
+        // send to UI
+        payload = {
+          filename: file,
+          metrics
+        };
+        console.log('BETHA^', payload);
+        actionContext.dispatch('LIST_METRICS_SUCCESS', payload);
+        resolve(payload);
+      }); // fileClient.getFields()
+    }); // databaseClient.getMetrics()
+
+  }); // Promise
 };
