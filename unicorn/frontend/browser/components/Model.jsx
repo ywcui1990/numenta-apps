@@ -27,8 +27,9 @@ import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
 
 const {
-  Card, CardHeader, CardText, CardActions, FlatButton
+  Card, CardHeader, CardText, CardActions, FlatButton, Avatar, Styles
 } = Material;
+const {Colors} = Styles;
 
 @connectToStores([ModelStore], () => ({
 }))
@@ -78,6 +79,9 @@ export default class Model extends React.Component {
     let styles = this._getStyles();
     let model = this.state;
     let actions;
+    let avatar;
+    let title;
+    let titleColor;
     if (model.active) {
       actions = (
         <CardActions  expandable={true}>
@@ -85,12 +89,22 @@ export default class Model extends React.Component {
             onClick={this._onStopButtonClick.bind(this)}/>
         </CardActions>);
     }
-
+    if (model.error) {
+      avatar = (<Avatar backgroundColor={Colors.red500}>E</Avatar>);
+      title = model.metric + ': ' + model.error.message;
+      titleColor = Colors.red500;
+    } else {
+      avatar = (<Avatar backgroundColor={Colors.green500}></Avatar>);
+      title = model.metric;
+      titleColor = Colors.darkBlack;
+    }
     return (
       <Card initiallyExpanded={true} style={styles.root}>
         <CardHeader showExpandableButton={true}
           subtitle={model.filename}
-          title={model.metric} />
+          avatar={avatar}
+          title={title}
+          titleColor={titleColor} />
         {actions}
         <CardText expandable={true}>
           <ModelData modelId={model.modelId} />
