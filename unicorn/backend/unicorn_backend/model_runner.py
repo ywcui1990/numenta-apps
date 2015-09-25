@@ -227,12 +227,12 @@ class _ModelRunner(object):
 
 
   def _computeAnomalyProbability(self, inputRow):
-    """ Compute anomaly likelihood score
+    """ Compute anomaly log likelihood score
 
     :param tuple inputRow: Two-tuple input metric data row
       (<datetime-timestamp>, <float-scalar>)
 
-    :returns: Anomaly probability
+    :returns: Log-scaled anomaly probability
     :rtype: float
     """
     # Generate raw anomaly score
@@ -245,7 +245,7 @@ class _ModelRunner(object):
       anomalyScore=rawAnomalyScore,
       timestamp=inputRow[0])
 
-    return anomalyProbability
+    return self._anomalyLikelihood.computeLogLikelihood(anomalyProbability)
 
 
   def run(self):
