@@ -66,7 +66,7 @@ export default (actionContext) => {
             actionContext.dispatch('FAILURE', new Error({
               name: 'DatabaseClientPutFilesFailure',
               message: error
-            });
+            }));
             reject(error);
           }
         }); // databaseClient.putFiles()

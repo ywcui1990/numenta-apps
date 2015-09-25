@@ -50,8 +50,8 @@ let mainWindow = null; // global reference to keep window object from JS GC
 
 // electron crash reporting
 crashReporter.start({
-  product_name: config.get('title'),
-  company_name: config.get('company')
+  'product_name': config.get('title'),
+  'company_name': config.get('company')
 });
 
 // app events

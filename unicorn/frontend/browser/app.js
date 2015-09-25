@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // init GUI flux/ible app
   app = new Fluxible({
     component: MainComponent,
-    stores: [ FileStore, ModelStore, ModelDataStore ]
+    stores: [FileStore, ModelStore, ModelDataStore]
   });
 
   // Plug Unicorn plugin giving access to Unicorn clients

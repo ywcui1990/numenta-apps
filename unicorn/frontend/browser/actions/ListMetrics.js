@@ -43,7 +43,7 @@ export default (actionContext, file) => {
       }
 
       if (metrics.length) {
-        // metrics in db already, not first run, skip loading from fs, send to UI
+        // metrics in db already, not first run, skip loading from fs. to UI.
         payload = {
           filename: file,
           metrics
@@ -60,7 +60,7 @@ export default (actionContext, file) => {
           actionContext.dispatch('FAILURE', new Error({
             'name': 'FileClientGetFieldsFailure',
             'message': error
-          });
+          }));
           reject(error);
           return;
         }
@@ -71,7 +71,7 @@ export default (actionContext, file) => {
             actionContext.dispatch('FAILURE', new Error({
               name: 'DatabaseClientPutMetricsFailure',
               message: error
-            });
+            }));
             reject(error);
           }
         }); // databaseClient.putMetrics()
