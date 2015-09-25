@@ -56,8 +56,7 @@ import DatabaseClient from './lib/DatabaseClient';
 import FileClient from './lib/FileClient';
 import ModelClient from './lib/ModelClient';
 
-const configClient = new ConfigClient();
-const config = configClient;
+const config = new ConfigClient();
 
 let databaseClient = new DatabaseClient();
 let fileClient = new FileClient();
@@ -153,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // add context to app
   context = app.createContext({
-    configClient,
+    configClient: config,
     databaseClient,
     fileClient,
     modelClient
