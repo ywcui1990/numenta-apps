@@ -19,5 +19,6 @@
       "enum": [ "sample", "upload" ],
       "type": "string"
     }
-  }
+  },
+  "required": ["uid", "name", "filename", "type"]
 }

@@ -35,15 +35,6 @@ export default {
   },
 
   /**
-   * Genereate unique file id based on the file name using hashing
-   * @param  {string} filename - The absolute path
-   * @return {string} Unique id
-   */
-  generateFileId (filename) {
-    return this.generateId(filename + '#');
-  },
-
-  /**
    * Genereate unique model id based on the filename and metric name via hashing
    * @param  {string} filename - The absolute path
    * @param  {string} metric - Metric name

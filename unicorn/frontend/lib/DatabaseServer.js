@@ -116,7 +116,7 @@ DatabaseServer.prototype.getMetrics = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('metric'));
   table.query.use(jsonQuery());
-  // table.ensureIndex('last_rowid');
+  table.ensureIndex('file_uid');
   table.query(query)
     .on('stats', () => {})
     .on('error', (error) => {
@@ -249,7 +249,7 @@ DatabaseServer.prototype.putFiles = function (files, callback) {
 
   // prepare
   ops = files.map((file) => {
-    let fileId = Utils.generateFileId(file.filename);
+    let fileId = Utils.generateId(file.filename);
     file.uid = fileId;
 
     return {
@@ -294,23 +294,14 @@ DatabaseServer.prototype.putMetrics = function(metrics, callback) {
     }
   });
 
-/*
-  @TODO BREV HERE!
-
-  table.put(metric.uid, metric, callback);
-
   // prepare
-  ops = files.map((file) => {
-    let fileId = Utils.generateFileId(file.filename);
-    file.uid = fileId;
-
+  ops = metrics.map((metric) => {
     return {
       type: 'put',
-      key: fileId,
-      value: file
+      key: metric.uid,
+      value: metric
     };
   });
-*/
 
   // execute
   table.batch(ops, callback);

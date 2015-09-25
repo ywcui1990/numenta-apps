@@ -34,5 +34,6 @@
     "last_rowid": {
       "type": "integer"
     }
-  }
+  },
+  "required": ["uid", "metric_uid", "parameters", "status", "last_timestamp", "model_params", "last_rowid"]
 }

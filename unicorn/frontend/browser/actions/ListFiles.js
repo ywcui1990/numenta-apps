@@ -40,41 +40,38 @@ export default (actionContext) => {
           message: error
         }));
         reject(error);
-      }
-
-      if (files.length) {
-        // files in db already, not first run, skip loading from fs, send to UI
+      } else if (files.length) {
+        // files in db already, not first run, straight to UI
         actionContext.dispatch('LIST_FILES_SUCCESS', files);
         resolve(files);
-        return;
-      }
-
-      // no files in db, first run, so load them and save to db
-      fileClient.getSampleFiles((error, files) => {
-        if (error) {
-          actionContext.dispatch('FAILURE', new Error({
-            name: 'FileClientGetSampleFilesFailure',
-            message: error
-          }));
-          reject(error);
-          return;
-        }
-
-        // got file list from fs, saving to db for next runs
-        databaseClient.putFiles(files, (error) => {
+      } else {
+        // no files in db, first run, so load them from fs
+        fileClient.getSampleFiles((error, files) => {
           if (error) {
             actionContext.dispatch('FAILURE', new Error({
-              name: 'DatabaseClientPutFilesFailure',
+              name: 'FileClientGetSampleFilesFailure',
               message: error
             }));
             reject(error);
+          } else {
+            // got file list from fs, saving to db for next runs
+            databaseClient.putFiles(files, (error) => {
+              if (error) {
+                actionContext.dispatch('FAILURE', new Error({
+                  name: 'DatabaseClientPutFilesFailure',
+                  message: error
+                }));
+                reject(error);
+              } else {
+                // DB now has Files, on to UI.
+                actionContext.dispatch('LIST_FILES_SUCCESS', files);
+                resolve(files);
+              }
+            }); // databaseClient.putFiles()
           }
-        }); // databaseClient.putFiles()
+        }); // fileClient.getSampleFiles()
 
-        // send to UI
-        actionContext.dispatch('LIST_FILES_SUCCESS', files);
-        resolve(files);
-      }); // fileClient.getSampleFiles()
+      }
     }); // databaseClient.getFiles()
 
   }); // Promise

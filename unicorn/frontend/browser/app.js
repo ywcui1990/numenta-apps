@@ -20,6 +20,7 @@
 
 'use strict';
 
+
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files.
@@ -135,6 +136,10 @@ let UnicornPlugin = {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  if (!(document && ('body' in document))) {
+    throw new Error('React cannot find a DOM document.body to render to');
+  }
+
   if (config.get('NODE_ENV') !== 'production') {
     window.React = React; // expose to React dev tools
   }
@@ -164,17 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // fire initial app action to load all files
   context.executeAction(ListFilesAction, {})
     .then((files) => {
-      return Promise.all(files.map((file) => {
-        return context.executeAction(ListMetricsAction, file.filename);
-      }));
+      return context.executeAction(ListMetricsAction, files);
     })
     .then(() => {
       let contextEl = FluxibleReact.createElementWithContext(context);
-      if (document && ('body' in document)) {
-        React.render(contextEl, document.body);
-        return;
-      }
-      throw new Error('React cannot find a DOM document.body to render to');
+      React.render(contextEl, document.body);
     })
     .catch((error) => {
       throw new Error('Unable to start Application:', error);

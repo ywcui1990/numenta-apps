@@ -14,12 +14,17 @@
       "minLength": 1
     },
     "model_uid": {
-      "type": [ "string", "null" ],
+      "type": ["string", "null"],
       "maxLength": 40
     },
     "name": {
       "type": "string",
       "maxLength": 255
+    },
+    "type": {
+      "enum": ["date", "number", "string"],
+      "type": "string"
     }
-  }
+  },
+  "required": ["uid", "file_uid", "name", "type"]
 }

@@ -76,7 +76,7 @@ FileServer.prototype.getSampleFiles = function(callback) {
     let files = data.map((item) => {
       let filename = path.resolve(SAMPLES_FILE_PATH, item);
       return {
-        uid: Utils.generateFileId(filename),
+        uid: Utils.generateId(filename),
         name: path.basename(item),
         filename: filename,
         type: 'sample'
@@ -147,8 +147,10 @@ FileServer.prototype.getFields = function(filename, options, callback) {
         for (let fieldName in data) {
           let val = data[fieldName];
           let field = {
-            name: fieldName,
-            type: 'string'
+            'uid': Utils.generateModelId(filename, fieldName),
+            'file_uid': Utils.generateId(filename),
+            'name': fieldName,
+            'type': 'string'
           };
           if (Number.isFinite(Number(val))) {
             field.type = 'number';

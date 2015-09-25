@@ -21,16 +21,18 @@
 
 import DatabaseClient from '../lib/DatabaseClient';
 import FileClient from '../lib/FileClient';
+import Utils from '../../lib/Utils';
 
 
 /**
  * List all available metrics of the given file
  */
-export default (actionContext, file) => {
+export default (actionContext, files) => {
   return new Promise((resolve, reject) => {
+
     let databaseClient = new DatabaseClient();
     let fileClient = new FileClient();
-    let payload;
+    let payload = [];
 
     // load existing metrics from db, from previous runs
     databaseClient.getMetrics({}, (error, metrics) => {
@@ -40,51 +42,68 @@ export default (actionContext, file) => {
           message: error
         }));
         reject(error);
-      }
-
-      if (metrics.length) {
+      } else if (metrics.length) {
         // metrics in db already, not first run, skip loading from fs. to UI.
-        payload = {
-          filename: file,
-          metrics
-        };
-        console.log('ALPHA^', payload);
+        files.forEach((file) => {
+          payload.push({
+            filename: file.filename,
+            metrics: metrics.filter((value) => {
+              return value['file_uid'] === Utils.generateId(file.filename);
+            })
+          });
+        });
+
+        // DB already had Metrics, now to UI
         actionContext.dispatch('LIST_METRICS_SUCCESS', payload);
         resolve(payload);
-        return;
+      } else {
+        // no metrics in db, is first run, so load them from fs
+        let fieldsFileMap = {};
+        let fieldsList = [];
+        let fileCount = 0;
+
+        files.forEach((file) => {
+          fileClient.getFields(file.filename, (error, fields) => {
+            if (error) {
+              actionContext.dispatch('FAILURE', new Error({
+                'name': 'FileClientGetFieldsFailure',
+                'message': error
+              }));
+              reject(error);
+            } else {
+              fieldsFileMap[file.filename] = fields;
+              fieldsList = fieldsList.concat(fields);
+
+              // @TODO better async flow than "poor persons parallel"
+              fileCount++;
+              if (fileCount >= files.length) {
+
+                // got files from fs, saving to db for next runs
+                databaseClient.putMetrics(fieldsList, (error) => {
+                  if (error) {
+                    actionContext.dispatch('FAILURE', new Error({
+                      name: 'DatabaseClientPutMetricsFailure',
+                      message: error
+                    }));
+                    reject(error);
+                  } else {
+                    // DB has Metrics, now to UI
+                    Object.keys(fieldsFileMap).forEach((file) => {
+                      payload.push({
+                        filename: file,
+                        metrics: fieldsFileMap[file]
+                      });
+                    });
+                    actionContext.dispatch('LIST_METRICS_SUCCESS', payload);
+                    resolve(payload);
+                  }
+                }); // databaseClient.putMetrics()
+
+              } // fileCount
+            }
+          }); // fileClient.getFields()
+        }); // files.forEach()
       }
-
-      // no metrics in db, first run, so load them and save to db
-      fileClient.getFields(file, (error, fields) => {
-        if (error) {
-          actionContext.dispatch('FAILURE', new Error({
-            'name': 'FileClientGetFieldsFailure',
-            'message': error
-          }));
-          reject(error);
-          return;
-        }
-
-        // got file list from fs, saving to db for next runs
-        databaseClient.putMetrics(fields, (error) => {
-          if (error) {
-            actionContext.dispatch('FAILURE', new Error({
-              name: 'DatabaseClientPutMetricsFailure',
-              message: error
-            }));
-            reject(error);
-          }
-        }); // databaseClient.putMetrics()
-
-        // send to UI
-        payload = {
-          filename: file,
-          metrics
-        };
-        console.log('BETHA^', payload);
-        actionContext.dispatch('LIST_METRICS_SUCCESS', payload);
-        resolve(payload);
-      }); // fileClient.getFields()
     }); // databaseClient.getMetrics()
 
   }); // Promise

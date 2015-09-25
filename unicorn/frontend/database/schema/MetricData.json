@@ -27,5 +27,6 @@
     "display_value": {
       "type": "integer"
     }
-  }
+  },
+  "required": ["uid", "metric_uid", "rowid", "timestamp", "metric_value", "display_value"]
 }
