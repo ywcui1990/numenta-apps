@@ -51,46 +51,33 @@ export default class Chart extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      chart: null,
-      data: this.props.data,
-      options: this.props.options
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.setState(Object.assign({}, this.state, nextProps));
+    this._dygraph = null;
   }
 
   componentDidMount() {
     let el = React.findDOMNode(this.refs.chart);
-    if (this.state.data.length) {
-      this.setState({
-        chart: new Dygraph(el, this.state.data, this.state.options)
-      });
+    if (this.props.data.length) {
+      this._dygraph = new Dygraph(el, this.props.data, this.props.options);
     }
   }
 
   componentWillUnmount() {
-    let chart = this.state.chart;
-    if (chart) {
-      chart.destroy();
+    if (this._dygraph) {
+      this._dygraph.destroy();
+      this._dygraph = null;
     }
   }
 
   componentDidUpdate() {
-    let chart = this.state.chart;
-    if (chart) {
+    if (this._dygraph) {
       let options = {
-        'file': this.state.data
+        'file': this.props.data
       };
-      Object.assign(options, this.state.options);
-      chart.updateOptions(options);
-    } else if (this.state.data.length) {
+      Object.assign(options, this.props.options);
+      this._dygraph.updateOptions(options);
+    } else if (this.props.data.length) {
       let el = React.findDOMNode(this.refs.chart);
-      this.setState({
-        chart: new Dygraph(el, this.state.data, this.state.options)
-      });
+      this._dygraph = new Dygraph(el, this.props.data, this.props.options);
     }
   }
 

@@ -19,6 +19,7 @@
 
 'use strict';
 
+import {ACTIONS} from '../lib/Constants';
 import DatabaseClient from '../lib/DatabaseClient';
 import FileClient from '../lib/FileClient';
 
@@ -35,20 +36,20 @@ export default (actionContext) => {
     // load existing files from db, from previous runs
     databaseClient.getFiles({}, (error, files) => {
       if (error) {
-        actionContext.dispatch('FAILURE', new Error({
+        actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, new Error({
           name: 'DatabaseClientGetFilesFailure',
           message: error
         }));
         reject(error);
       } else if (files.length) {
         // files in db already, not first run, straight to UI
-        actionContext.dispatch('LIST_FILES_SUCCESS', files);
+        actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
         resolve(files);
       } else {
         // no files in db, first run, so load them from fs
         fileClient.getSampleFiles((error, files) => {
           if (error) {
-            actionContext.dispatch('FAILURE', new Error({
+            actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, new Error({
               name: 'FileClientGetSampleFilesFailure',
               message: error
             }));
@@ -57,20 +58,19 @@ export default (actionContext) => {
             // got file list from fs, saving to db for next runs
             databaseClient.putFiles(files, (error) => {
               if (error) {
-                actionContext.dispatch('FAILURE', new Error({
+                actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, new Error({
                   name: 'DatabaseClientPutFilesFailure',
                   message: error
                 }));
                 reject(error);
               } else {
                 // DB now has Files, on to UI.
-                actionContext.dispatch('LIST_FILES_SUCCESS', files);
+                actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
                 resolve(files);
               }
             }); // databaseClient.putFiles()
           }
         }); // fileClient.getSampleFiles()
-
       }
     }); // databaseClient.getFiles()
 

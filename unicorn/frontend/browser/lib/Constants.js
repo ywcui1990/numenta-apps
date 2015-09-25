@@ -18,27 +18,31 @@
 // http://numenta.org/licenses/
 
 'use strict';
+export const ACTIONS = Object.freeze({
+  ADD_MODEL_SUCCESS: 'ADD_MODEL_SUCCESS',
+  ADD_MODEL_FAILED: 'ADD_MODEL_FAILED',
 
-import {ACTIONS} from '../lib/Constants';
-import FileClient from '../lib/FileClient';
-/**
- * Get uploaded file
- */
-export default (actionContext, file) => {
+  DELETE_MODEL_SUCCESS: 'DELETE_MODEL_SUCCESS',
+  DELETE_MODEL_FAILED: 'DELETE_MODEL_FAILED',
 
-  return new Promise((resolve, reject) => {
-    let fileClient = new FileClient();
-    fileClient.getUploadedFiles(file, (err, formattedFile) => {
-      if (err) {
-        actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
-          'error': err,
-          'filename': formattedFile
-        });
-        reject(err);
-      } else {
-        actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, formattedFile);
-        resolve(formattedFile);
-      }
-    });
-  });
-};
+  RECEIVE_DATA_SUCCESS: 'RECEIVE_DATA_SUCCESS',
+  RECEIVE_DATA_FAILED: 'RECEIVE_DATA_FAILED',
+
+  SEND_DATA_SUCCESS: 'SEND_DATA_SUCCESS',
+  SEND_DATA_FAILED: 'SEND_DATA_FAILED',
+
+  START_MODEL_SUCCESS: 'START_MODEL_SUCCESS',
+  START_MODEL_FAILED: 'START_MODEL_FAILED',
+
+  STOP_MODEL_SUCCESS: 'STOP_MODEL_SUCCESS',
+  STOP_MODEL_FAILED: 'STOP_MODEL_FAILED',
+
+  UPLOADED_FILE_SUCCESS: 'UPLOADED_FILE_SUCCESS',
+  UPLOADED_FILE_FAILED: 'UPLOADED_FILE_FAILED',
+
+  LIST_FILES_SUCCESS: 'LIST_FILES_SUCCESS',
+  LIST_FILES_FAILURE: 'LIST_FILES_FAILURE',
+
+  LIST_METRICS_SUCCESS: 'LIST_METRICS_SUCCESS',
+  LIST_METRICS_FAILURE: 'LIST_METRICS_FAILURE',
+});

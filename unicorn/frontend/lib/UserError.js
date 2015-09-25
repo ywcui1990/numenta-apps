@@ -19,26 +19,15 @@
 
 'use strict';
 
-import {ACTIONS} from '../lib/Constants';
-import FileClient from '../lib/FileClient';
-/**
- * Get uploaded file
- */
-export default (actionContext, file) => {
-
-  return new Promise((resolve, reject) => {
-    let fileClient = new FileClient();
-    fileClient.getUploadedFiles(file, (err, formattedFile) => {
-      if (err) {
-        actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
-          'error': err,
-          'filename': formattedFile
-        });
-        reject(err);
-      } else {
-        actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, formattedFile);
-        resolve(formattedFile);
-      }
-    });
-  });
-};
+//
+//Overcomes the fact babel have problems inheriting from builtin objects
+//FIXME: See http://stackoverflow.com/questions/3108980
+//
+export default class UserError extends Error {
+  constructor(message) {
+    super(message);
+    this.message = message;
+    this.stack = (new Error()).stack;
+    this.name = this.constructor.name;
+  }
+}

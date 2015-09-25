@@ -20,25 +20,22 @@
 'use strict';
 
 import {ACTIONS} from '../lib/Constants';
-import FileClient from '../lib/FileClient';
-/**
- * Get uploaded file
- */
-export default (actionContext, file) => {
-
-  return new Promise((resolve, reject) => {
-    let fileClient = new FileClient();
-    fileClient.getUploadedFiles(file, (err, formattedFile) => {
-      if (err) {
-        actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
-          'error': err,
-          'filename': formattedFile
-        });
-        reject(err);
-      } else {
-        actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, formattedFile);
-        resolve(formattedFile);
-      }
+export default (actionContext, payload) => {
+  let {command, modelId, error} = payload;
+  if (command === 'create') {
+    return actionContext.dispatch(ACTIONS.START_MODEL_FAILED, {
+      'modelId': modelId,
+      'error': error
     });
-  });
+  } else if (command === 'remove') {
+    return actionContext.dispatch(ACTIONS.STOP_MODEL_FAILED, {
+      'modelId': modelId,
+      'error': error
+    });
+  } else if (command === 'sendData') {
+    return actionContext.dispatch(ACTIONS.SEND_DATA_FAILED, {
+      'modelId': modelId,
+      'error': error
+    });
+  }
 };

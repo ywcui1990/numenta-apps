@@ -28,7 +28,9 @@ export default class ModelStore extends BaseStore {
     'DELETE_MODEL_SUCCESS': '_handleDeleteModel',
     'LIST_MODELS_SUCCESS': '_handleListModels',
     'STOP_MODEL_SUCCESS': '_handleStopModel',
-    'START_MODEL_SUCCESS': '_handleStartModel'
+    'START_MODEL_SUCCESS': '_handleStartModel',
+    'STOP_MODEL_FAILED': '_handleModelFailed',
+    'START_MODEL_FAILED': '_handleModelFailed'
   };
 
   constructor(dispatcher) {
@@ -100,6 +102,7 @@ export default class ModelStore extends BaseStore {
     let model = this._models.get(modelId);
     if (model) {
       model.active = false;
+      model.error = null;
       this.emitChange();
     }
   }
@@ -112,6 +115,17 @@ export default class ModelStore extends BaseStore {
     let model = this._models.get(modelId);
     if (model) {
       model.active = true;
+      model.error = null;
+      this.emitChange();
+    }
+  }
+
+  _handleModelFailed(payload) {
+    let {modelId, error} = payload;
+    let model = this._models.get(modelId);
+    if (model) {
+      model.active = false;
+      model.error = error;
       this.emitChange();
     }
   }

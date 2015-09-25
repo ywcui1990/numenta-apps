@@ -19,6 +19,7 @@
 
 'use strict';
 
+import {ACTIONS} from '../lib/Constants';
 import DatabaseClient from '../lib/DatabaseClient';
 import FileClient from '../lib/FileClient';
 import Utils from '../../lib/Utils';
@@ -37,7 +38,7 @@ export default (actionContext, files) => {
     // load existing metrics from db, from previous runs
     databaseClient.getMetrics({}, (error, metrics) => {
       if (error) {
-        actionContext.dispatch('FAILURE', new Error({
+        actionContext.dispatch(ACTIONS.LIST_METRICS_FAILURE, new Error({
           name: 'DatabaseClientGetMetricsFailure',
           message: error
         }));
@@ -54,7 +55,7 @@ export default (actionContext, files) => {
         });
 
         // DB already had Metrics, now to UI
-        actionContext.dispatch('LIST_METRICS_SUCCESS', payload);
+        actionContext.dispatch(ACTIONS.LIST_METRICS_SUCCESS, payload);
         resolve(payload);
       } else {
         // no metrics in db, is first run, so load them from fs
@@ -65,7 +66,7 @@ export default (actionContext, files) => {
         files.forEach((file) => {
           fileClient.getFields(file.filename, (error, fields) => {
             if (error) {
-              actionContext.dispatch('FAILURE', new Error({
+              actionContext.dispatch(ACTIONS.LIST_METRICS_FAILURE, new Error({
                 'name': 'FileClientGetFieldsFailure',
                 'message': error
               }));
@@ -81,10 +82,13 @@ export default (actionContext, files) => {
                 // got files from fs, saving to db for next runs
                 databaseClient.putMetrics(fieldsList, (error) => {
                   if (error) {
-                    actionContext.dispatch('FAILURE', new Error({
-                      name: 'DatabaseClientPutMetricsFailure',
-                      message: error
-                    }));
+                    actionContext.dispatch(
+                      ACTIONS.LIST_METRICS_FAILURE,
+                      new Error({
+                        name: 'DatabaseClientPutMetricsFailure',
+                        message: error
+                      })
+                    );
                     reject(error);
                   } else {
                     // DB has Metrics, now to UI
@@ -94,7 +98,10 @@ export default (actionContext, files) => {
                         metrics: fieldsFileMap[file]
                       });
                     });
-                    actionContext.dispatch('LIST_METRICS_SUCCESS', payload);
+                    actionContext.dispatch(
+                      ACTIONS.LIST_METRICS_SUCCESS,
+                      payload
+                    );
                     resolve(payload);
                   }
                 }); // databaseClient.putMetrics()

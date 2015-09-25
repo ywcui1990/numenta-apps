@@ -48,14 +48,14 @@ export default class ModelDataStore extends BaseStore {
       let model = this._models.get(payload.modelId);
       if (model) {
         // Append payload data to existing model
-        model.data.push(payload.data);
+        Array.prototype.push.apply(model.data, payload.data);
         // Record last time this model was modified
         model.modified = new Date();
       } else {
         // New model
         this._models.set(payload.modelId, {
           modelId: payload.modelId,
-          data: [payload.data] || [],
+          data: payload.data || [],
           // Record last time this model was modified
           modified: new Date()
         });
