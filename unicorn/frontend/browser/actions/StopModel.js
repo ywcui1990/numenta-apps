@@ -19,20 +19,12 @@
 
 'use strict';
 
+import {ACTIONS} from '../lib/Constants';
 /**
  * Stop running model
  */
 export default (actionContext, modelId) => {
-  return new Promise(function(resolve, reject) {
-    let modelClient = actionContext.getModelClient();
-    modelClient.removeModel(modelId, (error, data) => {
-      if (error) {
-        console.error(error);
-        reject(error);
-      } else if (data) {
-        actionContext.dispatch('STOP_MODEL_SUCCESS', data.modelId);
-        resolve(data.modelId);
-      }
-    });
-  });
+  actionContext.dispatch(ACTIONS.STOP_MODEL_SUCCESS, modelId);
+  let modelClient = actionContext.getModelClient();
+  modelClient.removeModel(modelId);
 };

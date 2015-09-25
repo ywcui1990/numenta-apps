@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'databaseClient': databaseClient,
   });
   // Start listening for model events
-  modelClient.start(context);
+  modelClient.start(context.getActionContext());
 
   // fire initial app action to load all files
   context.executeAction(ListFilesAction, {})

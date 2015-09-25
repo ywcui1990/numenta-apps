@@ -19,7 +19,9 @@
 
 'use strict';
 import ipc from 'ipc';
+import ModelErrorAction from '../actions/ModelError';
 import ReceiveDataAction from '../actions/ReceiveData';
+import {ACTIONS} from '../lib/Constants';
 
 const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 
@@ -28,61 +30,66 @@ export default class ModelClientIPC {
     this._context = null;
   }
 
-  start(context) {
-    this._context = context;
+  start(actionContext) {
+    this._context = actionContext;
     ipc.on(MODEL_SERVER_IPC_CHANNEL, this._handleIPCEvent.bind(this));
+  }
+
+  createModel(modelId, params) {
+    ipc.send(MODEL_SERVER_IPC_CHANNEL, {
+      'modelId': modelId,
+      'command': 'create',
+      'params': JSON.stringify(params)
+    });
+  }
+
+  removeModel(modelId) {
+    ipc.send(MODEL_SERVER_IPC_CHANNEL, {
+      'modelId': modelId,
+      'command': 'remove',
+    });
+  }
+
+  sendData(modelId, data) {
+    ipc.send(MODEL_SERVER_IPC_CHANNEL, {
+      'modelId': modelId,
+      'command': 'sendData',
+      'params': JSON.stringify(data)
+    });
   }
 
   _handleIPCEvent(modelId, command, payload) {
     if (this._context) {
       if (command === 'data') {
-        this._context.executeAction(ReceiveDataAction, {
-          'modelId': modelId,
-          'data': JSON.parse(payload)
-        });
+        setTimeout(() => this._handleModelData(modelId, payload));
+      } else if (command === 'error') {
+        let {error, ipcevent} = payload;
+        setTimeout(() => this._handleIPCError(error, ipcevent));
+      } else {
+        console.error('Unknown command:' + command, payload);
       }
     }
   }
 
-  createModel(modelId, params, callback) {
-    let res = ipc.sendSync(MODEL_SERVER_IPC_CHANNEL, {
+  _handleIPCError(error, ipcevent) {
+    let {modelId, command} = ipcevent;
+    this._context.executeAction(ModelErrorAction, {
+      'command' : command,
       'modelId': modelId,
-      'command': 'create',
-      'params': JSON.stringify(params)
+      'error': error
     });
-    if ('error' in res) {
-      callback(res['error']);
-    } else {
-      callback(null, {
-        'modelId': modelId
-      });
-    }
   }
 
-  removeModel(modelId, callback) {
-    let res = ipc.sendSync(MODEL_SERVER_IPC_CHANNEL, {
-      'modelId': modelId,
-      'command': 'remove',
+  _handleModelData(modelId, payload) {
+    // Multiple data records are separated by `\n`
+    let data = payload.trim().split('\n').map((row) => {
+      if (row) {
+        return JSON.parse(row);
+      }
     });
-    if ('error' in res) {
-      callback(res['error']);
-    } else {
-      callback(null, {
-        'modelId': modelId
-      });
-    }
-  }
-
-  sendData(modelId, data, callback) {
-    let res = ipc.sendSync(MODEL_SERVER_IPC_CHANNEL, {
+    this._context.executeAction(ReceiveDataAction, {
       'modelId': modelId,
-      'command': 'data',
-      'params': JSON.stringify(data)
+      'data': data
     });
-    if ('error' in res) {
-      callback(res['error']);
-    } else {
-      callback(null, data);
-    }
   }
 }
