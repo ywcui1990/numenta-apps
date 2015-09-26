@@ -55,6 +55,7 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
   test/             # Frontend tests run by Mocha: Unit, etc.
     unit/           # Frontend+GUI Unit tests
 gulpfile.babel.js   # Babel.js ES6 Config file for the Gulp build tool
+logs/               # Logfile output of all kinds should end up here
 node_modules/       # Where `npm` installs packages to
 package.json        # Node.js `npm` packages, dependencies, and App config
 ```
@@ -323,16 +324,13 @@ may be too low priority to worry about yet. -@brev
 
 * Gulp/Webpack config settings for loading differing bundle/code for
   Desktop or Browser. Split build sources and targets for certain dirs?
-  Sync with recent `nconf` work.
-* Setup logging: Winston or Bunyan? => Joe thinking about it.
-* Errors are not that helpful so far, need to improve this
-  * Seemed like webpack / babel build errors were not killing the 'npm start'
-    flow, missing exit code in package.json?
+  Sync with recent `nconf` work. Also new Electron/Node4 doesn't need babel.
+* Setup logging: Winston or Bunyan? => Joe thinking about it. output: ./logs/
 * Add in Flow type checking
 * i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
 * Document where are imports=>requires handled? Babel/Webpack?
 * add Architecture docs and charts
-  * Copy in ARch doc Errors section to this doc
+  * Copy in Arch doc Errors section to this doc
     * Errors can do screenshots:
       https://github.com/atom/electron/blob/master/docs/api/browser-window.md#browserwindowcapturepagerect-callback
-* JS formatting: [jsfmt](https://github.com/rdio/jsfmt) - NO ES6 yet!
+* JS formatting: [jsfmt](https://github.com/rdio/jsfmt) - NO ES6/7 yet

@@ -1,6 +1,7 @@
 backend/build/
 backend/dist/
 frontend/database/data/
+logs/*.log
 node_modules/
 Unicorn-darwin-x64/
 bundle.js
