@@ -70,7 +70,6 @@ let context;
 // MAIN
 
 
-// Add model client as plugin
 // UnicornPlugin plugin exposing unicorn clients from contexts
 // See https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md
 let UnicornPlugin = {
@@ -167,14 +166,11 @@ document.addEventListener('DOMContentLoaded', () => {
   modelClient.start(context.getActionContext());
 
   // fire initial app action to load all files
-  console.log('fire initial app action to load all files');
   context.executeAction(ListFilesAction, {})
     .then((files) => {
-      console.log('after files, load all metrics (usually grouped by files)');
       return context.executeAction(ListMetricsAction, files);
     })
     .then(() => {
-      console.log('FluxibleReact rendering to document.body');
       let contextEl = FluxibleReact.createElementWithContext(context);
       React.render(contextEl, document.body);
     })
