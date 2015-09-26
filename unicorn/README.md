@@ -45,7 +45,7 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
     lib/            # Custom JS libs for inside the browser (engine clients)
     stores/         # Fluxible Stores JS
   config/           # JS Config files loaded by nconf
-  database/         # File-based JSON database storage (levelup + jsondown)
+  database/         # File-based JSON database storage (levelup + mdeadown)
     data/           # Local JSON file DB log (not in source control)
     schema/         # Database defintion schemas in JSON
   lib/              # Custom JS libs for outside the browser (engine servers)
@@ -109,7 +109,10 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Package Manager: [npm](https://www.npmjs.com/)
     * Module Loading and Bundling: [WebPack](https://github.com/webpack/webpack)
     * Configuration: [nconf](https://github.com/indexzero/nconf)
-  * User Interface:
+    * Database on filesystem: [LevelUp](https://github.com/Level/levelup)
+      interface to [LevelDB](https://github.com/google/leveldb), with
+      [mdeadown](https://www.npmjs.com/package/medeadown) backend
+  * User Interface / Browser:
     * Architecture: [Fluxible](http://fluxible.io/)
       ([Flux](https://facebook.github.io/flux/docs/overview.html#content)
       Uni-directional data flow)
