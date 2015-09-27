@@ -22,6 +22,7 @@
 import {ACTIONS} from '../lib/Constants';
 import DatabaseClient from '../lib/DatabaseClient';
 import FileClient from '../lib/FileClient';
+import Utils from '../../lib/Utils';
 
 
 /**
@@ -56,6 +57,11 @@ export default (actionContext) => {
             reject(error);
           } else {
             // got file list from fs, saving to db for next runs
+            files = files.map((file) => {
+              file.uid = Utils.generateId(file.filename);
+              return file;
+            });
+
             databaseClient.putFiles(files, (error) => {
               if (error) {
                 actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, new Error({

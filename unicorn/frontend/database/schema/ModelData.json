@@ -31,7 +31,7 @@
       "type": "number"
     },
     "display_value": {
-      "type": "integer"
+      "type": "number"
     }
   },
   "required": ["uid", "model_uid", "rowid", "timestamp", "metric_value", "anomaly_score", "anomaly_likelihood", "display_value"]

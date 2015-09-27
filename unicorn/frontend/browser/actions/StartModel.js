@@ -19,10 +19,19 @@
 
 'use strict';
 
-import StopModelAction from '../actions/StopModel';
-import SendDataAction from '../actions/SendData';
-import ModelStore from '../stores/ModelStore';
+
+// externals
+
+import csp from 'js-csp';
+
+// internals
+
 import {ACTIONS} from '../lib/Constants';
+import ModelStore from '../stores/ModelStore';
+import SendDataAction from '../actions/SendData';
+import StopModelAction from '../actions/StopModel';
+import Utils from '../../lib/Utils';
+
 
 /**
  * Promise to return the file statistics. See FileServer#getStatistics
@@ -41,39 +50,122 @@ function promiseFileStats(actionContext, filename) {
 };
 
 /**
+ * Check database for previously saved Metric Data
+ */
+function getMetricDataFromDatabase(options) {
+  let {actionContext, model} = options;
+  let channel = csp.chan();
+  let databaseClient = actionContext.getDatabaseClient();
+
+  databaseClient.getMetricDatas(
+    { 'metric_uid': Utils.generateModelId(model.filename, model.metric) },
+    (error, results) => {
+      if (error) {
+        csp.putAsync(channel, new Error({
+          name: 'StartModelActionDatabaseClientGetMetricDatas',
+          message: error
+        }));
+      } else {
+        csp.putAsync(channel, results);
+      }
+    }
+  );
+
+  return channel;
+}
+
+/**
  * Start streaming data records to the model and emit results
  */
 function streamData(actionContext, modelId) {
-
+  let databaseClient = actionContext.getDatabaseClient();
   let fileClient = actionContext.getFileClient();
   let modelStore = actionContext.getStore(ModelStore);
   let model = modelStore.getModel(modelId);
+  let rowId = 0;
+  let rows = [];
 
   return new Promise((resolve, reject) => {
-    // Stream file data
-    fileClient.getData(model.filename, (error, data) => {
-      if (error) {
-        actionContext.executeAction(StopModelAction, model.modelId);
-        reject(error);
-      } else if (data) {
-        try {
-          let row = JSON.parse(data);
+    csp.go(function* () {
+
+      // see if metric data is already saved in DB first
+      let metricData = yield csp.take(
+        getMetricDataFromDatabase({actionContext, model})
+      );
+      if (metricData instanceof Error) {
+        reject(metricData);
+        return;
+      }
+      if (metricData.length > 0) {
+        // yes metric data is already in DB, use it
+        metricData.forEach((row) => {
           actionContext.executeAction(SendDataAction, {
             'modelId': model.modelId,
             'data': [
               new Date(row[model.timestampField]).getTime() / 1000,
               new Number(row[model.metric]).valueOf()
             ]});
-        } catch (ex) {
-          reject(error);
-        }
-      } else {
-        // End of data
+        });
+        // on to UI
         resolve(model.modelId);
+        return;
       }
-    });
-  });
+
+      // No metric data in DB, load direct from filesystem and save to DB
+      // @TODO refactor async flow to CSP
+      fileClient.getData(model.filename, (error, data) => {
+        let row;
+        let timestamp;
+        let value;
+
+        if (error) {
+          actionContext.executeAction(StopModelAction, model.modelId);
+          reject(error);
+        } else if (data) {
+          // validate new data row
+          try {
+            row = JSON.parse(data);
+          } catch (error) {
+            reject(error);
+          }
+
+          // queue for DB
+          timestamp = new Date(row[model.timestampField]);
+          value = new Number(row[model.metric]).valueOf();
+          rows.push({
+            uid: Utils.generateDataId(model.filename, model.metric, timestamp),
+            'metric_uid': Utils.generateModelId(model.filename, model.metric),
+            rowid: rowId,
+            timestamp: timestamp.toISOString(),
+            'metric_value': value,
+            'display_value': value
+          });
+          rowId++;
+
+          // send row to UI
+          actionContext.executeAction(SendDataAction, {
+            'modelId': model.modelId,
+            'data': [(timestamp.getTime() / 1000), value]
+          });
+        } else {
+          // End of data - Save to DB for future runs.
+          databaseClient.putMetricDatas(rows, (error) => {
+            if (error) {
+              reject(error);
+            } else {
+              // on to UI
+              resolve(model.modelId);
+            }
+          });
+        }
+      }); // fileClient.getData
+
+    }); // csp.go
+  }); // Promise
 };
+
+
+// MAIN
 
 /**
  * Action used to Start streaming data to the nupic model. The file will be
@@ -83,7 +175,6 @@ function streamData(actionContext, modelId) {
  * @param  {String} model         The model to start
  */
 export default (actionContext, modelId) => {
-
   let modelStore = actionContext.getStore(ModelStore);
   let model = modelStore.getModel(modelId);
   let { metric, filename } = model;

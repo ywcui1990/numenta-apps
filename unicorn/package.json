@@ -71,6 +71,7 @@
     "fluxible": "0.5.4",
     "fluxible-addons-react": "0.1.8",
     "is-electron-renderer": "2.0.0",
+    "js-csp": "0.5.0",
     "jsonquery-engine": "1.0.2",
     "jsonschema": "1.0.2",
     "level-queryengine": "3.0.1",

@@ -25,7 +25,7 @@ import crypto from 'crypto';
 export default {
 
   /**
-   * Genereate unique model id based on seed string using 1-way hash algo (SHA1)
+   * Genereate unique hashed UID based on seed string and SHA1
    * @param  {string} seed - Seed string to hash
    * @return {string} Unique id
    */
@@ -35,13 +35,26 @@ export default {
   },
 
   /**
-   * Genereate unique model id based on the filename and metric name via hashing
+   * Genereate unique model uid based on the filename and metric name
+   *  via hashing.
    * @param  {string} filename - The absolute path
    * @param  {string} metric - Metric name
    * @return {string} Unique id
    */
   generateModelId (filename, metric) {
     return this.generateId(filename + '#' + metric);
+  },
+
+  /**
+   * Genereate unique metric data row uid based on the filename, metric name,
+   *  and row timestamp string, via hashing.
+   * @param  {string} filename - The absolute path
+   * @param  {string} metric - Metric name
+   * @param  {string} timestamp - Unique Record row timestamp string
+   * @return {string} Unique id
+   */
+  generateDataId (filename, metric, timestamp) {
+    return this.generateId(filename + '#' + metric + '#' + timestamp);
   }
 
 };

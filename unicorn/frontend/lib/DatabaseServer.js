@@ -46,7 +46,6 @@ import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
 import ModelSchema from '../database/schema/Model.json';
 import ModelDataSchema from '../database/schema/ModelData.json';
-import Utils from './Utils';
 
 const DB_FILE_PATH = path.join('frontend', 'database', 'data');
 
@@ -135,11 +134,19 @@ DatabaseServer.prototype.getMetrics = function(query, callback) {
 
 /**
  * Get all/queried MetricDatas records
+ * @callback
+ * @method
+ * @param {object} query - DB Query filter object (jsonquery-engine),
+ *  empty object "{}" for all results.
+ * @param {function} [callback] - Async callback: function (error, results) {}
+ * @public
+ * @this DatabaseServer
  */
 DatabaseServer.prototype.getMetricDatas = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('metricData'));
   table.query.use(jsonQuery());
+  table.ensureIndex('metric_uid');
   table.query(query)
     .on('stats', () => {})
     .on('error', (error) => {
@@ -249,12 +256,9 @@ DatabaseServer.prototype.putFiles = function (files, callback) {
 
   // prepare
   ops = files.map((file) => {
-    let fileId = Utils.generateId(file.filename);
-    file.uid = fileId;
-
     return {
       type: 'put',
-      key: fileId,
+      key: file.uid,
       value: file
     };
   });
@@ -319,7 +323,36 @@ DatabaseServer.prototype.putMetricData = function(metricData, callback) {
     return;
   }
 
-  table.put(metricData.metric_uid, metricData, callback);
+  table.put(metricData.uid, metricData, callback);
+};
+
+/**
+ * Put multiple MetricData records into DB
+ */
+DatabaseServer.prototype.putMetricDatas = function(metricDatas, callback) {
+  let ops = [];
+  let table = this.db.sublevel('metricData');
+
+  // validate
+  metricDatas.forEach((metricData) => {
+    let validation = this.validator.validate(metricData, MetricDataSchema);
+    if (validation.errors.length) {
+      callback(validation.errors, null);
+      return;
+    }
+  });
+
+  // prepare
+  ops = metricDatas.map((metricData) => {
+    return {
+      type: 'put',
+      key: metricData.uid,
+      value: metricData
+    };
+  });
+
+  // execute
+  table.batch(ops, callback);
 };
 
 /**
