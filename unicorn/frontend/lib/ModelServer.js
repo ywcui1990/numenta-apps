@@ -89,10 +89,10 @@ export class ModelServer extends EventEmitter {
     if (this._models.has(modelId)) {
       throw new DuplicateIDError();
     }
-    let child = childProcess.spawn(
-      'python',
-      [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats]
-    );
+
+    let params = [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats];
+    let child = childProcess.spawn('python', params);
+
     child.stdout.setEncoding('utf8');
     child.stdin.setDefaultEncoding('utf8');
     child.stderr.setEncoding('utf8');
