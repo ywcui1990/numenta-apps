@@ -19,9 +19,8 @@
 
 'use strict';
 
+
 import {ACTIONS} from '../lib/Constants';
-import DatabaseClient from '../lib/DatabaseClient';
-import FileClient from '../lib/FileClient';
 import Utils from '../../lib/Utils';
 
 
@@ -31,11 +30,12 @@ import Utils from '../../lib/Utils';
 export default (actionContext, files) => {
   return new Promise((resolve, reject) => {
 
-    let databaseClient = new DatabaseClient();
-    let fileClient = new FileClient();
+    let databaseClient = actionContext.getDatabaseClient();
+    let fileClient = actionContext.getFileClient();
     let payload = [];
 
     // load existing metrics from db, from previous runs
+    console.log('load existing metrics from db, from previous runs');
     databaseClient.getMetrics({}, (error, metrics) => {
       if (error) {
         actionContext.dispatch(ACTIONS.LIST_METRICS_FAILURE, new Error({
@@ -45,6 +45,7 @@ export default (actionContext, files) => {
         reject(error);
       } else if (metrics.length) {
         // metrics in db already, not first run, straight to UI.
+        console.log('metrics in db already, not first run, straight to UI.');
         files.forEach((file) => {
           payload.push({
             filename: file.filename,
@@ -55,10 +56,12 @@ export default (actionContext, files) => {
         });
 
         // DB already had Metrics, now to UI
+        console.log('DB already had Metrics, now to UI');
         actionContext.dispatch(ACTIONS.LIST_METRICS_SUCCESS, payload);
         resolve(payload);
       } else {
         // no metrics in db, is first run, so load them from fs
+        console.log('no metrics in db, is first run, so load them from fs');
         let fieldsFileMap = {};
         let fieldsList = [];
         let fileCount = 0;
@@ -80,6 +83,7 @@ export default (actionContext, files) => {
               if (fileCount >= files.length) {
 
                 // got files from fs, saving to db for next runs
+                console.log('got files from fs, saving to db for next runs');
                 databaseClient.putMetrics(fieldsList, (error) => {
                   if (error) {
                     actionContext.dispatch(
@@ -92,6 +96,7 @@ export default (actionContext, files) => {
                     reject(error);
                   } else {
                     // DB has Metrics, now to UI
+                    console.log('DB has Metrics, now to UI');
                     Object.keys(fieldsFileMap).forEach((file) => {
                       payload.push({
                         filename: file,

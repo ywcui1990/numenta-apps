@@ -33,7 +33,7 @@
 import jsonQuery from 'jsonquery-engine';
 import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
-import medeadown from 'medeadown';
+import jsondown from 'jsondown';
 import path from 'path';
 import sublevel from 'level-sublevel';
 import { Validator } from 'jsonschema';
@@ -44,10 +44,8 @@ import { Validator } from 'jsonschema';
 import FileSchema from '../database/schema/File.json';
 import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
-import ModelSchema from '../database/schema/Model.json';
-import ModelDataSchema from '../database/schema/ModelData.json';
 
-const DB_FILE_PATH = path.join('frontend', 'database', 'data');
+const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 
 
 // MAIN
@@ -64,10 +62,13 @@ var DatabaseServer = function() {
   // this.validator.addSchema(AddressSchema, '/Address');
 
   this.db = sublevel(levelup(DB_FILE_PATH, {
-    db: medeadown,
+    db: jsondown,
     valueEncoding: 'json'
   }));
 };
+
+
+// GETTERS
 
 /**
  * Get a single File
@@ -163,59 +164,8 @@ DatabaseServer.prototype.getMetricDatas = function(query, callback) {
     });
 };
 
-/**
- * Get a single Model
- */
-DatabaseServer.prototype.getModel = function(uid, callback) {
-  let table = this.db.sublevel('model');
-  table.get(uid, callback);
-};
 
-/**
- * Get all/queried Models
- */
-DatabaseServer.prototype.getModels = function(query, callback) {
-  let results = [];
-  let table = levelQuery(this.db.sublevel('model'));
-  table.query.use(jsonQuery());
-  table.query(query)
-    .on('stats', () => {})
-    .on('error', (error) => {
-      callback(error, null);
-    })
-    .on('data', (result) => {
-      results.push(result);
-    })
-    .on('end', (result) => {
-      if (result) {
-        results.push(result);
-      }
-      callback(null, results);
-    });
-};
-
-/**
- * Get all/queried ModelDatas records
- */
-DatabaseServer.prototype.getModelDatas = function(query, callback) {
-  let results = [];
-  let table = levelQuery(this.db.sublevel('modelData'));
-  table.query.use(jsonQuery());
-  table.query(query)
-    .on('stats', () => {})
-    .on('error', (error) => {
-      callback(error, null);
-    })
-    .on('data', (result) => {
-      results.push(result);
-    })
-    .on('end', (result) => {
-      if (result) {
-        results.push(result);
-      }
-      callback(null, results);
-    });
-};
+// SETTERS
 
 /**
  * Put a single File to DB

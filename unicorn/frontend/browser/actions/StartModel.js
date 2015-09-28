@@ -34,20 +34,71 @@ import Utils from '../../lib/Utils';
 
 
 /**
- * Promise to return the file statistics. See FileServer#getStatistics
+ *
  */
-function promiseFileStats(actionContext, filename) {
-  return new Promise((resolve, reject) => {
-    let fileClient = actionContext.getFileClient();
-    fileClient.getStatistics(filename, (error, stats) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(stats);
-      }
-    });
+function getMetricFromDatabase(options) {
+  let {actionContext, model} = options;
+  let channel = csp.chan();
+  let databaseClient = actionContext.getDatabaseClient();
+  let metricId = Utils.generateModelId(model.filename, model.metric);
+
+  databaseClient.getMetric(metricId, (error, results) => {
+    if (error && (!('notFound' in error))) {
+      csp.putAsync(channel, new Error({
+        name: 'StartModelActionDatabaseClientGetMetric',
+        message: error
+      }));
+    } else {
+      csp.putAsync(channel, results);
+    }
   });
-};
+
+  return channel;
+}
+
+/**
+ *
+ */
+function getMetricStatsFromFilesystem(options) {
+  let {actionContext, model} = options;
+  let channel = csp.chan();
+  let fileClient = actionContext.getFileClient();
+
+  fileClient.getStatistics(model.filename, (error, stats) => {
+    if (error) {
+      csp.putAsync(channel, new Error({
+        name: 'StartModelActionDatabaseClientGetMetricDatas',
+        message: error
+      }));
+    } else {
+      csp.putAsync(channel, stats);
+    }
+  });
+
+  return channel;
+}
+
+/**
+ *
+ */
+function putMetricStatsIntoDatabase(options) {
+  let {actionContext, metric} = options;
+  let channel = csp.chan();
+  let databaseClient = actionContext.getDatabaseClient();
+
+  databaseClient.putMetric(metric, (error) => {
+    if (error) {
+      csp.putAsync(channel, new Error({
+        name: 'StartModelActionDatabaseClientPutMetricStats',
+        message: error
+      }));
+    } else {
+      csp.putAsync(channel, true);
+    }
+  });
+
+  return channel;
+}
 
 /**
  * Check database for previously saved Metric Data
@@ -89,15 +140,18 @@ function streamData(actionContext, modelId) {
     csp.go(function* () {
 
       // see if metric data is already saved in DB first
+      console.log('see if metric data is already saved in DB first');
       let metricData = yield csp.take(
         getMetricDataFromDatabase({actionContext, model})
       );
       if (metricData instanceof Error) {
         reject(metricData);
+        console.error(metricData);
         return;
       }
       if (metricData.length > 0) {
         // yes metric data is already in DB, use it
+        console.log('yes metric data is already in DB, use it');
         metricData.forEach((row) => {
           actionContext.executeAction(SendDataAction, {
             'modelId': model.modelId,
@@ -107,11 +161,13 @@ function streamData(actionContext, modelId) {
             ]});
         });
         // on to UI
+        console.log('on to UI');
         resolve(model.modelId);
         return;
       }
 
       // No metric data in DB, load direct from filesystem and save to DB
+      console.log('No metric data in DB, load direct from filesystem and save to DB');
       // @TODO refactor async flow to CSP
       fileClient.getData(model.filename, (error, data) => {
         let row;
@@ -149,11 +205,24 @@ function streamData(actionContext, modelId) {
           });
         } else {
           // End of data - Save to DB for future runs.
+          console.log('End of data - Save to DB for future runs. !!!', rows);
+
           databaseClient.putMetricDatas(rows, (error) => {
             if (error) {
               reject(error);
             } else {
+              console.log('Rows should be in!!!', rows);
+
+              databaseClient.getMetricDatas(
+                { 'metric_uid': Utils.generateModelId(model.filename, model.metric) },
+                (err, res) => {
+                  console.log('id', Utils.generateModelId(model.filename, model.metric));
+                  console.log('RES!!!', err, res);
+                }
+              );
+
               // on to UI
+              console.log('on to UI');
               resolve(model.modelId);
             }
           });
@@ -174,16 +243,77 @@ function streamData(actionContext, modelId) {
  * @param  {[type]} actionContext
  * @param  {String} model         The model to start
  */
-export default (actionContext, modelId) => {
+export default function (actionContext, modelId) {
+  let modelClient = actionContext.getModelClient();
   let modelStore = actionContext.getStore(ModelStore);
   let model = modelStore.getModel(modelId);
-  let { metric, filename } = model;
 
-  return promiseFileStats(actionContext, filename)
-    .then((stats) => {
-      let modelClient = actionContext.getModelClient();
+  let fileStats;
+  let metric = {};
+  let stats = {};
+
+  return new Promise((resolve, reject) => {
+    csp.go(function* () {
+
+      // see if metric min/max is already in DB
+      console.log('see if metric min/max is already in DB');
+      metric = yield csp.take(
+        getMetricFromDatabase({actionContext, model})
+      );
+      if (metric instanceof Error) {
+        reject(metric);
+        console.error(metric);
+        return;
+      }
+      if (metric && ('min' in metric) && ('max' in metric)) {
+        // yes, metric min/max was already in DB, so prep for use
+        console.log('yes, metric min/max was already in DB, so prep for use');
+        stats.min = metric.min;
+        stats.max = metric.max;
+      } else {
+        // metric min/max was NOT in DB, so load from FS
+        console.log('metric min/max was NOT in DB, so load from FS');
+        fileStats = yield csp.take(
+          getMetricStatsFromFilesystem({actionContext, model})
+        );
+        if (
+          (fileStats instanceof Error) ||
+          (!(model.metric in fileStats))
+        ) {
+          reject(fileStats);
+          console.error(fileStats);
+          return;
+        }
+
+        stats = fileStats[model.metric];
+
+        // Now save min/max back to DB so we never have to ping FS for it again
+        console.log('Now save min/max back to DB so we never have to ping FS for it again');
+        fileStats = yield csp.take(putMetricStatsIntoDatabase({
+          actionContext,
+          metric: { // electron ipc remote() needs this obj to rebuilt here :(
+            uid: metric.uid,
+            'file_uid': metric['file_uid'],
+            'model_uid': modelId,
+            name: metric.name,
+            type: metric.type,
+            min: stats.min,
+            max: stats.max
+          }
+        }));
+        if (fileStats instanceof Error) {
+          reject(fileStats);
+          console.error(fileStats);
+          return;
+        }
+      }
+
+      // metric min/max retrieved (either from DB or FS), ready to rock!
+      console.log('metric min/max retrieved (either from DB or FS), ready!');
       actionContext.dispatch(ACTIONS.START_MODEL_SUCCESS, modelId);
-      modelClient.createModel(modelId, stats[metric]);
+      modelClient.createModel(modelId, stats);
       return streamData(actionContext, modelId);
+
     });
-};
+  });
+}

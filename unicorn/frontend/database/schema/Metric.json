@@ -24,6 +24,12 @@
     "type": {
       "enum": ["date", "number", "string"],
       "type": "string"
+    },
+    "min": {
+      "type": "number"
+    },
+    "max": {
+      "type": "number"
     }
   },
   "required": ["uid", "file_uid", "name", "type"]

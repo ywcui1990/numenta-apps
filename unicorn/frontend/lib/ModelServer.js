@@ -20,6 +20,7 @@
 
 'use strict';
 
+
 import childProcess from 'child_process';
 import EventEmitter from 'events';
 import path from 'path';
@@ -56,6 +57,7 @@ export class ModelNotFoundError extends UserError {
     super('Model not found');
   }
 };
+
 
 /**
  * Unicorn: ModelServer - Respond to a ModelClient over IPC, sharing our access
@@ -111,14 +113,10 @@ export class ModelServer extends EventEmitter {
 
     child.once('close', (code) => {
       this._models.delete(modelId);
-      this.emit(modelId, 'close', code);
+      // this.emit(modelId, 'close', code);
     });
 
-    this._models.set(modelId,{
-      modelId: modelId,
-      stats: stats,
-      child: child
-    });
+    this._models.set(modelId, { modelId, stats, child });
   }
 
   /**
@@ -160,4 +158,4 @@ export class ModelServer extends EventEmitter {
     model.child.kill();
     this.removeAllListeners(modelId);
   }
-};
+}
