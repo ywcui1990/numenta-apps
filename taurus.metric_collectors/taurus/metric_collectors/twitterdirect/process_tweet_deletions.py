@@ -150,7 +150,7 @@ def _purgeStaleDeletionRecords(limit):
 
 
 def _process():
-  """Perform one iteration of the processing worlflow: purge tweets slated for
+  """Perform one iteration of the processing workflow: purge tweets slated for
   deletion and garbage-collect deletion requests
   """
 
