@@ -33,7 +33,7 @@
 import jsonQuery from 'jsonquery-engine';
 import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
-import jsondown from 'jsondown';
+import medeadown from 'medeadown';
 import path from 'path';
 import sublevel from 'level-sublevel';
 import { Validator } from 'jsonschema';
@@ -45,7 +45,7 @@ import FileSchema from '../database/schema/File.json';
 import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
 
-const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
+const DB_FILE_PATH = path.join('frontend', 'database', 'data');
 
 
 // MAIN
@@ -62,7 +62,7 @@ var DatabaseServer = function() {
   // this.validator.addSchema(AddressSchema, '/Address');
 
   this.db = sublevel(levelup(DB_FILE_PATH, {
-    db: jsondown,
+    db: medeadown,
     valueEncoding: 'json'
   }));
 };
@@ -160,7 +160,20 @@ DatabaseServer.prototype.getMetricDatas = function(query, callback) {
       if (result) {
         results.push(result);
       }
-      callback(null, results);
+
+      // sort by rowid
+      results.sort((a, b) => {
+        if (a.rowid > b.rowid) {
+          return 1;
+        }
+        if (a.rowid < b.rowid) {
+          return -1;
+        }
+        return 0;
+      });
+
+      // JSONify here to get around Electron IPC remote() memory leaks
+      callback(null, JSON.stringify(results));
     });
 };
 

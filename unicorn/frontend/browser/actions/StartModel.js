@@ -117,6 +117,8 @@ function getMetricDataFromDatabase(options) {
           message: error
         }));
       } else {
+        // JSONized here to get around Electron IPC remote() memory leaks
+        results = JSON.parse(results);
         csp.putAsync(channel, results);
       }
     }
@@ -157,7 +159,7 @@ function streamData(actionContext, modelId) {
             'modelId': model.modelId,
             'data': [
               new Date(row[model.timestampField]).getTime() / 1000,
-              new Number(row[model.metric]).valueOf()
+              new Number(row['metric_value']).valueOf()
             ]});
         });
         // on to UI
@@ -188,6 +190,7 @@ function streamData(actionContext, modelId) {
           // queue for DB
           timestamp = new Date(row[model.timestampField]);
           value = new Number(row[model.metric]).valueOf();
+          // JSONized here to get around Electron IPC remote() memory leaks
           rows.push({
             uid: Utils.generateDataId(model.filename, model.metric, timestamp),
             'metric_uid': Utils.generateModelId(model.filename, model.metric),
@@ -205,22 +208,11 @@ function streamData(actionContext, modelId) {
           });
         } else {
           // End of data - Save to DB for future runs.
-          console.log('End of data - Save to DB for future runs. !!!', rows);
-
+          console.log('End of data - Save to DB for future runs.');
           databaseClient.putMetricDatas(rows, (error) => {
             if (error) {
               reject(error);
             } else {
-              console.log('Rows should be in!!!', rows);
-
-              databaseClient.getMetricDatas(
-                { 'metric_uid': Utils.generateModelId(model.filename, model.metric) },
-                (err, res) => {
-                  console.log('id', Utils.generateModelId(model.filename, model.metric));
-                  console.log('RES!!!', err, res);
-                }
-              );
-
               // on to UI
               console.log('on to UI');
               resolve(model.modelId);

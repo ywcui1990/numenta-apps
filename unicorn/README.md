@@ -122,7 +122,6 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Graphing and Charting: [DyGraphs](http://dygraphs.com/)
       * @TODO Alternatives: [react-chartjs](https://github.com/jhudson8/react-chartjs)
         Canvas, [react-d3](https://github.com/esbullington/react-d3) SVG
-    * HD Images: [Retina.js](http://imulus.github.io/retinajs/)
 * Testing:
   * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)
 * Tooling:
