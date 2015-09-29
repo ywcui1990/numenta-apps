@@ -95,6 +95,8 @@ update-motd:
     - group: wheel
     - mode: 0755
     - require:
+      - cmd: clean-update-motd-script-source
+      - cmd: cleanup-motd-cronjob-symlink
       - file: acta-diurna
 # Run the update-motd job, but only when a fragment script is added or changed
   cmd.wait:
@@ -118,9 +120,22 @@ motd-cronjob:
       - file: /etc/update-motd.d
       - file: acta-diurna
 
+clean-update-motd-script-source:
+  cmd.run:
+    - name: rm -f /usr/local/sbin/update-motd
+    - onlyif: test -L /usr/local/sbin/update-motd
+
+cleanup-motd-cronjob-symlink:
+  cmd.run:
+    - name: rm -f /etc/cron.daily/update-motd
+    - unless: test -L /etc/cron.daily/update-motd
+
 update-motd-symlink:
   file.symlink:
     - name: /etc/cron.daily/update-motd
     - target: /usr/local/sbin/update-motd
+    - require:
+      - cmd: clean-update-motd-script-source
+      - cmd: cleanup-motd-cronjob-symlink
 
 {% endif %}
