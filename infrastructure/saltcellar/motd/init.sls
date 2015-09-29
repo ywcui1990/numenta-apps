@@ -105,6 +105,16 @@ update-motd:
     - require:
       - file: acta-diurna
 
+clean-update-motd-script-source:
+  cmd.run:
+    - name: rm -f /usr/local/sbin/update-motd
+    - onlyif: test -L /usr/local/sbin/update-motd
+
+cleanup-motd-cronjob-symlink:
+  cmd.run:
+    - name: rm -f /etc/cron.daily/update-motd
+    - unless: test -L /etc/cron.daily/update-motd
+
 {% if grains['os_family'] == 'RedHat' %}
 
 motd-cronjob:
@@ -119,16 +129,6 @@ motd-cronjob:
       - file: /etc/cron.daily/update-motd
       - file: /etc/update-motd.d
       - file: acta-diurna
-
-clean-update-motd-script-source:
-  cmd.run:
-    - name: rm -f /usr/local/sbin/update-motd
-    - onlyif: test -L /usr/local/sbin/update-motd
-
-cleanup-motd-cronjob-symlink:
-  cmd.run:
-    - name: rm -f /etc/cron.daily/update-motd
-    - unless: test -L /etc/cron.daily/update-motd
 
 update-motd-symlink:
   file.symlink:
