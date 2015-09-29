@@ -77,6 +77,24 @@ class TaurusMetricCollectorsHealthCheckTestCase(unittest.TestCase):
                      "RUNNING")
 
 
+  @_RETRY_SERVICE_RUNNING_CHECK
+  def testTweetDeletionAgentIsRunning(self):
+    self.assertEqual(self._getServiceStateName("tweet_deletion_agent"),
+                     "RUNNING")
+
+
+  @_RETRY_SERVICE_RUNNING_CHECK
+  def testTwitterScreenNameCheckerIsRunning(self):
+    self.assertEqual(self._getServiceStateName("twitter_screen_name_checker"),
+                     "RUNNING")
+
+
+  @_RETRY_SERVICE_RUNNING_CHECK
+  def testStockSymbolCheckerIsRunning(self):
+    self.assertEqual(self._getServiceStateName("stock_symbol_checker"),
+                     "RUNNING")
+
+
 
 if __name__ == "__main__":
   unittest.main()
