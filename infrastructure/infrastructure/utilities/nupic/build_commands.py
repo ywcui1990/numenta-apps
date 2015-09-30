@@ -332,7 +332,7 @@ def runTests(env, logger):
   logger.debug("Running NuPIC Tests.")
   with changeToWorkingDir(env["NUPIC"]):
     try:
-      testCommand = "scripts/run_nupic_tests -u --coverage --results xml"
+      testCommand = "scripts/run_nupic_tests.py -u --coverage --results xml"
       runWithOutput(testCommand, env=env, logger=logger)
     except:
       logger.exception("NuPIC Tests have failed.")
