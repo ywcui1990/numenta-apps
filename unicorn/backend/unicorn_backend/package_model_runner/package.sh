@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Temporary. NUMENTA_APPS_DIR can be an env variable.
 NUMENTA_APPS_DIR=~/_git/numenta-apps
 
 # cleanup
