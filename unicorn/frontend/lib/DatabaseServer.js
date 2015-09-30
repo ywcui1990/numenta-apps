@@ -30,10 +30,11 @@
 
 // externals
 
+import jsondown from 'jsondown';
 import jsonQuery from 'jsonquery-engine';
 import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
-import medeadown from 'medeadown';
+// import medeadown from 'medeadown';
 import path from 'path';
 import sublevel from 'level-sublevel';
 import { Validator } from 'jsonschema';
@@ -45,7 +46,7 @@ import FileSchema from '../database/schema/File.json';
 import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
 
-const DB_FILE_PATH = path.join('frontend', 'database', 'data');
+const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 
 
 // MAIN
@@ -62,7 +63,7 @@ var DatabaseServer = function() {
   // this.validator.addSchema(AddressSchema, '/Address');
 
   this.db = sublevel(levelup(DB_FILE_PATH, {
-    db: medeadown,
+    db: jsondown,
     valueEncoding: 'json'
   }));
 };
@@ -281,6 +282,11 @@ DatabaseServer.prototype.putMetricData = function(metricData, callback) {
   let table = this.db.sublevel('metricData');
   let validation = this.validator.validate(metricData, MetricDataSchema);
 
+  if (typeof metricDatas === 'string') {
+    // JSONify here to get around Electron IPC remote() memory leaks
+    metricDatas = JSON.parse(metricDatas);
+  }
+
   if (validation.errors.length) {
     callback(validation.errors, null);
     return;
@@ -295,6 +301,11 @@ DatabaseServer.prototype.putMetricData = function(metricData, callback) {
 DatabaseServer.prototype.putMetricDatas = function(metricDatas, callback) {
   let ops = [];
   let table = this.db.sublevel('metricData');
+
+  if (typeof metricDatas === 'string') {
+    // JSONify here to get around Electron IPC remote() memory leaks
+    metricDatas = JSON.parse(metricDatas);
+  }
 
   // validate
   metricDatas.forEach((metricData) => {

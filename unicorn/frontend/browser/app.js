@@ -134,6 +134,7 @@ let UnicornPlugin = {
 // GUI APP
 
 document.addEventListener('DOMContentLoaded', () => {
+  window.dbc = databaseClient;
 
   if (!(document && ('body' in document))) {
     throw new Error('React cannot find a DOM document.body to render to');

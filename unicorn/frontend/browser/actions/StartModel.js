@@ -170,7 +170,6 @@ function streamData(actionContext, modelId) {
 
       // No metric data in DB, load direct from filesystem and save to DB
       console.log('No metric data in DB, load direct from filesystem and save to DB');
-      // @TODO refactor async flow to CSP
       fileClient.getData(model.filename, (error, data) => {
         let row;
         let timestamp;
@@ -209,6 +208,8 @@ function streamData(actionContext, modelId) {
         } else {
           // End of data - Save to DB for future runs.
           console.log('End of data - Save to DB for future runs.');
+          // JSONized here to get around Electron IPC remote() memory leaks
+          rows = JSON.stringify(rows);
           databaseClient.putMetricDatas(rows, (error) => {
             if (error) {
               reject(error);
