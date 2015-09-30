@@ -30,11 +30,11 @@
 
 // externals
 
-import jsondown from 'jsondown';
 import jsonQuery from 'jsonquery-engine';
 import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
-// import medeadown from 'medeadown';
+import jsondown from 'jsondown';      // DatabaseBackend
+// import medeadown from 'medeadown'; // DatabaseBackend
 import path from 'path';
 import sublevel from 'level-sublevel';
 import { Validator } from 'jsonschema';
@@ -46,7 +46,8 @@ import FileSchema from '../database/schema/File.json';
 import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
 
-const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
+const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');  // jsondown  DatabaseBackend
+// const DB_FILE_PATH = path.join('frontend', 'database', 'data');               // medeadown DatabaseBackend
 
 
 // MAIN
@@ -63,7 +64,8 @@ var DatabaseServer = function() {
   // this.validator.addSchema(AddressSchema, '/Address');
 
   this.db = sublevel(levelup(DB_FILE_PATH, {
-    db: jsondown,
+    db: jsondown,     // DatabaseBackend
+    // db: medeadown, // DatabaseBackend
     valueEncoding: 'json'
   }));
 };
