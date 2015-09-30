@@ -47,8 +47,6 @@ from nupic.frameworks.opf.common_models.cluster_params import (
 
 g_log = logging.getLogger(__name__)
 
-g_log.addHandler(logging.FileHandler('logs/model_runner.log'))
-
 
 
 class _CommandLineArgError(Exception):
