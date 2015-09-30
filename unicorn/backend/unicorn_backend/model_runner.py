@@ -27,8 +27,9 @@ import sys
 
 # Update pyproj datadir to point to the frozen directory
 # See http://cx-freeze.readthedocs.org/en/latest/faq.html#using-data-files
-if getattr(sys, 'frozen', False):
-  os.environ["PROJ_DIR"] = os.path.join(os.path.dirname(sys.executable), 'pyproj', 'data')
+if getattr(sys, "frozen", False):
+  os.environ["PROJ_DIR"] = os.path.join(os.path.dirname(sys.executable), 
+                                        "pyproj", "data")
 
 from datetime import datetime
 import json
