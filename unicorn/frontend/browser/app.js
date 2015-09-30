@@ -20,6 +20,7 @@
 
 'use strict';
 
+
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files.
@@ -35,17 +36,22 @@ import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
 import tapEventInject from 'react-tap-event-plugin';
-import uuid from 'uuid';
 
 // internals
 
+// Fluxible.Actions
 import ListFilesAction from './actions/ListFiles';
 import ListMetricsAction from './actions/ListMetrics';
-import MainComponent from './components/Main';
+
+// Fluxible.Stores
 import FileStore from './stores/FileStore';
 import ModelStore from './stores/ModelStore';
 import ModelDataStore from './stores/ModelDataStore';
 
+// Fluxible.Components (React)
+import MainComponent from './components/Main';
+
+// Unicorn Client Libraries
 import ConfigClient from './lib/ConfigClient';
 import DatabaseClient from './lib/DatabaseClient';
 import FileClient from './lib/FileClient';
@@ -53,32 +59,16 @@ import ModelClient from './lib/ModelClient';
 
 const config = new ConfigClient();
 
-var databaseClient = new DatabaseClient();
+let databaseClient = new DatabaseClient();
+let fileClient = new FileClient();
+let modelClient = new ModelClient();
 
 let app;
 let context;
 
+
 // MAIN
 
-// CLIENT LIB EXAMPLES
-var testMetric = {
-  'uid': uuid.v4(),
-  'file_uid': uuid.v4(),
-  'model_uid': null,
-  'name': 'blah',
-  'data': []
-};
-databaseClient.putMetric(testMetric, (error) => {
-  if (error) {
-    throw new Error(error);
-  }
-  databaseClient.getMetrics({}, (error, results) => {
-    if (error) {
-      throw new Error(error);
-    }
-    console.log(results);
-  });
-});
 
 // UnicornPlugin plugin exposing unicorn clients from contexts
 // See https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md
@@ -88,42 +78,52 @@ let UnicornPlugin = {
   plugContext: function (options, context, app) {
 
     // Get Unicorn options
-    let modelClient = options.modelClient;
-    let fileClient = options.fileClient;
+    let configClient = options.configClient;
     let databaseClient = options.databaseClient;
+    let fileClient = options.fileClient;
+    let modelClient = options.modelClient;
 
     return {
       plugComponentContext: function (componentContext, context, app) {
-        componentContext.getModelClient = function () {
-          return modelClient;
-        };
-        componentContext.getFileClient = function () {
-          return fileClient;
+        componentContext.getConfigClient = function () {
+          return configClient;
         };
         componentContext.getDatabaseClient = function () {
           return databaseClient;
         };
-      },
-      plugActionContext: function (actionContext, context, app) {
-        actionContext.getModelClient = function () {
+        componentContext.getFileClient = function () {
+          return fileClient;
+        };
+        componentContext.getModelClient = function () {
           return modelClient;
         };
-        actionContext.getFileClient = function () {
-          return fileClient;
+      },
+      plugActionContext: function (actionContext, context, app) {
+        actionContext.getConfigClient = function () {
+          return configClient;
         };
         actionContext.getDatabaseClient = function () {
           return databaseClient;
         };
+        actionContext.getFileClient = function () {
+          return fileClient;
+        };
+        actionContext.getModelClient = function () {
+          return modelClient;
+        };
       },
       plugStoreContext: function (storeContext, context, app) {
-        storeContext.getModelClient = function () {
-          return modelClient;
+        storeContext.getConfigClient = function () {
+          return configClient;
+        };
+        storeContext.getDatabaseClient = function () {
+          return databaseClient;
         };
         storeContext.getFileClient = function () {
           return fileClient;
         };
-        storeContext.getDatabaseClient = function () {
-          return databaseClient;
+        storeContext.getModelClient = function () {
+          return modelClient;
         };
       }
     };
@@ -134,6 +134,11 @@ let UnicornPlugin = {
 // GUI APP
 
 document.addEventListener('DOMContentLoaded', () => {
+  window.dbc = databaseClient;
+
+  if (!(document && ('body' in document))) {
+    throw new Error('React cannot find a DOM document.body to render to');
+  }
 
   if (config.get('NODE_ENV') !== 'production') {
     window.React = React; // expose to React dev tools
@@ -150,39 +155,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // Plug Unicorn plugin giving access to Unicorn clients
   app.plug(UnicornPlugin);
 
-  // Add model client as plugin
-
-
   // add context to app
-  let modelClient = new ModelClient();
-  let fileClient = new FileClient();
-  let databaseClient = new DatabaseClient();
   context = app.createContext({
-    'modelClient': modelClient,
-    'fileClient': fileClient,
-    'databaseClient': databaseClient,
+    configClient: config,
+    databaseClient,
+    fileClient,
+    modelClient
   });
+
   // Start listening for model events
-  modelClient.start(context);
+  modelClient.start(context.getActionContext());
 
   // fire initial app action to load all files
   context.executeAction(ListFilesAction, {})
     .then((files) => {
-      return Promise.all(files.map((file) => {
-        return context.executeAction(ListMetricsAction, file.filename);
-      }));
+      return context.executeAction(ListMetricsAction, files);
     })
     .then(() => {
       let contextEl = FluxibleReact.createElementWithContext(context);
-      if (document && ('body' in document)) {
-        React.render(contextEl, document.body);
-        return;
-      }
-      throw new Error('React cannot find a DOM document.body to render to');
+      React.render(contextEl, document.body);
     })
-    .catch((err) => {
-      if (err) {
-        throw new Error('Unable to start Application:', err);
-      }
+    .catch((error) => {
+      throw new Error('Unable to start Application:', error);
     });
+
 }); // DOMContentLoaded

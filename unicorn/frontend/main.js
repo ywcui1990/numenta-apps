@@ -50,8 +50,8 @@ let mainWindow = null; // global reference to keep window object from JS GC
 
 // electron crash reporting
 crashReporter.start({
-  product_name: config.get('title'),
-  company_name: config.get('company')
+  'product_name': config.get('title'),
+  'company_name': config.get('company')
 });
 
 // app events
@@ -76,8 +76,8 @@ app.on('ready', () => {
   mainWindow.on('closed', () => {
     mainWindow = null; // dereference single main window object
   });
-  mainWindow.webContents.on('dom-ready', (event) => {
-    console.log('Electron main + renderer, and chrome DOM, all ready.');
+  mainWindow.webContents.on('dom-ready', () => {
+    // Electron Main/Renderer + Chrome DOM = All Ready
   });
 
   // Handle IPC commuication for the ModelServer

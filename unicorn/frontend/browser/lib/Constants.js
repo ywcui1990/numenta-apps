@@ -18,19 +18,31 @@
 // http://numenta.org/licenses/
 
 'use strict';
+export const ACTIONS = Object.freeze({
+  ADD_MODEL_SUCCESS: 'ADD_MODEL_SUCCESS',
+  ADD_MODEL_FAILED: 'ADD_MODEL_FAILED',
 
-import crypto from 'crypto';
+  DELETE_MODEL_SUCCESS: 'DELETE_MODEL_SUCCESS',
+  DELETE_MODEL_FAILED: 'DELETE_MODEL_FAILED',
 
-module.exports = {
-  /**
-   * Genereate unique model id based on the file name and metric name using
-   * based on one-way hash algorithm (SHA1)
-   * @param  {String} filename The absolute path
-   * @param  {String} metric   Metric name
-   * @return {String}          Unique id
-   */
-  generateModelId: function generateModelId(filename, metric) {
-    let hash = crypto.createHash('sha1');
-    return hash.update(filename + '#' + metric).digest('hex');
-  },
-};
+  RECEIVE_DATA_SUCCESS: 'RECEIVE_DATA_SUCCESS',
+  RECEIVE_DATA_FAILED: 'RECEIVE_DATA_FAILED',
+
+  SEND_DATA_SUCCESS: 'SEND_DATA_SUCCESS',
+  SEND_DATA_FAILED: 'SEND_DATA_FAILED',
+
+  START_MODEL_SUCCESS: 'START_MODEL_SUCCESS',
+  START_MODEL_FAILED: 'START_MODEL_FAILED',
+
+  STOP_MODEL_SUCCESS: 'STOP_MODEL_SUCCESS',
+  STOP_MODEL_FAILED: 'STOP_MODEL_FAILED',
+
+  UPLOADED_FILE_SUCCESS: 'UPLOADED_FILE_SUCCESS',
+  UPLOADED_FILE_FAILED: 'UPLOADED_FILE_FAILED',
+
+  LIST_FILES_SUCCESS: 'LIST_FILES_SUCCESS',
+  LIST_FILES_FAILURE: 'LIST_FILES_FAILURE',
+
+  LIST_METRICS_SUCCESS: 'LIST_METRICS_SUCCESS',
+  LIST_METRICS_FAILURE: 'LIST_METRICS_FAILURE',
+});

@@ -19,10 +19,12 @@
 
 'use strict';
 
-import ipc from 'ipc';
-import ModelServer from './ModelServer';
 
-const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
+import ipc from 'ipc';
+import { ModelServer } from './ModelServer';
+
+export const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
+
 
 /**
  * IPC interface to ModelServer
@@ -60,13 +62,14 @@ export default class ModelServerIPC {
    *  						See 'ModelServer#createModel' for 'params' format.
    *  - 'remove': Stops and remove the model
    *  - 'list':   List running models as an Array of IDs in 'returnValue.models'
-   *  - 'data': Send data to the model. See 'sendData' for 'params' format
+   *  - 'sendData': Send data to the model. See 'sendData' for 'params' format
    * @param  {Event}  event   IPC Event Object.
    *                          Any error will be returned via 'returnValue.error'
    * @param  {Object} payload Event payload in the following format:
    *                          {
    *                            'modelId': Model Id
-   *                            'command': 'create' | 'remove' | 'list' | 'data'
+   *                            'command': 'create' | 'remove' | 'list'
+   *                            				 | 'sendData'
    *                            'params': {Object} // Optional
    *                          }
    */
@@ -75,19 +78,28 @@ export default class ModelServerIPC {
       modelId, command
     } = payload;
 
-    // Create new model
-    if (command === 'create') {
-      event.returnValue = this._onCreate(modelId, payload.params) || {};
-    } else if (command === 'remove') {
-      event.returnValue = this._onRemove(modelId) || {};
-    } else if (command === 'list') {
-      event.returnValue = this._onList() || {};
-    } else if (command === 'data') {
-      event.returnValue = this._onData(modelId, payload.params) || {};
-    } else {
-      event.returnValue = {
-        error: 'Unknown model command "' + command + '"'
-      };
+    try {
+      if (command === 'create') {
+        this._onCreate(modelId, payload.params) || {};
+      } else if (command === 'remove') {
+        this._onRemove(modelId) || {};
+      } else if (command === 'list') {
+        event.returnValue = this._onList() || {};
+      } else if (command === 'sendData') {
+        this._onSendData(modelId, payload.params) || {};
+      } else {
+        throw new Error('Unknown model command "' + command + '"');
+      }
+    } catch (error) {
+      if (this._webContents) {
+        // Forward error to browser
+        this._webContents.send(
+          MODEL_SERVER_IPC_CHANNEL,
+          modelId,
+          'error',
+          { error, ipcevent: payload }
+        );
+      }
     }
   }
 
@@ -115,13 +127,9 @@ export default class ModelServerIPC {
     }
   }
 
-  _onData(modelId, data) {
+  _onSendData(modelId, data) {
     let input = JSON.parse(data);
-    if (!this._server.sendData(modelId, input)) {
-      return {
-        error: 'Failed to send data to model ' + modelId
-      };
-    }
+    this._server.sendData(modelId, input);
   }
 
   _onList() {
@@ -131,20 +139,12 @@ export default class ModelServerIPC {
   }
 
   _onCreate(modelId, params) {
-    if (!this._server.createModel(modelId, params)) {
-      return {
-        error: 'Failed to create model ' + modelId + ' with params :' + params
-      };
-    }
     this._attach(modelId);
+    this._server.createModel(modelId, params);
   }
 
   _onRemove(modelId) {
-    if (!this._server.removeModel(modelId)) {
-      return {
-        error: 'Failed to remove model ' + modelId
-      };
-    }
     this._dettach(modelId);
+    this._server.removeModel(modelId);
   }
 };

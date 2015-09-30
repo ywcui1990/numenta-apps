@@ -19,36 +19,15 @@
 
 'use strict';
 
-import connectToStores from 'fluxible-addons-react/connectToStores';
-import React from 'react';
-import ModelDataStore from '../stores/ModelDataStore';
-import Chart from '../components/Chart';
-
-@connectToStores([ModelDataStore], (context) => ({
-  modelDataStore: context.getStore(ModelDataStore)
-}))
-export default class ModelData extends React.Component {
-
-  static propTypes = {
-    modelId: React.PropTypes.string.isRequired
-  };
-
-  constructor(props, context) {
-    super(props, context);
+//
+//Overcomes the fact babel have problems inheriting from builtin objects
+//FIXME: See http://stackoverflow.com/questions/3108980
+//
+export default class UserError extends Error {
+  constructor(message) {
+    super(message);
+    this.message = message;
+    this.stack = (new Error()).stack;
+    this.name = this.constructor.name;
   }
-
-  render() {
-    let store = this.props.modelDataStore;
-    let modelData = store.getData(this.props.modelId);
-    if (modelData) {
-      let options = {
-        labels: ['Time', 'Value'],
-        showRangeSelector: true
-      };
-
-      return (
-        <Chart data={modelData.data} options={options} ref="chart"/>
-      );
-    }
-  }
-};
+}

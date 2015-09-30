@@ -19,24 +19,70 @@
 
 'use strict';
 
-import FileClient from '../lib/FileClient';
+
+import {ACTIONS} from '../lib/Constants';
+import Utils from '../../lib/Utils';
+
+
 /**
  * Get List of files from backend
  */
 export default (actionContext) => {
   return new Promise((resolve, reject) => {
-    let fileClient = new FileClient();
-    fileClient.getSampleFiles((error, files) => {
+
+    let databaseClient = actionContext.getDatabaseClient();
+    let fileClient = actionContext.getFileClient();
+
+    // load existing files from db, from previous runs
+    console.log('load existing files from db, from previous runs');
+    databaseClient.getFiles({}, (error, files) => {
       if (error) {
-        console.log('Error getting files:', error);
-        actionContext.dispatch('LIST_FILES_FAILURE', {
-          'error': error
-        });
+        actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, new Error({
+          name: 'DatabaseClientGetFilesFailure',
+          message: error
+        }));
         reject(error);
-      } else {
-        actionContext.dispatch('LIST_FILES_SUCCESS', files);
+      } else if (files.length) {
+        // files in db already, not first run, straight to UI
+        console.log('files in db already, not first run, straight to UI');
+        actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
         resolve(files);
+      } else {
+        // no files in db, first run, so load them from fs
+        console.log('no files in db, first run, so load them from fs');
+        fileClient.getSampleFiles((error, files) => {
+          if (error) {
+            actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, new Error({
+              name: 'FileClientGetSampleFilesFailure',
+              message: error
+            }));
+            reject(error);
+          } else {
+            // got file list from fs, saving to db for next runs
+            console.log('got file list from fs, saving to db for next runs');
+            files = files.map((file) => {
+              file.uid = Utils.generateId(file.filename);
+              return file;
+            });
+
+            databaseClient.putFiles(files, (error) => {
+              if (error) {
+                actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, new Error({
+                  name: 'DatabaseClientPutFilesFailure',
+                  message: error
+                }));
+                reject(error);
+              } else {
+                // DB now has Files, on to UI.
+                console.log('DB now has Files, on to UI.');
+                actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
+                resolve(files);
+              }
+            }); // databaseClient.putFiles()
+          }
+        }); // fileClient.getSampleFiles()
       }
-    });
-  });
+    }); // databaseClient.getFiles()
+
+  }); // Promise
 };

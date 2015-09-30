@@ -20,7 +20,7 @@
 
 'use strict';
 
-import ModelServer from '../../../frontend/lib/ModelServer';
+import { ModelServer, MaximumConcurrencyError } from '../../../frontend/lib/ModelServer';
 const assert = require('assert');
 
 const STATS = '{"min": 0, "max": 10}';
@@ -29,17 +29,19 @@ const INPUT_DATA = [1438649711, 835.93679];
 const EXPECTED_RESULTS = '[0, 0.5]\n';
 
 describe('ModelServer', () => {
-  let server = new ModelServer();;
+  let server = new ModelServer();
 
   beforeEach(() => {
-    assert(server.createModel(MODEL_ID, STATS));
+    server.createModel(MODEL_ID, STATS);
   });
   afterEach(() => {
-    server.removeModel(MODEL_ID);
+    try {
+      server.removeModel(MODEL_ID);
+    } catch(ignore) {/* It may be closed by the test itself */}
   });
 
-  describe('makeSureModelExists', () => {
-    it('Check model', (done) => {
+  describe('#getModels()', () => {
+    it('Check model exists', (done) => {
       let models = server.getModels();
       assert(models.find(id => id === MODEL_ID), 'Model not found');
       done();
@@ -47,14 +49,14 @@ describe('ModelServer', () => {
   });
 
   describe('#sendData()', () => {
-    it('Send data to child process stdin', (done) => {
-      assert(server.sendData(MODEL_ID, INPUT_DATA));
+    it('Send data to model', (done) => {
+      server.sendData(MODEL_ID, INPUT_DATA);
       done();
     });
   });
 
   describe('Model Events', () => {
-    it('Read data from child process', (done) => {
+    it('Read data from model', (done) => {
       server.on(MODEL_ID, (type, data) => {
         assert(type !== 'error', data);
         if (type === 'data') {
@@ -62,10 +64,10 @@ describe('ModelServer', () => {
           done();
         }
       });
-      assert(server.sendData(MODEL_ID, INPUT_DATA));
+      server.sendData(MODEL_ID, INPUT_DATA);
     });
 
-    it('Send bad data from child process', (done) => {
+    it('Send bad data to model', (done) => {
       server.on(MODEL_ID, (type, data) => {
         if (type === 'close') {
           return;
@@ -76,7 +78,38 @@ describe('ModelServer', () => {
                           + ': ' + data + '"');
         }
       });
-      assert(server.sendData(MODEL_ID, [0xbadbeef]));
+      server.sendData(MODEL_ID, [0xbadbeef]);
+    });
+  });
+
+  describe('Model concurrency', () => {
+    it('Create models up to max concurrency', (done) => {
+      let max = server.availableSlots();
+      // The first model was created in 'beforeEach'
+      for (let i=1; i<=max; i++) {
+        server.createModel(MODEL_ID+i, STATS);
+      }
+      // Cleanup
+      for (let i=1; i<=max; i++) {
+        server.removeModel(MODEL_ID+i);
+      }
+      done();
+    });
+    it ('Create models past max concurrency', (done) => {
+      let max = server.availableSlots();
+      // The first model was created in 'beforeEach'
+      for (let i=1; i<=max; i++) {
+        server.createModel(MODEL_ID+i, STATS);
+      }
+      // Extra model
+      assert.throws(() => {
+        server.createModel('extra', STATS);
+      }, MaximumConcurrencyError);
+      // Cleanup
+      for (let i=1; i<=max; i++) {
+        server.removeModel(MODEL_ID+i);
+      }
+      done();
     });
   });
 });

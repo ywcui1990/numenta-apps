@@ -25,7 +25,14 @@
       "type": "number"
     },
     "display_value": {
-      "type": "integer"
+      "type": "number"
+    },
+    "anomaly_score": {
+      "type": "number"
+    },
+    "anomaly_likelihood": {
+      "type": "number"
     }
-  }
+  },
+  "required": ["uid", "metric_uid", "rowid", "timestamp", "metric_value", "display_value"]
 }

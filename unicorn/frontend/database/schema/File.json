@@ -13,6 +13,12 @@
     },
     "filename": {
       "type": "string"
+    },
+    "type": {
+      "description": "Sample file from filesystem, or Uploaded file from user?",
+      "enum": [ "sample", "uploaded" ],
+      "type": "string"
     }
-  }
+  },
+  "required": ["uid", "name", "filename", "type"]
 }

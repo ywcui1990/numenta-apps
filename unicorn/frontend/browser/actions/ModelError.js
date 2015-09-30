@@ -19,36 +19,23 @@
 
 'use strict';
 
-import connectToStores from 'fluxible-addons-react/connectToStores';
-import React from 'react';
-import ModelDataStore from '../stores/ModelDataStore';
-import Chart from '../components/Chart';
-
-@connectToStores([ModelDataStore], (context) => ({
-  modelDataStore: context.getStore(ModelDataStore)
-}))
-export default class ModelData extends React.Component {
-
-  static propTypes = {
-    modelId: React.PropTypes.string.isRequired
-  };
-
-  constructor(props, context) {
-    super(props, context);
-  }
-
-  render() {
-    let store = this.props.modelDataStore;
-    let modelData = store.getData(this.props.modelId);
-    if (modelData) {
-      let options = {
-        labels: ['Time', 'Value'],
-        showRangeSelector: true
-      };
-
-      return (
-        <Chart data={modelData.data} options={options} ref="chart"/>
-      );
-    }
+import {ACTIONS} from '../lib/Constants';
+export default (actionContext, payload) => {
+  let {command, modelId, error} = payload;
+  if (command === 'create') {
+    return actionContext.dispatch(ACTIONS.START_MODEL_FAILED, {
+      'modelId': modelId,
+      'error': error
+    });
+  } else if (command === 'remove') {
+    return actionContext.dispatch(ACTIONS.STOP_MODEL_FAILED, {
+      'modelId': modelId,
+      'error': error
+    });
+  } else if (command === 'sendData') {
+    return actionContext.dispatch(ACTIONS.SEND_DATA_FAILED, {
+      'modelId': modelId,
+      'error': error
+    });
   }
 };
