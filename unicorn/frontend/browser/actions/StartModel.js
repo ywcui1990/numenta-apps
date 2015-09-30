@@ -143,9 +143,8 @@ function streamData(actionContext, modelId) {
 
       // see if metric data is already saved in DB first
       console.log('see if metric data is already saved in DB first');
-      let metricData = yield csp.take(
-        getMetricDataFromDatabase({actionContext, model})
-      );
+      let opts = {actionContext, model};
+      let metricData = yield csp.take(getMetricDataFromDatabase(opts));
       if (metricData instanceof Error) {
         reject(metricData);
         console.error(metricData);
@@ -243,6 +242,7 @@ export default function (actionContext, modelId) {
 
   let fileStats;
   let metric = {};
+  let opts;
   let stats = {};
 
   return new Promise((resolve, reject) => {
@@ -250,9 +250,7 @@ export default function (actionContext, modelId) {
 
       // see if metric min/max is already in DB
       console.log('see if metric min/max is already in DB');
-      metric = yield csp.take(
-        getMetricFromDatabase({actionContext, model})
-      );
+      metric = yield csp.take(getMetricFromDatabase({actionContext, model}));
       if (metric instanceof Error) {
         reject(metric);
         console.error(metric);
@@ -266,9 +264,8 @@ export default function (actionContext, modelId) {
       } else {
         // metric min/max was NOT in DB, so load from FS
         console.log('metric min/max was NOT in DB, so load from FS');
-        fileStats = yield csp.take(
-          getMetricStatsFromFilesystem({actionContext, model})
-        );
+        opts = {actionContext, model};
+        fileStats = yield csp.take(getMetricStatsFromFilesystem(opts));
         if (
           (fileStats instanceof Error) ||
           (!(model.metric in fileStats))
@@ -282,7 +279,7 @@ export default function (actionContext, modelId) {
 
         // Now save min/max back to DB so we never have to ping FS for it again
         console.log('Now save min/max back to DB so we never have to ping FS for it again');
-        fileStats = yield csp.take(putMetricStatsIntoDatabase({
+        opts = {
           actionContext,
           metric: { // electron ipc remote() needs this obj to rebuilt here :(
             uid: metric.uid,
@@ -293,7 +290,8 @@ export default function (actionContext, modelId) {
             min: stats.min,
             max: stats.max
           }
-        }));
+        };
+        fileStats = yield csp.take(putMetricStatsIntoDatabase(opts));
         if (fileStats instanceof Error) {
           reject(fileStats);
           console.error(fileStats);

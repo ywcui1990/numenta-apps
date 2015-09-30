@@ -16,7 +16,7 @@
     },
     "type": {
       "description": "Sample file from filesystem, or Uploaded file from user?",
-      "enum": [ "sample", "upload" ],
+      "enum": [ "sample", "uploaded" ],
       "type": "string"
     }
   },
