@@ -23,25 +23,38 @@ import cx_Freeze
 import pyproj
 import os
 
-import htmengine
+BASE_DIR = "/opt/numenta/products/numenta-apps/unicorn"
 
 
 
-zipIncludes = []
+def generate_zip_includes(base_path, directory_name):
+  skip_count = len(base_path.split("/"))
+  zip_includes = [(base_path, directory_name)]
+  for root, sub_folders, files in os.walk(base_path):
+    for file_in_root in files:
+      zip_includes.append(
+        ("{}".format(os.path.join(root, file_in_root)),
+         "{}".format(
+           os.path.join(directory_name, "/".join(root.split("/")[skip_count:]),
+                        file_in_root))
+         )
+      )
+  return zip_includes
 
-includeFiles = [(pyproj.pyproj_datadir, os.path.join("pyproj", "data")),
-                ("/".join(htmengine.__file__.split("/")[:-1]) +
-                 "/algorithms/modelSelection/anomaly_params_random_encoder"
-                 "/paramOrder.csv",
-                 "htmengine/algorithms/modelSelection"
-                 "/anomaly_params_random_encoder/paramOrder.csv")]
+
+
+zipIncludes = generate_zip_includes("%s/backend/unicorn_backend/nupic/nupic" 
+                                    % BASE_DIR, "nupic")
+
+includeFiles = [(pyproj.pyproj_datadir, os.path.join("pyproj", "data"))]
 
 executables = [cx_Freeze.Executable("model_runner.py", targetName="mr")]
 
 freezer = cx_Freeze.Freezer(executables,
-                            namespacePackages=["nupic", "htmengine",
+                            namespacePackages=["nupic",
                                                "prettytable"],
                             zipIncludes=zipIncludes,
-                            includeFiles=includeFiles)
+                            includeFiles=includeFiles,
+                            silent=True)
 
 freezer.Freeze()
