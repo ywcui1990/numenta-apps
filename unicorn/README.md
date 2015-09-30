@@ -45,7 +45,7 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
     lib/            # Custom JS libs for inside the browser (engine clients)
     stores/         # Fluxible Stores JS
   config/           # JS Config files loaded by nconf
-  database/         # File-based JSON database storage (levelup + jsondown)
+  database/         # File-based JSON database storage (levelup + mdeadown)
     data/           # Local JSON file DB log (not in source control)
     schema/         # Database defintion schemas in JSON
   lib/              # Custom JS libs for outside the browser (engine servers)
@@ -55,6 +55,7 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
   test/             # Frontend tests run by Mocha: Unit, etc.
     unit/           # Frontend+GUI Unit tests
 gulpfile.babel.js   # Babel.js ES6 Config file for the Gulp build tool
+logs/               # Logfile output of all kinds should end up here
 node_modules/       # Where `npm` installs packages to
 package.json        # Node.js `npm` packages, dependencies, and App config
 ```
@@ -103,15 +104,16 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Facebook [Flow](http://flowtype.org/) JS Typing
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
-    [SASS](http://sass-lang.com/) via
-    [node-sass](https://github.com/sass/node-sass)
 * Framework: [Electron](https://github.com/atom/electron)
   * Engines: [Chromium](https://www.chromium.org/Home),
     [IO.js](https://iojs.org/), [Node](https://github.com/joyent/node)
     * Package Manager: [npm](https://www.npmjs.com/)
     * Module Loading and Bundling: [WebPack](https://github.com/webpack/webpack)
     * Configuration: [nconf](https://github.com/indexzero/nconf)
-  * User Interface:
+    * Database on filesystem: [LevelUp](https://github.com/Level/levelup)
+      interface to [LevelDB](https://github.com/google/leveldb), with
+      [mdeadown](https://www.npmjs.com/package/medeadown) backend
+  * User Interface / Browser:
     * Architecture: [Fluxible](http://fluxible.io/)
       ([Flux](https://facebook.github.io/flux/docs/overview.html#content)
       Uni-directional data flow)
@@ -120,10 +122,8 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Graphing and Charting: [DyGraphs](http://dygraphs.com/)
       * @TODO Alternatives: [react-chartjs](https://github.com/jhudson8/react-chartjs)
         Canvas, [react-d3](https://github.com/esbullington/react-d3) SVG
-    * HD Images: [Retina.js](http://imulus.github.io/retinajs/)
 * Testing:
   * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)
-  * Web Tests: [Casper](https://github.com/n1k0/casperjs)
 * Tooling:
   * Streaming task runner: [Gulp](https://github.com/gulpjs/gulp)
   * JS transpiling (ES6, JSX, etc): [Babel](https://github.com/babel/babel)
@@ -323,16 +323,13 @@ may be too low priority to worry about yet. -@brev
 
 * Gulp/Webpack config settings for loading differing bundle/code for
   Desktop or Browser. Split build sources and targets for certain dirs?
-  Sync with recent `nconf` work.
-* Setup logging: Winston or Bunyan? => Joe thinking about it.
-* Errors are not that helpful so far, need to improve this
-  * Seemed like webpack / babel build errors were not killing the 'npm start'
-    flow, missing exit code in package.json?
+  Sync with recent `nconf` work. Also new Electron/Node4 doesn't need babel.
+* Setup logging: Winston or Bunyan? => Joe thinking about it. output: ./logs/
 * Add in Flow type checking
 * i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
 * Document where are imports=>requires handled? Babel/Webpack?
 * add Architecture docs and charts
-  * Copy in ARch doc Errors section to this doc
+  * Copy in Arch doc Errors section to this doc
     * Errors can do screenshots:
       https://github.com/atom/electron/blob/master/docs/api/browser-window.md#browserwindowcapturepagerect-callback
-* JS formatting: [jsfmt](https://github.com/rdio/jsfmt) - NO ES6 yet!
+* JS formatting: [jsfmt](https://github.com/rdio/jsfmt) - NO ES6/7 yet

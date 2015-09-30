@@ -32,12 +32,11 @@ import React from 'react';
 
 // internals
 
-import AddAction from '../actions/add';
+import FileAddAction from '../actions/FileAdd';
 import FileList from '../components/FileList';
-import ModelList from '../components/ModelList';
 import FileUploadAction from '../actions/FileUpload';
+import ModelList from '../components/ModelList';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
-
 
 const {
   FloatingActionButton, Styles
@@ -74,9 +73,7 @@ module.exports = React.createClass({
    * Add "+" upload new data/CSV file button onClick event handler
    */
   _onClick() {
-    console.log('got clicked! firing AddAction.');
-    this.context.executeAction(AddAction, {});
-    console.log('AddAction should have fired.');
+    this.context.executeAction(FileAddAction, {});
 
     /* open file upload window */
     let fileInput = React.findDOMNode(this.refs.fileInput);

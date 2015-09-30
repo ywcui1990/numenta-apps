@@ -48,9 +48,7 @@ from htmengine.algorithms.modelSelection.clusterParams import (
 
 g_log = logging.getLogger(__name__)
 
-# TODO: figure out where our logs will go (should probably be a file since we
-# use all stdio pipes for the protocol interface).
-g_log.addHandler(logging.NullHandler())
+g_log.addHandler(logging.FileHandler('logs/model_runner.log'))
 
 
 

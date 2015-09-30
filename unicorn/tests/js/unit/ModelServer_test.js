@@ -29,7 +29,7 @@ const INPUT_DATA = [1438649711, 835.93679];
 const EXPECTED_RESULTS = '[0, 0.5]\n';
 
 describe('ModelServer', () => {
-  let server = new ModelServer();;
+  let server = new ModelServer();
 
   beforeEach(() => {
     server.createModel(MODEL_ID, STATS);

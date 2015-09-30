@@ -19,10 +19,12 @@
 
 'use strict';
 
+
 import ipc from 'ipc';
 import { ModelServer } from './ModelServer';
 
 export const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
+
 
 /**
  * IPC interface to ModelServer
@@ -91,11 +93,12 @@ export default class ModelServerIPC {
     } catch (error) {
       if (this._webContents) {
         // Forward error to browser
-        this._webContents.send(MODEL_SERVER_IPC_CHANNEL,
-                              modelId, 'error', {
-                                'error' : error,
-                                'ipcevent': payload
-                              });
+        this._webContents.send(
+          MODEL_SERVER_IPC_CHANNEL,
+          modelId,
+          'error',
+          { error, ipcevent: payload }
+        );
       }
     }
   }

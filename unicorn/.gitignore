@@ -1,4 +1,7 @@
-frontend/database/data/*.json
+backend/build/
+backend/dist/
+frontend/database/data/
+logs/*.log
 node_modules/
 Unicorn-darwin-x64/
 bundle.js
@@ -6,5 +9,3 @@ bundle.js.map
 *.log
 *.egg
 *.egg-info
-backend/build
-backend/dist

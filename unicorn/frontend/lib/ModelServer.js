@@ -20,14 +20,15 @@
 
 'use strict';
 
+
 import childProcess from 'child_process';
 import EventEmitter from 'events';
 import path from 'path';
 import UserError from './UserError';
 
-const MODEL_RUNNER_PATH = path.join(__dirname, '..', '..', 'backend',
-                                    'unicorn_backend', 'model_runner.py');
-
+const MODEL_RUNNER_PATH = path.join(
+  __dirname, '..', '..', 'backend', 'unicorn_backend', 'model_runner.py'
+);
 
 
 /**
@@ -56,6 +57,7 @@ export class ModelNotFoundError extends UserError {
     super('Model not found');
   }
 };
+
 
 /**
  * Unicorn: ModelServer - Respond to a ModelClient over IPC, sharing our access
@@ -89,8 +91,10 @@ export class ModelServer extends EventEmitter {
     if (this._models.has(modelId)) {
       throw new DuplicateIDError();
     }
-    let child = childProcess.spawn('python', [MODEL_RUNNER_PATH, '--model',
-                                              modelId, '--stats', stats]);
+
+    let params = [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats];
+    let child = childProcess.spawn('python', params);
+
     child.stdout.setEncoding('utf8');
     child.stdin.setDefaultEncoding('utf8');
     child.stderr.setEncoding('utf8');
@@ -109,14 +113,10 @@ export class ModelServer extends EventEmitter {
 
     child.once('close', (code) => {
       this._models.delete(modelId);
-      this.emit(modelId, 'close', code);
+      // this.emit(modelId, 'close', code);
     });
 
-    this._models.set(modelId,{
-      modelId: modelId,
-      stats: stats,
-      child: child
-    });
+    this._models.set(modelId, { modelId, stats, child });
   }
 
   /**
@@ -158,4 +158,4 @@ export class ModelServer extends EventEmitter {
     model.child.kill();
     this.removeAllListeners(modelId);
   }
-};
+}

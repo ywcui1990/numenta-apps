@@ -26,7 +26,7 @@ const assert = require('assert');
 const EXPECTED_SINGLE_FILE = [{
   name: 'file.csv',
   filename: 'fixtures/file.csv',
-  type: 'upload'
+  type: 'uploaded'
 }];
 const EXPECTED_MULTIPLE_FILES = [{
   name: 'file1.csv',

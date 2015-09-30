@@ -20,11 +20,10 @@
 
 'use strict';
 
+
 /**
  * Unicorn: ModelClient - Talk to a ModelServer over IPC or HTTP, gaining
  *  access to the Backend NuPIC Model Runner. Connects via HTTP or IPC adapter.
- *  ModelClientIPC adpater is currently a pseudo-library, using the magic of
- *  Electron's `remote` module.
  */
 
 // externals
@@ -38,6 +37,7 @@ import ModelClientIPC from './ModelClientIPC';
 
 let ModelClient;
 
+
 // MAIN
 
 if (isElectronRenderer) {
@@ -45,6 +45,7 @@ if (isElectronRenderer) {
 } else {
   ModelClient = ModelClientHTTP;
 }
+
 
 // EXPORT
 

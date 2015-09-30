@@ -18,12 +18,13 @@
 // http://numenta.org/licenses/
 
 'use strict';
+
 import ipc from 'ipc';
 import ModelErrorAction from '../actions/ModelError';
 import ReceiveDataAction from '../actions/ReceiveData';
-import {ACTIONS} from '../lib/Constants';
 
 const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
+
 
 export default class ModelClientIPC {
   constructor() {
@@ -72,12 +73,19 @@ export default class ModelClientIPC {
   }
 
   _handleIPCError(error, ipcevent) {
-    let {modelId, command} = ipcevent;
-    this._context.executeAction(ModelErrorAction, {
-      'command' : command,
-      'modelId': modelId,
-      'error': error
-    });
+    let command;
+    let modelId;
+
+    if (ipcevent) {
+      if ('command' in ipcevent) {
+        command = ipcevent.command;
+      }
+      if ('modelId' in ipcevent) {
+        modelId = ipcevent.modelId;
+      }
+    }
+
+    this._context.executeAction(ModelErrorAction, { command, modelId, error });
   }
 
   _handleModelData(modelId, payload) {
@@ -87,9 +95,6 @@ export default class ModelClientIPC {
         return JSON.parse(row);
       }
     });
-    this._context.executeAction(ReceiveDataAction, {
-      'modelId': modelId,
-      'data': data
-    });
+    this._context.executeAction(ReceiveDataAction, { modelId, data });
   }
 }
