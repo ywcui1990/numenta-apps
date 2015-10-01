@@ -16,7 +16,7 @@
     "x64"
   ],
   "scripts": {
-    "build": "UNICORN_TARGET=desktop npm install && npm run prepare && npm run prepare:python && npm run electron:packager",
+    "build": "UNICORN_TARGET=desktop npm run clean && npm install && npm run prepare && npm run prepare:python && npm run electron:packager",
     "check": "npm install && npm prune && npm outdated -depth 0",
     "clean": "npm run clean:npm && npm run clean:db",
     "clean:npm": "rm -Rf node_modules/",
