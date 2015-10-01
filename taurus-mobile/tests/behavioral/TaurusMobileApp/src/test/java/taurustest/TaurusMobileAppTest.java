@@ -96,7 +96,6 @@ public class TaurusMobileAppTest {
     TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
     TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
     TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
-    TestUtilities.waitClick(NEXT_BUTTON, driver, WAIT_TIME);
     String endButton = TestUtilities.waitGetText(
         END_BUTTON_ON_TUTORIAL_PAGE, driver, WAIT_TIME);
     AssertJUnit.assertEquals(endButton, "END");
