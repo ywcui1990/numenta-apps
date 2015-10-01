@@ -21,7 +21,7 @@
     "clean": "npm run clean:npm && npm run clean:db",
     "clean:npm": "rm -Rf node_modules/",
     "clean:db": "rm -Rf frontend/database/data/*.json",
-    "desktop": "UNICORN_TARGET=desktop npm run prepare && npm run electron",
+    "desktop": "UNICORN_TARGET=desktop npm run prepare && npm run prepare:python && npm run electron",
     "desktop:debug": "UNICORN_TARGET=desktop npm run prepare && npm run electron:debug",
     "electron": "electron .",
     "electron:debug": "electron --debug=5858 .",
