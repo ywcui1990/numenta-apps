@@ -105,7 +105,12 @@ class ModelRunnerTestCase(unittest.TestCase):
       self.assertEqual(stdoutData, "")
 
       # Validate error info
-      errorInfo = json.loads(stderrData)
+      try:
+        errorInfo = json.loads(stderrData)
+      except ValueError:
+        _LOGGER.exception("Failed while decoding model-runner's stderr=%s",
+                          stderrData)
+        raise
 
       self.assertIn("errorText", errorInfo)
       self.assertIsInstance(errorInfo["errorText"], types.StringTypes)
@@ -127,7 +132,12 @@ class ModelRunnerTestCase(unittest.TestCase):
       self.assertEqual(stdoutData, "")
 
       # Validate error info
-      errorInfo = json.loads(stderrData)
+      try:
+        errorInfo = json.loads(stderrData)
+      except ValueError:
+        _LOGGER.exception("Failed while decoding model-runner's stderr=%s",
+                          stderrData)
+        raise
 
       self.assertIn("errorText", errorInfo)
       self.assertIsInstance(errorInfo["errorText"], types.StringTypes)
@@ -153,7 +163,12 @@ class ModelRunnerTestCase(unittest.TestCase):
       self.assertEqual(stdoutData, "")
 
       # Validate error info
-      errorInfo = json.loads(stderrData)
+      try:
+        errorInfo = json.loads(stderrData)
+      except ValueError:
+        _LOGGER.exception("Failed while decoding model-runner's stderr=%s",
+                          stderrData)
+        raise
 
       self.assertIn("errorText", errorInfo)
       self.assertIsInstance(errorInfo["errorText"], types.StringTypes)
