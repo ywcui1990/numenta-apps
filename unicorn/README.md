@@ -187,6 +187,7 @@ git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/unicorn
 pip install -r backend/requirements.txt
 npm install
+export APPLICATION_LOG_DIR=logs  # to change to model_runner.py param?
 ```
 
 
@@ -197,9 +198,9 @@ npm install
 Start code via Electron as a Desktop App:
 
 ```shell
-# desktop dev (same)
+# desktop dev
 npm run desktop
-NODE_ENV=development npm run desktop
+NODE_ENV=development npm run desktop  # same
 
 # desktop prod
 NODE_ENV=production npm run desktop
@@ -235,6 +236,9 @@ NODE_ENV=production npm run web
 * Sometimes `node_modules/` directory can become corrupted, try cleaning and
   reinstalling: `npm run clean ; npm run check`
 * Awesome Node.js Links: https://github.com/sindresorhus/awesome-nodejs
+* Remember this is cross-platform! We need to support all main operating
+systems.
+  * Windows: No environment variables, etc...
 
 
 ## Test
