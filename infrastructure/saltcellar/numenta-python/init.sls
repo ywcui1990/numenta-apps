@@ -92,7 +92,7 @@ python-27-symlink:
 # directory tree has the correct ownership.
 enforce-anaconda-permissions:
   cmd.wait:
-    - name: chown -R ec2-user:ec2-user /opt/numenta/anaconda
+    - name: chown -R (test -f /etc/numenta/anaconda-owner && cat /etc/numenta/anaconda-owner || echo ec2-user:ec2-user) /opt/numenta/anaconda
     - require:
       - group: ec2-user
       - pkg: anaconda-python
