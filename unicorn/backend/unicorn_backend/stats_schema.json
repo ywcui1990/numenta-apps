@@ -1,5 +1,5 @@
 {
-  "description": "--stats arg passed to the engine; used by getScalarMetricWithTimeOfDayParams in htmengine/algorithms/...",
+  "description": "--stats arg passed to the engine; used by getScalarMetricWithTimeOfDayAnomalyParams in nupic.frameworks.opf.common_models.cluster_params.",
   "type": "object",
   "additionalProperties": false,
 
