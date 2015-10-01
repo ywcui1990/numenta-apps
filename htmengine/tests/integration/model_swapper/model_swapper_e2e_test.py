@@ -34,10 +34,10 @@ import unittest
 
 
 from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaSpecial, FieldMetaType
+from nupic.frameworks.opf.common_models.cluster_params import (
+  getScalarMetricWithTimeOfDayAnomalyParams)
 
 from htmengine import htmengineerrno
-from htmengine.algorithms.modelSelection.clusterParams import (
-  getScalarMetricWithTimeOfDayParams)
 from htmengine.model_swapper.model_swapper_interface import (
   ModelCommandResult,
   ModelInferenceResult,
@@ -120,12 +120,11 @@ class ModelSwapperE2ETestCase(unittest.TestCase):
     resultBatches = []
 
     with ModelSwapperInterface() as swapperAPI:
-      possibleModels = getScalarMetricWithTimeOfDayParams(metricData=[0],
-                                                         minVal=0,
-                                                         maxVal=1000)
+      args = getScalarMetricWithTimeOfDayAnomalyParams(metricData=[0],
+                                                       minVal=0,
+                                                       maxVal=1000)
 
       # Submit requests including a model creation command and two data rows.
-      args = possibleModels[0]
       args["inputRecordSchema"] = (
           FieldMetaInfo("c0", FieldMetaType.datetime,
                         FieldMetaSpecial.timestamp),
@@ -277,12 +276,11 @@ class ModelSwapperE2ETestCase(unittest.TestCase):
     resultBatches = []
 
     with ModelSwapperInterface() as swapperAPI:
-      possibleModels = getScalarMetricWithTimeOfDayParams(metricData=[0],
-                                                         minVal=0,
-                                                         maxVal=1000)
+      args = getScalarMetricWithTimeOfDayAnomalyParams(metricData=[0],
+                                                       minVal=0,
+                                                       maxVal=1000)
 
       # Submit requests including a model creation command and two data rows.
-      args = possibleModels[0]
       args["inputRecordSchema"] = (
           FieldMetaInfo("c0", FieldMetaType.datetime,
                         FieldMetaSpecial.timestamp),
