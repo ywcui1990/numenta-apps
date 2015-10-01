@@ -260,6 +260,9 @@ class _ModelRunner(object):
 
 
 def main():
+  # Use NullHandler for now to avoid getting the unwanted unformatted warning
+  # message from logger on stderr "No handlers could be found for logger".
+  g_log.addHandler(logging.NullHandler())
   try:
 
     options = _parseArgs()
