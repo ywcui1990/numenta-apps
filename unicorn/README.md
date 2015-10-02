@@ -110,6 +110,8 @@ on streams of data, predicting future values, and detecting pattern anomalies.
       [Babel](https://babeljs.io/)
     * Some experimental [ECMAScript 7](https://babeljs.io/docs/usage/experimental/)
       features via [Babel](https://babeljs.io/)
+    * Flow Control for A/Synchronous code: [js-csp](https://github.com/ubolonton/js-csp),
+      [Learn More!](http://jlongster.com/Taming-the-Asynchronous-Beast-with-CSP-in-JavaScript)
     * Facebook [Flow](http://flowtype.org/) JS Typing
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
@@ -144,10 +146,12 @@ The Frontend contains code to manage Models on the Backend. It also contians
 the Graphical User Interface that allows users to explore HTM Models on their
 own data.
 
-The GUI for this application is web code. Javascript, HTML, and CSS are loaded
-into a browser. For Desktop, this browser is a bare-bones Chrome window opened
-by the Electron framework. Electron also runs IO.js (Node.js edge) to connect
-with the host Operating System, allowing for cross-platform native controls.
+The GUI for this application is web code. `Javascript`, `HTML`, and `CSS` are
+loaded into a browser. For Desktop, this browser is a bare-bones Chrome window
+opened by the Electron framework. Electron also runs Node.js to connect with the
+host Operating System, allowing for cross-platform native controls. Since web
+code is notoriously asynchronous, we use `js-csp` to handle a/synchronous
+data flow.
 
 In the browser, we run a one-way Uni-directional data flow, an Architecture
 known as "Flux".
@@ -322,6 +326,8 @@ WARNING: In progress and subject to change.
 
 
 ## Debug
+
+NEED `npm run blah` examples here! @TODO
 
 ### Backend
 

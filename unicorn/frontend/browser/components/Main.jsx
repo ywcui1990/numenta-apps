@@ -27,6 +27,7 @@
 
 // externals
 
+import csp from 'js-csp';
 import Material from 'material-ui';
 import React from 'react';
 
@@ -82,11 +83,12 @@ module.exports = React.createClass({
   },
 
   _onFileSelect(e) {
-    e.preventDefault();
-
     let selectedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
     let max = this.props.multiple ? selectedFiles.length : 1;
     let files = [];
+    let file;
+
+    e.preventDefault();
 
     for (let i = 0; i < max; i++) {
       let file = selectedFiles[i];
@@ -99,7 +101,7 @@ module.exports = React.createClass({
     }
 
     /* The file input is limited to 1 file only, so files.length is always 1 */
-    let file = files[0];
+    file = files[0];
     this.context.executeAction(FileUploadAction, file);
   },
 

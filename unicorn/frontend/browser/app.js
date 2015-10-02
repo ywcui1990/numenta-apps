@@ -32,6 +32,7 @@
 
 import 'babel/polyfill'; // es6/7 polyfill Array.from()
 
+import csp from 'js-csp';
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
@@ -72,18 +73,15 @@ let context;
 
 // UnicornPlugin plugin exposing unicorn clients from contexts
 // See https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md
+
 let UnicornPlugin = {
   name: 'Unicorn',
-
   plugContext: function (options, context, app) {
-
-    // Get Unicorn options
     let configClient = options.configClient;
     let databaseClient = options.databaseClient;
     let fileClient = options.fileClient;
     let modelClient = options.modelClient;
-
-    return {
+    let plugins = {
       plugComponentContext: function (componentContext, context, app) {
         componentContext.getConfigClient = function () {
           return configClient;
@@ -126,57 +124,61 @@ let UnicornPlugin = {
           return modelClient;
         };
       }
-    };
+    }; // plugins
+    return plugins;
   }
-};
+}; // UnicornPlugin
 
 
 // GUI APP
 
 document.addEventListener('DOMContentLoaded', () => {
-  window.dbc = databaseClient;
+  csp.go(function* () {
 
-  if (!(document && ('body' in document))) {
-    throw new Error('React cannot find a DOM document.body to render to');
-  }
+    window.dbc = databaseClient;
 
-  if (config.get('NODE_ENV') !== 'production') {
-    window.React = React; // expose to React dev tools
-  }
+    if (!(document && ('body' in document))) {
+      throw new Error('React cannot find a DOM document.body to render to');
+    }
 
-  tapEventInject(); // @TODO remove when >= React 1.0
+    if (config.get('NODE_ENV') !== 'production') {
+      window.React = React; // expose to React dev tools
+    }
 
-  // init GUI flux/ible app
-  app = new Fluxible({
-    component: MainComponent,
-    stores: [FileStore, ModelStore, ModelDataStore]
-  });
+    tapEventInject(); // @TODO remove when >= React 1.0
 
-  // Plug Unicorn plugin giving access to Unicorn clients
-  app.plug(UnicornPlugin);
-
-  // add context to app
-  context = app.createContext({
-    configClient: config,
-    databaseClient,
-    fileClient,
-    modelClient
-  });
-
-  // Start listening for model events
-  modelClient.start(context.getActionContext());
-
-  // fire initial app action to load all files
-  context.executeAction(ListFilesAction, {})
-    .then((files) => {
-      return context.executeAction(ListMetricsAction, files);
-    })
-    .then(() => {
-      let contextEl = FluxibleReact.createElementWithContext(context);
-      React.render(contextEl, document.body);
-    })
-    .catch((error) => {
-      throw new Error('Unable to start Application:', error);
+    // init GUI flux/ible app
+    app = new Fluxible({
+      component: MainComponent,
+      stores: [FileStore, ModelStore, ModelDataStore]
     });
 
+    // Plug Unicorn plugin giving access to Unicorn clients
+    app.plug(UnicornPlugin);
+
+    // add context to app
+    context = app.createContext({
+      configClient: config,
+      databaseClient,
+      fileClient,
+      modelClient
+    });
+
+    // Start listening for model events
+    modelClient.start(context.getActionContext());
+
+    // fire initial app action to load all files
+    context.executeAction(ListFilesAction, {})
+      .then((files) => {
+        return context.executeAction(ListMetricsAction, files);
+      })
+      .then(() => {
+        let contextEl = FluxibleReact.createElementWithContext(context);
+        React.render(contextEl, document.body);
+      })
+      .catch((error) => {
+        throw new Error('Unable to start Application:', error);
+      });
+
+  }); // csp.go()
 }); // DOMContentLoaded

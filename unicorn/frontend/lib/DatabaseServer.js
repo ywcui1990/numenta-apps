@@ -39,7 +39,6 @@ import path from 'path';
 import sublevel from 'level-sublevel';
 import { Validator } from 'jsonschema';
 
-
 // internals
 
 import FileSchema from '../database/schema/File.json';

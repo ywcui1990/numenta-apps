@@ -1,19 +1,19 @@
 // Numenta Platform for Intelligent Computing (NuPIC)
-// Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
-// Numenta, Inc. a separate commercial license for this software code, the
-// following terms and conditions apply:
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero Public License version 3 as
-// published by the Free Software Foundation.
+// Copyright © 2015, Numenta, Inc. Unless you have purchased from Numenta, Inc.
+// a separate commercial license for this software code, the following terms
+// and conditions apply:
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU Affero Public License for more details.
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the
+// Free Software Foundation.
 //
-// You should have received a copy of the GNU Affero Public License
-// along with this program.  If not, see http://www.gnu.org/licenses.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
+//
+// You should have received a copy of the GNU Affero Public License along with
+// this program.  If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
 
@@ -27,13 +27,76 @@ import csp from 'js-csp';
 // internals
 
 import {ACTIONS} from '../lib/Constants';
+import UserError from '../../lib/UserError';
 import Utils from '../../lib/Utils';
+
+
+// ERRORS
+
+/**
+ * Thrown when having trouble getting data from Database
+ */
+export class DatabaseGetError extends UserError {
+  constructor() {
+    super('Could not perform GET operation from Database');
+  }
+};
+
+/**
+ * Thrown when having trouble putting data into Database
+ */
+export class DatabasePutError extends UserError {
+  constructor() {
+    super('Could not perform PUT operation into Database');
+  }
+};
+
+/**
+ * Thrown when having trouble getting data from Filesystem
+ */
+export class FilesystemGetError extends UserError {
+  constructor() {
+    super('Could not perform READ operation on Filesystem');
+  }
+};
 
 
 // FUNCTIONS
 
 /**
- *
+ * CSP channel wrapper around method to Get File Upload via File Client
+ * @function
+ * @param {object} options - Options passed as properties to this method
+ * @param {object} options.actionContext - Fluxible ActionContext
+ * @param {object} options.file - File info to use to lookup from FS
+ * @return {object} - CSP Channel async=>sync `yield csp.take(chan)`
+ * @throws {FilesystemGetError}
+ */
+function getFileFromUpload(options) {
+  let {actionContext, file} = options;
+  let channel = csp.chan();
+  let fileClient = actionContext.getFileClient();
+
+  fileClient.getUploadedFiles(file, (error, formattedFile) => {
+    if (error) {
+      csp.putAsync(channel, new FilesystemGetError());
+    } else {
+      csp.putAsync(channel, formattedFile);
+    }
+    channel.close();
+  });
+
+  return channel;
+}
+
+/**
+ * CSP channel wrapper around method to Get File via DB Client
+ * @function
+ * @param {object} options - Options passed as properties to this method
+ * @param {object} options.actionContext - Fluxible ActionContext
+ * @param {object} options.file - File info to use to lookup from DB
+ * @return {object} - CSP Channel async=>sync `yield csp.take(chan)`
+ * @throws {DatabaseGetError}
  */
 function getFileFromDB(options) {
   let {actionContext, file} = options;
@@ -43,20 +106,24 @@ function getFileFromDB(options) {
 
   databaseClient.getFile(fileId, (error, results) => {
     if (error && (!('notFound' in error))) {
-      csp.putAsync(channel, new Error({
-        name: 'FileUploadActionDatabaseClientGetFile',
-        message: error
-      }));
+      csp.putAsync(channel, new DatabaseGetError());
     } else {
       csp.putAsync(channel, results);
     }
+    channel.close();
   });
 
   return channel;
 }
 
 /**
- *
+ * CSP channel wrapper around method to Get Metrics via DB Client
+ * @function
+ * @param {object} options - Options passed as properties to this method
+ * @param {object} options.actionContext - Fluxible ActionContext
+ * @param {object} options.file - File info to use to lookup from DB
+ * @return {object} - CSP Channel async=>sync `yield csp.take(chan)`
+ * @throws {DatabaseGetError}
  */
 function getMetricsFromDB(options) {
   let {actionContext, file} = options;
@@ -66,20 +133,24 @@ function getMetricsFromDB(options) {
 
   databaseClient.getMetrics({ 'file_uid': fileId }, (error, results) => {
     if (error && (!('notFound' in error))) {
-      csp.putAsync(channel, new Error({
-        name: 'FileUploadActionDatabaseClientGetMetrics',
-        message: error
-      }));
+      csp.putAsync(channel, new DatabaseGetError());
     } else {
       csp.putAsync(channel, results);
     }
+    channel.close();
   });
 
   return channel;
 }
 
 /**
- *
+ * CSP channel wrapper around method to Put File via DB Client
+ * @function
+ * @param {object} options - Options passed as properties to this method
+ * @param {object} options.actionContext - Fluxible ActionContext
+ * @param {object} options.file - File data to put into DB
+ * @return {object} - CSP Channel async=>sync `yield csp.take(chan)`
+ * @throws {DatabasePutError}
  */
 function putFileIntoDB(options) {
   let {actionContext, file} = options;
@@ -94,20 +165,24 @@ function putFileIntoDB(options) {
 
   databaseClient.putFile(payload, (error) => {
     if (error) {
-      csp.putAsync(channel, new Error({
-        name: 'FileUploadActionDatabaseClientPutFile',
-        message: error
-      }));
+      csp.putAsync(channel, new DatabasePutError());
     } else {
       csp.putAsync(channel, true);
     }
+    channel.close();
   });
 
   return channel;
 }
 
 /**
- *
+ * CSP channel wrapper around method to Put Metrics via DB Client
+ * @function
+ * @param {object} options - Options passed as properties to this method
+ * @param {object} options.actionContext - Fluxible ActionContext
+ * @param {object} options.file - File data to put into DB
+ * @return {object} - CSP Channel async=>sync `yield csp.take(chan)`
+ * @throws {DatabasePutError}
  */
 function putMetricsIntoDB(options) {
   let {actionContext, file} = options;
@@ -124,35 +199,11 @@ function putMetricsIntoDB(options) {
 
   databaseClient.putMetrics(payload, (error) => {
     if (error) {
-      csp.putAsync(channel, new Error({
-        name: 'FileUploadActionDatabaseClientPutFile',
-        message: error
-      }));
+      csp.putAsync(channel, new DatabasePutError());
     } else {
       csp.putAsync(channel, true);
     }
-  });
-
-  return channel;
-}
-
-/**
- *
- */
-function getFileFromUpload(options) {
-  let {actionContext, file} = options;
-  let channel = csp.chan();
-  let fileClient = actionContext.getFileClient();
-
-  fileClient.getUploadedFiles(file, (error, formattedFile) => {
-    if (error) {
-      csp.putAsync(channel, new Error({
-        name: 'FileUploadActionFileClientGetUploadedFiles',
-        message: error
-      }));
-    } else {
-      csp.putAsync(channel, formattedFile);
-    }
+    channel.close();
   });
 
   return channel;
@@ -165,80 +216,84 @@ function getFileFromUpload(options) {
  * Get uploaded file
  */
 export default (actionContext, file) => {
-  return new Promise((resolve, reject) => {
-    csp.go(function* () {
+  return csp.go(function* () {
 
-      let fileFormatted;
-      let fileHandle;
-      let fileMetrics;
-      let opts = {actionContext, file};
-      let result;
+    let fileFormatted;
+    let fileHandle;
+    let fileMetrics;
+    let opts = {actionContext, file};
+    let result;
 
-      // see if uploaded file is already in DB
-      console.log('see if uploaded file is already in DB');
-      fileHandle = yield csp.take(getFileFromDB(opts));
-      if (fileHandle instanceof Error) {
-        reject(fileHandle);
-        console.error(fileHandle);
-        return;
-      }
-      if (fileHandle && ('uid' in fileHandle)) {
-        // yes file is already in DB, load metrics
-        console.log('yes file is already in DB, load metrics');
+    // see if uploaded file is already in DB
+    console.log('see if uploaded file is already in DB');
+    fileHandle = yield csp.take(getFileFromDB(opts));
+    if (fileHandle instanceof Error) {
+      actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
+        error: fileHandle,
+        filename: file.name
+      });
+      return fileHandle;
+    }
+    if (fileHandle && ('uid' in fileHandle)) {
+      // yes file is already in DB, load metrics
+      console.log('yes file is already in DB, load metrics');
 
-        fileMetrics = yield csp.take(getMetricsFromDB(opts));
-        if (fileMetrics instanceof Error) {
-          reject(fileMetrics);
-          console.error(fileMetrics);
-          return;
-        }
-        fileFormatted = {
-          name: file.name,
-          filename: file.path,
-          type: 'uploaded',
-          metrics: fileMetrics
-        };
-
-        // on to UI
-        console.log('on to UI');
-        actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, fileFormatted);
-        resolve(fileFormatted);
-        return;
-      }
-
-      // NO file is not already in DB, get from upload
-      console.log('NO file is not already in DB, get from upload');
-      fileFormatted = yield csp.take(getFileFromUpload(opts));
-      if (fileFormatted instanceof Error) {
+      fileMetrics = yield csp.take(getMetricsFromDB(opts));
+      if (fileMetrics instanceof Error) {
         actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
-          error: fileFormatted,
-          filename: fileFormatted
+          error: fileMetrics,
+          filename: file.name
         });
-        reject(fileFormatted);
-        return;
+        return fileMetrics;
       }
-
-      // save new File+Metrics to DB
-      console.log('save new File+Metrics to DB');
-      opts.file = fileFormatted;
-      result = yield csp.take(putFileIntoDB(opts));
-      if (result instanceof Error) {
-        reject(result);
-        console.error(result);
-        return;
-      }
-      result = yield csp.take(putMetricsIntoDB(opts));
-      if (result instanceof Error) {
-        reject(result);
-        console.error(result);
-        return;
-      }
+      fileFormatted = {
+        name: file.name,
+        filename: file.path,
+        type: 'uploaded',
+        metrics: fileMetrics
+      };
 
       // on to UI
       console.log('on to UI');
       actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, fileFormatted);
-      resolve(fileFormatted);
+      return fileFormatted;
+    }
 
-    }); // csp.go
-  }); // Promise
+    // NO file is not already in DB, get from upload
+    console.log('NO file is not already in DB, get from upload');
+    fileFormatted = yield csp.take(getFileFromUpload(opts));
+    if (fileFormatted instanceof Error) {
+      actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
+        error: fileFormatted,
+        filename: file.name
+      });
+      return fileFormatted;
+    }
+
+    // save new File+Metrics to DB
+    console.log('save new File+Metrics to DB');
+    opts.file = fileFormatted;
+    result = yield csp.take(putFileIntoDB(opts));
+    if (result instanceof Error) {
+      actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
+        error: result,
+        filename: file.name
+      });
+      return result;
+    }
+    result = yield csp.take(putMetricsIntoDB(opts));
+    if (result instanceof Error) {
+      actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
+        error: result,
+        filename: file.name
+      });
+      return result;
+    }
+
+    // on to UI
+    console.log('on to UI');
+    actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, fileFormatted);
+    return fileFormatted;
+
+  }); // csp.go
 }; // export
