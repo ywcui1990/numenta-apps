@@ -20,8 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 #
-# Keep this as generic as possible. Grok specific cleanups should go into
-# a separate cleanup-grok script, Taurus to cleanup-taurus, etc.
+# Keep this as generic as possible. HTM-IT specific cleanups should go into
+# a separate cleanup-htm-it script, Taurus to cleanup-taurus, etc.
 
 logline() {
   echo "$@"
