@@ -38,8 +38,8 @@ g_log = logging.getLogger(__name__)
 
 def sendMonitorErrorEmail(monitorName, resourceName, message, isTest=False,
                           subjectPrefix=None, params=None):
-  """
-  Sends an email concerning a monitor related error.
+  """Sends an email concerning a monitor related error. Expects additional
+  paramteres via environment variables as documented in ``sendErrorEmail``.
   :param monitorName: Name of monitor detecting error
   :type monitorName: string
   :param resourceName: URL checked by this monitor
@@ -48,7 +48,8 @@ def sendMonitorErrorEmail(monitorName, resourceName, message, isTest=False,
   :type message: string
   :param isTest: flag signaling whether email is being sent as a test
   :type isTest: Boolean
-  :param params: an optional dict that must contain the following keys:
+  :param params: an optional dict to use instead of environment variables that
+    must contain the following keys:
                  senderAddress,
                  recipients,
                  awsRegion,
@@ -106,7 +107,8 @@ def sendErrorEmail(subject, body, params=None):
   :type subject: string
   :param body: Email body
   :type body: string
-  :param params: an optional dict that must contain the following keys:
+  :param params: an optional dict to use instead of environment variables that
+    must contain the following keys:
                  senderAddress,
                  recipients,
                  awsRegion,
