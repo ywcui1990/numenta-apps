@@ -28,22 +28,22 @@ import unittest
 from paste.fixture import TestApp
 import requests
 
-import grok.app
-from grok.app import repository
-from grok.app.webservices import models_api
+import htm-it.app
+from htm-it.app import repository
+from htm-it.app.webservices import models_api
 from htmengine import utils
 
-from grok.test_utils.app.webservices import (
+from htm-it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   getInvalidHTTPHeaders,
   webservices_assertions as assertions
 )
-from grok.test_utils import aws_utils
+from htm-it.test_utils import aws_utils
 from htmengine.exceptions import ObjectNotFoundError
-from grok.test_utils.app.sqlalchemy_test_utils import\
+from htm-it.test_utils.app.sqlalchemy_test_utils import\
  ManagedTempRepository
 
-from grok import logging_support
+from htm-it import logging_support
 
 import time
 
@@ -65,8 +65,8 @@ class TestModelHandler(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(models_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
-    data = open(os.path.join(grok.app.GROK_HOME,
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    data = open(os.path.join(htm-it.app.HTM-IT_HOME,
      "tests/py/data/app/webservices/models_api_integration_test.json")).read()
     self.modelsTestData = json.loads(data)
 
@@ -465,17 +465,17 @@ class MetricDataHandlerTest(unittest.TestCase):
        GET with consitions, set to 5
     5) Decide queryParams for anomalyScore, to and from timestamp
     """
-    cls.headers = getDefaultHTTPHeaders(grok.app.config)
+    cls.headers = getDefaultHTTPHeaders(htm-it.app.config)
 
     # All other sevices needs AWS credentials to work
     # Set AWS credentials
-    grok.app.config.loadConfig()
+    htm-it.app.config.loadConfig()
 
     # Select test instance such that its running from longer time
     g_logger.info("Getting long-running EC2 Instances")
     instances = aws_utils.getLongRunningEC2Instances("us-west-2",
-      grok.app.config.get("aws", "aws_access_key_id"),
-      grok.app.config.get("aws", "aws_secret_access_key"), 15)
+      htm-it.app.config.get("aws", "aws_access_key_id"),
+      htm-it.app.config.get("aws", "aws_secret_access_key"), 15)
     testInstance = instances[randrange(1, len(instances))]
 
     createModelData = {

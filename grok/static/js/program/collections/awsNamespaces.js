@@ -26,14 +26,14 @@
    * @constructor
    * @copyright © 2014 Numenta
    * @public
-   * @requires Backbone, Backbone.Collection, GROKUI.AwsNamespaceModel
+   * @requires Backbone, Backbone.Collection, HTM-ITUI.AwsNamespaceModel
    * @returns {Object} Backbone.Collection object
    */
-  GROKUI.AwsNamespacesCollection = Backbone.Collection.extend({
+  HTM-ITUI.AwsNamespacesCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: GROKUI.AwsNamespaceModel,
+    model: HTM-ITUI.AwsNamespaceModel,
 
     // Custom properties
 

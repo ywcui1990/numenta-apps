@@ -16,7 +16,7 @@ import psutil
 
 
 
-g_log = logging.getLogger("grok.setup")
+g_log = logging.getLogger("htm-it.setup")
 
 
 

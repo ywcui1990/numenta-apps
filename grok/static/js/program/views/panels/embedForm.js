@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.EmbedFormView = Backbone.View.extend({
+    HTM-ITUI.EmbedFormView = Backbone.View.extend({
 
         template: _.template($('#embed-form-tmpl').html()),
 
-        msgs: GROKUI.msgs('embed-form-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('embed-form-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'input #domain': 'handleInputChange',
@@ -123,10 +123,10 @@
 
         generateCode: function(domain, width, height) {
             var me = this,
-                apiKey = GROKUI.utils.store.get('apiKey'),
+                apiKey = HTM-ITUI.utils.store.get('apiKey'),
                 hash = Crypto.SHA1(apiKey + domain),
                 serverURL = 'http://' + window.location.hostname +
-                            "/grok/embed/charts",
+                            "/htm-it/embed/charts",
                 code = "<iframe width=\"" + width + "\" " +
                         "height=\"" + height + "\" " +
                         "style=\"border:0\" " +

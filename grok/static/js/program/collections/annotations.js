@@ -21,19 +21,19 @@
 (function() {
 
   /**
-   * Backbone.js Collection for a group of Grok Annotations, from the
+   * Backbone.js Collection for a group of HTM-IT Annotations, from the
    *  the /_annotations API endpoint.
    * @constructor
    * @copyright © 2014 Numenta
    * @public
-   * @requires Backbone.js, Grok AnnotationModel class
+   * @requires Backbone.js, HTM-IT AnnotationModel class
    * @returns {Object} Backbone.js Collection object
    */
-  GROKUI.AnnotationsCollection = Backbone.Collection.extend({
+  HTM-ITUI.AnnotationsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: GROKUI.AnnotationModel,
+    model: HTM-ITUI.AnnotationModel,
 
     // Custom properties
     

@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# This script sets up a new grok instance for profiling
+# This script sets up a new htm-it instance for profiling
 
 # Instructions for use:
 # ./profiling_setup.sh <MODELNUM>
@@ -29,12 +29,12 @@
 # After this script runs, restart all supervisord services from the webUI.
 # Then Copy the api key to the clipboard.
 # In the ec2 instance to be sending data, issue a command along the lines of:
-# ./grok_custom_metric_stress.py --csv ~/OUTPUTFILENAME.csv ec2-12.34.56.78.us-west-2.compute.amazonaws.com HHJTf &
+# ./htm-it_custom_metric_stress.py --csv ~/OUTPUTFILENAME.csv ec2-12.34.56.78.us-west-2.compute.amazonaws.com HHJTf &
 # (Replace HHTJTf with whatever API key this script emitted)
 
 MODELNUM=$1
 
-SUPERVISOR_CONF="/opt/numenta/grok/conf/supervisord.conf"
+SUPERVISOR_CONF="/opt/numenta/htm-it/conf/supervisord.conf"
 
 # First, stop supervisord services
 supervisorctl -c $SUPERVISOR_CONF stop all
@@ -44,22 +44,22 @@ ps aux | grep [c]apture_ | awk {'print $2'} | xargs kill
 
 # Delete old logs
 # Remember the directory this script was called from (we assume the capture scripts are in the same dir)
-pushd /opt/numenta/grok/
+pushd /opt/numenta/htm-it/
 rm -r logs/*
 
 # Reinitialize everything
 python setup.py init
 
 # Set profiling flags in application.conf and model-swapper.conf
-sed '5s/false/true/' /opt/numenta/grok/conf/application.conf > /opt/numenta/grok/conf/application.conf.new
-mv /opt/numenta/grok/conf/application.conf.new /opt/numenta/grok/conf/application.conf
-sed '5s/false/true/' /opt/numenta/grok/conf/model-swapper.conf > /opt/numenta/grok/conf/model-swapper.conf.new
-mv /opt/numenta/grok/conf/model-swapper.conf.new /opt/numenta/grok/conf/model-swapper.conf
+sed '5s/false/true/' /opt/numenta/htm-it/conf/application.conf > /opt/numenta/htm-it/conf/application.conf.new
+mv /opt/numenta/htm-it/conf/application.conf.new /opt/numenta/htm-it/conf/application.conf
+sed '5s/false/true/' /opt/numenta/htm-it/conf/model-swapper.conf > /opt/numenta/htm-it/conf/model-swapper.conf.new
+mv /opt/numenta/htm-it/conf/model-swapper.conf.new /opt/numenta/htm-it/conf/model-swapper.conf
 
 # Update the model quota
-sed -E "s/= ([0-9]+)/= $MODELNUM/" /opt/numenta/grok/conf/quota.conf > /opt/numenta/grok/conf/quota.conf.new
-mv /opt/numenta/grok/conf/quota.conf.new /opt/numenta/grok/conf/quota.conf
-/opt/numenta/grok/bin/update_quota.py
+sed -E "s/= ([0-9]+)/= $MODELNUM/" /opt/numenta/htm-it/conf/quota.conf > /opt/numenta/htm-it/conf/quota.conf.new
+mv /opt/numenta/htm-it/conf/quota.conf.new /opt/numenta/htm-it/conf/quota.conf
+/opt/numenta/htm-it/bin/update_quota.py
 
 # Reload supervisord's configs
 supervisorctl -c $SUPERVISOR_CONF reread
@@ -81,4 +81,4 @@ popd
 
 # Print the api key
 echo "API key: "
-grep apikey /opt/numenta/grok/conf/application.conf
+grep apikey /opt/numenta/htm-it/conf/application.conf

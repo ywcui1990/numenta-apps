@@ -22,7 +22,7 @@
 (function() {
 
     var _viewName = 'embed-charts-row',
-        _site =     GROKUI.msgs('site'),
+        _site =     HTM-ITUI.msgs('site'),
 
         WEEKDAY = ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
 
@@ -62,7 +62,7 @@
     /**
      * Backbone.View() - Embed: Charts > Rows > Row
      */
-    GROKUI.EmbedChartsRowView = Backbone.View.extend({
+    HTM-ITUI.EmbedChartsRowView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -74,7 +74,7 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs(_viewName + '-tmpl'),
+        msgs: HTM-ITUI.msgs(_viewName + '-tmpl'),
         site: _site,
 
         annotations:        null,
@@ -172,7 +172,7 @@
             var ctx =           e.drawingContext,
                 points =        e.points,
                 y_bottom =      e.dygraph.toDomYCoord(0),
-                gradientMap =   GROKUI.utils.makeGradientMap(barHeight, [
+                gradientMap =   HTM-ITUI.utils.makeGradientMap(barHeight, [
                     color.red, color.yellow, color.green
                 ]),
                 perBar =        _site.charts.instance.anomaly.minutesPerBar,
@@ -240,19 +240,19 @@
 
         /**
          * Format Model data from API for DyGraphs to display Anomaly charts
-         * @param {object} modelOutput Object of Grok metric model data output
-         * @returns {object} Object formatted for FaceOfGrok/Dygraphs display
+         * @param {object} modelOutput Object of HTM-IT metric model data output
+         * @returns {object} Object formatted for FaceOfHTM-IT/Dygraphs display
          */
         formatAnomalyModelOutputData: function(modelOutput) {
             var outputData =    [],
                 outputLabels =  [ 'Time', 'Anomaly' ];
 
             modelOutput.forEach(function(dataRow, i) {
-                var scaled = GROKUI.utils.logScale(dataRow[indexAnomaly]),
+                var scaled = HTM-ITUI.utils.logScale(dataRow[indexAnomaly]),
                     datum = parseFloat(scaled);
 
                 // Round time stamp to closest 5 min interval
-                var timestamp = GROKUI.utils.getUTCDateFromTimestamp(dataRow[indexTimestamp]).getTime();
+                var timestamp = HTM-ITUI.utils.getUTCDateFromTimestamp(dataRow[indexTimestamp]).getTime();
                 timestamp = Math.ceil(timestamp/300000) * 300000;
                 outputData.push([
                     timestamp,
@@ -268,9 +268,9 @@
 
         /**
          * Overridden in embedChartsRow* (Instance, Metric, etc.)
-         * Format data to be sent to FaceOfGrok/DyGraphs chart
+         * Format data to be sent to FaceOfHTM-IT/DyGraphs chart
          * @returns {array} List of datapoints (themselves arrays) ready for
-         *  FaceOfGrok/Dygraphs.
+         *  FaceOfHTM-IT/Dygraphs.
          */
         // getFormattedData: function() {},
 
@@ -453,7 +453,7 @@
                 msPerBar =      this.minutesPerBar * 60000, // milliseconds per
                 output =        [],
                 startIndex =    0,
-                startData =     GROKUI.utils.getUTCDateFromTimestamp(input[startIndex][indexTimestamp]),
+                startData =     HTM-ITUI.utils.getUTCDateFromTimestamp(input[startIndex][indexTimestamp]),
                 startBucket =   new Date(Math.ceil(startData.getTime() / msPerBar) * msPerBar),
                 i =             0;
 
@@ -467,7 +467,7 @@
                     (input[startIndex + 1])
                 ) {
                     startIndex++;
-                    startData = GROKUI.utils.getUTCDateFromTimestamp(input[startIndex][indexTimestamp]);
+                    startData = HTM-ITUI.utils.getUTCDateFromTimestamp(input[startIndex][indexTimestamp]);
                 }
 
                 // now shape into buckets based on divider
@@ -491,11 +491,11 @@
                     }
 
                     if(input[i - 1]) {
-                        timestamp = GROKUI.utils.getUTCDateFromTimestamp(input[i - 1][indexTimestamp]).getTime();
+                        timestamp = HTM-ITUI.utils.getUTCDateFromTimestamp(input[i - 1][indexTimestamp]).getTime();
                         timestamp = new Date(Math.ceil(timestamp / msPerBar) * msPerBar);
 
                         output.push([
-                            GROKUI.utils.getUTCTimestamp(timestamp),
+                            HTM-ITUI.utils.getUTCTimestamp(timestamp),
                             maxValue,
                             maxAnomaly
                         ]);
@@ -509,7 +509,7 @@
         },
 
         /**
-         * Redraw FaceOfGrok/DyGraphs Chart with new Data, Ranges, etc.
+         * Redraw FaceOfHTM-IT/DyGraphs Chart with new Data, Ranges, etc.
          */
         updateChart: function() {
             var annotations = null;
@@ -551,7 +551,7 @@
                     label = (hour == 0 ? 12 : hour) + ":" + (min < 10 ? '0' + min : min);
                     // Make every round hour bold
                     if (min == 0) {
-                        label = '<span class="grok-embed-charts-label-bold">'+label+"</span>";
+                        label = '<span class="htm-it-embed-charts-label-bold">'+label+"</span>";
                     }
                     break;
                 case perBar.days:
@@ -561,7 +561,7 @@
                     label = (hour == 0 ? 12 : hour) + am;
                     // Make noon and midnight bold
                     if (hour == 0) {
-                        label = '<span class="grok-embed-charts-label-bold">'+label+"</span>";
+                        label = '<span class="htm-it-embed-charts-label-bold">'+label+"</span>";
                     }
                     break;
                 case perBar.weeks:
@@ -569,7 +569,7 @@
                     label = WEEKDAY[date.getDay()];
                     // Make mondays bold
                     if (label == 'M') {
-                        label = '<span class="grok-embed-charts-label-bold">'+label+"</span>";
+                        label = '<span class="htm-it-embed-charts-label-bold">'+label+"</span>";
                     }
                     break;
             }

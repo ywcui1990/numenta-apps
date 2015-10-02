@@ -21,18 +21,18 @@
 # ----------------------------------------------------------------------
 
 """
-Sets Grok product edition in product configuration.
+Sets HTM-IT product edition in product configuration.
 
-As of Grok 1.5, only "standard" edition is permitted. This value is used to
+As of HTM-IT 1.5, only "standard" edition is permitted. This value is used to
 drive logic at runtime, such as instance quota configuration/enforcement.
 
 It's expected that the product edition will be set by the build process.
 
-MUST BE CALLED AFTER INITIALIZATION OF GROK CONFIGURATION, BUT BEFORE
+MUST BE CALLED AFTER INITIALIZATION OF HTM-IT CONFIGURATION, BUT BEFORE
 update_quota.py
 
-NOTE: Assumes Grok's configuration system has already been initialized (i.e.,
-Grok's `setup.py init` has run)
+NOTE: Assumes HTM-IT's configuration system has already been initialized (i.e.,
+HTM-IT's `setup.py init` has run)
 """
 
 import logging
@@ -42,13 +42,13 @@ import sys
 
 from nupic.support.decorators import logEntryExit
 
-from grok import logging_support
-from grok.app import GrokProductConfig
+from htm-it import logging_support
+from htm-it.app import HTM-ITProductConfig
 
 
 
 def _getLogger():
-  return logging.getLogger("grok.set_edition")
+  return logging.getLogger("htm-it.set_edition")
 
 
 
@@ -57,11 +57,11 @@ def setEdition(args):
   supportedEditions = ["standard"]
 
   helpString = (
-    "This script updates Grok production edition in %s.\n"
+    "This script updates HTM-IT production edition in %s.\n"
     "%%prog %s\n\n"
-    "IT MUST BE CALLED AFTER INITIALIZATION OF GROK CONFIGURATION, BUT BEFORE "
+    "IT MUST BE CALLED AFTER INITIALIZATION OF HTM-IT CONFIGURATION, BUT BEFORE "
     "update_quota.py"
-    ) % (GrokProductConfig.CONFIG_NAME, "|".join(supportedEditions),)
+    ) % (HTM-ITProductConfig.CONFIG_NAME, "|".join(supportedEditions),)
 
   parser = OptionParser(helpString)
 
@@ -73,10 +73,10 @@ def setEdition(args):
 
   editionType = posArgs[0]
   if editionType not in supportedEditions:
-    parser.error("Got unsupported Grok product edition string %r; expected one "
+    parser.error("Got unsupported HTM-IT product edition string %r; expected one "
                  "of %s" % (editionType, supportedEditions,))
 
-  config = GrokProductConfig(mode=GrokProductConfig.MODE_OVERRIDE_ONLY)
+  config = HTM-ITProductConfig(mode=HTM-ITProductConfig.MODE_OVERRIDE_ONLY)
   if not config.has_section("edition"):
     config.add_section("edition")
   config.set("edition", "type", editionType)

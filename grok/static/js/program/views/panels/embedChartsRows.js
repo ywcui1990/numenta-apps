@@ -22,7 +22,7 @@
 (function() {
 
     var _viewName = 'embed-charts-rows',
-        _site =     GROKUI.msgs('site'),
+        _site =     HTM-ITUI.msgs('site'),
 
         _defaultTab = 'days',
 
@@ -41,7 +41,7 @@
     /**
      * Backbone.View() - Embed: Charts > Rows
      */
-    GROKUI.EmbedChartsRowsView = Backbone.View.extend({
+    HTM-ITUI.EmbedChartsRowsView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -51,7 +51,7 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs(_viewName + '-tmpl'),
+        msgs: HTM-ITUI.msgs(_viewName + '-tmpl'),
         site: _site,
 
         api: null,
@@ -91,7 +91,7 @@
          */
         initialize: function(options) {
             var minutesPerBar = this.site.charts.instance.anomaly.minutesPerBar,
-                tab =           GROKUI.utils.getUrlParam('tab') || _defaultTab,
+                tab =           HTM-ITUI.utils.getUrlParam('tab') || _defaultTab,
                 initDataSize =  {
                     hours:  10 * HOURS,
                     days:   5 * DAYS,
@@ -120,7 +120,7 @@
             this.range.view.start = new Date(NOW);
             this.range.view.end = NOW;
 
-            this.collections.annotations = new GROKUI.AnnotationsCollection(
+            this.collections.annotations = new HTM-ITUI.AnnotationsCollection(
                 [], {api : this.api}
             );
 
@@ -138,7 +138,7 @@
          */
         render: function() {
             var minutesPerBar = this.site.charts.instance.anomaly.minutesPerBar,
-                tab =           GROKUI.utils.getUrlParam('tab') || _defaultTab,
+                tab =           HTM-ITUI.utils.getUrlParam('tab') || _defaultTab,
                 dataHandles =   [],
                 promises =      [],
                 instances =     this.collections.models.groupByInstance(),
@@ -153,18 +153,18 @@
                 tab = _defaultTab;
             }
 
-            GROKUI.utils.throb.start(this.site.state.loading);
+            HTM-ITUI.utils.throb.start(this.site.state.loading);
             this.$el.html(this.template(data));
 
             // css switch to correct tab here
-            $tabs = $('.grok-embed-charts-tabs > .nav-tabs');
+            $tabs = $('.htm-it-embed-charts-tabs > .nav-tabs');
             $tabs.find('li').removeClass('active');
             $tabs.find('li.' + tab).addClass('active');
 
             // create data handles
             Object.keys(instances).forEach(function(instance) {
                 instances[instance].forEach(function(model) {
-                    var data = new GROKUI.ModelDataModel(
+                    var data = new HTM-ITUI.ModelDataModel(
                             { id: model.id },
                             {
                                 api:    this.api,
@@ -181,7 +181,7 @@
 
             // init instance row views
             Object.keys(instances).forEach(function(instance) {
-                var view = new GROKUI.EmbedChartsRowInstanceView({
+                var view = new HTM-ITUI.EmbedChartsRowInstanceView({
                         annotations:    this.collections.annotations,
                         api:            this.api,
                         instance:       instance,
@@ -205,8 +205,8 @@
                     function(modelId) {
                         var modelObject =   this.models.datas[instance][modelId],
                             promise = modelObject.fetch({
-                                from:   GROKUI.utils.getUTCTimestamp(this.range.data.start),
-                                to:     GROKUI.utils.getUTCTimestamp(this.range.data.end),
+                                from:   HTM-ITUI.utils.getUTCTimestamp(this.range.data.start),
+                                to:     HTM-ITUI.utils.getUTCTimestamp(this.range.data.end),
                                 error:  this.modelRefetchError
                             });
 
@@ -219,8 +219,8 @@
             // Fetch annotations
             promises.push(
                 this.collections.annotations.fetch({
-                    from: GROKUI.utils.getUTCTimestamp(this.range.data.start),
-                    to:   GROKUI.utils.getUTCTimestamp(this.range.data.end)
+                    from: HTM-ITUI.utils.getUTCTimestamp(this.range.data.start),
+                    to:   HTM-ITUI.utils.getUTCTimestamp(this.range.data.end)
                 })
             );
 
@@ -232,7 +232,7 @@
 
                 // if no data, show an error
                 if(! seed) {
-                    GROKUI.utils.throb.stop();
+                    HTM-ITUI.utils.throb.stop();
                     this.$el.parent().html(this.msgs.empty);
                     return;
                 }
@@ -257,7 +257,7 @@
                 }.bind(this));
 
                 // init and draw pink top markers/lines view
-                this.views.markers = new GROKUI.EmbedChartsMarkersView({
+                this.views.markers = new HTM-ITUI.EmbedChartsMarkersView({
                     api:            this.api,
                     minutesPerBar:  this.minutesPerBar,
                     range:          this.range,
@@ -275,7 +275,7 @@
                     (5 * MINUTES)
                 );
 
-                GROKUI.utils.throb.stop();
+                HTM-ITUI.utils.throb.stop();
             }.bind(this));
 
             // done
@@ -303,7 +303,7 @@
                         promise =       null;
 
                     if(lastPoint && lastPoint[indexTimestamp]) {
-                        fromDate = GROKUI.utils.getUTCDateFromTimestamp(lastPoint[indexTimestamp]);
+                        fromDate = HTM-ITUI.utils.getUTCDateFromTimestamp(lastPoint[indexTimestamp]);
                     }
                     else {
                         fromDate = new Date(this.range.data.end);
@@ -313,8 +313,8 @@
 
                     // Fetch new data
                     promise = modelObject.fetch({
-                        from:    GROKUI.utils.getUTCTimestamp(fromDate),
-                        to:      GROKUI.utils.getUTCTimestamp(toDate),
+                        from:    HTM-ITUI.utils.getUTCTimestamp(fromDate),
+                        to:      HTM-ITUI.utils.getUTCTimestamp(toDate),
                         error:   this.modelRefetchError,
                         success: function(model, response, options) {
                             this.modelFetchNewerSuccess(
@@ -333,7 +333,7 @@
 
             // Fetch annotations
             promises.push(this.collections.annotations.fetch({
-                        from: GROKUI.utils.getUTCTimestamp(this.range.data.end)
+                        from: HTM-ITUI.utils.getUTCTimestamp(this.range.data.end)
                     }));
 
             // when loaded
@@ -443,7 +443,7 @@
 
                             if(data.length <= 0) return;  // no data, no draw.
 
-                            view = new GROKUI.EmbedChartsRowMetricView({
+                            view = new HTM-ITUI.EmbedChartsRowMetricView({
                                 api:            this.api,
                                 modelId:        modelId,
                                 instance:       instance,
@@ -559,7 +559,7 @@
                             model =     rowView.models[0],
                             modelId =   model.id,
                             metric =    model.get('metric'),
-                            view =      new GROKUI.EmbedChartsRowMetricDetailView({
+                            view =      new HTM-ITUI.EmbedChartsRowMetricDetailView({
                                 api:            this.api,
                                 modelId:        modelId,
                                 instance:       instance,
@@ -651,8 +651,8 @@
                             previousData = modelObject.get('data');
 
                         promise = modelObject.fetch({
-                            from:       GROKUI.utils.getUTCTimestamp(pastDate),
-                            to:         GROKUI.utils.getUTCTimestamp(this.range.data.start),
+                            from:       HTM-ITUI.utils.getUTCTimestamp(pastDate),
+                            to:         HTM-ITUI.utils.getUTCTimestamp(this.range.data.start),
                             error:      this.modelRefetchError,
                             success:    function(model, response, options) {
                                 this.modelFetchOlderSuccess(
@@ -671,8 +671,8 @@
 
                 // Fetch annotations
                 promises.push(this.collections.annotations.fetch({
-                            from: GROKUI.utils.getUTCTimestamp(pastDate),
-                            to:   GROKUI.utils.getUTCTimestamp(this.range.data.start)
+                            from: HTM-ITUI.utils.getUTCTimestamp(pastDate),
+                            to:   HTM-ITUI.utils.getUTCTimestamp(this.range.data.start)
                         }));
 
                 // when data is fetched
@@ -729,7 +729,7 @@
          *  re-fetch()ing (scrolling, or loading a bigger tab needing more data)
          */
         modelRefetchError: function(model, response, options) {
-            return GROKUI.utils.modalError(response);
+            return HTM-ITUI.utils.modalError(response);
         },
 
         /**
@@ -751,7 +751,7 @@
 
             if(newData.length > 0) {
                 timeEnd =   model.get('data')[model.get('data').length - 1][indexTimestamp];
-                end =       GROKUI.utils.getUTCDateFromTimestamp(timeEnd);
+                end =       HTM-ITUI.utils.getUTCDateFromTimestamp(timeEnd);
 
                 // if loaded new older data, set new range for data start
                 if(end > this.range.data.end) {
@@ -783,7 +783,7 @@
 
             if(newData.length > 0) {
                 timeStart = model.get('data')[0][indexTimestamp];
-                start =     GROKUI.utils.getUTCDateFromTimestamp(timeStart);
+                start =     HTM-ITUI.utils.getUTCDateFromTimestamp(timeStart);
 
                 // if loaded new older data, set new range for data start
                 if(start < this.range.data.start) {
@@ -885,7 +885,7 @@
 
             // load missing data to fill out the chart for the current tab view
             if(this.range.view.start < this.range.data.start) {
-                GROKUI.utils.throb.start(this.site.state.loading);
+                HTM-ITUI.utils.throb.start(this.site.state.loading);
 
                 // load further into the past
                 var pastDate = new Date(this.range.view.start);
@@ -899,8 +899,8 @@
 
                         // prep fetch
                         promise = modelObject.fetch({
-                            from:       GROKUI.utils.getUTCTimestamp(pastDate),
-                            to:         GROKUI.utils.getUTCTimestamp(this.range.data.start),
+                            from:       HTM-ITUI.utils.getUTCTimestamp(pastDate),
+                            to:         HTM-ITUI.utils.getUTCTimestamp(this.range.data.start),
                             error:      this.modelRefetchError,
                             success:    function(model, response, options) {
                                 this.modelFetchOlderSuccess(
@@ -919,8 +919,8 @@
 
                 // Fetch annotations
                 promises.push(this.collections.annotations.fetch({
-                            from: GROKUI.utils.getUTCTimestamp(pastDate),
-                            to:   GROKUI.utils.getUTCTimestamp(this.range.data.start)
+                            from: HTM-ITUI.utils.getUTCTimestamp(pastDate),
+                            to:   HTM-ITUI.utils.getUTCTimestamp(this.range.data.start)
                         }));
             }
 
@@ -939,7 +939,7 @@
                     );
                 }
 
-                GROKUI.utils.throb.stop();
+                HTM-ITUI.utils.throb.stop();
 
                 // update each row with new minutesPerBar and Ranges, and redraw
                 this.views.rows.forEach(function(row) {

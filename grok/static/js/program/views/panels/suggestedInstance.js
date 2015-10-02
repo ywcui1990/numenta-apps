@@ -21,11 +21,11 @@
 
 (function() {
 
-    GROKUI.SuggestedInstancesListView = Backbone.View.extend({
+    HTM-ITUI.SuggestedInstancesListView = Backbone.View.extend({
 
         template: _.template($('#suggested-instances-tmpl').html()),
 
-        site: GROKUI.msgs('site'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'click input[type="checkbox"]': 'handleCheckboxClick'

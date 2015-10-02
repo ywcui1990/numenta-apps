@@ -21,7 +21,7 @@
 
 (function() {
 
-    GROKUI.AnnotationListView = Backbone.View.extend({
+    HTM-ITUI.AnnotationListView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -33,8 +33,8 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs('annotation-list-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('annotation-list-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         api:         null,
         instance:    null,

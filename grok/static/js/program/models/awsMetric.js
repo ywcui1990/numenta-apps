@@ -29,7 +29,7 @@
    * @requires Backbone, Backbone.Model
    * @returns {Object} Backbone.Model object
    */
-  GROKUI.AwsMetricModel = Backbone.Model.extend({
+  HTM-ITUI.AwsMetricModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 
@@ -67,7 +67,7 @@
           dimension &&
           dimension.match(this.collection.site.instances.types.autoscale)
         ) {
-          // pretty display name - Grok Autostack
+          // pretty display name - HTM-IT Autostack
           response.display = response.name +
             ' (' + this.collection.site.instances.types.autoscale + ')';
         }

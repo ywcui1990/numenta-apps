@@ -32,11 +32,11 @@ import sqlalchemy
 from sqlalchemy import insert
 
 from htmengine import exceptions
-from grok.app import repository
-from grok.app.repository import queries, schema
+from htm-it.app import repository
+from htm-it.app.repository import queries, schema
 from htmengine.repository.queries import MetricStatus
 from htmengine.utils import jsonDecode, jsonEncode
-from grok.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 
 
 
@@ -1246,7 +1246,7 @@ class TestRepositoryAPI(unittest.TestCase):
 
 
   def testaddAutostack(self):
-    filters = {"tag:Name":["*test*", "*grok*"],
+    filters = {"tag:Name":["*test*", "*htm-it*"],
                "tag:Description":["Blah", "foo"]}
     with self.engine.connect() as conn:
       autostackDict = repository.addAutostack(conn,
@@ -1262,7 +1262,7 @@ class TestRepositoryAPI(unittest.TestCase):
 
   def testDeleteAutostack(self):
     metricObj = self._addAutostackMetric()
-    filters = {"tag:Name":["*test*", "*grok*"],
+    filters = {"tag:Name":["*test*", "*htm-it*"],
                "tag:Description":["Blah", "foo"]}
     with self.engine.connect() as conn:
       autostackDict = repository.addAutostack(conn,

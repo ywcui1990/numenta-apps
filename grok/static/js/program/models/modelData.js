@@ -22,14 +22,14 @@
 (function() {
 
   /**
-   * Backbone.js Model for a Grok Metric/Model's DATA (/_models/data endpoint)
+   * Backbone.js Model for a HTM-IT Metric/Model's DATA (/_models/data endpoint)
    * @constructor
    * @copyright © 2014 Numenta
    * @public
    * @requires Backbone, Backbone.Model
    * @returns {Object} Backbone.Model object
    */
-  GROKUI.ModelDataModel = Backbone.Model.extend({
+  HTM-ITUI.ModelDataModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

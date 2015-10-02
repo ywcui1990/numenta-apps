@@ -26,8 +26,8 @@
 from mock import patch
 import unittest
 
-import grok.app.adapters.datasource as datasource_adapter_factory
-from grok.app.exceptions import ObjectNotFoundError
+import htm-it.app.adapters.datasource as datasource_adapter_factory
+from htm-it.app.exceptions import ObjectNotFoundError
 
 
 
@@ -65,7 +65,7 @@ class AutostackDatasourceAdapterTest(unittest.TestCase):
     self.assertRaises(ValueError, adapter.createAutostack, stackSpec)
 
 
-  @patch("grok.app.adapters.datasource.autostack.repository.getAutostack")
+  @patch("htm-it.app.adapters.datasource.autostack.repository.getAutostack")
   def testMonitorMetricNoExistingAutostack(self, getAutostackMock,
                                            _mockEngineFactory):
     adapter = datasource_adapter_factory.createAutostackDatasourceAdapter()

@@ -25,17 +25,17 @@
 
 import json
 
-from grok import logging_support
-from grok.grok_logging import getExtendedLogger
+from htm-it import logging_support
+from htm-it.htm-it_logging import getExtendedLogger
 
-import grok.app
-import grok.app.adapters.datasource as datasource_adapter_factory
-import grok.app.exceptions
-from grok.app import repository
-from grok.app.repository import schema
+import htm-it.app
+import htm-it.app.adapters.datasource as datasource_adapter_factory
+import htm-it.app.exceptions
+from htm-it.app import repository
+from htm-it.app.repository import schema
 from htmengine.repository.queries import MetricStatus
 import htmengine.utils
-from grok.test_utils.app.test_case_base import TestCaseBase, unittest
+from htm-it.test_utils.app.test_case_base import TestCaseBase, unittest
 
 
 
@@ -99,8 +99,8 @@ class AutostackDatasourceAdapterTest(TestCaseBase):
 
   @classmethod
   def setUpClass(cls):
-    # Load grok API Key as required by TestCaseBase
-    cls.apiKey = grok.app.config.get("security", "apikey")
+    # Load htm-it API Key as required by TestCaseBase
+    cls.apiKey = htm-it.app.config.get("security", "apikey")
     cls.engine = repository.engineFactory()
 
 
@@ -172,7 +172,7 @@ class AutostackDatasourceAdapterTest(TestCaseBase):
     modelSpec = self.getModelSpec("cloudwatch", "CPUUtilization", autostack)
     modelId = adapter.monitorMetric(modelSpec)
 
-    with self.assertRaises(grok.app.exceptions.MetricAlreadyMonitored) as cm:
+    with self.assertRaises(htm-it.app.exceptions.MetricAlreadyMonitored) as cm:
       adapter.monitorMetric(modelSpec)
 
     self.assertEqual(cm.exception.uid, modelId)

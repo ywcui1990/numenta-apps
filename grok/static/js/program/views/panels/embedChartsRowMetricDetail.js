@@ -21,7 +21,7 @@
 
 (function() {
 
-    var _site = GROKUI.msgs('site'),
+    var _site = HTM-ITUI.msgs('site'),
 
         indexTimestamp =    _site.charts.instance.anomaly.index.timestamp,
         indexValue =        _site.charts.instance.anomaly.index.value,
@@ -31,11 +31,11 @@
     /**
      * Backbone.View() - Embed: Charts > Rows > Row (Metric Detail)
      */
-    GROKUI.EmbedChartsRowMetricDetailView = GROKUI.EmbedChartsRowView.extend({
+    HTM-ITUI.EmbedChartsRowMetricDetailView = HTM-ITUI.EmbedChartsRowView.extend({
 
         // Backbone.View properties
 
-        className: 'grok-embed-charts-row-metric-detail grok-embed-charts-row grok-panel',
+        className: 'htm-it-embed-charts-row-metric-detail htm-it-embed-charts-row htm-it-panel',
 
 
         // Custom properties
@@ -51,7 +51,7 @@
          * Backbone.View.initialize() METRIC row
          */
         initialize: function(options) {
-            GROKUI.EmbedChartsRowView.prototype.initialize.call(this, options);
+            HTM-ITUI.EmbedChartsRowView.prototype.initialize.call(this, options);
 
             this.modelId = options.modelId;
 
@@ -118,7 +118,7 @@
             );
             this.chart.render();
 
-            GROKUI.EmbedChartsRowView.prototype.render.call(this, options);
+            HTM-ITUI.EmbedChartsRowView.prototype.render.call(this, options);
             return this;
         },
 
@@ -127,8 +127,8 @@
 
         /**
          * Format Model data from API for DyGraphs to display charts
-         * @param {object} modelOutput Object of Grok metric model data output
-         * @returns {object} Object formatted for FaceOfGrok/Dygraphs display
+         * @param {object} modelOutput Object of HTM-IT metric model data output
+         * @returns {object} Object formatted for FaceOfHTM-IT/Dygraphs display
          */
         formatModelOutputData: function(modelOutput) {
             var outputData =    [],
@@ -136,7 +136,7 @@
 
             modelOutput.forEach(function(dataRow, i) {
                 outputData.push([
-                    GROKUI.utils.getUTCDateFromTimestamp(dataRow[indexTimestamp]),
+                    HTM-ITUI.utils.getUTCDateFromTimestamp(dataRow[indexTimestamp]),
                     dataRow[indexValue]
                 ]);
             });
@@ -148,9 +148,9 @@
         },
 
         /**
-         * Format METRIC MODEL data to be sent to FaceOfGrok/DyGraphs chart
+         * Format METRIC MODEL data to be sent to FaceOfHTM-IT/DyGraphs chart
          * @returns {array} List of datapoints (themselves arrays) ready for
-         *  FaceOfGrok/Dygraphs.
+         *  FaceOfHTM-IT/Dygraphs.
          */
         getFormattedData: function() {
             var metricData = this.datas[this.modelId].get('data'),

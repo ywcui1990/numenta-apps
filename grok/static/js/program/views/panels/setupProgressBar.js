@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.SetupProgressBarView = Backbone.View.extend({
+    HTM-ITUI.SetupProgressBarView = Backbone.View.extend({
 
         template: _.template($('#setup-progress-bar-tmpl').html()),
 
-        msgs: GROKUI.msgs('setup-progress-bar-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('setup-progress-bar-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
         },

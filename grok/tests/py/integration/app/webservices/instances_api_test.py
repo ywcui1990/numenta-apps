@@ -34,15 +34,15 @@ import json
 import unittest
 from paste.fixture import TestApp, AppError
 
-import grok.app
-from grok.test_utils.app.webservices import (
+import htm-it.app
+from htm-it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   getInvalidHTTPHeaders,
   webservices_assertions as assertions
 )
-from grok.app.webservices import instances_api
+from htm-it.app.webservices import instances_api
 from htmengine import utils as app_utils
-from grok.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 
 
 
@@ -52,7 +52,7 @@ from grok.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 # update testdata which new stable node details (e.g rpmbuilder etc)
 # As a positive test for posting multiple instance, we need two instances
 # belonging to same region currently its us-west-2. Keep this in mind
-# while updating replacing testdata for rpm-builder, grok-docs
+# while updating replacing testdata for rpm-builder, htm-it-docs
 VALID_EC2_INSTANCES = {
   "jenkins-master":{
     "instanceId":"i-f52075fe",
@@ -62,7 +62,7 @@ VALID_EC2_INSTANCES = {
     "instanceId":"i-12d67826",
     "region":"us-west-2"
   },
-  "grok-docs":{
+  "htm-it-docs":{
     "instanceId":"i-5c890c6b",
     "region":"us-west-2"
   }
@@ -78,7 +78,7 @@ class InstancesApiSingleTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(instances_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
 
 
   @ManagedTempRepository("InstancesApiSingleInstance")
@@ -222,7 +222,7 @@ class InstancesApiSingleTest(unittest.TestCase):
     Test for post '/_instances/region/namespace/instanceId'
     response is validated for appropriate headers, body and status
     Invoke Api call with instance to incorrect namespace.
-    e.g post grok-docs-elb to AWS/EC2
+    e.g post htm-it-docs-elb to AWS/EC2
 
     Expect a 200 OK even when attempting to POST an instance to the wrong
     namespace, this saves the overhead of asking AWS if we're dealing with a
@@ -232,7 +232,7 @@ class InstancesApiSingleTest(unittest.TestCase):
     """
     region = "us-west-2"
     namespace = "EC2"
-    instanceId = "grok-docs-elb"
+    instanceId = "htm-it-docs-elb"
     response = self.app.post("/%s/AWS/%s/%s" % (region, namespace, instanceId),
       headers=self.headers, status="*")
     assertions.assertSuccess(self, response)
@@ -260,7 +260,7 @@ class InstancesApiMultipleInstanceTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(instances_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
 
 
   @ManagedTempRepository("InstancesApiMultiple")
@@ -304,7 +304,7 @@ class InstancesApiMultipleInstanceTest(unittest.TestCase):
     # under monitor. Which will be used for further tests
     # here adding
     params = [VALID_EC2_INSTANCES["rpm-builder"]["instanceId"],
-      VALID_EC2_INSTANCES["grok-docs"]["instanceId"]]
+      VALID_EC2_INSTANCES["htm-it-docs"]["instanceId"]]
     region = "us-west-2"
     namespace = "EC2"
     for instance in params:
@@ -411,7 +411,7 @@ class InstancesApiMultipleInstanceTest(unittest.TestCase):
     We expect the CLI user to know what instance ID he/she is looking for.
 
     """
-    params = ["grok-docs-elb"]
+    params = ["htm-it-docs-elb"]
     response = self.app.post("/us-west-2/AWS/EC2",
       params=app_utils.jsonEncode(params), headers=self.headers, status="*")
     assertions.assertSuccess(self, response)
@@ -485,7 +485,7 @@ class InstancesApiUnhappyTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(instances_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
 
 
   def testNoAuthHeaders(self):

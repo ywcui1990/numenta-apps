@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-Unit tests for grok.app.aws.cloudwatch_utils
+Unit tests for htm-it.app.aws.cloudwatch_utils
 """
 
 
@@ -34,8 +34,8 @@ from boto.exception import (AWSConnectionError, BotoServerError)
 
 from mock import patch
 
-from grok import logging_support
-from grok.app.aws.cloudwatch_utils import retryOnCloudWatchTransientError
+from htm-it import logging_support
+from htm-it.app.aws.cloudwatch_utils import retryOnCloudWatchTransientError
 
 
 
@@ -44,7 +44,7 @@ def setUpModule():
 
 
 
-@patch.multiple("grok.app.aws.cloudwatch_utils",
+@patch.multiple("htm-it.app.aws.cloudwatch_utils",
                 INITIAL_RETRY_BACKOFF_SEC=0.001)
 class CloudWatchUtilsTestCase(unittest.TestCase):
 

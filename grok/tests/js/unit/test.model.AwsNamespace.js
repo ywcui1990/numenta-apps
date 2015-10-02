@@ -19,9 +19,9 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('Grok Backbone.Model: AwsNamespace', function() {
+describe('HTM-IT Backbone.Model: AwsNamespace', function() {
 
-    var model = new GROKUI.AwsNamespaceModel();
+    var model = new HTM-ITUI.AwsNamespaceModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

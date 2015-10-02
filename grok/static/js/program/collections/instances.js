@@ -22,19 +22,19 @@
 (function() {
 
   /**
-   * Backbone.js Collection for a group of Grok Monitored Instances, from the
+   * Backbone.js Collection for a group of HTM-IT Monitored Instances, from the
    *  the /_instances API endpoint.
    * @constructor
    * @copyright © 2014 Numenta
    * @public
-   * @requires Backbone.js, Grok InstanceModel class
+   * @requires Backbone.js, HTM-IT InstanceModel class
    * @returns {Object} Backbone.js Collection object
    */
-  GROKUI.InstancesCollection = Backbone.Collection.extend({
+  HTM-ITUI.InstancesCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: GROKUI.InstanceModel,
+    model: HTM-ITUI.InstanceModel,
 
     // Custom properties
 

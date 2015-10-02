@@ -2,12 +2,12 @@ module.exports = function(grunt) {
     var username = process.env.SAUCE_USERNAME,
         key =      process.env.SAUCE_ACCESS_KEY,
 
-        name = 'Grok JS Unit Tests',
+        name = 'HTM-IT JS Unit Tests',
 
         port = 9999,
         urlPrefix = 'http://127.0.0.1:' + port + '/tests/js/',
 
-        // SYNC: https://github.com/GrokSolutions/grok/wiki/Browser-Support
+        // SYNC: https://github.com/HTM-ITSolutions/htm-it/wiki/Browser-Support
         browsers = [
             // Android
             {
@@ -101,7 +101,7 @@ module.exports = function(grunt) {
         ],
 
         urls = [
-            urlPrefix + 'unit/runner.lib.GrokApi.html',
+            urlPrefix + 'unit/runner.lib.HTM-ITApi.html',
             urlPrefix + 'unit/runner.collections.html',
             urlPrefix + 'unit/runner.models.html',
             urlPrefix + 'unit/runner.views.html'

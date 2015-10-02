@@ -19,10 +19,10 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('Grok Backbone.Collection: ModelExports', function() {
+describe('HTM-IT Backbone.Collection: ModelExports', function() {
 
-    var api =         new GrokAPI({ apiKey: 'xxx' }),
-        collection =  new GROKUI.ModelExportsCollection([], { api: api });
+    var api =         new HTM-ITAPI({ apiKey: 'xxx' }),
+        collection =  new HTM-ITUI.ModelExportsCollection([], { api: api });
 
     it('should construct simply', function() {
         expect(collection).to.be.an('object');

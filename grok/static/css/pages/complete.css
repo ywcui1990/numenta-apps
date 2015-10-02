@@ -1,36 +1,36 @@
-.grok-complete .well {
+.htm-it-complete .well {
   font-size: 96.5%;
   padding-bottom: 0.5em;
 }
-.grok-complete .well strong {
+.htm-it-complete .well strong {
   display: block;
   padding-bottom: 1em;
 }
 
-.grok-complete ol {
+.htm-it-complete ol {
   margin: 1em 0 1em 0;
 }
-.grok-complete ol.steps {
+.htm-it-complete ol.steps {
   border-bottom: 1px solid #eee;
   font-size: 110%;
   padding-bottom: 2em;
   margin: 2em 0 1em 0;
 }
 
-.grok-complete li {
+.htm-it-complete li {
   margin-bottom: 0.5em;
 }
-.grok-complete li:last-child {
+.htm-it-complete li:last-child {
   margin-bottom: 0;
   padding-bottom: 0;
 }
-.grok-complete li img {
+.htm-it-complete li img {
   margin: 0.5em 0 1em 0;
 }
-.grok-complete li dl {
+.htm-it-complete li dl {
   margin-top: 0.5em;
 }
 
-.grok-complete button {
+.htm-it-complete button {
 }
 

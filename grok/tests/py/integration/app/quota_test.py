@@ -29,20 +29,20 @@ import unittest
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-import grok
-from grok import logging_support
-from grok.app.webservices import (autostacks_api,
+import htm-it
+from htm-it import logging_support
+from htm-it.app.webservices import (autostacks_api,
                                   cloudwatch_api,
                                   custom_api,
                                   instances_api,
                                   models_api)
-from grok.test_utils.app.test_case_base import TestCaseBase
-from grok.test_utils.app.webservices import (
+from htm-it.test_utils.app.test_case_base import TestCaseBase
+from htm-it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   webservices_assertions as assertions)
 
-from grok.app.quota import QuotaConfig
-from grok.app import config
+from htm-it.app.quota import QuotaConfig
+from htm-it.app import config
 
 
 def setUpModule():
@@ -63,7 +63,7 @@ class QuotaTest(TestCaseBase):
     cls.customApp = TestApp(custom_api.app.wsgifunc())
     cls.instancesApp = TestApp(instances_api.app.wsgifunc())
     cls.modelApp = TestApp(models_api.app.wsgifunc())
-    cls.headers = getDefaultHTTPHeaders(grok.app.config)
+    cls.headers = getDefaultHTTPHeaders(htm-it.app.config)
 
     cls.plaintextPort = config.getint("metric_listener", "plaintext_port")
     cls.apiKey = config.get("security", "apikey")

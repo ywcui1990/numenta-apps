@@ -19,10 +19,10 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('Grok Backbone.Collection: AwsRegions', function() {
+describe('HTM-IT Backbone.Collection: AwsRegions', function() {
 
-    var api =         new GrokAPI({ apiKey: 'xxx' }),
-        collection =  new GROKUI.AwsRegionsCollection([], { api: api });
+    var api =         new HTM-ITAPI({ apiKey: 'xxx' }),
+        collection =  new HTM-ITUI.AwsRegionsCollection([], { api: api });
 
     it('should construct simply', function() {
         expect(collection).to.be.an('object');

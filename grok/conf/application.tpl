@@ -1,4 +1,4 @@
-# Grok Application Layer configuration
+# HTM-IT Application Layer configuration
 
 [debugging]
 # Controls whether to log performance profiling information: true or false
@@ -6,7 +6,7 @@ profiling = false
 
 # MySQL database connection parameters
 [repository]
-db = grok
+db = htm-it
 host = 127.0.0.1
 user = root
 passwd =
@@ -23,7 +23,7 @@ debug_level = 0
 
 [metric_streamer]
 # Exchange to push model results
-results_exchange_name = grok.model.results
+results_exchange_name = htm-it.model.results
 # Max records per batch to stream to model
 chunk_size = 1440
 
@@ -33,17 +33,17 @@ aws_secret_access_key =
 default_region = %(DEFAULT_EC2_REGION)s
 
 [usertrack]
-grok_id = %(GROK_ID)s
+htm-it_id = %(HTM-IT_ID)s
 optin =
 name =
 company =
 email =
 
 # epoch of last installed update
-grok_update_epoch = %(GROK_UPDATE_EPOCH)s
+htm-it_update_epoch = %(HTM-IT_UPDATE_EPOCH)s
 
 # Send to WUFOO: yes or no
-send_to_wufoo = %(GROK_SEND_TO_WUFOO)s
+send_to_wufoo = %(HTM-IT_SEND_TO_WUFOO)s
 
 # Wufoo credentials
 wufoo_url = %(WUFOO_URL)s
@@ -59,21 +59,21 @@ metric_error_grace_period = 10800
 [metric_listener]
 # Port to listen on for plaintext protocol messages
 plaintext_port = 2003
-queue_name = grok.metric.custom.data
+queue_name = htm-it.metric.custom.data
 
 [security]
 apikey =
 
 [notifications]
 sender = %(NOTIFICATIONS_SENDER_EMAIL)s
-subject = Grok: Unusual behavior seen on: {instance}
+subject = HTM-IT: Unusual behavior seen on: {instance}
 body_default = notification-body-default.tpl
 body_custom = notification-body-custom.tpl
 aws_access_key_id = %(NOTIFICATIONS_AWS_ACCESS_KEY_ID)s
 aws_secret_access_key = %(NOTIFICATIONS_AWS_SECRET_ACCESS_KEY)s
 
 [registration]
-subject = Welcome to Grok!
+subject = Welcome to HTM-IT!
 body = registration-body.tpl
 
 [anomaly_likelihood]

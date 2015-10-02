@@ -25,7 +25,7 @@ AMI unit tests for mysql support
 import agamotto
 import unittest
 
-from grok.app import repository
+from htm-it.app import repository
 
 
 
@@ -48,7 +48,7 @@ class TestMysqlInstallation(unittest.TestCase):
 
     # TODO: re-write after we decide how to deal with mysql customizations
     # on 5.6
-    # self.assertTrue(agamotto.file.exists('/etc/mysql/conf.d/grok-my.cnf'))
+    # self.assertTrue(agamotto.file.exists('/etc/mysql/conf.d/htm-it-my.cnf'))
 
 
   def testMysqlIsRunning(self):
@@ -61,7 +61,7 @@ class TestMysqlInstallation(unittest.TestCase):
 
   def testTablesCreatedWithInnoDBEngine(self):
     """
-    Tests to make sure that all of the tables in the grok table_schema were
+    Tests to make sure that all of the tables in the htm-it table_schema were
     created using the InnoDB engine to preserve referential integrity.
 
     At this time, it is checking all tables in the DB; in the future, if we do
@@ -71,7 +71,7 @@ class TestMysqlInstallation(unittest.TestCase):
     engine = repository.engineFactory()
     result = engine.execute("SELECT table_name, engine "
                             "FROM information_schema.tables "
-                            "WHERE table_schema = 'grok'")
+                            "WHERE table_schema = 'htm-it'")
 
     for row in result:
       self.assertEqual(row.engine, "InnoDB",

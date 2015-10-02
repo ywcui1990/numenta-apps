@@ -26,7 +26,7 @@
     /**
      * Backbone.View() - Embed: Charts > Slider
      */
-    GROKUI.EmbedChartsSliderView = Backbone.View.extend({
+    HTM-ITUI.EmbedChartsSliderView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -37,8 +37,8 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs(_viewName + '-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs(_viewName + '-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         // Backbone.View methods
 

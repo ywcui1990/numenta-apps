@@ -21,7 +21,7 @@
 
 (function() {
 
-    var _site = GROKUI.msgs('site'),
+    var _site = HTM-ITUI.msgs('site'),
 
         indexTimestamp =    _site.charts.instance.anomaly.index.timestamp,
         indexValue =        _site.charts.instance.anomaly.index.value,
@@ -30,11 +30,11 @@
     /**
      * Backbone.View() - Embed: Charts > Rows > Row (Instance)
      */
-    GROKUI.EmbedChartsRowInstanceView = GROKUI.EmbedChartsRowView.extend({
+    HTM-ITUI.EmbedChartsRowInstanceView = HTM-ITUI.EmbedChartsRowView.extend({
 
         // Backbone.View properties
 
-        className: 'grok-embed-charts-row-instance grok-embed-charts-row grok-panel',
+        className: 'htm-it-embed-charts-row-instance htm-it-embed-charts-row htm-it-panel',
 
 
         // Custom properties
@@ -50,7 +50,7 @@
          * Backbone.View.initialize() INSTANCE row
          */
         initialize: function(options) {
-            GROKUI.EmbedChartsRowView.prototype.initialize.call(this, options);
+            HTM-ITUI.EmbedChartsRowView.prototype.initialize.call(this, options);
 
             this.chartOptions.axisLabelColor =  this.color.gray.lite.toHex();
             this.chartOptions.axisLineColor =   this.color.white.toHex();
@@ -94,7 +94,7 @@
             if (this.annotations) {
                 this.chart.setAnnotations(this.getFormattedAnnotations());
             }
-            GROKUI.EmbedChartsRowView.prototype.render.call(this, options);
+            HTM-ITUI.EmbedChartsRowView.prototype.render.call(this, options);
             return this;
         },
 
@@ -112,8 +112,8 @@
          */
         handleAnnotation: function(annotation, point, chart, event) {
             // Show annotation list for the clicked annotation timestamp
-            var from = GROKUI.utils.getUTCTimestamp(new Date(annotation.x));
-            var to = GROKUI.utils.getUTCTimestamp(new Date(annotation.x + this.minutesPerBar * 60000));
+            var from = HTM-ITUI.utils.getUTCTimestamp(new Date(annotation.x));
+            var to = HTM-ITUI.utils.getUTCTimestamp(new Date(annotation.x + this.minutesPerBar * 60000));
             var server = this.instanceId;
             var filteredAnnotations = this.annotations.filter(function(model) {
                 return model.get('server') == server &&
@@ -122,7 +122,7 @@
             });
 
             // Open Annotation List
-            var view = new GROKUI.AnnotationListView({
+            var view = new HTM-ITUI.AnnotationListView({
                 api:          this.api,
                 instance:     this.instanceId,
                 tagName:      this.tagName,  
@@ -150,7 +150,7 @@
             var msPerBar = this.minutesPerBar * 60000;
             var groupedAnnotations = _.groupBy(filteredAnnotations,
                     function(ann) {
-                        var timestamp = GROKUI.utils.getUTCDateFromTimestamp(ann.get('timestamp'));
+                        var timestamp = HTM-ITUI.utils.getUTCDateFromTimestamp(ann.get('timestamp'));
                         return Math.floor(timestamp.getTime() / msPerBar) * msPerBar;
                     });
 
@@ -162,7 +162,7 @@
                   x: parseInt(timestamp), // Annotation timestamp value
                   series: "Y1", // Default Y series
                   tickHeight: 0, // Don't draw tick line.
-                  cssClass: "grok-embed-charts-row-annotation",
+                  cssClass: "htm-it-embed-charts-row-annotation",
                   text:"",
                   clickHandler: this.handleAnnotation.bind(this)
                 });
@@ -171,9 +171,9 @@
         },
 
         /**
-         * Format INSTANCE data to be sent to FaceOfGrok/DyGraphs chart
+         * Format INSTANCE data to be sent to FaceOfHTM-IT/DyGraphs chart
          * @returns {array} List of datapoints (themselves arrays) ready for
-         *  FaceOfGrok/Dygraphs.
+         *  FaceOfHTM-IT/Dygraphs.
          */
         getFormattedData: function() {
             var instanceData = this.getInstancesFromMetrics(),

@@ -1,8 +1,8 @@
-# Grok System Quota Configuration
+# HTM-IT System Quota Configuration
 
 
 [instance_quota_table]
-# Instance quota table for Grok on the supported Grok host instance types
+# Instance quota table for HTM-IT on the supported HTM-IT host instance types
 
 standard.ec2.m1.medium = 32
 standard.ec2.m1.large = 65
@@ -18,7 +18,7 @@ standard.dev.dev = 1000
 
 
 [actual]
-# Actual quota as determined and overridden dynamically by the grok.app.quota
-# module at runtime before Grok services are started.
+# Actual quota as determined and overridden dynamically by the htm-it.app.quota
+# module at runtime before HTM-IT services are started.
 
 instance_quota = 32

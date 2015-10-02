@@ -21,11 +21,11 @@
 
 (function() {
 
-    GROKUI.NoSuggestedInstancesView = Backbone.View.extend({
+    HTM-ITUI.NoSuggestedInstancesView = Backbone.View.extend({
 
         template: _.template($('#no-suggested-instances-tmpl').html()),
 
-        site: GROKUI.msgs('site'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {},
 

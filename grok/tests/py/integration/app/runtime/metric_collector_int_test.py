@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-Integration tests for grok.app.runtime.metric_collector
+Integration tests for htm-it.app.runtime.metric_collector
 
 TODO Need to test unhappy paths, too
 """
@@ -37,7 +37,7 @@ import tempfile
 import threading
 import time
 import unittest
-from grok.app.quota import Quota
+from htm-it.app.quota import Quota
 
 
 from nupic.support.decorators import retry
@@ -47,18 +47,18 @@ from nta.utils.test_utils import ManagedSubprocessTerminator
 from nta.utils.test_utils.amqp_test_utils import RabbitmqVirtualHostPatch
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-from grok.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 
-import grok.app
-from grok.app import repository
-from grok.app.adapters.datasource import createCloudwatchDatasourceAdapter
-from grok.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
-from grok.app.repository.queries import MetricStatus
+import htm-it.app
+from htm-it.app import repository
+from htm-it.app.adapters.datasource import createCloudwatchDatasourceAdapter
+from htm-it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
+from htm-it.app.repository.queries import MetricStatus
 
 from htmengine.model_swapper.model_swapper_interface import (
   ModelSwapperInterface)
 
-from grok import logging_support
+from htm-it import logging_support
 
 
 
@@ -85,14 +85,14 @@ def _waitForServiceReady(outputFilePath):
 
 
 # NOTE: The aws credentials in application.conf initially have empty
-#  string values, expecting to be set via the /grok/welcome screen. Since this
-#  test doesn't involve grok-api, we will get the credentials from environment
+#  string values, expecting to be set via the /htm-it/welcome screen. Since this
+#  test doesn't involve htm-it-api, we will get the credentials from environment
 #  variables as that the test environments are expected to set and apply them
 #  as config overrides.
 @RabbitmqVirtualHostPatch(clientLabel="MetricCollectorTestCase")
 @ConfigAttributePatch(
-  grok.app.config.CONFIG_NAME,
-  grok.app.config.baseConfigDir,
+  htm-it.app.config.CONFIG_NAME,
+  htm-it.app.config.baseConfigDir,
   (
     ("metric_collector", "poll_interval", "1.0"),
   )
@@ -101,12 +101,12 @@ class MetricCollectorTestCase(unittest.TestCase):
   """
   Fast facts about Metric Collector:
     Metric polling interval is controlled by:
-      grok.app.config.getfloat("metric_collector", "poll_interval")
+      htm-it.app.config.getfloat("metric_collector", "poll_interval")
 
     Publishes data points via ModelSwapperInterface.submitRequests
 
     Output data point batch size is controlled by:
-      grok.app.config.getint("metric_streamer", "chunk_size")
+      htm-it.app.config.getint("metric_streamer", "chunk_size")
 
   """
 
@@ -129,7 +129,7 @@ class MetricCollectorTestCase(unittest.TestCase):
 
     try:
       p = subprocess.Popen(args=[sys.executable, "-m",
-                                 "grok.app.runtime.metric_collector"],
+                                 "htm-it.app.runtime.metric_collector"],
                            stdin=subprocess.PIPE,
                            stdout=stdout,
                            stderr=stderr)

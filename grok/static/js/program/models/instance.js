@@ -52,14 +52,14 @@
   };
 
   /**
-   * Backbone.js Model for a Grok Monitored Instance (/_instances API endpoint)
+   * Backbone.js Model for a HTM-IT Monitored Instance (/_instances API endpoint)
    * @constructor
    * @copyright © 2014 Numenta
    * @public
    * @requires Backbone.js
    * @returns {Object} Backbone.js Model object
    */
-  GROKUI.InstanceModel = Backbone.Model.extend({
+  HTM-ITUI.InstanceModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 
@@ -149,7 +149,7 @@
       if((instance.namespace.match(site.namespaces.aws.real) ||
           instance.namespace.match("Autostacks/")) &&
          instance.server.match(site.instances.types.autostack)) {
-        // Grok Autostack pretty display name
+        // HTM-IT Autostack pretty display name
         instance.display =
           instance.name + ' (' +
           site.name + ' ' +
@@ -184,7 +184,7 @@
     parseLocation: function(instance) {
       if(! instance.location) {
         instance.location = this.collection.site.name;
-        instance.namespace = this.collection.site.namespaces.grok.custom;
+        instance.namespace = this.collection.site.namespaces.htm-it.custom;
       }
       return instance;
     },

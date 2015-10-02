@@ -1,8 +1,8 @@
-.grok-page > .row:first-child {
+.htm-it-page > .row:first-child {
     margin-bottom: -1em;
 }
 
-.grok-page h3 + p {
+.htm-it-page h3 + p {
     border: 1px solid #ccc;
     border-bottom: 0;
     border-radius: 0.25em;

@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.CompleteView = Backbone.View.extend({
+    HTM-ITUI.CompleteView = Backbone.View.extend({
 
         template: _.template($('#complete-tmpl').html()),
 
-        msgs: GROKUI.msgs('complete-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('complete-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'click #next': 'handleNext',
@@ -36,16 +36,16 @@
             var me = this;
             me.api = options.api;
 
-            GROKUI.utils.title(me.msgs.title);
+            HTM-ITUI.utils.title(me.msgs.title);
 
             // setup? deactive header logo link & hide header setup menu
-            if(GROKUI.utils.isSetupFlow()) {
+            if(HTM-ITUI.utils.isSetupFlow()) {
                 $('.navbar-brand').attr('href', '#');
             }
 
             // go setup if they have not yet
-            if(! GROKUI.utils.isAuthorized()) {
-                GROKUI.utils.go(me.site.paths.welcome);
+            if(! HTM-ITUI.utils.isAuthorized()) {
+                HTM-ITUI.utils.go(me.site.paths.welcome);
                 return;
             }
 
@@ -54,13 +54,13 @@
 
         render: function(settings) {
             var me = this,
-                step = GROKUI.utils.getSetupTotalSteps(),
+                step = HTM-ITUI.utils.getSetupTotalSteps(),
                 data = {
                     baseUrl:    NTA.baseUrl,
                     msgs:       me.msgs,
                     site:       me.site,
-                    isSetup:    GROKUI.utils.isSetupFlow(),
-                    apiKey:     GROKUI.utils.store.get('apiKey'),
+                    isSetup:    HTM-ITUI.utils.isSetupFlow(),
+                    apiKey:     HTM-ITUI.utils.store.get('apiKey'),
                     step:       step,
                     clientUrl: window.location.protocol + '//' +
                                     window.location.hostname +
@@ -72,8 +72,8 @@
 
             me.$el.html(me.template(data));
 
-            if(GROKUI.utils.isSetupFlow()) {
-                setupProgressBar = GROKUI.utils.getSetupProgressBar(
+            if(HTM-ITUI.utils.isSetupFlow()) {
+                setupProgressBar = HTM-ITUI.utils.getSetupProgressBar(
                     step, $('#progress-bar-container'));
             }
 
@@ -84,7 +84,7 @@
         handleNext: function(event) {
             event.preventDefault();
             event.stopPropagation();
-            GROKUI.utils.go(this.site.paths.manage);
+            HTM-ITUI.utils.go(this.site.paths.manage);
         }
 
     });

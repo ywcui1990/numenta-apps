@@ -1,6 +1,6 @@
 window.NTA = {};
 
-window.GROKUI = {
+window.HTM-ITUI = {
     msgs: function() {
         return {
             title: 'Test Title',

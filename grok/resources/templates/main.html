@@ -76,7 +76,7 @@ $def with (data)
         <footer>
             <div class="container text-muted text-center">
                 <ul class="list-inline">
-                    <li><a href="http://www.numenta.com/grok" target="_blank">About</a></li>
+                    <li><a href="http://www.numenta.com/htm-it" target="_blank">About</a></li>
                     <li><a href="http://www.numenta.com/support/" target="_blank">Help</a></li>
                     <li>
                         © $data['year']
@@ -97,10 +97,10 @@ $def with (data)
         <script src="$data['baseUrl']/static/bower_components/labjs/LAB.min.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/bower_components/bootstrap/dist/js/bootstrap.min.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/bower_components/bootbox/bootbox.min.js?v=$data['product']['version']"></script>
-        <!-- Grok Init -->
-        <script src="$data['baseUrl']/static/js/lib/grok/nta.js?v=$data['product']['version']"></script>
+        <!-- HTM-IT Init -->
+        <script src="$data['baseUrl']/static/js/lib/htm-it/nta.js?v=$data['product']['version']"></script>
         <script>
-            window.GROKUI = {
+            window.HTM-ITUI = {
                 _apiEndpoint: "$data['endpoint']",
                 embed: {
                     height: "$data['embed']['height']",
@@ -118,14 +118,14 @@ $def with (data)
             };
             NTA.baseUrl = "$data['baseUrl']";
         </script>
-        <!-- Grok API -->
-        <script src="$data['baseUrl']/static/js/lib/grok/GrokAPI.js?v=$data['product']['version']"></script>
+        <!-- HTM-IT API -->
+        <script src="$data['baseUrl']/static/js/lib/htm-it/HTM-ITAPI.js?v=$data['product']['version']"></script>
         <!-- Backbone.Model(s) -->
         <script src="$data['baseUrl']/static/js/program/models/awsMetric.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/models/awsNamespace.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/models/awsRegion.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/program/models/grokAutostack.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/program/models/grokCustomMetric.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/program/models/htm-itAutostack.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/program/models/htm-itCustomMetric.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/models/annotation.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/models/instance.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/models/model.js?v=$data['product']['version']"></script>
@@ -135,17 +135,17 @@ $def with (data)
         <script src="$data['baseUrl']/static/js/program/collections/awsMetrics.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/collections/awsNamespaces.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/collections/awsRegions.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/program/collections/grokAutostacks.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/program/collections/grokCustomMetrics.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/program/collections/htm-itAutostacks.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/program/collections/htm-itCustomMetrics.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/collections/annotations.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/collections/instances.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/collections/models.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/collections/modelExports.js?v=$data['product']['version']"></script>
-        <!-- Grok Web UI -->
-        <script src="$data['baseUrl']/static/js/lib/grok/utils.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/lib/grok/loader.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/program/grok-routes.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/lib/grok/router.js?v=$data['product']['version']"></script>
+        <!-- HTM-IT Web UI -->
+        <script src="$data['baseUrl']/static/js/lib/htm-it/utils.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/lib/htm-it/loader.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/program/htm-it-routes.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/lib/htm-it/router.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/global.js?v=$data['product']['version']"></script>
     </body>
 </html>

@@ -29,7 +29,7 @@
    * @requires Backbone, Backbone.Model
    * @returns {Object} Backbone.Model object
    */
-  GROKUI.AwsNamespaceModel = Backbone.Model.extend({
+  HTM-ITUI.AwsNamespaceModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

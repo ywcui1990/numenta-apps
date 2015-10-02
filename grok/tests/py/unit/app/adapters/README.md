@@ -1,1 +1,1 @@
-Unit tests for Grok Adapters.
+Unit tests for HTM-IT Adapters.

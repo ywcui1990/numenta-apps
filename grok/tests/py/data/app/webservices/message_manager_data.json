@@ -3,29 +3,29 @@
     },
 
     "site": {
-        "name": "Grok",
+        "name": "HTM-IT",
         "company": {
             "name": "Numenta",
             "url": "http://www.numenta.com"
         },
         "paths": {
-            "welcome":          "/grok/welcome",
-            "auth":             "/grok/auth",
-            "register":         "/grok/register",
-            "confirm":          "/grok/confirm",
-            "instances-auto":   "/grok/instances/auto",
-            "instances-manual": "/grok/instances/manual",
-            "instances-import": "/grok/instances/import",
-            "autostack":        "/grok/instances/autostack",
-            "manage-custom-metrics": "/grok/custom",
-            "notify":           "/grok/notify",
-            "complete":         "/grok/complete",
-            "manage":           "/grok",
-            "charts":           "/grok/embed/charts",
+            "welcome":          "/htm-it/welcome",
+            "auth":             "/htm-it/auth",
+            "register":         "/htm-it/register",
+            "confirm":          "/htm-it/confirm",
+            "instances-auto":   "/htm-it/instances/auto",
+            "instances-manual": "/htm-it/instances/manual",
+            "instances-import": "/htm-it/instances/import",
+            "autostack":        "/htm-it/instances/autostack",
+            "manage-custom-metrics": "/htm-it/custom",
+            "notify":           "/htm-it/notify",
+            "complete":         "/htm-it/complete",
+            "manage":           "/htm-it",
+            "charts":           "/htm-it/embed/charts",
             "update":           "/static/maintenance.html"
         },
         "resources": {
-            "help": "http://www.numenta.com/assets/pdf/grok/resources/%version%/Grok-%version%-MasterGuide.pdf"
+            "help": "http://www.numenta.com/assets/pdf/htm-it/resources/%version%/HTM-IT-%version%-MasterGuide.pdf"
         },
         "buttons": {
             "agree":    "Agree",
@@ -90,7 +90,7 @@
                 "load": "Loading instance metrics",
                 "start": "Selecting metric for monitoring",
                 "stop": "Removing metric from monitoring",
-                "remove": "Deleting metric(s) from Grok"
+                "remove": "Deleting metric(s) from HTM-IT"
             },
             "save": "Saving",
             "update": "Updating"
@@ -98,9 +98,9 @@
         "regions": {
             "type": {
                 "aws":  "AWS",
-                "grok": "Custom"
+                "htm-it": "Custom"
             },
-            "grok": {
+            "htm-it": {
                 "custom": "Custom Metrics"
             }
         },
@@ -108,8 +108,8 @@
             "aws": {
                 "real":     "AWS/"
             },
-            "grok": {
-                "custom":   "Custom Grok"
+            "htm-it": {
+                "custom":   "Custom HTM-IT"
             }
         },
         "instances": {

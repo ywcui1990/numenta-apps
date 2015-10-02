@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.AlertUpdateView = Backbone.View.extend({
+    HTM-ITUI.AlertUpdateView = Backbone.View.extend({
 
         template: _.template($('#alert-update-tmpl').html()),
 
-        msgs: GROKUI.msgs('alert-update-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('alert-update-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'click button': 'handleButtonClick'
@@ -55,9 +55,9 @@
         handleButtonClick: function(event) {
             var me = this;
             me.api.setUpdate(function(error) {
-                if(error) return GROKUI.utils.modalError(error);
-                GROKUI.utils.store.clear('originalGrokSHA');
-                GROKUI.utils.go(me.site.paths.update);
+                if(error) return HTM-ITUI.utils.modalError(error);
+                HTM-ITUI.utils.store.clear('originalHTM-ITSHA');
+                HTM-ITUI.utils.go(me.site.paths.update);
             });
         }
 

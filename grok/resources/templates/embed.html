@@ -10,7 +10,7 @@ $def with (data)
         <link rel="stylesheet" type="text/css" href="$data['baseUrl']/static/bower_components/bootstrap/dist/css/bootstrap.min.css?v=$data['product']['version']" />
         <link rel="stylesheet" type="text/css" href="$data['baseUrl']/static/css/global.css?v=$data['product']['version']" />
     </head>
-    <body class="grok-embed">
+    <body class="htm-it-embed">
         <!-- actual content -->
         <section id="content" class="container-fluid"></section>
 
@@ -27,9 +27,9 @@ $def with (data)
         <script src="$data['baseUrl']/static/bower_components/labjs/LAB.min.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/bower_components/bootstrap/dist/js/bootstrap.min.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/bower_components/bootbox/bootbox.min.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/lib/grok/nta.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/lib/htm-it/nta.js?v=$data['product']['version']"></script>
         <script>
-            window.GROKUI = {
+            window.HTM-ITUI = {
                 _apiEndpoint: "$data['endpoint']",
                 apiKey: "$data['apiKey']",
                 embed: {
@@ -45,8 +45,8 @@ $def with (data)
             };
             NTA.baseUrl = "$data['baseUrl']";
         </script>
-        <!-- Grok API -->
-        <script src="$data['baseUrl']/static/js/lib/grok/GrokAPI.js?v=$data['product']['version']"></script>
+        <!-- HTM-IT API -->
+        <script src="$data['baseUrl']/static/js/lib/htm-it/HTM-ITAPI.js?v=$data['product']['version']"></script>
         <!-- Backbone.Model(s) -->
         <script src="$data['baseUrl']/static/js/program/models/annotation.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/models/model.js?v=$data['product']['version']"></script>
@@ -54,11 +54,11 @@ $def with (data)
         <!-- Backbone.Collection(s) -->
         <script src="$data['baseUrl']/static/js/program/collections/annotations.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/collections/models.js?v=$data['product']['version']"></script>
-        <!-- Grok Web UI -->
-        <script src="$data['baseUrl']/static/js/lib/grok/utils.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/lib/grok/loader.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/program/grok-routes.js?v=$data['product']['version']"></script>
-        <script src="$data['baseUrl']/static/js/lib/grok/router.js?v=$data['product']['version']"></script>
+        <!-- HTM-IT Web UI -->
+        <script src="$data['baseUrl']/static/js/lib/htm-it/utils.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/lib/htm-it/loader.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/program/htm-it-routes.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/lib/htm-it/router.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/global.js?v=$data['product']['version']"></script>
     </body>
 </html>

@@ -27,8 +27,8 @@
 
 import unittest
 
-# TODO: Remove reference to grok (TAUR-708)
-import grok.app.adapters.datasource as datasource_adapter_factory
+# TODO: Remove reference to htm-it (TAUR-708)
+import htm-it.app.adapters.datasource as datasource_adapter_factory
 
 from nta.utils.logging_support_raw import LoggingSupport
 

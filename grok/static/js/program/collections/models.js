@@ -22,19 +22,19 @@
 (function() {
 
   /**
-   * Backbone.js Collection for a group of Grok Metrics/Models, source being
+   * Backbone.js Collection for a group of HTM-IT Metrics/Models, source being
    *  the /_models API endpoint.
    * @constructor
    * @copyright © 2014-2015 Numenta
    * @public
-   * @requires Backbone.js, Grok ModelModel class
+   * @requires Backbone.js, HTM-IT ModelModel class
    * @returns {Object} Backbone.js Collection object
    */
-  GROKUI.ModelsCollection = Backbone.Collection.extend({
+  HTM-ITUI.ModelsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: GROKUI.ModelModel,
+    model: HTM-ITUI.ModelModel,
 
     // Custom properties
 
@@ -92,19 +92,19 @@
   });
 
   /**
-   * Backbone.js Collection for a group of Grok Metrics/Models sorted by
+   * Backbone.js Collection for a group of HTM-IT Metrics/Models sorted by
    * anomaly, source being the /_anomalies API endpoint.
    * @constructor
    * @copyright © 2014-2015 Numenta
    * @public
-   * @requires Backbone.js, Grok ModelModel class
+   * @requires Backbone.js, HTM-IT ModelModel class
    * @returns {Object} Backbone.js Collection object
    */
-  GROKUI.SortedModelsCollection = Backbone.Collection.extend({
+  HTM-ITUI.SortedModelsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: GROKUI.ModelModel,
+    model: HTM-ITUI.ModelModel,
 
     // Custom properties
 

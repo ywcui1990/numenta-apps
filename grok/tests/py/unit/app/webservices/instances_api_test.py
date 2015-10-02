@@ -30,12 +30,12 @@ import unittest
 from mock import patch, Mock
 from paste.fixture import TestApp
 
-from grok.app import config, GROK_HOME, repository
+from htm-it.app import config, HTM-IT_HOME, repository
 from htmengine import utils as app_utils
-from grok.app.adapters import datasource
-from grok.app.exceptions import QuotaError
-from grok.app.webservices import instances_api, models_api
-from grok.test_utils.app.webservices import (
+from htm-it.app.adapters import datasource
+from htm-it.app.exceptions import QuotaError
+from htm-it.app.webservices import instances_api, models_api
+from htm-it.test_utils.app.webservices import (
     getDefaultHTTPHeaders, webservices_assertions as assertions)
 
 
@@ -94,7 +94,7 @@ class InstancesHandlerTest(unittest.TestCase):
     Test for Get "/_instances"
     response is validated for appropriate headers, body and status
     """
-    instancesAPIData = json.load(open(os.path.join(GROK_HOME,
+    instancesAPIData = json.load(open(os.path.join(HTM-IT_HOME,
       "tests/py/data/app/webservices/instances_api.json")))
     getInstancesMock.return_value = instancesAPIData["getInstances"]
 
@@ -132,7 +132,7 @@ class InstancesHandlerTest(unittest.TestCase):
       .return_value)
 
 
-  @patch("grok.app.webservices.instances_api.repository.getInstances",
+  @patch("htm-it.app.webservices.instances_api.repository.getInstances",
          autospec=True)
   def testGetInstancesHandlerNonEmptyResponseWithSlash(self,
                                                        getInstancesMock,
@@ -141,7 +141,7 @@ class InstancesHandlerTest(unittest.TestCase):
     Test for Get "/_instances/"
     response is validated for appropriate headers, body and status
     """
-    instancesAPIData = json.load(open(os.path.join(GROK_HOME,
+    instancesAPIData = json.load(open(os.path.join(HTM-IT_HOME,
       "tests/py/data/app/webservices/instances_api.json")))
     getInstancesMock.return_value = instancesAPIData["getInstances"]
 
@@ -158,7 +158,7 @@ class InstancesHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "listMetricIDsForInstance", autospec=True)
-  @patch("grok.app.webservices.models_api.ModelHandler.deleteModel",
+  @patch("htm-it.app.webservices.models_api.ModelHandler.deleteModel",
     new=Mock(spec_set=models_api.ModelHandler.deleteModel))
   def testDeleteInstancesHandler(self, listMetricIDsMock, engineFactoryMock):
     """
@@ -167,7 +167,7 @@ class InstancesHandlerTest(unittest.TestCase):
     """
     listMetricIDsMock.return_value = \
       ["2490fb7a9df5470fa3678530c4cb0a43", "b491ab2310ef4a799b14c08fa3e09f1c"]
-    params = ["grok-docs-elb", "i-e16bd2d5"]
+    params = ["htm-it-docs-elb", "i-e16bd2d5"]
     response = self.app.delete("", params=app_utils.jsonEncode(params),
       headers=self.headers)
     assertions.assertDeleteSuccessResponse(self, response)
@@ -180,7 +180,7 @@ class InstancesHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "listMetricIDsForInstance", autospec=True)
-  @patch("grok.app.webservices.models_api.ModelHandler.deleteModel",
+  @patch("htm-it.app.webservices.models_api.ModelHandler.deleteModel",
     new=Mock(spec_set=models_api.ModelHandler.deleteModel))
   def testDeleteInstancesHandlerNonJSONData(self, listMetricIDsMock,
                                             _engineFactoryMock):
@@ -195,7 +195,7 @@ class InstancesHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "listMetricIDsForInstance", autospec=True)
-  @patch("grok.app.webservices.models_api.ModelHandler.deleteModel",
+  @patch("htm-it.app.webservices.models_api.ModelHandler.deleteModel",
     new=Mock(spec_set=models_api.ModelHandler.deleteModel))
   def testDeleteInstancesHandlerEmptyData(self, listMetricIDsMock,
                                             _engineFactoryMock):
@@ -222,7 +222,7 @@ class InstanceHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "listMetricIDsForInstance", autospec=True)
-  @patch("grok.app.webservices.models_api.ModelHandler.deleteModel",
+  @patch("htm-it.app.webservices.models_api.ModelHandler.deleteModel",
     new=Mock(spec_set=models_api.ModelHandler.deleteModel))
   def testDeleteInstanceHandler(self, listMetricIDsMock, engineFactoryMock):
     """
@@ -254,7 +254,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "listMetricIDsForInstance", autospec=True)
-  @patch("grok.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel))
   def testInstanceDefaultsHandlerPOST(
       self, listMetricIDsMock, _engineFactoryMock):
@@ -298,7 +298,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "getMetricCountForServer", autospec=True)
-  @patch("grok.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel,
       side_effect=QuotaError("Server limit reached.")))
   def testInstanceDefaultsHandlerPOSTQuotaError(self,
@@ -318,7 +318,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
     self.assertEqual(result, {"result": "Server limit reached."})
 
 
-  @patch("grok.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel))
   def testInstanceDefaultsHandlerPOSTWithoutInstanceId(self,
                                                        _engineFactoryMock):
@@ -332,7 +332,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
     self.assertIn("Invalid request", response.body)
 
 
-  @patch("grok.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel))
   def testInstanceDefaultsHandlerPOSTInvalidNamespace(self, _engineFactoryMock):
     """
@@ -346,7 +346,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
     self.assertIn("Not supported.", response.body)
 
 
-  @patch("grok.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel))
   def testInstanceDefaultsHandlerPOSTInvalidNamespeceInsteadAWS(
       self, _engineFactoryMock):
@@ -361,7 +361,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
     self.assertIn("Not supported.", response.body)
 
 
-  @patch("grok.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel))
   def testInstanceDefaultsHandlerPOSTInvalidRegion(self, _engineFactoryMock):
     """

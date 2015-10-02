@@ -1,11 +1,11 @@
-.grok-embed-charts-markers {
+.htm-it-embed-charts-markers {
   background-color: #eee;
   height: 22px;
   overflow: hidden;
   padding-top: 1px;
 }
 
-.grok-embed-charts-markers > span {
+.htm-it-embed-charts-markers > span {
   background-color: #e80e8a;
   color: #fff;
   height: 20px;
@@ -15,7 +15,7 @@
   opacity: 0.55;
   position: absolute;
 }
-.grok-embed-charts-markers > span > aside {
+.htm-it-embed-charts-markers > span > aside {
   border-left: 1px solid #e80e8a;
   display: inline;
   height: 100px;

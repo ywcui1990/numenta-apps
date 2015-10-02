@@ -1,4 +1,4 @@
-# Grok Model Swapper Configuration
+# HTM-IT Model Swapper Configuration
 
 [debugging]
 # Controls whether to log performance profiling information: true or false
@@ -9,13 +9,13 @@ profiling = false
 [interface_bus]
 
 # Name of the queue for model command and inference results
-results_queue = grok.mswapper.results
+results_queue = htm-it.mswapper.results
 
 # A model's input queue name is the concatenation of this prefix and model id
-model_input_queue_prefix = grok.mswapper.model.input.
+model_input_queue_prefix = htm-it.mswapper.model.input.
 
 # Name of the Model Scheduler notification queue
-scheduler_notification_queue = grok.mswapper.scheduler.notification
+scheduler_notification_queue = htm-it.mswapper.scheduler.notification
 
 
 [model_runner]

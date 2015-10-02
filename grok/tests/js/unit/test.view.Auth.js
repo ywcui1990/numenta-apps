@@ -19,17 +19,17 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('Grok Backbone.View: Auth', function() {
+describe('HTM-IT Backbone.View: Auth', function() {
 
-    var api =   new GrokAPI({ apiKey: 'xxx' }),
-        view =  new GROKUI.AuthView({ api: api });
+    var api =   new HTM-ITAPI({ apiKey: 'xxx' }),
+        view =  new HTM-ITUI.AuthView({ api: api });
 
     it('should construct simply', function() {
         expect(view).to.be.an('object');
     });
 
     it('should affect page title', function() {
-        expect(document.title).to.contain(GROKUI.msgs('auth-tmpl').title);
+        expect(document.title).to.contain(HTM-ITUI.msgs('auth-tmpl').title);
     });
 
 });

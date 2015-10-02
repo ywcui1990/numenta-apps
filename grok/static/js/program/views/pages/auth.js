@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.AuthView = Backbone.View.extend({
+    HTM-ITUI.AuthView = Backbone.View.extend({
 
         template: _.template($('#auth-tmpl').html()),
 
-        msgs: GROKUI.msgs('auth-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('auth-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'click #back' : 'handleBack',
@@ -47,19 +47,19 @@
 
             me.api = options.api;
 
-            GROKUI.utils.title(me.msgs.title);
+            HTM-ITUI.utils.title(me.msgs.title);
 
             // setup? deactive header logo link & hide header setup menu
-            if(GROKUI.utils.isSetupFlow()) {
+            if(HTM-ITUI.utils.isSetupFlow()) {
                 $('.navbar-brand').attr('href', '#');
             }
 
-            if(GROKUI.utils.isAuthorized()) {
+            if(HTM-ITUI.utils.isAuthorized()) {
                 // if logged in with apikey, get previous settings
                 me.api.getSettings(
                     me.api.CONST.SETTINGS.SECTIONS.AWS,
                     function(error, settings) {
-                        if(error) return GROKUI.utils.modalError(error);
+                        if(error) return HTM-ITUI.utils.modalError(error);
                         me.previousKey = settings[me.api.CONST.SETTINGS.AWS.KEY];
                         me.render(settings);
                     }
@@ -80,10 +80,10 @@
                     baseUrl: NTA.baseUrl,
                     msgs: me.msgs,
                     site: me.site,
-                    isSetup: GROKUI.utils.isSetupFlow(),
+                    isSetup: HTM-ITUI.utils.isSetupFlow(),
                     button: {
                         back: me.site.buttons.back,
-                        next: GROKUI.utils.isSetupFlow() ?
+                        next: HTM-ITUI.utils.isSetupFlow() ?
                             me.site.buttons.next : (
                                 settings[me.api.CONST.SETTINGS.AWS.KEY] ?
                                     me.site.buttons.done : me.site.buttons.save
@@ -100,8 +100,8 @@
 
             me.$el.html(me.template(data));
 
-            if(GROKUI.utils.isSetupFlow()) {
-                setupProgressBar = GROKUI.utils.getSetupProgressBar(
+            if(HTM-ITUI.utils.isSetupFlow()) {
+                setupProgressBar = HTM-ITUI.utils.getSetupProgressBar(
                     step, $('#progress-bar-container'));
             }
 
@@ -118,7 +118,7 @@
         handleBack: function(event) {
             event.stopPropagation();
             event.preventDefault();
-            GROKUI.utils.go(this.site.paths.register + window.location.search);
+            HTM-ITUI.utils.go(this.site.paths.register + window.location.search);
         },
 
         handleFormSubmit: function(event) {
@@ -128,9 +128,9 @@
                 settings = {},
                 destination = null;
 
-            if(GROKUI.utils.isSetupFlow()) {
+            if(HTM-ITUI.utils.isSetupFlow()) {
                 // setup flow
-                if(GROKUI.utils.isExpert()) {
+                if(HTM-ITUI.utils.isExpert()) {
                     // expert setup flow
                     destination = me.site.paths.complete;
                 }
@@ -153,11 +153,11 @@
 
             // if already entered a key, no form, just next page simply
             if(me.previousKey) {
-                GROKUI.utils.go(destination);
+                HTM-ITUI.utils.go(destination);
                 return;
             }
 
-            GROKUI.utils.throb.start(me.site.state.auth);
+            HTM-ITUI.utils.throb.start(me.site.state.auth);
 
             settings[me.api.CONST.SETTINGS.AWS.KEY] = $key.val();
             settings[me.api.CONST.SETTINGS.AWS.SECRET] = $secret.val();
@@ -177,11 +177,11 @@
                         $secret.parents('.form-group').addClass('has-error');
                         $secret.val('');
                     }
-                    return GROKUI.utils.modalError(error);
+                    return HTM-ITUI.utils.modalError(error);
                 }
 
                 // "login"
-                GROKUI.utils.store.set('apiKey', results.apikey);
+                HTM-ITUI.utils.store.set('apiKey', results.apikey);
 
                 // update API instance with key
                 me.api.setApiKey(results.apikey);
@@ -191,8 +191,8 @@
                     settings,
                     me.api.CONST.SETTINGS.SECTIONS.AWS,
                     function(error) {
-                        if(error) return GROKUI.utils.modalError(error);
-                        GROKUI.utils.go(destination);
+                        if(error) return HTM-ITUI.utils.modalError(error);
+                        HTM-ITUI.utils.go(destination);
                     }
                 );
             });

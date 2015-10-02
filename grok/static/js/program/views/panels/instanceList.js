@@ -21,7 +21,7 @@
 
 (function() {
 
-    GROKUI.InstanceListView = Backbone.View.extend({
+    HTM-ITUI.InstanceListView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -37,8 +37,8 @@
         // Custom properties
 
         api:    null,
-        msgs:   GROKUI.msgs('instance-list-tmpl'),
-        site:   GROKUI.msgs('site'),
+        msgs:   HTM-ITUI.msgs('instance-list-tmpl'),
+        site:   HTM-ITUI.msgs('site'),
 
         data: {
             autostacks: null,
@@ -63,7 +63,7 @@
                 },
                 fetchOpts = {
                     error: function(model, response, options) {
-                        return GROKUI.utils.modalError(response);
+                        return HTM-ITUI.utils.modalError(response);
                     }
                 },
                 dataExists = function(key) {
@@ -77,31 +77,31 @@
 
             this.data.autostacks = dataExists('autostacks') ?
                 options.data.autostacks :
-                new GROKUI.GrokAutostacksCollection([], collectOpts);
+                new HTM-ITUI.HTM-ITAutostacksCollection([], collectOpts);
 
             this.data.customs = dataExists('customs') ?
                 options.data.customs :
-                new GROKUI.GrokCustomMetricsCollection([], collectOpts);
+                new HTM-ITUI.HTM-ITCustomMetricsCollection([], collectOpts);
 
             this.data.exports = dataExists('exports') ?
                 options.data.exports :
-                new GROKUI.ModelExportsCollection([], collectOpts);
+                new HTM-ITUI.ModelExportsCollection([], collectOpts);
 
             this.data.instances = dataExists('instances') ?
                 options.data.instances:
-                new GROKUI.InstancesCollection([], collectOpts);
+                new HTM-ITUI.InstancesCollection([], collectOpts);
 
             this.data.metrics = dataExists('metrics') ?
                 options.data.metrics :
-                new GROKUI.AwsMetricsCollection([], collectOpts);
+                new HTM-ITUI.AwsMetricsCollection([], collectOpts);
 
             this.data.models = dataExists('models') ?
                 options.data.models :
-                new GROKUI.ModelsCollection([], collectOpts);
+                new HTM-ITUI.ModelsCollection([], collectOpts);
 
             this.data.namespaces = dataExists('namespaces') ?
                 options.data.namespaces :
-                new GROKUI.AwsNamespacesCollection([], collectOpts);
+                new HTM-ITUI.AwsNamespacesCollection([], collectOpts);
 
             // Prep Collections - data passed in, or fetch here
 
@@ -124,7 +124,7 @@
                 // reload models if instances change
                 this.data.models.fetch({
                     error: function(model, response, options) {
-                        return GROKUI.utils.modalError(response);
+                        return HTM-ITUI.utils.modalError(response);
                     }
                 });
 
@@ -170,7 +170,7 @@
                 }
             });
             _.each(newInstancesData, function(instanceData) {
-                var instance = new GROKUI.InstanceModel();
+                var instance = new HTM-ITUI.InstanceModel();
                 instances.add(instance);
                 instanceData = instance.parse(instanceData);
                 instance.set(instanceData);
@@ -207,10 +207,10 @@
                     namespace:  namespace
                 },
                 regionNamespaceMetrics = this.data.metrics.where(regionNamespaceFilter),
-                isGrokAutostack = namespace.match(this.site.instances.types.autostack),
-                isGrokCustomMetric = namespace.match(this.site.namespaces.grok.custom),
+                isHTM-ITAutostack = namespace.match(this.site.instances.types.autostack),
+                isHTM-ITCustomMetric = namespace.match(this.site.namespaces.htm-it.custom),
                 makeView = function() {
-                    var modalMetricList = new GROKUI.ModalMetricListView({
+                    var modalMetricList = new HTM-ITUI.ModalMetricListView({
                         api:        this.api,
                         region:     region,
                         namespace:  namespace,
@@ -229,10 +229,10 @@
                         //  so reload instance list.
                         this.data.instances.fetch({
                             error: function(model, response, options) {
-                                return GROKUI.utils.modalError(response);
+                                return HTM-ITUI.utils.modalError(response);
                             },
                             success: function(model, response, options) {
-                                GROKUI.utils.throb.stop();
+                                HTM-ITUI.utils.throb.stop();
                             }
                         });
                     }.bind(this));
@@ -243,11 +243,11 @@
             event.stopPropagation();
             event.preventDefault();
 
-            GROKUI.utils.throb.start(this.site.state.metric.load);
+            HTM-ITUI.utils.throb.start(this.site.state.metric.load);
 
             if(
-                (! isGrokAutostack) &&
-                (! isGrokCustomMetric) &&
+                (! isHTM-ITAutostack) &&
+                (! isHTM-ITCustomMetric) &&
                 (regionNamespaceMetrics.length <= 0)
             ) {
                 // Metric data for this region not loaded yet, do so.
@@ -262,18 +262,18 @@
                             remove:     false})
                         ).
                     done(function(model) {
-                        GROKUI.utils.throb.stop();
+                        HTM-ITUI.utils.throb.stop();
                         var view = makeView();
                         view.render();
                     }).            
                     fail(function(xhr, error, response) {
-                        GROKUI.utils.throb.stop();
-                        return GROKUI.utils.modalError(response);                        
+                        HTM-ITUI.utils.throb.stop();
+                        return HTM-ITUI.utils.modalError(response);                        
                     });
             }
             else {
                 // Metric data for this region already loaded, continue.
-                GROKUI.utils.throb.stop();
+                HTM-ITUI.utils.throb.stop();
                 var view = makeView();
                 view.render();
                 return view;
@@ -290,15 +290,15 @@
 
             var percent = 0,
                 errorCallback = function(model, response, options) {
-                    GROKUI.utils.throb.stop();
-                    return GROKUI.utils.modalError(response);
+                    HTM-ITUI.utils.throb.stop();
+                    return HTM-ITUI.utils.modalError(response);
                 },
                 destroyOpts = {
                     error: errorCallback,
                     success: function(model, response, options) {
                         // update % in throbber
                         percent = Math.round((index / list.length) * 100);
-                        GROKUI.utils.throb.message(
+                        HTM-ITUI.utils.throb.message(
                             this.site.state.instance.stop +
                             ' (' + percent + '%)'
                         );
@@ -329,7 +329,7 @@
                 this.data.instances.fetch({
                     error: errorCallback,
                     success: function(model, response, options) {
-                        GROKUI.utils.throb.stop();
+                        HTM-ITUI.utils.throb.stop();
                     }
                 });
             }
@@ -356,8 +356,8 @@
                 namespace = $row.data('namespace');
             }
             else {
-                region = me.site.name + ' ' + me.site.regions.grok.custom;
-                namespace = me.site.namespaces.grok.custom;
+                region = me.site.name + ' ' + me.site.regions.htm-it.custom;
+                namespace = me.site.namespaces.htm-it.custom;
             }
 
             display = '<code class="truncate">' + [
@@ -367,7 +367,7 @@
             ].join(' <span class="text-muted">&gt;</span> ') + '</code>';
             manageCustomMetricsPath = me.site.paths['manage-custom-metrics'];
 
-            if (region != 'Grok'){
+            if (region != 'HTM-IT'){
                 modalMessage = '<div>Remove this instance from monitoring?</div>' + display;
             }
             else {
@@ -384,7 +384,7 @@
                 callback:   function(result) {
                     if(result) {
                         $row.fadeOut();
-                        GROKUI.utils.throb.start(me.site.state.instance.stop);
+                        HTM-ITUI.utils.throb.start(me.site.state.instance.stop);
                         me.performDelete([instance]);
                     }
                     else {
@@ -423,7 +423,7 @@
                     callback:   function(result) {
                         if(result) {
                             $rows.fadeOut();
-                            GROKUI.utils.throb.start(me.site.state.instance.stop);
+                            HTM-ITUI.utils.throb.start(me.site.state.instance.stop);
                             me.performDelete(instances);
                         }
                         else {
@@ -441,11 +441,11 @@
             event.stopPropagation();
             event.preventDefault();
 
-            GROKUI.utils.throb.start(this.site.state.loading);
+            HTM-ITUI.utils.throb.start(this.site.state.loading);
 
             this.data.exports.fetch({
                 error: function(collection, response, options) {
-                    return GROKUI.utils.modalError(error);
+                    return HTM-ITUI.utils.modalError(error);
                 },
                 success: function(collection, response, options) {
                     var blob = new Blob(
@@ -454,8 +454,8 @@
                         ),
                         when = (new Date()).toISOString().replace(/[\WT]/g,'').slice(0, 14);
 
-                    GROKUI.utils.throb.stop();
-                    saveAs(blob, 'grok-export-' + when + '.json');
+                    HTM-ITUI.utils.throb.stop();
+                    saveAs(blob, 'htm-it-export-' + when + '.json');
                 }
             });
         }

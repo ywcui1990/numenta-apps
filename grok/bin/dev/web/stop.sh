@@ -29,17 +29,17 @@ function die {
     exit 1
 }
 
-if [[ ! $START_DIR =~ grok ]]; then
-    die "Please cd to Grok repo dir, and run: bin/dev/web/stop.sh"
+if [[ ! $START_DIR =~ htm-it ]]; then
+    die "Please cd to HTM-IT repo dir, and run: bin/dev/web/stop.sh"
 fi
 if [[ ! $SCRIPT_DIR =~ bin\/dev\/web ]]; then
-    die "Please cd to Grok repo dir, and run: bin/dev/web/stop.sh"
+    die "Please cd to HTM-IT repo dir, and run: bin/dev/web/stop.sh"
 fi
 
 echo "Shutting down supervisor..."
 supervisorctl shutdown
 echo "Stopping nginx..."
-sudo nginx -s stop -p $START_DIR -c $START_DIR/conf/grok-api.conf
+sudo nginx -s stop -p $START_DIR -c $START_DIR/conf/htm-it-api.conf
 echo "RabbitMQ stopping app..."
 rabbitmqctl stop_app
 echo "RabbitMQ resetting..."

@@ -30,7 +30,7 @@ import socket
 import unittest
 
 
-CONF_D = os.environ.get("APPLICATION_CONFIG_PATH", "/opt/numenta/grok/conf")
+CONF_D = os.environ.get("APPLICATION_CONFIG_PATH", "/opt/numenta/htm-it/conf")
 
 def probePort(host="127.0.0.1", port=80, command=None):
   s = socket.socket()
@@ -66,12 +66,12 @@ class TestNginxInstallation(unittest.TestCase):
 
 
   def testCheckHttpsContent(self):
-    self.assertIn("<title>| Grok</title>", probeHttps(path="/grok"),
-                  "port 443 is not returning a Grok title")
+    self.assertIn("<title>| HTM-IT</title>", probeHttps(path="/htm-it"),
+                  "port 443 is not returning a HTM-IT title")
 
 
   def testNginxApiConfiguration(self):
-    self.assertTrue(agamotto.file.exists("%s/grok-api.conf" % CONF_D))
+    self.assertTrue(agamotto.file.exists("%s/htm-it-api.conf" % CONF_D))
 
 
   def testNginxMaintenanceConfiguration(self):
@@ -80,7 +80,7 @@ class TestNginxInstallation(unittest.TestCase):
 
   def testNginxIsRunning(self):
     self.assertTrue(agamotto.process.is_running(
-      "nginx: master process /usr/sbin/nginx -p . -c %s/grok-api.conf"
+      "nginx: master process /usr/sbin/nginx -p . -c %s/htm-it-api.conf"
       % CONF_D))
     self.assertTrue(agamotto.process.is_running("nginx: worker process"))
 
@@ -88,9 +88,9 @@ class TestNginxInstallation(unittest.TestCase):
   def testNginxInitScript(self):
     self.assertTrue(agamotto.file.exists("/etc/init.d/nginx"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",
-                    "GROK_HOME=/opt/numenta/grok"))
+                    "HTM-IT_HOME=/opt/numenta/htm-it"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",
-                    "GROK_NGINX_CONF=conf/grok-api.conf"))
+                    "HTM-IT_NGINX_CONF=conf/htm-it-api.conf"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",
                     "NGINX_MAINT_CONF=conf/nginx-maint.conf"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",

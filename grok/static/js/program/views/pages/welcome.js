@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.WelcomeView = Backbone.View.extend({
+    HTM-ITUI.WelcomeView = Backbone.View.extend({
 
         template: _.template($('#welcome-tmpl').html()),
 
-        msgs: GROKUI.msgs('welcome-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('welcome-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'change #novice' : 'handleNoviceSelected',
@@ -38,16 +38,16 @@
             var me = this;
             me.api = options.api;
 
-            GROKUI.utils.title(me.msgs.title);
+            HTM-ITUI.utils.title(me.msgs.title);
 
             // deactive header logo link
             $('.navbar-brand').attr('href', '#');
 
             // redirects
-            if(GROKUI.utils.isAuthorized()) {
+            if(HTM-ITUI.utils.isAuthorized()) {
                 // logged in, and not in setup flow => manage page
-                if(! GROKUI.utils.isSetupFlow()) {
-                    GROKUI.utils.go(me.site.paths.manage);
+                if(! HTM-ITUI.utils.isSetupFlow()) {
+                    HTM-ITUI.utils.go(me.site.paths.manage);
                     return;
                 }
                 me.getRegions();
@@ -57,15 +57,15 @@
                 me.api.getSettings(
                     me.api.CONST.SETTINGS.SECTIONS.USERTRACK,
                     function(error, settings) {
-                        if(error) return GROKUI.utils.modalError(error);
+                        if(error) return HTM-ITUI.utils.modalError(error);
                         if(
-                            (! GROKUI.utils.isSetupFlow()) &&
+                            (! HTM-ITUI.utils.isSetupFlow()) &&
                             settings &&
                             ('optin' in settings) &&
                             (settings.optin !== '')
                         ) {
                             // setup already => auth page to login
-                            GROKUI.utils.go(me.site.paths.auth);
+                            HTM-ITUI.utils.go(me.site.paths.auth);
                             return;
                         }
                         me.getRegions();
@@ -78,7 +78,7 @@
             var me = this;
 
             me.api.getRegions(function(error, regions) {
-                if(error) return GROKUI.utils.modalError(error);
+                if(error) return HTM-ITUI.utils.modalError(error);
 
                 Object.keys(regions).forEach(function(region) {
                     regions[region] = regions[region].replace(' Region', '');
@@ -96,10 +96,10 @@
                     msgs: me.msgs,
                     button: me.site.buttons.next,
                     site: me.site,
-                    edition: GROKUI.product.edition,
-                    version: GROKUI.product.version,
+                    edition: HTM-ITUI.product.edition,
+                    version: HTM-ITUI.product.version,
                     regions: me.regions,
-                    currentRegion: GROKUI.instanceData.region
+                    currentRegion: HTM-ITUI.instanceData.region
                 };
 
             me.$el.html(me.template(data));
@@ -125,14 +125,14 @@
             var expert = $("#expert").is(":checked");
 
             if (expert) {
-                GROKUI.utils.go(this.site.paths.register +
+                HTM-ITUI.utils.go(this.site.paths.register +
                                 this.site.urltag.setup +
                                 this.site.urltag.expert);
             }
             else {
                 var region = $("#region").val();
 
-                GROKUI.utils.go(this.site.paths.register +
+                HTM-ITUI.utils.go(this.site.paths.register +
                                 this.site.urltag.setup +
                                 this.site.urltag.region + region);
             }

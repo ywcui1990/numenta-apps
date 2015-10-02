@@ -28,7 +28,7 @@ a period of '300' seconds.
 
 import unittest
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
-from grok.app.adapters.datasource.cloudwatch.aws_base import (
+from htm-it.app.adapters.datasource.cloudwatch.aws_base import (
   AWSResourceAdapterBase)
 
 class CloudwatchMetricsTest(TestCaseBase):
@@ -37,7 +37,7 @@ class CloudwatchMetricsTest(TestCaseBase):
 
   def testMinCorrect(self):
     """
-    Currently the Grok algorithm code assumes that all metrics have a min that
+    Currently the HTM-IT algorithm code assumes that all metrics have a min that
     is >= 0. Let's ensure that.
     """
 
@@ -50,7 +50,7 @@ class CloudwatchMetricsTest(TestCaseBase):
   def testPeriodCorrect(self):
     """
     Test that all metrics have a period of 300 seconds. Currently we are
-    enforcing this in Grok.
+    enforcing this in HTM-IT.
     """
     for adapter in AWSResourceAdapterBase._metricRegistry.values():
       self.assertTrue(hasattr(adapter["adapter"], "METRIC_PERIOD"))

@@ -1,4 +1,4 @@
-Grok has detected unusual behavior.
+HTM-IT has detected unusual behavior.
 
 Instance:			{instance}
 Metric:			{metric.name}
@@ -8,4 +8,4 @@ Time ({timezoneLocal}):		{timestampLocal}
 
 AWS Region:		{region}
 
-Email notification settings are controlled in the Grok mobile application.
+Email notification settings are controlled in the HTM-IT mobile application.

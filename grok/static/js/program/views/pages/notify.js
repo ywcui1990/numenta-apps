@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.NotifyView = Backbone.View.extend({
+    HTM-ITUI.NotifyView = Backbone.View.extend({
 
         template: _.template($('#notify-tmpl').html()),
 
-        msgs: GROKUI.msgs('notify-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('notify-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'click #back': 'handleBack',
@@ -39,11 +39,11 @@
 
             me.api = options.api;
 
-            GROKUI.utils.title(me.msgs.title);
+            HTM-ITUI.utils.title(me.msgs.title);
 
             // go setup if they have not yet
-            if(! GROKUI.utils.isAuthorized()) {
-                GROKUI.utils.go(me.site.paths.welcome);
+            if(! HTM-ITUI.utils.isAuthorized()) {
+                HTM-ITUI.utils.go(me.site.paths.welcome);
                 return;
             }
 
@@ -51,7 +51,7 @@
             me.api.getSettings(
                 me.api.CONST.SETTINGS.SECTIONS.NOTIFY,
                 function(error, settings) {
-                    if(error) return GROKUI.utils.modalError(error);
+                    if(error) return HTM-ITUI.utils.modalError(error);
 
                     sets = settings;
 
@@ -59,13 +59,13 @@
                     me.api.getSettings(
                         me.api.CONST.SETTINGS.SECTIONS.AWS,
                         function(error, settings) {
-                            if(error) return GROKUI.utils.modalError(error);
+                            if(error) return HTM-ITUI.utils.modalError(error);
 
                             $.extend(sets, settings);
 
                             // last get list of AWS regions for option dropdown list
                             me.api.getRegions(function(error, regions) {
-                                if(error) return GROKUI.utils.modalError(error);
+                                if(error) return HTM-ITUI.utils.modalError(error);
 
                                 // rename region for display, get rid of extra text at end
                                 Object.keys(regions).forEach(function(region) {
@@ -106,13 +106,13 @@
         },
 
         handleBack: function(event) {
-            var from = GROKUI.utils.getUrlParam('from') || 'method',
+            var from = HTM-ITUI.utils.getUrlParam('from') || 'method',
                 destination = this.site.paths.manage;
 
             event.preventDefault();
             event.stopPropagation();
 
-            GROKUI.utils.go(destination);
+            HTM-ITUI.utils.go(destination);
         },
 
         handleFormSubmit: function(event) {
@@ -132,7 +132,7 @@
                 settings,
                 me.api.CONST.SETTINGS.SECTIONS.NOTIFY,
                 function(error) {
-                    if(error) return GROKUI.utils.modalError(error);
+                    if(error) return HTM-ITUI.utils.modalError(error);
 
                     settings = {};
                     settings[me.api.CONST.SETTINGS.AWS.REGION] = region;
@@ -142,9 +142,9 @@
                         settings,
                         me.api.CONST.SETTINGS.SECTIONS.AWS,
                         function(error) {
-                            if(error) return GROKUI.utils.modalError(error);
+                            if(error) return HTM-ITUI.utils.modalError(error);
 
-                            GROKUI.utils.go(destination);
+                            HTM-ITUI.utils.go(destination);
                         }
                     );
                 }

@@ -26,12 +26,12 @@ import unittest
 
 from paste.fixture import TestApp
 
-import grok.app
-from grok.app.webservices import metrics_api
+import htm-it.app
+from htm-it.app.webservices import metrics_api
 from htmengine import utils
 
-from grok.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
-from grok.test_utils.app.webservices import (
+from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm-it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   getInvalidHTTPHeaders,
   webservices_assertions as assertions
@@ -46,7 +46,7 @@ class MetricsHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(metrics_api.app.wsgifunc())
 
 
@@ -72,7 +72,7 @@ class MetricsApiUnhappyTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(metrics_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
 
 
   def testNoAuthHeaders(self):

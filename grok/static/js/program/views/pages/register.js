@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.RegisterView = Backbone.View.extend({
+    HTM-ITUI.RegisterView = Backbone.View.extend({
 
         template: _.template($('#register-tmpl').html()),
 
-        msgs: GROKUI.msgs('register-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('register-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'change #agree' : 'handleAgreeToggle',
@@ -41,26 +41,26 @@
             me.api = options.api;
             me.checked = true;
 
-            GROKUI.utils.title(me.msgs.title);
+            HTM-ITUI.utils.title(me.msgs.title);
 
             // setup? deactive header logo link
-            if(GROKUI.utils.isSetupFlow()) {
+            if(HTM-ITUI.utils.isSetupFlow()) {
                 $('.navbar-brand').attr('href', '#');
             }
 
             me.api.getSettings(
                 me.api.CONST.SETTINGS.SECTIONS.USERTRACK,
                 function(error, settings) {
-                    if(error) return GROKUI.utils.modalError(error);
+                    if(error) return HTM-ITUI.utils.modalError(error);
 
                     if(
-                        (! GROKUI.utils.isAuthorized()) &&
+                        (! HTM-ITUI.utils.isAuthorized()) &&
                         settings &&
                         ('optin' in settings) &&
                         (settings.optin !== '')
                     ) {
                         // setup already => auth page to login
-                        GROKUI.utils.go(me.site.paths.auth);
+                        HTM-ITUI.utils.go(me.site.paths.auth);
                         return;
                     }
 
@@ -93,11 +93,11 @@
                     baseUrl: NTA.baseUrl,
                     msgs: me.msgs,
                     site: me.site,
-                    isSetup: GROKUI.utils.isSetupFlow(),
+                    isSetup: HTM-ITUI.utils.isSetupFlow(),
                     button: {
-                        back: GROKUI.utils.isSetupFlow() ?
+                        back: HTM-ITUI.utils.isSetupFlow() ?
                             me.site.buttons.back : me.site.buttons.cancel,
-                        next: GROKUI.utils.isSetupFlow() ?
+                        next: HTM-ITUI.utils.isSetupFlow() ?
                             me.site.buttons.next : me.site.buttons.save
                     },
                     values: settings,
@@ -108,8 +108,8 @@
 
             me.$el.html(me.template(data));
 
-            if(GROKUI.utils.isSetupFlow()) {
-                setupProgressBar = GROKUI.utils.getSetupProgressBar(
+            if(HTM-ITUI.utils.isSetupFlow()) {
+                setupProgressBar = HTM-ITUI.utils.getSetupProgressBar(
                     step, $('#progress-bar-container'));
             }
 
@@ -139,14 +139,14 @@
 
         handleBack: function(event) {
             var me = this,
-                destination = GROKUI.utils.isSetupFlow() ?
+                destination = HTM-ITUI.utils.isSetupFlow() ?
                     me.site.paths.welcome + window.location.search :
                     me.site.paths.manage;
 
             event.stopPropagation();
             event.preventDefault();
 
-            GROKUI.utils.go(destination);
+            HTM-ITUI.utils.go(destination);
         },
 
         handleNext: function(event) {
@@ -155,14 +155,14 @@
                 optIn = $checkbox.is(':checked') ? 'true' : 'false',
                 USERTRACK = me.api.CONST.SETTINGS.USERTRACK,
                 settings = {},
-                destination = GROKUI.utils.isSetupFlow() ?
+                destination = HTM-ITUI.utils.isSetupFlow() ?
                     me.site.paths.auth + window.location.search :
                     me.site.paths.manage,
                 name = $('#name').val(),
                 company = $('#company').val(),
                 email = $('#email').val();
 
-            GROKUI.utils.throb.start(me.site.state.save);
+            HTM-ITUI.utils.throb.start(me.site.state.save);
 
             event.stopPropagation();
             event.preventDefault();
@@ -177,19 +177,19 @@
                 settings,
                 me.api.CONST.SETTINGS.SECTIONS.USERTRACK,
                 function(error) {
-                    if(error) return GROKUI.utils.modalError(error);
+                    if(error) return HTM-ITUI.utils.modalError(error);
 
                     // send a few extras to wufoo
-                    settings['edition'] = GROKUI.product.edition;
-                    settings['version'] = GROKUI.product.version;
-                    settings['build'] = GROKUI.product.build;
+                    settings['edition'] = HTM-ITUI.product.edition;
+                    settings['version'] = HTM-ITUI.product.version;
+                    settings['build'] = HTM-ITUI.product.build;
 
                     // remove optin
                     delete settings[USERTRACK.OPTIN];
 
                     me.api.sendWufooForm(settings, function(error) {
-                        if(error) return GROKUI.utils.modalError(error);
-                        GROKUI.utils.go(destination);
+                        if(error) return HTM-ITUI.utils.modalError(error);
+                        HTM-ITUI.utils.go(destination);
                     });
                 }
             );

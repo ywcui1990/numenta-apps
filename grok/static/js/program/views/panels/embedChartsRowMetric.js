@@ -24,11 +24,11 @@
     /**
      * Backbone.View() - Embed: Charts > Rows > Row (Metric)
      */
-    GROKUI.EmbedChartsRowMetricView = GROKUI.EmbedChartsRowView.extend({
+    HTM-ITUI.EmbedChartsRowMetricView = HTM-ITUI.EmbedChartsRowView.extend({
 
         // Backbone.View properties
 
-        className: 'grok-embed-charts-row-metric grok-embed-charts-row grok-panel',
+        className: 'htm-it-embed-charts-row-metric htm-it-embed-charts-row htm-it-panel',
 
 
         // Custom properties
@@ -45,7 +45,7 @@
          * Backbone.View.initialize() METRIC row
          */
         initialize: function(options) {
-            GROKUI.EmbedChartsRowView.prototype.initialize.call(this, options);
+            HTM-ITUI.EmbedChartsRowView.prototype.initialize.call(this, options);
 
             this.modelId = options.modelId;
 
@@ -93,7 +93,7 @@
             );
             this.chart.render();
 
-            GROKUI.EmbedChartsRowView.prototype.render.call(this, options);
+            HTM-ITUI.EmbedChartsRowView.prototype.render.call(this, options);
             return this;
         },
 
@@ -101,9 +101,9 @@
         // Custom methods
 
         /**
-         * Format METRIC MODEL data to be sent to FaceOfGrok/DyGraphs chart
+         * Format METRIC MODEL data to be sent to FaceOfHTM-IT/DyGraphs chart
          * @returns {array} List of datapoints (themselves arrays) ready for
-         *  FaceOfGrok/Dygraphs.
+         *  FaceOfHTM-IT/Dygraphs.
          */
         getFormattedData: function() {
             var metricData = this.datas[this.modelId].get('data'),

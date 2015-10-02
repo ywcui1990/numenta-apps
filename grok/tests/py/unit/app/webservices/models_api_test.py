@@ -35,22 +35,22 @@ from collections import namedtuple
 from paste.fixture import TestApp
 from mock import ANY, create_autospec, MagicMock, Mock, patch
 
-from grok import logging_support
-import grok.app
+from htm-it import logging_support
+import htm-it.app
 
 from htmengine import utils as app_utils
 from htmengine.model_swapper import utils as model_swapper_utils
-from grok.app.adapters.datasource import createDatasourceAdapter
-from grok.app.adapters.datasource.cloudwatch.aws_base import (
+from htm-it.app.adapters.datasource import createDatasourceAdapter
+from htm-it.app.adapters.datasource.cloudwatch.aws_base import (
   AWSResourceAdapterBase)
-from grok.app.webservices import models_api
-from grok.app.webservices.responses import InvalidRequestResponse
-from grok.app.webservices.utils import getMetricDisplayFields
+from htm-it.app.webservices import models_api
+from htm-it.app.webservices.responses import InvalidRequestResponse
+from htm-it.app.webservices.utils import getMetricDisplayFields
 from htmengine.exceptions import ObjectNotFoundError
-from grok.app import repository
-from grok.app.repository.queries import MetricStatus
+from htm-it.app import repository
+from htm-it.app.repository.queries import MetricStatus
 from htmengine.utils import jsonDecode, jsonEncode
-from grok.test_utils.app.webservices import (
+from htm-it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   getInvalidHTTPHeaders,
   webservices_assertions as assertions
@@ -84,21 +84,21 @@ class TestModelHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.model_list = json.load(open(os.path.join(grok.app.GROK_HOME,
+    cls.model_list = json.load(open(os.path.join(htm-it.app.HTM-IT_HOME,
       "tests/py/data/app/webservices/models_list.json")))
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(models_api.app.wsgifunc())
     metric = Mock(uid="cebe9fab-f416-4845-8dab-02d292244112",
                   datasource="cloudwatch",
                   description="The number of database connections in use by "
                               "Amazon RDS database",
-                  server="grokdb2",
+                  server="htm-itdb2",
                   location="us-east-1",
                   parameters=app_utils.jsonEncode(
-                    {"region":"us-east-1", "DBInstanceIdentifier":"grokdb2"}),
+                    {"region":"us-east-1", "DBInstanceIdentifier":"htm-itdb2"}),
                   status=1,
                   message=None,
                   collector_error=None,
@@ -133,8 +133,8 @@ class TestModelHandler(unittest.TestCase):
     self.assertEqual(result, [])
 
 
-  @patch("grok.app.webservices.models_api.repository", autospec=True)
-  @patch("grok.app.webservices.models_api.getMetricDisplayFields")
+  @patch("htm-it.app.webservices.models_api.repository", autospec=True)
+  @patch("htm-it.app.webservices.models_api.getMetricDisplayFields")
   def testModelHandlerListModelsWithSlashValidResponse(
       self, getMetricDisplayFieldsMock, repositoryMock, _engineMock, *args):
 
@@ -160,7 +160,7 @@ class TestModelHandler(unittest.TestCase):
     self.assertEqual(json.loads(response.body), self.model_list)
 
 
-  @patch("grok.app.webservices.models_api.getMetricDisplayFields")
+  @patch("htm-it.app.webservices.models_api.getMetricDisplayFields")
   @patch.object(models_api.ModelHandler, "createModel",
     spec_set=models_api.ModelHandler.createModel)
   def testModelHandlerPOSTModel(self, createModel, getMetricDisplayFieldsMock,
@@ -194,7 +194,7 @@ class TestModelHandler(unittest.TestCase):
     self.assertTrue(createModel.called)
 
 
-  @patch("grok.app.webservices.models_api.getMetricDisplayFields")
+  @patch("htm-it.app.webservices.models_api.getMetricDisplayFields")
   @patch.object(models_api.ModelHandler, "createModel",
      spec_set=models_api.ModelHandler.createModel)
   def testModelHandlerPUTModelCreate(self, createModel,
@@ -229,11 +229,11 @@ class TestModelHandler(unittest.TestCase):
 
 
 
-  @patch("grok.app.quota.repository")
-  @patch("grok.app.webservices.models_api.getMetricDisplayFields")
-  @patch("grok.app.webservices.models_api.createDatasourceAdapter",
+  @patch("htm-it.app.quota.repository")
+  @patch("htm-it.app.webservices.models_api.getMetricDisplayFields")
+  @patch("htm-it.app.webservices.models_api.createDatasourceAdapter",
          autospec=True)
-  @patch("grok.app.webservices.models_api.repository", autospec=True)
+  @patch("htm-it.app.webservices.models_api.repository", autospec=True)
   def testModelHandlerPUTMonitorMetric(self,
                                        repositoryMock,
                                        createDatasourceAdapterMock,
@@ -275,11 +275,11 @@ class TestModelHandler(unittest.TestCase):
       createDatasourceAdapterMock.return_value.monitorMetric.return_value)
 
 
-  @patch("grok.app.quota.repository")
-  @patch("grok.app.webservices.models_api.getMetricDisplayFields")
-  @patch("grok.app.webservices.models_api.createDatasourceAdapter",
+  @patch("htm-it.app.quota.repository")
+  @patch("htm-it.app.webservices.models_api.getMetricDisplayFields")
+  @patch("htm-it.app.webservices.models_api.createDatasourceAdapter",
          autospec=True)
-  @patch("grok.app.webservices.models_api.repository", autospec=True)
+  @patch("htm-it.app.webservices.models_api.repository", autospec=True)
   def testModelHandlerPUTImportModel(self,
                                      repositoryMock,
                                      createDatasourceAdapterMock,
@@ -350,7 +350,7 @@ class TestModelHandler(unittest.TestCase):
   @patch.object(repository, "getMetric", autospec=True)
   @patch.object(model_swapper_utils, "deleteHTMModel",
     spec_set=model_swapper_utils.deleteHTMModel)
-  @patch("grok.app.webservices.models_api.createDatasourceAdapter",
+  @patch("htm-it.app.webservices.models_api.createDatasourceAdapter",
          auto_spec=True)
   def testDeleteModelValid(self, _createDatasourceAdapterMock,
                            _deleteHTMModel, _getMetricMock, _deleteModelMock,
@@ -360,10 +360,10 @@ class TestModelHandler(unittest.TestCase):
     self.assertEqual(result, {"result": "success"})
 
 
-  @patch("grok.app.quota.repository")
-  @patch("grok.app.webservices.models_api.repository")
+  @patch("htm-it.app.quota.repository")
+  @patch("htm-it.app.webservices.models_api.repository")
   @patch("web.ctx")
-  @patch("grok.app.webservices.models_api.createDatasourceAdapter",
+  @patch("htm-it.app.webservices.models_api.createDatasourceAdapter",
          autospec=True)
   def testCreateModelForMonitorMetric(self,
                                       createDatasourceAdapterMock,
@@ -405,10 +405,10 @@ class TestModelHandler(unittest.TestCase):
       createDatasourceAdapterMock.return_value.monitorMetric.return_value)
 
 
-  @patch("grok.app.quota.repository")
-  @patch("grok.app.webservices.models_api.repository")
+  @patch("htm-it.app.quota.repository")
+  @patch("htm-it.app.webservices.models_api.repository")
   @patch("web.ctx")
-  @patch("grok.app.webservices.models_api.createDatasourceAdapter",
+  @patch("htm-it.app.webservices.models_api.createDatasourceAdapter",
          autospec=True)
   def testCreateModelForImportModel(self,
                                     createDatasourceAdapterMock,
@@ -450,10 +450,10 @@ class TestModelHandler(unittest.TestCase):
       ctxMock.connFactory.return_value.__enter__.return_value,
       createDatasourceAdapterMock.return_value.importModel.return_value)
 
-  @patch("grok.app.quota.repository")
-  @patch("grok.app.webservices.models_api.repository")
+  @patch("htm-it.app.quota.repository")
+  @patch("htm-it.app.webservices.models_api.repository")
   @patch("web.ctx")
-  @patch("grok.app.webservices.models_api.createDatasourceAdapter",
+  @patch("htm-it.app.webservices.models_api.createDatasourceAdapter",
          autospec=True)
   def testImportModelAutostack(self, adapterMock, ctxMock, repositoryMock,
                                quotaRepositoryMock, _engineMock):
@@ -487,7 +487,7 @@ class TestModelHandler(unittest.TestCase):
 
 
   @patch("web.webapi.ctx")
-  @patch("grok.app.webservices.web.ctx")
+  @patch("htm-it.app.webservices.web.ctx")
   def testCreateModelRaisesBadRequestForEmptyRequest(self, webMock,
                                                      loggerWebMock,
                                                      _engineMock):
@@ -502,10 +502,10 @@ class TestModelHandler(unittest.TestCase):
     self.assertIn("Metric data is missing", e.exception.data)
 
 
-  @patch("grok.app.quota.repository")
-  @patch("grok.app.webservices.models_api.repository")
+  @patch("htm-it.app.quota.repository")
+  @patch("htm-it.app.webservices.models_api.repository")
   @patch("web.ctx")
-  @patch("grok.app.webservices.models_api.createDatasourceAdapter",
+  @patch("htm-it.app.webservices.models_api.createDatasourceAdapter",
          autospec=True)
   def testCreateModels(self, # pylint: disable=W0613
                        createDatasourceAdapterMock,
@@ -547,7 +547,7 @@ class TestModelHandler(unittest.TestCase):
 
 
   @patch("web.webapi.ctx")
-  @patch("grok.app.webservices.web.ctx")
+  @patch("htm-it.app.webservices.web.ctx")
   def testCreateModelsRaisesBadRequestForEmptyRequest(self, webMock,
                                                       loggerWebMock,
                                                       _engineMock):
@@ -568,13 +568,13 @@ class TestMetricDataHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.metric_data = json.load(open(os.path.join(grok.app.GROK_HOME,
+    cls.metric_data = json.load(open(os.path.join(htm-it.app.HTM-IT_HOME,
       "tests/py/data/app/webservices/models_data.json")))
     cls.rowTuple = namedtuple("rowTuple", "uid, timestamp, metric_value,"
                                           " anomaly_score, rowid")
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(models_api.app.wsgifunc())
 
   def decodeRowTuples(self, dataRows):
@@ -747,7 +747,7 @@ class TestMetricDataHandler(unittest.TestCase):
       sort=ANY)
 
 
-  @patch("grok.app.webservices.models_api.repository.getMetricData")
+  @patch("htm-it.app.webservices.models_api.repository.getMetricData")
   def testQuery(self, getMetricDataMock, _engineMock):
     getMetricDataMock.return_value = self.decodeRowTuples(
       self.metric_data["datalist"])
@@ -758,7 +758,7 @@ class TestMetricDataHandler(unittest.TestCase):
     assertions.assertSuccess(self, response)
 
 
-  @patch("grok.app.webservices.models_api.repository.getMetricData")
+  @patch("htm-it.app.webservices.models_api.repository.getMetricData")
   def testQueryMultiMetric(self, getMetricDataMock, _engineMock):
     response = self.app.get('/data?from=2013-08-15 21:34:00&' \
       'to=2013-08-15 21:24:00&anomaly=0.025', headers=self.headers)
@@ -767,7 +767,7 @@ class TestMetricDataHandler(unittest.TestCase):
     self.assertIn("names", result)
 
 
-  @patch("grok.app.webservices.models_api.repository.getMetricData")
+  @patch("htm-it.app.webservices.models_api.repository.getMetricData")
   def testQueryMultiMetricAsBinaryStream(self, getMetricDataMock, _engineMock):
     self.headers["Accept"] = "application/octet-stream"
 
@@ -793,10 +793,10 @@ class TestModelExportHandler(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
 
 
-  @patch("grok.app.webservices.models_api.createDatasourceAdapter",
+  @patch("htm-it.app.webservices.models_api.createDatasourceAdapter",
          autospec=True)
   @patch.object(repository, "getMetric", autospec=True)
   def testModelExportHandlerGETMetric(self, getMetricMock,
@@ -850,9 +850,9 @@ class TestModelExportHandler(unittest.TestCase):
     self.assertEqual(json.loads(response.body), [metric.parameters])
 
 
-  @patch("grok.app.webservices.models_api.createDatasourceAdapter",
+  @patch("htm-it.app.webservices.models_api.createDatasourceAdapter",
          autospec=True)
-  @patch("grok.app.webservices.models_api.repository.getMetric")
+  @patch("htm-it.app.webservices.models_api.repository.getMetric")
   def testModelExportHandlerGETAutostack(self,
                                          getMetricMock,
                                          createDatasourceAdapterMock,
@@ -897,10 +897,10 @@ class ModelsApiUnhappyTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(models_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
 
 
-  @patch("grok.app.repository.engineFactory")
+  @patch("htm-it.app.repository.engineFactory")
   def testNoAuthHeaders(self, engineFactoryMock): # pylint: disable=W0613
     """
     negative test for authentication guarded route.
@@ -911,7 +911,7 @@ class ModelsApiUnhappyTest(unittest.TestCase):
     assertions.assertInvalidAuthenticationResponse(self, response)
 
 
-  @patch("grok.app.repository.engineFactory")
+  @patch("htm-it.app.repository.engineFactory")
   def testInvalidAuthHeaders(self, engineFactoryMock): # pylint: disable=W0613
     """
     negative test for authentication guarded route.

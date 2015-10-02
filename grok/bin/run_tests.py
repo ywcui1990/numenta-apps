@@ -63,7 +63,7 @@ def collectList(option, opt_str, value, parser): #pylint: disable=C0103, W0613
   setattr(parser.values, option.dest, value)
 
 
-parser = OptionParser(usage="%prog [options]\n\nRun Grok Engine tests.")
+parser = OptionParser(usage="%prog [options]\n\nRun HTM-IT Engine tests.")
 parser.add_option(
   "-a",
   "--all",
@@ -152,7 +152,7 @@ def main(parser, parseArgs):
   root = "tests"
 
   if options.coverage:
-    args.append("--cov=grok")
+    args.append("--cov=htm-it")
 
   if options.processes is not None:
     args.extend(["-n", options.processes])

@@ -28,10 +28,10 @@ import unittest
 from mock import patch, Mock
 from paste.fixture import TestApp
 
-import grok.app
-from grok.app.webservices import anomalies_api
+import htm-it.app
+from htm-it.app.webservices import anomalies_api
 from htmengine.utils import jsonEncode
-from grok.test_utils.app.webservices import getDefaultHTTPHeaders
+from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
 
 
 class TestAnomaliesHandler(unittest.TestCase):
@@ -45,12 +45,12 @@ class TestAnomaliesHandler(unittest.TestCase):
     metric1 = Mock(uid="cebe9fab-f416-4845-8dab-02d292244112",
                    datasource="cloudwatch",
                    description=
-                     "DatabaseConnections for grokdb2 "
+                     "DatabaseConnections for htm-itdb2 "
                      "in us-east-1",
-                   server="us-east-1/AWS/RDS/grokdb2",
+                   server="us-east-1/AWS/RDS/htm-itdb2",
                    location="us-east-1",
                    parameters=jsonEncode(
-                     {"region":"us-east-1", "DBInstanceIdentifier":"grokdb2"}),
+                     {"region":"us-east-1", "DBInstanceIdentifier":"htm-itdb2"}),
                    status=1,
                    message=None,
                    collector_error=False,
@@ -64,12 +64,12 @@ class TestAnomaliesHandler(unittest.TestCase):
     metric2 = Mock(uid="cebe9fab-f416-4845-8dab-02d292244111",
                    datasource="cloudwatch",
                    description=
-                     "DatabaseConnections for grokdb2 "
+                     "DatabaseConnections for htm-itdb2 "
                      "in us-east-1",
-                   server="us-east-1/AWS/RDS/grokdb2",
+                   server="us-east-1/AWS/RDS/htm-itdb2",
                    location="us-east-1",
                    parameters=jsonEncode(
-                     {"region":"us-east-1", "DBInstanceIdentifier":"grokdb2"}),
+                     {"region":"us-east-1", "DBInstanceIdentifier":"htm-itdb2"}),
                    status=1,
                    message=None,
                    collector_error=False,
@@ -83,12 +83,12 @@ class TestAnomaliesHandler(unittest.TestCase):
     metric3 = Mock(uid="cebe9fab-f416-4845-8dab-02d292244113",
                    datasource="cloudwatch",
                    description=
-                     "DatabaseConnections for grokdb2 "
+                     "DatabaseConnections for htm-itdb2 "
                      "in us-east-1",
-                   server="us-east-1/AWS/RDS/grokdb2",
+                   server="us-east-1/AWS/RDS/htm-itdb2",
                    location="us-east-1",
                    parameters=jsonEncode(
-                     {"region":"us-east-1", "DBInstanceIdentifier":"grokdb2",
+                     {"region":"us-east-1", "DBInstanceIdentifier":"htm-itdb2",
                       "InstanceID":"i-733"}),
                    status=1,
                    message=None,
@@ -103,12 +103,12 @@ class TestAnomaliesHandler(unittest.TestCase):
     metric4 = Mock(uid="cebe9fab-f416-4845-8dab-02d292244114",
                    datasource="cloudwatch",
                    description=
-                     "DatabaseConnections for grokdb3 "
+                     "DatabaseConnections for htm-itdb3 "
                      "in us-east-1",
-                   server="us-east-1/AWS/RDS/grokdb3",
+                   server="us-east-1/AWS/RDS/htm-itdb3",
                    location="us-east-1",
                    parameters=jsonEncode(
-                     {"region":"us-east-1", "DBInstanceIdentifier":"grokdb3",
+                     {"region":"us-east-1", "DBInstanceIdentifier":"htm-itdb3",
                       "InstanceID":"i-442"}),
                    status=1,
                    message=None,
@@ -124,12 +124,12 @@ class TestAnomaliesHandler(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(anomalies_api.app.wsgifunc())
 
-  @patch("grok.app.repository.engineFactory", autospec=True)
-  @patch("grok.app.repository.getMetricIdsSortedByDisplayValue", autospec=True)
-  @patch("grok.app.repository.getAllMetrics", autospec=True)
+  @patch("htm-it.app.repository.engineFactory", autospec=True)
+  @patch("htm-it.app.repository.getMetricIdsSortedByDisplayValue", autospec=True)
+  @patch("htm-it.app.repository.getAllMetrics", autospec=True)
   def testGETMetricsByPeriod(self, getAllMetricsMock,
                      getMetricIdsSortedByDisplayValueMock,
                      _getEngineMock,
@@ -153,8 +153,8 @@ class TestAnomaliesHandler(unittest.TestCase):
     self.assertEqual(result[3]['uid'], 'cebe9fab-f416-4845-8dab-02d292244113')
 
 
-  @patch("grok.app.repository.engineFactory", autospec=True)
-  @patch("grok.app.repository.getAllMetrics", autospec=True)
+  @patch("htm-it.app.repository.engineFactory", autospec=True)
+  @patch("htm-it.app.repository.getAllMetrics", autospec=True)
   def testGETMetricsByName(self, getAllMetricsMock, _getEngineMock, *args):
     getAllMetricsMock.return_value = self.metrics
 

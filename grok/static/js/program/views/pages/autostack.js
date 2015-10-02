@@ -23,14 +23,14 @@
 
     var viewName = 'autostack';
 
-    GROKUI.AutostackView = Backbone.View.extend({
+    HTM-ITUI.AutostackView = Backbone.View.extend({
 
         name: viewName,
 
         template: _.template($('#' + viewName + '-tmpl').html()),
 
-        msgs: GROKUI.msgs(viewName + '-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs(viewName + '-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'submit': 'handleBegin',
@@ -53,24 +53,24 @@
                 }
             };
 
-            GROKUI.utils.title(me.msgs.title);
+            HTM-ITUI.utils.title(me.msgs.title);
 
             // go setup if they have not yet
-            if(! GROKUI.utils.isAuthorized()) {
+            if(! HTM-ITUI.utils.isAuthorized()) {
                 location.href = me.site.paths.welcome;
                 return;
             }
 
             // prep a list of default AWS/EC2 metrics and dimensions for later
             me.api.getNamespaceDetails('AWS/EC2', function(error, nsdetails) {
-                if(error) return GROKUI.utils.modalError(error);
+                if(error) return HTM-ITUI.utils.modalError(error);
                 me.namespaces['AWS/EC2'].metrics = nsdetails['AWS/EC2'].metrics;
             });
 
             // next get list of AWS regions
             me.api.getRegions(function(error, regions) {
-                if(error) return GROKUI.utils.modalError(error);
-                GROKUI.utils.throb.stop();
+                if(error) return HTM-ITUI.utils.modalError(error);
+                HTM-ITUI.utils.throb.stop();
 
                 // rename region for display, get rid of extra text at end
                 Object.keys(regions).forEach(function(region) {
@@ -120,7 +120,7 @@
                 }
             })
 
-            this.instanceListView = new GROKUI.InstanceListView({
+            this.instanceListView = new HTM-ITUI.InstanceListView({
                 el:     $('#instance-list'),
                 api:    this.api,
                 site:   this.site
@@ -137,7 +137,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            GROKUI.utils.go(destination);
+            HTM-ITUI.utils.go(destination);
         },
 
         /**
@@ -222,13 +222,13 @@
             event.preventDefault();
             event.stopPropagation();
 
-            GROKUI.utils.throb.start(me.site.state.instance.find);
+            HTM-ITUI.utils.throb.start(me.site.state.instance.find);
 
             me.api.getAutostackPreview(
                 region,
                 collapsedFilters,
                 function(error, results) {
-                    if(error) return GROKUI.utils.modalError(error);
+                    if(error) return HTM-ITUI.utils.modalError(error);
 
                     var instanceOutput = results.map(function(instance) {
                         var name = instance.tags.Name,
@@ -247,7 +247,7 @@
                         '</dl>'
                     ].join('');
 
-                    GROKUI.utils.throb.stop();
+                    HTM-ITUI.utils.throb.stop();
 
                     bootbox.confirm({
                         animate: false,
@@ -265,7 +265,7 @@
                         },
                         callback: function(result) {
                             if(result) {
-                                GROKUI.utils.throb.start(me.site.state.instance.starts);
+                                HTM-ITUI.utils.throb.start(me.site.state.instance.starts);
                                 me.createAutostack(name, region, collapsedFilters);
                             }
                         }
@@ -290,7 +290,7 @@
                 region,
                 filters,
                 function(error, results) {
-                    if(error) return GROKUI.utils.modalError(error);
+                    if(error) return HTM-ITUI.utils.modalError(error);
 
                     var metrics = me.namespaces['AWS/EC2'].metrics.filter(function(metric) {
                         // Select only specific default metrics
@@ -310,7 +310,7 @@
                         results.uid,
                         metrics,
                         function(error) {
-                            if(error) return GROKUI.utils.modalError(error);
+                            if(error) return HTM-ITUI.utils.modalError(error);
 
                             // clear out entry fields
                             $('#region').val('').focus();
@@ -332,10 +332,10 @@
                             // all done
                             me.instanceListView.data.instances.fetch({
                                 error: function(collection, response, options) {
-                                    return GROKUI.utils.modalError(response);
+                                    return HTM-ITUI.utils.modalError(response);
                                 },
                                 success: function(collection, response, options) {
-                                    GROKUI.utils.throb.stop();
+                                    HTM-ITUI.utils.throb.stop();
                                 }
                             });
                         }

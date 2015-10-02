@@ -40,13 +40,13 @@ fi
 # creating an RPM.
 
 echo "Capturing git SHA..."
-groksha=`git rev-parse --verify HEAD`
-echo ${groksha} > static/grok.sha
-echo ${groksha}
+htm-itsha=`git rev-parse --verify HEAD`
+echo ${htm-itsha} > static/htm-it.sha
+echo ${htm-itsha}
 
-echo "Recording Grok Release Version..."
-bin/update_release_version.py `python -c 'from grok.__version__ import __version__; print __version__'`-$(git rev-list HEAD | wc -l)
-python -c 'from grok.__version__ import __version__; print __version__'
+echo "Recording HTM-IT Release Version..."
+bin/update_release_version.py `python -c 'from htm-it.__version__ import __version__; print __version__'`-$(git rev-list HEAD | wc -l)
+python -c 'from htm-it.__version__ import __version__; print __version__'
 
 echo "Removing stale .pyc files"
 find . -name '*.pyc' -delete
@@ -56,7 +56,7 @@ export PATH=/opt/numenta/anaconda/bin:$PATH
 echo $PATH
 
 echo "Compiling all .py files..."
-for src_d in conf docs grok
+for src_d in conf docs htm-it
 do
   # compileall only drills 10 deep, so rather than having a mysterious
   # failure later if our directory structure gets more complex, compile
@@ -73,16 +73,16 @@ do
 done
 
 echo "Purging .py files:"
-for src_d in grok/app
+for src_d in htm-it/app
 do
   # Don't remove migrate.py to cope with Marketplace 1.0 bug. Version 1.0
-  # expected to find migrate.py in grok/app/repository, but
+  # expected to find migrate.py in htm-it/app/repository, but
   # when we started purging the .py files this meant the db migration wasn't
   # getting run. Exclude migrate.py from deletion so 1.0 boxes won't choke
   # during updates.
   if [ -d $src_d ]; then
     echo "Purging .py files in ${src_d}"
-    find ${src_d} -path grok/app/repository/migrations -prune -o \( -iname "*.py" ! -iname "migrate.py" \) -print0 | xargs -0 rm -f
+    find ${src_d} -path htm-it/app/repository/migrations -prune -o \( -iname "*.py" ! -iname "migrate.py" \) -print0 | xargs -0 rm -f
   else
     echo "**********"
     echo "$src_d not found during .py purge phase in prepare_repo_for_packaging"

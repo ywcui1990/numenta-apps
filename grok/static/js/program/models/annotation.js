@@ -22,14 +22,14 @@
 (function() {
 
   /**
-   * Backbone.js Model for a Grok Annotation (/_annotations API endpoint result)
+   * Backbone.js Model for a HTM-IT Annotation (/_annotations API endpoint result)
    * @constructor
    * @copyright © 2014 Numenta
    * @public
    * @requires Backbone.js
    * @returns {Object} Backbone.js Model object
    */
-  GROKUI.AnnotationModel = Backbone.Model.extend({
+  HTM-ITUI.AnnotationModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

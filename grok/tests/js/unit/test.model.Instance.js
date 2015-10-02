@@ -19,9 +19,9 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('Grok Backbone.Model: Instance', function() {
+describe('HTM-IT Backbone.Model: Instance', function() {
 
-    var model = new GROKUI.InstanceModel();
+    var model = new HTM-ITUI.InstanceModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

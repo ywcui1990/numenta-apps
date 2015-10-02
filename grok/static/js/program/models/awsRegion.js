@@ -29,7 +29,7 @@
    * @requires Backbone.js
    * @returns {Object} Backbone.js Model object
    */
-  GROKUI.AwsRegionModel = Backbone.Model.extend({
+  HTM-ITUI.AwsRegionModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

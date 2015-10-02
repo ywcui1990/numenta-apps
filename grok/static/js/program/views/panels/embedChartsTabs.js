@@ -26,7 +26,7 @@
     /**
      * Backbone.View() - Embed: Charts > Tabs
      */
-    GROKUI.EmbedChartsTabsView = Backbone.View.extend({
+    HTM-ITUI.EmbedChartsTabsView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -38,8 +38,8 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs(_viewName + '-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs(_viewName + '-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         api:    null,
         hash:   null,
@@ -68,7 +68,7 @@
 
             // if a Embed Widget view, instead of Web UI view, add logo
             if(this.hash) {
-                this.$el.find('.grok-embed-charts-tabs').addClass('embed');
+                this.$el.find('.htm-it-embed-charts-tabs').addClass('embed');
             }
 
             this.trigger('view-ready');

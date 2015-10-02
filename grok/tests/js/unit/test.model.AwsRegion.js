@@ -19,9 +19,9 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('Grok Backbone.Model: AwsRegion', function() {
+describe('HTM-IT Backbone.Model: AwsRegion', function() {
 
-    var model = new GROKUI.AwsRegionModel();
+    var model = new HTM-ITUI.AwsRegionModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

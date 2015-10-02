@@ -1,8 +1,8 @@
 ====
-Grok
+HTM-IT
 ====
 
-Grok is an application for monitoring IT infrastructure and notifying on
+HTM-IT is an application for monitoring IT infrastructure and notifying on
 anomalous behavior.
 
 Setup
@@ -22,26 +22,26 @@ Dependencies:
 **NOTE:** Do not use sudo with pip.
 
 Python dependencies are documented in requirements.txt and installed
-automatically with grok.
+automatically with htm-it.
 
 ::
 
-    ./install-grok.sh <site-packages in $PYTHONPATH> <somewhere in $PATH>
+    ./install-htm-it.sh <site-packages in $PYTHONPATH> <somewhere in $PATH>
 
 The first directory can be any directory on your `PYTHONPATH`. The second directory can be any directory on your `PATH`.
 
-- e.g., `./install-grok.sh /opt/numenta/anaconda/lib/python2.7/site-packages/ /opt/numenta/anaconda/bin/`
+- e.g., `./install-htm-it.sh /opt/numenta/anaconda/lib/python2.7/site-packages/ /opt/numenta/anaconda/bin/`
 
 
 Config
 ======
 
-Bootstrap your Grok configuration files and initialize the database:
+Bootstrap your HTM-IT configuration files and initialize the database:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *NOTE:* Remember to set APPLICATION_CONFIG_PATH environment variable to the directory where
-generated Grok configuration files should be stored by `python setup.py init`. If not set,
-it presently defaults to the location of Grok configuraiton template files (e.g., `grok/conf/`)
+generated HTM-IT configuration files should be stored by `python setup.py init`. If not set,
+it presently defaults to the location of HTM-IT configuraiton template files (e.g., `htm-it/conf/`)
 
 You'll need to install/start MySQL server and RabbitMQ server prior to running `setup.py init`
 
@@ -50,33 +50,33 @@ You'll need to install/start MySQL server and RabbitMQ server prior to running `
     python setup.py init
 
 
-Review your grok configuration file and make changes as necessary.
+Review your htm-it configuration file and make changes as necessary.
 
 
-Common Grok Environment Variables
+Common HTM-IT Environment Variables
 =================================
 
-`APPLICATION_CONFIG_PATH`: directory path where active Grok application
+`APPLICATION_CONFIG_PATH`: directory path where active HTM-IT application
 configuration files are located
 
 `AWS_ACCESS_KEY_ID`: The AWS access key
 
 `AWS_SECRET_ACCESS_KEY`: The AWS secret key
 
-`GROK_API_KEY`: If defined, grok's `setup.py init` uses its value to initialize
-the `[security] apikey` setting in grok's `application.conf`; if not defined,
-grok's `setup.py init` will generate the API key automatically.
+`HTM-IT_API_KEY`: If defined, htm-it's `setup.py init` uses its value to initialize
+the `[security] apikey` setting in htm-it's `application.conf`; if not defined,
+htm-it's `setup.py init` will generate the API key automatically.
 
-`GROK_HOME`: the directory path of the parent directory of the grok package
+`HTM-IT_HOME`: the directory path of the parent directory of the htm-it package
 directory; the pipeline code relies on this environment variable being set. The
-application code falls back to a computed path if `GROK_HOME` is not in the
+application code falls back to a computed path if `HTM-IT_HOME` is not in the
 environment.
 
-`GROK_LOG_DIR`: Directory path where application logs should be stored;
-application code falls back to the parent directory of grok's package directory.
+`HTM-IT_LOG_DIR`: Directory path where application logs should be stored;
+application code falls back to the parent directory of htm-it's package directory.
 
 
-Grok Environment Variables Specific to the Build System
+HTM-IT Environment Variables Specific to the Build System
 =======================================================
 
 `JOB_NAME`: Name of the build job; used by build pipeline and
@@ -139,7 +139,7 @@ Start RabbitMQ
 
 Reset RabbitMQ
 ~~~~~~~~~~~~~~
-If you have an old copy of grok then you need to clean up RabbitMQ queues.
+If you have an old copy of htm-it then you need to clean up RabbitMQ queues.
 
 ::
 
@@ -153,22 +153,22 @@ Start nGinx
 
 ::
 
-    sudo nginx -p . -c conf/grok-api.conf
+    sudo nginx -p . -c conf/htm-it-api.conf
 
-Start Grok Services
+Start HTM-IT Services
 ~~~~~~~~~~~~~~~~~~~
 
 ::
 
     supervisord -c conf/supervisord.conf
 
-Use Grok
+Use HTM-IT
 ~~~~~~~~
 
 - Web App:
 
-  - Initial Setup: https://localhost/grok/welcome
-  - Home: https://localhost/grok
+  - Initial Setup: https://localhost/htm-it/welcome
+  - Home: https://localhost/htm-it
 
 - Supervisor:
 
@@ -181,24 +181,24 @@ Test
 Setup AWS Credentials for Integration Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-AWS Credentials needs to be setup for Grok application before running integration tests. You can either use the Grok Web UI to set those up or use Grok CLI to do the same.
+AWS Credentials needs to be setup for HTM-IT application before running integration tests. You can either use the HTM-IT Web UI to set those up or use HTM-IT CLI to do the same.
 
 Specify AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY CLI options.
 
 ::
 
-    grok credentials GROK_SERVER_URL --AWS_ACCESS_KEY_ID=... --AWS_SECRET_ACCESS_KEY=...
+    htm-it credentials HTM-IT_SERVER_URL --AWS_ACCESS_KEY_ID=... --AWS_SECRET_ACCESS_KEY=...
 
 
 Set AWS credentials from a specific file using the -d, or --data CLI options.
 
 ::
 
-    grok credentials GROK_SERVER_URL -d PATH_TO_FILE
-    grok credentials GROK_SERVER_URL --data=PATH_TO_FILE
+    htm-it credentials HTM-IT_SERVER_URL -d PATH_TO_FILE
+    htm-it credentials HTM-IT_SERVER_URL --data=PATH_TO_FILE
 
 
-For more details refer Grok CLI readme.
+For more details refer HTM-IT CLI readme.
 
 
 Python
@@ -270,6 +270,6 @@ Once built, docs will be in ``build/sphinx/html``.  Periodically, you should run
 
 ::
 
-    sphinx-apidoc -f -o docs/ grok
+    sphinx-apidoc -f -o docs/ htm-it
     git add docs/*.rst
     git commit

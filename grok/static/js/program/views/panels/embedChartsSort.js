@@ -26,7 +26,7 @@
     /**
      * Backbone.View() - Embed: Charts > Sort
      */
-    GROKUI.EmbedChartsSortView = Backbone.View.extend({
+    HTM-ITUI.EmbedChartsSortView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -37,8 +37,8 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs(_viewName + '-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs(_viewName + '-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         // Backbone.View methods
 

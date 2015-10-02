@@ -28,9 +28,9 @@ from paste.fixture import TestApp
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-import grok.app
-from grok.app.webservices import wufoo_api
-from grok.test_utils.app.webservices import getDefaultHTTPHeaders
+import htm-it.app
+from htm-it.app.webservices import wufoo_api
+from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
 
 
 
@@ -38,7 +38,7 @@ class WufooTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(wufoo_api.app.wsgifunc())
     self.instanceData = {"version" : "2010-08-31",
                          "instanceId" : "i-d9e211f6",
@@ -57,18 +57,18 @@ class WufooTest(unittest.TestCase):
     self.postData = data = {"name": "User Schmoozer",
                             "company": "Numenta, inc.",
                             "edition": "Standard",
-                            "version": grok.__version__.__version__,
+                            "version": htm-it.__version__.__version__,
                             "build": "0",
                             "email": "uschmoozer@numenta.com"}
 
 
-  @ConfigAttributePatch(grok.app.config.CONFIG_NAME,
-                        grok.app.config.baseConfigDir,
-                        (("usertrack", "grok_id", "f2fec4a62c76418799e3907f1360e9b7"),))
-  @patch("grok.app.webservices.wufoo_api.log")
-  @patch("grok.app.webservices.wufoo_api.requests")
-  @patch("grok.app.webservices.wufoo_api.instance_utils")
-  @patch("grok.app.webservices.wufoo_api.sendWelcomeEmail")
+  @ConfigAttributePatch(htm-it.app.config.CONFIG_NAME,
+                        htm-it.app.config.baseConfigDir,
+                        (("usertrack", "htm-it_id", "f2fec4a62c76418799e3907f1360e9b7"),))
+  @patch("htm-it.app.webservices.wufoo_api.log")
+  @patch("htm-it.app.webservices.wufoo_api.requests")
+  @patch("htm-it.app.webservices.wufoo_api.instance_utils")
+  @patch("htm-it.app.webservices.wufoo_api.sendWelcomeEmail")
   def testWufooHandlerLogsPOSTedData(self, sendWelcomeEmailMock,
                                      instance_utilsMock, requestsMock,
                                      logMock):
@@ -87,7 +87,7 @@ class WufooTest(unittest.TestCase):
     logMock.info.assert_any_call("{TAG:WUFOO.CUST.REG} accountId=987654321"),
     logMock.info.assert_any_call("{TAG:WUFOO.CUST.REG} name=User Schmoozer"),
     logMock.info.assert_any_call("{TAG:WUFOO.CUST.REG} region=us-east-1"),
-    logMock.info.assert_any_call("{TAG:WUFOO.CUST.REG} version=%s" % grok.__version__.__version__),
+    logMock.info.assert_any_call("{TAG:WUFOO.CUST.REG} version=%s" % htm-it.__version__.__version__),
     logMock.info.assert_any_call("{TAG:WUFOO.CUST.REG} uniqueServerId=f2fec4a62c76418799e3907f1360e9b7"),
     logMock.info.assert_any_call("{TAG:WUFOO.CUST.REG} email=uschmoozer@numenta.com"),
     logMock.info.assert_any_call("{TAG:WUFOO.CUST.REG} build=0")
@@ -95,12 +95,12 @@ class WufooTest(unittest.TestCase):
     sendWelcomeEmailMock.assert_called_once_with("uschmoozer@numenta.com")
 
 
-  @ConfigAttributePatch(grok.app.config.CONFIG_NAME,
-                        grok.app.config.baseConfigDir,
+  @ConfigAttributePatch(htm-it.app.config.CONFIG_NAME,
+                        htm-it.app.config.baseConfigDir,
                         (("usertrack", "send_to_wufoo", "no"),))
-  @patch("grok.app.webservices.wufoo_api.requests")
-  @patch("grok.app.webservices.wufoo_api.instance_utils")
-  @patch("grok.app.webservices.wufoo_api.sendWelcomeEmail")
+  @patch("htm-it.app.webservices.wufoo_api.requests")
+  @patch("htm-it.app.webservices.wufoo_api.instance_utils")
+  @patch("htm-it.app.webservices.wufoo_api.sendWelcomeEmail")
   def testWufooConfigFlagDisabled(self, sendWelcomeEmailMock,
                                   instance_utilsMock, requestsMock):
     """ Assert that wufoo handler honors send_to_wufoo configuration directive
@@ -112,12 +112,12 @@ class WufooTest(unittest.TestCase):
     self.assertFalse(requestsMock.post.called)
 
 
-  @ConfigAttributePatch(grok.app.config.CONFIG_NAME,
-                        grok.app.config.baseConfigDir,
+  @ConfigAttributePatch(htm-it.app.config.CONFIG_NAME,
+                        htm-it.app.config.baseConfigDir,
                         (("usertrack", "send_to_wufoo", "yes"),))
-  @patch("grok.app.webservices.wufoo_api.requests")
-  @patch("grok.app.webservices.wufoo_api.instance_utils")
-  @patch("grok.app.webservices.wufoo_api.sendWelcomeEmail")
+  @patch("htm-it.app.webservices.wufoo_api.requests")
+  @patch("htm-it.app.webservices.wufoo_api.instance_utils")
+  @patch("htm-it.app.webservices.wufoo_api.sendWelcomeEmail")
   def testWufooConfigFlagEnabled(self, sendWelcomeEmailMock,
                                  instance_utilsMock, requestsMock):
     """ Assert that wufoo handler honors send_to_wufoo configuration directive

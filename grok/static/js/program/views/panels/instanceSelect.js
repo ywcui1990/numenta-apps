@@ -23,7 +23,7 @@
 
     /* TODO: Rename this view to modalInstanceSelect or something cause it's a modal */
 
-    GROKUI.InstanceSelectView = Backbone.View.extend({
+    HTM-ITUI.InstanceSelectView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -34,8 +34,8 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs('instance-select-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('instance-select-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         api:        null,
         instances:  null,
@@ -124,7 +124,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            GROKUI.utils.throb.start(me.site.state.instance.starts);
+            HTM-ITUI.utils.throb.start(me.site.state.instance.starts);
 
             $checkboxes.each(function() {
                 var $row = $(this).parents('tr'),
@@ -166,7 +166,7 @@
                         function(error, result) {
                             if(error) {
                                 me.trigger('view-models-created');
-                                return GROKUI.utils.modalError(error);
+                                return HTM-ITUI.utils.modalError(error);
                             }
 
                             me.data.instances.add({
@@ -179,7 +179,7 @@
 
                             // update % in throbber
                             percent = Math.round((index / list.length) * 100);
-                            GROKUI.utils.throb.message(
+                            HTM-ITUI.utils.throb.message(
                                 me.site.state.instance.starts +
                                 ' (' + percent + '%)'
                             );
@@ -192,13 +192,13 @@
                 else {
                     // TODO: Expired code?
 
-                    // Other Entity (AutoStack, Grok Custom Metric, etc.)
+                    // Other Entity (AutoStack, HTM-IT Custom Metric, etc.)
                     me.api.createModels(
                         list[index].creator,
                         function(error, results) {
                             if(error) {
                                 me.trigger('view-models-created');
-                                return GROKUI.utils.modalError(error);
+                                return HTM-ITUI.utils.modalError(error);
                             }
 
                             me.data.models.add({
@@ -212,7 +212,7 @@
 
                             // update % in throbber
                             percent = Math.round((index / list.length) * 100);
-                            GROKUI.utils.throb.message(
+                            HTM-ITUI.utils.throb.message(
                                 me.site.state.instance.starts +
                                 ' (' + percent + '%)'
                             );
@@ -227,7 +227,7 @@
                 // all done with recursive loop
                 me.$modal.modal('hide');
                 me.trigger('view-models-created');
-                GROKUI.utils.throb.stop();
+                HTM-ITUI.utils.throb.stop();
             }
         }
 

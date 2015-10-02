@@ -32,26 +32,26 @@ from sqlalchemy import sql
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-import grok.app
-from grok.app.webservices import models_api
-from grok.app import utils
-from grok.app import repository
-from grok.app.repository import schema
-from grok.test_utils.app.webservices import getDefaultHTTPHeaders
-from grok.test_utils.app.webservices import (
+import htm-it.app
+from htm-it.app.webservices import models_api
+from htm-it.app import utils
+from htm-it.app import repository
+from htm-it.app.repository import schema
+from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
+from htm-it.test_utils.app.webservices import (
   webservices_assertions as assertions
 )
-from grok.test_utils import aws_utils as aws
+from htm-it.test_utils import aws_utils as aws
 
 
 # NOTE: The aws credentials in application.conf initially have empty
-#  string values, expecting to be set via the /grok/welcome screen. Since this
-#  test doesn't involve grok-api, we will get the credentials from environment
+#  string values, expecting to be set via the /htm-it/welcome screen. Since this
+#  test doesn't involve htm-it-api, we will get the credentials from environment
 #  variables as that the test environments are expected to set and apply them
 #  config overrides.
 @ConfigAttributePatch(
-  grok.app.config.CONFIG_NAME,
-  grok.app.config.baseConfigDir,
+  htm-it.app.config.CONFIG_NAME,
+  htm-it.app.config.baseConfigDir,
   (("aws", "aws_access_key_id", os.environ["AWS_ACCESS_KEY_ID"]),
    ("aws", "aws_secret_access_key", os.environ["AWS_SECRET_ACCESS_KEY"]),)
 )
@@ -76,7 +76,7 @@ class TestModelAllInferences(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(models_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.data = self.createTestData()
 
   def createTestData(self):

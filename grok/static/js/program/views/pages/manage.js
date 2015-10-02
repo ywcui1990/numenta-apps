@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.ManageView = Backbone.View.extend({
+    HTM-ITUI.ManageView = Backbone.View.extend({
 
         template: _.template($('#manage-tmpl').html()),
 
-        msgs: GROKUI.msgs('manage-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('manage-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
         },
@@ -34,11 +34,11 @@
         initialize: function(options) {
             this.api = options.api;
 
-            GROKUI.utils.title(this.msgs.title);
+            HTM-ITUI.utils.title(this.msgs.title);
 
             // go setup if they have not yet
-            if(! GROKUI.utils.isAuthorized()) {
-                GROKUI.utils.go(this.site.paths.welcome);
+            if(! HTM-ITUI.utils.isAuthorized()) {
+                HTM-ITUI.utils.go(this.site.paths.welcome);
                 return;
             }
 
@@ -56,14 +56,14 @@
 
             this.$el.html(this.template(data));
 
-            instanceListView = new GROKUI.InstanceListView({
+            instanceListView = new HTM-ITUI.InstanceListView({
                 el:     $('#instance-list'),
                 api:    this.api,
                 site:   this.site
             });
             instanceListView.render();
 
-            embedView = new GROKUI.EmbedFormView({
+            embedView = new HTM-ITUI.EmbedFormView({
                 el: $('#embed-form'),
                 api: this.api
             });

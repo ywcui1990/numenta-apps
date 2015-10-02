@@ -19,10 +19,10 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('Grok Backbone.Collection: AwsMetrics', function() {
+describe('HTM-IT Backbone.Collection: AwsMetrics', function() {
 
-    var api =         new GrokAPI({ apiKey: 'xxx' }),
-        collection =  new GROKUI.AwsMetricsCollection([], { api: api });
+    var api =         new HTM-ITAPI({ apiKey: 'xxx' }),
+        collection =  new HTM-ITUI.AwsMetricsCollection([], { api: api });
 
     it('should construct simply', function() {
         expect(collection).to.be.an('object');

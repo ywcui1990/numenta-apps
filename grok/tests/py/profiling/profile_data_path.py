@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-Collate profiling information of the data path from grok logs and output a csv
+Collate profiling information of the data path from htm-it logs and output a csv
 file to stdout
 
 NOTE: profiling must be enabled in application.conf and model-swapper.conf
@@ -39,7 +39,7 @@ import os
 import pprint
 import sys
 
-from grok import logging_support
+from htm-it import logging_support
 
 
 
@@ -47,23 +47,23 @@ _EPOCH = datetime.utcfromtimestamp(0).replace(tzinfo=dateutil.tz.tzutc())
 
 
 
-# This class describes a trace of Grok Custom metric batches throgh the system
+# This class describes a trace of HTM-IT Custom metric batches throgh the system
 #
 # listenerGroup: _CustomMetricListenerGroup object
 # storerRxRecord: _CustomMetricStorerRxRecord
-# inputBatch: _StreamedToModelBatch object representing the input grok custom
-#   metric data batch emitted by grok-api (uwsgi) or metric storer service
+# inputBatch: _StreamedToModelBatch object representing the input htm-it custom
+#   metric data batch emitted by htm-it-api (uwsgi) or metric storer service
 # modelRunnerBatch: _ModelRunnerBatch object representing the batch as it's
 #   processed by Model Runner
 # anomalyBatch: _AnomalyBatch object representing the batch as it's processed
 #   by Anomaly Service
-_GrokCustomMetricTrace = namedtuple(
-  "_GrokCustomMetricTrace",
+_HTM-ITCustomMetricTrace = namedtuple(
+  "_HTM-ITCustomMetricTrace",
   ("listenerGroup storerRxRecord inputBatch modelRunnerBatch anomalyBatch"))
 
 
 
-# This class describes a metric data group in Grok Custom MetricListener Service
+# This class describes a metric data group in HTM-IT Custom MetricListener Service
 # NOTE: rows here should match rows in _StreamedToModelBatch, but collation
 # may be different in _StreamedToModelBatch, etc.
 #
@@ -75,7 +75,7 @@ _CustomMetricListenerGroup = namedtuple(
 
 
 
-# This class describes a metric data sample received by Grok Custom MetricStorer
+# This class describes a metric data sample received by HTM-IT Custom MetricStorer
 # from MetricListener
 #
 # rowTimestamp: datetime objects representing the metric data sample's
@@ -147,10 +147,10 @@ _CsvRow = namedtuple(
 
 _DEBUG = False
 
-class GrokDataPathProfiler(object):
+class HTM-ITDataPathProfiler(object):
   def __init__(self, logDir):
     """
-    :param logDir: path to Grok log directory
+    :param logDir: path to HTM-IT log directory
     """
     self._logDir = logDir
 
@@ -168,13 +168,13 @@ class GrokDataPathProfiler(object):
     if _DEBUG:
       print "ANOMALY:\n", pprint.pformat(anomalyBatches)
 
-    # Trace grok custom metric data
-    customMetricTraces = self._traceGrokCustomData(
+    # Trace htm-it custom metric data
+    customMetricTraces = self._traceHTM-ITCustomData(
       originatedBatches=originatedBatches,
       modeRunnerBatches=modeRunnerBatches,
       anomalyBatches=anomalyBatches)
     if _DEBUG:
-      print "GROK CUSTOM METRIC TRACES:\n", pprint.pformat(customMetricTraces)
+      print "HTM-IT CUSTOM METRIC TRACES:\n", pprint.pformat(customMetricTraces)
 
     # Trace Cloudwatch (non-Autostack) metric data
     cloudwatchMetricTraces = self._collateMetricCollectorBatches(
@@ -186,9 +186,9 @@ class GrokDataPathProfiler(object):
       print "CLOUDWATCH METRIC TRACES:\n", pprint.pformat(
         cloudwatchMetricTraces)
 
-    # Generate a sequence of _CsvRow objects representing output rows for Grok
+    # Generate a sequence of _CsvRow objects representing output rows for HTM-IT
     # Custom Metrics data-path profiling
-    customRows = self._generateGrokCustomMetricOutputRows(customMetricTraces)
+    customRows = self._generateHTM-ITCustomMetricOutputRows(customMetricTraces)
 
     # Generate a sequence of _CsvRow objects representing output rows for
     # CloudWatch Metrics data-path profiling
@@ -199,7 +199,7 @@ class GrokDataPathProfiler(object):
     self._emitCSV(outputStream=sys.stdout, rows=customRows + cloudwatchRows)
 
 
-  def _traceGrokCustomData(self, originatedBatches, modeRunnerBatches,
+  def _traceHTM-ITCustomData(self, originatedBatches, modeRunnerBatches,
                            anomalyBatches):
     """
     :param originatedBatches: sequence of _StreamedToModelBatch objects
@@ -207,7 +207,7 @@ class GrokDataPathProfiler(object):
     :param modeRunnerBatches: sequence of _ModelRunnerBatch objects
     :param anomalyBatches: sequence of _AnomalyBatch objects
 
-    :returns: sequence of _GrokCustomMetricTrace objects
+    :returns: sequence of _HTM-ITCustomMetricTrace objects
     """
     # Trace model batches
     modelBatchTraces = self._collateMetricCollectorBatches(
@@ -216,7 +216,7 @@ class GrokDataPathProfiler(object):
       anomalyBatches=anomalyBatches,
       datasource="custom")
     if _DEBUG:
-      print "GROK CUSTOM MODEL BATCH TRACES:\n", (
+      print "HTM-IT CUSTOM MODEL BATCH TRACES:\n", (
         pprint.pformat(modelBatchTraces))
 
     # Link metric listener groups and metric storer rx records with model batch
@@ -246,7 +246,7 @@ class GrokDataPathProfiler(object):
       if msRxRecord is None:
         continue
 
-      trace = _GrokCustomMetricTrace(
+      trace = _HTM-ITCustomMetricTrace(
         listenerGroup=mlGroup,
         storerRxRecord=msRxRecord,
         inputBatch=inputBatch,
@@ -259,11 +259,11 @@ class GrokDataPathProfiler(object):
     return customMetricDataTraces
 
 
-  def _generateGrokCustomMetricOutputRows(self, customMetricTraces):
-    """ Generate a sequence of objects representing output rows for Grok Custom
+  def _generateHTM-ITCustomMetricOutputRows(self, customMetricTraces):
+    """ Generate a sequence of objects representing output rows for HTM-IT Custom
     Metrics data-path profiling
 
-    :param customMetricTraces: sequence of _GrokCustomMetricTrace objects
+    :param customMetricTraces: sequence of _HTM-ITCustomMetricTrace objects
 
     :returns: a sequence of _CsvRow objects
     """
@@ -551,7 +551,7 @@ class GrokDataPathProfiler(object):
       samplesToModelDoneTag = "{TAG:STRM.DATA.TO_MODEL.DONE}"
       logFileNames = [
         "uwsgi.log", # when a custom metric with data is promoted to model
-        "metric_storer.log", # Grok Custom metrics
+        "metric_storer.log", # HTM-IT Custom metrics
         "metrics_collector.log" # Cloudwatch (non-Autostack) metrics
       ]
 
@@ -592,7 +592,7 @@ class GrokDataPathProfiler(object):
     result = []
 
     # Example:
-    # 2014-05-14 22:43:39,479 - grok.model_runner(17177) - INFO - <VER=1.4.0,
+    # 2014-05-14 22:43:39,479 - htm-it.model_runner(17177) - INFO - <VER=1.4.0,
     # SERVICE=MRUN> {TAG:SWAP.MR.BATCH.DONE}
     # model=13751549a4054698b50340394b86cd1e;
     # batch=2ffb33dedbb911e3bcfd28cfe912e811; numItems= 1; tailRowID=19805;
@@ -649,7 +649,7 @@ class GrokDataPathProfiler(object):
     result = []
 
     # Example:
-    # "2014-05-13 13:10:49,689 - grok.anomaly(48431) - INFO - "
+    # "2014-05-13 13:10:49,689 - htm-it.anomaly(48431) - INFO - "
     # "{TAG:ANOM.BATCH.INF.DONE} model=13751549a4054698b50340394b86cd1e; "
     # "numItems=1300; rows=[14602..15901]; tailRowTS=2014-05-18T08:25:11Z; "
     # "duration=2.2201s"
@@ -887,7 +887,7 @@ class GrokDataPathProfiler(object):
 
 def _parseArgs():
   helpString = (
-    "This script scrubs data-path profiling info from grok service logs on "
+    "This script scrubs data-path profiling info from htm-it service logs on "
     "the local host and emits a CSV file to STDOUT.\n"
     "%prog"
   )
@@ -920,4 +920,4 @@ def _parseArgs():
 
 if __name__ == "__main__":
 
-  GrokDataPathProfiler(**_parseArgs()).run()  # pylint: disable=W0142
+  HTM-ITDataPathProfiler(**_parseArgs()).run()  # pylint: disable=W0142

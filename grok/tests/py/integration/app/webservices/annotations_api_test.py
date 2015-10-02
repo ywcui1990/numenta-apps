@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 """
-Integration test for :class:`grok.app.webservices.annotations_api`
+Integration test for :class:`htm-it.app.webservices.annotations_api`
 
   1. Happy path
     * Create Annotation
@@ -43,11 +43,11 @@ Integration test for :class:`grok.app.webservices.annotations_api`
 import json
 import unittest
 from paste.fixture import TestApp, AppError
-from grok.app import config as app_config
+from htm-it.app import config as app_config
 from htmengine import utils as app_utils
-from grok.app.webservices import (annotations_api, instances_api, models_api)
-from grok.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
-from grok.test_utils.app.webservices import (
+from htm-it.app.webservices import (annotations_api, instances_api, models_api)
+from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm-it.test_utils.app.webservices import (
     getDefaultHTTPHeaders,
     getInvalidHTTPHeaders,
     webservices_assertions as assertions

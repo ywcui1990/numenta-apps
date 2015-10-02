@@ -23,14 +23,14 @@
 
     var viewName = 'instances-import';
 
-    GROKUI.InstancesImportView = Backbone.View.extend({
+    HTM-ITUI.InstancesImportView = Backbone.View.extend({
 
         name: viewName,
 
         template: _.template($('#' + viewName + '-tmpl').html()),
 
-        msgs: GROKUI.msgs(viewName + '-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs(viewName + '-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'click #upload':    'handleChoose', // pretty file upload button
@@ -44,10 +44,10 @@
             me.api = options.api;
             me.instanceListView = null;
 
-            GROKUI.utils.title(me.msgs.title);
+            HTM-ITUI.utils.title(me.msgs.title);
 
             // go setup if they have not yet
-            if(! GROKUI.utils.isAuthorized()) {
+            if(! HTM-ITUI.utils.isAuthorized()) {
                 location.href = me.site.paths.welcome;
                 return;
             }
@@ -68,7 +68,7 @@
 
             me.$el.html(me.template(data));
 
-            me.instanceListView = new GROKUI.InstanceListView({
+            me.instanceListView = new HTM-ITUI.InstanceListView({
                 el:     $('#instance-list'),
                 api:    me.api,
                 site:   me.site
@@ -102,7 +102,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            GROKUI.utils.throb.start(me.site.state.import);
+            HTM-ITUI.utils.throb.start(me.site.state.import);
 
             // de-emphasize Import button
             $target.parent().toggleClass('btn-primary btn-default');
@@ -123,7 +123,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            GROKUI.utils.go(destination);
+            HTM-ITUI.utils.go(destination);
         },
 
         /**
@@ -142,7 +142,7 @@
                     list[index],
                     function(error, results) {
                         if(error) {
-                            return GROKUI.utils.modalError(error);
+                            return HTM-ITUI.utils.modalError(error);
                         }
 
                         me.instanceListView.data.models.add({
@@ -156,7 +156,7 @@
 
                         // update % in throbber
                         percent = Math.round((index / list.length) * 100);
-                        GROKUI.utils.throb.message(
+                        HTM-ITUI.utils.throb.message(
                             me.site.state.instance.starts +
                             ' (' + percent + '%)'
                         );
@@ -170,26 +170,26 @@
                 // all done with recursive loop
                 me.instanceListView.data.instances.fetch({
                     error: function(collection, response, options) {
-                        return GROKUI.utils.modalError(error);
+                        return HTM-ITUI.utils.modalError(error);
                     }
                 });
                 me.instanceListView.data.autostacks.fetch({
                     error: function(collection, response, options) {
-                        return GROKUI.utils.modalError(error);
+                        return HTM-ITUI.utils.modalError(error);
                     }
                 });
                 me.instanceListView.data.customs.fetch({
                     error: function(collection, response, options) {
-                        return GROKUI.utils.modalError(error);
+                        return HTM-ITUI.utils.modalError(error);
                     }
                 });
                 me.instanceListView.data.namespaces.fetch({
                     error: function(collection, response, options) {
-                        return GROKUI.utils.modalError(error);
+                        return HTM-ITUI.utils.modalError(error);
                     }
                 });
 
-                GROKUI.utils.throb.stop();
+                HTM-ITUI.utils.throb.stop();
             }
         }
 

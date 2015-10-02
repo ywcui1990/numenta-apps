@@ -21,11 +21,11 @@
 
 (function() {
 
-    GROKUI.NotFoundView = Backbone.View.extend({
+    HTM-ITUI.NotFoundView = Backbone.View.extend({
 
         template: _.template($('#not-found-tmpl').html()),
 
-        msgs: GROKUI.msgs('not-found-tmpl'),
+        msgs: HTM-ITUI.msgs('not-found-tmpl'),
 
         events: {
         },
@@ -33,7 +33,7 @@
         initialize: function(options) {
             var me = this;
 
-            GROKUI.utils.title(me.msgs.title);
+            HTM-ITUI.utils.title(me.msgs.title);
 
             me.render();
         },
@@ -43,7 +43,7 @@
                 data = {
                     baseUrl: NTA.baseUrl,
                     msgs: me.msgs,
-                    site: GROKUI.msgs('site')
+                    site: HTM-ITUI.msgs('site')
                 };
 
             me.$el.html(me.template(data));

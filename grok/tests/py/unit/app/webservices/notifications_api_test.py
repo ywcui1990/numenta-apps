@@ -28,13 +28,13 @@ import uuid
 from paste.fixture import TestApp
 from mock import Mock, patch
 
-import grok.app
-from grok.app import repository
+import htm-it.app
+from htm-it.app import repository
 from htmengine import utils as app_utils
-from grok.app.exceptions import ObjectNotFoundError
-from grok.app.webservices import notifications_api
+from htm-it.app.exceptions import ObjectNotFoundError
+from htm-it.app.webservices import notifications_api
 
-from grok.test_utils.app.webservices import getDefaultHTTPHeaders
+from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
 
 
 @patch.object(repository, "engineFactory", autospec=True)
@@ -42,25 +42,25 @@ class TestNotificationsHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.model_list = json.load(open(os.path.join(grok.app.GROK_HOME,
+    cls.model_list = json.load(open(os.path.join(htm-it.app.HTM-IT_HOME,
       "tests/py/data/app/webservices/models_list.json")))
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(notifications_api.app.wsgifunc())
 
     # Set up dummy notification assets
     self.deviceId = str(uuid.uuid4())
     self.notificationId = str(uuid.uuid4())
 
-    metricParams = {u"region":u"us-east-1", u"DBInstanceIdentifier":u"grokdb2"}
+    metricParams = {u"region":u"us-east-1", u"DBInstanceIdentifier":u"htm-itdb2"}
     self.metric = {"uid": u"cebe9fab-f416-4845-8dab-02d292244112",
                    "datasource": u"cloudwatch",
                    "name": u"AWS/RDS/DatabaseConnections",
                    "description": u"The number of database connections in use "
                                   u"by Amazon RDS database",
-                   "server": u"grokdb2",
+                   "server": u"htm-itdb2",
                    "location": u"us-east-1",
                    "parameters": app_utils.jsonEncode(metricParams),
                    "status": 1,
@@ -181,7 +181,7 @@ class TestNotificationsHandler(unittest.TestCase):
       engineMock.return_value.connect.return_value.__enter__.return_value, uids)
 
 
-  @patch("grok.app.webservices.notifications_api.repository", autospec=True)
+  @patch("htm-it.app.webservices.notifications_api.repository", autospec=True)
   def testGETNotificationHistory(self, repositoryMock, _engineMock):
     """ Test GET notification history
     """
@@ -201,7 +201,7 @@ class TestNotificationsHandler(unittest.TestCase):
     self.assertSequenceEqual(result, jsonNotifications)
 
 
-  @patch("grok.app.webservices.notifications_api.repository", autospec=True)
+  @patch("htm-it.app.webservices.notifications_api.repository", autospec=True)
   def testGETNotificationSettings(self, repositoryMock, _engineMock):
     """ Test GET notification settings
     """
@@ -220,7 +220,7 @@ class TestNotificationsHandler(unittest.TestCase):
     self.assertDictEqual(result, jsonNotificationSettings)
 
 
-  @patch("grok.app.webservices.notifications_api.repository", autospec=True)
+  @patch("htm-it.app.webservices.notifications_api.repository", autospec=True)
   def testPUTNotificationSettingsUpdate(self, repositoryMock, engineMock):
     """ Test PUT notification settings (update)
     """
@@ -246,7 +246,7 @@ class TestNotificationsHandler(unittest.TestCase):
        "email_addr": "updated@host.tld"})
 
 
-  @patch("grok.app.webservices.notifications_api.repository", autospec=True)
+  @patch("htm-it.app.webservices.notifications_api.repository", autospec=True)
   def testPUTNotificationSettingsCreate(self, repositoryMock, engineMock):
     """ Test PUT notification settings (create)
     """

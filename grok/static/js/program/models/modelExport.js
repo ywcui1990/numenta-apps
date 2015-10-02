@@ -22,14 +22,14 @@
 (function() {
 
   /**
-   * Backbone.Model for a Grok Metric/Model Export
+   * Backbone.Model for a HTM-IT Metric/Model Export
    * @constructor
    * @copyright © 2014 Numenta
    * @public
    * @requires Backbone, Backbone.Model
    * @returns {Object} Backbone.Model object
    */
-  GROKUI.ModelExportModel = Backbone.Model.extend({
+  HTM-ITUI.ModelExportModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

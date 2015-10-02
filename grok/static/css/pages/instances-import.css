@@ -1,17 +1,17 @@
-.grok-page .import {
+.htm-it-page .import {
     margin-top: 2em;
 }
-.grok-page .import label {
+.htm-it-page .import label {
     padding-bottom: 0.33em;
 }
-.grok-page .import label:after {
+.htm-it-page .import label:after {
     content: ':';
 }
-.grok-page .import #upload {
+.htm-it-page .import #upload {
     margin-right: 0.66em;
     position: relative;
 }
-.grok-page .import #upload #file {
+.htm-it-page .import #upload #file {
     cursor: pointer;
     display: block;
     height: 100%;
@@ -22,10 +22,10 @@
     width: 100%;
 }
 
-.grok-page .import code {
+.htm-it-page .import code {
     display: inline-block;
 }
 
-.grok-page h3 {
+.htm-it-page h3 {
     margin-top: 2em;
 }

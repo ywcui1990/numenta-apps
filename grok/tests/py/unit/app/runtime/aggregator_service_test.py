@@ -30,17 +30,17 @@ import unittest
 
 from mock import Mock, patch
 
-from grok.app import exceptions as app_exceptions
+from htm-it.app import exceptions as app_exceptions
 
-from grok.app.runtime import aggregator_service
+from htm-it.app.runtime import aggregator_service
 
-from grok.app.runtime.aggregator_metric_collection import (
+from htm-it.app.runtime.aggregator_metric_collection import (
   AutostackMetricRequest,
   InstanceMetricData,
   MetricRecord,
   MetricCollection)
 
-from grok.app.runtime import aggregator_utils
+from htm-it.app.runtime import aggregator_utils
 
 from htmengine.model_swapper.model_swapper_interface import \
   ModelSwapperInterface
@@ -70,9 +70,9 @@ class AggregatorServiceTestCase(unittest.TestCase):
     self.timeRange = timeRange
 
 
-  @patch("grok.app.runtime.aggregator_service.MetricStreamer",
+  @patch("htm-it.app.runtime.aggregator_service.MetricStreamer",
          autospec=True)
-  @patch("grok.app.runtime.aggregator_service.EC2InstanceMetricGetter",
+  @patch("htm-it.app.runtime.aggregator_service.EC2InstanceMetricGetter",
          autospec=True)
   @patch.object(aggregator_service, "repository", autospec=True)
   @patch("sqlalchemy.engine.Engine", autospec=True)

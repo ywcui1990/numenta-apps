@@ -20,13 +20,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 """
-Updates Grok release version by modifying the contents of `grok/__version__.py`
+Updates HTM-IT release version by modifying the contents of `htm-it/__version__.py`
 to match the specified version.  If no version specified, default to the
 results of `git describe --tags`, which will result in a version of the format
 "{tag}-{N}-{sha}", where {tag} is the most recent git tag, {N} is the number of
 commits since {tag}, and {sha} is an abbreviated git commit sha.
 
-MUST BE CALLED BEFORE .git directory is stripped out of grok release AND before
+MUST BE CALLED BEFORE .git directory is stripped out of htm-it release AND before
 .pyc files are generated.
 """
 import logging
@@ -37,24 +37,24 @@ import subprocess
 import sys
 
 # pylint: disable=W0611
-# Imported grok here as _APPLICATION_CONF_DIR in logging_support was always
-# setting to None. This hack is required while packaging Grok RPM.
-import grok
-from grok import logging_support
+# Imported htm-it here as _APPLICATION_CONF_DIR in logging_support was always
+# setting to None. This hack is required while packaging HTM-IT RPM.
+import htm-it
+from htm-it import logging_support
 
 from nupic.support.decorators import logEntryExit
 
 
 
 def _getLogger():
-  return logging.getLogger("grok.update_release_version")
+  return logging.getLogger("htm-it.update_release_version")
 
 
 
 @logEntryExit(_getLogger, entryExitLogLevel=logging.INFO)
 def updateReleaseVersion(args):
   helpString = (
-    "This script updates Grok release version in grok/__version__.py.\n"
+    "This script updates HTM-IT release version in htm-it/__version__.py.\n"
     "%%prog\n\n")
 
   parser = OptionParser(helpString)
@@ -76,7 +76,7 @@ def updateReleaseVersion(args):
 
   pattern = re.compile(r"__version__\s?=\s?[\'\"](.+)[\'\"]")
 
-  with open(resource_filename("grok", "__version__.py"), "r+") as fp:
+  with open(resource_filename("htm-it", "__version__.py"), "r+") as fp:
     lines = fp.readlines() # Read entire file into `lines`
     fp.seek(0) # Seek to beginning
     for line in lines:

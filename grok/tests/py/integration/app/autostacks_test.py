@@ -32,9 +32,9 @@ import unittest
 import boto.ec2.cloudwatch
 import requests
 
-from grok import logging_support
-from grok.app import config
-from grok.test_utils.app.test_case_base import TestCaseBase, retry
+from htm-it import logging_support
+from htm-it.app import config
+from htm-it.test_utils.app.test_case_base import TestCaseBase, retry
 
 
 

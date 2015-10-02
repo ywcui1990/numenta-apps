@@ -125,7 +125,7 @@
             $.extend({}, DEFAULT_OPTIONS, options, mainCallbacks)
         ];
     }
-    NuGraph.prototype = GROK.util.heir(Dygraph.prototype);
+    NuGraph.prototype = HTM-IT.util.heir(Dygraph.prototype);
     NuGraph.prototype.constructor = Dygraph;
 
     /**
@@ -153,7 +153,7 @@
         }
     };
 
-    NuGraph.parseGrokDateString = function(dateTimeString) {
+    NuGraph.parseHTM-ITDateString = function(dateTimeString) {
         var dateOut, dateTimeParts, dateParts, timeParts;
         // if the date string is parse-able, it will not return NaN,
         // and we can just create a Date normally
@@ -321,7 +321,7 @@
                 plotter: barChartPlotter
             }, options));
     }
-    NuBarGraph.prototype = GROK.util.heir(NuGraph.prototype);
+    NuBarGraph.prototype = HTM-IT.util.heir(NuGraph.prototype);
     NuBarGraph.prototype.constructor = NuGraph;
 
     window.NuBarGraph = NuBarGraph;
@@ -353,7 +353,7 @@
         }, DEFAULT_OPTIONS, options);
         NuGraph.call(this, elementId, formattedOutput.data, nugraphOptions);
     }
-    PredictionGraph.prototype = GROK.util.heir(NuGraph.prototype);
+    PredictionGraph.prototype = HTM-IT.util.heir(NuGraph.prototype);
     PredictionGraph.prototype.constructor = NuGraph;
 
     PredictionGraph.prototype._formatModelOutputData = function(modelOutput) {
@@ -412,7 +412,7 @@
             value = dataRow[predictedFieldIndex];
             prediction = parseFloat(dataRow[predictedFieldPredictionIndex]);
 
-            outputRow.push(NuGraph.parseGrokDateString(dataRow[temporalIndex]));
+            outputRow.push(NuGraph.parseHTM-ITDateString(dataRow[temporalIndex]));
             outputRow.push(value === "" ? null : parseFloat(value));
             outputRow.push(prediction === "" ? null : parseFloat(prediction));
             outputData.push(outputRow);
@@ -482,7 +482,7 @@
         }, DEFAULT_OPTIONS, options);
         NuBarGraph.call(this, elementId, formattedOutput.data, nugraphOptions);
     }
-    PredictionConfidenceGraph.prototype = GROK.util.heir(NuBarGraph.prototype);
+    PredictionConfidenceGraph.prototype = HTM-IT.util.heir(NuBarGraph.prototype);
     PredictionConfidenceGraph.prototype.constructor = NuBarGraph;
 
     PredictionConfidenceGraph.prototype._formatModelOutputData = function(modelOutput) {
@@ -534,7 +534,7 @@
             confidence = findConfidenceValueHack(details, predictionSteps, prediction);
 
             outputData.push([
-                NuGraph.parseGrokDateString(dataRow[temporalIndex]),
+                NuGraph.parseHTM-ITDateString(dataRow[temporalIndex]),
                 confidence
             ]);
         });
@@ -574,7 +574,7 @@
         }, DEFAULT_OPTIONS, options);
         NuBarGraph.call(this, elementId, formattedOutput.data, nugraphOptions);
     }
-    AnomalyScoreGraph.prototype = GROK.util.heir(NuBarGraph.prototype);
+    AnomalyScoreGraph.prototype = HTM-IT.util.heir(NuBarGraph.prototype);
     AnomalyScoreGraph.prototype.constructor = NuBarGraph;
 
     AnomalyScoreGraph.prototype._formatModelOutputData = function(modelOutput) {
@@ -611,7 +611,7 @@
             }
 
             outputData.push([
-                NuGraph.parseGrokDateString(dataRow[temporalIndex]),
+                NuGraph.parseHTM-ITDateString(dataRow[temporalIndex]),
                 parseFloat(dataRow[anomalyIndex])
             ]);
         });
@@ -640,7 +640,7 @@
         PredictionGraph.call(this, elementId, modelOutput,
             $.extend({}, DEFAULT_OPTIONS, options));
     }
-    DanglingPredictionGraph.prototype = GROK.util.heir(PredictionGraph.prototype);
+    DanglingPredictionGraph.prototype = HTM-IT.util.heir(PredictionGraph.prototype);
     DanglingPredictionGraph.prototype.constructor = PredictionGraph;
 
     DanglingPredictionGraph.prototype._getCopyOfOptionsWithUpdatedDateWindow = function(options) {
@@ -725,7 +725,7 @@
         // model object exists.
         var err = null;
         if (! model) {
-            err = new Error('Model given to FaceOfGrok does not exist.');
+            err = new Error('Model given to FaceOfHTM-IT does not exist.');
         }
         callback(err);
     }
@@ -833,13 +833,13 @@
     }
 
     /**
-     * Face of grok main component.
+     * Face of htm-it main component.
      * @param element
-     * @param input GROK.Model object or CSV URI
+     * @param input HTM-IT.Model object or CSV URI
      * @param options
      * @constructor
      */
-    function FaceOfGrok(element, input, options) {
+    function FaceOfHTM-IT(element, input, options) {
         if (typeof element === 'string') {
             this.rootId = element;
             this.$fog = $('#' + element);
@@ -860,17 +860,17 @@
 
         // Input may be:
         //  (a) a path for a CSV file to load
-        //  (b) a GROK.Model object (optionally accompanied by cachedData)
+        //  (b) a HTM-IT.Model object (optionally accompanied by cachedData)
         if (typeof input === 'string') {
             // input is CSV
             this.csvUri = input;
         } else if (input.constructor &&
                    input.constructor.NAMESPACE &&
                    input.constructor.NAMESPACE === 'models') {
-            // input is a GROK.Model instance
+            // input is a HTM-IT.Model instance
             this.model = input;
         } else {
-            throw new Error('FaceOfGrok expected a Model Instance or CSV');
+            throw new Error('FaceOfHTM-IT expected a Model Instance or CSV');
         }
 
         this.options = $.extend({}, DEFAULT_OPTIONS, options);
@@ -878,11 +878,11 @@
         this.renderedGraphs = 0;
     }
 
-    FaceOfGrok.prototype.on = function(name, callback) {
+    FaceOfHTM-IT.prototype.on = function(name, callback) {
         addListener(this.listeners, name, callback);
     };
 
-    FaceOfGrok.prototype.render = function() {
+    FaceOfHTM-IT.prototype.render = function() {
         var me = this,
             predictionSteps = me.model.get('predictionSteps');
 
@@ -923,11 +923,11 @@
                 me._createAndRenderGraphs(rows);
             });
         } else {
-            throw new Error('Cannot execute Face of Grok without a model or a csv URI!');
+            throw new Error('Cannot execute Face of HTM-IT without a model or a csv URI!');
         }
     };
 
-    FaceOfGrok.prototype._createAndRenderGraphs = function(rows, predictionSteps) {
+    FaceOfHTM-IT.prototype._createAndRenderGraphs = function(rows, predictionSteps) {
         var me = this,
             predictionGraph,
             danglingPredictionGraph,
@@ -1047,7 +1047,7 @@
     /**
      * Handle dynamic chart updates
      */    
-    FaceOfGrok.prototype._handleDynamicCharts = function() {
+    FaceOfHTM-IT.prototype._handleDynamicCharts = function() {
         var me = this,
             index,
             predictMonitor,
@@ -1057,7 +1057,7 @@
 
         // dynamic self-updating chart
         if(me.dynamic) {
-            predictMonitor = new GROK.PredictionMonitor(me.model, {
+            predictMonitor = new HTM-IT.PredictionMonitor(me.model, {
                 lastRowIdSeen: me._modelOutput.data[me._modelOutput.data.length - 2][0]
             });
            
@@ -1118,7 +1118,7 @@
         }
     };
 
-    FaceOfGrok.prototype._prepareDomForFogCharts = function() {
+    FaceOfHTM-IT.prototype._prepareDomForFogCharts = function() {
         var tableString = '<table class="fog"><tbody>';
         tableString += '<tr class="fog-top"><td id="' + this.confidenceGraphId + '" class="fog-left confidence-graph"></td><td class="fog-right"></td></tr>';
         tableString += '<tr class="fog-bottom"><td id="' + this.predictionGraphId + '" class="fog-left prediction-graph"></td>';
@@ -1128,7 +1128,7 @@
         this.$fog.html(tableString);
     };
 
-    FaceOfGrok.prototype._reportFatalError = function(eventName, err) {
+    FaceOfHTM-IT.prototype._reportFatalError = function(eventName, err) {
         // find listeners for the event
         var listeners = this.listeners[eventName];
         // if there are no listeners for this error, we will throw the error
@@ -1139,7 +1139,7 @@
         emit(this.listeners, eventName, err);
     };
 
-    FaceOfGrok.prototype._graphDrawn = function(graph, isInitialDraw) {
+    FaceOfHTM-IT.prototype._graphDrawn = function(graph, isInitialDraw) {
         var $danglingGraph,
             me = this,
             pointsToDisplay = this.options.initialPointsToDisplay;
@@ -1166,14 +1166,14 @@
         }
     };
 
-    FaceOfGrok.prototype.destroy = function() {
+    FaceOfHTM-IT.prototype.destroy = function() {
         this.allGraphs.forEach(function(dygraph) {
             dygraph.destroy();
         });
     };
 
-    FaceOfGrok.prototype.__version__ = '0.4';
+    FaceOfHTM-IT.prototype.__version__ = '0.4';
 
-    window.FaceOfGrok = FaceOfGrok;
+    window.FaceOfHTM-IT = FaceOfHTM-IT;
 
 })();

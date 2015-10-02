@@ -22,7 +22,7 @@
 
 
 """
-  This script is the single point of entry for running grok behavioral
+  This script is the single point of entry for running htm-it behavioral
   tests. It can be run either locally or from Jenkins.
 """
 import argparse
@@ -45,11 +45,11 @@ from infrastructure.utilities.exceptions import (
   InstanceNotReadyError,
   InvalidParametersError)
 from infrastructure.utilities.diagnostics import initPipelineLogger
-from infrastructure.utilities.grok_server import waitForGrokServerToBeReady
+from infrastructure.utilities.htm-it_server import waitForHTM-ITServerToBeReady
 from infrastructure.utilities.s3 import getLastStableAmi
 
 
-GROK_AWS_CREDENTIALS_SETUP_TRIES = 30
+HTM-IT_AWS_CREDENTIALS_SETUP_TRIES = 30
 SLEEP_DELAY = 10
 
 
@@ -72,7 +72,7 @@ def parseArgs():
   """
     Parse the command line arguments
   """
-  parser = argparse.ArgumentParser(description="Runs grok behavioral tests")
+  parser = argparse.ArgumentParser(description="Runs htm-it behavioral tests")
   parser.add_argument("--ami-id", dest="amiId", type=str,
                       help=("OPTIONAL: AMI ID to test against. If this is set "
                             "launch an instance of the AMI specified and run "
@@ -147,7 +147,7 @@ def main(args):
   g_config["REGION"] = args.region
 
   g_tests_root = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                              "tests", "java", "behavioral", "grok")
+                              "tests", "java", "behavioral", "htm-it")
   serverKey = os.path.join("~", ".ssh", g_config["KEY"] + ".pem")
   amiId = args.amiId or getLastStableAmi(g_config("S3_MAPPING_BUCKET"),
                                          g_logger)
@@ -172,7 +172,7 @@ def main(args):
       "Failed to find stable ami id and no server specified")
   try:
     publicDnsName, instanceId = launchInstance(amiId, g_config, g_logger)
-    waitForGrokServerToBeReady(publicDnsName, serverKey, g_config["USER"],
+    waitForHTM-ITServerToBeReady(publicDnsName, serverKey, g_config["USER"],
                                g_logger)
     testCommand = 'cd %s && ./run_selenium_tests %s "%s" "%s"' % (
       g_tests_root, publicDnsName, args.platform.upper(), args.browser.upper())

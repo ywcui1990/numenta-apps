@@ -33,7 +33,7 @@ import psutil
 import sys
 import time
 
-from grok import logging_support
+from htm-it import logging_support
 
 
 

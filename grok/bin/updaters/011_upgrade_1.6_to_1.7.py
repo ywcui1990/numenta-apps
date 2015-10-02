@@ -20,15 +20,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Migrate from Grok 1.6 to 1.7"""
+"""Migrate from HTM-IT 1.6 to 1.7"""
 
 import logging
 import os
 import subprocess
 
-from grok import logging_support
-from grok.app import GROK_HOME
-from grok.app import repository
+from htm-it import logging_support
+from htm-it.app import HTM-IT_HOME
+from htm-it.app import repository
 
 
 
@@ -38,17 +38,17 @@ g_log = logging.getLogger(__name__)
 
 def regenerateBaselineConfigObjects():
   """ Regenerate baseline configurations. This operation is idempotent. It
-  should typically be the first step of a Grok upgrade.
+  should typically be the first step of a HTM-IT upgrade.
   """
   g_log.info("******* REGENERATING BASELINE CONFIG OBJECTS *******")
-  os.chdir(GROK_HOME)
+  os.chdir(HTM-IT_HOME)
   subprocess.check_call(["python", "setup.py", "gen_base_configs"])
   g_log.info("******* BASELINE CONFIG OBJECTS REGENERATED *******")
 
 
 
-def fixUpGrokDB():
-  g_log.info("******* UPDATING GROKDB *******")
+def fixUpHTM-ITDB():
+  g_log.info("******* UPDATING HTM-ITDB *******")
 
   # Perform manual db migration to switch to sqlalchemy
   engine = repository.engineFactory()
@@ -67,7 +67,7 @@ def fixUpGrokDB():
   # Now we can run the migration script to upgrade from 1.6 to 1.7.
   repository.migrate("2f1ee984f978")
 
-  g_log.info("******* GROKDB UPDATED *******")
+  g_log.info("******* HTM-ITDB UPDATED *******")
 
 
 if __name__ == "__main__":
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     # First, regenerate baseline configuraiton objects
     regenerateBaselineConfigObjects()
 
-    fixUpGrokDB()
+    fixUpHTM-ITDB()
 
   except:
     g_log.exception("Updater script failed")

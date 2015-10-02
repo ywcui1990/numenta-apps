@@ -20,14 +20,14 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Migrate from Grok 1.6 to 1.6.1"""
+"""Migrate from HTM-IT 1.6 to 1.6.1"""
 
 import logging
 import os
 import subprocess
 
-from grok import logging_support
-from grok.app import GROK_HOME
+from htm-it import logging_support
+from htm-it.app import HTM-IT_HOME
 
 
 
@@ -37,10 +37,10 @@ g_log = logging.getLogger(__name__)
 
 def regenerateBaselineConfigObjects():
   """ Regenerate baseline configurations. This operation is idempotent. It
-  should typically be the first step of a Grok upgrade.
+  should typically be the first step of a HTM-IT upgrade.
   """
   g_log.info("******* REGENERATING BASELINE CONFIG OBJECTS *******")
-  os.chdir(GROK_HOME)
+  os.chdir(HTM-IT_HOME)
   subprocess.check_call(["python", "setup.py", "gen_base_configs"])
   g_log.info("******* BASELINE CONFIG OBJECTS REGENERATED *******")
 

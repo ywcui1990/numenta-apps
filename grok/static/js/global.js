@@ -24,7 +24,7 @@
     $(document).ready(function() {
 
         // kick off backbone client side routing
-        GROKUI.router = new GROKUI.Router();
+        HTM-ITUI.router = new HTM-ITUI.Router();
         Backbone.history.start({
             hashChange: false,
             pushState:  'pushState' in window.history,
@@ -37,18 +37,18 @@
         });
 
         // when views are finished rendering
-        GROKUI.loader.on('finished', function() {
+        HTM-ITUI.loader.on('finished', function() {
 
             // only once, not after
-            GROKUI.loader.off('finished');
+            HTM-ITUI.loader.off('finished');
 
             // Add handler for Help header link
-            $('.navbar .nav > .help').click(GROKUI.utils.help.show);
+            $('.navbar .nav > .help').click(HTM-ITUI.utils.help.show);
 
             // if this is an embeddable widget request
             if(
                 window.location.pathname.match(/\/embed/) &&
-                GROKUI.utils.getUrlParam('hash')
+                HTM-ITUI.utils.getUrlParam('hash')
             ) {
                 // skip everything else after this point, not necessary
                 return;
@@ -56,7 +56,7 @@
 
             // not setup flow, not welcome page, so...
             if(
-                (! GROKUI.utils.isSetupFlow()) &&
+                (! HTM-ITUI.utils.isSetupFlow()) &&
                 (! window.location.href.match(/welcome/))
             ) {
                 // ...so show full header
@@ -64,17 +64,17 @@
             }
 
             // make sure they can use api
-            if(GROKUI.utils.isAuthorized()) {
+            if(HTM-ITUI.utils.isAuthorized()) {
                 var apiOpts = {
-                        apiKey: GROKUI.utils.store.get('apiKey')
+                        apiKey: HTM-ITUI.utils.store.get('apiKey')
                     },
-                    api = new GrokAPI(apiOpts);
+                    api = new HTM-ITAPI(apiOpts);
 
                 // warn user if updates are available
                 api.getUpdate(function(error, results) {
-                    if(error) return GROKUI.utils.modalError(error);
+                    if(error) return HTM-ITUI.utils.modalError(error);
                     if(results.result) {
-                        GROKUI.loader.loadResources(
+                        HTM-ITUI.loader.loadResources(
                             {
                                 scripts:    [
                                     NTA.baseUrl + '/static/js/program/views/panels/alertUpdate.js'
@@ -88,14 +88,14 @@
                                 msgs: ['site']
                             },
                             function() {
-                                var view = new GROKUI.AlertUpdateView({
+                                var view = new HTM-ITUI.AlertUpdateView({
                                     el: $('#alert .text'),
-                                    api: new GrokAPI({
-                                        apiKey: GROKUI.utils.store.get('apiKey')
+                                    api: new HTM-ITAPI({
+                                        apiKey: HTM-ITUI.utils.store.get('apiKey')
                                     })
                                 });
                             }
-                        ); // GROKUI.loader.loadResources
+                        ); // HTM-ITUI.loader.loadResources
                     } // if
                 }); // api.getUpdate()
 
@@ -113,20 +113,20 @@
                             $disable.parent().addClass('off');
                         };
 
-                    if(error) return GROKUI.utils.modalError(error);
+                    if(error) return HTM-ITUI.utils.modalError(error);
 
                     if(results.result) doEnable();
                     else doDisable();
 
                     $enable.on('click', function(event) {
                         api.setSupportAccess(function(error) {
-                            if(error) return GROKUI.utils.modalError(error);
+                            if(error) return HTM-ITUI.utils.modalError(error);
                             doEnable();
                         });
                     });
                     $disable.on('click', function(event) {
                         api.removeSupportAccess(function(error) {
-                            if(error) return GROKUI.utils.modalError(error);
+                            if(error) return HTM-ITUI.utils.modalError(error);
                             doDisable();
                         });
                     });
@@ -134,7 +134,7 @@
 
             } // if authed user
 
-        }); // GROKUI loader on finished
+        }); // HTM-ITUI loader on finished
 
     }); // document ready
 

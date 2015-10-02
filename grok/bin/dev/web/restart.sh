@@ -29,11 +29,11 @@ function die {
     exit 1
 }
 
-if [[ ! $START_DIR =~ grok ]]; then
-    die "Please cd to Grok repo dir, and run: bin/dev/web/restart.sh"
+if [[ ! $START_DIR =~ htm-it ]]; then
+    die "Please cd to HTM-IT repo dir, and run: bin/dev/web/restart.sh"
 fi
 if [[ ! $SCRIPT_DIR =~ bin\/dev\/web ]]; then
-    die "Please cd to Grok repo dir, and run: bin/dev/web/restart.sh"
+    die "Please cd to HTM-IT repo dir, and run: bin/dev/web/restart.sh"
 fi
 
 echo "Stopping..."

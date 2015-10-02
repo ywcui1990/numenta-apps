@@ -23,7 +23,7 @@
 
     var viewName = 'instances-auto';
 
-    GROKUI.InstancesAutoView = Backbone.View.extend({
+    HTM-ITUI.InstancesAutoView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -38,8 +38,8 @@
 
         name: viewName,
 
-        msgs: GROKUI.msgs(viewName + '-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs(viewName + '-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         instanceListView:       null,
         setupProgressBarView:   null,
@@ -64,27 +64,27 @@
                 },
                 fetchOpts = {
                     error: function(collection, response, options) {
-                        return GROKUI.utils.modalError(error);
+                        return HTM-ITUI.utils.modalError(error);
                     }
                 };
 
             this.api = options.api;
 
-            this.data.instances =   new GROKUI.InstancesCollection([], collectOpts);
-            this.data.models =      new GROKUI.ModelsCollection([], collectOpts);
+            this.data.instances =   new HTM-ITUI.InstancesCollection([], collectOpts);
+            this.data.models =      new HTM-ITUI.ModelsCollection([], collectOpts);
 
-            GROKUI.utils.title(this.msgs.title);
+            HTM-ITUI.utils.title(this.msgs.title);
 
             // go setup if they have not yet
-            if(! GROKUI.utils.isAuthorized()) {
+            if(! HTM-ITUI.utils.isAuthorized()) {
                 location.href = this.site.paths.welcome;
                 return;
             }
 
             // next get list of AWS regions
             this.api.getRegions(function(error, regions) {
-                if(error) return GROKUI.utils.modalError(error);
-                GROKUI.utils.throb.stop();
+                if(error) return HTM-ITUI.utils.modalError(error);
+                HTM-ITUI.utils.throb.stop();
 
                 // rename region for display, get rid of extra text at end
                 Object.keys(regions).forEach(function(region) {
@@ -117,7 +117,7 @@
 
             me.$el.html(me.template(data));
 
-            this.instanceListView = new GROKUI.InstanceListView({
+            this.instanceListView = new HTM-ITUI.InstanceListView({
                 el:     $('#instance-list'),
                 api:    this.api,
                 site:   this.site,
@@ -141,7 +141,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            GROKUI.utils.go(destination);
+            HTM-ITUI.utils.go(destination);
         },
 
         /**
@@ -167,10 +167,10 @@
 
             // The user must select a region
             if (!region) {
-                return GROKUI.utils.modalError(me.msgs.errors.selectRegion);
+                return HTM-ITUI.utils.modalError(me.msgs.errors.selectRegion);
             }
 
-            GROKUI.utils.throb.start(me.site.state.instance.find);
+            HTM-ITUI.utils.throb.start(me.site.state.instance.find);
 
             // de-emphasize Start button
             $target.toggleClass('btn-primary btn-default');
@@ -193,14 +193,14 @@
                     "AWS/EC2", // We are only interested in EC2 instances here
                     opts,
                     function(error, results) {
-                        if(error) return GROKUI.utils.modalError(error);
+                        if(error) return HTM-ITUI.utils.modalError(error);
 
                         regionDetails = regionDetails.concat(results);
                         targetCount++;
 
                         // update % in throbber
                         percent = Math.round((targetCount / targetRegions.length) * 100);
-                        GROKUI.utils.throb.message(
+                        HTM-ITUI.utils.throb.message(
                             me.site.state.instance.find +
                             ' (' + percent + '%)'
                         );
@@ -208,9 +208,9 @@
                         // got through all regions
                         if(targetCount === targetRegions.length) {
                             if(! region) {
-                                // all regions + grok custom metrics
-                                me.api.getGrokCustomMetrics(function(error, metrics) {
-                                    if(error) return GROKUI.utils.modalError(error);
+                                // all regions + htm-it custom metrics
+                                me.api.getHTM-ITCustomMetrics(function(error, metrics) {
+                                    if(error) return HTM-ITUI.utils.modalError(error);
                                     regionDetails = regionDetails.concat(metrics);
                                     me.displaySelectionModal(regionDetails);
                                 });
@@ -239,19 +239,19 @@
                     return 0;
                 };
 
-            GROKUI.utils.throb.stop();
+            HTM-ITUI.utils.throb.stop();
 
             if(data.length <= 0) {
                 // no results
-                return GROKUI.utils.modalError(me.msgs.errors.empty);
+                return HTM-ITUI.utils.modalError(me.msgs.errors.empty);
             }
 
             data.sort(sortFn).forEach(function(metric) {
                 var service = metric.namespace ?
-                        metric.namespace : me.site.namespaces.grok.custom,
+                        metric.namespace : me.site.namespaces.htm-it.custom,
                     region = metric.region ?
                         metric.region :
-                        me.site.name + ' ' + me.site.regions.grok.custom;
+                        me.site.name + ' ' + me.site.regions.htm-it.custom;
 
                 // prettify
                 if(metric.name) {
@@ -280,7 +280,7 @@
                         display: display,
                         service: service,
                         region: region,
-                        creator: GROKUI.utils.encodeXmlEntities(
+                        creator: HTM-ITUI.utils.encodeXmlEntities(
                             JSON.stringify(metric)
                         )
                     };
@@ -295,7 +295,7 @@
             // modal
             // TODO: prep data before view, or send to view??
             // select view should be general - not specfici to auto model creation here!
-            me.instanceSelectView = new GROKUI.InstanceSelectView({
+            me.instanceSelectView = new HTM-ITUI.InstanceSelectView({
                 api:        me.api,
                 instances:  instances,
                 data: {
@@ -304,10 +304,10 @@
                 }
             });
             me.instanceSelectView.bind('view-models-created', function() {
-                GROKUI.utils.throb.stop();
+                HTM-ITUI.utils.throb.stop();
                 me.data.instances.fetch({
                     error: function(collection, response, options) {
-                        return GROKUI.utils.modalError(error);
+                        return HTM-ITUI.utils.modalError(error);
                     }
                 });
             });

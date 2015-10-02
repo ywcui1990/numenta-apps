@@ -1,15 +1,15 @@
-.grok-instance-list table {
+.htm-it-instance-list table {
     /* this is to get css overflow:ellipsis working on the table */
     table-layout: fixed;
     width: 100%;
 }
-.grok-instance-list table > colgroup > col:nth-child(2) {
+.htm-it-instance-list table > colgroup > col:nth-child(2) {
     width: 15%;
 }
-.grok-instance-list table > colgroup > col:nth-child(3) {
+.htm-it-instance-list table > colgroup > col:nth-child(3) {
     width: 11%;
 }
 
-.grok-instance-list td .close {
+.htm-it-instance-list td .close {
     float: none;
 }

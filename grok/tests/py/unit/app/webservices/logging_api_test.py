@@ -33,9 +33,9 @@ import web
 import os.path
 
 from htmengine import utils
-from grok.app import repository
-from grok.app.repository.queries import MetricStatus
-from grok.app.webservices import logging_api
+from htm-it.app import repository
+from htm-it.app.repository.queries import MetricStatus
+from htm-it.app.webservices import logging_api
 
 
 
@@ -54,7 +54,7 @@ class AndroidHandlerTest(unittest.TestCase):
       '"deviceID":"DEVICE_ID=6cdb56113bc772e9","eventType":"INFO",'
       '"message":"APP_VERSION=1.1.1-dev OS_VERSION=4.3 SDK_VERSION=18 '
       'OS_BUILD=JSS15J DEVICE=Android SDK built for x86-unknown(generic_x86) '
-      'SERIAL=unknown Service started","tag":"GrokService"}]')
+      'SERIAL=unknown Service started","tag":"HTM-ITService"}]')
 
     openMock = mock_open()
 
@@ -71,7 +71,7 @@ class AndroidHandlerTest(unittest.TestCase):
     openMock.assert_called_with(logging_api._LOG_FORMAT_ANDROID, "a")
     handle = openMock()
     handle.write.assert_called_once_with("%s [INFO] "
-      "[GrokService] MOBILE.ANDROID.DEVICE_ID=6cdb56113bc772e9 "
+      "[HTM-ITService] MOBILE.ANDROID.DEVICE_ID=6cdb56113bc772e9 "
       "APP_VERSION=1.1.1-dev OS_VERSION=4.3 SDK_VERSION=18 OS_BUILD=JSS15J "
       "DEVICE=Android SDK built for x86-unknown(generic_x86) SERIAL=unknown "
       "Service started\n" % timestamp)

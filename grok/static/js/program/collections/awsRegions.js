@@ -26,14 +26,14 @@
    * @constructor
    * @copyright © 2014 Numenta
    * @public
-   * @requires Backbone.js, Grok AwsRegionModel class
+   * @requires Backbone.js, HTM-IT AwsRegionModel class
    * @returns {Object} Backbone.js Collection object
    */
-  GROKUI.AwsRegionsCollection = Backbone.Collection.extend({
+  HTM-ITUI.AwsRegionsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: GROKUI.AwsRegionModel,
+    model: HTM-ITUI.AwsRegionModel,
 
     // Custom properties
 

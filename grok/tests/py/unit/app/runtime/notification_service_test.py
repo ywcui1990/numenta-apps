@@ -30,8 +30,8 @@ import pytz
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-import grok.app
-from grok.app.runtime import notification_service
+import htm-it.app
+from htm-it.app.runtime import notification_service
 
 
 
@@ -64,12 +64,12 @@ class NotificationServiceTest(unittest.TestCase):
       service.sendNotificationEmail(mockEngine, self.settingObj,
                                     notificationObj)
 
-  @ConfigAttributePatch(grok.app.config.CONFIG_NAME,
-                        grok.app.config.baseConfigDir,
+  @ConfigAttributePatch(htm-it.app.config.CONFIG_NAME,
+                        htm-it.app.config.baseConfigDir,
                         (("notifications", "sender",
                           "test@numenta.com"),))
-  @patch('grok.app.runtime.notification_service.timezone')
-  @patch("grok.app.runtime.notification_service.ses_utils.sendEmail")
+  @patch('htm-it.app.runtime.notification_service.timezone')
+  @patch("htm-it.app.runtime.notification_service.ses_utils.sendEmail")
   def testSendNotificationEmailDefault(self, sendEmailMock, timezoneMock,
                                        repoMock, _availabilityZoneMock):
     """TODO: Add description of test"""
@@ -82,7 +82,7 @@ class NotificationServiceTest(unittest.TestCase):
       tag_name = None
     metricRowMock = Mock(uid="abc",
                          spec_set=MetricSpec,
-                         server="us-west-2/AWS/ELB/grok-docs-elb",
+                         server="us-west-2/AWS/ELB/htm-it-docs-elb",
                          datasource="cloudwatch",
                          tag_name=None)
     metricRowMock.name = "AWS/ELB/RequestCount"
@@ -115,8 +115,8 @@ class NotificationServiceTest(unittest.TestCase):
     # require changes to these assertions
 
     self.assertTrue(
-      kwargs["body"].startswith("Grok has detected unusual behavior."))
-    self.assertIn("Instance:\t\t\tus-west-2/AWS/ELB/grok-docs-elb",
+      kwargs["body"].startswith("HTM-IT has detected unusual behavior."))
+    self.assertIn("Instance:\t\t\tus-west-2/AWS/ELB/htm-it-docs-elb",
                   kwargs["body"])
     self.assertIn("Metric:\t\t\tAWS/ELB/RequestCount",
                   kwargs["body"])
@@ -125,18 +125,18 @@ class NotificationServiceTest(unittest.TestCase):
     self.assertIn("Time (EDT):\t\tWednesday, March 19, 2014 04:23 PM",
                   kwargs["body"])
     self.assertTrue(kwargs["body"].endswith(("Email notification settings are "
-                                             "controlled in the Grok mobile ap"
+                                             "controlled in the HTM-IT mobile ap"
                                              "plication.\r\n")))
 
     self.assertEqual(kwargs["toAddresses"], "foo@bar.com")
 
 
-  @ConfigAttributePatch(grok.app.config.CONFIG_NAME,
-                        grok.app.config.baseConfigDir,
+  @ConfigAttributePatch(htm-it.app.config.CONFIG_NAME,
+                        htm-it.app.config.baseConfigDir,
                         (("notifications", "sender",
                           "test@numenta.com"),))
-  @patch('grok.app.runtime.notification_service.timezone')
-  @patch("grok.app.runtime.notification_service.ses_utils.sendEmail")
+  @patch('htm-it.app.runtime.notification_service.timezone')
+  @patch("htm-it.app.runtime.notification_service.ses_utils.sendEmail")
   def testSendNotificationEmailCustom(self, sendEmailMock, timezoneMock,
                                       repoMock, _availabilityZoneMock):
     """TODO: Add description of test"""
@@ -174,7 +174,7 @@ class NotificationServiceTest(unittest.TestCase):
     # require changes to these assertions
 
     self.assertTrue(
-      kwargs["body"].startswith("Grok has detected unusual behavior."))
+      kwargs["body"].startswith("HTM-IT has detected unusual behavior."))
     self.assertNotIn("Instance:\t",
                   kwargs["body"])
     self.assertIn("Metric:\t\t\tcpu_usage",
@@ -184,7 +184,7 @@ class NotificationServiceTest(unittest.TestCase):
     self.assertIn("Time (EDT):\t\tWednesday, March 19, 2014 04:23 PM",
                   kwargs["body"])
     self.assertTrue(kwargs["body"].endswith(("Email notification settings are "
-                                             "controlled in the Grok mobile ap"
+                                             "controlled in the HTM-IT mobile ap"
                                              "plication.\r\n")))
 
     self.assertEqual(kwargs["toAddresses"], "foo@bar.com")

@@ -1,7 +1,7 @@
-grok
+htm-it
 ====
 
 .. toctree::
    :maxdepth: 4
 
-   grok
+   htm-it

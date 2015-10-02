@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.ManageCustomMetricsView = Backbone.View.extend({
+    HTM-ITUI.ManageCustomMetricsView = Backbone.View.extend({
 
         template: _.template($('#manage-custom-metrics-tmpl').html()),
 
-        msgs: GROKUI.msgs('manage-custom-metrics-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('manage-custom-metrics-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'click #done':                  'handleDone',
@@ -42,28 +42,28 @@
                 };
             me.fetchOpts = {
                 error: function(collection, response, options) {
-                    return GROKUI.utils.modalError(response);
+                    return HTM-ITUI.utils.modalError(response);
                 }
             }; 
             me.api = collectOpts.api;
-            me.customMetrics = new GROKUI.GrokCustomMetricsCollection([], collectOpts);
+            me.customMetrics = new HTM-ITUI.HTM-ITCustomMetricsCollection([], collectOpts);
 
-            GROKUI.utils.title(me.msgs.title);
+            HTM-ITUI.utils.title(me.msgs.title);
 
             // Redirect user to setup if they haven't done so yet.
-            if(! GROKUI.utils.isAuthorized()) {
-                GROKUI.utils.go(me.site.paths.welcome);
+            if(! HTM-ITUI.utils.isAuthorized()) {
+                HTM-ITUI.utils.go(me.site.paths.welcome);
                 return;
             };
 
 
-            GROKUI.utils.throb.start(me.site.state.loading);
+            HTM-ITUI.utils.throb.start(me.site.state.loading);
 
             // get all the data in parallel
             $.when.apply($, [
                 me.customMetrics.fetch(me.fetchOpts)
             ]).done(function() {
-                GROKUI.utils.throb.stop();
+                HTM-ITUI.utils.throb.stop();
                 me.render();
             }.bind(me));
 
@@ -104,7 +104,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            GROKUI.utils.go(destination);
+            HTM-ITUI.utils.go(destination);
         },
 
         /**
@@ -125,22 +125,22 @@
             // ask user to confirm metric delete
             bootbox.confirm({
                 animate:    false,
-                message:    '<div>Delete this custom metric from Grok?</div>' + display + '<br/><div>WARNING: This will also delete any models associated with this data.</div>',
+                message:    '<div>Delete this custom metric from HTM-IT?</div>' + display + '<br/><div>WARNING: This will also delete any models associated with this data.</div>',
                 title:      'Delete',
                 callback:   function(result) {
                     if(result) {
                         $row.fadeOut();
-                        GROKUI.utils.throb.start(me.site.state.metric.remove);
-                        handler = me.api.deleteGrokCustomMetric(
+                        HTM-ITUI.utils.throb.start(me.site.state.metric.remove);
+                        handler = me.api.deleteHTM-ITCustomMetric(
                             name,
                             function(error, results) {
                                 if(error) {
-                                    if (handler.status != 404) return GROKUI.utils.modalError(error);
+                                    if (handler.status != 404) return HTM-ITUI.utils.modalError(error);
                                 }
                                 $.when.apply($, [
                                                 me.customMetrics.fetch(me.fetchOpts)
                                             ]).done(function() {
-                                                GROKUI.utils.throb.stop();
+                                                HTM-ITUI.utils.throb.stop();
                                                 me.render();
                                             });
                             }
@@ -180,26 +180,26 @@
                 // ask user to confirm delete all metrics
                 bootbox.confirm({
                     animate:    false,
-                    message:    'Delete all custom metrics from Grok?<br/><br/>WARNING: This will also delete any models associated with this data.',
+                    message:    'Delete all custom metrics from HTM-IT?<br/><br/>WARNING: This will also delete any models associated with this data.',
                     title:      'Delete All',
                     callback:   function(result) {
                         if(result) {
                             $rows.fadeOut();
-                            GROKUI.utils.throb.start(me.site.state.metric.remove);
+                            HTM-ITUI.utils.throb.start(me.site.state.metric.remove);
 
                             metricList.forEach(function(metricName) {
-                                handler = me.api.deleteGrokCustomMetric(
+                                handler = me.api.deleteHTM-ITCustomMetric(
                                     metricName,
                                     function(error, results) {
                                         if(error) {
-                                            if (handler.status != 404) return GROKUI.utils.modalError(error);
+                                            if (handler.status != 404) return HTM-ITUI.utils.modalError(error);
                                         }
 
                                         metricCount++;
 
                                         // update % in throbber
                                         percent = Math.round((metricCount / metricList.length) * 100);
-                                        GROKUI.utils.throb.message(
+                                        HTM-ITUI.utils.throb.message(
                                             me.site.state.metric.remove +
                                             ' (' + percent + '%)'
                                         );
@@ -209,7 +209,7 @@
                                             $.when.apply($, [
                                                 me.customMetrics.fetch(me.fetchOpts)
                                             ]).done(function() {
-                                                GROKUI.utils.throb.stop();
+                                                HTM-ITUI.utils.throb.stop();
                                                 me.render();
                                             });
                                         }

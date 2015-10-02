@@ -19,10 +19,10 @@ from setuptools import find_packages
 
 version = {}
 
-if os.path.exists("grok/__version__.py"):
-  execfile("grok/__version__.py", {}, version)
+if os.path.exists("htm-it/__version__.py"):
+  execfile("htm-it/__version__.py", {}, version)
 else:
-  exec(marshal.loads(open("grok/__init__.pyc").read()[8:]), {}, version)
+  exec(marshal.loads(open("htm-it/__init__.pyc").read()[8:]), {}, version)
 
 setup_requirements = ["PyYAML", "psutil"]
 install_requirements = []
@@ -40,51 +40,51 @@ with open("requirements.txt", "r") as inp:
     install_requirements.append(package)
 
 setup(
-  description="Project Grok",
+  description="Project HTM-IT",
   dependency_links=dependency_links,
   install_requires=install_requirements,
   setup_requires=setup_requirements,
-  name="grok",
+  name="htm-it",
   packages=find_packages(),
   include_package_data=True,
   version=version["__version__"]
 )
 
-GROK_HOME = os.path.abspath(os.path.dirname(__file__))
+HTM-IT_HOME = os.path.abspath(os.path.dirname(__file__))
 
 
 
-def getOrCreateGrokId():
-  grokIdPath = "%s/conf/.grok_id" % GROK_HOME
-  if os.path.exists(grokIdPath):
-    with open(grokIdPath, "r") as grokIdFile:
-      return grokIdFile.read()
+def getOrCreateHTM-ITId():
+  htm-itIdPath = "%s/conf/.htm-it_id" % HTM-IT_HOME
+  if os.path.exists(htm-itIdPath):
+    with open(htm-itIdPath, "r") as htm-itIdFile:
+      return htm-itIdFile.read()
   else:
-    newGrokId = uuid.uuid4().hex
-    with open(grokIdPath, "w") as grokIdFile:
-      grokIdFile.write(newGrokId)
-    return newGrokId
+    newHTM-ITId = uuid.uuid4().hex
+    with open(htm-itIdPath, "w") as htm-itIdFile:
+      htm-itIdFile.write(newHTM-ITId)
+    return newHTM-ITId
 
 
 
-APPLICATION_CONFIG_PATH = os.path.join(GROK_HOME, "conf")
-SD_CONFIG_FILE = os.path.join(GROK_HOME, "conf/supervisord.conf")
-NGINX_CONFIG_FILE = os.path.join(GROK_HOME, "conf/grok-api.conf")
+APPLICATION_CONFIG_PATH = os.path.join(HTM-IT_HOME, "conf")
+SD_CONFIG_FILE = os.path.join(HTM-IT_HOME, "conf/supervisord.conf")
+NGINX_CONFIG_FILE = os.path.join(HTM-IT_HOME, "conf/htm-it-api.conf")
 
 # Baseline defaults
 data = defaultdict(str)
 data["APPLICATION_CONFIG_PATH"] = APPLICATION_CONFIG_PATH
-data["GROK_HOME"] = GROK_HOME
-data["GROK_LOG_DIR"] = "%s/logs" % GROK_HOME
+data["HTM-IT_HOME"] = HTM-IT_HOME
+data["HTM-IT_LOG_DIR"] = "%s/logs" % HTM-IT_HOME
 data["NGINX_USER"] = pwd.getpwuid(os.getuid()).pw_name
 data["NGINX_GROUP"] = grp.getgrgid(os.getgid()).gr_name
 data["NGINX_SSL_CERTIFICATE"] = \
-  os.path.join(GROK_HOME, "conf/ssl/localhost.crt")
+  os.path.join(HTM-IT_HOME, "conf/ssl/localhost.crt")
 data["NGINX_SSL_CERTIFICATE_KEY"] = \
-  os.path.join(GROK_HOME, "conf/ssl/localhost.key")
-data["GROK_ID"] = getOrCreateGrokId()
-data["GROK_UPDATE_EPOCH"] = "%f" % (time.time())
-data["GROK_SEND_TO_WUFOO"] = "no"
+  os.path.join(HTM-IT_HOME, "conf/ssl/localhost.key")
+data["HTM-IT_ID"] = getOrCreateHTM-ITId()
+data["HTM-IT_UPDATE_EPOCH"] = "%f" % (time.time())
+data["HTM-IT_SEND_TO_WUFOO"] = "no"
 data["WUFOO_URL"] = ""
 data["WUFOO_USER"] = ""
 data["AWS_ACCESS_KEY_ID"] = ""
@@ -105,31 +105,31 @@ data.update(os.environ)
       "-t",
       "--target",
       default=APPLICATION_CONFIG_PATH,
-      help=("Absolute path of the directory where to store generated Grok "
+      help=("Absolute path of the directory where to store generated HTM-IT "
             "product configration files"),
       metavar="FILE")
   ])
-def configure_grok(options):
-  """ Initialize Grok's baseline and long-lasting ("override") configuration
+def configure_htm-it(options):
+  """ Initialize HTM-IT's baseline and long-lasting ("override") configuration
   objects
   NOTE: called by jenkins-ec2 / jenkins-ci / src / run_pipeline.py
   """
-  # First, generate Grok's baseline config objects
-  call_task("gen_grok_base_config", options={"target": options.target})
+  # First, generate HTM-IT's baseline config objects
+  call_task("gen_htm-it_base_config", options={"target": options.target})
 
-  from grok.app import config, GrokAppConfig
+  from htm-it.app import config, HTM-ITAppConfig
 
   # Delete all configuration override objects
   config.clearAllConfigOverrides()
 
-  # Initialize Grok API key
-  apiKey = os.environ.get("GROK_API_KEY")
+  # Initialize HTM-IT API key
+  apiKey = os.environ.get("HTM-IT_API_KEY")
   if apiKey is None:
     apiKey = "".join(
       random.choice("".join(set(string.letters + string.digits) - set('1iLl0Oo')))
       for _ in xrange(5))
 
-  config = GrokAppConfig(mode=GrokAppConfig.MODE_OVERRIDE_ONLY)
+  config = HTM-ITAppConfig(mode=HTM-ITAppConfig.MODE_OVERRIDE_ONLY)
   config.add_section("security")
   config.set("security", "apikey", apiKey)
   config.save()
@@ -142,12 +142,12 @@ def configure_grok(options):
       "-t",
       "--target",
       default=APPLICATION_CONFIG_PATH,
-      help=("Absolute path of the directory where to store generated Grok "
+      help=("Absolute path of the directory where to store generated HTM-IT "
             "product configration files"),
       metavar="FILE")
   ])
-def gen_grok_base_config(options):
-  """ (Re)generate Grok's baseline configuration objects """
+def gen_htm-it_base_config(options):
+  """ (Re)generate HTM-IT's baseline configuration objects """
 
   def generateConf(baseName, targetDir):
     # Read the template file
@@ -165,13 +165,13 @@ def gen_grok_base_config(options):
   generateConf("quota", options.target)
 
   print
-  print "Grok product configuration files created at", options.target
+  print "HTM-IT product configuration files created at", options.target
   print "For development purposes, be sure to set APPLICATION_CONFIG_PATH in ",
   print "your environment:"
   print
   print "    export APPLICATION_CONFIG_PATH=%s" % options.target
   print
-  print "Also consider setting GROK_API_KEY.  If a value exists in your ",
+  print "Also consider setting HTM-IT_API_KEY.  If a value exists in your ",
   print "environment, it will be used, otherwise a new one will be generated ",
   print "every time your configuration is created"
   print
@@ -188,9 +188,9 @@ def gen_grok_base_config(options):
       metavar="FILE")
   ])
 def configure_nginx(options):
-  """ Create Grok nGinx file """
+  """ Create HTM-IT nGinx file """
 
-  with open("conf/grok-api.tpl", "r") as src:
+  with open("conf/htm-it-api.tpl", "r") as src:
     tpl = src.read()
 
     with open(options.target, "w") as outp:
@@ -215,7 +215,7 @@ def configure_nginx(options):
       metavar="FILE")
   ])
 def configure_supervisord(options):
-  """ Create Grok supervisord configuration file """
+  """ Create HTM-IT supervisord configuration file """
 
   with open("conf/supervisord.tpl", "r") as src:
     tpl = src.read()
@@ -233,14 +233,14 @@ def configure_supervisord(options):
 
 
 @task
-def init_grokdb():
-  """ Initialize Grok database """
+def init_htm-itdb():
+  """ Initialize HTM-IT database """
   if "APPLICATION_CONFIG_PATH" not in os.environ:
     os.environ["APPLICATION_CONFIG_PATH"] = data["APPLICATION_CONFIG_PATH"]
 
-  import grok.app.repository
+  import htm-it.app.repository
 
-  grok.app.repository.reset()
+  htm-it.app.repository.reset()
 
 
 
@@ -255,7 +255,7 @@ def clean_rabbitmq():
   rabbitmq_user = rabbitmq_config.get("credentials", "user")
   rabbitmq_password = rabbitmq_config.get("credentials", "password")
 
-  # List Grok queues
+  # List HTM-IT queues
   result = subprocess.check_output(["rabbitmqadmin",
                                     "--username=%s" % rabbitmq_user,
                                     "--password=%s" % rabbitmq_password,
@@ -266,7 +266,7 @@ def clean_rabbitmq():
 
   # Delete queues individually
   for queue in json.loads(result):
-    if (queue["name"].startswith("grok.") or
+    if (queue["name"].startswith("htm-it.") or
         queue["name"] == "notifications"):
 
       subprocess.check_call(["rabbitmqadmin",
@@ -277,7 +277,7 @@ def clean_rabbitmq():
                              "name=%(name)s" % queue])
       print queue["name"], "queue deleted."
 
-  # List Grok exchanges
+  # List HTM-IT exchanges
   result = subprocess.check_output(["rabbitmqadmin",
                                     "--username=%s" % rabbitmq_user,
                                     "--password=%s" % rabbitmq_password,
@@ -288,7 +288,7 @@ def clean_rabbitmq():
 
   # Delete exchanges individually
   for exchange in json.loads(result):
-    if exchange["name"].startswith("grok."):
+    if exchange["name"].startswith("htm-it."):
       subprocess.check_call(["rabbitmqadmin",
                              "--username=%s" % rabbitmq_user,
                              "--password=%s" % rabbitmq_password,
@@ -313,7 +313,7 @@ def gen_base_configs():
   """ (Re)generate baseline configuration objects for all subsystems """
   call_task("configure_supervisord", options={"target": SD_CONFIG_FILE})
   call_task("configure_nginx", options={"target": NGINX_CONFIG_FILE})
-  call_task("gen_grok_base_config", options={"target": APPLICATION_CONFIG_PATH})
+  call_task("gen_htm-it_base_config", options={"target": APPLICATION_CONFIG_PATH})
 
 
 
@@ -322,7 +322,7 @@ def init():
   """Perform all necessary initialization."""
   call_task("configure_supervisord", options={"target": SD_CONFIG_FILE})
   call_task("configure_nginx", options={"target": NGINX_CONFIG_FILE})
-  call_task("configure_grok", options={"target": APPLICATION_CONFIG_PATH})
-  call_task("init_grokdb")
+  call_task("configure_htm-it", options={"target": APPLICATION_CONFIG_PATH})
+  call_task("init_htm-itdb")
   call_task("clean_rabbitmq")
   call_task("clean_checkpoints")

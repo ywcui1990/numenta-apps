@@ -21,12 +21,12 @@
 
 (function() {
 
-    GROKUI.ConfirmView = Backbone.View.extend({
+    HTM-ITUI.ConfirmView = Backbone.View.extend({
 
         template: _.template($('#confirm-tmpl').html()),
 
-        msgs: GROKUI.msgs('confirm-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('confirm-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         events: {
             'click #back' : 'handleBack',
@@ -40,23 +40,23 @@
 
         initialize: function(options) {
             var me = this,
-                region = GROKUI.utils.getUrlParam('region');
+                region = HTM-ITUI.utils.getUrlParam('region');
 
             me.api = options.api;
 
-            GROKUI.utils.title(me.msgs.title);
+            HTM-ITUI.utils.title(me.msgs.title);
 
             // setup? deactive header logo link & hide header setup menu
-            if(GROKUI.utils.isSetupFlow()) {
+            if(HTM-ITUI.utils.isSetupFlow()) {
                 $('.navbar-brand').attr('href', '#');
             }
 
-            GROKUI.utils.throb.start(this.site.state.instance.find);
+            HTM-ITUI.utils.throb.start(this.site.state.instance.find);
 
             // Next, get suggested instances from instances API
             me.api.getInstanceSuggestions(region, function(error, result) {
-                if(error) return GROKUI.utils.modalError(error);
-                GROKUI.utils.throb.stop();
+                if(error) return HTM-ITUI.utils.modalError(error);
+                HTM-ITUI.utils.throb.stop();
                 suggestions = JSON.parse(result);
 
                 var clickHandler = function(checked) {
@@ -73,7 +73,7 @@
                 // Add suggested (checked)
                 Object.keys(suggestions.suggested).forEach(function(idx) {
                     var $parent = $('#'+suggestions.suggested[idx].namespace.split('/')[1]+'-instances'),
-                        view = new GROKUI.SuggestedInstancesListView({
+                        view = new HTM-ITUI.SuggestedInstancesListView({
                             instance: suggestions.suggested[idx],
                             region:   suggestions.suggested[idx].region,
                             checked:  'checked'
@@ -88,7 +88,7 @@
                 // Add alternates (unchecked)
                 Object.keys(suggestions.alternates).forEach(function(idx) {
                     var $parent = $('#'+suggestions.alternates[idx].namespace.split('/')[1]+'-instances'),
-                        view = new GROKUI.SuggestedInstancesListView({
+                        view = new HTM-ITUI.SuggestedInstancesListView({
                             instance: suggestions.alternates[idx],
                             region:   suggestions.alternates[idx].region,
                             checked:  ''
@@ -102,7 +102,7 @@
 
                 $("div[id$=-instances]").each(function(idx, section) {
                     if (!$(section).children().length) {
-                        var view = new GROKUI.NoSuggestedInstancesView().render();
+                        var view = new HTM-ITUI.NoSuggestedInstancesView().render();
                         $(section).append(view.$el);
                     }
 
@@ -119,21 +119,21 @@
                     baseUrl: NTA.baseUrl,
                     msgs: me.msgs,
                     site: me.site,
-                    isSetup: GROKUI.utils.isSetupFlow(),
+                    isSetup: HTM-ITUI.utils.isSetupFlow(),
                     button: {
                         back: me.site.buttons.back,
                         next: me.site.buttons.next
                     },
                     values: {},
                     step: step,
-                    region: GROKUI.utils.getUrlParam('region')
+                    region: HTM-ITUI.utils.getUrlParam('region')
                 },
                 setupProgressBar;
 
             me.$el.html(me.template(data));
 
-            if(GROKUI.utils.isSetupFlow()) {
-                setupProgressBar = GROKUI.utils.getSetupProgressBar(
+            if(HTM-ITUI.utils.isSetupFlow()) {
+                setupProgressBar = HTM-ITUI.utils.getSetupProgressBar(
                     step,
                     $('#progress-bar-container'));
             }
@@ -146,18 +146,18 @@
         handleBack: function(event) {
             event.stopPropagation();
             event.preventDefault();
-            GROKUI.utils.go(this.site.paths.auth + window.location.search);
+            HTM-ITUI.utils.go(this.site.paths.auth + window.location.search);
         },
 
         handleNext: function(event) {
             var me = this,
                 settings = {},
                 counter = 0,
-                destination = GROKUI.utils.isSetupFlow() ?
+                destination = HTM-ITUI.utils.isSetupFlow() ?
                     me.site.paths.register + me.site.urltag.setup :
                     me.site.paths.manage;
 
-            GROKUI.utils.throb.start(this.site.state.instance.starts);
+            HTM-ITUI.utils.throb.start(this.site.state.instance.starts);
 
             event.stopPropagation();
             event.preventDefault();
@@ -199,18 +199,18 @@
             // Use jQuery "when" to force request callbacks to be called synchronously.
             $.when.apply($, requests).
                 done(function(args) {
-                    GROKUI.utils.go(me.site.paths.complete + window.location.search);
+                    HTM-ITUI.utils.go(me.site.paths.complete + window.location.search);
                 }).
                 fail(function(args) {
-                    GROKUI.utils.throb.stop();
+                    HTM-ITUI.utils.throb.stop();
                     var res = args.responseJSON.result;
                     if (res) {
                         var quota = /Server limit exceeded;.*edition=(\w+);.+limit=(\d+)\./;
                         var edition = res.match(quota)[1],
                             capacity = res.match(quota)[2];
-                        return GROKUI.utils.modalWarning("Sorry!",
+                        return HTM-ITUI.utils.modalWarning("Sorry!",
                                                          _.template(me.msgs.errors[edition.toLowerCase()])({capacity: capacity}),
-                                                         _.bind(GROKUI.utils.go, me, me.site.paths.complete + window.location.search));
+                                                         _.bind(HTM-ITUI.utils.go, me, me.site.paths.complete + window.location.search));
                     }
                 });
         }

@@ -27,9 +27,9 @@ import optparse
 import random
 import sys
 
-from grokcli.api import GrokSession
+from htm-itcli.api import HTM-ITSession
 
-from grok.app import config
+from htm-it.app import config
 
 DEFAULT_RECORDS = 80000
 
@@ -38,11 +38,11 @@ RECORDS_BEFORE_MONITOR = 288
 
 
 def run(server, apiKey, metricName, resource, numRecords):
-  grok = GrokSession(server=server, apikey=apiKey)
+  htm-it = HTM-ITSession(server=server, apikey=apiKey)
 
   inc = 300
   currentTimestamp = int(time.time()) - (numRecords * inc)
-  with grok.connect() as sock:
+  with htm-it.connect() as sock:
 
     for i in xrange(numRecords):
       value = random.random()
@@ -63,7 +63,7 @@ def run(server, apiKey, metricName, resource, numRecords):
         modelSpec = {"metric": metricName, "datasource": "custom"}
         if resource is not None:
           modelSpec["resource"] = resource
-        model = grok.createModel(modelSpec)
+        model = htm-it.createModel(modelSpec)
         print "done"
 
 
@@ -71,9 +71,9 @@ def run(server, apiKey, metricName, resource, numRecords):
 if __name__ == "__main__":
   parser = optparse.OptionParser()
   parser.add_option("--server", default="https://localhost",
-                    help="Server address of Grok instance.")
+                    help="Server address of HTM-IT instance.")
   parser.add_option("--apiKey", default=None,
-                    help="API key for the Grok instance.")
+                    help="API key for the HTM-IT instance.")
   parser.add_option("--metricName", default=None,
                     help="Name to give the new metric.")
   parser.add_option("--resource", default=None,

@@ -27,14 +27,14 @@ import unittest
 
 from mock import Mock, patch
 
-from grok.app.aws import asg_utils
+from htm-it.app.aws import asg_utils
 
 
 
 class ASGUtilsTest(unittest.TestCase):
 
 
-  @patch("grok.app.aws.asg_utils.getAutoScalingGroups")
+  @patch("htm-it.app.aws.asg_utils.getAutoScalingGroups")
   def testGetSuggestedInstancesNone(self, getAutoScalingGroupsMock):
     getAutoScalingGroupsMock.return_value = []
 
@@ -46,7 +46,7 @@ class ASGUtilsTest(unittest.TestCase):
     getAutoScalingGroupsMock.assert_call_once_with("dummy-region")
 
 
-  @patch("grok.app.aws.asg_utils.getAutoScalingGroups")
+  @patch("htm-it.app.aws.asg_utils.getAutoScalingGroups")
   def testGetSuggestedInstancesTwoDifferentSize(self, getAutoScalingGroupsMock):
     region = "us-west-2"
     # Instance 1

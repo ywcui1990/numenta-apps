@@ -26,7 +26,7 @@
     /**
      * Backbone.View() - Embed: Charts > Rows > Markers
      */
-    GROKUI.EmbedChartsMarkersView = Backbone.View.extend({
+    HTM-ITUI.EmbedChartsMarkersView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -38,8 +38,8 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs(_viewName + '-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs(_viewName + '-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         api:            null,
         minutesPerBar:  null,
@@ -199,7 +199,7 @@
          * @returns {object}
          */
         getDrawMarkersConfig: function() {
-            var $rows =     $('.grok-embed-charts-rows'),
+            var $rows =     $('.htm-it-embed-charts-rows'),
                 $target =   this.$el.find('div'),
                 padding =   10,
                 height =    $rows.height(),

@@ -27,20 +27,20 @@ import json
 import os
 import yaml
 
-from grok import logging_support
-from grok.grok_logging import getExtendedLogger
+from htm-it import logging_support
+from htm-it.htm-it_logging import getExtendedLogger
 
-import grok.app
-import grok.app.adapters.datasource as datasource_adapter_factory
-from grok.app.adapters.datasource.cloudwatch import aws_base
-import grok.app.exceptions as app_exceptions
-from grok.app import repository
-from grok.app.repository import schema
+import htm-it.app
+import htm-it.app.adapters.datasource as datasource_adapter_factory
+from htm-it.app.adapters.datasource.cloudwatch import aws_base
+import htm-it.app.exceptions as app_exceptions
+from htm-it.app import repository
+from htm-it.app.repository import schema
 from htmengine.repository.queries import MetricStatus
 import htmengine.utils
 
-from grok.test_utils.app.test_case_base import TestCaseBase, unittest
-import grok.test_utils.aws_utils
+from htm-it.test_utils.app.test_case_base import TestCaseBase, unittest
+import htm-it.test_utils.aws_utils
 
 
 
@@ -75,15 +75,15 @@ class CloudwatchDatasourceAdapterBaseTest(TestCaseBase):
   @classmethod
   def setUpClass(cls):
     with open(os.path.join(
-        grok.app.GROK_HOME,
+        htm-it.app.HTM-IT_HOME,
         "tests/py/integration/app/test_resources.yaml")) as fin:
       resources = yaml.load(fin)
     testCase = resources[aws_base.ResourceTypeNames.EC2_INSTANCE][0]
 
     cls._testRegion = testCase["region"]
     cls._testId = testCase["dimensions"]["InstanceId"]
-    # Load grok API Key as required by TestCaseBase
-    cls.apiKey = grok.app.config.get("security", "apikey")
+    # Load htm-it API Key as required by TestCaseBase
+    cls.apiKey = htm-it.app.config.get("security", "apikey")
 
     cls._modelSpecNoMinMax = {"datasource":testCase["datasource"],
                               "metricSpec":{

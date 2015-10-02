@@ -36,25 +36,25 @@ else
   echo "Cannot find uWSGI"
 fi
 
-GROK_API_SERVER_HOME="$( cd "$( dirname $0 )" && pwd )"
-GROK_API_SERVER_PIDFILE=$GROK_API_SERVER_HOME/grok_api_server.pid
-GROK_API_SERVER_LOG=$GROK_API_SERVER_HOME/logs/grok_api_server.log
+HTM-IT_API_SERVER_HOME="$( cd "$( dirname $0 )" && pwd )"
+HTM-IT_API_SERVER_PIDFILE=$HTM-IT_API_SERVER_HOME/htm-it_api_server.pid
+HTM-IT_API_SERVER_LOG=$HTM-IT_API_SERVER_HOME/logs/htm-it_api_server.log
 UWSGI_SOCKET=0.0.0.0:19002
 UWSGI_PROCESSES=1
-UWSGI_MODULE=grok.webservices.webapp
+UWSGI_MODULE=htm-it.webservices.webapp
 UWSGI_IDLE=300
-mkdir -p $GROK_API_SERVER_HOME/logs
+mkdir -p $HTM-IT_API_SERVER_HOME/logs
 
 echo "Starting uWSGI..."
 
 `$UWSGI \
   -s $UWSGI_SOCKET \
-  -d $GROK_API_SERVER_LOG \
+  -d $HTM-IT_API_SERVER_LOG \
   -M \
-  --pidfile $GROK_API_SERVER_PIDFILE \
+  --pidfile $HTM-IT_API_SERVER_PIDFILE \
   --vacuum \
   --idle $UWSGI_IDLE \
   -p $UWSGI_PROCESSES \
-  --chdir $GROK_API_SERVER_HOME \
+  --chdir $HTM-IT_API_SERVER_HOME \
   --module $UWSGI_MODULE` && echo "uWSGI started: $UWSGI_PROCESSES workers on $UWSGI_SOCKET"
 

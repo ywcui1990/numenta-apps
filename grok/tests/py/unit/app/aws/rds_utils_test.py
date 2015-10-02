@@ -27,14 +27,14 @@ import unittest
 
 from mock import Mock, patch
 
-from grok.app.aws import rds_utils
+from htm-it.app.aws import rds_utils
 
 
 
 class RDSUtilsTest(unittest.TestCase):
 
 
-  @patch("grok.app.aws.rds_utils.getRDSInstances")
+  @patch("htm-it.app.aws.rds_utils.getRDSInstances")
   def testGetSuggestedInstancesNone(self, getRDSInstancesMock):
     getRDSInstancesMock.return_value = []
 
@@ -46,7 +46,7 @@ class RDSUtilsTest(unittest.TestCase):
     getRDSInstancesMock.assert_call_once_with("dummy-region")
 
 
-  @patch("grok.app.aws.rds_utils.getRDSInstances")
+  @patch("htm-it.app.aws.rds_utils.getRDSInstances")
   def testGetSuggestedInstancesNoAvailable(self, getRDSInstancesMock):
     instanceMock1 = Mock(spec="boto.rds.dbinstance.DBInstance")
     instanceMock1.status = "not-available"
@@ -62,7 +62,7 @@ class RDSUtilsTest(unittest.TestCase):
     getRDSInstancesMock.assert_call_once_with("dummy-region")
 
 
-  @patch("grok.app.aws.rds_utils.getRDSInstances")
+  @patch("htm-it.app.aws.rds_utils.getRDSInstances")
   def testGetSuggestedInstancesTwoDifferentSize(self, getRDSInstancesMock):
     region = "us-west-2"
     # Instance 1

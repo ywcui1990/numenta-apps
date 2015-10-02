@@ -30,12 +30,12 @@ import web
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-import grok.app
-from grok.app import repository
+import htm-it.app
+from htm-it.app import repository
 from htmengine import utils as app_utils
-from grok.app.exceptions import AuthFailure, AWSPermissionsError
-from grok.app.webservices import metrics_api, webapp
-from grok.test_utils.app.webservices import (
+from htm-it.app.exceptions import AuthFailure, AWSPermissionsError
+from htm-it.app.webservices import metrics_api, webapp
+from htm-it.test_utils.app.webservices import (
   webservices_assertions as assertions,
   getDefaultHTTPHeaders
 )
@@ -46,7 +46,7 @@ class DefaultHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(webapp.app.wsgifunc())
 
 
@@ -69,19 +69,19 @@ class DefaultHandlerTest(unittest.TestCase):
 
 
 
-@patch("grok.app.webservices.webapp.instance_utils.getInstanceData",
+@patch("htm-it.app.webservices.webapp.instance_utils.getInstanceData",
        autospec=True, return_value={})
-class GrokHandlerTest(unittest.TestCase):
+class HTM-ITHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(webapp.app.wsgifunc())
 
 
   @patch.object(web.template, "render")
-  def testgrokHandlerGET(self, render, _instanceDataMock):
-    response = self.app.get("/grok", headers=self.headers)
+  def testhtm-itHandlerGET(self, render, _instanceDataMock):
+    response = self.app.get("/htm-it", headers=self.headers)
     self.assertTrue(render.called)
     assertions.assertResponseStatusCode(self, response, code=200)
     headers = dict(response.headers)
@@ -90,8 +90,8 @@ class GrokHandlerTest(unittest.TestCase):
 
 
 @ConfigAttributePatch(
-    grok.app.config.CONFIG_NAME,
-    grok.app.config.baseConfigDir,
+    htm-it.app.config.CONFIG_NAME,
+    htm-it.app.config.baseConfigDir,
     (("aws", "aws_access_key_id", ""),
      ("aws", "aws_secret_access_key", ""))
 )
@@ -99,11 +99,11 @@ class AWSAuthHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    #self.headers = getDefaultHTTPHeaders(grok.app.config)
+    #self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(webapp.app.wsgifunc())
 
 
-  @patch("grok.app.webservices.webapp.checkEC2Authorization")
+  @patch("htm-it.app.webservices.webapp.checkEC2Authorization")
   def testAuthInvalidCredentials(self, checkEC2AuthorizationMock):
     errorMessage = ("AWS was not able to validate the provided access "
                     "credentials")
@@ -122,7 +122,7 @@ class AWSAuthHandlerTest(unittest.TestCase):
     self.assertIn(errorMessage, cm.exception.message)
 
 
-  @patch("grok.app.webservices.webapp.checkEC2Authorization")
+  @patch("htm-it.app.webservices.webapp.checkEC2Authorization")
   def testAuthCredentialsMissingPermissions(self, checkEC2AuthorizationMock):
     errorMessage = ("IAM credentials don't have correct permissions.")
     exc = AWSPermissionsError(errorMessage)
@@ -145,7 +145,7 @@ class AjaxTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(webapp.app.wsgifunc())
 
 
@@ -181,7 +181,7 @@ class AjaxTest(unittest.TestCase):
     self.assertTrue(getDatasources.called)
 
 
-  @patch("grok.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testMetricsAPIGETCouldWatch(self, adapterMock):
     adapterMock.return_value.describeRegions.return_value = []
@@ -196,17 +196,17 @@ class TestMessageHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.web_data = open(os.path.join(grok.app.GROK_HOME,
+    cls.web_data = open(os.path.join(htm-it.app.HTM-IT_HOME,
       "tests/py/data/app/webservices/msg_manager.txt")).read()
     cls.message_manager_data = json.load(
         open(os.path.join(
-            grok.app.GROK_HOME,
+            htm-it.app.HTM-IT_HOME,
             "tests/py/data/app/webservices/message_manager_data.json")))
 
 
   def setUp(self):
     self.app = TestApp(webapp.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
 
 
   def testPOSTWithExplicit(self):

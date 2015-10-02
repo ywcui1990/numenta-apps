@@ -21,7 +21,7 @@
 
 (function() {
 
-    GROKUI.ModalMetricListView = Backbone.View.extend({
+    HTM-ITUI.ModalMetricListView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -33,8 +33,8 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs('modal-metric-list-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('modal-metric-list-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         $modal: null,
 
@@ -91,27 +91,27 @@
                 id = this.instance.split('/').pop(),
                 autostackDataHandle = null;
 
-            if(this.isGrokAutostack()) {
-                // Prep data - get possible Grok Autostacks
-                var grokAutostackNamespace =    this.data.namespaces.get('Autostacks'),
-                    grokAutostackMetrics =      grokAutostackNamespace.get('metrics'),
+            if(this.isHTM-ITAutostack()) {
+                // Prep data - get possible HTM-IT Autostacks
+                var htm-itAutostackNamespace =    this.data.namespaces.get('Autostacks'),
+                    htm-itAutostackMetrics =      htm-itAutostackNamespace.get('metrics'),
                     awsEc2Namespace =           this.data.namespaces.get('AWS/EC2'),
                     awsEc2Metrics =             awsEc2Namespace.get('metrics');
 
-                for(var i=0; i<grokAutostackMetrics.length; i++) {
-                    var metric = grokAutostackMetrics[i];
+                for(var i=0; i<htm-itAutostackMetrics.length; i++) {
+                    var metric = htm-itAutostackMetrics[i];
                     me.metrics[metric] = false;
-                    me.creators[metric] = new GROKUI.AwsMetricModel({
+                    me.creators[metric] = new HTM-ITUI.AwsMetricModel({
                         metric:     metric,
                         region:     me.region,
-                        namespace:  grokAutostackNamespace.id,
+                        namespace:  htm-itAutostackNamespace.id,
                         identifier: me.instance
                     });
                 }
                 for(var i=0; i<awsEc2Metrics.length; i++) {
                     var metric = awsEc2Metrics[i];
                     me.metrics[metric] = false;
-                    me.creators[metric] = new GROKUI.AwsMetricModel({
+                    me.creators[metric] = new HTM-ITUI.AwsMetricModel({
                         metric:     metric,
                         region:     me.region,
                         namespace:  awsEc2Namespace.id,
@@ -129,7 +129,7 @@
                 );
 
                 if (!matchedAutostacks.length) {
-                    return GROKUI.utils.modalError("Autostack not found.");
+                    return HTM-ITUI.utils.modalError("Autostack not found.");
                 }
 
                 var autostack = matchedAutostacks[0];
@@ -142,7 +142,7 @@
                     autostack.get('region'),
                     autostack.get('filters'),
                     function(error, instances) {
-                        if(error) return GROKUI.utils.modalError(error);
+                        if(error) return HTM-ITUI.utils.modalError(error);
 
                         var members = instances.map(function(instance) {
                             var name = instance.tags.Name,
@@ -155,13 +155,13 @@
                     }.bind(this)
                 );
             }
-            else if(this.isGrokCustomMetric()) {
-                // Prep data - get possible Grok Custom Metrics
-                me.region = me.site.name + ' ' + me.site.regions.grok.custom;
-                me.namespace = me.site.namespaces.grok.custom;
+            else if(this.isHTM-ITCustomMetric()) {
+                // Prep data - get possible HTM-IT Custom Metrics
+                me.region = me.site.name + ' ' + me.site.regions.htm-it.custom;
+                me.namespace = me.site.namespaces.htm-it.custom;
 
                 me.data.customs.forEach(function(metric) {
-                    // only want single current Grok Custom Metric
+                    // only want single current HTM-IT Custom Metric
                     if(me.name === metric.get('name')) {
                         var key = metric.get('name');
                         me.metrics[key] = false;
@@ -186,7 +186,7 @@
 
             // got all the data, now mark which metrics are "on"
             this.data.models.forEach(function(model) {
-                var instance = (this.isGrokAutostack() || this.isGrokCustomMetric()) ?
+                var instance = (this.isHTM-ITAutostack() || this.isHTM-ITCustomMetric()) ?
                         this.instance :
                         [ this.region, this.namespace, this.id ].join('/');
 
@@ -277,19 +277,19 @@
         // Custom methods
 
         /**
-         * Is this a Grok Autostack?
+         * Is this a HTM-IT Autostack?
          * @returns {boolean}
          */
-        isGrokAutostack: function() {
+        isHTM-ITAutostack: function() {
             return this.instance.match(this.site.instances.types.autostack);
         },
 
         /**
-         * Is this a Grok Custom Metric?
+         * Is this a HTM-IT Custom Metric?
          * @returns {boolean}
          */
-        isGrokCustomMetric: function() {
-            return this.namespace.match(this.site.namespaces.grok.custom);
+        isHTM-ITCustomMetric: function() {
+            return this.namespace.match(this.site.namespaces.htm-it.custom);
         },
 
         /**
@@ -310,14 +310,14 @@
                                 metric: metric
                             } : this.creators[metric].toJSON();
 
-            if(this.isGrokAutostack()) {
+            if(this.isHTM-ITAutostack()) {
                 modelFilter = {
                     location:   this.region,
                     server:     this.instance,
                     metric:     metric
                 };
             }
-            else if(this.isGrokCustomMetric()) {
+            else if(this.isHTM-ITCustomMetric()) {
                 modelFilter = {
                     server: metric,
                     metric: metric
@@ -336,8 +336,8 @@
             modelId = (models.length > 0) ? models[0].id : null;
 
             if(checked && (metric in me.creators)) {
-                GROKUI.utils.throb.start(me.site.state.metric.start);
-                if(this.isGrokAutostack()) {
+                HTM-ITUI.utils.throb.start(me.site.state.metric.start);
+                if(this.isHTM-ITAutostack()) {
                     // create autostack
                     me.api.createAutostackMetrics(
                         id,
@@ -346,7 +346,7 @@
                             namespace:  this.creators[metric].get('namespace')
                         }],
                         function(error, response) {
-                            if(error) return GROKUI.utils.modalError(error);
+                            if(error) return HTM-ITUI.utils.modalError(error);
                             me.data.models.add({
                                 datasource: me.creators[metric].get('datasource'),
                                 location:   me.creators[metric].get('region'),
@@ -355,44 +355,44 @@
                                 id:         response.metric.uid,
                                 uid:        response.metric.uid
                             });
-                            return GROKUI.utils.throb.stop();
+                            return HTM-ITUI.utils.throb.stop();
                         }
                     );
                 } else {
                     // create regular model
                     me.data.models.create(newModel, {
                         error: function(model, response, options) {
-                            return GROKUI.utils.modalError(response);
+                            return HTM-ITUI.utils.modalError(response);
                         },
                         success: function(model, response, options) {
-                            return GROKUI.utils.throb.stop();
+                            return HTM-ITUI.utils.throb.stop();
                         }
                     });
                 }
             }
             else if((! checked) && modelId) {
-                GROKUI.utils.throb.start(me.site.state.metric.stop);
+                HTM-ITUI.utils.throb.start(me.site.state.metric.stop);
 
-                if (me.isGrokAutostack()) {
+                if (me.isHTM-ITAutostack()) {
                     me.api.deleteAutostackMetric(id, modelId, function(error) {
-                        if(error) return GROKUI.utils.modalError(error);
+                        if(error) return HTM-ITUI.utils.modalError(error);
                         me.data.models.remove(me.data.models.get(modelId));
                         return me.data.models.fetch({
                             error: function(model, response, options) {
-                                return GROKUI.utils.modalError(response);
+                                return HTM-ITUI.utils.modalError(response);
                             },
                             success: function(model, response, options) {
-                                return GROKUI.utils.throb.stop();
+                                return HTM-ITUI.utils.throb.stop();
                             }
                         });
                     });
                 } else {
                     me.data.models.get(modelId).destroy({
                         error: function(model, response, options) {
-                            return GROKUI.utils.modalError(response);
+                            return HTM-ITUI.utils.modalError(response);
                         },
                         success: function(model, response, options) {
-                            return GROKUI.utils.throb.stop();
+                            return HTM-ITUI.utils.throb.stop();
                         }
                     });
                 }

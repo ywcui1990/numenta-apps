@@ -19,9 +19,9 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('Grok Backbone.Model: AwsMetric', function() {
+describe('HTM-IT Backbone.Model: AwsMetric', function() {
 
-    var model = new GROKUI.AwsMetricModel();
+    var model = new HTM-ITUI.AwsMetricModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

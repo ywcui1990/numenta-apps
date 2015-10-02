@@ -32,15 +32,15 @@ from paste.fixture import TestApp, AppError
 from mock import ANY, patch, Mock
 
 
-from grok import logging_support
-import grok.app
+from htm-it import logging_support
+import htm-it.app
 from htmengine import utils as app_utils
 from htmengine.utils import jsonDecode, jsonEncode
-from grok.app.exceptions import (DuplicateRecordError,
+from htm-it.app.exceptions import (DuplicateRecordError,
                                  QuotaError)
-from grok.app.webservices import autostacks_api, models_api
-from grok.test_utils.app.webservices import getDefaultHTTPHeaders
-from grok.app.runtime.aggregator_instances import InstanceInfo
+from htm-it.app.webservices import autostacks_api, models_api
+from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
+from htm-it.app.runtime.aggregator_instances import InstanceInfo
 
 
 
@@ -48,7 +48,7 @@ def setUpModule():
   logging_support.LoggingSupport.initTestApp()
 
 
-@patch("grok.app.webservices.repository")
+@patch("htm-it.app.webservices.repository")
 class TestAutostacksHandler(unittest.TestCase):
 
   @classmethod
@@ -64,11 +64,11 @@ class TestAutostacksHandler(unittest.TestCase):
                                     "filters":{"tag:Name":["Bogus"]}})
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(autostacks_api.app.wsgifunc())
 
 
-  @patch("grok.app.webservices.autostacks_api.repository")
+  @patch("htm-it.app.webservices.autostacks_api.repository")
   def testGETAutostacks(self, repositoryMock, *_args):
     """ Test GETing all autostacks from autostacks API
     """
@@ -82,8 +82,8 @@ class TestAutostacksHandler(unittest.TestCase):
 
     self.assertDictEqual(json.loads(self.jsonAutostack), result[0])
 
-  @patch("grok.app.quota.repository")
-  @patch("grok.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm-it.app.quota.repository")
+  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
   def testPOSTAutostacksQuota(self, adapterMock, quotaRepositoryMock,
                               _repositoryMock):
     quotaRepositoryMock.getInstanceCount.return_value = 0
@@ -97,8 +97,8 @@ class TestAutostacksHandler(unittest.TestCase):
     self.assertTrue(adapterMock.return_value.createAutostack.called)
 
 
-  @patch("grok.app.quota.repository")
-  @patch("grok.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm-it.app.quota.repository")
+  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
   def testPOSTAutostacks(self, adapterMock, quotaRepositoryMock,
                          _repositoryMock):
     name = "Test"
@@ -126,7 +126,7 @@ class TestAutostacksHandler(unittest.TestCase):
     self.assertTrue(adapterMock.return_value.createAutostack.called)
 
 
-  @patch("grok.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
   def testPOSTAutostacksNameInUse(self, createAutostackMock, _repositoryMock):
     createAutostackMock.side_effect = DuplicateRecordError
     with self.assertRaises(AppError) as cm:
@@ -141,7 +141,7 @@ class TestAutostacksHandler(unittest.TestCase):
 
 
 
-@patch("grok.app.webservices.repository")
+@patch("htm-it.app.webservices.repository")
 class TestAutostackHandler(unittest.TestCase):
 
   @classmethod
@@ -158,11 +158,11 @@ class TestAutostackHandler(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(autostacks_api.app.wsgifunc())
 
 
-  @patch("grok.app.webservices.autostacks_api.repository")
+  @patch("htm-it.app.webservices.autostacks_api.repository")
   def testDELETEAutostackWithoutModels(self, repositoryMock, *_args):
     autostack = Mock(uid="xyz",
                      name="Test",
@@ -178,7 +178,7 @@ class TestAutostackHandler(unittest.TestCase):
     repositoryMock.deleteAutostack.assert_called_with(ANY, autostack.uid)
 
 
-  @patch("grok.app.webservices.autostacks_api.repository")
+  @patch("htm-it.app.webservices.autostacks_api.repository")
   @patch("htmengine.model_swapper.utils.deleteHTMModel", autospec=True)
   def testDELETEAutostackWithModels(self,
                                     _deleteHTMModelMock,
@@ -197,15 +197,15 @@ class TestAutostackHandler(unittest.TestCase):
     repositoryMock.deleteAutostack.assert_called_with(ANY, autostack.uid)
 
 
-@patch("grok.app.webservices.repository")
+@patch("htm-it.app.webservices.repository")
 class TestAutostackInstancesHandler(unittest.TestCase):
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(autostacks_api.app.wsgifunc())
 
 
   @patch(
-    "grok.app.webservices.autostacks_api.createCloudwatchDatasourceAdapter")
+    "htm-it.app.webservices.autostacks_api.createCloudwatchDatasourceAdapter")
   def testAutostackInstancesPreview(self,
                                     adapterMock,
                                     _repositoryMock):
@@ -249,7 +249,7 @@ class TestAutostackInstancesHandler(unittest.TestCase):
 
 
   @patch(
-    "grok.app.webservices.autostacks_api.createCloudwatchDatasourceAdapter")
+    "htm-it.app.webservices.autostacks_api.createCloudwatchDatasourceAdapter")
   def testAutostackInstancesKnown(self, adapterMock, repositoryMock, *args):
     adapterMock.return_value.getMatchingResources.return_value = (
       [
@@ -293,14 +293,14 @@ class TestAutostackInstancesHandler(unittest.TestCase):
 
 
 
-@patch("grok.app.webservices.repository")
+@patch("htm-it.app.webservices.repository")
 class TestAutostackMetricsHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
     with open(
         os.path.join(
-          grok.app.GROK_HOME,
+          htm-it.app.HTM-IT_HOME,
           "tests/py/data/app/webservices/models_list.json")) as fileObj:
       cls.model_list = json.load(fileObj)
 
@@ -317,11 +317,11 @@ class TestAutostackMetricsHandler(unittest.TestCase):
                       datasource="autostack",
                       description="The number of database connections in use "
                                   "by Amazon RDS database",
-                      server="grokdb2",
+                      server="htm-itdb2",
                       location="us-east-1",
                       parameters=jsonEncode(
                         {"region":"us-east-1",
-                         "DBInstanceIdentifier":"grokdb2"}),
+                         "DBInstanceIdentifier":"htm-itdb2"}),
                       status=1,
                       message=None,
                       collector_error=None,
@@ -349,11 +349,11 @@ class TestAutostackMetricsHandler(unittest.TestCase):
        "display_name":cls.metric.server})
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(autostacks_api.app.wsgifunc())
 
 
-  @patch("grok.app.webservices.autostacks_api.repository")
+  @patch("htm-it.app.webservices.autostacks_api.repository")
   def testGETAutostackMetrics(self, repositoryMock, *_args):
     repositoryMock.getAutostackMetrics.return_value = iter([self.metric])
     response = self.app.get(
@@ -363,9 +363,9 @@ class TestAutostackMetricsHandler(unittest.TestCase):
     self.assertDictEqual(json.loads(self.jsonMetric), result[0])
 
 
-  @patch("grok.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
-  @patch("grok.app.repository.getMetric", autospec=True)
-  @patch("grok.app.repository.addMetric", autospec=True)
+  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm-it.app.repository.getMetric", autospec=True)
+  @patch("htm-it.app.repository.addMetric", autospec=True)
   def testPOSTAutostackMetricsNoMinMax(
         self,
         addMetricMock,
@@ -399,9 +399,9 @@ class TestAutostackMetricsHandler(unittest.TestCase):
 
 
 
-  @patch("grok.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
-  @patch("grok.app.repository.getMetric", autospec=True)
-  @patch("grok.app.repository.addMetric", autospec=True)
+  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm-it.app.repository.getMetric", autospec=True)
+  @patch("htm-it.app.repository.addMetric", autospec=True)
   def testPOSTAutostackMetricsWithMinMax(
       self,
       addMetricMock,
@@ -425,8 +425,8 @@ class TestAutostackMetricsHandler(unittest.TestCase):
       {'max': 10.0, 'min': 0.0})
 
 
-  @patch("grok.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
-  @patch("grok.app.webservices.models_api.repository.getAutostack")
+  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm-it.app.webservices.models_api.repository.getAutostack")
   def testPOSTAutostackMetricsHandlesObjectNotFoundError(
       self,
       autostackGetMock,
@@ -448,7 +448,7 @@ class TestAutostackMetricsHandler(unittest.TestCase):
 
 
   @patch("htmengine.model_swapper.utils.deleteHTMModel")
-  @patch("grok.app.webservices.autostacks_api.repository")
+  @patch("htm-it.app.webservices.autostacks_api.repository")
   def testDELETEAutostackMetrics(self, repositoryMock, deleteHTMModelMock,
                                  *_args):
     repositoryMock.getAutostackFromMetric.return_value = Mock(
@@ -464,7 +464,7 @@ class TestAutostackMetricsHandler(unittest.TestCase):
 
   @patch("htmengine.model_swapper.utils.deleteHTMModel",
          auto_spec=True)
-  @patch("grok.app.webservices.autostacks_api.repository",
+  @patch("htm-it.app.webservices.autostacks_api.repository",
          auto_spec=True)
   def testDELETEAutostackMetricsWrongAutostack(self, repositoryMock,
                                                *_args):
@@ -480,7 +480,7 @@ class TestAutostackMetricsHandler(unittest.TestCase):
       "autostack=blahblahblah", str(cm.exception))
 
 
-  @patch("grok.app.webservices.models_api.repository")
+  @patch("htm-it.app.webservices.models_api.repository")
   def testDELETEAutostackMetricsFromModelsAPI(self, repositoryMock, *_args):
     repositoryMock.getMetric.return_value = self.metric
 

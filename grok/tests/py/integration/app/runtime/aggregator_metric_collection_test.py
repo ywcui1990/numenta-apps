@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-Integration tests for grok.app.runtime.aggregator_metric_collection
+Integration tests for htm-it.app.runtime.aggregator_metric_collection
 """
 
 # Suppress "access to protected member" warning
@@ -35,19 +35,19 @@ import math
 import unittest
 import uuid
 
-import grok.app
+import htm-it.app
 import htmengine.utils
 
-from grok.app import repository
-from grok.app.repository import schema
+from htm-it.app import repository
+from htm-it.app.repository import schema
 from htmengine.repository.queries import MetricStatus
 
-from grok.app.runtime.aggregator_metric_collection import \
+from htm-it.app.runtime.aggregator_metric_collection import \
     EC2InstanceMetricGetter, AutostackMetricRequest
 
-from grok.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 
-from grok import logging_support
+from htm-it import logging_support
 
 
 
@@ -164,7 +164,7 @@ class AggregatorMetricCollectionTestCase(unittest.TestCase):
       conn,
       datasource="autostack",
       name=name,
-      description=("{0} on Grok Autostack {1} in {2} "
+      description=("{0} on HTM-IT Autostack {1} in {2} "
                    "region").format(name, autostackObj.name, autostackObj.region),
       server="Autostacks/{0}".format(autostackObj.uid),
       location=autostackObj.region,
@@ -368,7 +368,7 @@ class AggregatorMetricCollectionTestCase(unittest.TestCase):
           conn,
           datasource="autostack",
           name="CPUUtilization",
-          description=("CPUUtilization on Grok Autostack {0} in us-west-2 "
+          description=("CPUUtilization on HTM-IT Autostack {0} in us-west-2 "
                        "region").format(name),
           server="Autostacks/{0}".format(autostackDict["uid"]),
           location=region,

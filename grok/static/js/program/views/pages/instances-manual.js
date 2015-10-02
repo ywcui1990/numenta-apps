@@ -24,9 +24,9 @@
     var viewName = 'instances-manual';
 
     /**
-     * Grok Manual Instance Selection Backbone.View
+     * HTM-IT Manual Instance Selection Backbone.View
      */
-    GROKUI.InstancesManualView = Backbone.View.extend({
+    HTM-ITUI.InstancesManualView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -39,8 +39,8 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs(viewName + '-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs(viewName + '-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         // complex internal data tree: AWS Regions > Namespaces > Instances > Metrics
         regions: {},
@@ -62,38 +62,38 @@
                 },
                 fetchOpts = {
                     error: function(collection, response, options) {
-                        return GROKUI.utils.modalError(response);
+                        return HTM-ITUI.utils.modalError(response);
                     }
                 };
 
             this.api = collectOpts.api;
             this.data = {
                 monitored: {
-                    instances:  new GROKUI.InstancesCollection([], collectOpts),
-                    models:     new GROKUI.ModelsCollection([], collectOpts)
+                    instances:  new HTM-ITUI.InstancesCollection([], collectOpts),
+                    models:     new HTM-ITUI.ModelsCollection([], collectOpts)
                 },
                 source: {
                     aws: {
-                        metrics:    new GROKUI.AwsMetricsCollection([], collectOpts),
-                        namespaces: new GROKUI.AwsNamespacesCollection([], collectOpts),
-                        regions:    new GROKUI.AwsRegionsCollection([], collectOpts)
+                        metrics:    new HTM-ITUI.AwsMetricsCollection([], collectOpts),
+                        namespaces: new HTM-ITUI.AwsNamespacesCollection([], collectOpts),
+                        regions:    new HTM-ITUI.AwsRegionsCollection([], collectOpts)
                     },
-                    grok: {
-                        autostacks: new GROKUI.GrokAutostacksCollection([], collectOpts),
-                        customs:    new GROKUI.GrokCustomMetricsCollection([], collectOpts)
+                    htm-it: {
+                        autostacks: new HTM-ITUI.HTM-ITAutostacksCollection([], collectOpts),
+                        customs:    new HTM-ITUI.HTM-ITCustomMetricsCollection([], collectOpts)
                     }
                 }
             };
 
-            GROKUI.utils.title(this.msgs.title);
+            HTM-ITUI.utils.title(this.msgs.title);
 
             // go setup if they have not yet
-            if(! GROKUI.utils.isAuthorized()) {
-                GROKUI.utils.go(this.site.paths.welcome);
+            if(! HTM-ITUI.utils.isAuthorized()) {
+                HTM-ITUI.utils.go(this.site.paths.welcome);
                 return;
             }
 
-            GROKUI.utils.throb.start(this.site.state.loading);
+            HTM-ITUI.utils.throb.start(this.site.state.loading);
 
             // get all the data in parallel
             $.when.apply($, [
@@ -101,19 +101,19 @@
                 this.data.monitored.models.fetch(fetchOpts),
                 this.data.source.aws.regions.fetch(fetchOpts),
                 this.data.source.aws.namespaces.fetch(fetchOpts),
-                this.data.source.grok.autostacks.fetch(fetchOpts),
-                this.data.source.grok.customs.fetch(fetchOpts)
+                this.data.source.htm-it.autostacks.fetch(fetchOpts),
+                this.data.source.htm-it.customs.fetch(fetchOpts)
             ]).done(function() {
                 // now we have all the data
 
                 // map data into UI data structures
-                this.processGrokCustomMetrics(this.data.source.grok.customs);
+                this.processHTM-ITCustomMetrics(this.data.source.htm-it.customs);
                 this.processAwsRegionsNamespaces(
                     this.data.source.aws.regions,
                     this.data.source.aws.namespaces
                 );
 
-                GROKUI.utils.throb.stop();
+                HTM-ITUI.utils.throb.stop();
                 this.render();
             }.bind(this));
         },
@@ -192,14 +192,14 @@
                             _server:    id
                         };
 
-                    GROKUI.utils.throb.start(me.site.state.instance.start);
+                    HTM-ITUI.utils.throb.start(me.site.state.instance.start);
 
                     if(me.data.monitored.instances.where(_.chain(data)
                                                           .omit("_server")
                                                           .extend({"server": id})
                                                           .value()).length > 0) {
                         $tree.tree('selectNode', null);
-                        return GROKUI.utils.modalError('This instance is already being monitored.');
+                        return HTM-ITUI.utils.modalError('This instance is already being monitored.');
                     }
 
                     // add features to model before creation
@@ -210,16 +210,16 @@
                     me.data.monitored.instances.create(data, {
                         error: function(model, response, options) {
                             $tree.tree('selectNode', null);
-                            return GROKUI.utils.modalError(response);
+                            return HTM-ITUI.utils.modalError(response);
                         },
                         success: function(model, response, options) {
                             $tree.tree('selectNode', null);
-                            GROKUI.utils.throb.stop();
+                            HTM-ITUI.utils.throb.stop();
                         }
                     });
                 }
-                // or, start monitoring grok custom metric
-                else if(namespace.match(me.site.namespaces.grok.custom)) {
+                // or, start monitoring htm-it custom metric
+                else if(namespace.match(me.site.namespaces.htm-it.custom)) {
                     var metrics =
                             me.regions[region].
                             namespaces[namespace].
@@ -236,27 +236,27 @@
                             server:     metric
                         };
 
-                    GROKUI.utils.throb.start(me.site.state.metric.start);
+                    HTM-ITUI.utils.throb.start(me.site.state.metric.start);
 
                     if(me.data.monitored.instances.where(filter).length > 0) {
                         $tree.tree('selectNode', null);
-                        return GROKUI.utils.modalError('This instance is already being monitored.');
+                        return HTM-ITUI.utils.modalError('This instance is already being monitored.');
                     }
 
                     // create new metric model
                     me.data.monitored.models.create(newModel, {
                         error: function(model, response, options) {
                             $tree.tree('selectNode', null);
-                            return GROKUI.utils.modalError(response);
+                            return HTM-ITUI.utils.modalError(response);
                         },
                         success: function(model, response, options) {
                             $tree.tree('selectNode', null);
                             me.data.monitored.instances.fetch({
                                 error: function(collection, response, options) {
-                                    return GROKUI.utils.modalError(error);
+                                    return HTM-ITUI.utils.modalError(error);
                                 },
                                 success: function(collection, response, options) {
-                                    GROKUI.utils.throb.stop();
+                                    HTM-ITUI.utils.throb.stop();
                                 }
                             });
                         }
@@ -265,13 +265,13 @@
             });
 
             // right/bottom side - instance list
-            this.instanceListView = new GROKUI.InstanceListView({
+            this.instanceListView = new HTM-ITUI.InstanceListView({
                 el:     $('#instance-list'),
                 api:    this.api,
                 site:   this.site,
                 data: {
-                    autostacks: this.data.source.grok.autostacks,
-                    customs:    this.data.source.grok.customs,
+                    autostacks: this.data.source.htm-it.autostacks,
+                    customs:    this.data.source.htm-it.customs,
                     instances:  this.data.monitored.instances,
                     metrics:    this.data.source.aws.metrics,
                     models:     this.data.monitored.models,
@@ -331,31 +331,31 @@
         },
 
         /**
-         * Map Grok Custom Metric data into UI data structures
+         * Map HTM-IT Custom Metric data into UI data structures
          */
-        processGrokCustomMetrics: function(metrics) {
+        processHTM-ITCustomMetrics: function(metrics) {
             var me = this,
                 displayName = '<strong>' + me.site.name + '</strong>: ' +
-                    me.site.regions.grok.custom,
+                    me.site.regions.htm-it.custom,
                 namespaces,
                 instances;
 
             if(metrics.length) {
-                // top-level "Grok" Custom Metrics pseudo-Region
+                // top-level "HTM-IT" Custom Metrics pseudo-Region
                 me.regions[me.site.name] = {
-                    name: me.site.regions.grok.custom,
-                    type: me.site.regions.type.grok,
+                    name: me.site.regions.htm-it.custom,
+                    type: me.site.regions.type.htm-it,
                     namespaces: {}
                 };
 
-                // "Custom Grok" namespace below that
+                // "Custom HTM-IT" namespace below that
                 namespaces = me.regions[me.site.name].namespaces;
-                namespaces[me.site.namespaces.grok.custom] = {
+                namespaces[me.site.namespaces.htm-it.custom] = {
                     instances: {}
                 };
 
-                // Grok Custom Metrics are the Instances in this case
-                instances = namespaces[me.site.namespaces.grok.custom].instances;
+                // HTM-IT Custom Metrics are the Instances in this case
+                instances = namespaces[me.site.namespaces.htm-it.custom].instances;
                 metrics.forEach(function(metric) {
                     var name = metric.get('name');
                     instances[name] = {
@@ -364,13 +364,13 @@
                     instances[name].metrics[name] = metric;
                 });
 
-                // populate grok custom metrics in external data structure for jqTree
+                // populate htm-it custom metrics in external data structure for jqTree
                 me.tree.push({
                     label: displayName,
                     id: me.site.name,
-                    type: me.site.regions.type.grok,
+                    type: me.site.regions.type.htm-it,
                     children: [{
-                        label: me.site.namespaces.grok.custom,
+                        label: me.site.namespaces.htm-it.custom,
                         children: metrics.map(function(metric) {
                             return {
                                 label:  metric.get('name'),
@@ -395,7 +395,7 @@
                 },
                 regionNamespaceMetrics = me.data.source.aws.metrics.where(regionNamespaceFilter),
                 collapseDataToTree = function(collection) {
-                    GROKUI.utils.throb.stop();
+                    HTM-ITUI.utils.throb.stop();
 
                     collection = collection.where(regionNamespaceFilter);
 
@@ -455,26 +455,26 @@
                         return 0;
                     });
 
-                    GROKUI.utils.throb.stop();
+                    HTM-ITUI.utils.throb.stop();
 
                     $tree.tree('loadData', newTree, node);
                 };
 
             if(Object.keys(parent).length > 0) { return; }
 
-            GROKUI.utils.throb.start(me.site.state.loading);
+            HTM-ITUI.utils.throb.start(me.site.state.loading);
 
             if(regionNamespaceMetrics.length <= 0) {
                 // Metric data for this region not loaded yet, do so.
 
-                GROKUI.utils.throb.start(me.site.state.loading);
+                HTM-ITUI.utils.throb.start(me.site.state.loading);
 
                 me.data.source.aws.metrics.fetch({
                     region:     region,
                     namespace:  namespace,
                     remove:     false,
                     error: function(collection, response, options) {
-                        return GROKUI.utils.modalError(response);
+                        return HTM-ITUI.utils.modalError(response);
                     },
                     success: collapseDataToTree
                 });
@@ -494,7 +494,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            GROKUI.utils.go(destination);
+            HTM-ITUI.utils.go(destination);
         }
 
     });

@@ -1,33 +1,33 @@
-.grok-page > div > ol {
+.htm-it-page > div > ol {
     margin: 2em 0;
 }
-.grok-page > div > ol > li {
+.htm-it-page > div > ol > li {
     font-size: 112%;
 }
-.grok-page ol li {
+.htm-it-page ol li {
     margin: 1em 0;
 }
-.grok-page ol li .playstore {
+.htm-it-page ol li .playstore {
     display: block;
     margin: 1em 1.10em;
 }
 
-.grok-page .last strong {
+.htm-it-page .last strong {
     font-size: 125%;
 }
-.grok-page .last .text-muted {
+.htm-it-page .last .text-muted {
     font-size: 90%;
 }
 
-.grok-page > div > ol ol {
+.htm-it-page > div > ol ol {
     margin: 1em 0;
 }
 
-.grok-page code {
+.htm-it-page code {
     display: block;
     font-size: 120%;
 }
 
-.grok-page button {
+.htm-it-page button {
     margin-top: 0.5em;
 }

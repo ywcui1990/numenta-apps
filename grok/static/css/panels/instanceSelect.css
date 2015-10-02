@@ -1,17 +1,17 @@
-.grok-instance-select {
+.htm-it-instance-select {
     border: 1px solid #999;
     height: 20em;
     overflow: auto;
 }
 
 /* for css overflow:ellipsis to work */
-.grok-instance-select table {
+.htm-it-instance-select table {
     table-layout: fixed;
     width: 100%;
 }
-.grok-instance-select table > colgroup > col:nth-child(1) {
+.htm-it-instance-select table > colgroup > col:nth-child(1) {
     width: 15%;
 }
-.grok-instance-select table > colgroup > col:nth-child(3) {
+.htm-it-instance-select table > colgroup > col:nth-child(3) {
     width: 20%;
 }

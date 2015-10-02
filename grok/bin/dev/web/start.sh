@@ -29,11 +29,11 @@ function die {
     exit 1
 }
 
-if [[ ! $START_DIR =~ grok ]]; then
-    die "Please cd to Grok repo dir, and run: bin/dev/web/start.sh"
+if [[ ! $START_DIR =~ htm-it ]]; then
+    die "Please cd to HTM-IT repo dir, and run: bin/dev/web/start.sh"
 fi
 if [[ ! $SCRIPT_DIR =~ bin\/dev\/web ]]; then
-    die "Please cd to Grok repo dir, and run: bin/dev/web/start.sh"
+    die "Please cd to HTM-IT repo dir, and run: bin/dev/web/start.sh"
 fi
 
 echo "MySQL starting..."
@@ -41,7 +41,7 @@ mysql.server start
 echo "RabbitMQ starting..."
 rabbitmq-server -detached
 echo "Nginx starting..."
-sudo nginx -p . -c $START_DIR/conf/grok-api.conf
+sudo nginx -p . -c $START_DIR/conf/htm-it-api.conf
 echo "Supervisor starting..."
 supervisord -c $START_DIR/conf/supervisord.conf
 echo "done."

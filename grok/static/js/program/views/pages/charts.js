@@ -24,7 +24,7 @@
     /**
      * Backbone.View() - Embed: Charts
      */
-    GROKUI.ChartsView = Backbone.View.extend({
+    HTM-ITUI.ChartsView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -35,8 +35,8 @@
 
         // Custom properties
 
-        msgs: GROKUI.msgs('charts-tmpl'),
-        site: GROKUI.msgs('site'),
+        msgs: HTM-ITUI.msgs('charts-tmpl'),
+        site: HTM-ITUI.msgs('site'),
 
         api:    null,
         hash:   null,
@@ -62,7 +62,7 @@
             var collectionOpts = null,
                 fetchOpts = {
                     error: function(collection, response, options) {
-                        return GROKUI.utils.modalError(response);
+                        return HTM-ITUI.utils.modalError(response);
                     }
                 };
 
@@ -70,9 +70,9 @@
 
             this.api = options.api;
 
-            this.hash =   GROKUI.utils.getUrlParam('hash');
-            this.height = GROKUI.utils.getUrlParam('height');
-            this.width =  GROKUI.utils.getUrlParam('width') ||
+            this.hash =   HTM-ITUI.utils.getUrlParam('hash');
+            this.height = HTM-ITUI.utils.getUrlParam('height');
+            this.width =  HTM-ITUI.utils.getUrlParam('width') ||
                             ($('body section#content').width() + 25);
 
             // collections
@@ -82,18 +82,18 @@
                 period: 2
             };
             this.collections.models =
-                new GROKUI.SortedModelsCollection([], collectionOpts);
+                new HTM-ITUI.SortedModelsCollection([], collectionOpts);
 
             // page
 
-            GROKUI.utils.title(this.msgs.title);
-            GROKUI.utils.throb.start(this.site.state.loading);
+            HTM-ITUI.utils.title(this.msgs.title);
+            HTM-ITUI.utils.throb.start(this.site.state.loading);
 
             // no hash = web ui view (not direct embed)
             if(! this.hash) {
                 // since web ui view, make sure aws authed
-                if(! GROKUI.utils.isAuthorized()) {
-                    GROKUI.utils.go(this.site.paths.welcome);
+                if(! HTM-ITUI.utils.isAuthorized()) {
+                    HTM-ITUI.utils.go(this.site.paths.welcome);
                     return;
                 }
             }
@@ -123,7 +123,7 @@
                     }
                 };
 
-            GROKUI.utils.throb.stop();
+            HTM-ITUI.utils.throb.stop();
             this.$el.html(this.template(data));
 
             // no results
@@ -134,10 +134,10 @@
             }
 
             // init views
-            this.views.tabs =   new GROKUI.EmbedChartsTabsView(viewOpts);
-            this.views.sort =   new GROKUI.EmbedChartsSortView(viewOpts);
-            this.views.rows =   new GROKUI.EmbedChartsRowsView(viewOpts);
-            this.views.slider = new GROKUI.EmbedChartsSliderView(viewOpts);
+            this.views.tabs =   new HTM-ITUI.EmbedChartsTabsView(viewOpts);
+            this.views.sort =   new HTM-ITUI.EmbedChartsSortView(viewOpts);
+            this.views.rows =   new HTM-ITUI.EmbedChartsRowsView(viewOpts);
+            this.views.slider = new HTM-ITUI.EmbedChartsSliderView(viewOpts);
 
             // Assign all views to DOM
             this.assign(this.views.tabs, '.tabs');
@@ -169,7 +169,7 @@
                 },
                 fetchOpts = {
                     error: function(collection, response, options) {
-                        return GROKUI.utils.modalError(response);
+                        return HTM-ITUI.utils.modalError(response);
                     }
                 },
                 // Convert minutes per bar into hours for the period API
@@ -180,10 +180,10 @@
                     period: (minutesPerBar[tab] * 24) / 60
                 };
 
-            GROKUI.utils.throb.start(this.site.state.loading);
+            HTM-ITUI.utils.throb.start(this.site.state.loading);
 
             this.collections.models =
-                new GROKUI.SortedModelsCollection([], collectionOpts);
+                new HTM-ITUI.SortedModelsCollection([], collectionOpts);
 
             $.when(
                 this.collections.models.fetch(fetchOpts)

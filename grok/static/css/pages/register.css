@@ -1,30 +1,30 @@
-.grok-page form:first-of-type {
+.htm-it-page form:first-of-type {
     margin-top: 2.5em;
 }
 
-.grok-page label:after {
+.htm-it-page label:after {
     content: ':';
 }
 
-.grok-page #name {
+.htm-it-page #name {
     width: 22em;
 }
-.grok-page #company {
+.htm-it-page #company {
     width: 15em;
 }
-.grok-page #email {
+.htm-it-page #email {
     width: 20em;
 }
 
-.grok-page .lead {
+.htm-it-page .lead {
 	margin-bottom: 0;
 }
 
-.grok-page .help-block {
+.htm-it-page .help-block {
     margin-left: 0.25em;
 }
 
-.grok-page article {
+.htm-it-page article {
     background: #f9f9f9;
     border: 1px solid #ccc;
     height: 10em;
@@ -33,14 +33,14 @@
     padding: 2em;
 }
 
-.grok-page .checkbox {
+.htm-it-page .checkbox {
     margin: 0 2em;
 }
 
-.grok-page .checkbox label:after {
+.htm-it-page .checkbox label:after {
     content: "";
 }
 
-.grok-page .buttons {
+.htm-it-page .buttons {
     margin-top: 2em;
 }

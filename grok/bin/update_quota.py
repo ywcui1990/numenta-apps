@@ -21,22 +21,22 @@
 # ----------------------------------------------------------------------
 
 """
-Updates Grok quota configuration based on Grok production edition, the host
+Updates HTM-IT quota configuration based on HTM-IT production edition, the host
 platform, etc. (e.g., instance quota).
 
-Grok application quota settings are available at rutime via the grok.app.quota
+HTM-IT application quota settings are available at rutime via the htm-it.app.quota
 interface.
 
 It's intended that this script will be called at boot time, since the user may
-dynamically migrate the installed Grok image to a larger or smaller host
+dynamically migrate the installed HTM-IT image to a larger or smaller host
 instance.
 
-MUST BE CALLED BEFORE STARTING GROK SERVICES
+MUST BE CALLED BEFORE STARTING HTM-IT SERVICES
 
 ASSUMES PRODUCT EDITION HAS ALREADY BEEN CONFIGURED (see set_edition.py)
 
-NOTE: Assumes Grok's configuration system has already been initialized (i.e.,
-Grok's `setup.py init` has run against this image)
+NOTE: Assumes HTM-IT's configuration system has already been initialized (i.e.,
+HTM-IT's `setup.py init` has run against this image)
 """
 
 import logging
@@ -45,22 +45,22 @@ import sys
 
 from nupic.support.decorators import logEntryExit
 
-from grok import logging_support
-from grok.app.quota import Quota, QuotaConfig
+from htm-it import logging_support
+from htm-it.app.quota import Quota, QuotaConfig
 
 
 
 def _getLogger():
-  return logging.getLogger("grok.update_quota")
+  return logging.getLogger("htm-it.update_quota")
 
 
 
 @logEntryExit(_getLogger, entryExitLogLevel=logging.INFO)
 def updateQuota(args):
   helpString = (
-    "This script updates Grok app quotas in %s.\n"
+    "This script updates HTM-IT app quotas in %s.\n"
     "%%prog\n\n"
-    "IT MUST BE CALLED AFTER set_edition.py, BUT BEFORE STARTING GROK SERVICES"
+    "IT MUST BE CALLED AFTER set_edition.py, BUT BEFORE STARTING HTM-IT SERVICES"
     ) % (QuotaConfig.CONFIG_NAME,)
 
   parser = OptionParser(helpString)

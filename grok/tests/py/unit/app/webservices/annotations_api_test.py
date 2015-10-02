@@ -26,14 +26,14 @@ import unittest
 import json
 from paste.fixture import TestApp, AppError
 from mock import patch
-from grok import logging_support
-import grok.app
-from grok.app import (
+from htm-it import logging_support
+import htm-it.app
+from htm-it.app import (
     exceptions as app_exceptions,
     repository)
 import htmengine.utils as app_utils
-from grok.app.webservices import annotations_api
-from grok.test_utils.app.webservices import getDefaultHTTPHeaders
+from htm-it.app.webservices import annotations_api
+from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
 
 
 
@@ -46,7 +46,7 @@ def setUpModule():
 class AnnotationsHandlerTest(unittest.TestCase):
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(grok.app.config)
+    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
     self.app = TestApp(annotations_api.app.wsgifunc())
     self.annotation = {
       "uid": "f4aa70b361f04036b0b39530900f38fa",
@@ -54,7 +54,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
       "created": "2014-01-25 07:14:06",
       "device": "device1",
       "user": "John Doe",
-      "server": "grokdb2",
+      "server": "htm-itdb2",
       "message": "My annotation",
       "data": None
     }
@@ -64,7 +64,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     del self.request["created"]
 
 
-  @patch("grok.app.repository.getAnnotationById")
+  @patch("htm-it.app.repository.getAnnotationById")
   def testGETAnnotationById(self, getAnnotationById, _):
     """
       Test Get Annotation
@@ -100,7 +100,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     self.assertDictEqual(expected, actual[0])
 
 
-  @patch("grok.app.repository.getAnnotationById")
+  @patch("htm-it.app.repository.getAnnotationById")
   def testGETAnnotationByIdNotFound(self, getAnnotationById, _):
     """
       Test Get Annotation for unknown uid
@@ -121,7 +121,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     self.assertIn("Bad response: 404 Not Found", str(e.exception))
 
 
-  @patch("grok.app.repository.getAnnotations")
+  @patch("htm-it.app.repository.getAnnotations")
   def testGetAnnotations(self, getAnnotations, _):
     """
       Test Get Annotation
@@ -159,7 +159,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     self.assertDictEqual(expected, actual[0])
 
 
-  @patch("grok.app.repository.deleteAnnotationById")
+  @patch("htm-it.app.repository.deleteAnnotationById")
   def testDeleteAnnotationNotFound(self, deleteAnnotationById, _):
     """
     Test Delete unknown Annotation
@@ -179,7 +179,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     self.assertIn("Bad response: 404 Not Found", str(e.exception))
 
 
-  @patch("grok.app.repository.deleteAnnotationById")
+  @patch("htm-it.app.repository.deleteAnnotationById")
   def testDeleteAnnotation(self, deleteAnnotationById, _):
     """
     Test Delete Annotation
@@ -199,7 +199,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     self.assertTrue(deleteAnnotationById.called)
 
 
-  @patch("grok.app.repository.addAnnotation")
+  @patch("htm-it.app.repository.addAnnotation")
   def testAddAnnotation(self, addAnnotation, _):
     """
     Test Create new Annotation

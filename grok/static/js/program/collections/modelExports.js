@@ -22,18 +22,18 @@
 (function() {
 
   /**
-   * Backbone.Collection for a group of Grok Metric/Model Exports
+   * Backbone.Collection for a group of HTM-IT Metric/Model Exports
    * @constructor
    * @copyright © 2014 Numenta
    * @public
-   * @requires Backbone, Backbone.Collection, GROKUI.ModelExportModel class
+   * @requires Backbone, Backbone.Collection, HTM-ITUI.ModelExportModel class
    * @returns {Object} Backbone.Collection object
    */
-  GROKUI.ModelExportsCollection = Backbone.Collection.extend({
+  HTM-ITUI.ModelExportsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: GROKUI.ModelExportModel,
+    model: HTM-ITUI.ModelExportModel,
 
     // Custom properties
 
