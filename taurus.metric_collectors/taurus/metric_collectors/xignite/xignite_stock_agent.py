@@ -452,7 +452,7 @@ def poll(metricSpecs, apitoken, barlength, days):
 def forward(metricSpecs, data, security, server=DEFAULT_SERVER,
             port=DEFAULT_PORT,
             dryrun=DEFAULT_DRYRUN):
-  """ Forward stock data to Grok/Taurus instance via custom metric
+  """ Forward stock data to HTM-IT/Taurus instance via custom metric
 
   :param metricSpecs: Sequence of one or more StockMetricSpec objects associated
     with the same stock symbol for which polling was conducted
@@ -730,7 +730,7 @@ def main():
       for security, data in pool.imap_unordered(
           pollFn,
           symbolToMetricSpecs.itervalues()):
-        # Forward result (if available) to Grok/Taurus instance
+        # Forward result (if available) to HTM-IT/Taurus instance
         if data:
           pendingAsyncResults.append(
             pool.apply_async(
@@ -772,7 +772,7 @@ def _parseArgs():
   helpString = (
     "./%prog [options]\n\n"
     "This queries XIgnite using the bundled CLI client, feeds the"
-    " data into Grok, and continues to feed in new stock data as it arrives.")
+    " data into HTM-IT, and continues to feed in new stock data as it arrives.")
 
   parser = OptionParser(helpString)
 
@@ -789,14 +789,14 @@ def _parseArgs():
       action="store",
       type="string",
       default=DEFAULT_SERVER,
-      help="Server running Grok to send data to [default: %default]")
+      help="Server running HTM-IT to send data to [default: %default]")
 
   parser.add_option(
       "--port",
       action="store",
       type="string",
       default=DEFAULT_PORT,
-      help="Server running Grok to send data to [default: %default]")
+      help="Server running HTM-IT to send data to [default: %default]")
 
   parser.add_option(
       "--days",
