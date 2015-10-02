@@ -133,6 +133,7 @@ function getMetricDataFromDatabase(options) {
 function streamData(actionContext, modelId) {
   let databaseClient = actionContext.getDatabaseClient();
   let fileClient = actionContext.getFileClient();
+  let log = actionContext.getLoggerClient();
   let modelStore = actionContext.getStore(ModelStore);
   let model = modelStore.getModel(modelId);
   let rowId = 0;
@@ -141,8 +142,7 @@ function streamData(actionContext, modelId) {
   return new Promise((resolve, reject) => {
     csp.go(function* () {
 
-      // see if metric data is already saved in DB first
-      console.log('see if metric data is already saved in DB first');
+      log.debug('see if metric data is already saved in DB first');
       let opts = {actionContext, model};
       let metricData = yield csp.take(getMetricDataFromDatabase(opts));
       if (metricData instanceof Error) {
@@ -151,8 +151,7 @@ function streamData(actionContext, modelId) {
         return;
       }
       if (metricData.length > 0) {
-        // yes metric data is already in DB, use it
-        console.log('yes metric data is already in DB, use it');
+        log.debug('yes metric data is already in DB, use it');
         metricData.forEach((row) => {
           actionContext.executeAction(SendDataAction, {
             'modelId': model.modelId,
@@ -161,14 +160,13 @@ function streamData(actionContext, modelId) {
               new Number(row['metric_value']).valueOf()
             ]});
         });
-        // on to UI
-        console.log('on to UI');
+
+        log.debug('on to UI');
         resolve(model.modelId);
         return;
       }
 
-      // No metric data in DB, load direct from filesystem and save to DB
-      console.log('No metric data in DB, load direct from filesystem and save to DB');
+      log.debug('No metric data in DB, load direct from filesystem and save');
       fileClient.getData(model.filename, (error, data) => {
         let row;
         let timestamp;
@@ -178,7 +176,6 @@ function streamData(actionContext, modelId) {
           actionContext.executeAction(StopModelAction, model.modelId);
           reject(error);
         } else if (data) {
-          // validate new data row
           try {
             row = JSON.parse(data);
           } catch (error) {
@@ -188,8 +185,7 @@ function streamData(actionContext, modelId) {
           // queue for DB
           timestamp = new Date(row[model.timestampField]);
           value = new Number(row[model.metric]).valueOf();
-          // JSONized here to get around Electron IPC remote() memory leaks
-          rows.push({
+          rows.push({ // getting around Electron IPC remote() memory leaks
             uid: Utils.generateDataId(model.filename, model.metric, timestamp),
             'metric_uid': Utils.generateModelId(model.filename, model.metric),
             rowid: rowId,
@@ -199,22 +195,20 @@ function streamData(actionContext, modelId) {
           });
           rowId++;
 
-          // send row to UI
+          log.debug('send row to UI');
           actionContext.executeAction(SendDataAction, {
             'modelId': model.modelId,
             'data': [(timestamp.getTime() / 1000), value]
           });
         } else {
-          // End of data - Save to DB for future runs.
-          console.log('End of data - Save to DB for future runs.');
+          log.debug('End of data - Save to DB for future runs.');
           // JSONized here to get around Electron IPC remote() memory leaks
           rows = JSON.stringify(rows);
           databaseClient.putMetricDatas(rows, (error) => {
             if (error) {
               reject(error);
             } else {
-              // on to UI
-              console.log('on to UI');
+              log.debug('on to UI');
               resolve(model.modelId);
             }
           });
@@ -236,6 +230,7 @@ function streamData(actionContext, modelId) {
  * @param  {String} model         The model to start
  */
 export default function (actionContext, modelId) {
+  let log = actionContext.getLoggerClient();
   let modelClient = actionContext.getModelClient();
   let modelStore = actionContext.getStore(ModelStore);
   let model = modelStore.getModel(modelId);
@@ -248,8 +243,7 @@ export default function (actionContext, modelId) {
   return new Promise((resolve, reject) => {
     csp.go(function* () {
 
-      // see if metric min/max is already in DB
-      console.log('see if metric min/max is already in DB');
+      log.debug('see if metric min/max is already in DB');
       metric = yield csp.take(getMetricFromDatabase({actionContext, model}));
       if (metric instanceof Error) {
         reject(metric);
@@ -257,13 +251,11 @@ export default function (actionContext, modelId) {
         return;
       }
       if (metric && ('min' in metric) && ('max' in metric)) {
-        // yes, metric min/max was already in DB, so prep for use
-        console.log('yes, metric min/max was already in DB, so prep for use');
+        log.debug('yes, metric min/max was already in DB, so prep for use');
         stats.min = metric.min;
         stats.max = metric.max;
       } else {
-        // metric min/max was NOT in DB, so load from FS
-        console.log('metric min/max was NOT in DB, so load from FS');
+        log.debug('metric min/max was NOT in DB, so load from FS');
         opts = {actionContext, model};
         fileStats = yield csp.take(getMetricStatsFromFilesystem(opts));
         if (
@@ -277,8 +269,7 @@ export default function (actionContext, modelId) {
 
         stats = fileStats[model.metric];
 
-        // Now save min/max back to DB so we never have to ping FS for it again
-        console.log('Now save min/max back to DB so we never have to ping FS for it again');
+        log.debug('Now save min/max back to DB, never have to ping FS again');
         opts = {
           actionContext,
           metric: { // electron ipc remote() needs this obj to rebuilt here :(
@@ -299,8 +290,7 @@ export default function (actionContext, modelId) {
         }
       }
 
-      // metric min/max retrieved (either from DB or FS), ready to rock!
-      console.log('metric min/max retrieved (either from DB or FS), ready!');
+      log.debug('metric min/max retrieved (either from DB or FS), ready!');
       actionContext.dispatch(ACTIONS.START_MODEL_SUCCESS, modelId);
       modelClient.createModel(modelId, stats);
       return streamData(actionContext, modelId);

@@ -221,11 +221,11 @@ export default (actionContext, file) => {
     let fileFormatted;
     let fileHandle;
     let fileMetrics;
+    let log = actionContext.getLoggerClient();
     let opts = {actionContext, file};
     let result;
 
-    // see if uploaded file is already in DB
-    console.log('see if uploaded file is already in DB');
+    log.debug('see if uploaded file is already in DB');
     fileHandle = yield csp.take(getFileFromDB(opts));
     if (fileHandle instanceof Error) {
       actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
@@ -235,9 +235,7 @@ export default (actionContext, file) => {
       return fileHandle;
     }
     if (fileHandle && ('uid' in fileHandle)) {
-      // yes file is already in DB, load metrics
-      console.log('yes file is already in DB, load metrics');
-
+      log.debug('yes file is already in DB, load metrics');
       fileMetrics = yield csp.take(getMetricsFromDB(opts));
       if (fileMetrics instanceof Error) {
         actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
@@ -253,14 +251,12 @@ export default (actionContext, file) => {
         metrics: fileMetrics
       };
 
-      // on to UI
-      console.log('on to UI');
+      log.debug('on to UI');
       actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, fileFormatted);
       return fileFormatted;
     }
 
-    // NO file is not already in DB, get from upload
-    console.log('NO file is not already in DB, get from upload');
+    log.debug('NO file is not already in DB, get from upload');
     fileFormatted = yield csp.take(getFileFromUpload(opts));
     if (fileFormatted instanceof Error) {
       actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
@@ -270,8 +266,7 @@ export default (actionContext, file) => {
       return fileFormatted;
     }
 
-    // save new File+Metrics to DB
-    console.log('save new File+Metrics to DB');
+    log.debug('save new File+Metrics to DB');
     opts.file = fileFormatted;
     result = yield csp.take(putFileIntoDB(opts));
     if (result instanceof Error) {
@@ -290,8 +285,7 @@ export default (actionContext, file) => {
       return result;
     }
 
-    // on to UI
-    console.log('on to UI');
+    log.debug('on to UI');
     actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, fileFormatted);
     return fileFormatted;
 

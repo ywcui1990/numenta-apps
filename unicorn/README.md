@@ -340,6 +340,7 @@ NEED `npm run blah` examples here! @TODO
 
 * [Electron with node-inspector](https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
 * [Node debugger](https://nodejs.org/api/debugger.html)
+* Low level [Bunyan and DTrace](https://github.com/trentm/node-bunyan#runtime-log-snooping-via-dtrace)
 
 ### Command-line
 

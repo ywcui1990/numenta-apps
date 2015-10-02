@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Numenta Unicorn Cross-platform HTM Example Desktop Application",
   "main": "frontend/loader.js",
+  "browser": {
+    "source-map-support": false
+  },
   "engines": {
     "node": ">=4.1.1",
     "npm": ">=2.14.4"
@@ -94,7 +97,7 @@
     "electron-debug": "0.2.1",
     "electron-packager": "5.1.0",
     "electron-prebuilt": "0.33.3",
-    "eslint": "1.5.1",
+    "eslint": "1.6.0",
     "eslint-plugin-react": "3.5.1",
     "gulp": "3.9.0",
     "gulp-util": "3.0.6",
@@ -102,6 +105,7 @@
     "json-loader": "0.5.3",
     "mocha": "2.3.3",
     "node-inspector": "0.12.3",
+    "source-map-support": "0.3.2",
     "webpack": "1.12.2",
     "webpack-stream": "2.1.1"
   }

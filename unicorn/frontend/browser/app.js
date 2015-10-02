@@ -60,7 +60,20 @@ import FileClient from './lib/FileClient';
 import ModelClient from './lib/ModelClient';
 
 const config = new ConfigClient();
-const log = bunyan.createLogger({ name: 'Unicorn:Renderer' });
+const log = bunyan.createLogger({
+  name: 'Unicorn:Renderer',
+  streams: [{ // @TODO hardcoded to Dev right now, needs Prod mode. Refactor.
+    level: 'debug',  // @TODO higher for Production
+    stream: {
+      write(rec) {
+        let name = bunyan.nameFromLevel[rec.level];
+        let method = (name === 'debug') ? 'log' : name;
+        console[method]('[%s] %s: %s', rec.time.toISOString(), name, rec.msg);
+      }
+    },
+    type: 'raw'
+  }]
+});
 
 let databaseClient = new DatabaseClient();
 let fileClient = new FileClient();
@@ -90,7 +103,7 @@ let UnicornPlugin = {
           return configClient;
         };
         actionContext.getLoggerClient = function () {
-          return fileClient;
+          return loggerClient;
         };
         actionContext.getDatabaseClient = function () {
           return databaseClient;
