@@ -27,6 +27,10 @@ import UIKit
 
 class MenuController: UITableViewController {
 
+    let ABOUT = 5
+    let TUTORIAL = 4
+    let SETTINGS = 3
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -41,4 +45,37 @@ class MenuController: UITableViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        if (indexPath.item == ABOUT){
+            self.showAbout(tableView)
+        }
+        if (indexPath.item == TUTORIAL){
+            self.show ("showTutorial")
+        }
+
+        
+        if (indexPath.item == SETTINGS){
+            self.showSettings(tableView)
+        }
+        
+    }
+    
+    func show ( name : String){
+    self.revealViewController().rightRevealToggle(self)
+    self.revealViewController().frontViewController.performSegueWithIdentifier (name, sender: nil)
+    }
+    
+    @IBAction func showAbout( sender: UIView ){
+        self.revealViewController().rightRevealToggle(self)
+        self.revealViewController().frontViewController.performSegueWithIdentifier ("showAbout", sender: nil)
+    }
+    
+    @IBAction func showSettings( sender: UIView ){
+        self.revealViewController().rightRevealToggle(self)
+        self.revealViewController().frontViewController.performSegueWithIdentifier ("showSettings", sender: nil)
+    }
+
+    
 }

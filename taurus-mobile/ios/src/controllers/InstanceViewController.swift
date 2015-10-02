@@ -25,9 +25,9 @@ import UIKit
 
 class InstanceViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchResultsUpdating, UISearchBarDelegate  {
 
-     @IBOutlet var timeSlider: TimeSliderView?
-     @IBOutlet weak var instanceTable: UITableView!
-    @IBOutlet weak var menuButton:UIBarButtonItem!
+    @IBOutlet var timeSlider: TimeSliderView?
+    @IBOutlet weak var instanceTable: UITableView!
+    @IBOutlet weak var menuButton:UIBarButtonItem?
 
     
     var searchController : UISearchController?
@@ -72,16 +72,24 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         segment = UIBarButtonItem(customView:customSC)
         searchControllerButton = UIBarButtonItem(customView: self.searchController!.searchBar)
-        
         searchController?.searchBar.hidden = false
-        self.navigationItem.rightBarButtonItems = [searchButton!, segment!]
+        
+        
+        
+        let menuIcon = UIImage(named: "menu")
+        var b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+        self.menuButton = b2
+        
+        self.navigationItem.rightBarButtonItems = [menuButton!, searchButton!, segment!]
         
         // Show header icon
         
         let icon = UIImage(named: "grok_header")
         logo = UIBarButtonItem (image: icon,  style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
         
-     //sw_rear   self.navigationItem.leftBarButtonItem = logo
+        
+     //   = menuButton2
+        self.navigationItem.leftBarButtonItems = [  logo!]
         
         // Hook up swipe gesture
         
@@ -101,12 +109,10 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
 
         
        if self.revealViewController() != nil {
-            menuButton.target = self.revealViewController()
-            menuButton.action = "revealToggle:"
+            menuButton!.target = self.revealViewController()
+            menuButton!.action = "rightRevealToggle:"
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
-            
-            // Uncomment to change the width of menu
-           // self.revealViewController().rearViewRevealWidth = 62
+            self.self.revealViewController().rightViewRevealWidth = 160
         }
         
     }

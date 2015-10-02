@@ -4,6 +4,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8142"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
         <!--Instance View Controller-->
@@ -30,7 +31,7 @@
                                                 <rect key="frame" x="0.0" y="28" width="382" height="44"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="6v4-U1-Can" id="oUy-fX-vnT">
-                                                    <rect key="frame" x="0.0" y="0.0" width="382" height="43"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="382" height="43.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fre-20-mr0">
@@ -99,26 +100,73 @@
                         </subviews>
                         <color key="backgroundColor" red="0.50196081399917603" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="eW6-wk-JBA" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="5" id="F3R-df-AGK"/>
                             <constraint firstItem="eW6-wk-JBA" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="NTA-la-aUB"/>
+                            <constraint firstItem="eW6-wk-JBA" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" constant="5" id="ZLX-WN-YQ9"/>
+                            <constraint firstItem="eW6-wk-JBA" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="5" id="dBb-SN-zuc"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="eW6-wk-JBA" secondAttribute="bottom" id="ilR-d8-KJJ"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="eW6-wk-JBA" secondAttribute="trailing" id="txj-T9-SeB"/>
                         </constraints>
                     </view>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" id="KTr-yi-p2d">
-                        <barButtonItem key="leftBarButtonItem" image="menu" id="0Ez-WD-Vwg"/>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" id="KTr-yi-p2d"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="instanceTable" destination="YlD-31-9g5" id="MIV-uG-VkY"/>
-                        <outlet property="menuButton" destination="0Ez-WD-Vwg" id="LtV-K9-eQW"/>
                         <outlet property="timeSlider" destination="eW6-wk-JBA" id="JP2-Yh-r6t"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="746" y="486"/>
+            <point key="canvasLocation" x="1649" y="1660"/>
+        </scene>
+        <!--Tutorial Controller-->
+        <scene sceneID="7BQ-z0-6pX">
+            <objects>
+                <viewController id="znq-Po-Kno" customClass="TutorialController" customModule="Taurus" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="3kk-o5-zd2"/>
+                        <viewControllerLayoutGuide type="bottom" id="j3R-oc-OPT"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="i0h-Cc-AlM">
+                        <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="nGM-kv-X8T" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="795" y="2246"/>
+        </scene>
+        <!--Tutorial-->
+        <scene sceneID="KLc-fD-0ns">
+            <objects>
+                <viewController storyboardIdentifier="TutorialPageController" title="Tutorial" id="WDa-qp-Vhj" customClass="TutorialPageController" customModule="Taurus" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="mjx-0t-hE8"/>
+                        <viewControllerLayoutGuide type="bottom" id="A7q-z1-JJl"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bS-gq-6MO">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FB6-0o-aU1">
+                                <rect key="frame" x="8" y="0.0" width="240" height="128"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="A7q-z1-JJl" firstAttribute="top" secondItem="FB6-0o-aU1" secondAttribute="bottom" constant="40" id="1j7-KP-WMR"/>
+                            <constraint firstItem="FB6-0o-aU1" firstAttribute="leading" secondItem="8bS-gq-6MO" secondAttribute="leadingMargin" id="Vo1-w8-3fk"/>
+                            <constraint firstItem="FB6-0o-aU1" firstAttribute="top" secondItem="8bS-gq-6MO" secondAttribute="topMargin" id="eam-7C-nFm"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="FB6-0o-aU1" secondAttribute="trailing" id="mcZ-o5-Lub"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="FB6-0o-aU1" id="4JB-Ek-pGh"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Vio-d5-fnc" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1649" y="2315"/>
         </scene>
         <!--Instance Details View Controller-->
         <scene sceneID="4e7-va-HER">
@@ -145,7 +193,7 @@
                                         <rect key="frame" x="0.0" y="28" width="600" height="120"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="jsl-09-AbJ" id="uPg-NB-TLV">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="119"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="119.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="saD-0L-y6o" customClass="LineChartView" customModule="Taurus" customModuleProvider="target">
@@ -246,12 +294,16 @@
                             <constraint firstItem="zZc-y1-gFf" firstAttribute="trailing" secondItem="9IB-bQ-fAJ" secondAttribute="trailing" id="yeG-bc-iYp"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="f3W-tV-YgI"/>
+                    <toolbarItems/>
+                    <navigationItem key="navigationItem" id="f3W-tV-YgI">
+                        <barButtonItem key="rightBarButtonItem" image="menu" id="0Nw-fq-Oqk"/>
+                    </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
                         <outlet property="anomalyChartView" destination="zZc-y1-gFf" id="biT-lw-4tC"/>
                         <outlet property="date" destination="OJi-6G-ZS5" id="u7l-sE-CI6"/>
                         <outlet property="instanceTable" destination="lsn-O0-ZHJ" id="qMR-Y6-6Uz"/>
+                        <outlet property="menuButton" destination="0Nw-fq-Oqk" id="iSh-ZV-3p4"/>
                         <outlet property="name" destination="Ql9-UK-pUq" id="fff-0B-O20"/>
                         <outlet property="ticker" destination="CcL-LV-3lK" id="kcI-Vx-bEn"/>
                         <outlet property="timeSlider" destination="9IB-bQ-fAJ" id="wNZ-ZL-OtG"/>
@@ -279,6 +331,9 @@
                     </toolbar>
                     <connections>
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="I0l-Ma-N6Z"/>
+                        <segue destination="Yf9-d6-5Sb" kind="show" identifier="showAbout" id="uXf-vM-SIJ"/>
+                        <segue destination="Z07-U4-q5A" kind="show" identifier="showSettings" id="ixK-K9-Kso"/>
+                        <segue destination="znq-Po-Kno" kind="show" identifier="showTutorial" id="Z31-lT-4nx"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qxH-TH-VkD" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -294,7 +349,7 @@
                         <viewControllerLayoutGuide type="bottom" id="hcr-Ry-FkD"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="F27-w2-GE5">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="64" width="600" height="536"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" editable="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="EIf-RS-xnw">
@@ -333,7 +388,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                         <viewControllerLayoutGuide type="bottom" id="Ap1-jl-U7y"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="tCe-hV-UjN">
-                        <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ne8-zU-yDk" customClass="TimeSliderView" customModule="Taurus" customModuleProvider="target">
@@ -376,7 +431,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                         <rect key="frame" x="0.0" y="28" width="559" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="kii-vU-4tL" id="30o-oY-NTE">
-                                            <rect key="frame" x="0.0" y="0.0" width="559" height="43"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="559" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2DG-9k-22h">
@@ -432,18 +487,25 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                             <constraint firstItem="Ap1-jl-U7y" firstAttribute="top" secondItem="qX7-dG-vvN" secondAttribute="bottom" id="x2F-O0-qrv"/>
                         </constraints>
                     </view>
-                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" translucent="NO" prompted="NO"/>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="anomalyChartView" destination="7u0-UY-AUx" id="a6l-O5-xs1"/>
                         <outlet property="date" destination="D0T-8E-Uym" id="iek-Xd-Tbq"/>
                         <outlet property="instanceTable" destination="8sZ-04-rl3" id="Pzp-tg-y2K"/>
+                        <outlet property="menuButton" destination="iYQ-Rc-Vdc" id="ji4-Wq-FAE"/>
                         <outlet property="metricChartView" destination="KaZ-Ny-wsB" id="eEb-iu-PGK"/>
                         <outlet property="name" destination="r56-nz-ehS" id="F5O-k0-IZV"/>
                         <outlet property="ticker" destination="chp-9J-QKG" id="CPw-Je-n58"/>
                         <outlet property="timeSlider" destination="ne8-zU-yDk" id="vvJ-VN-cQ5"/>
                     </connections>
                 </viewController>
+                <navigationItem id="Gko-e7-d66">
+                    <leftBarButtonItems>
+                        <barButtonItem image="menu" id="iYQ-Rc-Vdc"/>
+                        <barButtonItem enabled="NO" systemItem="camera" id="Zep-xj-fep"/>
+                    </leftBarButtonItems>
+                </navigationItem>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="aC8-8l-mKu" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2161" y="499"/>
@@ -462,7 +524,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <connections>
-                        <segue destination="A6i-4S-hlQ" kind="custom" identifier="sw_rear" customClass="SWRevealViewControllerSegueSetController" id="cSc-RS-fW3"/>
+                        <segue destination="A6i-4S-hlQ" kind="custom" identifier="sw_right" customClass="SWRevealViewControllerSegueSetController" id="cSc-RS-fW3"/>
                         <segue destination="nFe-X0-AZo" kind="custom" identifier="sw_front" customClass="SWRevealViewControllerSegueSetController" id="gDP-I4-pGl"/>
                     </connections>
                 </viewController>
@@ -473,7 +535,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
         <!--Menu Controller-->
         <scene sceneID="5u8-T1-cF2">
             <objects>
-                <tableViewController id="A6i-4S-hlQ" customClass="MenuController" customModule="Taurus" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController autoresizesArchivedViewToFullSize="NO" id="A6i-4S-hlQ" customClass="MenuController" customModule="Taurus" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="28t-cm-q21">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -489,9 +551,11 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Grok for Stocks" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5fT-Tv-Dr4">
-                                                    <rect key="frame" x="19" y="23" width="153" height="21"/>
-                                                    <fontDescription key="fontDescription" name="AvenirNextCondensed-Medium" family="Avenir Next Condensed" pointSize="26"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5fT-Tv-Dr4">
+                                                    <rect key="frame" x="19" y="-14" width="153" height="71"/>
+                                                    <string key="text">Grok for
+Stocks</string>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -499,31 +563,31 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" red="0.94085192679999996" green="0.94903725390000004" blue="0.95307987930000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </tableViewCell>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="OOP-0d-4v1">
-                                        <rect key="frame" x="0.0" y="44" width="600" height="44"/>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="32" id="OOP-0d-4v1">
+                                        <rect key="frame" x="0.0" y="44" width="600" height="32"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="OOP-0d-4v1" id="RJI-rw-4Dk">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="32"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Feedback" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hv0-bw-CQP">
+                                                    <rect key="frame" x="61" y="11" width="100" height="21"/>
+                                                    <fontDescription key="fontDescription" name="AvenirNextCondensed-Medium" family="Avenir Next Condensed" pointSize="23"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="news" translatesAutoresizingMaskIntoConstraints="NO" id="O91-VX-HjR">
                                                     <rect key="frame" x="18" y="4" width="35" height="35"/>
                                                 </imageView>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Feedback" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hv0-bw-CQP">
-                                                    <rect key="frame" x="61" y="11" width="100" height="21"/>
-                                                    <fontDescription key="fontDescription" name="AvenirNextCondensed-Medium" family="Avenir Next Condensed" pointSize="22"/>
-                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
                                             </subviews>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" red="0.94085192679999996" green="0.94903725390000004" blue="0.95307987930000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </tableViewCell>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="n3z-rP-4Lr">
-                                        <rect key="frame" x="0.0" y="88" width="600" height="44"/>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="42" id="n3z-rP-4Lr">
+                                        <rect key="frame" x="0.0" y="76" width="600" height="42"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="n3z-rP-4Lr" id="Cqz-cx-Vlh">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="42"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="photo" translatesAutoresizingMaskIntoConstraints="NO" id="JhZ-Gf-Ml5">
@@ -539,18 +603,18 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" red="0.94085192679999996" green="0.94903725390000004" blue="0.95307987930000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </tableViewCell>
-                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="9Ge-a6-XiG">
-                                        <rect key="frame" x="0.0" y="132" width="600" height="44"/>
+                                    <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="40" id="9Ge-a6-XiG">
+                                        <rect key="frame" x="0.0" y="118" width="600" height="40"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="9Ge-a6-XiG" id="LsN-dc-1e4">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="40"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="photo" translatesAutoresizingMaskIntoConstraints="NO" id="qaa-cn-1iu">
                                                     <rect key="frame" x="18" y="4" width="35" height="35"/>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Settings" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="57B-oP-IiO">
-                                                    <rect key="frame" x="61" y="6" width="103" height="31"/>
+                                                    <rect key="frame" x="61" y="6" width="82" height="31"/>
                                                     <fontDescription key="fontDescription" name="AvenirNextCondensed-Medium" family="Avenir Next Condensed" pointSize="22"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
@@ -558,12 +622,9 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                             </subviews>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" red="0.94085192679999996" green="0.94903725390000004" blue="0.95307987930000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <connections>
-                                            <segue destination="vAy-NY-3be" kind="presentation" id="Crk-0q-IHR"/>
-                                        </connections>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="mXo-wM-wok">
-                                        <rect key="frame" x="0.0" y="176" width="600" height="44"/>
+                                        <rect key="frame" x="0.0" y="158" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="mXo-wM-wok" id="euQ-pr-CXA">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
@@ -573,7 +634,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                                     <rect key="frame" x="18" y="4" width="35" height="35"/>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Tutorial" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2re-I3-Ywm">
-                                                    <rect key="frame" x="61" y="6" width="114" height="31"/>
+                                                    <rect key="frame" x="61" y="6" width="68" height="31"/>
                                                     <fontDescription key="fontDescription" name="AvenirNextCondensed-Medium" family="Avenir Next Condensed" pointSize="22"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
@@ -583,7 +644,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                         <color key="backgroundColor" red="0.94085192679999996" green="0.94903725390000004" blue="0.95307987930000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="LgG-gB-WHx">
-                                        <rect key="frame" x="0.0" y="220" width="600" height="44"/>
+                                        <rect key="frame" x="0.0" y="202" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="LgG-gB-WHx" id="ODK-iR-mWX">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
@@ -593,7 +654,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                                     <rect key="frame" x="18" y="4" width="35" height="35"/>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="About" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="l2w-5O-2pl">
-                                                    <rect key="frame" x="61" y="6" width="114" height="31"/>
+                                                    <rect key="frame" x="56" y="13" width="56" height="31"/>
                                                     <fontDescription key="fontDescription" name="AvenirNextCondensed-Medium" family="Avenir Next Condensed" pointSize="22"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
@@ -601,9 +662,6 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                             </subviews>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" red="0.94085192679999996" green="0.94903725390000004" blue="0.95307987930000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <connections>
-                                            <segue destination="Yf9-d6-5Sb" kind="show" id="5Po-jc-jci"/>
-                                        </connections>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -632,7 +690,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                             <tableViewSection headerTitle="General" id="ZcI-Ai-LT6">
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="32" id="8eN-OL-WW1">
-                                        <rect key="frame" x="0.0" y="50" width="600" height="32"/>
+                                        <rect key="frame" x="0.0" y="49.5" width="600" height="32"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="8eN-OL-WW1" id="99f-qV-xpa">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="32"/>
@@ -655,7 +713,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                         <color key="backgroundColor" red="0.94085192679999996" green="0.94903725390000004" blue="0.95307987930000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" rowHeight="61" id="WXR-kw-HKW">
-                                        <rect key="frame" x="0.0" y="82" width="600" height="61"/>
+                                        <rect key="frame" x="0.0" y="81.5" width="600" height="61"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="WXR-kw-HKW" id="oGo-7h-jbA">
                                             <rect key="frame" x="0.0" y="0.0" width="567" height="61"/>
@@ -682,7 +740,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                             <tableViewSection headerTitle="Notifications" footerTitle="Notfication sound can be changed in system settings" id="WAE-yS-gui">
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="U2E-RX-LJy">
-                                        <rect key="frame" x="0.0" y="194" width="600" height="44"/>
+                                        <rect key="frame" x="0.0" y="192.5" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="U2E-RX-LJy" id="PKC-ba-vNn">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
@@ -705,7 +763,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                         <color key="backgroundColor" red="0.94085192679999996" green="0.94903725390000004" blue="0.95307987930000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </tableViewCell>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" rowHeight="54" id="aBr-Vb-MPM">
-                                        <rect key="frame" x="0.0" y="238" width="600" height="54"/>
+                                        <rect key="frame" x="0.0" y="236.5" width="600" height="54"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="aBr-Vb-MPM" id="BlC-bF-rPZ">
                                             <rect key="frame" x="0.0" y="0.0" width="567" height="54"/>
@@ -732,7 +790,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                             <tableViewSection headerTitle="Datasource" id="Ozx-Hz-CrM">
                                 <cells>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="32" id="ZTh-ij-BdQ">
-                                        <rect key="frame" x="0.0" y="359" width="600" height="32"/>
+                                        <rect key="frame" x="0.0" y="357" width="600" height="32"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="ZTh-ij-BdQ" id="QQ4-4G-C2I">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="32"/>
@@ -756,9 +814,6 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                             <outlet property="delegate" destination="Z07-U4-q5A" id="RZs-MP-Vij"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="i4a-JV-8LZ">
-                        <barButtonItem key="leftBarButtonItem" title="Done" id="hPr-Yp-pIU"/>
-                    </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" translucent="NO" prompted="NO"/>
                     <connections>
                         <outlet property="notificationLabel" destination="duy-BP-Ph8" id="QqM-NG-rhf"/>
@@ -770,24 +825,6 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Aza-Wo-brY" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2161" y="-1468"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="DYf-db-Und">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="vAy-NY-3be" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="WZX-gl-gqQ">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="Z07-U4-q5A" kind="relationship" relationship="rootViewController" id="wcF-60-5YL"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="YaC-wu-c7R" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1349" y="-1468"/>
         </scene>
     </scenes>
     <resources>

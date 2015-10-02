@@ -33,6 +33,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     @IBOutlet weak var ticker : UILabel!
     @IBOutlet weak var name : UILabel!
     @IBOutlet weak var date : UILabel!
+    @IBOutlet weak var menuButton:UIBarButtonItem!
     
     // Serial queue for loading chart data
     let loadQueue = dispatch_queue_create("com.numenta.TwitterController", nil)
@@ -91,6 +92,15 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         instanceTable.backgroundColor = UIColor.clearColor()
           self.instanceTable.estimatedRowHeight = 80.0
         self.instanceTable.rowHeight = UITableViewAutomaticDimension
+        
+        if self.revealViewController() != nil {
+            menuButton.target = self.revealViewController()
+            menuButton.action = "revealToggle:"
+            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
+            
+            // Uncomment to change the width of menu
+            // self.revealViewController().rearViewRevealWidth = 62
+        }
         
         configureView()
         

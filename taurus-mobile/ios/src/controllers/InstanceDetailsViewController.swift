@@ -32,7 +32,8 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
     @IBOutlet weak var ticker : UILabel!
     @IBOutlet weak var name : UILabel!
     @IBOutlet weak var date : UILabel!
-    
+    @IBOutlet weak var menuButton:UIBarButtonItem!
+
     // Serial queue for loading chart data
     let loadQueue = dispatch_queue_create("com.numenta.InstanceDetailsController", nil)
     var cellSet = Set<MetricCell>()
@@ -106,6 +107,14 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         instanceTable.tableFooterView = UIView(frame:CGRectZero)
         instanceTable.separatorColor = UIColor.clearColor()
 
+        if self.revealViewController() != nil {
+            menuButton.target = self.revealViewController()
+            menuButton.action = "revealToggle:"
+            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
+            
+            // Uncomment to change the width of menu
+            // self.revealViewController().rearViewRevealWidth = 62
+        }
         
          configureView()
     }
