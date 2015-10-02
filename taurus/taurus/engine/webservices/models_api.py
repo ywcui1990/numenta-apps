@@ -260,7 +260,7 @@ class ModelHandler(AuthenticatedBaseHandler):
         [{
             "description":
               "DiskWriteBytes on EC2 instance i-12345678 in us-west-2 region",
-            "display_name": "grok-docs (i-12345678)",
+            "display_name": "htm-it-docs (i-12345678)",
             "last_rowid": 4053,
             "last_timestamp": "2013-12-12 00:00:00",
             "location": "us-west-2",
@@ -270,7 +270,7 @@ class ModelHandler(AuthenticatedBaseHandler):
             "poll_interval": 300,
             "server": "i-12345678",
             "status": 1,
-            "tag_name": "grok-docs",
+            "tag_name": "htm-it-docs",
             "uid": "2a123bb1dd4d46e7a806d62efc29cbb9"
           }, ...
         ]
