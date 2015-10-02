@@ -30,8 +30,41 @@ import {ACTIONS} from '../lib/Constants';
 import ModelStore from '../stores/ModelStore';
 import SendDataAction from '../actions/SendData';
 import StopModelAction from '../actions/StopModel';
+import UserError from '../../lib/UserError';
 import Utils from '../../lib/Utils';
 
+
+// ERRORS
+
+/**
+ * Thrown when having trouble getting data from Database
+ */
+export class DatabaseGetError extends UserError {
+  constructor(message) {
+    super(message || 'Could not perform GET operation from Database');
+  }
+};
+
+/**
+ * Thrown when having trouble putting data into Database
+ */
+export class DatabasePutError extends UserError {
+  constructor(message) {
+    super(message || 'Could not perform PUT operation into Database');
+  }
+};
+
+/**
+ * Thrown when having trouble getting data from Filesystem
+ */
+export class FilesystemGetError extends UserError {
+  constructor(message) {
+    super(message || 'Could not perform READ operation on Filesystem');
+  }
+};
+
+
+// FUNCTIONS
 
 /**
  *
@@ -44,10 +77,7 @@ function getMetricFromDatabase(options) {
 
   databaseClient.getMetric(metricId, (error, results) => {
     if (error && (!('notFound' in error))) {
-      csp.putAsync(channel, new Error({
-        name: 'StartModelActionDatabaseClientGetMetric',
-        message: error
-      }));
+      csp.putAsync(channel, new DatabaseGetError(error));
     } else {
       csp.putAsync(channel, results);
     }
@@ -66,10 +96,7 @@ function getMetricStatsFromFilesystem(options) {
 
   fileClient.getStatistics(model.filename, (error, stats) => {
     if (error) {
-      csp.putAsync(channel, new Error({
-        name: 'StartModelActionDatabaseClientGetMetricDatas',
-        message: error
-      }));
+      csp.putAsync(channel, new FilesystemGetError(error));
     } else {
       csp.putAsync(channel, stats);
     }
@@ -88,10 +115,7 @@ function putMetricStatsIntoDatabase(options) {
 
   databaseClient.putMetric(metric, (error) => {
     if (error) {
-      csp.putAsync(channel, new Error({
-        name: 'StartModelActionDatabaseClientPutMetricStats',
-        message: error
-      }));
+      csp.putAsync(channel, new DatabasePutError(error));
     } else {
       csp.putAsync(channel, true);
     }
@@ -112,10 +136,7 @@ function getMetricDataFromDatabase(options) {
     { 'metric_uid': Utils.generateModelId(model.filename, model.metric) },
     (error, results) => {
       if (error) {
-        csp.putAsync(channel, new Error({
-          name: 'StartModelActionDatabaseClientGetMetricDatas',
-          message: error
-        }));
+        csp.putAsync(channel, new DatabaseGetError(error));
       } else {
         // JSONized here to get around Electron IPC remote() memory leaks
         results = JSON.parse(results);

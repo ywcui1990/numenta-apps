@@ -21,8 +21,41 @@
 
 
 import {ACTIONS} from '../lib/Constants';
+import UserError from '../../lib/UserError';
 import Utils from '../../lib/Utils';
 
+
+// ERRORS
+
+/**
+ * Thrown when having trouble getting data from Database
+ */
+export class DatabaseGetError extends UserError {
+  constructor(message) {
+    super(message || 'Could not perform GET operation from Database');
+  }
+};
+
+/**
+ * Thrown when having trouble putting data into Database
+ */
+export class DatabasePutError extends UserError {
+  constructor(message) {
+    super(message || 'Could not perform PUT operation into Database');
+  }
+};
+
+/**
+ * Thrown when having trouble getting data from Filesystem
+ */
+export class FilesystemGetError extends UserError {
+  constructor(message) {
+    super(message || 'Could not perform READ operation on Filesystem');
+  }
+};
+
+
+// MAIN
 
 /**
  * List all available metrics of the given file
@@ -38,10 +71,10 @@ export default (actionContext, files) => {
     log.debug('load existing metrics from db, from previous runs');
     databaseClient.getMetrics({}, (error, metrics) => {
       if (error) {
-        actionContext.dispatch(ACTIONS.LIST_METRICS_FAILURE, new Error({
-          name: 'DatabaseClientGetMetricsFailure',
-          message: error
-        }));
+        actionContext.dispatch(
+          ACTIONS.LIST_METRICS_FAILURE,
+          new DatabaseGetError(error)
+        );
         reject(error);
       } else if (metrics.length) {
         log.debug('metrics in db already, not first run, straight to UI.');
@@ -66,10 +99,10 @@ export default (actionContext, files) => {
         files.forEach((file) => {
           fileClient.getFields(file.filename, (error, fields) => {
             if (error) {
-              actionContext.dispatch(ACTIONS.LIST_METRICS_FAILURE, new Error({
-                'name': 'FileClientGetFieldsFailure',
-                'message': error
-              }));
+              actionContext.dispatch(
+                ACTIONS.LIST_METRICS_FAILURE,
+                new FilesystemGetError(error)
+              );
               reject(error);
             } else {
               fieldsFileMap[file.filename] = fields;
@@ -84,10 +117,7 @@ export default (actionContext, files) => {
                   if (error) {
                     actionContext.dispatch(
                       ACTIONS.LIST_METRICS_FAILURE,
-                      new Error({
-                        name: 'DatabaseClientPutMetricsFailure',
-                        message: error
-                      })
+                      new DatabasePutError(error)
                     );
                     reject(error);
                   } else {
