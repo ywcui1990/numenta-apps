@@ -32,6 +32,7 @@
 
 import 'babel/polyfill'; // es6/7 polyfill Array.from()
 
+import bunyan from 'bunyan';
 import csp from 'js-csp';
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
@@ -59,6 +60,7 @@ import FileClient from './lib/FileClient';
 import ModelClient from './lib/ModelClient';
 
 const config = new ConfigClient();
+const log = bunyan.createLogger({ name: 'Unicorn:Renderer' });
 
 let databaseClient = new DatabaseClient();
 let fileClient = new FileClient();
@@ -78,27 +80,17 @@ let UnicornPlugin = {
   name: 'Unicorn',
   plugContext: function (options, context, app) {
     let configClient = options.configClient;
+    let loggerClient = options.loggerClient;
     let databaseClient = options.databaseClient;
     let fileClient = options.fileClient;
     let modelClient = options.modelClient;
-    let plugins = {
-      plugComponentContext: function (componentContext, context, app) {
-        componentContext.getConfigClient = function () {
-          return configClient;
-        };
-        componentContext.getDatabaseClient = function () {
-          return databaseClient;
-        };
-        componentContext.getFileClient = function () {
-          return fileClient;
-        };
-        componentContext.getModelClient = function () {
-          return modelClient;
-        };
-      },
+    return {
       plugActionContext: function (actionContext, context, app) {
         actionContext.getConfigClient = function () {
           return configClient;
+        };
+        actionContext.getLoggerClient = function () {
+          return fileClient;
         };
         actionContext.getDatabaseClient = function () {
           return databaseClient;
@@ -110,9 +102,29 @@ let UnicornPlugin = {
           return modelClient;
         };
       },
+      plugComponentContext: function (componentContext, context, app) {
+        componentContext.getConfigClient = function () {
+          return configClient;
+        };
+        componentContext.getLoggerClient = function () {
+          return loggerClient;
+        };
+        componentContext.getDatabaseClient = function () {
+          return databaseClient;
+        };
+        componentContext.getFileClient = function () {
+          return fileClient;
+        };
+        componentContext.getModelClient = function () {
+          return modelClient;
+        };
+      },
       plugStoreContext: function (storeContext, context, app) {
         storeContext.getConfigClient = function () {
           return configClient;
+        };
+        storeContext.getLoggerClient = function () {
+          return loggerClient;
         };
         storeContext.getDatabaseClient = function () {
           return databaseClient;
@@ -124,9 +136,8 @@ let UnicornPlugin = {
           return modelClient;
         };
       }
-    }; // plugins
-    return plugins;
-  }
+    };
+  } // plugContext
 }; // UnicornPlugin
 
 
@@ -134,8 +145,6 @@ let UnicornPlugin = {
 
 document.addEventListener('DOMContentLoaded', () => {
   csp.go(function* () {
-
-    window.dbc = databaseClient;
 
     if (!(document && ('body' in document))) {
       throw new Error('React cannot find a DOM document.body to render to');
@@ -159,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // add context to app
     context = app.createContext({
       configClient: config,
+      loggerClient: log,
       databaseClient,
       fileClient,
       modelClient

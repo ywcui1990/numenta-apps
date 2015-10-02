@@ -121,6 +121,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Package Manager: [npm](https://www.npmjs.com/)
     * Module Loading and Bundling: [WebPack](https://github.com/webpack/webpack)
     * Configuration: [nconf](https://github.com/indexzero/nconf)
+    * Logging w/structured JSON: [bunyan](https://github.com/trentm/node-bunyan)
     * Database on filesystem: [LevelUp](https://github.com/Level/levelup)
       interface to [LevelDB](https://github.com/google/leveldb), with
       [mdeadown](https://www.npmjs.com/package/medeadown) backend
@@ -205,6 +206,7 @@ Start code via Electron as a Desktop App:
 # desktop dev
 npm run desktop
 NODE_ENV=development npm run desktop  # same
+npm run desktop | `npm bin`/bunyan    # pretty logs
 
 # desktop prod
 NODE_ENV=production npm run desktop
@@ -223,7 +225,8 @@ at `http://localhost:9999`:
 ```shell
 # web dev (same)
 npm run web
-NODE_ENV=development npm run web
+NODE_ENV=development npm run web  # same
+npm run web | `npm bin`/bunyan    # pretty logs
 
 # web prod
 NODE_ENV=production npm run web
@@ -359,7 +362,6 @@ NEED `npm run blah` examples here! @TODO
 * Gulp/Webpack config settings for loading differing bundle/code for
   Desktop or Browser. Split build sources and targets for certain dirs?
   Sync with recent `nconf` work. Also new Electron/Node4 doesn't need babel.
-* Setup logging: Winston or Bunyan? => Joe thinking about it. output: ./logs/
 * Add in Flow type checking
 * i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
 * Document where are imports=>requires handled? Babel/Webpack?

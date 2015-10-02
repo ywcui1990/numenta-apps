@@ -31,6 +31,7 @@
 // externals
 
 import app from 'app';
+import bunyan from 'bunyan';
 import BrowserWindow from 'browser-window';
 import crashReporter from 'crash-reporter';
 
@@ -40,10 +41,10 @@ import Config from './lib/ConfigServer';
 import ModelServerIPC from './lib/ModelServerIPC';
 
 const config = new Config();
+const log = bunyan.createLogger({ name: 'Unicorn:Main' });
 
+let mainWindow = null; // global ref to keep window object from JS GC
 let modelServer =  null;
-
-let mainWindow = null; // global reference to keep window object from JS GC
 
 
 // MAIN

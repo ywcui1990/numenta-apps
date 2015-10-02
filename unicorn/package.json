@@ -65,6 +65,7 @@
   "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
     "babel": "5.8.23",
+    "bunyan": "1.5.1",
     "csv-streamify": "2.0.0",
     "dygraphs": "1.1.1",
     "electron": "0.4.1",
