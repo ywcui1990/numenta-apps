@@ -26,7 +26,7 @@
 # README
 #
 # ----------------------------------------------------------------------
-# This is a convenience script to install Grok onto a bare Centos 7 machine.
+# This is a convenience script to install HTM-IT onto a bare Centos 7 machine.
 # 
 # It was tested against a Centos 7 instance in AWS on 9 July 2015:
 #   AWS Marketplace: https://aws.amazon.com/marketplace/pp/B00O7WM7QW
@@ -35,10 +35,10 @@
 # To run this:
 #
 # 1. Launch a Centos 7 AMI or VM
-# 2. scp /path/to/install-grok-from-bare-centos7.sh centos@<server_ip>:~
+# 2. scp /path/to/install-htm-it-from-bare-centos7.sh centos@<server_ip>:~
 # 3. ssh centos@<server_ip>
-# 4. chmod +x install-grok-from-bare-centos7.sh
-# 5. ./install-grok-from-bare-centos7.sh
+# 4. chmod +x install-htm-it-from-bare-centos7.sh
+# 5. ./install-htm-it-from-bare-centos7.sh
 #
 # ----------------------------------------------------------------------
 
@@ -65,12 +65,12 @@ pip install -I https://pypi.numenta.com/api/package/nupic/nupic-0.2.6-cp27-none-
 # Clone Numenta Apps Repo
 git clone https://github.com/numenta/numenta-apps.git /opt/numenta/numenta-apps
 
-# Install Grok
+# Install HTM-IT
 cd /opt/numenta/numenta-apps/
 pip install paver==1.2.4 --user
 pip install uwsgi==2.0.4 --user
 pip install agamotto==0.5.1 --user
-./install-grok.sh /home/centos/.local/lib/python2.7/site-packages /home/centos/.local/bin
+./install-htm-it.sh /home/centos/.local/lib/python2.7/site-packages /home/centos/.local/bin
 
 # Start MySQL and Rabbit
 sudo service mysqld start
@@ -79,29 +79,29 @@ sudo rabbitmq-server -detached
 # Add Rabbit Admin scripts
 sudo cp /opt/numenta/numenta-apps/infrastructure/saltcellar/rabbitmq/files/rabbitmqadmin /usr/local/bin
 
-# Bootstrap Grok
-export GROK_HOME=/opt/numenta/numenta-apps/grok
-export APPLICATION_CONFIG_PATH="${GROK_HOME}/conf"
-export GROK_LOG_DIR="${GROK_HOME}/logs"
+# Bootstrap HTM-IT
+export HTM-IT_HOME=/opt/numenta/numenta-apps/htm-it
+export APPLICATION_CONFIG_PATH="${HTM-IT_HOME}/conf"
+export HTM-IT_LOG_DIR="${HTM-IT_HOME}/logs"
 
-cd "${GROK_HOME}"
-mkdir -p "${GROK_LOG_DIR}"/
+cd "${HTM-IT_HOME}"
+mkdir -p "${HTM-IT_LOG_DIR}"/
 
 python setup.py init
 
-# Start Nginx and Grok
+# Start Nginx and HTM-IT
 sudo sysctl -w net.core.somaxconn=1024
-sudo nginx -p . -c conf/grok-api.conf
+sudo nginx -p . -c conf/htm-it-api.conf
 supervisord -c conf/supervisord.conf
 
-echo "Grok is now running!"
+echo "HTM-IT is now running!"
 
 ########################
 ## Run Integration Tests
 ########################
 
 #########################
-## Set credentials per https://github.com/numenta/numenta-apps/tree/master/grok#setup-aws-credentials-for-integration-tests
+## Set credentials per https://github.com/numenta/numenta-apps/tree/master/htm-it#setup-aws-credentials-for-integration-tests
 #########################
 
 # ./run_tests.sh --integration --language py --results xunit jenkins
