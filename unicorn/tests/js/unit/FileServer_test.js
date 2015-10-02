@@ -47,8 +47,18 @@ const EXPECTED_DATA = [
 
 // Expected fields
 const EXPECTED_FIELDS = [
-  {name: 'timestamp', type: 'date'},
-  {name: 'metric', type: 'number'},
+  {
+    name: 'timestamp',
+    type: 'date',
+    uid: '8cc52a23d53b19cb8c2618c4118dc6b40c4ebc87',
+    'file_uid': 'b1e39d95721813cf5186553fff4dcd26692d189a'
+  },
+  {
+    name: 'metric',
+    type: 'number',
+    uid: '8e80050a99d6cc4399a43593f4e1efe231fc49be',
+    'file_uid': 'b1e39d95721813cf5186553fff4dcd26692d189a'
+  }
 ];
 
 // Expected statistics for the whole file
