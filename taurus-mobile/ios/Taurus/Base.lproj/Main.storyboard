@@ -20,7 +20,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eW6-wk-JBA" customClass="TimeSliderView" customModule="Taurus" customModuleProvider="target">
-                                <rect key="frame" x="52" y="55" width="528" height="370"/>
+                                <rect key="frame" x="5" y="55" width="528" height="370"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="YlD-31-9g5">
                                         <rect key="frame" x="73" y="73" width="382" height="224"/>
@@ -89,7 +89,7 @@
                                         </connections>
                                     </tableView>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstItem="YlD-31-9g5" firstAttribute="leading" secondItem="eW6-wk-JBA" secondAttribute="leading" id="UYV-BH-pgo"/>
                                     <constraint firstAttribute="bottom" secondItem="YlD-31-9g5" secondAttribute="bottom" constant="24" id="UaL-fX-ekI"/>
@@ -98,11 +98,11 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" red="0.50196081399917603" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" red="1" green="0.43529412150382996" blue="0.81176471710205078" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="eW6-wk-JBA" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="NTA-la-aUB"/>
                             <constraint firstItem="eW6-wk-JBA" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" constant="5" id="ZLX-WN-YQ9"/>
-                            <constraint firstItem="eW6-wk-JBA" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="5" id="dBb-SN-zuc"/>
+                            <constraint firstItem="eW6-wk-JBA" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="dBb-SN-zuc"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="eW6-wk-JBA" secondAttribute="bottom" id="ilR-d8-KJJ"/>
                         </constraints>
                     </view>
@@ -437,7 +437,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2DG-9k-22h">
                                                     <rect key="frame" x="258" y="11" width="42" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>

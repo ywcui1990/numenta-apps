@@ -1,7 +1,7 @@
 source 'https://github.com/CocoaPods/Specs.git'
 
-#pod 'FMDB'
-pod 'MMDrawerController', '~> 0.5.7'
+pod 'FMDB'
+#pod 'MMDrawerController', '~> 0.5.7'
 pod'AWSCore'
 #pod 'AWSAutoScaling'
 #pod 'AWSCloudWatch'
