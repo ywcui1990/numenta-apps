@@ -26,7 +26,7 @@ const assert = require('assert');
 const STATS = '{"min": 0, "max": 10}';
 const MODEL_ID = '1';
 const INPUT_DATA = [1438649711, 835.93679];
-const EXPECTED_RESULTS = '[0, 0.5]\n';
+const EXPECTED_RESULTS = '[0, 0.0301029996658834]\n'; // Log scaled
 
 describe('ModelServer', () => {
   let server = new ModelServer();
