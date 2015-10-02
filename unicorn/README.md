@@ -117,7 +117,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
 * Framework: [Electron](https://github.com/atom/electron)
   * Engines: [Chromium](https://www.chromium.org/Home),
-    [IO.js](https://iojs.org/), [Node](https://github.com/joyent/node)
+      [Node.js](https://github.com/joyent/node)
     * Package Manager: [npm](https://www.npmjs.com/)
     * Module Loading and Bundling: [WebPack](https://github.com/webpack/webpack)
     * Configuration: [nconf](https://github.com/indexzero/nconf)
@@ -333,7 +333,7 @@ NEED `npm run blah` examples here! @TODO
 
 * @TODO Python, NuPIC, Models, debugging etc.
 
-### Node/io.js system-level
+### Node.js system-level
 
 * [Electron with node-inspector](https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
 * [Node debugger](https://nodejs.org/api/debugger.html)
