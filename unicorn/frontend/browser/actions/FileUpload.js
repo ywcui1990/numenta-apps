@@ -37,8 +37,8 @@ import Utils from '../../lib/Utils';
  * Thrown when having trouble getting data from Database
  */
 export class DatabaseGetError extends UserError {
-  constructor() {
-    super('Could not perform GET operation from Database');
+  constructor(message) {
+    super(message || 'Could not perform GET operation from Database');
   }
 };
 
@@ -46,8 +46,8 @@ export class DatabaseGetError extends UserError {
  * Thrown when having trouble putting data into Database
  */
 export class DatabasePutError extends UserError {
-  constructor() {
-    super('Could not perform PUT operation into Database');
+  constructor(message) {
+    super(message || 'Could not perform PUT operation into Database');
   }
 };
 
@@ -55,8 +55,8 @@ export class DatabasePutError extends UserError {
  * Thrown when having trouble getting data from Filesystem
  */
 export class FilesystemGetError extends UserError {
-  constructor() {
-    super('Could not perform READ operation on Filesystem');
+  constructor(message) {
+    super(message || 'Could not perform READ operation on Filesystem');
   }
 };
 
@@ -79,7 +79,7 @@ function getFileFromUpload(options) {
 
   fileClient.getUploadedFiles(file, (error, formattedFile) => {
     if (error) {
-      csp.putAsync(channel, new FilesystemGetError());
+      csp.putAsync(channel, new FilesystemGetError(error));
     } else {
       csp.putAsync(channel, formattedFile);
     }
@@ -106,7 +106,7 @@ function getFileFromDB(options) {
 
   databaseClient.getFile(fileId, (error, results) => {
     if (error && (!('notFound' in error))) {
-      csp.putAsync(channel, new DatabaseGetError());
+      csp.putAsync(channel, new DatabaseGetError(error));
     } else {
       csp.putAsync(channel, results);
     }
@@ -133,7 +133,7 @@ function getMetricsFromDB(options) {
 
   databaseClient.getMetrics({ 'file_uid': fileId }, (error, results) => {
     if (error && (!('notFound' in error))) {
-      csp.putAsync(channel, new DatabaseGetError());
+      csp.putAsync(channel, new DatabaseGetError(error));
     } else {
       csp.putAsync(channel, results);
     }
@@ -165,7 +165,7 @@ function putFileIntoDB(options) {
 
   databaseClient.putFile(payload, (error) => {
     if (error) {
-      csp.putAsync(channel, new DatabasePutError());
+      csp.putAsync(channel, new DatabasePutError(error));
     } else {
       csp.putAsync(channel, true);
     }
@@ -199,7 +199,7 @@ function putMetricsIntoDB(options) {
 
   databaseClient.putMetrics(payload, (error) => {
     if (error) {
-      csp.putAsync(channel, new DatabasePutError());
+      csp.putAsync(channel, new DatabasePutError(error));
     } else {
       csp.putAsync(channel, true);
     }

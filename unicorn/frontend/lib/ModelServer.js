@@ -104,7 +104,6 @@ export class ModelServer extends EventEmitter {
 
     let params = [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats];
     let child = childProcess.spawn('python', params);
-    console.log('Spawned child:', 'python', params);
 
     child.stdout.setEncoding('utf8');
     child.stdin.setDefaultEncoding('utf8');
