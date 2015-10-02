@@ -82,6 +82,16 @@ public class DataUtils{
         return  dateFormatter.dateFromString(date)
     }
     
+    
+    static func parseHTMDate (date : String)->NSDate? {
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        // FIXME verify that our date is in GMT
+        return  dateFormatter.dateFromString(date)
+    }
+    
+    
+    
     static func floorTo5Mins (date : NSDate)->NSDate{
         let secondsInitial = date.timeIntervalSince1970
         let secondsFloored = (floor(secondsInitial/300.0))*300.0
