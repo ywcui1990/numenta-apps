@@ -20,9 +20,16 @@
 'use strict';
 
 
+// internals
+
 import {ACTIONS} from '../lib/Constants';
+import {
+  DatabaseGetError, DatabasePutError, FilesystemGetError
+} from '../../lib/UserError';
 import Utils from '../../lib/Utils';
 
+
+// MAIN
 
 /**
  * Get List of files from backend
@@ -32,34 +39,31 @@ export default (actionContext) => {
 
     let databaseClient = actionContext.getDatabaseClient();
     let fileClient = actionContext.getFileClient();
+    let log = actionContext.getLoggerClient();
 
-    // load existing files from db, from previous runs
-    console.log('load existing files from db, from previous runs');
+    log.debug('load existing files from db, from previous runs');
     databaseClient.getFiles({}, (error, files) => {
       if (error) {
-        actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, new Error({
-          name: 'DatabaseClientGetFilesFailure',
-          message: error
-        }));
+        actionContext.dispatch(
+          ACTIONS.LIST_FILES_FAILURE,
+          new DatabaseGetError(error)
+        );
         reject(error);
       } else if (files.length) {
-        // files in db already, not first run, straight to UI
-        console.log('files in db already, not first run, straight to UI');
+        log.debug('files in db already, not first run, straight to UI');
         actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
         resolve(files);
       } else {
-        // no files in db, first run, so load them from fs
-        console.log('no files in db, first run, so load them from fs');
+        log.debug('no files in db, first run, so load them from fs');
         fileClient.getSampleFiles((error, files) => {
           if (error) {
-            actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, new Error({
-              name: 'FileClientGetSampleFilesFailure',
-              message: error
-            }));
+            actionContext.dispatch(
+              ACTIONS.LIST_FILES_FAILURE,
+              new FilesystemGetError(error)
+            );
             reject(error);
           } else {
-            // got file list from fs, saving to db for next runs
-            console.log('got file list from fs, saving to db for next runs');
+            log.debug('got file list from fs, saving to db for next runs');
             files = files.map((file) => {
               file.uid = Utils.generateId(file.filename);
               return file;
@@ -67,14 +71,13 @@ export default (actionContext) => {
 
             databaseClient.putFiles(files, (error) => {
               if (error) {
-                actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, new Error({
-                  name: 'DatabaseClientPutFilesFailure',
-                  message: error
-                }));
+                actionContext.dispatch(
+                  ACTIONS.LIST_FILES_FAILURE,
+                  new DatabasePutError(error)
+                );
                 reject(error);
               } else {
-                // DB now has Files, on to UI.
-                console.log('DB now has Files, on to UI.');
+                log.debug('DB now has Files, on to UI.');
                 actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
                 resolve(files);
               }
