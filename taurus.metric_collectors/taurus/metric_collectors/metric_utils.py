@@ -319,7 +319,7 @@ def deleteMetric(host, apiKey, metricName):
 
   :param host: API server's hostname or IP address
   :param apiKey: API server's API Key
-  :param modelId: id of the metric to be deleted
+  :param modelName: name of the metric to be deleted
 
   :raises: RetriesExceededError
   :raises: MetricDeleteRequestError
