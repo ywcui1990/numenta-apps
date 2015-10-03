@@ -20,39 +20,13 @@
 'use strict';
 
 
+// internals
+
 import {ACTIONS} from '../lib/Constants';
-import UserError from '../../lib/UserError';
+import {
+  DatabaseGetError, DatabasePutError, FilesystemGetError
+} from '../../lib/UserError';
 import Utils from '../../lib/Utils';
-
-
-// ERRORS
-
-/**
- * Thrown when having trouble getting data from Database
- */
-export class DatabaseGetError extends UserError {
-  constructor(message) {
-    super(message || 'Could not perform GET operation from Database');
-  }
-};
-
-/**
- * Thrown when having trouble putting data into Database
- */
-export class DatabasePutError extends UserError {
-  constructor(message) {
-    super(message || 'Could not perform PUT operation into Database');
-  }
-};
-
-/**
- * Thrown when having trouble getting data from Filesystem
- */
-export class FilesystemGetError extends UserError {
-  constructor(message) {
-    super(message || 'Could not perform READ operation on Filesystem');
-  }
-};
 
 
 // MAIN
