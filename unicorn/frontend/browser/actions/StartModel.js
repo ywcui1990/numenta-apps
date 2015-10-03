@@ -27,41 +27,13 @@ import csp from 'js-csp';
 // internals
 
 import {ACTIONS} from '../lib/Constants';
+import {
+  DatabaseGetError, DatabasePutError, FilesystemGetError
+} from '../../lib/UserError';
 import ModelStore from '../stores/ModelStore';
 import SendDataAction from '../actions/SendData';
 import StopModelAction from '../actions/StopModel';
-import UserError from '../../lib/UserError';
 import Utils from '../../lib/Utils';
-
-
-// ERRORS
-
-/**
- * Thrown when having trouble getting data from Database
- */
-export class DatabaseGetError extends UserError {
-  constructor(message) {
-    super(message || 'Could not perform GET operation from Database');
-  }
-};
-
-/**
- * Thrown when having trouble putting data into Database
- */
-export class DatabasePutError extends UserError {
-  constructor(message) {
-    super(message || 'Could not perform PUT operation into Database');
-  }
-};
-
-/**
- * Thrown when having trouble getting data from Filesystem
- */
-export class FilesystemGetError extends UserError {
-  constructor(message) {
-    super(message || 'Could not perform READ operation on Filesystem');
-  }
-};
 
 
 // FUNCTIONS
