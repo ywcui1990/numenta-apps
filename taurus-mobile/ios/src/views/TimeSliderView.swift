@@ -74,7 +74,7 @@ class TimeSliderView: UIView {
         
         var time :Int64 = (Int64(endDate.timeIntervalSince1970*1000)/interval)*interval
         
-        let barWidth = Double(Int(rect.width)/chartTotalBars)
+        let barWidth = Double(Double(rect.width)/Double(chartTotalBars))
         var left = Double(rect.width) - barWidth
 
         let top = Double(frame.origin.y)
@@ -120,7 +120,7 @@ class TimeSliderView: UIView {
                     }
                     
                 }
-                let backRect : CGRect = CGRectMake(CGFloat(left), CGFloat(top), CGFloat(barWidth), CGFloat(bottom))
+                let backRect : CGRect = CGRectMake(CGFloat(left), CGFloat(top), CGFloat(barWidth+0.5), CGFloat(bottom))
                 CGContextFillRect(context, backRect)
 
                 CGContextRestoreGState( context)
@@ -162,7 +162,7 @@ class TimeSliderView: UIView {
         // set the text color to dark gray
         let fieldColor: UIColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 1.0)
         let fontName = "HelveticaNeue-Bold"
-        let helveticaBold = UIFont(name: fontName, size: 14.0)
+        let helveticaBold = UIFont(name: fontName, size: 12.0)
         
         let date  = NSDate(timeIntervalSince1970: Double(time)/1000.0)
         let text : NSString  = labelFormatter.stringFromDate(date)
