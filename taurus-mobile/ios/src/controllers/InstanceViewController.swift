@@ -26,8 +26,8 @@ import UIKit
 class InstanceViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchResultsUpdating, UISearchBarDelegate  {
 
     @IBOutlet var timeSlider: TimeSliderView?
-    @IBOutlet weak var instanceTable: UITableView!
-    @IBOutlet weak var menuButton:UIBarButtonItem?
+    @IBOutlet var instanceTable: UITableView!
+    @IBOutlet var menuButton:UIBarButtonItem?
 
     
     var searchController : UISearchController?
@@ -39,9 +39,11 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     //
     var _aggregation: AggregationType = TaurusApplication.getAggregation()
     
-    var tableData = [InstanceAnomalyChartData]()
+    var tableData = [Int : [InstanceAnomalyChartData]]() // Data to show, after filtering
+    var currentData = [Int : [InstanceAnomalyChartData]]() // data before filtering
+    var allData = [Int : [InstanceAnomalyChartData]]() // all data
    
-    
+  //  var tableData: [MetricType : [InstanceAnomalyChartData] ]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,7 +79,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         
         let menuIcon = UIImage(named: "menu")
-        var b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
+        let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self.revealViewController(), action: "rightRevealToggle:")
         self.menuButton = b2
         
         self.navigationItem.rightBarButtonItems = [menuButton!, searchButton!, segment!]
@@ -88,7 +90,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         logo = UIBarButtonItem (image: icon,  style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
         
         
-     //   = menuButton2
+     //
         self.navigationItem.leftBarButtonItems = [  logo!]
         
         // Hook up swipe gesture
@@ -101,8 +103,8 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         instanceTable.backgroundColor = UIColor.clearColor()
         
-        //self.syncWithDB()
-          syncDBWithServer()
+        self.syncWithDB()
+        //  syncDBWithServer()
 
         // Register to listen for sync changes. Reload data when that happens
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "syncWithDB", name: DataSyncService.METRIC_CHANGED_EVENT, object: nil)
@@ -114,6 +116,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
             self.self.revealViewController().rightViewRevealWidth = 160
         }
+        
         
     }
 
@@ -128,7 +131,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     
     /** hide search bar*/
     func searchBarCancelButtonClicked(_searchBar: UISearchBar){
-        self.navigationItem.setRightBarButtonItems( [searchButton!, segment!], animated: true)
+        self.navigationItem.setRightBarButtonItems( [menuButton!,searchButton!, segment!], animated: true)
         self.navigationItem.setLeftBarButtonItem(logo, animated: true)
     }
     
@@ -200,12 +203,12 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     
     
      func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
+        return 4
     }
     
-     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String?{
-       return nil
-/*        switch section {
+    /* func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String?{
+       
+        switch section {
         case 0:
             return "Stock & Twitter"
         case 1:
@@ -216,16 +219,18 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             
         default:
             return "No anomalies"
-        }*/
+        }
         
-    }
+    }*/
     
     func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int{
         
-        if (section == 0 ){
-            return tableData.count
+        let data = tableData[section]
+        if (data != nil){
+            return tableData[section]!.count
         }
-        return 1    }
+        return 0
+    }
     
     var cellSet = Set<InstanceCell>()
     
@@ -234,9 +239,10 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         let cell:InstanceCell? = self.instanceTable.dequeueReusableCellWithIdentifier("InstanceCell") as! InstanceCell?
 
         cell?.backgroundColor = UIColor.clearColor()
+        let data = tableData[indexPath.section]
         
-        if (indexPath.section==0){
-            var chartData = tableData[ indexPath.item]
+        if (data != nil ){
+            let chartData = data![ indexPath.item]
             
             cell?.ticker.text = chartData.ticker
             cell?.name.text  = chartData.name
@@ -245,7 +251,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             
             if (chartData.hasData() && !chartData.modified){
                 let cv : AnomalyChartView? = cell!.chart
-                var valueData = chartData.getData()
+                let valueData = chartData.getData()
                  cv!.setData (valueData)
               // loadChartData (cell!, data: chartData)
             }else{
@@ -270,7 +276,30 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
     }
     
-   /* func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]?
+     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let tableViewWidth = self.instanceTable.bounds
+        
+        let headerView = UILabel(frame: CGRectMake(0, 0, tableViewWidth.size.width, self.instanceTable.sectionHeaderHeight))
+        headerView.backgroundColor = UIColor.init(red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0)
+        
+        headerView.font  = UIFont.boldSystemFontOfSize( 14.0)
+        
+        switch section {
+        case 0:
+            headerView.text =  "Stock & Twitter"
+        case 1:
+              headerView.text =  "Stock"
+        case 2:
+              headerView.text =  "Twitter"
+            
+            
+        default:
+              headerView.text =  "No anomalies"
+        }
+        return headerView
+    }
+    
+  /*  func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]?
     {
         let shareAction = UITableViewRowAction(style: .Normal, title: "Favorite" , handler: { (action:UITableViewRowAction, indexPath:NSIndexPath) -> Void in
             
@@ -301,50 +330,79 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     func syncWithDB(){
           dispatch_async(dispatch_get_global_queue( QOS_CLASS_USER_INITIATED, 0)) {
             let instanceSet = TaurusApplication.getDatabase().getAllInstances()
-            var instanceChartData = [InstanceAnomalyChartData]()
+            var   listData = [Int:[InstanceAnomalyChartData]]()
             
+            for var i = 0; i<4; i++ {
+                listData[i] = [InstanceAnomalyChartData]()
+            }
             for  instance in instanceSet {
-                instanceChartData.append( InstanceAnomalyChartData(instanceId: instance, aggregation: self._aggregation) )
-            }
-            
-            for  chartData in instanceChartData {
-                chartData.load()
-                      }
-            
-            instanceChartData.sortInPlace {
-                /*   if ($0 == $1)
+                
+                var instanceChartData = InstanceAnomalyChartData(instanceId: instance, aggregation: self._aggregation)
+                
+                 instanceChartData.load()
+                
+                 var metrics = instanceChartData.anomalousMetrics
+                var index  = 3
+                var hasStock = metrics.contains (MetricType.StockPrice) || metrics.contains(MetricType.StockVolume)
+                var hasTwitter = metrics.contains(MetricType.TwitterVolume)
+                
+                if (hasTwitter && hasStock){
+                    index = 0
+                } else if (hasStock){
+                    index = 1
+                } else if (hasTwitter)
                 {
-                return 0
+                    index  = 2
                 }
                 
-                if ( $0 == nil)
-                {return 1}
-                
-                if ($1 == nil){
-                return -1
-                }
-                */
-                
-                if ($0.getRank() > $1.getRank()){
-                    true            }
-                
-                if ($0.getRank() < $1.getRank()){
-                    return  false            }
+                var instanceArray = listData[index]
+                instanceArray!.append ( instanceChartData)
+                listData[index] = instanceArray
                 
                 
-                let result = $0.getName().compare ($1.getName())
-                
-                
-                if (result == NSComparisonResult.OrderedAscending) {
-                    return true
-                }
-                return false
-                
+
             }
-            
+        
+            for var i = 0; i<4; i++ {
+               var data =  listData[i]
+                data!.sortInPlace {
+                    /*   if ($0 == $1)
+                    {
+                    return 0
+                    }
+                    
+                    if ( $0 == nil)
+                    {return 1}
+                    
+                    if ($1 == nil){
+                    return -1
+                    }
+                    */
+                    
+                    if ($0.getRank() > $1.getRank()){
+                        true            }
+                    
+                    if ($0.getRank() < $1.getRank()){
+                        return  false            }
+                    
+                    
+                    let result = $0.getName().compare ($1.getName())
+                    
+                    
+                    if (result == NSComparisonResult.OrderedAscending) {
+                        return true
+                    }
+                    return false
+                    
+                }
+                listData[i] = data
+            }
+
             // Update UI with new data
             dispatch_async(dispatch_get_main_queue()) {
-                self.tableData = instanceChartData
+                self.allData = listData
+              //   self.currentData = listData
+                self.tableData = self.allData
                 self.timeSlider?.endDate = DataUtils.dateFromTimestamp( TaurusApplication.getDatabase().getLastTimestamp() )
                 self.instanceTable?.reloadData()
 
@@ -355,23 +413,57 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     func updateSearchResultsForSearchController(searchController: UISearchController)
     {
      /*   filteredTableData.removeAll(keepCapacity: false)
+    */
         
-        let searchPredicate = NSPredicate(format: "SELF CONTAINS[c] %@", searchController.searchBar.text)
-        let array = (tableData as NSArray).filteredArrayUsingPredicate(searchPredicate)
-        filteredTableData = array as! [String]
+         let text = searchController.searchBar.text
         
-        self.tableView.reloadData() */
+        if ( text!.isEmpty ){
+            self.tableData = self.allData
+            
+            self.instanceTable.reloadData()
+            return
+        }
+        let searchPredicate = NSPredicate(format: "SELF CONTAINS[c] %@", text!)
+       
+       
+        var   listData = [Int:[InstanceAnomalyChartData]]()
+        
+        for var i = 0; i<4; i++ {
+            listData[i] = [InstanceAnomalyChartData]()
+            let sectionData = self.allData[i]!
+            for val : InstanceAnomalyChartData in  sectionData {
+                if ( searchPredicate.evaluateWithObject ( val.ticker ) ||
+                    searchPredicate.evaluateWithObject ( val.getName())
+                ){
+                    listData[i]?.append(val)
+                }
+            
+            }
+        }
+    
+        self.tableData = listData
+
+        self.instanceTable.reloadData()
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "showInstanceDetail" {
             if let indexPath = self.instanceTable.indexPathForSelectedRow {
                 
-                let data = self.tableData[indexPath.row]
+              //  let data = self.tableData[indexPath.row]
                 
                 //   let object = objects[indexPath.row] as! NSDate
                 let controller = segue.destinationViewController as! InstanceDetailsViewController
-                controller.chartData = data
+                
+                let data = tableData[indexPath.section]
+                
+                if (data != nil ){
+                    controller.chartData = data![ indexPath.item]
+                }
+
+                
+                    
+             //   controller.chartData = data[indexPath
                 //      controller.detailItem = object
               /*  controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
                 controller.navigationItem.leftItemsSupplementBackButton = true*/
@@ -402,7 +494,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             
             client.getAllInstanceData( oneWeekAgo, to: now, ascending: sortAscending, callback: self.handleInstanceData)
             
-            let instances = TaurusApplication.getDatabase().getAllInstances()
+        //    let instances = TaurusApplication.getDatabase().getAllInstances()
             
             
             self.syncWithDB()
@@ -414,6 +506,8 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         // Could batch this up for performance reason
         TaurusApplication.getDatabase().addInstanceDataBatch( [data])
+        
+        
         
         return nil
     }
