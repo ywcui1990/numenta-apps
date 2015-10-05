@@ -33,14 +33,15 @@ def generate_zip_includes(base_path, directory_name):
   :param base_path: path to the parent dir of the package to include in the zip.
   :param directory_name: target directory name.
   """
-  skip_count = len(base_path.split("/"))
+  skip_count = len(base_path.split(os.sep))
   zip_includes = [(base_path, directory_name)]
   for root, sub_folders, files in os.walk(base_path):
     for file_in_root in files:
-      zip_includes.append((os.path.join(root, file_in_root),
-                           os.path.join(directory_name,
-                                        "/".join(root.split("/")[skip_count:]),
-                                        file_in_root)))
+      zip_includes.append(
+        (os.path.join(root, file_in_root),
+         os.path.join(directory_name,
+                      os.sep.join(root.split(os.sep)[skip_count:]),
+                      file_in_root)))
   return zip_includes
 
 
