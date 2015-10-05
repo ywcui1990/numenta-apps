@@ -433,7 +433,6 @@ public class TaurusClient : GrokClient {
                     let dateFormatter = NSDateFormatter()
                     dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH"
 
-                    
                     for item  in myResults{
                         var anomalyScore :Double = 0.0
                         let date_hour = item["date_hour"] as! AWSDynamoDBAttributeValue
@@ -451,6 +450,7 @@ public class TaurusClient : GrokClient {
                         for (key, anomalyValue) in anonomaly_score {
                             let score :Double = Double ( anomalyValue.N)!
                             let scaledScore = DataUtils.logScale(abs(score))
+                            print ("score : %s", scaledScore)
                             
                             if (scaledScore >= TaurusApplication.getYellowBarFloor()){
                                 metricMask.insert(MetricType.enumForKey(key as! String))
@@ -483,10 +483,10 @@ public class TaurusClient : GrokClient {
     func  getAllInstanceData( from : NSDate,  to: NSDate,  ascending : Bool, callback:(InstanceData)->Void? ) {
         let calendar =  NSCalendar(identifier:NSCalendarIdentifierGregorian)!
         calendar.timeZone = NSTimeZone(abbreviation: "UTC")!
-        
-        let fromDay = calendar.component(NSCalendarUnit.Day, fromDate: from)
-        let toDay = calendar.component(NSCalendarUnit.Day, fromDate:to)
-        
+    
+        let fromDay = calendar.ordinalityOfUnit(.Day, inUnit: .Year, forDate: from)
+        let toDay = calendar.ordinalityOfUnit(.Day, inUnit: .Year, forDate: to)
+
         // Check if "from" date and "to" date falls on the same day
         if (fromDay == toDay) {
              getAllInstanceDataForDate(from, fromHour: calendar.component(NSCalendarUnit.Hour, fromDate: from), toHour: calendar.component(NSCalendarUnit.Hour, fromDate: to), ascending: ascending, callback : callback)
