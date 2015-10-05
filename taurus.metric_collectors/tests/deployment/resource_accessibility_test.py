@@ -122,20 +122,48 @@ class TaurusMetricCollectorsResourceAccessibilityTestCase(unittest.TestCase):
 
   @_RETRY_SERVICE_RUNNING_CHECK
   def testXigniteSecuritiesInterfaceIsAccessible(self):
+
+    def getData(formattedStartTime, formattedEndTime):
+      """ Get data for specified window of time
+
+      :param str formattedStartTime: Formatted timestamp representing the start
+        of the request window
+      :param str formattedEndTime: Formatted timestamp representing the end of
+        the request window
+      :returns: Response dict.  See xignite_stock_agent.getData()
+      """
+      return xignite_stock_agent.getData(
+        symbol="AAPL",
+        apitoken=os.environ.get("XIGNITE_API_TOKEN"),
+        barlength=5,
+        startTime=formattedStartTime,
+        endTime=formattedStartTime,
+        fields=["Outcome"])
+
     now = datetime.now(xignite_stock_agent._UTC_TZ)
     startTime = (
       ((now - timedelta(days=1)).astimezone(xignite_stock_agent._EASTERN_TZ)))
     endTime = now.astimezone(xignite_stock_agent._EASTERN_TZ)
 
-    data = xignite_stock_agent.getData(
-      symbol="AAPL",
-      apitoken=os.environ.get("XIGNITE_API_TOKEN"),
-      barlength=5,
-      startTime=startTime.strftime(xignite_stock_agent.DATE_FMT),
-      endTime=endTime.strftime(xignite_stock_agent.DATE_FMT),
-      fields=["Outcome"])
+    formattedStartTime = startTime.strftime(xignite_stock_agent.DATE_FMT)
+    formattedEndTime = endTime.strftime(xignite_stock_agent.DATE_FMT)
 
-    self.assertEqual(data["Outcome"], "Success")
+    data = getData(formattedStartTime, formattedEndTime)
+
+    if data["Outcome"] == "RequestError":
+      # Try again with an expanded window. In the case that this test is run
+      # after-hours, during which xignite returns "RequestError", rather than
+      # "Success"This approximates the xignite metric collector in which the
+      # agent always requests a window of time between the last successful
+      # response time and _now_ aligned to the most recent 5-minute bucket
+      startTime -= timedelta(days=14)
+      formattedStartTime = startTime.strftime(xignite_stock_agent.DATE_FMT)
+      formattedEndTime = endTime.strftime(xignite_stock_agent.DATE_FMT)
+      data = getData(formattedStartTime, formattedEndTime)
+
+    self.assertEqual(data["Outcome"], "Success",
+      "XIgnite API not returning data for AAPL from {} to {}".format(
+        formattedStartTime, formattedEndTime))
 
 
   @_RETRY_SERVICE_RUNNING_CHECK
