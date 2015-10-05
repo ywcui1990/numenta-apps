@@ -25,17 +25,26 @@ Implements Unicorn's model interface.
 import os
 import sys
 
+
+
+def _scriptIsFrozen():
+  """ Returns True if all of the modules are built-in to the interpreter by 
+  cxFreeze, for example.
+  """
+  return hasattr(sys, "frozen")
+
+
+
 # Update pyproj datadir to point to the frozen directory
 # See http://cx-freeze.readthedocs.org/en/latest/faq.html#using-data-files
-if getattr(sys, "frozen", False):
-  os.environ["PROJ_DIR"] = os.path.join(os.path.dirname(sys.executable), 
+if _scriptIsFrozen():
+  os.environ["PROJ_DIR"] = os.path.join(os.path.dirname(sys.executable),
                                         "pyproj", "data")
 
 from datetime import datetime
 import json
 import logging
 from optparse import OptionParser
-import pkg_resources
 import traceback
 
 import validictory
@@ -123,10 +132,18 @@ def _parseArgs():
 
   stats = json.loads(options.stats)
 
+  # Path to stats schema file is different depending on whether or not the 
+  # script is frozen. See http://stackoverflow.com/a/2632297
+  if _scriptIsFrozen():
+    modelRunnerDir = os.path.dirname(os.path.realpath(sys.executable))
+  else:
+    modelRunnerDir = os.path.dirname(os.path.realpath(__file__))
+
   try:
-    validictory.validate(
-      stats,
-      json.load(pkg_resources.resource_stream(__name__, "stats_schema.json")))
+    # Assume that stats_schema.json is in the same dir as this script. 
+    statsSchemaFile = os.path.join(modelRunnerDir, "stats_schema.json")
+    with open(statsSchemaFile, "rb") as statsSchema:
+      validictory.validate(stats, json.load(statsSchema))
   except validictory.ValidationError as ex:
     parser.error("--stats option value failed schema validation: %r" % (ex,))
 
