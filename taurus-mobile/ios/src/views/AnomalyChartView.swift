@@ -110,7 +110,7 @@ class AnomalyChartView: UIView {
         bar.origin.y = rect.height
         
         // Draw the data from right to left
-        for value in lazy(data).reverse(){
+        for value in data.lazy.reverse(){
             if (right<0){
                 break
             }
