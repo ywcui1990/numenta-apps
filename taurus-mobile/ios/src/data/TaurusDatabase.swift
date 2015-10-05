@@ -19,13 +19,19 @@
   * http://numenta.org/licenses/
   *
   */
-
+ 
+  /** dictionary wrapper to allow passing of dictionarys by reference instead of value
+  */
+  class InstanceCacheEntry{
+    var data = Dictionary<Int64, AnomalyValue>()
+  }
+  
 class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
     let TAURUS_DATABASE_VERSION: Int32 = 32
     var firstTimestamp : Int64 = 0
     var lastUpdated: Int64 = 0
     
-    var  instanceDataCache = [String : [Int64: AnomalyValue]] ()
+    var  instanceDataCache = [String :  InstanceCacheEntry ] ()
   
     /**
         - parameter dataFactory: used to creat DB objects
@@ -51,36 +57,55 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
         var oldestTimeStamp = to
         for ( var i = 0; i < TaurusApplication.getNumberofDaysToSync(); i++){
             let whereClause:String? = nil // "timestamp >= ? AND timestamp <= ?"
-            let columns = ["instance_id", "timestamp", "anomaly_score", "aggregation", "metric_mask"]
+            let columns = ["instance_id", "timestamp", "anomaly_score"/*, "aggregation"*/, "metric_mask"]
             let cursor = sqlHelper.query(InstanceData.TABLE_NAME, columns: columns,
             whereClause: whereClause, whereArgs: [NSNumber(longLong:from), NSNumber(longLong:to)], sortBy: nil)
         
      
             if (cursor == nil){
-                print (sqlHelper.database.lastError())
+             //   print (sqlHelper.database.lastError())
             }
             
+            let instaceIdColumn = cursor.columnIndexForName("instance_id")
+            let timestampColumn = cursor.columnIndexForName("timestamp")
+            let anomalyColumn = cursor.columnIndexForName("anomaly_score")
+            let metricMaskColumn = cursor.columnIndexForName("metric_mask")
             while cursor.next(){
-                let object = dataFactory.createInstanceData(cursor)
-                let taurusInstance =  object as! TaurusInstanceData
-                let anomalyValue = AnomalyValue( anomaly: taurusInstance.getAnomalyScore(), metricMask: taurusInstance.getMetricMask())
+            //    let object = dataFactory.createInstanceData(cursor)
                 
-                if (instanceDataCache[object.instanceId]==nil){
-                    instanceDataCache[object.instanceId] = Dictionary<Int64, AnomalyValue>()
+              //  let taurusInstance =  object as! TaurusInstanceData
+                
+                let instanceId = cursor.stringForColumnIndex(instaceIdColumn)
+                let  timestamp = cursor.longLongIntForColumnIndex(timestampColumn)
+                let anomalyScore = Float(cursor.doubleForColumnIndex(anomalyColumn))
+
+                
+                
+               
+                var metricMask = MetricType()
+                metricMask.rawValue = Int(cursor.intForColumnIndex(metricMaskColumn))
+                
+              
+                
+                let anomalyValue = AnomalyValue( anomaly: anomalyScore, metricMask: metricMask)
+                var cacheEntry = instanceDataCache[instanceId]
+                if ( cacheEntry == nil){
+                    cacheEntry = InstanceCacheEntry()
+                    instanceDataCache[instanceId] = cacheEntry
                 }
-                var dataDict : [Int64: AnomalyValue] = instanceDataCache[object.instanceId]!
-                dataDict[object.timestamp] =  anomalyValue
-                 instanceDataCache[object.instanceId] = dataDict
+                
+                cacheEntry!.data[timestamp] =  anomalyValue
+                
                 
              //   let ts = NSDate(timeIntervalSince1970: Double(object.timestamp)/1000.0)
              //   print (ts)
                // var value = getInstanceCacheValues (instanceData.instanceId)
-                if (object.timestamp > lastTimestamp){
-                    lastTimestamp = object.timestamp
+                if (timestamp > lastTimestamp){
+                    lastTimestamp = timestamp
                 }
                 
-                if (object.timestamp<oldestTimeStamp){
-                    oldestTimeStamp = object.timestamp
+                if (timestamp<oldestTimeStamp){
+                    oldestTimeStamp = timestamp
                 }
      
             }
@@ -167,9 +192,9 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
     /** retreive id from cache
         - parameter instanceId:
     */
-    func  getInstanceCachedValues( instanceId: String) ->[Int64:AnomalyValue]?{
-        let values = instanceDataCache[instanceId]
-        return values
+    func  getInstanceCachedValues( instanceId: String) ->InstanceCacheEntry?{
+        let cacheEntry = instanceDataCache[instanceId]
+        return cacheEntry
     }
     
     
@@ -187,13 +212,13 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
         }
 
         // Get instance cached values
-        let cached : [Int64: AnomalyValue]? = getInstanceCachedValues(instanceId)
+        let cached  = getInstanceCachedValues(instanceId)
         if cached  == nil {
             return nil
         }
         
         var submap = [Int64: AnomalyValue]()
-        for (key,value) in cached! {
+        for (key,value) in cached!.data {
             if (key >= from && key < endTime+1){
                 submap[key] = value
             }
