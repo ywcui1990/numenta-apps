@@ -19,7 +19,7 @@
     "x64"
   ],
   "scripts": {
-    "build": "UNICORN_TARGET=desktop npm run clean && npm install && npm run prepare && npm run electron:packager",
+    "build": "UNICORN_TARGET=desktop npm run clean && npm install && npm run prepare && npm run prepare:python && npm run electron:packager",
     "check": "npm install && npm prune && npm outdated -depth 0",
     "clean": "npm run clean:npm && npm run clean:db",
     "clean:npm": "rm -Rf node_modules/",
@@ -31,7 +31,7 @@
     "electron:packager": "electron-packager . Unicorn --arch=x64 --icon=assets/unicorn.icns --ignore=.git --ignore=node_modules/electron-* --overwrite --platform=darwin --prune --version=0.33.3",
     "prepare:python" : "python backend/unicorn_backend/freeze_model_runner.py",
     "node-inspector": "node-inspector",
-    "prepare": "npm run prepare:lint && npm run prepare:webpack && npm run prepare:python",
+    "prepare": "npm run prepare:lint && npm run prepare:webpack",
     "prepare:lint": "eslint frontend/",
     "prepare:webpack": "gulp webpack || exit 1",
     "serve": "http-server -p 9999 ./frontend/browser/",
