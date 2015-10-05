@@ -38,11 +38,10 @@ import traceback
 import unittest
 
 from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaSpecial, FieldMetaType
+from nupic.frameworks.opf.common_models.cluster_params import (
+  getScalarMetricWithTimeOfDayAnomalyParams)
 
 from htmengine import htmengineerrno
-
-from htmengine.algorithms.modelSelection.clusterParams import (
-    getScalarMetricWithTimeOfDayParams)
 
 from htmengine.model_checkpoint_mgr import model_checkpoint_mgr
 
@@ -148,12 +147,11 @@ class ModelRunnerIntTestCase(unittest.TestCase):
     checkpointMgr = model_checkpoint_mgr.ModelCheckpointMgr()
 
     with ModelSwapperInterface() as swapperAPI:
-      possibleModels = getScalarMetricWithTimeOfDayParams(metricData=[0],
-                                                         minVal=0,
-                                                         maxVal=1000)
+      args = getScalarMetricWithTimeOfDayAnomalyParams(metricData=[0],
+                                                       minVal=0,
+                                                       maxVal=1000)
 
       # Submit requests including a model creation command and two data rows.
-      args = possibleModels[0]
       args["inputRecordSchema"] = (
           FieldMetaInfo("c0", FieldMetaType.datetime,
                         FieldMetaSpecial.timestamp),

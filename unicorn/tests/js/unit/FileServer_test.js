@@ -19,9 +19,13 @@
 
 'use strict';
 
-import FileServer from '../../../frontend/lib/FileServer';
-import path from 'path';
+
 const assert = require('assert');
+
+import path from 'path';
+
+import FileServer from '../../../frontend/lib/FileServer';
+
 
 // Contents of 'fixture/file.csv'
 const EXPECTED_CONTENT =
@@ -34,7 +38,6 @@ const EXPECTED_CONTENT =
 2015-08-26T19:51:31+17:00,19
 `;
 
-
 // Expected data
 const EXPECTED_DATA = [
   {timestamp: '2015-08-26T19:46:31+17:00', metric: '21'},
@@ -46,10 +49,18 @@ const EXPECTED_DATA = [
 ];
 
 // Expected fields
-const EXPECTED_FIELDS = [
-  {name: 'timestamp', type: 'date'},
-  {name: 'metric', type: 'number'},
-];
+const EXPECTED_FIELDS = [{
+  uid: 'TEST_UID_TS',
+  'file_uid': 'TEST_FILE_UID_TS',
+  name: 'timestamp',
+  type: 'date'
+}, {
+  uid: 'TEST_UID_METRIC',
+  'file_uid': 'TEST_FILE_UID_METRIC',
+  name: 'metric',
+  type: 'number'
+}];
+const EXPECTED_FIELDS_VALUE_TESTS = ['name', 'type'];
 
 // Expected statistics for the whole file
 const EXPECTED_MIN = 16;
@@ -63,6 +74,7 @@ const EXPECTED_MAX_PARTIAL = 21;
 const EXPECTED_SAMPLE_FILES = ['file1.csv', 'gym.csv'];
 
 const FILENAME = path.resolve(__dirname, 'fixtures/file.csv');
+
 
 describe('FileServer', () => {
   let server;
@@ -100,7 +112,22 @@ describe('FileServer', () => {
     it('Get fields using default options', (done) => {
       server.getFields(FILENAME, (error, fields) => {
         assert.ifError(error);
-        assert.deepEqual(fields, EXPECTED_FIELDS, 'Got different fields');
+        fields.forEach((field, index) => {
+          // match object keys
+          assert.deepEqual(
+            Object.keys(fields[index]),
+            Object.keys(EXPECTED_FIELDS[index]),
+            'Got different Fields keys (all)'
+          );
+          // match certain key-specified values
+          EXPECTED_FIELDS_VALUE_TESTS.forEach((valueTestKey) => {
+            assert.equal(
+              fields[index][valueTestKey],
+              EXPECTED_FIELDS[index][valueTestKey],
+              'Got different Fields values (specific keys only)'
+            );
+          });
+        });
         done();
       });
     });

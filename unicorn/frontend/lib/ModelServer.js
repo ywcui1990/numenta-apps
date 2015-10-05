@@ -25,6 +25,7 @@ import childProcess from 'child_process';
 import EventEmitter from 'events';
 import path from 'path';
 import UserError from './UserError';
+import os from 'os';
 
 const MODEL_RUNNER_PATH = path.join(
   __dirname, '..', '..', 'dist', 'model_runner'
@@ -67,8 +68,17 @@ export class ModelServer extends EventEmitter {
   constructor() {
     super();
     this._models = new Map();
-    // FIXME: UNI-149 - Remove hardcoded value. Use calculate concurrency value
-    this._maxConcurrency = 2;
+    this._maxConcurrency = this._calculateMaxConcurrency();
+  }
+
+  /**
+   * calculate max model concurrency
+   */
+  _calculateMaxConcurrency() {
+    // Adapted from htmengine/model_swapper/model_scheduler_service.py
+    let cpus = os.cpus().length;
+    let totalmem = os.totalmem();
+    return Math.max(Math.min(cpus - 1, totalmem / 1073741824), 2);
   }
 
   /**
