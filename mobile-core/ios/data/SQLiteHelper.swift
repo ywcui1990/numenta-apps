@@ -135,11 +135,12 @@ public class SQLiteHelper {
      - parameter status : on conflict clause
      - returns: sql string
    */
-    func prepareInsertStatement(tableName: String , columns : [String], status: String)->String
+    func prepareInsertStatement(tableName: String , columns: [String], status: String)->String
     {
         var sqlStatement : String = "INSERT INTO " + tableName
-        let columnStr = "(" + ", ".join(columns) + ")"
-        let values = " VALUES (:" + ", :".join(columns) + ")"
+        let columnStr = "(" +  columns.joinWithSeparator(", ") + ")"
+        
+        let values = " VALUES (:" + columns.joinWithSeparator(", :") + ")"
         
         sqlStatement += columnStr + values
         sqlStatement+" ON CONFLICT " + status
@@ -173,8 +174,8 @@ public class SQLiteHelper {
         if (columns==nil){
             query += "* "
         }else{
-            let colStr = ", ".join(columns!)
-            query += colStr
+            let colStr = columns?.joinWithSeparator(", ")
+            query += colStr!
         }
         query += " FROM " + tableName
         
@@ -221,8 +222,8 @@ public class SQLiteHelper {
         if (columns==nil){
             query += "* "
         }else{
-            let colStr = ", ".join(columns!)
-            query += colStr
+            let colStr =  columns?.joinWithSeparator(", ")
+            query += colStr!
         }
         query += " FROM "
         query += tableName
