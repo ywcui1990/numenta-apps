@@ -19,15 +19,22 @@
 
 'use strict';
 
+
+// internals
+
 import FileStore from '../../../frontend/browser/stores/FileStore';
+
+
+// SETUP
 
 const assert = require('assert');
 
 const EXPECTED_SINGLE_FILE = [{
   name: 'file.csv',
   filename: 'fixtures/file.csv',
-  type: 'upload'
+  type: 'uploaded'
 }];
+
 const EXPECTED_MULTIPLE_FILES = [{
   name: 'file1.csv',
   filename: 'fixtures/file1.csv',
@@ -37,13 +44,16 @@ const EXPECTED_MULTIPLE_FILES = [{
   filename: 'fixtures/file2.csv',
   type: 'sample'
 }];
+
 const EXPECTED_METRICS = [
   {name: 'timestamp', type: 'date'},
   {name: 'metric', type: 'number'},
 ];
 
-describe('FileStore', () => {
 
+// MAIN
+
+describe('FileStore', () => {
   let store;
 
   beforeEach(function () {
@@ -55,17 +65,24 @@ describe('FileStore', () => {
     assert.deepEqual(store.getFiles(), EXPECTED_SINGLE_FILE);
     done();
   });
+
   it('#_handleListFiles', (done) => {
     store._handleListFiles(EXPECTED_MULTIPLE_FILES);
     assert.deepEqual(store.getFiles(), EXPECTED_MULTIPLE_FILES);
     done();
   });
+
   it('#_handleListMetrics', (done) => {
+    let filename;
+    let files;
+    let payloads = [];
     store._handleListFiles(EXPECTED_MULTIPLE_FILES);
-    let filename = EXPECTED_MULTIPLE_FILES[0].filename;
-    store._handleListMetrics({filename: filename, metrics: EXPECTED_METRICS});
-    let files = store.getFiles();
+    filename = EXPECTED_MULTIPLE_FILES[0].filename;
+    payloads.push({filename: filename, metrics: EXPECTED_METRICS});
+    store._handleListMetrics(payloads);
+    files = store.getFiles();
     assert.deepEqual(files[0].metrics, EXPECTED_METRICS);
     done();
   });
+
 });

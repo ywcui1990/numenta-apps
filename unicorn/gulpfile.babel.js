@@ -21,11 +21,6 @@
 'use strict';
 
 
-/**
- * Gulp config
- * @flow
- */
-
 // externals
 
 import child from 'child_process';
@@ -43,50 +38,7 @@ const config = new Config();
 let WebServer = null; // @TODO not global
 
 
-// Individual Tasks
-
-/**
- * Gulp task to run mocha-casperjs web test suite
- */
-gulp.task('mocha-casperjs', (callback) => {
-  /*
-  let stream = child.spawn('mocha-casperjs', [
-    '--bail',
-    '--TEST_HOST=' + config.get('TEST_HOST'),
-    '--TEST_PORT=' + config.get('TEST_PORT'),
-    '--TEST_PATH=' + config.get('TEST_PATH')
-  ]);
-
-  console.log('Mocha-Casper: started. Output will follow soon...');
-
-  stream.stdout.on('data', (data) => {
-    process.stdout.write(data);
-  });
-
-  stream.on('close', (code) => {
-    let success = code === 0; // Will be 1 in the event of failure
-
-    if(WebServer) {
-      WebServer.emit('kill');
-      WebServer = null;
-    }
-
-    if(! success) {
-      // fail
-      callback(new Error('Mocha-Casper: failed!'));
-      return;
-    }
-
-    // success
-    console.log('Mocha-Casper: success!');
-    callback();
-  });
-
-  stream.on('error', console.error);
-
-  return stream;
-  */
-});
+// TASKS
 
 /**
  * Gulp task to serve site from the _site/ build dir
@@ -111,14 +63,17 @@ gulp.task('webpack', ()  => {
     .pipe(webpacker({
       devtool: 'source-map',
       module: {
-        loaders: [{
-          test: /\.(js|jsx)$/,
-          loaders: [ 'babel-loader?stage=1' ],
-          exclude: /node_modules/
-        }, {
-          test: /\.json$/,
-          loader: 'json-loader'
-        }]
+        loaders: [
+          {
+            test: /\.(js|jsx)$/,
+            loaders: [ 'babel-loader?stage=1' ],
+            exclude: /node_modules/
+          },
+          {
+            test: /\.json$/,
+            loader: 'json-loader'
+          }
+        ],
       },
       output: {
         filename: 'bundle.js'
@@ -129,13 +84,16 @@ gulp.task('webpack', ()  => {
       resolve: {
         extensions: [ '', '.js', '.json', '.jsx' ]
       },
-      target
+      target,
+      verbose: true
     }))
     .pipe(gulp.dest('frontend/browser/'));
 });
 
 
-// Task Compositions
+/**
+ * Gulp config
+ * @flow
+ */
 
 gulp.task('default', []);
-gulp.task('webtest', [ 'serve', 'mocha-casperjs' ]);

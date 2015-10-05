@@ -1,2 +1,1 @@
-This directory contains file-database `.json` files which are not saved to
-source control.
+File-Database output journals go here

@@ -36,10 +36,10 @@ import time
 
 
 from nupic.data import fieldmeta
+from nupic.frameworks.opf.common_models.cluster_params import (
+  getScalarMetricWithTimeOfDayAnomalyParams)
 
 from htmengine import repository
-from htmengine.algorithms.modelSelection.clusterParams import (
-    getScalarMetricWithTimeOfDayParams)
 import htmengine.exceptions as app_exceptions
 from htmengine.model_swapper import model_swapper_interface
 import htmengine.model_swapper.utils as model_swapper_utils
@@ -77,13 +77,11 @@ def generateSwarmParams(stats):
     return None
 
   # Create possible swarm parameters based on metric data
-  possibleModels = getScalarMetricWithTimeOfDayParams(
+  swarmParams = getScalarMetricWithTimeOfDayAnomalyParams(
     metricData=[0],
     minVal=minVal,
     maxVal=maxVal,
     minResolution=minResolution)
-
-  swarmParams = possibleModels[0]
 
   swarmParams["inputRecordSchema"] = (
     fieldmeta.FieldMetaInfo("c0", fieldmeta.FieldMetaType.datetime,
@@ -223,11 +221,11 @@ def sendBacklogDataToModel(conn, metricId, logger):
     model_swapper_interface.ModelInputRow(
       rowID=md.rowid, data=(md.timestamp, md.metric_value,))
     for md in repository.getMetricData(
-                conn,
-                metricId,
-                fields=[schema.metric_data.c.rowid,
-                        schema.metric_data.c.timestamp,
-                        schema.metric_data.c.metric_value]))
+      conn,
+      metricId,
+      fields=[schema.metric_data.c.rowid,
+              schema.metric_data.c.timestamp,
+              schema.metric_data.c.metric_value]))
 
   if backlogData:
     with model_swapper_interface.ModelSwapperInterface() as modelSwapper:
@@ -274,7 +272,7 @@ def _startModelHelper(conn, metricObj, swarmParams, logger):
       % (metricObj.uid,))
 
   if metricObj.status not in (MetricStatus.UNMONITORED,
-                           MetricStatus.PENDING_DATA):
+                              MetricStatus.PENDING_DATA):
     if metricObj.status in (MetricStatus.CREATE_PENDING, MetricStatus.ACTIVE):
       return False
 

@@ -36,6 +36,7 @@ import unittest
 import tweepy
 
 from nta.utils import error_handling
+from nta.utils import error_reporting
 from nta.utils.message_bus_connector import MessageBusConnector
 
 from taurus.metric_collectors import collectorsdb
@@ -135,6 +136,17 @@ class TaurusMetricCollectorsResourceAccessibilityTestCase(unittest.TestCase):
       fields=["Outcome"])
 
     self.assertEqual(data["Outcome"], "Success")
+
+
+  @_RETRY_SERVICE_RUNNING_CHECK
+  def testSendErrorEmailIsPossible(self):
+    """Send email to devnull@numenta.com via error-reporting email mechanism"""
+    params = error_reporting._getErrorReportingParamsFromEnv()
+    params["recipients"][:] = ["devnull@numenta.com"]
+
+    error_reporting.sendErrorEmail(subject="testSendErrorEmailIsPossible",
+                                   body="Testing testSendErrorEmailIsPossible",
+                                   params=params)
 
 
 

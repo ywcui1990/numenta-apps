@@ -85,15 +85,23 @@ python-27-symlink:
     - target: /opt/numenta/anaconda/bin/python
     - name: /usr/local/bin/python2.7
     - require:
-      - cmd: enforce-anaconda-permissions
       - pkg: anaconda-python
+
+correct-anaconda-ownership-tool:
+  file.managed:
+    - name: /usr/local/sbin/correct-anaconda-ownership
+    - source: salt://numenta-python/files/correct-anaconda-ownership
+    - user: root
+    - group: wheel
+    - mode: 0755
 
 # Once we have installed our packages, make sure that the anaconda python
 # directory tree has the correct ownership.
 enforce-anaconda-permissions:
   cmd.wait:
-    - name: chown -R ec2-user:ec2-user /opt/numenta/anaconda
+    - name: /usr/local/sbin/correct-anaconda-ownership
     - require:
+      - file: correct-anaconda-ownership-tool
       - group: ec2-user
       - pkg: anaconda-python
       - user: ec2-user

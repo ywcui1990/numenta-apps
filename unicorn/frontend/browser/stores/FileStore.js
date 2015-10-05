@@ -59,10 +59,18 @@ export default class FileStore extends BaseStore {
     this.emitChange();
   }
 
-  _handleListMetrics(payload) {
-    let file = this._files.get(payload.filename);
-    if (file) {
-      file.metrics = payload.metrics;
+  _handleListMetrics(payloads) {
+    let changed = false;
+
+    payloads.forEach((payload) => {
+      let file = this._files.get(payload.filename);
+      if (file) {
+        file.metrics = payload.metrics;
+        changed = true;
+      }
+    });
+
+    if (changed) {
       this.emitChange();
     }
   }

@@ -28,9 +28,6 @@
  */
 module.exports = (actionContext, payload) => {
   let dispatcher;
-
-  console.log('ADD_ACTION has been dispatched with payload:', payload);
-
   dispatcher = actionContext.dispatch('ADD_ACTION', payload);
   return dispatcher;
 };
