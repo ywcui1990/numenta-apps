@@ -49,7 +49,7 @@ def checkHTMITServicesStatus(logger):
     :returns: True if HTM-ITServices are running properly.
     :rtype: boolean
   """
-  cmd = ("source /etc/htm-it/supervisord.vars && "
+  cmd = ("source /etc/htmit/supervisord.vars && "
          "supervisorctl -c /opt/numenta/htm.it/conf/supervisord.conf status")
   htmItServicesState = run(cmd)
 
@@ -157,11 +157,11 @@ def setupHTMITAWSCredentials(publicDnsName, config):
     "aws_secret_access_key": config["AWS_SECRET_ACCESS_KEY"]
   }
   server = "https://%s" % publicDnsName
-  htm-it = GrokSession(server=server)
-  htm-it.apikey = htm-it.verifyCredentials(**credentials)
-  if htm-it.apikey:
-    htm-it.updateSettings(settings=credentials, section="aws")
-    return htm-it.apikey
+  htmIt = GrokSession(server=server)
+  htmIt.apikey = htmIt.verifyCredentials(**credentials)
+  if htmIt.apikey:
+    htmIt.updateSettings(settings=credentials, section="aws")
+    return htmIt.apikey
   else:
     raise HTMITConfigError("Unable to obtain HTM-IT API Key")
 
@@ -185,16 +185,16 @@ def getApiKey(instanceId, publicDnsName, config, logger):
   for _ in xrange(HTM_IT_AWS_CREDENTIALS_SETUP_TRIES):
     logger.debug("Trying to setup HTM-IT AWS Credentials.")
     try:
-      htm-itApiKey = setupHTMITAWSCredentials(publicDnsName, config)
+      htmItApiKey = setupHTMITAWSCredentials(publicDnsName, config)
     except (HTMITConfigError, AttributeError):
       # We want to retry this, so just keep going on a HTMITConfigError or
       # AttributeError (which probably indicates that the response was empty)
       pass
-    if htm-itApiKey:
-      logger.info("HTM-IT API Key: %s" % htm-itApiKey)
+    if htmItApiKey:
+      logger.info("HTM-IT API Key: %s" % htmItApiKey)
       break
     sleep(SLEEP_DELAY)
   else:
     raise HTMITConfigError("Failed to get API Key for instance %s" %
                           instanceId)
-  return htm-itApiKey
+  return htmItApiKey
