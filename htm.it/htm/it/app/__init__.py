@@ -30,7 +30,7 @@ if "HTM_IT_HOME" in os.environ:
 
 else:
   # Calculate default HTM_IT_HOME based on relative path
-  HTM_IT_HOME = os.path.abspath(os.path.dirname(__file__) + '../../..')
+  HTM_IT_HOME = os.path.abspath(os.path.dirname(__file__) + "../../../..")
 
 
 

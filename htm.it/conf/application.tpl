@@ -6,7 +6,7 @@ profiling = false
 
 # MySQL database connection parameters
 [repository]
-db = htm-it
+db = htmit
 host = 127.0.0.1
 user = root
 passwd =

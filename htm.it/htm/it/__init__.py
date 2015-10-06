@@ -1,10 +1,7 @@
-import htm.it.__version__
-
-__version__ = htm.it.__version__
-
 import os
 from pkg_resources import resource_filename
 
+from htm.it import __version__
 from nta.utils import logging_support_raw
 
 

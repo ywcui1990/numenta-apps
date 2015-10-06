@@ -80,8 +80,8 @@ class HTMITHandlerTest(unittest.TestCase):
 
 
   @patch.object(web.template, "render")
-  def testhtm-itHandlerGET(self, render, _instanceDataMock):
-    response = self.app.get("/htm-it", headers=self.headers)
+  def testhtmItHandlerGET(self, render, _instanceDataMock):
+    response = self.app.get("/htmit", headers=self.headers)
     self.assertTrue(render.called)
     assertions.assertResponseStatusCode(self, response, code=200)
     headers = dict(response.headers)

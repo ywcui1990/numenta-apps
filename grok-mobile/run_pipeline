@@ -43,7 +43,7 @@ from infrastructure.utilities.ec2 import (
   stopInstance,
   terminateInstance)
 from infrastructure.utilities.exceptions import (
-  GrokConfigError,
+  HTMITConfigError,
   InstanceLaunchError,
   InstanceNotReadyError,
   InvalidParametersError,
@@ -354,7 +354,7 @@ def main(args):
                        args.androidVersion)
 
     logEmulatorStatus(logger)
-  except (InstanceNotReadyError, GrokConfigError):
+  except (InstanceNotReadyError, HTMITConfigError):
     logger.exception("Failure to setup instance properly")
     if instanceId:
       # terminate the instance because it didn't start properly
