@@ -19,6 +19,7 @@
 
 'use strict';
 
+
 import Dygraph from 'dygraphs';
 import Material from 'material-ui';
 import React from 'react';
@@ -26,6 +27,7 @@ import React from 'react';
 const {
   Paper
 } = Material;
+
 
 /**
  * Chart Widget.
@@ -51,7 +53,13 @@ export default class Chart extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+
+    // DyGraphs chart container
     this._dygraph = null;
+
+    // Chart Range finder value: For Fixed-width-chart & auto-scroll-to-right
+    this._chartXrange = 200;  // static 200px
+    // this._chartXrange = Math.floor((graphXmax - graphXmin) * 0.2); // dynamic
   }
 
   componentDidMount() {
@@ -64,14 +72,19 @@ export default class Chart extends React.Component {
   componentWillUnmount() {
     if (this._dygraph) {
       this._dygraph.destroy();
-      this._dygraph = null;
+      delete this._dygraph;
     }
+    delete this._chartXrange;
   }
 
   componentDidUpdate() {
     if (this._dygraph) {
+      // fix X-width of graph view (don't grow visually with new data)
+      let [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
+      let rangeDateWindow = [(graphXmax - this._chartXrange), graphXmax];
       let options = {
-        'file': this.props.data
+        file: this.props.data,
+        dateWindow: rangeDateWindow
       };
       Object.assign(options, this.props.options);
       this._dygraph.updateOptions(options);
