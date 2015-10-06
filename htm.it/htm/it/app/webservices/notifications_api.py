@@ -23,16 +23,16 @@ import urlparse
 import web
 
 from htmengine import utils
-from htm-it.app import repository
-from htm-it.app.repository import schema
-from htm-it.app.exceptions import ObjectNotFoundError
-from htm-it.app.webservices import (AuthenticatedBaseHandler,
+from htm.it.app import repository
+from htm.it.app.repository import schema
+from htm.it.app.exceptions import ObjectNotFoundError
+from htm.it.app.webservices import (AuthenticatedBaseHandler,
                                   ManagedConnectionWebapp)
-from htm-it import htm-it_logging
-from htm-it.htm-it_logging import anonymizeEmail
+from htm.it import htm_it_logging
+from htm.it.htm_it_logging import anonymizeEmail
 
 
-log = htm-it_logging.getExtendedLogger("webservices")
+log = htm_it_logging.getExtendedLogger("webservices")
 
 urls = (
   "/([-\w]*)/acknowledge", "NotificationHandler",

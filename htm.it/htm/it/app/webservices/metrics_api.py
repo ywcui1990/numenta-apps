@@ -22,8 +22,8 @@
 
 import web
 from htmengine import utils
-from htm-it.app.adapters.datasource import listDatasourceNames
-from htm-it.app.webservices import (AuthenticatedBaseHandler,
+from htm.it.app.adapters.datasource import listDatasourceNames
+from htm.it.app.webservices import (AuthenticatedBaseHandler,
                                   cloudwatch_api,
                                   custom_api)
 

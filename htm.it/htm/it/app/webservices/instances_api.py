@@ -27,18 +27,18 @@ import threading
 from validictory import validate, ValidationError
 import web
 
-from htm-it import htm-it_logging
-from htm-it.app import config, repository
-from htm-it.app.adapters import datasource
-from htm-it.app.adapters.datasource import cloudwatch
-from htm-it.app.aws import asg_utils, ec2_utils, elb_utils, rds_utils
-from htm-it.app.webservices import (AuthenticatedBaseHandler,
+from htm.it import htm_it_logging
+from htm.it.app import config, repository
+from htm.it.app.adapters import datasource
+from htm.it.app.adapters.datasource import cloudwatch
+from htm.it.app.aws import asg_utils, ec2_utils, elb_utils, rds_utils
+from htm.it.app.webservices import (AuthenticatedBaseHandler,
                                   ManagedConnectionWebapp)
-from htm-it.app.webservices.models_api import ModelHandler
-from htm-it.app.webservices.responses import (
+from htm.it.app.webservices.models_api import ModelHandler
+from htm.it.app.webservices.responses import (
     quotaErrorResponseWrapper,
     InvalidRequestResponse)
-from htm-it.app.webservices.utils import encodeJson, loadSchema
+from htm.it.app.webservices.utils import encodeJson, loadSchema
 
 # Number of instances to suggest (pre-checked)
 _NUM_SUGGESTED_INSTANCES = 8
@@ -47,7 +47,7 @@ _MAX_SUGGESTED_INSTANCES_TOTAL = 28
 # Time limit for fetching AWS instances
 _AWS_INSTANCE_FETCHING_TIME_LIMIT = 5.0
 
-log = htm-it_logging.getExtendedLogger("webservices")
+log = htm_it_logging.getExtendedLogger("webservices")
 
 urls = (
   "/(.+?)/(.+?\/.+?)/(.+\/*.+)", "InstanceDefaultsHandler",

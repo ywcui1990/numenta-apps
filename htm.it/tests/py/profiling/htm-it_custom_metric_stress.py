@@ -40,7 +40,7 @@ import time
 
 import requests
 
-from htm-it import logging_support
+from htm.it import logging_support
 from nta.utils.error_handling import abortProgramOnAnyException
 
 
@@ -267,7 +267,7 @@ def _parseArgs():
      "feedforever": <feedforever>}
   """
   helpString = (
-    "%%prog [OPTIONS] HTM-ITHOST HTM-IT_APIKEY\n"
+    "%%prog [OPTIONS] HTM-ITHOST HTM_IT_APIKEY\n"
     "Exercise the HTM-IT Custom Metrics functionality by gradually increasing "
     "the number of HTM-IT Custom Models and feeding data to each model on a "
     "5-minute interval.\n"

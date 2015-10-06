@@ -9,9 +9,9 @@ decorator. The example below is for Context Manager.
 
 ```python
 import subprocess
-from htm-it.test_utils.app.sqlalchemy_test_utils import \
+from htm.it.test_utils.app.sqlalchemy_test_utils import \
     ManagedTempRepository, getAllDatabaseNames
-import htm-it.app
+import htm.it.app
 
 print "all databases BEFORE PATCH:", getAllDatabaseNames()
 
@@ -20,7 +20,7 @@ with ManagedTempRepository("MyTest") as repo:
 
   print "repository db in-proc:", htm-it.app.config.get("repository", "db")
 
-  p = subprocess.Popen(["python", "-c", "import htm-it.app; print 'repository db in subprocess:', "
+  p = subprocess.Popen(["python", "-c", "import htm.it.app; print 'repository db in subprocess:', "
                         "htm-it.app.config.get('repository', 'db')"])
   returnCode = p.wait()
 

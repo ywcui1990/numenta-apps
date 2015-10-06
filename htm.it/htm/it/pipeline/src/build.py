@@ -24,9 +24,9 @@ import argparse
 import json
 import os
 
-from htm-it.pipeline.utils import build_commands as builder
-from htm-it.pipeline.utils import getGithubUserName
-from htm-it.pipeline.utils.helpers import checkIfSaneProductionParams
+from htm.it.pipeline.utils import build_commands as builder
+from htm.it.pipeline.utils import getGithubUserName
+from htm.it.pipeline.utils.helpers import checkIfSaneProductionParams
 from infrastructure.utilities import git
 from infrastructure.utilities import diagnostics
 from infrastructure.utilities.env import prepareEnv
@@ -81,11 +81,11 @@ def preBuildSetup(env, pipelineConfig):
 
   # Clone HTM-IT if needed, otherwise, setup remote
   with changeToWorkingDir(pipelineConfig["buildWorkspace"]):
-    if not os.path.isdir(env["HTM-IT_HOME"]):
+    if not os.path.isdir(env["HTM_IT_HOME"]):
       git.clone(gitURL=pipelineConfig["htm-itRemote"],
                 logger=g_logger)
 
-  with changeToWorkingDir(env["HTM-IT_HOME"]):
+  with changeToWorkingDir(env["HTM_IT_HOME"]):
     if pipelineConfig["htm-itSha"]:
       g_logger.debug("Resetting to %s", pipelineConfig["htm-itSha"])
       git.resetHard(sha=pipelineConfig["htm-itSha"], logger=g_logger)
@@ -219,7 +219,7 @@ def main(jsonArgs):
 
     pipelineConfig["pipelineParams"]["build"] = {
                               "htm-itSha": pipelineConfig["htm-itSha"],
-                              "htm-itHome": env["HTM-IT_HOME"],
+                              "htm-itHome": env["HTM_IT_HOME"],
                               "deployTrack": deployTrack,
                               "htm-itDeployTrack": htm-itUser,
                               "amiName": amiName

@@ -42,7 +42,7 @@ public class TestUtilities {
             .xpath("//button[@class='export btn btn-default']");
     static By REMOVE_BUTTON = By
             .xpath("//button[@class='delete btn btn-default']");
-    static By INSTANCES_CURRENTLY_MONITORED_BY_HTM-IT_TITLE = By
+    static By INSTANCES_CURRENTLY_MONITORED_BY_HTM_IT_TITLE = By
             .xpath("//div[@id='instance-list']/div/h3");
     static int WAIT_TIME = 10;
 

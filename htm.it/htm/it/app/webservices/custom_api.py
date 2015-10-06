@@ -23,15 +23,15 @@ import json
 
 import web
 
-from htm-it.app.adapters.datasource import createDatasourceAdapter
-from htm-it.app import exceptions as app_exceptions, repository
-from htm-it.app.webservices import (AuthenticatedBaseHandler,
+from htm.it.app.adapters.datasource import createDatasourceAdapter
+from htm.it.app import exceptions as app_exceptions, repository
+from htm.it.app.webservices import (AuthenticatedBaseHandler,
                                   ManagedConnectionWebapp)
-from htm-it.app.webservices.utils import (getMetricDisplayFields,
+from htm.it.app.webservices.utils import (getMetricDisplayFields,
                                         convertMetricRowToMetricDict)
-from htm-it import htm-it_logging
+from htm.it import htm_it_logging
 
-LOGGER = htm-it_logging.getExtendedLogger(__name__)
+LOGGER = htm_it_logging.getExtendedLogger(__name__)
 
 urls = (
   # /_metrics/custom

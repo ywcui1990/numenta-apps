@@ -1,4 +1,4 @@
-import htm-it.__version__
+import htm.it.__version__
 
 __version__ = htm-it.__version__
 
@@ -15,6 +15,6 @@ CONF_DIR = os.environ.get("APPLICATION_CONFIG_PATH", os.path.join(APP_HOME,
                                                                   "conf"))
 
 logging_support = logging_support_raw
-logging_support.setLogDir(os.environ.get("HTM-IT_LOG_DIR",
+logging_support.setLogDir(os.environ.get("HTM_IT_LOG_DIR",
                           os.path.join(APP_HOME, "logs")))
 

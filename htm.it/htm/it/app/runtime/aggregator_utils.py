@@ -25,7 +25,7 @@ Common aggregator utilitities shared by all Aggregator sub-modules
 
 from collections import namedtuple
 
-import htm-it.app
+import htm.it.app
 
 
 # start/end: datetime.datetime (usually UTC)

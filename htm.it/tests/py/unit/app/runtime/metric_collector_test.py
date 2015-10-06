@@ -49,10 +49,10 @@ from boto.exception import BotoServerError
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-from htm-it import logging_support
-import htm-it.app
-from htm-it.app.runtime import metric_collector
-from htm-it.app.adapters.datasource.cloudwatch import _CloudwatchDatasourceAdapter
+from htm.it import logging_support
+import htm.it.app
+from htm.it.app.runtime import metric_collector
+from htm.it.app.adapters.datasource.cloudwatch import _CloudwatchDatasourceAdapter
 
 
 

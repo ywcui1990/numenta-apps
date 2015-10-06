@@ -21,7 +21,7 @@
 from web import BadRequest, HTTPError, NoMethod
 
 from utils import encodeJson
-from htm-it.app.exceptions import QuotaError
+from htm.it.app.exceptions import QuotaError
 
 
 class UnauthorizedResponse(BadRequest):

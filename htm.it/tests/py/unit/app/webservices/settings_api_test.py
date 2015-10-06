@@ -27,15 +27,15 @@ import json
 
 import unittest
 
-import htm-it.app
-from htm-it.test_utils.app.webservices import (
+import htm.it.app
+from htm.it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   webservices_assertions as assertions
 )
 from paste.fixture import TestApp
 from htmengine import utils as app_utils
-from htm-it.app import HTM-ITAppConfig
-from htm-it.app.webservices import settings_api
+from htm.it.app import HTM-ITAppConfig
+from htm.it.app.webservices import settings_api
 
 
 

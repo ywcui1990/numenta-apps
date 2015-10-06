@@ -42,13 +42,13 @@ import sys
 
 from nupic.support.decorators import logEntryExit
 
-from htm-it import logging_support
-from htm-it.app import HTM-ITProductConfig
+from htm.it import logging_support
+from htm.it.app import HTM-ITProductConfig
 
 
 
 def _getLogger():
-  return logging.getLogger("htm-it.set_edition")
+  return logging.getLogger("htm.it.set_edition")
 
 
 

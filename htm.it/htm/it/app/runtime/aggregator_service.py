@@ -30,12 +30,12 @@ from optparse import OptionParser
 import sys
 import time
 
-from htm-it.app import repository
-from htm-it.app.adapters.datasource.autostack.autostack_metric_adapter import (
+from htm.it.app import repository
+from htm.it.app.adapters.datasource.autostack.autostack_metric_adapter import (
   AutostackMetricAdapterBase)
-from htm-it.app.exceptions import ObjectNotFoundError
-from htm-it.app.runtime.aggregation import aggregate
-from htm-it.app.runtime.aggregator_metric_collection import (
+from htm.it.app.exceptions import ObjectNotFoundError
+from htm.it.app.runtime.aggregation import aggregate
+from htm.it.app.runtime.aggregator_metric_collection import (
     EC2InstanceMetricGetter,
     AutostackMetricRequest)
 from htmengine.runtime.metric_streamer_util import MetricStreamer
@@ -43,8 +43,8 @@ from htmengine.runtime.metric_streamer_util import MetricStreamer
 from htmengine.model_swapper.model_swapper_interface import (
   ModelSwapperInterface)
 
-from htm-it import logging_support
-from htm-it.htm-it_logging import (getExtendedLogger,
+from htm.it import logging_support
+from htm.it.htm_it_logging import (getExtendedLogger,
                                getStandardLogPrefix,
                                getMetricLogPrefix)
 

@@ -63,16 +63,16 @@ configuration files are located
 
 `AWS_SECRET_ACCESS_KEY`: The AWS secret key
 
-`HTM-IT_API_KEY`: If defined, htm-it's `setup.py init` uses its value to initialize
+`HTM_IT_API_KEY`: If defined, htm-it's `setup.py init` uses its value to initialize
 the `[security] apikey` setting in htm-it's `application.conf`; if not defined,
 htm-it's `setup.py init` will generate the API key automatically.
 
-`HTM-IT_HOME`: the directory path of the parent directory of the htm-it package
+`HTM_IT_HOME`: the directory path of the parent directory of the htm-it package
 directory; the pipeline code relies on this environment variable being set. The
-application code falls back to a computed path if `HTM-IT_HOME` is not in the
+application code falls back to a computed path if `HTM_IT_HOME` is not in the
 environment.
 
-`HTM-IT_LOG_DIR`: Directory path where application logs should be stored;
+`HTM_IT_LOG_DIR`: Directory path where application logs should be stored;
 application code falls back to the parent directory of htm-it's package directory.
 
 
@@ -187,15 +187,15 @@ Specify AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY CLI options.
 
 ::
 
-    htm-it credentials HTM-IT_SERVER_URL --AWS_ACCESS_KEY_ID=... --AWS_SECRET_ACCESS_KEY=...
+    htm-it credentials HTM_IT_SERVER_URL --AWS_ACCESS_KEY_ID=... --AWS_SECRET_ACCESS_KEY=...
 
 
 Set AWS credentials from a specific file using the -d, or --data CLI options.
 
 ::
 
-    htm-it credentials HTM-IT_SERVER_URL -d PATH_TO_FILE
-    htm-it credentials HTM-IT_SERVER_URL --data=PATH_TO_FILE
+    htm-it credentials HTM_IT_SERVER_URL -d PATH_TO_FILE
+    htm-it credentials HTM_IT_SERVER_URL --data=PATH_TO_FILE
 
 
 For more details refer HTM-IT CLI readme.

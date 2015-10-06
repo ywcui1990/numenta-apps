@@ -30,12 +30,12 @@ import web
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-import htm-it.app
-from htm-it.app import repository
+import htm.it.app
+from htm.it.app import repository
 from htmengine import utils as app_utils
-from htm-it.app.exceptions import AuthFailure, AWSPermissionsError
-from htm-it.app.webservices import metrics_api, webapp
-from htm-it.test_utils.app.webservices import (
+from htm.it.app.exceptions import AuthFailure, AWSPermissionsError
+from htm.it.app.webservices import metrics_api, webapp
+from htm.it.test_utils.app.webservices import (
   webservices_assertions as assertions,
   getDefaultHTTPHeaders
 )
@@ -196,11 +196,11 @@ class TestMessageHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.web_data = open(os.path.join(htm-it.app.HTM-IT_HOME,
+    cls.web_data = open(os.path.join(htm-it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/msg_manager.txt")).read()
     cls.message_manager_data = json.load(
         open(os.path.join(
-            htm-it.app.HTM-IT_HOME,
+            htm-it.app.HTM_IT_HOME,
             "tests/py/data/app/webservices/message_manager_data.json")))
 
 

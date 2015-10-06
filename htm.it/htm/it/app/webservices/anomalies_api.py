@@ -33,16 +33,16 @@ Endpoint                     Handler
 import web
 
 from htmengine import utils
-from htm-it.app import repository
-from htm-it.app.webservices import AuthenticatedBaseHandler
-from htm-it.app.webservices.utils import (convertMetricRowToMetricDict,
+from htm.it.app import repository
+from htm.it.app.webservices import AuthenticatedBaseHandler
+from htm.it.app.webservices.utils import (convertMetricRowToMetricDict,
                                         getMetricDisplayFields)
-from htm-it import htm-it_logging
+from htm.it import htm_it_logging
 
 from collections import defaultdict
 
 
-log = htm-it_logging.getExtendedLogger("webservices")
+log = htm_it_logging.getExtendedLogger("webservices")
 
 
 urls = (

@@ -5,7 +5,7 @@ set -o errexit
 
 print_help() {
   echo "Please set the following environment variables : AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, SAUCE_USER_NAME, SAUCE_KEY"
-  echo "Please enter all parameters: HTM-IT_SERVER_URL, Browser, OS, Usertype."
+  echo "Please enter all parameters: HTM_IT_SERVER_URL, Browser, OS, Usertype."
   echo "The available options for OS are: WINDOWS 7, WINODWS 8 and MAC."
   echo "The available options for BROWSER are: i.e. CHROME and FIREFOX."
   echo "The tests do not work for Safari Browser and IE."

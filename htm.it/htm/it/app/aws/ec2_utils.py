@@ -31,8 +31,8 @@ import boto.ec2
 
 from nupic.support import decorators
 
-from htm-it.app import config
-import htm-it.app.exceptions
+from htm.it.app import config
+import htm.it.app.exceptions
 
 # Instances sizes as of May 1, 2014 for us-east-1
 INSTANCE_SIZES = {

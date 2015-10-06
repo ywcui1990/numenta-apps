@@ -26,8 +26,8 @@
 from mock import patch
 import unittest
 
-import htm-it.app.adapters.datasource as datasource_adapter_factory
-from htm-it.app.exceptions import ObjectNotFoundError
+import htm.it.app.adapters.datasource as datasource_adapter_factory
+from htm.it.app.exceptions import ObjectNotFoundError
 
 
 

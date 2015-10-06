@@ -25,14 +25,14 @@ Integration test Settings API
 import unittest
 import  htm-it.app
 from paste.fixture import TestApp, AppError
-from htm-it.test_utils.app.webservices import (
+from htm.it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   getInvalidHTTPHeaders,
   webservices_assertions as assertions
 )
 from htmengine import utils as app_utils
-from htm-it.app import HTM-ITAppConfig
-from htm-it.app.webservices import settings_api
+from htm.it.app import HTM-ITAppConfig
+from htm.it.app.webservices import settings_api
 
 
 

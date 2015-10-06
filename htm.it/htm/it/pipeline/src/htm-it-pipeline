@@ -29,7 +29,7 @@ import argparse
 import os
 import sys
 
-from htm-it.pipeline.src import (bake_ami, build, manifest, package,
+from htm.it.pipeline.src import (bake_ami, build, manifest, package,
   run_unit_tests, sync_yum_repo_s3)
 from infrastructure.utilities.exceptions import TestsFailed
 from infrastructure.utilities.diagnostics import initPipelineLogger

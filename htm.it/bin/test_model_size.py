@@ -29,7 +29,7 @@ import sys
 
 from grokcli.api import GrokSession
 
-from htm-it.app import config
+from htm.it.app import config
 
 DEFAULT_RECORDS = 80000
 
@@ -38,11 +38,11 @@ RECORDS_BEFORE_MONITOR = 288
 
 
 def run(server, apiKey, metricName, resource, numRecords):
-  htm-it = HTM-ITSession(server=server, apikey=apiKey)
+  htmIt = Grokession(server=server, apikey=apiKey)
 
   inc = 300
   currentTimestamp = int(time.time()) - (numRecords * inc)
-  with htm-it.connect() as sock:
+  with htmIt.connect() as sock:
 
     for i in xrange(numRecords):
       value = random.random()
@@ -63,7 +63,7 @@ def run(server, apiKey, metricName, resource, numRecords):
         modelSpec = {"metric": metricName, "datasource": "custom"}
         if resource is not None:
           modelSpec["resource"] = resource
-        model = htm-it.createModel(modelSpec)
+        model = htmIt.createModel(modelSpec)
         print "done"
 
 

@@ -28,34 +28,34 @@ across *all* datasource adapters.
 
 import logging
 
-import htm-it.app
+import htm.it.app
 
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import (
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import (
     AWSResourceAdapterBase, ResourceTypeNames)
 from htmengine.adapters.datasource.datasource_adapter_iface import (
     DatasourceAdapterIface)
 
 # Import all resource adapters to force registration
-import htm-it.app.adapters.datasource.cloudwatch.aws_autoscaling_group
-import htm-it.app.adapters.datasource.cloudwatch.aws_dynamodb_table
-import htm-it.app.adapters.datasource.cloudwatch.aws_ebs_volume
-import htm-it.app.adapters.datasource.cloudwatch.aws_ec2_instance
-import htm-it.app.adapters.datasource.cloudwatch.aws_elb_load_balancer
-import htm-it.app.adapters.datasource.cloudwatch.aws_opsworks_stack
-import htm-it.app.adapters.datasource.cloudwatch.aws_rds_dbinstance
-import htm-it.app.adapters.datasource.cloudwatch.aws_redshift_cluster
-import htm-it.app.adapters.datasource.cloudwatch.aws_sns_topic
-import htm-it.app.adapters.datasource.cloudwatch.aws_sqs_queue
+import htm.it.app.adapters.datasource.cloudwatch.aws_autoscaling_group
+import htm.it.app.adapters.datasource.cloudwatch.aws_dynamodb_table
+import htm.it.app.adapters.datasource.cloudwatch.aws_ebs_volume
+import htm.it.app.adapters.datasource.cloudwatch.aws_ec2_instance
+import htm.it.app.adapters.datasource.cloudwatch.aws_elb_load_balancer
+import htm.it.app.adapters.datasource.cloudwatch.aws_opsworks_stack
+import htm.it.app.adapters.datasource.cloudwatch.aws_rds_dbinstance
+import htm.it.app.adapters.datasource.cloudwatch.aws_redshift_cluster
+import htm.it.app.adapters.datasource.cloudwatch.aws_sns_topic
+import htm.it.app.adapters.datasource.cloudwatch.aws_sqs_queue
 
 
-import htm-it.app.exceptions
-from htm-it.app import repository
-from htm-it.app.repository import queries, schema
+import htm.it.app.exceptions
+from htm.it.app import repository
+from htm.it.app.repository import queries, schema
 from htmengine.repository.queries import MetricStatus
 from htmengine.runtime import scalar_metric_utils
 import htmengine.utils
 import htmengine.model_swapper.utils as model_swapper_utils
-from htm-it.app.quota import Quota
+from htm.it.app.quota import Quota
 
 
 # NOTE: we use an immutable data structure so that we may return it to callers

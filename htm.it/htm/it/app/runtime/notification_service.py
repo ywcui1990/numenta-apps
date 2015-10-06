@@ -37,12 +37,12 @@ import requests
 
 from nta.utils import amqp
 
-from htm-it import logging_support
-from htm-it.htm-it_logging import getExtendedLogger
+from htm.it import logging_support
+from htm.it.htm_it_logging import getExtendedLogger
 
-import htm-it.app
-from htm-it.app import repository
-from htm-it.app.aws import ses_utils
+import htm.it.app
+from htm.it.app import repository
+from htm.it.app.aws import ses_utils
 from htmengine.runtime.anomaly_service import AnomalyService
 
 

@@ -27,7 +27,7 @@ from mock import patch
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-from htm-it.app import config, repository
+from htm.it.app import config, repository
 
 # Disable warning: Access to a protected member
 # pylint: disable=W0212

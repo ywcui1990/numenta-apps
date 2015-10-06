@@ -27,9 +27,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import select
 from sqlalchemy.engine.base import Connection
 
-from htm-it.app.exceptions import (DuplicateRecordError,
+from htm.it.app.exceptions import (DuplicateRecordError,
                                  ObjectNotFoundError)
-from htm-it.app.repository import schema
+from htm.it.app.repository import schema
 import htmengine.utils
 from htmengine.utils import jsonDecode
 

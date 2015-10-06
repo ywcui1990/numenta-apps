@@ -33,9 +33,9 @@ import web
 import os.path
 
 from htmengine import utils
-from htm-it.app import repository
-from htm-it.app.repository.queries import MetricStatus
-from htm-it.app.webservices import logging_api
+from htm.it.app import repository
+from htm.it.app.repository.queries import MetricStatus
+from htm.it.app.webservices import logging_api
 
 
 

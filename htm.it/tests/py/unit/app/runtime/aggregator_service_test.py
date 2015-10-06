@@ -30,17 +30,17 @@ import unittest
 
 from mock import Mock, patch
 
-from htm-it.app import exceptions as app_exceptions
+from htm.it.app import exceptions as app_exceptions
 
-from htm-it.app.runtime import aggregator_service
+from htm.it.app.runtime import aggregator_service
 
-from htm-it.app.runtime.aggregator_metric_collection import (
+from htm.it.app.runtime.aggregator_metric_collection import (
   AutostackMetricRequest,
   InstanceMetricData,
   MetricRecord,
   MetricCollection)
 
-from htm-it.app.runtime import aggregator_utils
+from htm.it.app.runtime import aggregator_utils
 
 from htmengine.model_swapper.model_swapper_interface import \
   ModelSwapperInterface

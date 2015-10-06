@@ -35,22 +35,22 @@ import time
 
 from nupic.support.decorators import logExceptions
 
-from htm-it import htm-it_logging, logging_support
-import htm-it.app
-import htm-it.app.exceptions as app_exceptions
+from htm.it import htm_it_logging, logging_support
+import htm.it.app
+import htm.it.app.exceptions as app_exceptions
 from htmengine import utils
 
-# import from htm-it or else datasource adapters won't register properly...
-from htm-it.app.adapters.datasource import createDatasourceAdapter
+# import from htm.it or else datasource adapters won't register properly...
+from htm.it.app.adapters.datasource import createDatasourceAdapter
 
 from htmengine.runtime.metric_streamer_util import MetricStreamer
-from htm-it.htm-it_logging import getStandardLogPrefix
+from htm.it.htm_it_logging import getStandardLogPrefix
 from htmengine.model_swapper.model_swapper_interface import (
   ModelSwapperInterface
 )
 
-from htm-it.app import repository
-from htm-it.app.repository.queries import MetricStatus
+from htm.it.app import repository
+from htm.it.app.repository.queries import MetricStatus
 
 from nta.utils.error_handling import abortProgramOnAnyException
 
@@ -62,7 +62,7 @@ _EXIT_CODE_ON_UNHANDLED_EXCEPTION_IN_THREAD = 1
 
 
 def _getLogger():
-  return htm-it_logging.getExtendedLogger(_MODULE_NAME)
+  return htm_it_logging.getExtendedLogger(_MODULE_NAME)
 
 
 
@@ -242,7 +242,7 @@ class MetricCollector(object):
   _SENTINEL = None
 
   def __init__(self):
-    self._log = htm-it_logging.getExtendedLogger(self.__class__.__name__)
+    self._log = htm_it_logging.getExtendedLogger(self.__class__.__name__)
 
     self._profiling = (
       htm-it.app.config.getboolean("debugging", "profiling") or
@@ -728,7 +728,7 @@ def _collect(task):
 
   :param task: a _DataCollectionTask instance
   """
-  log = htm-it_logging.getExtendedLogger(MetricCollector.__name__)
+  log = htm_it_logging.getExtendedLogger(MetricCollector.__name__)
 
   startTime = time.time()
 

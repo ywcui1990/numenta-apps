@@ -26,18 +26,18 @@ import datetime
 import os
 import yaml
 
-from htm-it import logging_support
-from htm-it.htm-it_logging import getExtendedLogger
+from htm.it import logging_support
+from htm.it.htm_it_logging import getExtendedLogger
 
-import htm-it.app
-import htm-it.app.adapters.datasource as datasource_adapter_factory
-from htm-it.app.adapters.datasource.cloudwatch import aws_base
-from htm-it.app import repository
-from htm-it.app.repository.queries import MetricStatus
+import htm.it.app
+import htm.it.app.adapters.datasource as datasource_adapter_factory
+from htm.it.app.adapters.datasource.cloudwatch import aws_base
+from htm.it.app import repository
+from htm.it.app.repository.queries import MetricStatus
 from htmengine.utils import jsonDecode
 
-from htm-it.test_utils.app.test_case_base import TestCaseBase, unittest
-import htm-it.test_utils.aws_utils
+from htm.it.test_utils.app.test_case_base import TestCaseBase, unittest
+import htm.it.test_utils.aws_utils
 
 
 
@@ -82,7 +82,7 @@ class CloudwatchDatasourceAdapterMetricsTest(TestCaseBase):
   def setUpClass(cls):
 
     with open(os.path.join(
-        htm-it.app.HTM-IT_HOME,
+        htm-it.app.HTM_IT_HOME,
         "tests/py/integration/app/test_resources.yaml")) as fin:
       resources = yaml.load(fin)
 

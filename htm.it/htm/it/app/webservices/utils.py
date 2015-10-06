@@ -21,9 +21,9 @@
 import json
 import os.path
 
-from htm-it.app import HTM-IT_HOME
+from htm.it.app import HTM_IT_HOME
 from htmengine.utils import jsonDecode
-from htm-it.app.repository import schema
+from htm.it.app.repository import schema
 
 
 
@@ -39,10 +39,10 @@ def loadSchema(schemaFile):
   Will throw IOError if given an invalid path
 
   :param schemaFile: "examplefilename.json", function will look in
-      HTM-IT_HOME/static/schemas/ for the file.
+      HTM_IT_HOME/static/schemas/ for the file.
   :returns: Loaded json schema object from static/schemas
   """
-  schemaPath = os.path.join(HTM-IT_HOME, "static/schemas/", schemaFile)
+  schemaPath = os.path.join(HTM_IT_HOME, "static/schemas/", schemaFile)
   with open(schemaPath) as schema:
     return json.load(schema)
 

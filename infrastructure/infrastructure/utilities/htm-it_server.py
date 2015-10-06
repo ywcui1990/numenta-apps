@@ -29,7 +29,7 @@ from infrastructure.utilities.exceptions import (
   InstanceLaunchError,
   InstanceNotReadyError)
 
-HTM-IT_AWS_CREDENTIALS_SETUP_TRIES = 30
+HTM_IT_AWS_CREDENTIALS_SETUP_TRIES = 30
 MAX_RETRIES_FOR_INSTANCE_READY = 18
 SLEEP_DELAY = 10
 
@@ -182,7 +182,7 @@ def getApiKey(instanceId, publicDnsName, config, logger):
 
     :returns: A string value representing the API Key of the new instance.
   """
-  for _ in xrange(HTM-IT_AWS_CREDENTIALS_SETUP_TRIES):
+  for _ in xrange(HTM_IT_AWS_CREDENTIALS_SETUP_TRIES):
     logger.debug("Trying to setup HTM-IT AWS Credentials.")
     try:
       htm-itApiKey = setupHTM-ITAWSCredentials(publicDnsName, config)

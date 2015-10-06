@@ -25,7 +25,7 @@ set -o pipefail
 
 NUMENTA=/opt/numenta
 PRODUCTS="${NUMENTA}/numenta-apps"
-HTM-IT_HOME="${PRODUCTS}/htm-it"
+HTM_IT_HOME="${PRODUCTS}/htm-it"
 
 splat() {
   # Make it easier to distinguish phases of the script in the scrollback
@@ -123,10 +123,10 @@ install-htm-it() {
   git reset --hard "${GIT_COMMIT_SHA}"
 
   echo "Creating symlink to ${NUMENTA}/htm-it"
-  ln -s "${HTM-IT_HOME}" "${NUMENTA}/htm-it"
+  ln -s "${HTM_IT_HOME}" "${NUMENTA}/htm-it"
 
   echo "Creating symlink for supervisord.vars"
-  ln -s "${HTM-IT_HOME}/supervisord.vars" /etc/htm-it/
+  ln -s "${HTM_IT_HOME}/supervisord.vars" /etc/htm-it/
   echo "Enabling wufoo"
   touch /etc/htm-it/enable_wufoo
   echo "Sourcing supervisord.vars..."
@@ -188,8 +188,8 @@ bootstrap-htm-it() {
   sudo sysctl -w net.core.somaxconn=1024
   echo "net.core.somaxconn=1024" | sudo tee -a /etc/sysctl.conf
 
-  cd "${HTM-IT_HOME}"
-  mkdir -p "${HTM-IT_LOG_DIR}"/
+  cd "${HTM_IT_HOME}"
+  mkdir -p "${HTM_IT_LOG_DIR}"/
 }
 
 install-prerequisites-and-update-repos

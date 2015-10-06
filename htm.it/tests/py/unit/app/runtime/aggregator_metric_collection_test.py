@@ -28,13 +28,13 @@ import unittest
 
 from mock import Mock
 
-from htm-it.app.runtime.aggregator_metric_collection import (
+from htm.it.app.runtime.aggregator_metric_collection import (
   _MetricCollectionIterator,
   _MetricCollectionTaskResult,
   _MetricCollectionAccumulator,
   MetricCollection)
 
-from htm-it.app.runtime import aggregator_utils
+from htm.it.app.runtime import aggregator_utils
 
 
 

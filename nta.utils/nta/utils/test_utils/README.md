@@ -70,7 +70,7 @@ import subprocess
 
 with ConfigAttributePatch("application.conf",
                             (("metric_collector", "poll_interval", "999"),)):
-    p = subprocess.Popen(["python", "-c", "import htm-it.app; print 'poll_interval in subprocess:', "
+    p = subprocess.Popen(["python", "-c", "import htm.it.app; print 'poll_interval in subprocess:', "
                          "htm-it.app.config.get('metric_collector', 'poll_interval')"])
     returnCode = p.wait()
 ```

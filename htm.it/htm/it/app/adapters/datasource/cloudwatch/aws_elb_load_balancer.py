@@ -22,9 +22,9 @@
 # Note: we don't allow autostacks of ELBs, so disable warnings about
 # `getMatchingResources` not being implemented (disable=W0223 comments below)
 
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import (
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import (
     AWSResourceAdapterBase, ResourceTypeNames)
-from htm-it.app.aws.elb_utils import getELBInstances
+from htm.it.app.aws.elb_utils import getELBInstances
 
 
 

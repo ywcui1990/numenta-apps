@@ -34,15 +34,15 @@ import json
 import unittest
 from paste.fixture import TestApp, AppError
 
-import htm-it.app
-from htm-it.test_utils.app.webservices import (
+import htm.it.app
+from htm.it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   getInvalidHTTPHeaders,
   webservices_assertions as assertions
 )
-from htm-it.app.webservices import instances_api
+from htm.it.app.webservices import instances_api
 from htmengine import utils as app_utils
-from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm.it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 
 
 

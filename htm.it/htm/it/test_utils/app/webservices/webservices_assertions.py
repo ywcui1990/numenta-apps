@@ -49,7 +49,7 @@ def assertResponseStatusCode(test, response, code):
 
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   code : This Integer should be expected response code.
     This will be used for asseting response code and response full status
   """
@@ -62,7 +62,7 @@ def assertResponseHeaders(test, response, headerType="json"):
   Asserts response headers for API call, currently looking for Content-Type
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   headerType : Expects string . Currently supporting header type for json and
     html. Update this utility for supporting other headers if needs.
     Defauls to json as with majority we are returning json
@@ -82,7 +82,7 @@ def assertResponseBody(test, response):
   Asserts response body for API call
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   """
   test.assertIsInstance(response.body, types.StringTypes)
   headers = dict(response.headers)
@@ -96,7 +96,7 @@ def assertSuccess(test, response, code=200):
   This is wrapper for asserting happy path testcases
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   code :Defautls to 200, this is the expected response code.This will
     be used for asserting response code and response full status
   """
@@ -111,7 +111,7 @@ def assertNotFound(test, response, headerType="html"):
   This is wrapper which is useful to assert Not Found scenario across APIs
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   """
   assertResponseHeaders(test, response, headerType)
   assertResponseBody(test, response)
@@ -124,7 +124,7 @@ def assertBadRequest(test, response, headerType="html"):
   This is wrapper which is useful to assert Bad Request scenario across APIs
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   headerType : Optional, will default to html but can be manually overridden as "json"
     if this is what file type we expect.
   """
@@ -139,7 +139,7 @@ def assertDeleteSuccessResponse(test, response):
   This could be used for model, instances etc
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   """
   assertSuccess(test, response)
   result = app_utils.jsonDecode(response.body)
@@ -152,7 +152,7 @@ def assertForbiddenResponse(test, response):
   This method wraps all assertions for 403 Forbidden
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   """
   assertResponseHeaders(test, response, headerType="json")
   assertResponseBody(test, response)
@@ -166,7 +166,7 @@ def assertInvalidAuthenticationResponse(test, response):
   as a design decision
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   """
   assertResponseHeaders(test, response)
   assertResponseBody(test, response)
@@ -181,7 +181,7 @@ def assertMethodNotAllowed(test, response):
   This method wraps all assertions 405 Method Not Allowed
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   """
   assertResponseHeaders(test, response, headerType="html")
   assertResponseBody(test, response)
@@ -193,7 +193,7 @@ def assertRouteNotFound(test, response):
   This method wraps all assertions for scenarop when invalid route is invoked
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   """
   assertNotFound(test, response)
   test.assertIn("not found", response.body)
@@ -204,7 +204,7 @@ def assertInternalServerError(test, response):
   This method wraps all assertions 500 internal server error
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   """
   assertResponseHeaders(test, response, headerType="html")
   assertResponseStatusCode(test, response, code=500)
@@ -215,7 +215,7 @@ def assertObjectNotFoundError(test, response):
   This method wraps all assertions 404 ObjectNotFoundError
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   """
   assertResponseHeaders(test, response, headerType="html")
   assertResponseStatusCode(test, response, code=404)
@@ -227,7 +227,7 @@ def assertInvalidArgumentsError(test, response, headerType="html"):
   This method wraps all assertions 500 InvalidArgumentsError()
   test : This parameter expects handle for current testcase under execution.
     This is used for further assertions
-  response : response received from htm-it webservice call
+  response : response received from htm.it webservice call
   headerType : Optional, will default to html but can be manually overridden as "json"
     if this is what file type we expect.
   """

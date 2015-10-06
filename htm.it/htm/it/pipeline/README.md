@@ -5,7 +5,7 @@ The pipeline can be run end-to-end via the driver script, or each individual ste
 - Ensure the products repository dir is exported in PRODUCTS variable
 - Run `$PRODUCTS/install-htm-it.sh <INSTALL_DIR> <SCRIPT_DIR>` where `<INSTALL_DIR>` is a valid folder on your `PYTHONPATH` and `<SCRIPT_DIR>` is a valid folder on your `PATH`
 - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables must be set
-- Set `HTM-IT_HOME` to `$PRODUCTS/htm-it` to use your existing checkout
+- Set `HTM_IT_HOME` to `$PRODUCTS/htm-it` to use your existing checkout
 - When running locally, make to sure to set "BUILD_WORKSPACE" to one level above your
   products repository to avoid unnecessary cloning.  For example, if you cloned Products to ~/numenta/repositories/products, you would use:
 

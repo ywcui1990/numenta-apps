@@ -29,21 +29,21 @@ import os
 
 from paste.fixture import TestApp
 
-import htm-it.app
+import htm.it.app
 from htmengine import utils as app_utils
-from htm-it.app.adapters.datasource import createCloudwatchDatasourceAdapter
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
-from htm-it.app.webservices import cloudwatch_api
+from htm.it.app.adapters.datasource import createCloudwatchDatasourceAdapter
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
+from htm.it.app.webservices import cloudwatch_api
 
-from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
-from htm-it.test_utils.app.webservices import (
+from htm.it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm.it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   getInvalidHTTPHeaders
 )
-from htm-it.test_utils.app.webservices import (
+from htm.it.test_utils.app.webservices import (
   webservices_assertions as assertions)
 
-from htm-it import logging_support
+from htm.it import logging_support
 
 
 
@@ -214,7 +214,7 @@ class CWRegionsHandlerTest(unittest.TestCase):
   """
   @classmethod
   def setUpClass(cls):
-    cls.regions = json.load(open(os.path.join(htm-it.app.HTM-IT_HOME,
+    cls.regions = json.load(open(os.path.join(htm-it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/cw_regions.json")))
 
   def setUp(self):

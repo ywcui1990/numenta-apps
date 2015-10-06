@@ -45,8 +45,8 @@ import sys
 
 from nupic.support.decorators import logEntryExit
 
-from htm-it import logging_support
-from htm-it.app.quota import Quota, QuotaConfig
+from htm.it import logging_support
+from htm.it.app.quota import Quota, QuotaConfig
 
 
 

@@ -50,12 +50,12 @@ setup(
   version=version["__version__"]
 )
 
-HTM-IT_HOME = os.path.abspath(os.path.dirname(__file__))
+HTM_IT_HOME = os.path.abspath(os.path.dirname(__file__))
 
 
 
 def getOrCreateHTM-ITId():
-  htm-itIdPath = "%s/conf/.htm-it_id" % HTM-IT_HOME
+  htm-itIdPath = "%s/conf/.htm_it_id" % HTM_IT_HOME
   if os.path.exists(htm-itIdPath):
     with open(htm-itIdPath, "r") as htm-itIdFile:
       return htm-itIdFile.read()
@@ -67,24 +67,24 @@ def getOrCreateHTM-ITId():
 
 
 
-APPLICATION_CONFIG_PATH = os.path.join(HTM-IT_HOME, "conf")
-SD_CONFIG_FILE = os.path.join(HTM-IT_HOME, "conf/supervisord.conf")
-NGINX_CONFIG_FILE = os.path.join(HTM-IT_HOME, "conf/htm-it-api.conf")
+APPLICATION_CONFIG_PATH = os.path.join(HTM_IT_HOME, "conf")
+SD_CONFIG_FILE = os.path.join(HTM_IT_HOME, "conf/supervisord.conf")
+NGINX_CONFIG_FILE = os.path.join(HTM_IT_HOME, "conf/htm-it-api.conf")
 
 # Baseline defaults
 data = defaultdict(str)
 data["APPLICATION_CONFIG_PATH"] = APPLICATION_CONFIG_PATH
-data["HTM-IT_HOME"] = HTM-IT_HOME
-data["HTM-IT_LOG_DIR"] = "%s/logs" % HTM-IT_HOME
+data["HTM_IT_HOME"] = HTM_IT_HOME
+data["HTM_IT_LOG_DIR"] = "%s/logs" % HTM_IT_HOME
 data["NGINX_USER"] = pwd.getpwuid(os.getuid()).pw_name
 data["NGINX_GROUP"] = grp.getgrgid(os.getgid()).gr_name
 data["NGINX_SSL_CERTIFICATE"] = \
-  os.path.join(HTM-IT_HOME, "conf/ssl/localhost.crt")
+  os.path.join(HTM_IT_HOME, "conf/ssl/localhost.crt")
 data["NGINX_SSL_CERTIFICATE_KEY"] = \
-  os.path.join(HTM-IT_HOME, "conf/ssl/localhost.key")
-data["HTM-IT_ID"] = getOrCreateHTM-ITId()
-data["HTM-IT_UPDATE_EPOCH"] = "%f" % (time.time())
-data["HTM-IT_SEND_TO_WUFOO"] = "no"
+  os.path.join(HTM_IT_HOME, "conf/ssl/localhost.key")
+data["HTM_IT_ID"] = getOrCreateHTM-ITId()
+data["HTM_IT_UPDATE_EPOCH"] = "%f" % (time.time())
+data["HTM_IT_SEND_TO_WUFOO"] = "no"
 data["WUFOO_URL"] = ""
 data["WUFOO_USER"] = ""
 data["AWS_ACCESS_KEY_ID"] = ""
@@ -115,15 +115,15 @@ def configure_htm-it(options):
   NOTE: called by jenkins-ec2 / jenkins-ci / src / run_pipeline.py
   """
   # First, generate HTM-IT's baseline config objects
-  call_task("gen_htm-it_base_config", options={"target": options.target})
+  call_task("gen_htm_it_base_config", options={"target": options.target})
 
-  from htm-it.app import config, HTM-ITAppConfig
+  from htm.it.app import config, HTM-ITAppConfig
 
   # Delete all configuration override objects
   config.clearAllConfigOverrides()
 
   # Initialize HTM-IT API key
-  apiKey = os.environ.get("HTM-IT_API_KEY")
+  apiKey = os.environ.get("HTM_IT_API_KEY")
   if apiKey is None:
     apiKey = "".join(
       random.choice("".join(set(string.letters + string.digits) - set('1iLl0Oo')))
@@ -146,7 +146,7 @@ def configure_htm-it(options):
             "product configration files"),
       metavar="FILE")
   ])
-def gen_htm-it_base_config(options):
+def gen_htm_it_base_config(options):
   """ (Re)generate HTM-IT's baseline configuration objects """
 
   def generateConf(baseName, targetDir):
@@ -171,7 +171,7 @@ def gen_htm-it_base_config(options):
   print
   print "    export APPLICATION_CONFIG_PATH=%s" % options.target
   print
-  print "Also consider setting HTM-IT_API_KEY.  If a value exists in your ",
+  print "Also consider setting HTM_IT_API_KEY.  If a value exists in your ",
   print "environment, it will be used, otherwise a new one will be generated ",
   print "every time your configuration is created"
   print
@@ -238,7 +238,7 @@ def init_htm-itdb():
   if "APPLICATION_CONFIG_PATH" not in os.environ:
     os.environ["APPLICATION_CONFIG_PATH"] = data["APPLICATION_CONFIG_PATH"]
 
-  import htm-it.app.repository
+  import htm.it.app.repository
 
   htm-it.app.repository.reset()
 
@@ -313,7 +313,7 @@ def gen_base_configs():
   """ (Re)generate baseline configuration objects for all subsystems """
   call_task("configure_supervisord", options={"target": SD_CONFIG_FILE})
   call_task("configure_nginx", options={"target": NGINX_CONFIG_FILE})
-  call_task("gen_htm-it_base_config", options={"target": APPLICATION_CONFIG_PATH})
+  call_task("gen_htm_it_base_config", options={"target": APPLICATION_CONFIG_PATH})
 
 
 

@@ -29,7 +29,7 @@
 # After this script runs, restart all supervisord services from the webUI.
 # Then Copy the api key to the clipboard.
 # In the ec2 instance to be sending data, issue a command along the lines of:
-# ./htm-it_custom_metric_stress.py --csv ~/OUTPUTFILENAME.csv ec2-12.34.56.78.us-west-2.compute.amazonaws.com HHJTf &
+# ./htm_it_custom_metric_stress.py --csv ~/OUTPUTFILENAME.csv ec2-12.34.56.78.us-west-2.compute.amazonaws.com HHJTf &
 # (Replace HHTJTf with whatever API key this script emitted)
 
 MODELNUM=$1

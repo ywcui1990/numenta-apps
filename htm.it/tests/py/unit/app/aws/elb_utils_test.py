@@ -27,7 +27,7 @@ import unittest
 
 from mock import Mock, patch
 
-from htm-it.app.aws import elb_utils
+from htm.it.app.aws import elb_utils
 
 
 

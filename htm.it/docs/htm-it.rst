@@ -20,10 +20,10 @@ htm-it.HTM-ITExtendedLogger module
     :undoc-members:
     :show-inheritance:
 
-htm-it.htm-it_logging module
+htm-it.htm_it_logging module
 ------------------------
 
-.. automodule:: htm-it.htm-it_logging
+.. automodule:: htm-it.htm_it_logging
     :members:
     :undoc-members:
     :show-inheritance:

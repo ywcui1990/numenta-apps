@@ -21,11 +21,11 @@
 # pylint: disable=C0103,W1401
 
 import web
-import htm-it.app
+import htm.it.app
 
 from htmengine import utils
-from htm-it.app import HTM-ITAppConfig
-from htm-it.app.webservices import AuthenticatedBaseHandler
+from htm.it.app import HTM-ITAppConfig
+from htm.it.app.webservices import AuthenticatedBaseHandler
 
 
 

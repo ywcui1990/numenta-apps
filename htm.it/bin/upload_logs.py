@@ -33,7 +33,7 @@ import time
 
 import boto
 
-from htm-it.app import config
+from htm.it.app import config
 
 _LOGGER = logging.getLogger(__name__)
 _USAGE = "Usage: upload_logs.py [--force] path/to/log/dir"
@@ -41,7 +41,7 @@ _USAGE = "Usage: upload_logs.py [--force] path/to/log/dir"
 _AWS_ACCESS_KEY = config.get("aws", "aws_access_key_id")
 _AWS_SECRET_KEY = config.get("aws", "aws_secret_access_key")
 _BUCKET = "htm-it.logs"
-_KEY_PREFIX = "upload/%s-" % config.get("usertrack", "htm-it_id")
+_KEY_PREFIX = "upload/%s-" % config.get("usertrack", "htm_it_id")
 _UPLOADED_DIR = "uploaded"
 _UPLOAD_ATTEMPTS = 3
 

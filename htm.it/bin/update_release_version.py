@@ -39,8 +39,8 @@ import sys
 # pylint: disable=W0611
 # Imported htm-it here as _APPLICATION_CONF_DIR in logging_support was always
 # setting to None. This hack is required while packaging HTM-IT RPM.
-import htm-it
-from htm-it import logging_support
+import htm.it
+from htm.it import logging_support
 
 from nupic.support.decorators import logEntryExit
 

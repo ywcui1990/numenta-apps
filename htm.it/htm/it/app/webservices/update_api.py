@@ -23,10 +23,10 @@
 import os.path
 
 import web
-import htm-it.app
+import htm.it.app
 
 from htmengine import utils
-from htm-it.app.webservices import AuthenticatedBaseHandler
+from htm.it.app.webservices import AuthenticatedBaseHandler
 
 
 urls = (

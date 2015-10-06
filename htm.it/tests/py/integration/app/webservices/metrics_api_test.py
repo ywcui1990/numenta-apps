@@ -26,12 +26,12 @@ import unittest
 
 from paste.fixture import TestApp
 
-import htm-it.app
-from htm-it.app.webservices import metrics_api
+import htm.it.app
+from htm.it.app.webservices import metrics_api
 from htmengine import utils
 
-from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
-from htm-it.test_utils.app.webservices import (
+from htm.it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm.it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   getInvalidHTTPHeaders,
   webservices_assertions as assertions

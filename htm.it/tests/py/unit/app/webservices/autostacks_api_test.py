@@ -32,15 +32,15 @@ from paste.fixture import TestApp, AppError
 from mock import ANY, patch, Mock
 
 
-from htm-it import logging_support
-import htm-it.app
+from htm.it import logging_support
+import htm.it.app
 from htmengine import utils as app_utils
 from htmengine.utils import jsonDecode, jsonEncode
-from htm-it.app.exceptions import (DuplicateRecordError,
+from htm.it.app.exceptions import (DuplicateRecordError,
                                  QuotaError)
-from htm-it.app.webservices import autostacks_api, models_api
-from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
-from htm-it.app.runtime.aggregator_instances import InstanceInfo
+from htm.it.app.webservices import autostacks_api, models_api
+from htm.it.test_utils.app.webservices import getDefaultHTTPHeaders
+from htm.it.app.runtime.aggregator_instances import InstanceInfo
 
 
 
@@ -300,7 +300,7 @@ class TestAutostackMetricsHandler(unittest.TestCase):
   def setUpClass(cls):
     with open(
         os.path.join(
-          htm-it.app.HTM-IT_HOME,
+          htm-it.app.HTM_IT_HOME,
           "tests/py/data/app/webservices/models_list.json")) as fileObj:
       cls.model_list = json.load(fileObj)
 

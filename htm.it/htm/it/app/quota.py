@@ -30,16 +30,16 @@ import sys
 
 import boto.utils
 
-from htm-it import htm-it_logging
-from htm-it.app import HTM-IT_HOME, product, repository
-from htm-it.app.exceptions import QuotaError
+from htm.it import htm_it_logging
+from htm.it.app import HTM_IT_HOME, product, repository
+from htm.it.app.exceptions import QuotaError
 
 from nta.utils.config import Config
 
 
 
 def _getLogger():
-  return htm-it_logging.getExtendedLogger("htm-it.app.quota")
+  return htm_it_logging.getExtendedLogger("htm-it.app.quota")
 
 
 
@@ -53,7 +53,7 @@ class QuotaConfig(Config):
 
   def __init__(self, *args, **kwargs):
     super(QuotaConfig, self).__init__(self.CONFIG_NAME,
-                                      os.path.join(HTM-IT_HOME, "conf"),
+                                      os.path.join(HTM_IT_HOME, "conf"),
                                       *args, **kwargs)
 
 

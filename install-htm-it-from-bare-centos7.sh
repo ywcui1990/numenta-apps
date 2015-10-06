@@ -80,12 +80,12 @@ sudo rabbitmq-server -detached
 sudo cp /opt/numenta/numenta-apps/infrastructure/saltcellar/rabbitmq/files/rabbitmqadmin /usr/local/bin
 
 # Bootstrap HTM-IT
-export HTM-IT_HOME=/opt/numenta/numenta-apps/htm-it
-export APPLICATION_CONFIG_PATH="${HTM-IT_HOME}/conf"
-export HTM-IT_LOG_DIR="${HTM-IT_HOME}/logs"
+export HTM_IT_HOME=/opt/numenta/numenta-apps/htm-it
+export APPLICATION_CONFIG_PATH="${HTM_IT_HOME}/conf"
+export HTM_IT_LOG_DIR="${HTM_IT_HOME}/logs"
 
-cd "${HTM-IT_HOME}"
-mkdir -p "${HTM-IT_LOG_DIR}"/
+cd "${HTM_IT_HOME}"
+mkdir -p "${HTM_IT_LOG_DIR}"/
 
 python setup.py init
 

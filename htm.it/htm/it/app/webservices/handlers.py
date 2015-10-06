@@ -23,10 +23,10 @@ import web
 
 from ConfigParser import ConfigParser
 
-import htm-it.app
-from htm-it.app.exceptions import AuthFailure
-from htm-it.app.webservices.responses import UnauthorizedResponse
-from htm-it import __version__
+import htm.it.app
+from htm.it.app.exceptions import AuthFailure
+from htm.it.app.webservices.responses import UnauthorizedResponse
+from htm.it import __version__
 
 
 

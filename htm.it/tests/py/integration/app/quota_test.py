@@ -29,20 +29,20 @@ import unittest
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-import htm-it
-from htm-it import logging_support
-from htm-it.app.webservices import (autostacks_api,
+import htm.it
+from htm.it import logging_support
+from htm.it.app.webservices import (autostacks_api,
                                   cloudwatch_api,
                                   custom_api,
                                   instances_api,
                                   models_api)
-from htm-it.test_utils.app.test_case_base import TestCaseBase
-from htm-it.test_utils.app.webservices import (
+from htm.it.test_utils.app.test_case_base import TestCaseBase
+from htm.it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   webservices_assertions as assertions)
 
-from htm-it.app.quota import QuotaConfig
-from htm-it.app import config
+from htm.it.app.quota import QuotaConfig
+from htm.it.app import config
 
 
 def setUpModule():

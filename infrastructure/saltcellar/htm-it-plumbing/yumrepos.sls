@@ -40,8 +40,8 @@
 {% endfor %}
 
 # Nuke stale repo files.
-{% for forbidden in ['htm-it_development.repo',
-                     'htm-it_releases.repo'] %}
+{% for forbidden in ['htm_it_development.repo',
+                     'htm_it_releases.repo'] %}
 stale-repo-{{ forbidden }}:
   file.absent:
     - name: /etc/yum.repos.d/{{ forbidden }}

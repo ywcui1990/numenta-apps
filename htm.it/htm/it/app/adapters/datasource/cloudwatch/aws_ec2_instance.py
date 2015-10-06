@@ -23,11 +23,11 @@
 import boto.ec2
 import boto.exception
 
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import (
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import (
     AWSResourceAdapterBase)
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
-from htm-it.app.aws.ec2_utils import getEC2Instances, retryOnEC2TransientError
-from htm-it.app.runtime.aggregator_instances import getAutostackInstances
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
+from htm.it.app.aws.ec2_utils import getEC2Instances, retryOnEC2TransientError
+from htm.it.app.runtime.aggregator_instances import getAutostackInstances
 
 
 

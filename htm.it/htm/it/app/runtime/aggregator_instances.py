@@ -33,14 +33,14 @@ from boto import ec2
 
 from .aggregator_utils import getAWSCredentials
 
-from htm-it import htm-it_logging
+from htm.it import htm_it_logging
 
 _MODULE_NAME = "htm-it.aggregator_instances"
 
 
 
 def _getLogger():
-  return htm-it_logging.getExtendedLogger(_MODULE_NAME)
+  return htm_it_logging.getExtendedLogger(_MODULE_NAME)
 
 
 

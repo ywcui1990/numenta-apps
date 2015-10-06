@@ -35,22 +35,22 @@ from collections import namedtuple
 from paste.fixture import TestApp
 from mock import ANY, create_autospec, MagicMock, Mock, patch
 
-from htm-it import logging_support
-import htm-it.app
+from htm.it import logging_support
+import htm.it.app
 
 from htmengine import utils as app_utils
 from htmengine.model_swapper import utils as model_swapper_utils
-from htm-it.app.adapters.datasource import createDatasourceAdapter
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import (
+from htm.it.app.adapters.datasource import createDatasourceAdapter
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import (
   AWSResourceAdapterBase)
-from htm-it.app.webservices import models_api
-from htm-it.app.webservices.responses import InvalidRequestResponse
-from htm-it.app.webservices.utils import getMetricDisplayFields
+from htm.it.app.webservices import models_api
+from htm.it.app.webservices.responses import InvalidRequestResponse
+from htm.it.app.webservices.utils import getMetricDisplayFields
 from htmengine.exceptions import ObjectNotFoundError
-from htm-it.app import repository
-from htm-it.app.repository.queries import MetricStatus
+from htm.it.app import repository
+from htm.it.app.repository.queries import MetricStatus
 from htmengine.utils import jsonDecode, jsonEncode
-from htm-it.test_utils.app.webservices import (
+from htm.it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   getInvalidHTTPHeaders,
   webservices_assertions as assertions
@@ -84,7 +84,7 @@ class TestModelHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.model_list = json.load(open(os.path.join(htm-it.app.HTM-IT_HOME,
+    cls.model_list = json.load(open(os.path.join(htm-it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/models_list.json")))
 
 
@@ -568,7 +568,7 @@ class TestMetricDataHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.metric_data = json.load(open(os.path.join(htm-it.app.HTM-IT_HOME,
+    cls.metric_data = json.load(open(os.path.join(htm-it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/models_data.json")))
     cls.rowTuple = namedtuple("rowTuple", "uid, timestamp, metric_value,"
                                           " anomaly_score, rowid")

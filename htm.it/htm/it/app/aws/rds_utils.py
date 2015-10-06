@@ -28,7 +28,7 @@ import boto.ec2
 from boto.exception import (AWSConnectionError, BotoServerError)
 from nupic.support import decorators
 
-from htm-it.app import config
+from htm.it.app import config
 
 
 

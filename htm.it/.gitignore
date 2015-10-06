@@ -4,7 +4,7 @@
 .DS_Store
 .idea
 build/sphinx
-conf/.htm-it_id
+conf/.htm_it_id
 conf/ssl/*.bak
 conf/htm-it-api.conf
 conf/application.conf

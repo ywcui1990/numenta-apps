@@ -28,15 +28,15 @@ import requests
 
 from boto.exception import BotoServerError
 import web
-import htm-it.app
+import htm.it.app
 
-from htm-it.app import config
+from htm.it.app import config
 from htmengine import utils
-from htm-it.app.aws import instance_utils
-from htm-it.app.aws import ses_utils
-from htm-it import htm-it_logging
+from htm.it.app.aws import instance_utils
+from htm.it.app.aws import ses_utils
+from htm.it import htm_it_logging
 
-log = htm-it_logging.getExtendedLogger("webservices")
+log = htm_it_logging.getExtendedLogger("webservices")
 
 
 urls = (
@@ -81,7 +81,7 @@ class WufooHandler(object):
       payload[fields[datum]] = data[datum]
 
     payload[fields["uniqueServerId"]] = config.get("usertrack",
-                                                   "htm-it_id")
+                                                   "htm_it_id")
 
 
     if config.getboolean("usertrack", "send_to_wufoo"):

@@ -33,9 +33,9 @@ import boto.ec2.cloudwatch
 import boto.exception
 
 
-import htm-it.app
-from htm-it.app.aws import cloudwatch_utils
-import htm-it.app.exceptions
+import htm.it.app
+from htm.it.app.aws import cloudwatch_utils
+import htm.it.app.exceptions
 
 
 

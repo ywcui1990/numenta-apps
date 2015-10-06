@@ -51,7 +51,7 @@ real_ami_bake() {
   echo "This will take a while..."
 
   scratch_f=$(mktemp /tmp/packer-output.XXXXXX)
-  rake bake_htm-it_pipeline | tee "${scratch_f}"
+  rake bake_htm_it_pipeline | tee "${scratch_f}"
   packer_output=$(cat ${scratch_f})
   trimmed=${packer_output##*us-west-2:}
   rm -f "${scratch_f}"

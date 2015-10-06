@@ -58,17 +58,17 @@ if [ "$1" != "--destroy-all-my-work" ]; then
 fi
 
 echo "*******************"
-pushd "${HTM-IT_HOME}"
+pushd "${HTM_IT_HOME}"
   echo "Capturing git SHA..."
   htm-itsha=$(git rev-parse --verify HEAD)
   echo "${htm-itsha}"
   echo "${htm-itsha}" > static/htm-it.sha
 
   echo "Recording HTM-IT Release Version..."
-  bin/update_release_version.py $(python -c 'from htm-it.__version__ import __version__; print __version__')-$(git rev-list HEAD | wc -l)
+  bin/update_release_version.py $(python -c 'from htm.it.__version__ import __version__; print __version__')-$(git rev-list HEAD | wc -l)
 
   echo "HTM-IT version:"
-  python -c "from htm-it.__version__ import __version__; print __version__"
+  python -c "from htm.it.__version__ import __version__; print __version__"
 
   echo "Removing stale .pyc files"
   find . -name '*.pyc' -delete

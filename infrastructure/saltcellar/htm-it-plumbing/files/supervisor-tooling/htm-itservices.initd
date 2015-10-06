@@ -81,7 +81,7 @@ start()
   syslog-rabbit-status
   echo -n "Starting ${prog}: "
   logger -t htm-it-nginx "htm-itservices: start()"
-  cd "${HTM-IT_HOME}"
+  cd "${HTM_IT_HOME}"
   su ec2-user -c "${supervisor_helper} start"
   echo
   kill_preload
@@ -93,7 +93,7 @@ stop()
   syslog-rabbit-status
   echo -n "Shutting down ${prog}: "
   logger -t htm-it-nginx "htm-itservices: stop()"
-  cd "${HTM-IT_HOME}"
+  cd "${HTM_IT_HOME}"
   su ec2-user -c "${supervisor_helper} stop"
   service htm-it-preload htm-it-stopped
   echo
@@ -104,7 +104,7 @@ status()
   syslog-rabbit-status
   echo -n "Status of ${prog}: "
   logger -t htm-it-nginx "htm-itservices: status()"
-  cd "${HTM-IT_HOME}"
+  cd "${HTM_IT_HOME}"
   su ec2-user -c "${supervisor_helper} status"
   echo
 }
@@ -115,7 +115,7 @@ restart()
   run-rootboot-helper
   echo -n "Restarting ${prog}: "
   logger -t htm-it-nginx "htm-itservices: restart()"
-  cd "${HTM-IT_HOME}"
+  cd "${HTM_IT_HOME}"
   su ec2-user -c "${supervisor_helper} restart"
   service nginx restart
   echo
@@ -131,7 +131,7 @@ tickle()
   if [ -f "${FIRSTBOOT_RECEIPT}" ]; then
     echo -n "Tickling $prog: "
     logger -t htm-it-nginx "htm-itservices: tickle()"
-    cd "${HTM-IT_HOME}"
+    cd "${HTM_IT_HOME}"
     su ec2-user -c "${supervisor_helper} tickle"
   else
     echo "skipping tickle; firtboot hasn't run."

@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-Collate profiling information of the data path from htm-it logs and output a csv
+Collate profiling information of the data path from htm.it logs and output a csv
 file to stdout
 
 NOTE: profiling must be enabled in application.conf and model-swapper.conf
@@ -39,7 +39,7 @@ import os
 import pprint
 import sys
 
-from htm-it import logging_support
+from htm.it import logging_support
 
 
 
@@ -887,7 +887,7 @@ class HTM-ITDataPathProfiler(object):
 
 def _parseArgs():
   helpString = (
-    "This script scrubs data-path profiling info from htm-it service logs on "
+    "This script scrubs data-path profiling info from htm.it service logs on "
     "the local host and emits a CSV file to STDOUT.\n"
     "%prog"
   )

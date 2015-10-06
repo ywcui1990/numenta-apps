@@ -27,12 +27,12 @@ from sqlalchemy import create_engine
 
 from nta.utils import sqlalchemy_utils
 
-import htm-it
+import htm.it
 
-from htm-it import htm-it_logging
-from htm-it.app import config
-from htm-it.app.repository.migrate import migrate
-from htm-it.app.repository.queries import (
+from htm.it import htm_it_logging
+from htm.it.app import config
+from htm.it.app.repository.migrate import migrate
+from htm.it.app.repository.queries import (
     addAnnotation,
     addAutostack,
     addDeviceNotificationSettings,
@@ -152,7 +152,7 @@ def engineFactory(reset=False):
 
   Usage::
 
-      from htm-it.app import repository
+      from htm.it.app import repository
       engine = repository.engineFactory()
   """
   if reset:

@@ -28,7 +28,7 @@ import org.openqa.selenium.WebDriver;
 public class HeaderPageObject {
     private WebDriver driver;
 
-    static By HTM-IT_LOGO = By.xpath("//a[@class='navbar-brand']");
+    static By HTM_IT_LOGO = By.xpath("//a[@class='navbar-brand']");
     static By HELP_LOGO = By.xpath("//li[@class='help']");
     static By MANAGE_TAB = By.xpath("//li/a[@href='/htm-it']");
     static By CHARTS = By.xpath("//li/a[@href='/htm-it/embed/charts']");
@@ -39,7 +39,7 @@ public class HeaderPageObject {
     }
 
     public String htm-itLogo() {
-        return driver.findElement(HTM-IT_LOGO).getText();
+        return driver.findElement(HTM_IT_LOGO).getText();
 
     }
 

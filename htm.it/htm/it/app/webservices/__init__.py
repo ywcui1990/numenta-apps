@@ -23,7 +23,7 @@ import web
 from .handlers import AuthenticatedBaseHandler
 from .responses import UnauthorizedResponse
 
-from htm-it.app import repository
+from htm.it.app import repository
 
 
 __all__ = [

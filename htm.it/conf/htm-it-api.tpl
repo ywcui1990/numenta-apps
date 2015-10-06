@@ -57,7 +57,7 @@ http {
       include nginx-uwsgi.conf;
     }
     location ^~ /static {
-      root %(HTM-IT_HOME)s;
+      root %(HTM_IT_HOME)s;
     }
     location / {
       # Redirect everything not already matched to https equivalent
@@ -84,7 +84,7 @@ http {
     rewrite ^/htm-it/mobile /htm-it/complete permanent;
 
     location ^~ /static {
-      root %(HTM-IT_HOME)s;
+      root %(HTM_IT_HOME)s;
     }
 
     location ^~ /supervisor/ {

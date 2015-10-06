@@ -28,9 +28,9 @@ from paste.fixture import TestApp
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-import htm-it.app
-from htm-it.app.webservices import wufoo_api
-from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
+import htm.it.app
+from htm.it.app.webservices import wufoo_api
+from htm.it.test_utils.app.webservices import getDefaultHTTPHeaders
 
 
 
@@ -64,7 +64,7 @@ class WufooTest(unittest.TestCase):
 
   @ConfigAttributePatch(htm-it.app.config.CONFIG_NAME,
                         htm-it.app.config.baseConfigDir,
-                        (("usertrack", "htm-it_id", "f2fec4a62c76418799e3907f1360e9b7"),))
+                        (("usertrack", "htm_it_id", "f2fec4a62c76418799e3907f1360e9b7"),))
   @patch("htm-it.app.webservices.wufoo_api.log")
   @patch("htm-it.app.webservices.wufoo_api.requests")
   @patch("htm-it.app.webservices.wufoo_api.instance_utils")

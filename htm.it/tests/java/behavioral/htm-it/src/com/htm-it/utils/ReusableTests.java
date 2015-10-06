@@ -43,28 +43,28 @@ public class ReusableTests {
             .xpath("//button[@class='export btn btn-default']");
     static By REMOVE_BUTTON = By
             .xpath("//button[@class='delete btn btn-default']");
-    static By INSTANCES_CURRENTLY_MONITORED_BY_HTM-IT_TITLE = By
+    static By INSTANCES_CURRENTLY_MONITORED_BY_HTM_IT_TITLE = By
             .xpath("//div[@id='instance-list']/div/h3");
     static By DONE_BUTTON = By.xpath("//button[@id='done']");
     static int WAIT_TIME = 10;
 
     public static void testFooter(WebDriver driver) throws Exception {
         FooterPageObject footer = new FooterPageObject(driver);
-        String htm-it_footer_about = footer.aboutLink();
-        String htm-it_footer_help = footer.helpLink();
-        String htm-it_footer_numenta = footer.numentaLink();
-        Assert.assertEquals(htm-it_footer_about, "About");
-        Assert.assertEquals(htm-it_footer_help, "Help");
-        Assert.assertEquals(htm-it_footer_numenta, "Numenta");
+        String htm_it_footer_about = footer.aboutLink();
+        String htm_it_footer_help = footer.helpLink();
+        String htm_it_footer_numenta = footer.numentaLink();
+        Assert.assertEquals(htm_it_footer_about, "About");
+        Assert.assertEquals(htm_it_footer_help, "Help");
+        Assert.assertEquals(htm_it_footer_numenta, "Numenta");
     }
 
     public static void testHeaderDuringSetup(WebDriver driver)
             throws InterruptedException {
         HeaderPageObject header = new HeaderPageObject(driver);
-        String htm-it_logo = header.htm-itLogo();
-        String htm-it_help = header.helpLogo();
-        Assert.assertEquals(htm-it_logo, "HTM-IT");
-        Assert.assertEquals(htm-it_help, "Help");
+        String htm_it_logo = header.htm-itLogo();
+        String htm_it_help = header.helpLogo();
+        Assert.assertEquals(htm_it_logo, "HTM-IT");
+        Assert.assertEquals(htm_it_help, "Help");
     }
 
     public static void testHeaderAfterSetup(WebDriver driver)
@@ -127,7 +127,7 @@ public class ReusableTests {
     public static void testInstancesCurrentlyMonitoredByHTM-ITTitleVerification(
             WebDriver driver) {
         String instancesCurrentlyMonitoredByHTM-ITSectionTitle = TestUtilities
-                .waitGetText(INSTANCES_CURRENTLY_MONITORED_BY_HTM-IT_TITLE,
+                .waitGetText(INSTANCES_CURRENTLY_MONITORED_BY_HTM_IT_TITLE,
                         driver, WAIT_TIME);
         Assert.assertEquals(instancesCurrentlyMonitoredByHTM-ITSectionTitle,
                 "Instances Currently Monitored by HTM-IT");

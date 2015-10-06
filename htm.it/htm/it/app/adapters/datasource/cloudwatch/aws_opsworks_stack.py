@@ -24,10 +24,10 @@
 
 from boto.opsworks import layer1
 
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import (
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import (
     AWSResourceAdapterBase)
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
-from htm-it.app.aws.opsworks_utils import retryOnOpsworksTransientError
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
+from htm.it.app.aws.opsworks_utils import retryOnOpsworksTransientError
 
 
 

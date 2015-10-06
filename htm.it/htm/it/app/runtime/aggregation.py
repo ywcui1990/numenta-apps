@@ -25,8 +25,8 @@ import collections
 import math
 import numbers
 
-from htm-it.app import repository
-from htm-it.app.runtime.aggregator_metric_collection import (
+from htm.it.app import repository
+from htm.it.app.runtime.aggregator_metric_collection import (
     EC2InstanceMetricGetter)
 
 

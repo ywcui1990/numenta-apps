@@ -30,8 +30,8 @@ import pytz
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-import htm-it.app
-from htm-it.app.runtime import notification_service
+import htm.it.app
+from htm.it.app.runtime import notification_service
 
 
 

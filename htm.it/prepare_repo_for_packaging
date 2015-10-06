@@ -45,8 +45,8 @@ echo ${htm-itsha} > static/htm-it.sha
 echo ${htm-itsha}
 
 echo "Recording HTM-IT Release Version..."
-bin/update_release_version.py `python -c 'from htm-it.__version__ import __version__; print __version__'`-$(git rev-list HEAD | wc -l)
-python -c 'from htm-it.__version__ import __version__; print __version__'
+bin/update_release_version.py `python -c 'from htm.it.__version__ import __version__; print __version__'`-$(git rev-list HEAD | wc -l)
+python -c 'from htm.it.__version__ import __version__; print __version__'
 
 echo "Removing stale .pyc files"
 find . -name '*.pyc' -delete

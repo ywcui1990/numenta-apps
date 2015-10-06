@@ -27,11 +27,11 @@ import unittest
 from mock import patch
 from paste.fixture import TestApp
 
-import htm-it.app
+import htm.it.app
 from htmengine import utils as app_utils
-import htm-it.app.adapters.datasource as datasource_adapter_factory
-from htm-it.app.webservices import cloudwatch_api
-from htm-it.test_utils.app.webservices import (
+import htm.it.app.adapters.datasource as datasource_adapter_factory
+from htm.it.app.webservices import cloudwatch_api
+from htm.it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   getInvalidHTTPHeaders,
   webservices_assertions as assertions

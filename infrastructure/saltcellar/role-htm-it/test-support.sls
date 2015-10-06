@@ -31,15 +31,15 @@
     - mode: 0755
 
 # Install HTM-IT tests
-{% for htm-it_ami_test in ['__init__',
+{% for htm_it_ami_test in ['__init__',
                          'test_ami_for_keys',
                          'test_htm-itami',
-                         'test_htm-it_packages'] %}
+                         'test_htm_it_packages'] %}
 
-htm-it-ami-test-{{ htm-it_ami_test }}:
+htm-it-ami-test-{{ htm_it_ami_test }}:
   file.managed:
-    - name: /etc/numenta/tests/{{ htm-it_ami_test }}.py
-    - source: salt://role-htm-it/files/tests/{{ htm-it_ami_test }}.py
+    - name: /etc/numenta/tests/{{ htm_it_ami_test }}.py
+    - source: salt://role-htm-it/files/tests/{{ htm_it_ami_test }}.py
     - user: root
     - group: root
     - mode: 0755

@@ -30,30 +30,30 @@ import urlparse
 from validictory import validate, ValidationError
 import web
 
-from htm-it.app import product, repository
+from htm.it.app import product, repository
 from htmengine import utils
-from htm-it.app.adapters.datasource import createDatasourceAdapter
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
-from htm-it.app.repository import schema
+from htm.it.app.adapters.datasource import createDatasourceAdapter
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
+from htm.it.app.repository import schema
 import htmengine.exceptions as app_exceptions
-from htm-it.app.webservices.utils import getMetricDisplayFields
-from htm-it.app.webservices import (AuthenticatedBaseHandler,
+from htm.it.app.webservices.utils import getMetricDisplayFields
+from htm.it.app.webservices import (AuthenticatedBaseHandler,
                                   ManagedConnectionWebapp)
-from htm-it.app.webservices.responses import (InvalidRequestResponse,
+from htm.it.app.webservices.responses import (InvalidRequestResponse,
                                             NotAllowedResponse)
-from htm-it.app.webservices.utils import loadSchema
-from htm-it import htm-it_logging
+from htm.it.app.webservices.utils import loadSchema
+from htm.it import htm_it_logging
 
-from htm-it.app.quota import (Quota,
+from htm.it.app.quota import (Quota,
                             checkQuotaForCustomMetricAndRaise,
                             checkQuotaForInstanceAndRaise)
-from htm-it.app.exceptions import QuotaError
+from htm.it.app.exceptions import QuotaError
 
 
 
 _PROCESSING_TIME_PER_RECORD = 0.05  # seconds per record
 
-log = htm-it_logging.getExtendedLogger("webservices")
+log = htm_it_logging.getExtendedLogger("webservices")
 
 urls = (
       '', 'ModelHandler',

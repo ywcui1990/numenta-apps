@@ -27,7 +27,7 @@ import unittest
 
 from mock import Mock, patch
 
-from htm-it.app.aws import ec2_utils
+from htm.it.app.aws import ec2_utils
 
 
 

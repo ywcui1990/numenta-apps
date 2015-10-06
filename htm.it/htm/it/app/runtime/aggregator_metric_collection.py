@@ -38,17 +38,17 @@ from boto.exception import BotoServerError
 
 from nupic.support.decorators import logExceptions
 
-from htm-it import logging_support
-from htm-it.htm-it_logging import (getExtendedLogger,
+from htm.it import logging_support
+from htm.it.htm_it_logging import (getExtendedLogger,
                                getMetricLogPrefix,
                                getAutostackLogPrefix)
 
-from htm-it.app.adapters.datasource.autostack.autostack_metric_adapter import (
+from htm.it.app.adapters.datasource.autostack.autostack_metric_adapter import (
   AutostackMetricAdapterBase)
-from htm-it.app.aws import cloudwatch_utils
-import htm-it.app.exceptions as app_exceptions
-from htm-it.app.runtime.aggregator_instances import getAutostackInstances
-from htm-it.app.runtime.aggregator_utils import getAWSCredentials, TimeRange
+from htm.it.app.aws import cloudwatch_utils
+import htm.it.app.exceptions as app_exceptions
+from htm.it.app.runtime.aggregator_instances import getAutostackInstances
+from htm.it.app.runtime.aggregator_utils import getAWSCredentials, TimeRange
 
 
 

@@ -23,13 +23,13 @@ import time
 from nta.utils.config import Config
 from nta.utils.extended_logger import ExtendedLogger
 
-from htm-it import CONF_DIR
+from htm.it import CONF_DIR
 
 class HTM-ITExtendedLogger(ExtendedLogger):
   """ Extends the NuPIC ExtendedLogger by calculating the duration of a htm-it
   instance and adding it as a prefix to the log message.
   """
-  cached_htm-it_update_epoch = None
+  cached_htm_it_update_epoch = None
 
   def __init__(self, name):
     super(HTM-ITExtendedLogger, self).__init__(name)
@@ -47,12 +47,12 @@ class HTM-ITExtendedLogger(ExtendedLogger):
     """
     try:
       config = Config("application.conf", CONF_DIR)
-      if cls.cached_htm-it_update_epoch:
-        duration = time.time() - cls.cached_htm-it_update_epoch
+      if cls.cached_htm_it_update_epoch:
+        duration = time.time() - cls.cached_htm_it_update_epoch
       else:
-        cls.cached_htm-it_update_epoch = (
-          config.getfloat("usertrack", "htm-it_update_epoch"))
-        duration = time.time() - cls.cached_htm-it_update_epoch
+        cls.cached_htm_it_update_epoch = (
+          config.getfloat("usertrack", "htm_it_update_epoch"))
+        duration = time.time() - cls.cached_htm_it_update_epoch
       htm-itExtendedMsg = "<DUR=%f, %s>%s" % (duration, cls._logPrefix, msg)
     except (ImportError, ValueError):
       htm-itExtendedMsg = "<DUR=NA, %s>%s" % (cls._logPrefix, msg)

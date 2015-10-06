@@ -27,9 +27,9 @@ import unittest
 
 from mock import Mock, patch
 
-from htm-it.app.exceptions import MetricStatisticsNotReadyError
-from htm-it.app.runtime import aggregation
-from htm-it.app.runtime.aggregator_metric_collection import (InstanceMetricData,
+from htm.it.app.exceptions import MetricStatisticsNotReadyError
+from htm.it.app.runtime import aggregation
+from htm.it.app.runtime.aggregator_metric_collection import (InstanceMetricData,
                                                            MetricRecord)
 
 

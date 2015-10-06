@@ -36,25 +36,25 @@ else
   echo "Cannot find uWSGI"
 fi
 
-HTM-IT_API_SERVER_HOME="$( cd "$( dirname $0 )" && pwd )"
-HTM-IT_API_SERVER_PIDFILE=$HTM-IT_API_SERVER_HOME/htm-it_api_server.pid
-HTM-IT_API_SERVER_LOG=$HTM-IT_API_SERVER_HOME/logs/htm-it_api_server.log
+HTM_IT_API_SERVER_HOME="$( cd "$( dirname $0 )" && pwd )"
+HTM_IT_API_SERVER_PIDFILE=$HTM_IT_API_SERVER_HOME/htm_it_api_server.pid
+HTM_IT_API_SERVER_LOG=$HTM_IT_API_SERVER_HOME/logs/htm_it_api_server.log
 UWSGI_SOCKET=0.0.0.0:19002
 UWSGI_PROCESSES=1
-UWSGI_MODULE=htm-it.webservices.webapp
+UWSGI_MODULE=htm.it.webservices.webapp
 UWSGI_IDLE=300
-mkdir -p $HTM-IT_API_SERVER_HOME/logs
+mkdir -p $HTM_IT_API_SERVER_HOME/logs
 
 echo "Starting uWSGI..."
 
 `$UWSGI \
   -s $UWSGI_SOCKET \
-  -d $HTM-IT_API_SERVER_LOG \
+  -d $HTM_IT_API_SERVER_LOG \
   -M \
-  --pidfile $HTM-IT_API_SERVER_PIDFILE \
+  --pidfile $HTM_IT_API_SERVER_PIDFILE \
   --vacuum \
   --idle $UWSGI_IDLE \
   -p $UWSGI_PROCESSES \
-  --chdir $HTM-IT_API_SERVER_HOME \
+  --chdir $HTM_IT_API_SERVER_HOME \
   --module $UWSGI_MODULE` && echo "uWSGI started: $UWSGI_PROCESSES workers on $UWSGI_SOCKET"
 

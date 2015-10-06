@@ -25,7 +25,7 @@ AMI unit tests for mysql support
 import agamotto
 import unittest
 
-from htm-it.app import repository
+from htm.it.app import repository
 
 
 

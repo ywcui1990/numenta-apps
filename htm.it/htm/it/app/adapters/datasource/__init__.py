@@ -22,8 +22,8 @@
 from htmengine.adapters.datasource.datasource_adapter_iface import (
     DatasourceAdapterIface)
 
-import htm-it.app.adapters.datasource.autostack
-import htm-it.app.adapters.datasource.cloudwatch
+import htm.it.app.adapters.datasource.autostack
+import htm.it.app.adapters.datasource.cloudwatch
 import htmengine.adapters.datasource.custom
 
 

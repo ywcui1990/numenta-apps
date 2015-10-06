@@ -25,21 +25,21 @@ Autostack metrics Adapter
 
 import logging
 
-import htm-it.app
-from htm-it.app import repository
-import htm-it.app.adapters.datasource
+import htm.it.app
+from htm.it.app import repository
+import htm.it.app.adapters.datasource
 from htmengine.adapters.datasource.datasource_adapter_iface import (
   DatasourceAdapterIface)
-from htm-it.app.adapters.datasource.autostack.autostack_metric_adapter import (
+from htm.it.app.adapters.datasource.autostack.autostack_metric_adapter import (
   AutostackMetricAdapterBase)
-import htm-it.app.exceptions
+import htm.it.app.exceptions
 
 import htmengine.utils
 from htmengine.runtime import scalar_metric_utils
 import htmengine.model_swapper.utils as model_swapper_utils
 from htmengine.repository.queries import MetricStatus
-from htm-it.app.quota import Quota
-from htm-it.app.repository import schema
+from htm.it.app.quota import Quota
+from htm.it.app.repository import schema
 
 
 

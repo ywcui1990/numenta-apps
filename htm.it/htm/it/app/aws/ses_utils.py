@@ -24,7 +24,7 @@
 import boto.ses
 from boto.regioninfo import RegionInfo
 
-from htm-it.app import config
+from htm.it.app import config
 
 
 

@@ -24,14 +24,14 @@
 # 'start all' so any processes have died are restarted.
 
 NUMENTA=/opt/numenta
-HTM-IT_APP_CONF="${NUMENTA}/htm-it/conf/htm-it-api.conf"
+HTM_IT_APP_CONF="${NUMENTA}/htm-it/conf/htm-it-api.conf"
 
 if [ "$(/usr/bin/id -u)" -ne 0 ]; then
   echo "You are not root"
   exit 1
 fi
 
-if [ ! -f "${HTM-IT_APP_CONF}" ]; then
+if [ ! -f "${HTM_IT_APP_CONF}" ]; then
   echo "HTM-IT has not been configured yet"
   exit 0
 fi

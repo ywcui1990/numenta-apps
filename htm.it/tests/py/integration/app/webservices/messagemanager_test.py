@@ -25,8 +25,8 @@ Tests MessageManager
 import json
 import os
 import unittest
-import htm-it.app
-from htm-it.app.webservices import messagemanager
+import htm.it.app
+from htm.it.app.webservices import messagemanager
 
 
 
@@ -47,11 +47,11 @@ class MessageManagerTest(unittest.TestCase):
      Test extracting values explicitly by message key
     """
     messageManager = messagemanager.MessageManager(
-        open(os.path.join(htm-it.app.HTM-IT_HOME,
+        open(os.path.join(htm-it.app.HTM_IT_HOME,
           'resources/messages/us/messages.json')).read()
     )
     messageOut = messageManager.getMessagesByKey('site')
-    messages = json.load(open(os.path.join(htm-it.app.HTM-IT_HOME,
+    messages = json.load(open(os.path.join(htm-it.app.HTM_IT_HOME,
       'resources/messages/us/messages.json')))
     self.assertDictEqual(messageOut, messages["site"])
 
@@ -61,7 +61,7 @@ class MessageManagerTest(unittest.TestCase):
      Tests extracting values by template path
     """
     messageManager = messagemanager.MessageManager(
-        open(os.path.join(htm-it.app.HTM-IT_HOME,
+        open(os.path.join(htm-it.app.HTM_IT_HOME,
           'resources/messages/us/messages.json')).read()
     )
     messageOut = messageManager.getMessagesForTemplate('pages/terms.html')

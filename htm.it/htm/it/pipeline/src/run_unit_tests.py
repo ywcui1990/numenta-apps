@@ -60,7 +60,7 @@ def runTestCommand(testCommand, env, outputFile=None):
     Runs given test command with provided environment
 
     :param str testCommand: Test command that is suppose to be run
-    :param dict env: Current environ set for HTM-IT_HOME, etc
+    :param dict env: Current environ set for HTM_IT_HOME, etc
     :param str outputFile: Optional, Path for output file where stdout should be
       redirected. It is passed only if the test are nonXunitTest, as the
       results are not generated as xml we need redirect them to a text file.
@@ -106,7 +106,7 @@ def runUnitTests(env, buildWorkspace):
   """
     Calls `htm-it/run_tests.sh` to run the unit tests
 
-    :param dict env: Current environ set for HTM-IT_HOME, etc
+    :param dict env: Current environ set for HTM_IT_HOME, etc
     :param str buildWorkspace: /path/to/buildWorkspace
 
     :returns: return True if tests are successful

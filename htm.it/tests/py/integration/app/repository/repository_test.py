@@ -32,11 +32,11 @@ import sqlalchemy
 from sqlalchemy import insert
 
 from htmengine import exceptions
-from htm-it.app import repository
-from htm-it.app.repository import queries, schema
+from htm.it.app import repository
+from htm.it.app.repository import queries, schema
 from htmengine.repository.queries import MetricStatus
 from htmengine.utils import jsonDecode, jsonEncode
-from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm.it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 
 
 

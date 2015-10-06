@@ -28,10 +28,10 @@ import unittest
 from mock import patch, Mock
 from paste.fixture import TestApp
 
-import htm-it.app
-from htm-it.app.webservices import anomalies_api
+import htm.it.app
+from htm.it.app.webservices import anomalies_api
 from htmengine.utils import jsonEncode
-from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
+from htm.it.test_utils.app.webservices import getDefaultHTTPHeaders
 
 
 class TestAnomaliesHandler(unittest.TestCase):

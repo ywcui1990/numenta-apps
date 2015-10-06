@@ -39,7 +39,7 @@ from infrastructure.utilities.exceptions import (
   MissingAWSKeysInEnvironment,
   TestsFailed
 )
-from infrastructure.utilities.htm-it_server import (
+from infrastructure.utilities.htm_it_server import (
   getApiKey, waitForHTM-ITServerToBeReady)
 from infrastructure.utilities.jenkins import getBuildNumber, getWorkspace
 from infrastructure.utilities.diagnostics import initPipelineLogger
@@ -59,8 +59,8 @@ s3Bucket = "public.numenta.com"
 g_logger = None
 
 FIRST_BOOT_RUN_TRIES = 18
-HTM-IT_SERVICES_TRIES = 6
-HTM-IT_AWS_CREDENTIALS_SETUP_TRIES = 30
+HTM_IT_SERVICES_TRIES = 6
+HTM_IT_AWS_CREDENTIALS_SETUP_TRIES = 30
 SLEEP_DELAY = 10
 
 
@@ -187,7 +187,7 @@ def main():
                         " && export AWS_SECRET_ACCESS_KEY=%s"
                         % os.environ["AWS_SECRET_ACCESS_KEY"] +
                         " && source /etc/htm-it/supervisord.vars" +
-                        " && cd $HTM-IT_HOME" +
+                        " && cd $HTM_IT_HOME" +
                         " && ./run_tests.sh --integration --language py" +
                         " --results jenkins")
       run(runTestCommand)
@@ -201,7 +201,7 @@ def main():
       g_logger.info("Tests have finished.")
 
       # Rename the results file to be job specific
-      newResultsFile = "htm-it_integration_test_results_%s.xml" % \
+      newResultsFile = "htm_it_integration_test_results_%s.xml" % \
         getBuildNumber(logger=g_logger)
       if os.path.exists(os.path.join(resultsDir, "results.xml")):
         shutil.move(os.path.join(resultsDir, "results.xml"),

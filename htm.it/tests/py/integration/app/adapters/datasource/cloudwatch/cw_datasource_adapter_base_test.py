@@ -27,20 +27,20 @@ import json
 import os
 import yaml
 
-from htm-it import logging_support
-from htm-it.htm-it_logging import getExtendedLogger
+from htm.it import logging_support
+from htm.it.htm_it_logging import getExtendedLogger
 
-import htm-it.app
-import htm-it.app.adapters.datasource as datasource_adapter_factory
-from htm-it.app.adapters.datasource.cloudwatch import aws_base
-import htm-it.app.exceptions as app_exceptions
-from htm-it.app import repository
-from htm-it.app.repository import schema
+import htm.it.app
+import htm.it.app.adapters.datasource as datasource_adapter_factory
+from htm.it.app.adapters.datasource.cloudwatch import aws_base
+import htm.it.app.exceptions as app_exceptions
+from htm.it.app import repository
+from htm.it.app.repository import schema
 from htmengine.repository.queries import MetricStatus
 import htmengine.utils
 
-from htm-it.test_utils.app.test_case_base import TestCaseBase, unittest
-import htm-it.test_utils.aws_utils
+from htm.it.test_utils.app.test_case_base import TestCaseBase, unittest
+import htm.it.test_utils.aws_utils
 
 
 
@@ -75,7 +75,7 @@ class CloudwatchDatasourceAdapterBaseTest(TestCaseBase):
   @classmethod
   def setUpClass(cls):
     with open(os.path.join(
-        htm-it.app.HTM-IT_HOME,
+        htm-it.app.HTM_IT_HOME,
         "tests/py/integration/app/test_resources.yaml")) as fin:
       resources = yaml.load(fin)
     testCase = resources[aws_base.ResourceTypeNames.EC2_INSTANCE][0]

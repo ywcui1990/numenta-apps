@@ -24,13 +24,13 @@ from nta.utils.config import Config
 
 
 
-if "HTM-IT_HOME" in os.environ:
-  # Get HTM-IT_HOME from environment
-  HTM-IT_HOME = os.environ["HTM-IT_HOME"]
+if "HTM_IT_HOME" in os.environ:
+  # Get HTM_IT_HOME from environment
+  HTM_IT_HOME = os.environ["HTM_IT_HOME"]
 
 else:
-  # Calculate default HTM-IT_HOME based on relative path
-  HTM-IT_HOME = os.path.abspath(os.path.dirname(__file__) + '../../..')
+  # Calculate default HTM_IT_HOME based on relative path
+  HTM_IT_HOME = os.path.abspath(os.path.dirname(__file__) + '../../..')
 
 
 
@@ -40,7 +40,7 @@ class HTM-ITAppConfig(Config):
 
   def __init__(self, mode=Config.MODE_LOGICAL):
     super(HTM-ITAppConfig, self).__init__(self.CONFIG_NAME,
-                                        os.path.join(HTM-IT_HOME, "conf"),
+                                        os.path.join(HTM_IT_HOME, "conf"),
                                         mode=mode)
 
 
@@ -51,7 +51,7 @@ class HTM-ITProductConfig(Config):
 
   def __init__(self, mode=Config.MODE_LOGICAL):
     super(HTM-ITProductConfig, self).__init__(self.CONFIG_NAME,
-                                            os.path.join(HTM-IT_HOME, "conf"),
+                                            os.path.join(HTM_IT_HOME, "conf"),
                                             mode=mode)
 
 

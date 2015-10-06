@@ -45,11 +45,11 @@ from infrastructure.utilities.exceptions import (
   InstanceNotReadyError,
   InvalidParametersError)
 from infrastructure.utilities.diagnostics import initPipelineLogger
-from infrastructure.utilities.htm-it_server import waitForHTM-ITServerToBeReady
+from infrastructure.utilities.htm_it_server import waitForHTM-ITServerToBeReady
 from infrastructure.utilities.s3 import getLastStableAmi
 
 
-HTM-IT_AWS_CREDENTIALS_SETUP_TRIES = 30
+HTM_IT_AWS_CREDENTIALS_SETUP_TRIES = 30
 SLEEP_DELAY = 10
 
 

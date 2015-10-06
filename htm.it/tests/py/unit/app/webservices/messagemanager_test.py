@@ -22,15 +22,15 @@
 import json
 import os
 import unittest
-import htm-it.app
-from htm-it.app.webservices import messagemanager
+import htm.it.app
+from htm.it.app.webservices import messagemanager
 
 
 class TestMessageManager(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.messageManager_data  = json.load(open(os.path.join(htm-it.app.HTM-IT_HOME,
+    cls.messageManager_data  = json.load(open(os.path.join(htm-it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/message_manager_data.json")))
 
   def setUp(self):
@@ -38,7 +38,7 @@ class TestMessageManager(unittest.TestCase):
 
   def testgetMessagesByKey(self):
     messageManager = messagemanager.MessageManager(
-        open(os.path.join(htm-it.app.HTM-IT_HOME,
+        open(os.path.join(htm-it.app.HTM_IT_HOME,
         'resources/messages/us/messages.json')).read()
     )
     messageOut = messageManager.getMessagesByKey('site')
@@ -47,7 +47,7 @@ class TestMessageManager(unittest.TestCase):
 
   def testGetMessagesForTemplate(self):
     messageManager = messagemanager.MessageManager(
-        open(os.path.join(htm-it.app.HTM-IT_HOME,
+        open(os.path.join(htm-it.app.HTM_IT_HOME,
          'resources/messages/us/messages.json')).read()
     )
     messageOut = messageManager.getMessagesForTemplate('pages/terms.html')

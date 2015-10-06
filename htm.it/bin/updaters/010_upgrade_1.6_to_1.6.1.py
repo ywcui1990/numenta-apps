@@ -26,8 +26,8 @@ import logging
 import os
 import subprocess
 
-from htm-it import logging_support
-from htm-it.app import HTM-IT_HOME
+from htm.it import logging_support
+from htm.it.app import HTM_IT_HOME
 
 
 
@@ -40,7 +40,7 @@ def regenerateBaselineConfigObjects():
   should typically be the first step of a HTM-IT upgrade.
   """
   g_log.info("******* REGENERATING BASELINE CONFIG OBJECTS *******")
-  os.chdir(HTM-IT_HOME)
+  os.chdir(HTM_IT_HOME)
   subprocess.check_call(["python", "setup.py", "gen_base_configs"])
   g_log.info("******* BASELINE CONFIG OBJECTS REGENERATED *******")
 

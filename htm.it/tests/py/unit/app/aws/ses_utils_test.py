@@ -29,8 +29,8 @@ from mock import Mock, patch
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-from htm-it.app import config
-from htm-it.app.aws import ses_utils
+from htm.it.app import config
+from htm.it.app.aws import ses_utils
 
 
 

@@ -88,9 +88,9 @@ class TestNginxInstallation(unittest.TestCase):
   def testNginxInitScript(self):
     self.assertTrue(agamotto.file.exists("/etc/init.d/nginx"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",
-                    "HTM-IT_HOME=/opt/numenta/htm-it"))
+                    "HTM_IT_HOME=/opt/numenta/htm-it"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",
-                    "HTM-IT_NGINX_CONF=conf/htm-it-api.conf"))
+                    "HTM_IT_NGINX_CONF=conf/htm-it-api.conf"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",
                     "NGINX_MAINT_CONF=conf/nginx-maint.conf"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",

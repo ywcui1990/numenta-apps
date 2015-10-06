@@ -29,11 +29,11 @@ import unittest
 from mock import Mock, patch
 from paste.fixture import TestApp
 
-import htm-it.app
-from htm-it.app.webservices import metrics_api, handlers
-from htm-it.app.adapters.datasource.cloudwatch import _CloudwatchDatasourceAdapter
+import htm.it.app
+from htm.it.app.webservices import metrics_api, handlers
+from htm.it.app.adapters.datasource.cloudwatch import _CloudwatchDatasourceAdapter
 from htmengine import utils as app_utils
-from htm-it.test_utils.app.webservices import (
+from htm.it.test_utils.app.webservices import (
   webservices_assertions as assertions,
   getDefaultHTTPHeaders
 )
@@ -49,7 +49,7 @@ class TesMetetricsHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.metrics = json.load(open(os.path.join(htm-it.app.HTM-IT_HOME,
+    cls.metrics = json.load(open(os.path.join(htm-it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/cw_metric.json")))
 
 

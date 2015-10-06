@@ -28,7 +28,7 @@ a period of '300' seconds.
 
 import unittest
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import (
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import (
   AWSResourceAdapterBase)
 
 class CloudwatchMetricsTest(TestCaseBase):

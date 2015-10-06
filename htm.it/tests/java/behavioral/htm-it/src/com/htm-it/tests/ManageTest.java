@@ -43,18 +43,18 @@ public class ManageTest {
     static By MANAGE_PAGE_WIDTH_INPUT = By.xpath("//input[@id='domain']");
     static By MONITORED_ADDITIONAL_INSTANCES_BUTTON = By
             .xpath("//button[@data-toggle='dropdown']");
-    static By MANAGE_ADD_HTM-IT_TITLE = By
+    static By MANAGE_ADD_HTM_IT_TITLE = By
             .xpath("//div[@class='htm-it-embed-form htm-it-panel well']/h3");
-    static By MANAGE_ADD_HTM-IT_HELP_TEXT_TITLE = By
+    static By MANAGE_ADD_HTM_IT_HELP_TEXT_TITLE = By
             .xpath("//div[@class='htm-it-embed-form htm-it-panel well']/p");
     /*
-     * Each of MANAGE_ADD_HTM-IT_HELP_TEXT_# / is one of the help text bullet
+     * Each of MANAGE_ADD_HTM_IT_HELP_TEXT_# / is one of the help text bullet
      * points present under "Add HTM-IT to Any Web Page" section in the /htm-it
      * page.
      */
-    static By MANAGE_ADD_HTM-IT_HELP_TEXT_1 = By
+    static By MANAGE_ADD_HTM_IT_HELP_TEXT_1 = By
             .xpath("//div[@class='htm-it-embed-form htm-it-panel well']/ul/li[1]");
-    static By MANAGE_ADD_HTM-IT_HELP_TEXT_2 = By
+    static By MANAGE_ADD_HTM_IT_HELP_TEXT_2 = By
             .xpath("//div[@class='htm-it-embed-form htm-it-panel well']/ul/li[2]");
     static By MANAGE_HOST_NAME = By
             .xpath("//form[@id='form']/fieldset/div[1]/label");
@@ -122,26 +122,26 @@ public class ManageTest {
 
     public static void addhtm-itToWebPageTitleVerification(WebDriver driver) {
         String managePageHTM-ITToWebPageTitle = TestUtilities.waitGetText(
-                MANAGE_ADD_HTM-IT_TITLE, driver, WAIT_TIME);
+                MANAGE_ADD_HTM_IT_TITLE, driver, WAIT_TIME);
         Assert.assertEquals(managePageHTM-ITToWebPageTitle,
                 "Add HTM-IT to Any Web Page");
     }
 
     public static void htm-itToWebPageHelpTextVerification(WebDriver driver) {
         String managePageHTM-ITToWebPageTitle = TestUtilities.waitGetText(
-                MANAGE_ADD_HTM-IT_HELP_TEXT_TITLE, driver, WAIT_TIME);
+                MANAGE_ADD_HTM_IT_HELP_TEXT_TITLE, driver, WAIT_TIME);
         /*
          * 1st bullet point Add HTM-IT to Any Web Page section
          * "i.e. Enter the hostname where you will embed the widget, and the width and height."
          */
         String managePageHTM-ITToWebPageHelpText1 = TestUtilities.waitGetText(
-                MANAGE_ADD_HTM-IT_HELP_TEXT_1, driver, WAIT_TIME);
+                MANAGE_ADD_HTM_IT_HELP_TEXT_1, driver, WAIT_TIME);
         /*
          * 2st bullet point Add HTM-IT to Any Web Page section
          * "i.e. Copy the Embed Code, and place it in the HTML source code of your website."
          */
         String managePageHTM-ITToWebPageHelpText2 = TestUtilities.waitGetText(
-                MANAGE_ADD_HTM-IT_HELP_TEXT_2, driver, WAIT_TIME);
+                MANAGE_ADD_HTM_IT_HELP_TEXT_2, driver, WAIT_TIME);
         Assert.assertEquals(managePageHTM-ITToWebPageHelpText1,
                 "Enter the hostname where you will embed the widget, "
                         + "and the width and height.");

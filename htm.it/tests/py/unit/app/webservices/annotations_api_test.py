@@ -26,14 +26,14 @@ import unittest
 import json
 from paste.fixture import TestApp, AppError
 from mock import patch
-from htm-it import logging_support
-import htm-it.app
-from htm-it.app import (
+from htm.it import logging_support
+import htm.it.app
+from htm.it.app import (
     exceptions as app_exceptions,
     repository)
 import htmengine.utils as app_utils
-from htm-it.app.webservices import annotations_api
-from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
+from htm.it.app.webservices import annotations_api
+from htm.it.test_utils.app.webservices import getDefaultHTTPHeaders
 
 
 

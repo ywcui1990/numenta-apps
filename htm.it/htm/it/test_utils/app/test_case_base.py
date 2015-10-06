@@ -35,8 +35,8 @@ import unittest
 
 import requests
 
-from htm-it.app import repository
-from htm-it.app.repository import schema
+from htm.it.app import repository
+from htm.it.app.repository import schema
 from htmengine.repository.queries import MetricStatus
 
 

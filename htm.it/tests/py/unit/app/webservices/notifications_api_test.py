@@ -28,13 +28,13 @@ import uuid
 from paste.fixture import TestApp
 from mock import Mock, patch
 
-import htm-it.app
-from htm-it.app import repository
+import htm.it.app
+from htm.it.app import repository
 from htmengine import utils as app_utils
-from htm-it.app.exceptions import ObjectNotFoundError
-from htm-it.app.webservices import notifications_api
+from htm.it.app.exceptions import ObjectNotFoundError
+from htm.it.app.webservices import notifications_api
 
-from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
+from htm.it.test_utils.app.webservices import getDefaultHTTPHeaders
 
 
 @patch.object(repository, "engineFactory", autospec=True)
@@ -42,7 +42,7 @@ class TestNotificationsHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.model_list = json.load(open(os.path.join(htm-it.app.HTM-IT_HOME,
+    cls.model_list = json.load(open(os.path.join(htm-it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/models_list.json")))
 
 

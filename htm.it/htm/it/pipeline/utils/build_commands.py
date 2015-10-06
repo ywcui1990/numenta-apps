@@ -58,7 +58,7 @@ def buildHTM-IT(env, pipelineConfig, logger):
       os.makedirs(sitePackagesDir)
 
     # Setup the baseline configuration
-    with changeToWorkingDir(env["HTM-IT_HOME"]):
+    with changeToWorkingDir(env["HTM_IT_HOME"]):
       runWithOutput("python setup.py configure_htm-it", env=env, logger=logger)
   except:
     logger.exception("Unknown failure")

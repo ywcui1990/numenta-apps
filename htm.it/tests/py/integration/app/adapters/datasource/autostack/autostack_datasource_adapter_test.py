@@ -25,17 +25,17 @@
 
 import json
 
-from htm-it import logging_support
-from htm-it.htm-it_logging import getExtendedLogger
+from htm.it import logging_support
+from htm.it.htm_it_logging import getExtendedLogger
 
-import htm-it.app
-import htm-it.app.adapters.datasource as datasource_adapter_factory
-import htm-it.app.exceptions
-from htm-it.app import repository
-from htm-it.app.repository import schema
+import htm.it.app
+import htm.it.app.adapters.datasource as datasource_adapter_factory
+import htm.it.app.exceptions
+from htm.it.app import repository
+from htm.it.app.repository import schema
 from htmengine.repository.queries import MetricStatus
 import htmengine.utils
-from htm-it.test_utils.app.test_case_base import TestCaseBase, unittest
+from htm.it.test_utils.app.test_case_base import TestCaseBase, unittest
 
 
 

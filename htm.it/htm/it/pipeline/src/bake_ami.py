@@ -199,7 +199,7 @@ def main(jsonArgs=None):
     runIntegrationTestScriptPath = os.path.join(os.environ["PRODUCTS"], "htm-it",
                                     "htm-it", "pipeline", "src")
     runIntegrationTestCommand = ("python " +
-                                 "%s/run_htm-it_integration_tests.py"
+                                 "%s/run_htm_it_integration_tests.py"
                                  % runIntegrationTestScriptPath +
                                  " --ami " + amiID)
     if parsedArgs["pipelineJson"]:

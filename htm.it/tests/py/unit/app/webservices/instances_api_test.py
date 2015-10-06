@@ -30,12 +30,12 @@ import unittest
 from mock import patch, Mock
 from paste.fixture import TestApp
 
-from htm-it.app import config, HTM-IT_HOME, repository
+from htm.it.app import config, HTM_IT_HOME, repository
 from htmengine import utils as app_utils
-from htm-it.app.adapters import datasource
-from htm-it.app.exceptions import QuotaError
-from htm-it.app.webservices import instances_api, models_api
-from htm-it.test_utils.app.webservices import (
+from htm.it.app.adapters import datasource
+from htm.it.app.exceptions import QuotaError
+from htm.it.app.webservices import instances_api, models_api
+from htm.it.test_utils.app.webservices import (
     getDefaultHTTPHeaders, webservices_assertions as assertions)
 
 
@@ -94,7 +94,7 @@ class InstancesHandlerTest(unittest.TestCase):
     Test for Get "/_instances"
     response is validated for appropriate headers, body and status
     """
-    instancesAPIData = json.load(open(os.path.join(HTM-IT_HOME,
+    instancesAPIData = json.load(open(os.path.join(HTM_IT_HOME,
       "tests/py/data/app/webservices/instances_api.json")))
     getInstancesMock.return_value = instancesAPIData["getInstances"]
 
@@ -141,7 +141,7 @@ class InstancesHandlerTest(unittest.TestCase):
     Test for Get "/_instances/"
     response is validated for appropriate headers, body and status
     """
-    instancesAPIData = json.load(open(os.path.join(HTM-IT_HOME,
+    instancesAPIData = json.load(open(os.path.join(HTM_IT_HOME,
       "tests/py/data/app/webservices/instances_api.json")))
     getInstancesMock.return_value = instancesAPIData["getInstances"]
 

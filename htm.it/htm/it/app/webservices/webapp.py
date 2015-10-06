@@ -30,16 +30,16 @@ from datetime import datetime
 from subprocess import check_output, CalledProcessError
 from urlparse import urlparse
 
-from htm-it import __version__, logging_support
+from htm.it import __version__, logging_support
 
-from htm-it.htm-it_logging import getExtendedLogger
+from htm.it.htm_it_logging import getExtendedLogger
 
-import htm-it.app
+import htm.it.app
 
-from htm-it.app.aws import instance_utils
-from htm-it.app.aws.ec2_utils import checkEC2Authorization
-from htm-it.app.exceptions import AuthFailure, AWSPermissionsError
-from htm-it.app.webservices import (annotations_api,
+from htm.it.app.aws import instance_utils
+from htm.it.app.aws.ec2_utils import checkEC2Authorization
+from htm.it.app.exceptions import AuthFailure, AWSPermissionsError
+from htm.it.app.webservices import (annotations_api,
                                   anomalies_api,
                                   autostacks_api,
                                   instances_api,
@@ -54,7 +54,7 @@ from htm-it.app.webservices import (annotations_api,
                                   update_api,
                                   wufoo_api,
                                   UnauthorizedResponse)
-from htm-it.app.webservices.utils import encodeJson
+from htm.it.app.webservices.utils import encodeJson
 from htmengine.utils import jsonDecode
 
 
@@ -92,13 +92,13 @@ urls = (
 )
 
 messageManager = messagemanager.MessageManager(
-  open(os.path.join(htm-it.app.HTM-IT_HOME,
+  open(os.path.join(htm-it.app.HTM_IT_HOME,
                     "resources/messages/us/messages.json")).read()
 )
 
 # Get the build sha to display in web ui for easy debugging
 try:
-  buildSha = open(os.path.join(htm-it.app.HTM-IT_HOME, "static/htm-it.sha")).read()
+  buildSha = open(os.path.join(htm-it.app.HTM_IT_HOME, "static/htm-it.sha")).read()
 except IOError:
   try:
     buildSha = check_output(["git", "rev-parse", "--verify", "HEAD"])
@@ -147,7 +147,7 @@ class HTM-ITHandler(object):
     refererUri = web.ctx.env.get("HTTP_REFERER", "")
     referer = urlparse(refererUri).hostname or ""
     sha1 = hashlib.sha1()
-    render = web.template.render(os.path.join(htm-it.app.HTM-IT_HOME,
+    render = web.template.render(os.path.join(htm-it.app.HTM_IT_HOME,
                                               "resources/templates"))
 
     instanceData = _getInstanceMetadata()
@@ -199,7 +199,7 @@ class MessagesHandler(object):
     if htm-it.app.DEBUG_LEVEL > 0:
       # When debugging, read the file and create new MessageManager on
       # every request so we can change messages.json on the fly.
-      with open(os.path.join(htm-it.app.HTM-IT_HOME,
+      with open(os.path.join(htm-it.app.HTM_IT_HOME,
                              "resources/messages/us/messages.json")) as f:
         messageManager = messagemanager.MessageManager(f.read())
 

@@ -25,10 +25,10 @@
 import boto.rds
 import boto.exception
 
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import (
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import (
     AWSResourceAdapterBase)
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
-from htm-it.app.aws.rds_utils import getRDSInstances, retryOnRDSTransientError
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
+from htm.it.app.aws.rds_utils import getRDSInstances, retryOnRDSTransientError
 
 
 @AWSResourceAdapterBase.registerResourceAdapter #pylint: disable=W0223

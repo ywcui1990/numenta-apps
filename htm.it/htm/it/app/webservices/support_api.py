@@ -24,13 +24,13 @@ import os.path
 
 import web
 
-import htm-it.app
+import htm.it.app
 
 from htmengine import utils
-from htm-it.app.webservices import AuthenticatedBaseHandler
-from htm-it import htm-it_logging
+from htm.it.app.webservices import AuthenticatedBaseHandler
+from htm.it import htm_it_logging
 
-log = htm-it_logging.getExtendedLogger("webservices")
+log = htm_it_logging.getExtendedLogger("webservices")
 
 urls = (
   '', "SupportHandler"

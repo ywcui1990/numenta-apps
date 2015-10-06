@@ -23,14 +23,14 @@ import os
 import json
 import unittest
 from paste.fixture import TestApp
-import htm-it.app
-from htm-it.app.webservices import models_api
+import htm.it.app
+from htm.it.app.webservices import models_api
 from htmengine import utils
-from htm-it.test_utils.app.webservices import (
+from htm.it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
   webservices_assertions as assertions
 )
-from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm.it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 
 
 
@@ -43,7 +43,7 @@ class TestModelExportHandler(unittest.TestCase):
   def setUp(self):
     self.app = TestApp(models_api.app.wsgifunc())
     self.headers = getDefaultHTTPHeaders(htm-it.app.config)
-    data = open(os.path.join(htm-it.app.HTM-IT_HOME,
+    data = open(os.path.join(htm-it.app.HTM_IT_HOME,
      "tests/py/data/app/webservices/models_api_integration_test.json")).read()
     self.modelsTestData = json.loads(data)
 

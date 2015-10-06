@@ -29,13 +29,13 @@ import unittest
 
 APPLICATION_CONFIG_PATH = os.environ.get("APPLICATION_CONFIG_PATH",
 
-HTM-IT_SCRIPTS = [
+HTM_IT_SCRIPTS = [
   "/usr/local/bin/run-htm-it-tests",
   "/usr/local/sbin/htm-itlog_rotator",
   "/usr/local/sbin/update-motd"
 ]
 
-HTM-IT_CONFIG_FILES = [
+HTM_IT_CONFIG_FILES = [
   "%s/htm-it-api.conf" % APPLICATION_CONFIG_PATH,
   "%s/application.conf" % APPLICATION_CONFIG_PATH,
   "%s/../../nta.utils/conf/logging.conf" % APPLICATION_CONFIG_PATH,
@@ -52,7 +52,7 @@ class TestHTM-ITInstallation(unittest.TestCase):
 
 
   def testHTM-ITConfigurationFilesPresent(self):
-    for confFile in HTM-IT_CONFIG_FILES:
+    for confFile in HTM_IT_CONFIG_FILES:
       self.assertTrue(agamotto.file.exists(confFile), "%s missing" % confFile)
 
 

@@ -40,13 +40,13 @@ import uuid
 import boto
 import web
 
-import htm-it
-import htm-it.app
-from htm-it.app import config, repository
+import htm.it
+import htm.it.app
+from htm.it.app import config, repository
 from htmengine import utils
-from htm-it.app.repository import schema
-from htm-it.app.aws import s3_utils
-from htm-it import htm-it_logging
+from htm.it.app.repository import schema
+from htm.it.app.aws import s3_utils
+from htm.it import htm_it_logging
 
 from nta.utils.file_lock import ExclusiveFileLock
 
@@ -55,7 +55,7 @@ from nta.utils.file_lock import ExclusiveFileLock
 # Path format for writing Android logs.
 _LOG_FORMAT_ANDROID = os.path.join(os.path.dirname(htm-it.__file__), "..",
                                    "logs", "android.log")
-_LOGGER = htm-it_logging.getExtendedLogger(__name__)
+_LOGGER = htm_it_logging.getExtendedLogger(__name__)
 
 _AWS_ACCESS_KEY = config.get("aws", "aws_access_key_id")
 _AWS_SECRET_KEY = config.get("aws", "aws_secret_access_key")

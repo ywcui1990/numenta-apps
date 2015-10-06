@@ -32,16 +32,16 @@ from sqlalchemy import sql
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-import htm-it.app
-from htm-it.app.webservices import models_api
-from htm-it.app import utils
-from htm-it.app import repository
-from htm-it.app.repository import schema
-from htm-it.test_utils.app.webservices import getDefaultHTTPHeaders
-from htm-it.test_utils.app.webservices import (
+import htm.it.app
+from htm.it.app.webservices import models_api
+from htm.it.app import utils
+from htm.it.app import repository
+from htm.it.app.repository import schema
+from htm.it.test_utils.app.webservices import getDefaultHTTPHeaders
+from htm.it.test_utils.app.webservices import (
   webservices_assertions as assertions
 )
-from htm-it.test_utils import aws_utils as aws
+from htm.it.test_utils import aws_utils as aws
 
 
 # NOTE: The aws credentials in application.conf initially have empty

@@ -26,21 +26,21 @@ import boto.exception
 
 from htmengine import utils
 import htmengine.model_swapper.utils as model_swapper_utils
-from htm-it.app.adapters.datasource import (createAutostackDatasourceAdapter,
+from htm.it.app.adapters.datasource import (createAutostackDatasourceAdapter,
                                           createCloudwatchDatasourceAdapter)
-from htm-it.app.exceptions import DuplicateRecordError, ObjectNotFoundError
-from htm-it.app.webservices import (AuthenticatedBaseHandler,
+from htm.it.app.exceptions import DuplicateRecordError, ObjectNotFoundError
+from htm.it.app.webservices import (AuthenticatedBaseHandler,
                                   ManagedConnectionWebapp)
-from htm-it.app.webservices.responses import (InvalidRequestResponse,
+from htm.it.app.webservices.responses import (InvalidRequestResponse,
                                             quotaErrorResponseWrapper)
-from htm-it.app.webservices.utils import (getMetricDisplayFields,
+from htm.it.app.webservices.utils import (getMetricDisplayFields,
                                         convertMetricRowToMetricDict)
-from htm-it.app.exceptions import QuotaError
-from htm-it import htm-it_logging
-from htm-it.app import repository
-from htm-it.app.quota import checkQuotaForInstanceAndRaise
+from htm.it.app.exceptions import QuotaError
+from htm.it import htm_it_logging
+from htm.it.app import repository
+from htm.it.app.quota import checkQuotaForInstanceAndRaise
 
-log = htm-it_logging.getExtendedLogger("webservices")
+log = htm_it_logging.getExtendedLogger("webservices")
 
 urls = (
   r"/preview_instances/?", "AutostackInstancesHandler",

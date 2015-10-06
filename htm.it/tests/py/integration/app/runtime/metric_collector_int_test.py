@@ -37,7 +37,7 @@ import tempfile
 import threading
 import time
 import unittest
-from htm-it.app.quota import Quota
+from htm.it.app.quota import Quota
 
 
 from nupic.support.decorators import retry
@@ -47,18 +47,18 @@ from nta.utils.test_utils import ManagedSubprocessTerminator
 from nta.utils.test_utils.amqp_test_utils import RabbitmqVirtualHostPatch
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm.it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 
-import htm-it.app
-from htm-it.app import repository
-from htm-it.app.adapters.datasource import createCloudwatchDatasourceAdapter
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
-from htm-it.app.repository.queries import MetricStatus
+import htm.it.app
+from htm.it.app import repository
+from htm.it.app.adapters.datasource import createCloudwatchDatasourceAdapter
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
+from htm.it.app.repository.queries import MetricStatus
 
 from htmengine.model_swapper.model_swapper_interface import (
   ModelSwapperInterface)
 
-from htm-it import logging_support
+from htm.it import logging_support
 
 
 

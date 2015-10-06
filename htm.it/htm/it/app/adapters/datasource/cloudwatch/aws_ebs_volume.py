@@ -24,9 +24,9 @@
 
 from boto import ec2
 
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import (
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import (
   AWSResourceAdapterBase)
-from htm-it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
+from htm.it.app.adapters.datasource.cloudwatch.aws_base import ResourceTypeNames
 
 
 

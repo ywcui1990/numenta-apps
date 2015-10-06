@@ -33,17 +33,17 @@ aws_secret_access_key =
 default_region = %(DEFAULT_EC2_REGION)s
 
 [usertrack]
-htm-it_id = %(HTM-IT_ID)s
+htm_it_id = %(HTM_IT_ID)s
 optin =
 name =
 company =
 email =
 
 # epoch of last installed update
-htm-it_update_epoch = %(HTM-IT_UPDATE_EPOCH)s
+htm_it_update_epoch = %(HTM_IT_UPDATE_EPOCH)s
 
 # Send to WUFOO: yes or no
-send_to_wufoo = %(HTM-IT_SEND_TO_WUFOO)s
+send_to_wufoo = %(HTM_IT_SEND_TO_WUFOO)s
 
 # Wufoo credentials
 wufoo_url = %(WUFOO_URL)s

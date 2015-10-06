@@ -34,8 +34,8 @@ from boto.exception import (AWSConnectionError, BotoServerError)
 
 from mock import patch
 
-from htm-it import logging_support
-from htm-it.app.aws.cloudwatch_utils import retryOnCloudWatchTransientError
+from htm.it import logging_support
+from htm.it.app.aws.cloudwatch_utils import retryOnCloudWatchTransientError
 
 
 

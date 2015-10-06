@@ -25,9 +25,9 @@ import urlparse
 import web
 
 from htmengine import utils
-import htm-it.app.adapters.datasource as datasource_adapter_factory
-from htm-it.app.adapters.datasource.cloudwatch import NAMESPACE_TO_RESOURCE_TYPE
-from htm-it.app.webservices import AuthenticatedBaseHandler
+import htm.it.app.adapters.datasource as datasource_adapter_factory
+from htm.it.app.adapters.datasource.cloudwatch import NAMESPACE_TO_RESOURCE_TYPE
+from htm.it.app.webservices import AuthenticatedBaseHandler
 
 
 

@@ -35,19 +35,19 @@ import math
 import unittest
 import uuid
 
-import htm-it.app
+import htm.it.app
 import htmengine.utils
 
-from htm-it.app import repository
-from htm-it.app.repository import schema
+from htm.it.app import repository
+from htm.it.app.repository import schema
 from htmengine.repository.queries import MetricStatus
 
-from htm-it.app.runtime.aggregator_metric_collection import \
+from htm.it.app.runtime.aggregator_metric_collection import \
     EC2InstanceMetricGetter, AutostackMetricRequest
 
-from htm-it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
+from htm.it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 
-from htm-it import logging_support
+from htm.it import logging_support
 
 
 
