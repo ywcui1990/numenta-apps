@@ -32,4 +32,4 @@
   --rpm-name numenta-infrastructure-python \
   --architecture noarch \
   --postinstall-script infrastructure-python-postinstall \
-  --tempdir /tmp/grok-saltcellar-rpm $@
+  --tempdir /tmp/htm-it-saltcellar-rpm $@

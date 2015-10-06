@@ -64,7 +64,7 @@ class FailedToMoveRPM(PipelineError):
 
 
 
-class GrokConfigError(PipelineError):
+class HTM-ITConfigError(PipelineError):
   pass
 
 
