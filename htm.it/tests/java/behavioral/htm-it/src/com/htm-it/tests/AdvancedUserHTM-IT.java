@@ -37,7 +37,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-public class AdvancedUserHTM-IT {
+public class AdvancedUserHTMIT {
     private WebDriver driver;
     Properties props = new Properties();
     static By FIRST_TIME_USER = By.xpath(".//*[@id='novice']");
@@ -136,16 +136,16 @@ public class AdvancedUserHTM-IT {
 
     @Test(priority = 4)
     public void installMobileAppPageValidation() throws Exception {
-        InstallHTM-ITMobileAppTest.installHTM-ITMobileAppTitleVerification(driver);
-        InstallHTM-ITMobileAppTest.installHTM-ITMobileAppRequirementSection(driver);
-        InstallHTM-ITMobileAppTest.installHTM-ITMobileAppStepsVerification(driver);
-        InstallHTM-ITMobileAppTest
-                .installHTM-ITMobileAppCompareRequirementSectionAndSetupServerURL(driver);
-        InstallHTM-ITMobileAppTest.installHTM-ITAppFooter(driver);
-        InstallHTM-ITMobileAppTest.installHTM-ITAppHeader(driver);
-        InstallHTM-ITMobileAppTest.installHTM-ITMobileAppSetUpProgressBarVerification(driver);
-        InstallHTM-ITMobileAppTest
-                .installHTM-ITMobileAppManageMonitoredInstancesButton(driver);
+        InstallHTMITMobileAppTest.installHTMITMobileAppTitleVerification(driver);
+        InstallHTMITMobileAppTest.installHTMITMobileAppRequirementSection(driver);
+        InstallHTMITMobileAppTest.installHTMITMobileAppStepsVerification(driver);
+        InstallHTMITMobileAppTest
+                .installHTMITMobileAppCompareRequirementSectionAndSetupServerURL(driver);
+        InstallHTMITMobileAppTest.installHTMITAppFooter(driver);
+        InstallHTMITMobileAppTest.installHTMITAppHeader(driver);
+        InstallHTMITMobileAppTest.installHTMITMobileAppSetUpProgressBarVerification(driver);
+        InstallHTMITMobileAppTest
+                .installHTMITMobileAppManageMonitoredInstancesButton(driver);
     }
 
     @Test(priority = 5)
@@ -156,7 +156,7 @@ public class AdvancedUserHTM-IT {
         ManageTest.allowTechSupportAccess(driver);
         ManageTest.revokeTechSupportAccess(driver);
         ManageTest
-                .manageInstancesCurrentlyMonitoredByHTM-ITSectionVerification(driver);
+                .manageInstancesCurrentlyMonitoredByHTMITSectionVerification(driver);
         ManageTest.monitorAdditionalInstancesDropDownVerification(driver);
         ManageTest.addhtm-itToWebPageTitleVerification(driver);
         ManageTest.htm-itToWebPageHelpTextVerification(driver);

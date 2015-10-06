@@ -24,7 +24,7 @@
     /**
      * Backbone.View() - Embed: Charts > Rows > Row (Metric)
      */
-    HTM-ITUI.EmbedChartsRowMetricView = HTM-ITUI.EmbedChartsRowView.extend({
+    HTMITUI.EmbedChartsRowMetricView = HTMITUI.EmbedChartsRowView.extend({
 
         // Backbone.View properties
 
@@ -45,7 +45,7 @@
          * Backbone.View.initialize() METRIC row
          */
         initialize: function(options) {
-            HTM-ITUI.EmbedChartsRowView.prototype.initialize.call(this, options);
+            HTMITUI.EmbedChartsRowView.prototype.initialize.call(this, options);
 
             this.modelId = options.modelId;
 
@@ -93,7 +93,7 @@
             );
             this.chart.render();
 
-            HTM-ITUI.EmbedChartsRowView.prototype.render.call(this, options);
+            HTMITUI.EmbedChartsRowView.prototype.render.call(this, options);
             return this;
         },
 

@@ -207,7 +207,7 @@ def moveRpmsToRpmbuild(rpmName, config, logger):
 
 
 def buildRpms(env, htm-itSha, releaseVersion,
-              artifactsDir, logger, config, htm-itRemote):
+              artifactsDir, logger, config, htmitRemote):
   """
   Builds an rpm for htm-it
 
@@ -275,7 +275,7 @@ def buildRpms(env, htm-itSha, releaseVersion,
                        " --extend-pythonpath htm-it/lib/python2.7/site-packages" +
                        " --sha " + htm-itSha +
                        " --artifact opt" +
-                       " --git-url " + htm-itRemote)
+                       " --git-url " + htmitRemote)
             # Due to some environment issue's I have used local here,
             # we can change this later.
             # fixme https://jira.numenta.com/browse/TAUR-797
@@ -338,7 +338,7 @@ def addAndParseArgs(jsonArgs):
                       help="Common dir prefix for htm-it")
   parser.add_argument("--htm-itSha", dest="htm-itSha", type=str,
                       help="The htm-itSha for which are creating rpm")
-  parser.add_argument("--htm-it-remote", dest="htm-itRemote", type=str,
+  parser.add_argument("--htm-it-remote", dest="htmitRemote", type=str,
                       help="The htm-it remote you want to use, "
                            "e.g. git@github.com:Numenta/numenta-apps.git")
   parser.add_argument("--unit-test-status", dest="testStatus", type=str,
@@ -382,8 +382,8 @@ def addAndParseArgs(jsonArgs):
                     pipelineParams.get("test", {}).get("testStatus"))
   releaseVersion = pipelineParams.get("releaseVersion",
                     pipelineParams.get("manifest", {}).get("releaseVersion"))
-  htm-itRemote = pipelineParams.get("htm-itRemote",
-                    pipelineParams.get("manifest", {}).get("htm-itRemote"))
+  htmitRemote = pipelineParams.get("htmitRemote",
+                    pipelineParams.get("manifest", {}).get("htmitRemote"))
 
   if platform.system() not in "Linux":
     g_logger.error("RPM's will be built only on Linux (CentOS). Bailing out.")
@@ -393,9 +393,9 @@ def addAndParseArgs(jsonArgs):
     g_logger.error("Unit Test failed. RPM's will not be created.")
     raise exceptions.UnittestFailed("Unit Test failed")
 
-  if buildWorkspace and htm-itSha and htm-itRemote:
+  if buildWorkspace and htm-itSha and htmitRemote:
     return (buildWorkspace, htm-itSha, releaseVersion,
-            pipelineParams, args["pipelineJson"], htm-itRemote)
+            pipelineParams, args["pipelineJson"], htmitRemote)
   else:
     parser.error("Please provide all parameters, "
                  "Use --help for further details")
@@ -417,7 +417,7 @@ def main(jsonArgs=None):
   """
   jsonArgs = jsonArgs or {}
   (buildWorkspace, htm-itSha, releaseVersion,
-   pipelineParams, pipelineJson, htm-itRemote) = addAndParseArgs(jsonArgs)
+   pipelineParams, pipelineJson, htmitRemote) = addAndParseArgs(jsonArgs)
   try:
     # TODO: TAUR-841: Use an IAM role on the the jenkins instances instead of
     # embedding the AWS keypair in the repo. Boto will take care of either
@@ -431,7 +431,7 @@ def main(jsonArgs=None):
     artifactsDir = jenkins.createOrReplaceArtifactsDir(logger=g_logger)
     syncRpm, rpmNameDetails = buildRpms(env, htm-itSha,
                                         releaseVersion, artifactsDir,
-                                        g_logger, g_config, htm-itRemote)
+                                        g_logger, g_config, htmitRemote)
     packageRpm = {"syncRpm": syncRpm,
                   "htm-itRpmName": rpmNameDetails["htm-it"],
                   "repoName": "x86_64"}

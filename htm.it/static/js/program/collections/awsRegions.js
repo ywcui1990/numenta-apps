@@ -29,11 +29,11 @@
    * @requires Backbone.js, HTM-IT AwsRegionModel class
    * @returns {Object} Backbone.js Collection object
    */
-  HTM-ITUI.AwsRegionsCollection = Backbone.Collection.extend({
+  HTMITUI.AwsRegionsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: HTM-ITUI.AwsRegionModel,
+    model: HTMITUI.AwsRegionModel,
 
     // Custom properties
 

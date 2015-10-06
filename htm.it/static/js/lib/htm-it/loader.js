@@ -25,8 +25,8 @@
 
 (function() {
 
-    if (! window.HTM-ITUI) {
-        window.HTM-ITUI = {};
+    if (! window.HTMITUI) {
+        window.HTMITUI = {};
     }
 
     /*************************************************************************
@@ -78,7 +78,7 @@
     }
 
     /**
-     * Helper function for HTM-ITUI.msgs. Used to inject an object full of data
+     * Helper function for HTMITUI.msgs. Used to inject an object full of data
      * into any strings contained in an object.
      * @param value {Object} the msgs object
      * @param sub {Object} The substitutions
@@ -112,30 +112,30 @@
 
     /**
      * We're going to do something interesting here, that JavaScript lets us.
-     * We're defining a function call HTM-ITUI.msgs, which will also act as a
+     * We're defining a function call HTMITUI.msgs, which will also act as a
      * key-value store for messages. Users will use it like this:
-     *  HTM-ITUI.msgs('msg-key') // to return a raw msgs object for a template
+     *  HTMITUI.msgs('msg-key') // to return a raw msgs object for a template
      * Or:
-     *  HTM-ITUI.msgs('msg-key', {user: {firstName: 'Steve'}}
+     *  HTMITUI.msgs('msg-key', {user: {firstName: 'Steve'}}
      *
      * This way, users can inject values into their messages easily, without
      * calling another function. If there are any string values that contain
-     * the token { {user.firstName} }, HTM-ITUI.msgs will replace that value with
+     * the token { {user.firstName} }, HTMITUI.msgs will replace that value with
      * the subs object given.
      *
      * It can also be used directly as a key-value store:
-     *  HTM-ITUI.msgs['msg-key']
+     *  HTMITUI.msgs['msg-key']
      * But of course, no substitutions can be made this way.
      *
      * @param key
      * @param subs
      * @return {*}
      */
-    HTM-ITUI.msgs = function(key, subs) {
+    HTMITUI.msgs = function(key, subs) {
         if (! subs) {
-            return HTM-ITUI.msgs[key];
+            return HTMITUI.msgs[key];
         }
-        return constructMessage(HTM-ITUI.msgs[key], subs);
+        return constructMessage(HTMITUI.msgs[key], subs);
     };
 
     /**
@@ -243,7 +243,7 @@
             return callback();
         }
 
-        if (! HTM-ITUI.preventMessages) {
+        if (! HTMITUI.preventMessages) {
             // Before loading the templates, load the messages for the templates
             // we require through one batched call. But the tmpls object might have
             // messages that we've already loaded, so we'll do a quick loop over
@@ -288,7 +288,7 @@
                     // map as well as a lookup/substitution function.
                     Object.keys(msgs).forEach(function(msgKey) {
                         // mix messages over local copy, overriding local values
-                        HTM-ITUI.msgs[msgKey] = msgs[msgKey];
+                        HTMITUI.msgs[msgKey] = msgs[msgKey];
                         me.loaded.msgs.push(msgKey);
                     });
                     doneLoadingMessages();
@@ -448,6 +448,6 @@
         });
     };
 
-    HTM-ITUI.Loader = Loader;
+    HTMITUI.Loader = Loader;
 
 })();

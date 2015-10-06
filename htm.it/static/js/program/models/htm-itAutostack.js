@@ -22,14 +22,14 @@
 (function() {
 
   /**
-   * Backbone.Model for a single HTM-IT Autostack
+   * Backbone.Model for a single HTMIT Autostack
    * @constructor
    * @copyright © 2014 Numenta
    * @public
    * @requires Backbone, Backbone.Model
    * @returns {Object} Backbone.Model object
    */
-  HTM-ITUI.HTM-ITAutostackModel = Backbone.Model.extend({
+  HTMITUI.HTMITAutostackModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

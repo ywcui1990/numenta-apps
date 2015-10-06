@@ -29,7 +29,7 @@ function die {
     exit 1
 }
 
-if [[ ! $START_DIR =~ htm-it ]]; then
+if [[ ! $START_DIR =~ htm.it ]]; then
     die "Please cd to HTM-IT repo dir, and run: bin/dev/web/stop.sh"
 fi
 if [[ ! $SCRIPT_DIR =~ bin\/dev\/web ]]; then

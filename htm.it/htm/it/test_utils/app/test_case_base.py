@@ -165,7 +165,7 @@ class TestCaseBase(unittest.TestCase):
     """Check that the new metrics show up in custom metrics list.
 
     TODO: since this is specific to HTM-IT Custom metrics, rename to
-      checkHTM-ITCustomMetricCreated
+      checkHTMITCustomMetricCreated
 
     :param metricName: metric name to check
     :param numRecords: optional number of records to wait for
@@ -228,7 +228,7 @@ class TestCaseBase(unittest.TestCase):
   def checkMetricDeleted(self, metricName):
     """Make sure the metric no longer shows up in the custom metric list
     TODO: since this is specific to HTM-IT Custom metrics, rename to
-      checkHTM-ITCustomMetricDeleted
+      checkHTMITCustomMetricDeleted
     """
     response = requests.get("https://localhost/_metrics/custom",
                             auth=(self.__apiKey, ""), verify=False)

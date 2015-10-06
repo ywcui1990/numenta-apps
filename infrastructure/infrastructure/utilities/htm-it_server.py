@@ -22,10 +22,10 @@
 from time import sleep
 
 from fabric.api import run, settings
-from grokcli.api import HTM-ITSession
+from grokcli.api import GrokSession
 
 from infrastructure.utilities.exceptions import (
-  HTM-ITConfigError,
+  HTMITConfigError,
   InstanceLaunchError,
   InstanceNotReadyError)
 
@@ -35,7 +35,7 @@ SLEEP_DELAY = 10
 
 
 
-def checkHTM-ITServicesStatus(logger):
+def checkHTMITServicesStatus(logger):
   """
     Checks to see if all HTM-IT Services are running. Returns True if all Services
     are running and False if any are not running.  This should be wrapped in
@@ -50,7 +50,7 @@ def checkHTM-ITServicesStatus(logger):
     :rtype: boolean
   """
   cmd = ("source /etc/htm-it/supervisord.vars && "
-         "supervisorctl -c /opt/numenta/htm-it/conf/supervisord.conf status")
+         "supervisorctl -c /opt/numenta/htm.it/conf/supervisord.conf status")
   htm-itServicesState = run(cmd)
 
   for service in htm-itServicesState.split("\r\n"):
@@ -94,7 +94,7 @@ def checkNginxStatus(logger):
   return "htm-it-api.conf" in output.stdout
 
 
-def waitForHTM-ITServerToBeReady(publicDnsName, serverKey, user, logger):
+def waitForHtmItServerToBeReady(publicDnsName, serverKey, user, logger):
   """
     Wait for a pre-determined amount of time for the HTM-IT server to be ready.
 
@@ -121,7 +121,7 @@ def waitForHTM-ITServerToBeReady(publicDnsName, serverKey, user, logger):
       logger.info("Checking to see if nginx and HTM-IT Services are running")
       try:
         nginx = checkNginxStatus(logger)
-        htm-itServices = checkHTM-ITServicesStatus(logger)
+        htm-itServices = checkHTMITServicesStatus(logger)
       except EOFError:
         # If SSH hasn't started completely on the remote system, we may get an
         # EOFError trying to provide a password for the user. Instead, just log
@@ -137,7 +137,7 @@ def waitForHTM-ITServerToBeReady(publicDnsName, serverKey, user, logger):
                                                 SLEEP_DELAY))
 
 
-def setupHTM-ITAWSCredentials(publicDnsName, config):
+def setupHTMITAWSCredentials(publicDnsName, config):
   """
     Using the HTM-IT CLI, connect to HTM-IT to obtain the API Key for the instance.
 
@@ -147,7 +147,7 @@ def setupHTM-ITAWSCredentials(publicDnsName, config):
     :param config: A dict containing values for `AWS_ACCESS_KEY_ID`
       and `AWS_SECRET_ACCESS_KEY`
 
-    :raises: infrastructure.utilities.exceptions.HTM-ITConfigError if
+    :raises: infrastructure.utilities.exceptions.HTMITConfigError if
       it is unable to obtain the API Key
 
     :returns: The API Key of the HTM-IT server
@@ -157,13 +157,13 @@ def setupHTM-ITAWSCredentials(publicDnsName, config):
     "aws_secret_access_key": config["AWS_SECRET_ACCESS_KEY"]
   }
   server = "https://%s" % publicDnsName
-  htm-it = HTM-ITSession(server=server)
+  htm-it = GrokSession(server=server)
   htm-it.apikey = htm-it.verifyCredentials(**credentials)
   if htm-it.apikey:
     htm-it.updateSettings(settings=credentials, section="aws")
     return htm-it.apikey
   else:
-    raise HTM-ITConfigError("Unable to obtain HTM-IT API Key")
+    raise HTMITConfigError("Unable to obtain HTM-IT API Key")
 
 
 def getApiKey(instanceId, publicDnsName, config, logger):
@@ -177,7 +177,7 @@ def getApiKey(instanceId, publicDnsName, config, logger):
 
     :param logger: An initialized logger.
 
-    :raises infrastructure.utilities.exceptions.HTM-ITConfigError: If
+    :raises infrastructure.utilities.exceptions.HTMITConfigError: If
       the API Key doesn't get set properly on a new instance.
 
     :returns: A string value representing the API Key of the new instance.
@@ -185,9 +185,9 @@ def getApiKey(instanceId, publicDnsName, config, logger):
   for _ in xrange(HTM_IT_AWS_CREDENTIALS_SETUP_TRIES):
     logger.debug("Trying to setup HTM-IT AWS Credentials.")
     try:
-      htm-itApiKey = setupHTM-ITAWSCredentials(publicDnsName, config)
-    except (HTM-ITConfigError, AttributeError):
-      # We want to retry this, so just keep going on a HTM-ITConfigError or
+      htm-itApiKey = setupHTMITAWSCredentials(publicDnsName, config)
+    except (HTMITConfigError, AttributeError):
+      # We want to retry this, so just keep going on a HTMITConfigError or
       # AttributeError (which probably indicates that the response was empty)
       pass
     if htm-itApiKey:
@@ -195,6 +195,6 @@ def getApiKey(instanceId, publicDnsName, config, logger):
       break
     sleep(SLEEP_DELAY)
   else:
-    raise HTM-ITConfigError("Failed to get API Key for instance %s" %
+    raise HTMITConfigError("Failed to get API Key for instance %s" %
                           instanceId)
   return htm-itApiKey

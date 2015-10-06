@@ -29,7 +29,7 @@
    * @requires Backbone, Backbone.Model
    * @returns {Object} Backbone.Model object
    */
-  HTM-ITUI.ModelExportModel = Backbone.Model.extend({
+  HTMITUI.ModelExportModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

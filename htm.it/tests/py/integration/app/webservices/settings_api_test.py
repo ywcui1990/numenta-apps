@@ -31,7 +31,7 @@ from htm.it.test_utils.app.webservices import (
   webservices_assertions as assertions
 )
 from htmengine import utils as app_utils
-from htm.it.app import HTM-ITAppConfig
+from htm.it.app import HTMItAppConfig
 from htm.it.app.webservices import settings_api
 
 
@@ -121,7 +121,7 @@ class SettingsHandlerTest(unittest.TestCase):
     """
     # IMPORTANT: functions are executed in reverse order from when they are
     # added so we need to add config.save first.
-    configBackup = HTM-ITAppConfig(mode=HTM-ITAppConfig.MODE_OVERRIDE_ONLY)
+    configBackup = HTMItAppConfig(mode=HTMItAppConfig.MODE_OVERRIDE_ONLY)
     self.addCleanup(configBackup.save)
     del configBackup
 
@@ -131,7 +131,7 @@ class SettingsHandlerTest(unittest.TestCase):
     except AssertionError, ae:
       print ae.message
     finally:
-      config = HTM-ITAppConfig()
+      config = HTMItAppConfig()
       self.assertEqual(config.get("aws", "aws_access_key_id"),
                        "dummy_aws_key1")
 
@@ -159,7 +159,7 @@ class SettingsHandlerTest(unittest.TestCase):
     # Set up cleanup calls for resetting the config values
     # IMPORTANT: functions are executed in reverse order from when they are
     # added so we need to add config.save first.
-    configBackup = HTM-ITAppConfig(mode=HTM-ITAppConfig.MODE_OVERRIDE_ONLY)
+    configBackup = HTMItAppConfig(mode=HTMItAppConfig.MODE_OVERRIDE_ONLY)
     self.addCleanup(configBackup.save)
     del configBackup
 
@@ -173,7 +173,7 @@ class SettingsHandlerTest(unittest.TestCase):
     except AssertionError, ae:
       print ae.message
     finally:
-      config = HTM-ITAppConfig()
+      config = HTMItAppConfig()
       self.assertEqual(config.get("aws", "aws_access_key_id"),
                        "dummy_aws_key3")
       self.assertEqual(config.get("aws", "aws_secret_access_key"),

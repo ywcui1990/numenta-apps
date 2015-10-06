@@ -21,8 +21,8 @@
 
 window.NTA = {};
 
-// for FaceOfHTM-IT FOG Dygrpahs module
-window.HTM-IT = {
+// for FaceOfHTMIT FOG Dygrpahs module
+window.HTMIT = {
     util: {
         /**
          * Straight from the Definitive Guide to JavaScript (5th Ed.), by

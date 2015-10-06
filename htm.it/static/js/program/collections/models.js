@@ -30,11 +30,11 @@
    * @requires Backbone.js, HTM-IT ModelModel class
    * @returns {Object} Backbone.js Collection object
    */
-  HTM-ITUI.ModelsCollection = Backbone.Collection.extend({
+  HTMITUI.ModelsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: HTM-ITUI.ModelModel,
+    model: HTMITUI.ModelModel,
 
     // Custom properties
 
@@ -100,11 +100,11 @@
    * @requires Backbone.js, HTM-IT ModelModel class
    * @returns {Object} Backbone.js Collection object
    */
-  HTM-ITUI.SortedModelsCollection = Backbone.Collection.extend({
+  HTMITUI.SortedModelsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: HTM-ITUI.ModelModel,
+    model: HTMITUI.ModelModel,
 
     // Custom properties
 

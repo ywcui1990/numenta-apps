@@ -54,7 +54,7 @@ class AndroidHandlerTest(unittest.TestCase):
       '"deviceID":"DEVICE_ID=6cdb56113bc772e9","eventType":"INFO",'
       '"message":"APP_VERSION=1.1.1-dev OS_VERSION=4.3 SDK_VERSION=18 '
       'OS_BUILD=JSS15J DEVICE=Android SDK built for x86-unknown(generic_x86) '
-      'SERIAL=unknown Service started","tag":"HTM-ITService"}]')
+      'SERIAL=unknown Service started","tag":"HTMITService"}]')
 
     openMock = mock_open()
 
@@ -71,7 +71,7 @@ class AndroidHandlerTest(unittest.TestCase):
     openMock.assert_called_with(logging_api._LOG_FORMAT_ANDROID, "a")
     handle = openMock()
     handle.write.assert_called_once_with("%s [INFO] "
-      "[HTM-ITService] MOBILE.ANDROID.DEVICE_ID=6cdb56113bc772e9 "
+      "[HTMITService] MOBILE.ANDROID.DEVICE_ID=6cdb56113bc772e9 "
       "APP_VERSION=1.1.1-dev OS_VERSION=4.3 SDK_VERSION=18 OS_BUILD=JSS15J "
       "DEVICE=Android SDK built for x86-unknown(generic_x86) SERIAL=unknown "
       "Service started\n" % timestamp)

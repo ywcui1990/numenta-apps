@@ -31,36 +31,36 @@ from htmengine.exceptions import (HTMEngineError,
 
 
 
-class HTM-ITError(HTMEngineError):
+class HTMITError(HTMEngineError):
   pass
 
 
 
-class AuthFailure(HTM-ITError):
+class AuthFailure(HTMITError):
   """AWS keys can't be authenticated by AWS."""
   pass
 
 
 
-class AWSPermissionsError(HTM-ITError):
+class AWSPermissionsError(HTMITError):
   """AWS keys don't have necessary permissions."""
   pass
 
 
 
-class QuotaError(HTM-ITError):
+class QuotaError(HTMITError):
   """ Model Instance quota exceeded """
   pass
 
 
 
-class TooManyInstancesError(HTM-ITError):
+class TooManyInstancesError(HTMITError):
   """ Too many instances selected. Exceeds a MAX_INSTANCES quota """
   pass
 
 
 
-class MetricThrottleError(HTM-ITError):
+class MetricThrottleError(HTMITError):
   """ Metric adapter received a throttle request from data source (e.g.,
   from AWS CloudWatch)
   """
@@ -68,7 +68,7 @@ class MetricThrottleError(HTM-ITError):
 
 
 
-class InvalidAWSRegionName(HTM-ITError):
+class InvalidAWSRegionName(HTMITError):
   """ Invalid AWS Region name given """
   pass
 

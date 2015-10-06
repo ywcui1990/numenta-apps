@@ -9,7 +9,7 @@
   "manifest":{
     "buildWorkspace":"/opt/numenta/jenkins/workspace/htm-it-product-pipeline/2014-12-04_20-11-33SXydjO",
     "pipeline":"htm-it",
-    "htm-itRemote":"git@github.com:Numenta/numenta-apps.git",
+    "htmitRemote":"git@github.com:Numenta/numenta-apps.git",
     "logLevel":"debug",
     "releaseVersion":"master",
     "sha":"ca0e329c5d08e403f743ceb2265944f8e6a66d08",

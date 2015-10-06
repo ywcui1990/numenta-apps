@@ -21,7 +21,7 @@
 
 describe('HTM-IT Backbone.Model: AwsNamespace', function() {
 
-    var model = new HTM-ITUI.AwsNamespaceModel();
+    var model = new HTMITUI.AwsNamespaceModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

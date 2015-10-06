@@ -21,7 +21,7 @@
 
 (function() {
 
-    var _site = HTM-ITUI.msgs('site'),
+    var _site = HTMITUI.msgs('site'),
 
         indexTimestamp =    _site.charts.instance.anomaly.index.timestamp,
         indexValue =        _site.charts.instance.anomaly.index.value,
@@ -30,7 +30,7 @@
     /**
      * Backbone.View() - Embed: Charts > Rows > Row (Instance)
      */
-    HTM-ITUI.EmbedChartsRowInstanceView = HTM-ITUI.EmbedChartsRowView.extend({
+    HTMITUI.EmbedChartsRowInstanceView = HTMITUI.EmbedChartsRowView.extend({
 
         // Backbone.View properties
 
@@ -50,7 +50,7 @@
          * Backbone.View.initialize() INSTANCE row
          */
         initialize: function(options) {
-            HTM-ITUI.EmbedChartsRowView.prototype.initialize.call(this, options);
+            HTMITUI.EmbedChartsRowView.prototype.initialize.call(this, options);
 
             this.chartOptions.axisLabelColor =  this.color.gray.lite.toHex();
             this.chartOptions.axisLineColor =   this.color.white.toHex();
@@ -94,7 +94,7 @@
             if (this.annotations) {
                 this.chart.setAnnotations(this.getFormattedAnnotations());
             }
-            HTM-ITUI.EmbedChartsRowView.prototype.render.call(this, options);
+            HTMITUI.EmbedChartsRowView.prototype.render.call(this, options);
             return this;
         },
 
@@ -112,8 +112,8 @@
          */
         handleAnnotation: function(annotation, point, chart, event) {
             // Show annotation list for the clicked annotation timestamp
-            var from = HTM-ITUI.utils.getUTCTimestamp(new Date(annotation.x));
-            var to = HTM-ITUI.utils.getUTCTimestamp(new Date(annotation.x + this.minutesPerBar * 60000));
+            var from = HTMITUI.utils.getUTCTimestamp(new Date(annotation.x));
+            var to = HTMITUI.utils.getUTCTimestamp(new Date(annotation.x + this.minutesPerBar * 60000));
             var server = this.instanceId;
             var filteredAnnotations = this.annotations.filter(function(model) {
                 return model.get('server') == server &&
@@ -122,7 +122,7 @@
             });
 
             // Open Annotation List
-            var view = new HTM-ITUI.AnnotationListView({
+            var view = new HTMITUI.AnnotationListView({
                 api:          this.api,
                 instance:     this.instanceId,
                 tagName:      this.tagName,  
@@ -150,7 +150,7 @@
             var msPerBar = this.minutesPerBar * 60000;
             var groupedAnnotations = _.groupBy(filteredAnnotations,
                     function(ann) {
-                        var timestamp = HTM-ITUI.utils.getUTCDateFromTimestamp(ann.get('timestamp'));
+                        var timestamp = HTMITUI.utils.getUTCDateFromTimestamp(ann.get('timestamp'));
                         return Math.floor(timestamp.getTime() / msPerBar) * msPerBar;
                     });
 

@@ -21,15 +21,15 @@
 
 describe('HTM-IT Backbone.View: Welcome', function() {
 
-    var api =   new HTM-ITAPI({ apiKey: 'xxx' }),
-        view =  new HTM-ITUI.WelcomeView({ api: api });
+    var api =   new HTMITAPI({ apiKey: 'xxx' }),
+        view =  new HTMITUI.WelcomeView({ api: api });
 
     it('should construct simply', function() {
         expect(view).to.be.an('object');
     });
 
     it('should affect page title', function() {
-        expect(document.title).to.contain(HTM-ITUI.msgs('welcome-tmpl').title);
+        expect(document.title).to.contain(HTMITUI.msgs('welcome-tmpl').title);
     });
 
 });

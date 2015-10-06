@@ -21,20 +21,20 @@
 
 
 
-def checkIfSaneProductionParams(htm-itRemote, htm-itBranch):
+def checkIfSaneProductionParams(htmitRemote, htmitBranch):
   """
     This method checks if the build is being run against whitelisted
     forks/branches for production purposes.
 
-    :param htm-itRemote: HTM-IT repository URL used for current build
+    :param htmitRemote: HTM-IT repository URL used for current build
 
-    :param htm-itBranch: htm-it branch used for current build
+    :param htmitBranch: htm-it branch used for current build
 
     :returns: True or False to allow/ prohibit updating ciBranch
     :rtype: bool
   """
-  if (htm-itRemote == "git@github.com:Numenta/numenta-apps.git" and
-      htm-itBranch == "master"):
+  if (htmitRemote == "git@github.com:Numenta/numenta-apps.git" and
+      htmitBranch == "master"):
     return True
   else:
     return False

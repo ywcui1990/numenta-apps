@@ -24,7 +24,7 @@ import web
 import htm.it.app
 
 from htmengine import utils
-from htm.it.app import HTM-ITAppConfig
+from htm.it.app import HTMItAppConfig
 from htm.it.app.webservices import AuthenticatedBaseHandler
 
 
@@ -106,7 +106,7 @@ class SettingsHandler(object):
       else:
         sections = utils.jsonDecode(data)
 
-      config = HTM-ITAppConfig(mode=HTM-ITAppConfig.MODE_OVERRIDE_ONLY)
+      config = HTMItAppConfig(mode=HTMItAppConfig.MODE_OVERRIDE_ONLY)
 
       for s in sections:
         if s in self.validSections():

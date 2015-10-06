@@ -30,7 +30,7 @@ SCRIPTS_DIR = os.path.join(os.environ.get("PRODUCTS"), "htm-it", "htm-it",
 
 
 
-def buildHTM-IT(env, pipelineConfig, logger):
+def buildHtmIt(env, pipelineConfig, logger):
   """
     Builds HTM-IT with given HTM-IT SHA.
     :param env: The environment which will be set before building
@@ -38,8 +38,8 @@ def buildHTM-IT(env, pipelineConfig, logger):
     :param pipelineConfig: dict of the pipeline config values, e.g.:
       {
         "buildWorkspace": "/path/to/build/in",
-        "htm-itRemote": "git@github.com:Numenta/numenta-apps.git",
-        "htm-itBranch": "master",
+        "htmitRemote": "git@github.com:Numenta/numenta-apps.git",
+        "htmitBranch": "master",
         "htm-itSha": "HEAD",
         "pipelineParams": "{dict of parameters}",
         "pipelineJson": "/path/to/json/file"

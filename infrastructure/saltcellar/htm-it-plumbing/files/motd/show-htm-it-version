@@ -29,7 +29,7 @@ if [ -d /opt/numenta/htm-it/conf ]; then
   HTM_IT_ID=$(python -c "from htm.it.app import config; print config.get('usertrack', 'htm_it_id')")
 
   echo "HTM-IT version: ${HTM_IT_VERSION}"
-  echo "HTM-ITID: ${HTM_IT_ID}"
+  echo "HTMITID: ${HTM_IT_ID}"
 else
   echo "HTM-IT is not installed on this machine."
 fi

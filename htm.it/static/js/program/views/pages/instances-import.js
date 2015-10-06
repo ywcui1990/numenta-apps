@@ -23,14 +23,14 @@
 
     var viewName = 'instances-import';
 
-    HTM-ITUI.InstancesImportView = Backbone.View.extend({
+    HTMITUI.InstancesImportView = Backbone.View.extend({
 
         name: viewName,
 
         template: _.template($('#' + viewName + '-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs(viewName + '-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs(viewName + '-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'click #upload':    'handleChoose', // pretty file upload button
@@ -44,10 +44,10 @@
             me.api = options.api;
             me.instanceListView = null;
 
-            HTM-ITUI.utils.title(me.msgs.title);
+            HTMITUI.utils.title(me.msgs.title);
 
             // go setup if they have not yet
-            if(! HTM-ITUI.utils.isAuthorized()) {
+            if(! HTMITUI.utils.isAuthorized()) {
                 location.href = me.site.paths.welcome;
                 return;
             }
@@ -68,7 +68,7 @@
 
             me.$el.html(me.template(data));
 
-            me.instanceListView = new HTM-ITUI.InstanceListView({
+            me.instanceListView = new HTMITUI.InstanceListView({
                 el:     $('#instance-list'),
                 api:    me.api,
                 site:   me.site
@@ -102,7 +102,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            HTM-ITUI.utils.throb.start(me.site.state.import);
+            HTMITUI.utils.throb.start(me.site.state.import);
 
             // de-emphasize Import button
             $target.parent().toggleClass('btn-primary btn-default');
@@ -123,7 +123,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            HTM-ITUI.utils.go(destination);
+            HTMITUI.utils.go(destination);
         },
 
         /**
@@ -142,7 +142,7 @@
                     list[index],
                     function(error, results) {
                         if(error) {
-                            return HTM-ITUI.utils.modalError(error);
+                            return HTMITUI.utils.modalError(error);
                         }
 
                         me.instanceListView.data.models.add({
@@ -156,7 +156,7 @@
 
                         // update % in throbber
                         percent = Math.round((index / list.length) * 100);
-                        HTM-ITUI.utils.throb.message(
+                        HTMITUI.utils.throb.message(
                             me.site.state.instance.starts +
                             ' (' + percent + '%)'
                         );
@@ -170,26 +170,26 @@
                 // all done with recursive loop
                 me.instanceListView.data.instances.fetch({
                     error: function(collection, response, options) {
-                        return HTM-ITUI.utils.modalError(error);
+                        return HTMITUI.utils.modalError(error);
                     }
                 });
                 me.instanceListView.data.autostacks.fetch({
                     error: function(collection, response, options) {
-                        return HTM-ITUI.utils.modalError(error);
+                        return HTMITUI.utils.modalError(error);
                     }
                 });
                 me.instanceListView.data.customs.fetch({
                     error: function(collection, response, options) {
-                        return HTM-ITUI.utils.modalError(error);
+                        return HTMITUI.utils.modalError(error);
                     }
                 });
                 me.instanceListView.data.namespaces.fetch({
                     error: function(collection, response, options) {
-                        return HTM-ITUI.utils.modalError(error);
+                        return HTMITUI.utils.modalError(error);
                     }
                 });
 
-                HTM-ITUI.utils.throb.stop();
+                HTMITUI.utils.throb.stop();
             }
         }
 

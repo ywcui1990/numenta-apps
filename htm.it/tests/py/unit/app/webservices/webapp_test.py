@@ -71,7 +71,7 @@ class DefaultHandlerTest(unittest.TestCase):
 
 @patch("htm-it.app.webservices.webapp.instance_utils.getInstanceData",
        autospec=True, return_value={})
-class HTM-ITHandlerTest(unittest.TestCase):
+class HTMITHandlerTest(unittest.TestCase):
 
 
   def setUp(self):

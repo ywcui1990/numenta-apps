@@ -25,9 +25,9 @@ def getGithubUserName(remote):
   """
     This method is used to get the github username specific to the fork.
     Hence we could have username in the name of rpm to
-    differentiate developer rpm's and HTM-ITSolutions rpm's
-    for eg: getGithubUserName("git@github.com:HTM-ITSolutions/htm-it.git"),
-    will return HTM-ITSolutions.
+    differentiate developer rpm's and Numenta rpm's
+    for eg: getGithubUserName("git@github.com:Numenta/numenta-apps.git"),
+    will return Numenta.
 
     :param remote: GitHub remote url.
 

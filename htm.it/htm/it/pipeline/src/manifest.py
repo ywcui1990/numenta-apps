@@ -50,9 +50,9 @@ def parseArgs():
                       required=True)
   parser.add_argument("--sha", dest="sha", type=str,
                       help="Triggering SHA from HTM-IT", default="HEAD")
-  parser.add_argument("--htm-it-branch", dest="htm-itBranch", type=str,
+  parser.add_argument("--htm-it-branch", dest="htmitBranch", type=str,
                       help="The branch you are building from")
-  parser.add_argument("--htm-it-remote", dest="htm-itRemote", type=str,
+  parser.add_argument("--htm-it-remote", dest="htmitRemote", type=str,
                       default="git@github.com:Numenta/numenta-apps.git",
                       help="URL for HTM-IT remote repository")
   parser.add_argument("--release-version", dest="releaseVersion", type=str,

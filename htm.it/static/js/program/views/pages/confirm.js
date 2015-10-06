@@ -21,12 +21,12 @@
 
 (function() {
 
-    HTM-ITUI.ConfirmView = Backbone.View.extend({
+    HTMITUI.ConfirmView = Backbone.View.extend({
 
         template: _.template($('#confirm-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('confirm-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('confirm-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'click #back' : 'handleBack',
@@ -40,23 +40,23 @@
 
         initialize: function(options) {
             var me = this,
-                region = HTM-ITUI.utils.getUrlParam('region');
+                region = HTMITUI.utils.getUrlParam('region');
 
             me.api = options.api;
 
-            HTM-ITUI.utils.title(me.msgs.title);
+            HTMITUI.utils.title(me.msgs.title);
 
             // setup? deactive header logo link & hide header setup menu
-            if(HTM-ITUI.utils.isSetupFlow()) {
+            if(HTMITUI.utils.isSetupFlow()) {
                 $('.navbar-brand').attr('href', '#');
             }
 
-            HTM-ITUI.utils.throb.start(this.site.state.instance.find);
+            HTMITUI.utils.throb.start(this.site.state.instance.find);
 
             // Next, get suggested instances from instances API
             me.api.getInstanceSuggestions(region, function(error, result) {
-                if(error) return HTM-ITUI.utils.modalError(error);
-                HTM-ITUI.utils.throb.stop();
+                if(error) return HTMITUI.utils.modalError(error);
+                HTMITUI.utils.throb.stop();
                 suggestions = JSON.parse(result);
 
                 var clickHandler = function(checked) {
@@ -73,7 +73,7 @@
                 // Add suggested (checked)
                 Object.keys(suggestions.suggested).forEach(function(idx) {
                     var $parent = $('#'+suggestions.suggested[idx].namespace.split('/')[1]+'-instances'),
-                        view = new HTM-ITUI.SuggestedInstancesListView({
+                        view = new HTMITUI.SuggestedInstancesListView({
                             instance: suggestions.suggested[idx],
                             region:   suggestions.suggested[idx].region,
                             checked:  'checked'
@@ -88,7 +88,7 @@
                 // Add alternates (unchecked)
                 Object.keys(suggestions.alternates).forEach(function(idx) {
                     var $parent = $('#'+suggestions.alternates[idx].namespace.split('/')[1]+'-instances'),
-                        view = new HTM-ITUI.SuggestedInstancesListView({
+                        view = new HTMITUI.SuggestedInstancesListView({
                             instance: suggestions.alternates[idx],
                             region:   suggestions.alternates[idx].region,
                             checked:  ''
@@ -102,7 +102,7 @@
 
                 $("div[id$=-instances]").each(function(idx, section) {
                     if (!$(section).children().length) {
-                        var view = new HTM-ITUI.NoSuggestedInstancesView().render();
+                        var view = new HTMITUI.NoSuggestedInstancesView().render();
                         $(section).append(view.$el);
                     }
 
@@ -119,21 +119,21 @@
                     baseUrl: NTA.baseUrl,
                     msgs: me.msgs,
                     site: me.site,
-                    isSetup: HTM-ITUI.utils.isSetupFlow(),
+                    isSetup: HTMITUI.utils.isSetupFlow(),
                     button: {
                         back: me.site.buttons.back,
                         next: me.site.buttons.next
                     },
                     values: {},
                     step: step,
-                    region: HTM-ITUI.utils.getUrlParam('region')
+                    region: HTMITUI.utils.getUrlParam('region')
                 },
                 setupProgressBar;
 
             me.$el.html(me.template(data));
 
-            if(HTM-ITUI.utils.isSetupFlow()) {
-                setupProgressBar = HTM-ITUI.utils.getSetupProgressBar(
+            if(HTMITUI.utils.isSetupFlow()) {
+                setupProgressBar = HTMITUI.utils.getSetupProgressBar(
                     step,
                     $('#progress-bar-container'));
             }
@@ -146,18 +146,18 @@
         handleBack: function(event) {
             event.stopPropagation();
             event.preventDefault();
-            HTM-ITUI.utils.go(this.site.paths.auth + window.location.search);
+            HTMITUI.utils.go(this.site.paths.auth + window.location.search);
         },
 
         handleNext: function(event) {
             var me = this,
                 settings = {},
                 counter = 0,
-                destination = HTM-ITUI.utils.isSetupFlow() ?
+                destination = HTMITUI.utils.isSetupFlow() ?
                     me.site.paths.register + me.site.urltag.setup :
                     me.site.paths.manage;
 
-            HTM-ITUI.utils.throb.start(this.site.state.instance.starts);
+            HTMITUI.utils.throb.start(this.site.state.instance.starts);
 
             event.stopPropagation();
             event.preventDefault();
@@ -199,18 +199,18 @@
             // Use jQuery "when" to force request callbacks to be called synchronously.
             $.when.apply($, requests).
                 done(function(args) {
-                    HTM-ITUI.utils.go(me.site.paths.complete + window.location.search);
+                    HTMITUI.utils.go(me.site.paths.complete + window.location.search);
                 }).
                 fail(function(args) {
-                    HTM-ITUI.utils.throb.stop();
+                    HTMITUI.utils.throb.stop();
                     var res = args.responseJSON.result;
                     if (res) {
                         var quota = /Server limit exceeded;.*edition=(\w+);.+limit=(\d+)\./;
                         var edition = res.match(quota)[1],
                             capacity = res.match(quota)[2];
-                        return HTM-ITUI.utils.modalWarning("Sorry!",
+                        return HTMITUI.utils.modalWarning("Sorry!",
                                                          _.template(me.msgs.errors[edition.toLowerCase()])({capacity: capacity}),
-                                                         _.bind(HTM-ITUI.utils.go, me, me.site.paths.complete + window.location.search));
+                                                         _.bind(HTMITUI.utils.go, me, me.site.paths.complete + window.location.search));
                     }
                 });
         }

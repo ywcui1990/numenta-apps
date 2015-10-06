@@ -125,7 +125,7 @@
             $.extend({}, DEFAULT_OPTIONS, options, mainCallbacks)
         ];
     }
-    NuGraph.prototype = HTM-IT.util.heir(Dygraph.prototype);
+    NuGraph.prototype = HTMIT.util.heir(Dygraph.prototype);
     NuGraph.prototype.constructor = Dygraph;
 
     /**
@@ -153,7 +153,7 @@
         }
     };
 
-    NuGraph.parseHTM-ITDateString = function(dateTimeString) {
+    NuGraph.parseHTMITDateString = function(dateTimeString) {
         var dateOut, dateTimeParts, dateParts, timeParts;
         // if the date string is parse-able, it will not return NaN,
         // and we can just create a Date normally
@@ -321,7 +321,7 @@
                 plotter: barChartPlotter
             }, options));
     }
-    NuBarGraph.prototype = HTM-IT.util.heir(NuGraph.prototype);
+    NuBarGraph.prototype = HTMIT.util.heir(NuGraph.prototype);
     NuBarGraph.prototype.constructor = NuGraph;
 
     window.NuBarGraph = NuBarGraph;
@@ -353,7 +353,7 @@
         }, DEFAULT_OPTIONS, options);
         NuGraph.call(this, elementId, formattedOutput.data, nugraphOptions);
     }
-    PredictionGraph.prototype = HTM-IT.util.heir(NuGraph.prototype);
+    PredictionGraph.prototype = HTMIT.util.heir(NuGraph.prototype);
     PredictionGraph.prototype.constructor = NuGraph;
 
     PredictionGraph.prototype._formatModelOutputData = function(modelOutput) {
@@ -412,7 +412,7 @@
             value = dataRow[predictedFieldIndex];
             prediction = parseFloat(dataRow[predictedFieldPredictionIndex]);
 
-            outputRow.push(NuGraph.parseHTM-ITDateString(dataRow[temporalIndex]));
+            outputRow.push(NuGraph.parseHTMITDateString(dataRow[temporalIndex]));
             outputRow.push(value === "" ? null : parseFloat(value));
             outputRow.push(prediction === "" ? null : parseFloat(prediction));
             outputData.push(outputRow);
@@ -482,7 +482,7 @@
         }, DEFAULT_OPTIONS, options);
         NuBarGraph.call(this, elementId, formattedOutput.data, nugraphOptions);
     }
-    PredictionConfidenceGraph.prototype = HTM-IT.util.heir(NuBarGraph.prototype);
+    PredictionConfidenceGraph.prototype = HTMIT.util.heir(NuBarGraph.prototype);
     PredictionConfidenceGraph.prototype.constructor = NuBarGraph;
 
     PredictionConfidenceGraph.prototype._formatModelOutputData = function(modelOutput) {
@@ -534,7 +534,7 @@
             confidence = findConfidenceValueHack(details, predictionSteps, prediction);
 
             outputData.push([
-                NuGraph.parseHTM-ITDateString(dataRow[temporalIndex]),
+                NuGraph.parseHTMITDateString(dataRow[temporalIndex]),
                 confidence
             ]);
         });
@@ -574,7 +574,7 @@
         }, DEFAULT_OPTIONS, options);
         NuBarGraph.call(this, elementId, formattedOutput.data, nugraphOptions);
     }
-    AnomalyScoreGraph.prototype = HTM-IT.util.heir(NuBarGraph.prototype);
+    AnomalyScoreGraph.prototype = HTMIT.util.heir(NuBarGraph.prototype);
     AnomalyScoreGraph.prototype.constructor = NuBarGraph;
 
     AnomalyScoreGraph.prototype._formatModelOutputData = function(modelOutput) {
@@ -611,7 +611,7 @@
             }
 
             outputData.push([
-                NuGraph.parseHTM-ITDateString(dataRow[temporalIndex]),
+                NuGraph.parseHTMITDateString(dataRow[temporalIndex]),
                 parseFloat(dataRow[anomalyIndex])
             ]);
         });
@@ -640,7 +640,7 @@
         PredictionGraph.call(this, elementId, modelOutput,
             $.extend({}, DEFAULT_OPTIONS, options));
     }
-    DanglingPredictionGraph.prototype = HTM-IT.util.heir(PredictionGraph.prototype);
+    DanglingPredictionGraph.prototype = HTMIT.util.heir(PredictionGraph.prototype);
     DanglingPredictionGraph.prototype.constructor = PredictionGraph;
 
     DanglingPredictionGraph.prototype._getCopyOfOptionsWithUpdatedDateWindow = function(options) {
@@ -725,7 +725,7 @@
         // model object exists.
         var err = null;
         if (! model) {
-            err = new Error('Model given to FaceOfHTM-IT does not exist.');
+            err = new Error('Model given to FaceOfHTMIT does not exist.');
         }
         callback(err);
     }
@@ -835,11 +835,11 @@
     /**
      * Face of htm-it main component.
      * @param element
-     * @param input HTM-IT.Model object or CSV URI
+     * @param input HTMIT.Model object or CSV URI
      * @param options
      * @constructor
      */
-    function FaceOfHTM-IT(element, input, options) {
+    function FaceOfHTMIT(element, input, options) {
         if (typeof element === 'string') {
             this.rootId = element;
             this.$fog = $('#' + element);
@@ -860,17 +860,17 @@
 
         // Input may be:
         //  (a) a path for a CSV file to load
-        //  (b) a HTM-IT.Model object (optionally accompanied by cachedData)
+        //  (b) a HTMIT.Model object (optionally accompanied by cachedData)
         if (typeof input === 'string') {
             // input is CSV
             this.csvUri = input;
         } else if (input.constructor &&
                    input.constructor.NAMESPACE &&
                    input.constructor.NAMESPACE === 'models') {
-            // input is a HTM-IT.Model instance
+            // input is a HTMIT.Model instance
             this.model = input;
         } else {
-            throw new Error('FaceOfHTM-IT expected a Model Instance or CSV');
+            throw new Error('FaceOfHTMIT expected a Model Instance or CSV');
         }
 
         this.options = $.extend({}, DEFAULT_OPTIONS, options);
@@ -878,11 +878,11 @@
         this.renderedGraphs = 0;
     }
 
-    FaceOfHTM-IT.prototype.on = function(name, callback) {
+    FaceOfHTMIT.prototype.on = function(name, callback) {
         addListener(this.listeners, name, callback);
     };
 
-    FaceOfHTM-IT.prototype.render = function() {
+    FaceOfHTMIT.prototype.render = function() {
         var me = this,
             predictionSteps = me.model.get('predictionSteps');
 
@@ -923,11 +923,11 @@
                 me._createAndRenderGraphs(rows);
             });
         } else {
-            throw new Error('Cannot execute Face of HTM-IT without a model or a csv URI!');
+            throw new Error('Cannot execute Face of HTMIT without a model or a csv URI!');
         }
     };
 
-    FaceOfHTM-IT.prototype._createAndRenderGraphs = function(rows, predictionSteps) {
+    FaceOfHTMIT.prototype._createAndRenderGraphs = function(rows, predictionSteps) {
         var me = this,
             predictionGraph,
             danglingPredictionGraph,
@@ -1047,7 +1047,7 @@
     /**
      * Handle dynamic chart updates
      */    
-    FaceOfHTM-IT.prototype._handleDynamicCharts = function() {
+    FaceOfHTMIT.prototype._handleDynamicCharts = function() {
         var me = this,
             index,
             predictMonitor,
@@ -1057,7 +1057,7 @@
 
         // dynamic self-updating chart
         if(me.dynamic) {
-            predictMonitor = new HTM-IT.PredictionMonitor(me.model, {
+            predictMonitor = new HTMIT.PredictionMonitor(me.model, {
                 lastRowIdSeen: me._modelOutput.data[me._modelOutput.data.length - 2][0]
             });
            
@@ -1118,7 +1118,7 @@
         }
     };
 
-    FaceOfHTM-IT.prototype._prepareDomForFogCharts = function() {
+    FaceOfHTMIT.prototype._prepareDomForFogCharts = function() {
         var tableString = '<table class="fog"><tbody>';
         tableString += '<tr class="fog-top"><td id="' + this.confidenceGraphId + '" class="fog-left confidence-graph"></td><td class="fog-right"></td></tr>';
         tableString += '<tr class="fog-bottom"><td id="' + this.predictionGraphId + '" class="fog-left prediction-graph"></td>';
@@ -1128,7 +1128,7 @@
         this.$fog.html(tableString);
     };
 
-    FaceOfHTM-IT.prototype._reportFatalError = function(eventName, err) {
+    FaceOfHTMIT.prototype._reportFatalError = function(eventName, err) {
         // find listeners for the event
         var listeners = this.listeners[eventName];
         // if there are no listeners for this error, we will throw the error
@@ -1139,7 +1139,7 @@
         emit(this.listeners, eventName, err);
     };
 
-    FaceOfHTM-IT.prototype._graphDrawn = function(graph, isInitialDraw) {
+    FaceOfHTMIT.prototype._graphDrawn = function(graph, isInitialDraw) {
         var $danglingGraph,
             me = this,
             pointsToDisplay = this.options.initialPointsToDisplay;
@@ -1166,14 +1166,14 @@
         }
     };
 
-    FaceOfHTM-IT.prototype.destroy = function() {
+    FaceOfHTMIT.prototype.destroy = function() {
         this.allGraphs.forEach(function(dygraph) {
             dygraph.destroy();
         });
     };
 
-    FaceOfHTM-IT.prototype.__version__ = '0.4';
+    FaceOfHTMIT.prototype.__version__ = '0.4';
 
-    window.FaceOfHTM-IT = FaceOfHTM-IT;
+    window.FaceOfHTMIT = FaceOfHTMIT;
 
 })();

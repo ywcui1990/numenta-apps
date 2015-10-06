@@ -19,9 +19,9 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('HTM-IT Backbone.Model: HTM-ITAutostack', function() {
+describe('HTMIT Backbone.Model: HTMITAutostack', function() {
 
-    var model = new HTM-ITUI.HTM-ITAutostackModel();
+    var model = new HTMITUI.HTMITAutostackModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

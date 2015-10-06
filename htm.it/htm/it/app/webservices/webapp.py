@@ -69,8 +69,8 @@ urls = (
   # Web UI
   "", "DefaultHandler",
   "/", "DefaultHandler",
-  "/htm-it", "HTM-ITHandler",
-  r"/htm-it/([-\/\w]*)", "HTM-ITHandler",
+  "/htm-it", "HTMITHandler",
+  r"/htm-it/([-\/\w]*)", "HTMITHandler",
 
   # i18n strings
   "/_msgs", "MessagesHandler",
@@ -130,7 +130,7 @@ class DefaultHandler(object):
     raise web.seeother("/static/index.html")
 
 
-class HTM-ITHandler(object):
+class HTMITHandler(object):
   def GET(self, path=None):  # pylint: disable=R0201,W0613,C0103
     # Make sure we have the latest version of configuration
     htm-it.app.config.loadConfig()

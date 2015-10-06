@@ -26,7 +26,7 @@
     /**
      * Backbone.View() - Embed: Charts > Sort
      */
-    HTM-ITUI.EmbedChartsSortView = Backbone.View.extend({
+    HTMITUI.EmbedChartsSortView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -37,8 +37,8 @@
 
         // Custom properties
 
-        msgs: HTM-ITUI.msgs(_viewName + '-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs(_viewName + '-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         // Backbone.View methods
 

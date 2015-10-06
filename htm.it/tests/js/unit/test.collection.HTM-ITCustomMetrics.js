@@ -19,10 +19,10 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('HTM-IT Backbone.Collection: HTM-ITCustomMetrics', function() {
+describe('HTMIT Backbone.Collection: HTMITCustomMetrics', function() {
 
-    var api =         new HTM-ITAPI({ apiKey: 'xxx' }),
-        collection =  new HTM-ITUI.HTM-ITCustomMetricsCollection([], { api: api });
+    var api =         new HTMITAPI({ apiKey: 'xxx' }),
+        collection =  new HTMITUI.HTMITCustomMetricsCollection([], { api: api });
 
     it('should construct simply', function() {
         expect(collection).to.be.an('object');

@@ -21,7 +21,7 @@
 
 describe('HTM-IT Backbone.Model: AwsMetric', function() {
 
-    var model = new HTM-ITUI.AwsMetricModel();
+    var model = new HTMITUI.AwsMetricModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

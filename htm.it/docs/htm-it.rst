@@ -12,10 +12,10 @@ Subpackages
 Submodules
 ----------
 
-htm-it.HTM-ITExtendedLogger module
+htm-it.HtmItExtendedLogger module
 ------------------------------
 
-.. automodule:: htm-it.HTM-ITExtendedLogger
+.. automodule:: htm-it.HtmItExtendedLogger
     :members:
     :undoc-members:
     :show-inheritance:

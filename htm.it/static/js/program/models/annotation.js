@@ -29,7 +29,7 @@
    * @requires Backbone.js
    * @returns {Object} Backbone.js Model object
    */
-  HTM-ITUI.AnnotationModel = Backbone.Model.extend({
+  HTMITUI.AnnotationModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

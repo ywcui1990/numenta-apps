@@ -21,12 +21,12 @@
 
 (function() {
 
-    HTM-ITUI.CompleteView = Backbone.View.extend({
+    HTMITUI.CompleteView = Backbone.View.extend({
 
         template: _.template($('#complete-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('complete-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('complete-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'click #next': 'handleNext',
@@ -36,16 +36,16 @@
             var me = this;
             me.api = options.api;
 
-            HTM-ITUI.utils.title(me.msgs.title);
+            HTMITUI.utils.title(me.msgs.title);
 
             // setup? deactive header logo link & hide header setup menu
-            if(HTM-ITUI.utils.isSetupFlow()) {
+            if(HTMITUI.utils.isSetupFlow()) {
                 $('.navbar-brand').attr('href', '#');
             }
 
             // go setup if they have not yet
-            if(! HTM-ITUI.utils.isAuthorized()) {
-                HTM-ITUI.utils.go(me.site.paths.welcome);
+            if(! HTMITUI.utils.isAuthorized()) {
+                HTMITUI.utils.go(me.site.paths.welcome);
                 return;
             }
 
@@ -54,13 +54,13 @@
 
         render: function(settings) {
             var me = this,
-                step = HTM-ITUI.utils.getSetupTotalSteps(),
+                step = HTMITUI.utils.getSetupTotalSteps(),
                 data = {
                     baseUrl:    NTA.baseUrl,
                     msgs:       me.msgs,
                     site:       me.site,
-                    isSetup:    HTM-ITUI.utils.isSetupFlow(),
-                    apiKey:     HTM-ITUI.utils.store.get('apiKey'),
+                    isSetup:    HTMITUI.utils.isSetupFlow(),
+                    apiKey:     HTMITUI.utils.store.get('apiKey'),
                     step:       step,
                     clientUrl: window.location.protocol + '//' +
                                     window.location.hostname +
@@ -72,8 +72,8 @@
 
             me.$el.html(me.template(data));
 
-            if(HTM-ITUI.utils.isSetupFlow()) {
-                setupProgressBar = HTM-ITUI.utils.getSetupProgressBar(
+            if(HTMITUI.utils.isSetupFlow()) {
+                setupProgressBar = HTMITUI.utils.getSetupProgressBar(
                     step, $('#progress-bar-container'));
             }
 
@@ -84,7 +84,7 @@
         handleNext: function(event) {
             event.preventDefault();
             event.stopPropagation();
-            HTM-ITUI.utils.go(this.site.paths.manage);
+            HTMITUI.utils.go(this.site.paths.manage);
         }
 
     });

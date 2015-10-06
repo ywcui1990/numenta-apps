@@ -100,7 +100,7 @@ $def with (data)
         <!-- HTM-IT Init -->
         <script src="$data['baseUrl']/static/js/lib/htm-it/nta.js?v=$data['product']['version']"></script>
         <script>
-            window.HTM-ITUI = {
+            window.HTMITUI = {
                 _apiEndpoint: "$data['endpoint']",
                 embed: {
                     height: "$data['embed']['height']",
@@ -119,7 +119,7 @@ $def with (data)
             NTA.baseUrl = "$data['baseUrl']";
         </script>
         <!-- HTM-IT API -->
-        <script src="$data['baseUrl']/static/js/lib/htm-it/HTM-ITAPI.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/lib/htm-it/HTMITAPI.js?v=$data['product']['version']"></script>
         <!-- Backbone.Model(s) -->
         <script src="$data['baseUrl']/static/js/program/models/awsMetric.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/models/awsNamespace.js?v=$data['product']['version']"></script>

@@ -34,30 +34,30 @@ else:
 
 
 
-class HTM-ITAppConfig(Config):
+class HTMItAppConfig(Config):
 
   CONFIG_NAME = "application.conf"
 
   def __init__(self, mode=Config.MODE_LOGICAL):
-    super(HTM-ITAppConfig, self).__init__(self.CONFIG_NAME,
+    super(HTMItAppConfig, self).__init__(self.CONFIG_NAME,
                                         os.path.join(HTM_IT_HOME, "conf"),
                                         mode=mode)
 
 
 
-class HTM-ITProductConfig(Config):
+class HTMItProductConfig(Config):
 
   CONFIG_NAME = "product.conf"
 
   def __init__(self, mode=Config.MODE_LOGICAL):
-    super(HTM-ITProductConfig, self).__init__(self.CONFIG_NAME,
+    super(HTMItProductConfig, self).__init__(self.CONFIG_NAME,
                                             os.path.join(HTM_IT_HOME, "conf"),
                                             mode=mode)
 
 
 
-config = HTM-ITAppConfig()
-product = HTM-ITProductConfig()
+config = HTMItAppConfig()
+product = HTMItProductConfig()
 
 DEBUG_LEVEL = 0
 if config.has_option('web', 'debug_level'):

@@ -40,7 +40,7 @@ from infrastructure.utilities.exceptions import (
   TestsFailed
 )
 from infrastructure.utilities.htm_it_server import (
-  getApiKey, waitForHTM-ITServerToBeReady)
+  getApiKey, waitForHtmItServerToBeReady)
 from infrastructure.utilities.jenkins import getBuildNumber, getWorkspace
 from infrastructure.utilities.diagnostics import initPipelineLogger
 
@@ -176,7 +176,7 @@ def main():
     g_logger.info("Connected to %s using %s.pem", publicDnsName, serverKey)
     # Run Integration tests
     try:
-      waitForHTM-ITServerToBeReady(publicDnsName, serverKey, g_config["USER"],
+      waitForHtmItServerToBeReady(publicDnsName, serverKey, g_config["USER"],
                                  g_logger)
       getApiKey(instanceId, publicDnsName, g_config, g_logger)
       # TODO remove the exports; keeping them intact for now because some of the

@@ -21,8 +21,8 @@
 
 describe('HTM-IT Backbone.Collection: Instances', function() {
 
-    var api =         new HTM-ITAPI({ apiKey: 'xxx' }),
-        collection =  new HTM-ITUI.InstancesCollection([], { api: api });
+    var api =         new HTMITAPI({ apiKey: 'xxx' }),
+        collection =  new HTMITUI.InstancesCollection([], { api: api });
 
     it('should construct simply', function() {
         expect(collection).to.be.an('object');

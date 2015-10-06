@@ -7,7 +7,7 @@ module.exports = function(grunt) {
         port = 9999,
         urlPrefix = 'http://127.0.0.1:' + port + '/tests/js/',
 
-        // SYNC: https://github.com/HTM-ITSolutions/htm-it/wiki/Browser-Support
+        // SYNC: https://github.com/Numenta/numenta-apps/wiki/Browser-Support
         browsers = [
             // Android
             {
@@ -101,7 +101,7 @@ module.exports = function(grunt) {
         ],
 
         urls = [
-            urlPrefix + 'unit/runner.lib.HTM-ITApi.html',
+            urlPrefix + 'unit/runner.lib.HtmItApi.html',
             urlPrefix + 'unit/runner.collections.html',
             urlPrefix + 'unit/runner.models.html',
             urlPrefix + 'unit/runner.views.html'

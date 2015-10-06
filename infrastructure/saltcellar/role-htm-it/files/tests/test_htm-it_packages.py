@@ -33,9 +33,9 @@ PACKAGE_LIST = [ "mysql-community-server",
 
 
 
-class TestHTM-ITPackages(unittest.TestCase):
+class TestHTMITPackages(unittest.TestCase):
 
-  def testHTM-ITSupportPackagesAreInstalled(self):
+  def testHTMITSupportPackagesAreInstalled(self):
     """Check for required HTM-IT support packages"""
     for packageName in PACKAGE_LIST:
       self.assertTrue(agamotto.package.is_installed(packageName),

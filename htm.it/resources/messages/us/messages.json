@@ -23,7 +23,7 @@
             "update":           "/static/maintenance.html"
         },
         "resources": {
-            "help": "http://www.numenta.com/assets/pdf/htm-it/resources/%version%/HTM-IT-%version%-MasterGuide.pdf"
+            "help": "http://www.numenta.com/assets/pdf/htm-it/resources/%version%/Grok-%version%-MasterGuide.pdf"
         },
         "buttons": {
             "agree":    "Agree",

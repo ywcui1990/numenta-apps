@@ -20,7 +20,7 @@
  * ---------------------------------------------------------------------- */
 
 /*
- * START HERE!! See the HTM-ITUI.Router definition below.
+ * START HERE!! See the HTMITUI.Router definition below.
  */
 
 (function() {
@@ -29,10 +29,10 @@
         routerExtension;
 
     initializer = function() {
-        HTM-ITUI.loader = this.loader = new HTM-ITUI.Loader({
-            namespace: HTM-ITUI,
-            cachePostfix: ['v', HTM-ITUI.product.version].join('='),
-            dependencies: HTM-ITUI.Router.prototype.deps,
+        HTMITUI.loader = this.loader = new HTMITUI.Loader({
+            namespace: HTMITUI,
+            cachePostfix: ['v', HTMITUI.product.version].join('='),
+            dependencies: HTMITUI.Router.prototype.deps,
             contentPaneId: 'content'
         });
         // allows users to provide their own initialize functions
@@ -42,22 +42,22 @@
     };
 
     // creating the object to extend the Backbone router, and allowing the
-    // application to provide its own details through HTM-ITUI.routes.
+    // application to provide its own details through HTMITUI.routes.
     routerExtension = {
-        routes: HTM-ITUI.routes.urls,
-        deps: HTM-ITUI.routes.deps,
+        routes: HTMITUI.routes.urls,
+        deps: HTMITUI.routes.deps,
         initialize: initializer
     };
     // mixing in the handler functions
-    Object.keys(HTM-ITUI.routes.handlers).forEach(function(handlerName) {
-        routerExtension[handlerName] = HTM-ITUI.routes.handlers[handlerName];
+    Object.keys(HTMITUI.routes.handlers).forEach(function(handlerName) {
+        routerExtension[handlerName] = HTMITUI.routes.handlers[handlerName];
     });
     // also add the initializer at the same level as the handlers
-    routerExtension.initializer = HTM-ITUI.routes.initialize;
+    routerExtension.initializer = HTMITUI.routes.initialize;
 
     /**
      * This router is the starting point for the HTM-IT SITE!
      */
-    HTM-ITUI.Router = Backbone.Router.extend(routerExtension);
+    HTMITUI.Router = Backbone.Router.extend(routerExtension);
 
 })();

@@ -21,7 +21,7 @@
 
 describe('HTM-IT Backbone.Model: Model', function() {
 
-    var model = new HTM-ITUI.ModelModel();
+    var model = new HTMITUI.ModelModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

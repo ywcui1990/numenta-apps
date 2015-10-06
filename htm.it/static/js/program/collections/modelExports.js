@@ -26,14 +26,14 @@
    * @constructor
    * @copyright © 2014 Numenta
    * @public
-   * @requires Backbone, Backbone.Collection, HTM-ITUI.ModelExportModel class
+   * @requires Backbone, Backbone.Collection, HTMITUI.ModelExportModel class
    * @returns {Object} Backbone.Collection object
    */
-  HTM-ITUI.ModelExportsCollection = Backbone.Collection.extend({
+  HTMITUI.ModelExportsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: HTM-ITUI.ModelExportModel,
+    model: HTMITUI.ModelExportModel,
 
     // Custom properties
 

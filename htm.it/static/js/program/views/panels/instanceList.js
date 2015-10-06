@@ -21,7 +21,7 @@
 
 (function() {
 
-    HTM-ITUI.InstanceListView = Backbone.View.extend({
+    HTMITUI.InstanceListView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -37,8 +37,8 @@
         // Custom properties
 
         api:    null,
-        msgs:   HTM-ITUI.msgs('instance-list-tmpl'),
-        site:   HTM-ITUI.msgs('site'),
+        msgs:   HTMITUI.msgs('instance-list-tmpl'),
+        site:   HTMITUI.msgs('site'),
 
         data: {
             autostacks: null,
@@ -63,7 +63,7 @@
                 },
                 fetchOpts = {
                     error: function(model, response, options) {
-                        return HTM-ITUI.utils.modalError(response);
+                        return HTMITUI.utils.modalError(response);
                     }
                 },
                 dataExists = function(key) {
@@ -77,31 +77,31 @@
 
             this.data.autostacks = dataExists('autostacks') ?
                 options.data.autostacks :
-                new HTM-ITUI.HTM-ITAutostacksCollection([], collectOpts);
+                new HTMITUI.HTMITAutostacksCollection([], collectOpts);
 
             this.data.customs = dataExists('customs') ?
                 options.data.customs :
-                new HTM-ITUI.HTM-ITCustomMetricsCollection([], collectOpts);
+                new HTMITUI.HTMITCustomMetricsCollection([], collectOpts);
 
             this.data.exports = dataExists('exports') ?
                 options.data.exports :
-                new HTM-ITUI.ModelExportsCollection([], collectOpts);
+                new HTMITUI.ModelExportsCollection([], collectOpts);
 
             this.data.instances = dataExists('instances') ?
                 options.data.instances:
-                new HTM-ITUI.InstancesCollection([], collectOpts);
+                new HTMITUI.InstancesCollection([], collectOpts);
 
             this.data.metrics = dataExists('metrics') ?
                 options.data.metrics :
-                new HTM-ITUI.AwsMetricsCollection([], collectOpts);
+                new HTMITUI.AwsMetricsCollection([], collectOpts);
 
             this.data.models = dataExists('models') ?
                 options.data.models :
-                new HTM-ITUI.ModelsCollection([], collectOpts);
+                new HTMITUI.ModelsCollection([], collectOpts);
 
             this.data.namespaces = dataExists('namespaces') ?
                 options.data.namespaces :
-                new HTM-ITUI.AwsNamespacesCollection([], collectOpts);
+                new HTMITUI.AwsNamespacesCollection([], collectOpts);
 
             // Prep Collections - data passed in, or fetch here
 
@@ -124,7 +124,7 @@
                 // reload models if instances change
                 this.data.models.fetch({
                     error: function(model, response, options) {
-                        return HTM-ITUI.utils.modalError(response);
+                        return HTMITUI.utils.modalError(response);
                     }
                 });
 
@@ -170,7 +170,7 @@
                 }
             });
             _.each(newInstancesData, function(instanceData) {
-                var instance = new HTM-ITUI.InstanceModel();
+                var instance = new HTMITUI.InstanceModel();
                 instances.add(instance);
                 instanceData = instance.parse(instanceData);
                 instance.set(instanceData);
@@ -207,10 +207,10 @@
                     namespace:  namespace
                 },
                 regionNamespaceMetrics = this.data.metrics.where(regionNamespaceFilter),
-                isHTM-ITAutostack = namespace.match(this.site.instances.types.autostack),
-                isHTM-ITCustomMetric = namespace.match(this.site.namespaces.htm-it.custom),
+                isHTMITAutostack = namespace.match(this.site.instances.types.autostack),
+                isHTMITCustomMetric = namespace.match(this.site.namespaces.htm-it.custom),
                 makeView = function() {
-                    var modalMetricList = new HTM-ITUI.ModalMetricListView({
+                    var modalMetricList = new HTMITUI.ModalMetricListView({
                         api:        this.api,
                         region:     region,
                         namespace:  namespace,
@@ -229,10 +229,10 @@
                         //  so reload instance list.
                         this.data.instances.fetch({
                             error: function(model, response, options) {
-                                return HTM-ITUI.utils.modalError(response);
+                                return HTMITUI.utils.modalError(response);
                             },
                             success: function(model, response, options) {
-                                HTM-ITUI.utils.throb.stop();
+                                HTMITUI.utils.throb.stop();
                             }
                         });
                     }.bind(this));
@@ -243,11 +243,11 @@
             event.stopPropagation();
             event.preventDefault();
 
-            HTM-ITUI.utils.throb.start(this.site.state.metric.load);
+            HTMITUI.utils.throb.start(this.site.state.metric.load);
 
             if(
-                (! isHTM-ITAutostack) &&
-                (! isHTM-ITCustomMetric) &&
+                (! isHTMITAutostack) &&
+                (! isHTMITCustomMetric) &&
                 (regionNamespaceMetrics.length <= 0)
             ) {
                 // Metric data for this region not loaded yet, do so.
@@ -262,18 +262,18 @@
                             remove:     false})
                         ).
                     done(function(model) {
-                        HTM-ITUI.utils.throb.stop();
+                        HTMITUI.utils.throb.stop();
                         var view = makeView();
                         view.render();
                     }).            
                     fail(function(xhr, error, response) {
-                        HTM-ITUI.utils.throb.stop();
-                        return HTM-ITUI.utils.modalError(response);                        
+                        HTMITUI.utils.throb.stop();
+                        return HTMITUI.utils.modalError(response);                        
                     });
             }
             else {
                 // Metric data for this region already loaded, continue.
-                HTM-ITUI.utils.throb.stop();
+                HTMITUI.utils.throb.stop();
                 var view = makeView();
                 view.render();
                 return view;
@@ -290,15 +290,15 @@
 
             var percent = 0,
                 errorCallback = function(model, response, options) {
-                    HTM-ITUI.utils.throb.stop();
-                    return HTM-ITUI.utils.modalError(response);
+                    HTMITUI.utils.throb.stop();
+                    return HTMITUI.utils.modalError(response);
                 },
                 destroyOpts = {
                     error: errorCallback,
                     success: function(model, response, options) {
                         // update % in throbber
                         percent = Math.round((index / list.length) * 100);
-                        HTM-ITUI.utils.throb.message(
+                        HTMITUI.utils.throb.message(
                             this.site.state.instance.stop +
                             ' (' + percent + '%)'
                         );
@@ -329,7 +329,7 @@
                 this.data.instances.fetch({
                     error: errorCallback,
                     success: function(model, response, options) {
-                        HTM-ITUI.utils.throb.stop();
+                        HTMITUI.utils.throb.stop();
                     }
                 });
             }
@@ -367,7 +367,7 @@
             ].join(' <span class="text-muted">&gt;</span> ') + '</code>';
             manageCustomMetricsPath = me.site.paths['manage-custom-metrics'];
 
-            if (region != 'HTM-IT'){
+            if (region != 'HTMIT'){
                 modalMessage = '<div>Remove this instance from monitoring?</div>' + display;
             }
             else {
@@ -384,7 +384,7 @@
                 callback:   function(result) {
                     if(result) {
                         $row.fadeOut();
-                        HTM-ITUI.utils.throb.start(me.site.state.instance.stop);
+                        HTMITUI.utils.throb.start(me.site.state.instance.stop);
                         me.performDelete([instance]);
                     }
                     else {
@@ -423,7 +423,7 @@
                     callback:   function(result) {
                         if(result) {
                             $rows.fadeOut();
-                            HTM-ITUI.utils.throb.start(me.site.state.instance.stop);
+                            HTMITUI.utils.throb.start(me.site.state.instance.stop);
                             me.performDelete(instances);
                         }
                         else {
@@ -441,11 +441,11 @@
             event.stopPropagation();
             event.preventDefault();
 
-            HTM-ITUI.utils.throb.start(this.site.state.loading);
+            HTMITUI.utils.throb.start(this.site.state.loading);
 
             this.data.exports.fetch({
                 error: function(collection, response, options) {
-                    return HTM-ITUI.utils.modalError(error);
+                    return HTMITUI.utils.modalError(error);
                 },
                 success: function(collection, response, options) {
                     var blob = new Blob(
@@ -454,7 +454,7 @@
                         ),
                         when = (new Date()).toISOString().replace(/[\WT]/g,'').slice(0, 14);
 
-                    HTM-ITUI.utils.throb.stop();
+                    HTMITUI.utils.throb.stop();
                     saveAs(blob, 'htm-it-export-' + when + '.json');
                 }
             });

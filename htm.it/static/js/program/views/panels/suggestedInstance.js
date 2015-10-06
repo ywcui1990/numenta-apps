@@ -21,11 +21,11 @@
 
 (function() {
 
-    HTM-ITUI.SuggestedInstancesListView = Backbone.View.extend({
+    HTMITUI.SuggestedInstancesListView = Backbone.View.extend({
 
         template: _.template($('#suggested-instances-tmpl').html()),
 
-        site: HTM-ITUI.msgs('site'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'click input[type="checkbox"]': 'handleCheckboxClick'

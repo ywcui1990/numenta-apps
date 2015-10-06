@@ -21,12 +21,12 @@
 
 (function() {
 
-    HTM-ITUI.ManageCustomMetricsView = Backbone.View.extend({
+    HTMITUI.ManageCustomMetricsView = Backbone.View.extend({
 
         template: _.template($('#manage-custom-metrics-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('manage-custom-metrics-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('manage-custom-metrics-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'click #done':                  'handleDone',
@@ -42,28 +42,28 @@
                 };
             me.fetchOpts = {
                 error: function(collection, response, options) {
-                    return HTM-ITUI.utils.modalError(response);
+                    return HTMITUI.utils.modalError(response);
                 }
             }; 
             me.api = collectOpts.api;
-            me.customMetrics = new HTM-ITUI.HTM-ITCustomMetricsCollection([], collectOpts);
+            me.customMetrics = new HTMITUI.HTMITCustomMetricsCollection([], collectOpts);
 
-            HTM-ITUI.utils.title(me.msgs.title);
+            HTMITUI.utils.title(me.msgs.title);
 
             // Redirect user to setup if they haven't done so yet.
-            if(! HTM-ITUI.utils.isAuthorized()) {
-                HTM-ITUI.utils.go(me.site.paths.welcome);
+            if(! HTMITUI.utils.isAuthorized()) {
+                HTMITUI.utils.go(me.site.paths.welcome);
                 return;
             };
 
 
-            HTM-ITUI.utils.throb.start(me.site.state.loading);
+            HTMITUI.utils.throb.start(me.site.state.loading);
 
             // get all the data in parallel
             $.when.apply($, [
                 me.customMetrics.fetch(me.fetchOpts)
             ]).done(function() {
-                HTM-ITUI.utils.throb.stop();
+                HTMITUI.utils.throb.stop();
                 me.render();
             }.bind(me));
 
@@ -104,7 +104,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            HTM-ITUI.utils.go(destination);
+            HTMITUI.utils.go(destination);
         },
 
         /**
@@ -125,22 +125,22 @@
             // ask user to confirm metric delete
             bootbox.confirm({
                 animate:    false,
-                message:    '<div>Delete this custom metric from HTM-IT?</div>' + display + '<br/><div>WARNING: This will also delete any models associated with this data.</div>',
+                message:    '<div>Delete this custom metric from HTMIT?</div>' + display + '<br/><div>WARNING: This will also delete any models associated with this data.</div>',
                 title:      'Delete',
                 callback:   function(result) {
                     if(result) {
                         $row.fadeOut();
-                        HTM-ITUI.utils.throb.start(me.site.state.metric.remove);
-                        handler = me.api.deleteHTM-ITCustomMetric(
+                        HTMITUI.utils.throb.start(me.site.state.metric.remove);
+                        handler = me.api.deleteHTMITCustomMetric(
                             name,
                             function(error, results) {
                                 if(error) {
-                                    if (handler.status != 404) return HTM-ITUI.utils.modalError(error);
+                                    if (handler.status != 404) return HTMITUI.utils.modalError(error);
                                 }
                                 $.when.apply($, [
                                                 me.customMetrics.fetch(me.fetchOpts)
                                             ]).done(function() {
-                                                HTM-ITUI.utils.throb.stop();
+                                                HTMITUI.utils.throb.stop();
                                                 me.render();
                                             });
                             }
@@ -180,26 +180,26 @@
                 // ask user to confirm delete all metrics
                 bootbox.confirm({
                     animate:    false,
-                    message:    'Delete all custom metrics from HTM-IT?<br/><br/>WARNING: This will also delete any models associated with this data.',
+                    message:    'Delete all custom metrics from HTMIT?<br/><br/>WARNING: This will also delete any models associated with this data.',
                     title:      'Delete All',
                     callback:   function(result) {
                         if(result) {
                             $rows.fadeOut();
-                            HTM-ITUI.utils.throb.start(me.site.state.metric.remove);
+                            HTMITUI.utils.throb.start(me.site.state.metric.remove);
 
                             metricList.forEach(function(metricName) {
-                                handler = me.api.deleteHTM-ITCustomMetric(
+                                handler = me.api.deleteHTMITCustomMetric(
                                     metricName,
                                     function(error, results) {
                                         if(error) {
-                                            if (handler.status != 404) return HTM-ITUI.utils.modalError(error);
+                                            if (handler.status != 404) return HTMITUI.utils.modalError(error);
                                         }
 
                                         metricCount++;
 
                                         // update % in throbber
                                         percent = Math.round((metricCount / metricList.length) * 100);
-                                        HTM-ITUI.utils.throb.message(
+                                        HTMITUI.utils.throb.message(
                                             me.site.state.metric.remove +
                                             ' (' + percent + '%)'
                                         );
@@ -209,7 +209,7 @@
                                             $.when.apply($, [
                                                 me.customMetrics.fetch(me.fetchOpts)
                                             ]).done(function() {
-                                                HTM-ITUI.utils.throb.stop();
+                                                HTMITUI.utils.throb.stop();
                                                 me.render();
                                             });
                                         }

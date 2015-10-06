@@ -33,17 +33,17 @@ import boto
 from boto.s3.key import Key
 
 
-def printHTM-ITSupportPubkey(conn):
+def printHTMITSupportPubkey(conn):
   """Print the HTM-IT Support Public keys on stdout"""
   bucket = conn.get_bucket(BUCKET, validate=False)
   k = Key(bucket)
 
-  k.key = "/resources/HTM-ITSupport.pubkeys"
+  k.key = "/resources/HTMITSupport.pubkeys"
   print k.get_contents_as_string()
 
 
 
 if __name__ == "__main__":
   s3connection = boto.connect_s3(AWS_ACCESS_KEY, AWS_SECRET_KEY)
-  printHTM-ITSupportPubkey(s3connection)
+  printHTMITSupportPubkey(s3connection)
 

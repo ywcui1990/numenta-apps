@@ -24,7 +24,7 @@
     /**
      * Backbone.View() - Embed: Charts
      */
-    HTM-ITUI.ChartsView = Backbone.View.extend({
+    HTMITUI.ChartsView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -35,8 +35,8 @@
 
         // Custom properties
 
-        msgs: HTM-ITUI.msgs('charts-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('charts-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         api:    null,
         hash:   null,
@@ -62,7 +62,7 @@
             var collectionOpts = null,
                 fetchOpts = {
                     error: function(collection, response, options) {
-                        return HTM-ITUI.utils.modalError(response);
+                        return HTMITUI.utils.modalError(response);
                     }
                 };
 
@@ -70,9 +70,9 @@
 
             this.api = options.api;
 
-            this.hash =   HTM-ITUI.utils.getUrlParam('hash');
-            this.height = HTM-ITUI.utils.getUrlParam('height');
-            this.width =  HTM-ITUI.utils.getUrlParam('width') ||
+            this.hash =   HTMITUI.utils.getUrlParam('hash');
+            this.height = HTMITUI.utils.getUrlParam('height');
+            this.width =  HTMITUI.utils.getUrlParam('width') ||
                             ($('body section#content').width() + 25);
 
             // collections
@@ -82,18 +82,18 @@
                 period: 2
             };
             this.collections.models =
-                new HTM-ITUI.SortedModelsCollection([], collectionOpts);
+                new HTMITUI.SortedModelsCollection([], collectionOpts);
 
             // page
 
-            HTM-ITUI.utils.title(this.msgs.title);
-            HTM-ITUI.utils.throb.start(this.site.state.loading);
+            HTMITUI.utils.title(this.msgs.title);
+            HTMITUI.utils.throb.start(this.site.state.loading);
 
             // no hash = web ui view (not direct embed)
             if(! this.hash) {
                 // since web ui view, make sure aws authed
-                if(! HTM-ITUI.utils.isAuthorized()) {
-                    HTM-ITUI.utils.go(this.site.paths.welcome);
+                if(! HTMITUI.utils.isAuthorized()) {
+                    HTMITUI.utils.go(this.site.paths.welcome);
                     return;
                 }
             }
@@ -123,7 +123,7 @@
                     }
                 };
 
-            HTM-ITUI.utils.throb.stop();
+            HTMITUI.utils.throb.stop();
             this.$el.html(this.template(data));
 
             // no results
@@ -134,10 +134,10 @@
             }
 
             // init views
-            this.views.tabs =   new HTM-ITUI.EmbedChartsTabsView(viewOpts);
-            this.views.sort =   new HTM-ITUI.EmbedChartsSortView(viewOpts);
-            this.views.rows =   new HTM-ITUI.EmbedChartsRowsView(viewOpts);
-            this.views.slider = new HTM-ITUI.EmbedChartsSliderView(viewOpts);
+            this.views.tabs =   new HTMITUI.EmbedChartsTabsView(viewOpts);
+            this.views.sort =   new HTMITUI.EmbedChartsSortView(viewOpts);
+            this.views.rows =   new HTMITUI.EmbedChartsRowsView(viewOpts);
+            this.views.slider = new HTMITUI.EmbedChartsSliderView(viewOpts);
 
             // Assign all views to DOM
             this.assign(this.views.tabs, '.tabs');
@@ -169,7 +169,7 @@
                 },
                 fetchOpts = {
                     error: function(collection, response, options) {
-                        return HTM-ITUI.utils.modalError(response);
+                        return HTMITUI.utils.modalError(response);
                     }
                 },
                 // Convert minutes per bar into hours for the period API
@@ -180,10 +180,10 @@
                     period: (minutesPerBar[tab] * 24) / 60
                 };
 
-            HTM-ITUI.utils.throb.start(this.site.state.loading);
+            HTMITUI.utils.throb.start(this.site.state.loading);
 
             this.collections.models =
-                new HTM-ITUI.SortedModelsCollection([], collectionOpts);
+                new HTMITUI.SortedModelsCollection([], collectionOpts);
 
             $.when(
                 this.collections.models.fetch(fetchOpts)

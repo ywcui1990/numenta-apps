@@ -21,12 +21,12 @@
 
 (function() {
 
-    HTM-ITUI.SetupProgressBarView = Backbone.View.extend({
+    HTMITUI.SetupProgressBarView = Backbone.View.extend({
 
         template: _.template($('#setup-progress-bar-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('setup-progress-bar-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('setup-progress-bar-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
         },

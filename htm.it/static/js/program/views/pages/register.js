@@ -21,12 +21,12 @@
 
 (function() {
 
-    HTM-ITUI.RegisterView = Backbone.View.extend({
+    HTMITUI.RegisterView = Backbone.View.extend({
 
         template: _.template($('#register-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('register-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('register-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'change #agree' : 'handleAgreeToggle',
@@ -41,26 +41,26 @@
             me.api = options.api;
             me.checked = true;
 
-            HTM-ITUI.utils.title(me.msgs.title);
+            HTMITUI.utils.title(me.msgs.title);
 
             // setup? deactive header logo link
-            if(HTM-ITUI.utils.isSetupFlow()) {
+            if(HTMITUI.utils.isSetupFlow()) {
                 $('.navbar-brand').attr('href', '#');
             }
 
             me.api.getSettings(
                 me.api.CONST.SETTINGS.SECTIONS.USERTRACK,
                 function(error, settings) {
-                    if(error) return HTM-ITUI.utils.modalError(error);
+                    if(error) return HTMITUI.utils.modalError(error);
 
                     if(
-                        (! HTM-ITUI.utils.isAuthorized()) &&
+                        (! HTMITUI.utils.isAuthorized()) &&
                         settings &&
                         ('optin' in settings) &&
                         (settings.optin !== '')
                     ) {
                         // setup already => auth page to login
-                        HTM-ITUI.utils.go(me.site.paths.auth);
+                        HTMITUI.utils.go(me.site.paths.auth);
                         return;
                     }
 
@@ -93,11 +93,11 @@
                     baseUrl: NTA.baseUrl,
                     msgs: me.msgs,
                     site: me.site,
-                    isSetup: HTM-ITUI.utils.isSetupFlow(),
+                    isSetup: HTMITUI.utils.isSetupFlow(),
                     button: {
-                        back: HTM-ITUI.utils.isSetupFlow() ?
+                        back: HTMITUI.utils.isSetupFlow() ?
                             me.site.buttons.back : me.site.buttons.cancel,
-                        next: HTM-ITUI.utils.isSetupFlow() ?
+                        next: HTMITUI.utils.isSetupFlow() ?
                             me.site.buttons.next : me.site.buttons.save
                     },
                     values: settings,
@@ -108,8 +108,8 @@
 
             me.$el.html(me.template(data));
 
-            if(HTM-ITUI.utils.isSetupFlow()) {
-                setupProgressBar = HTM-ITUI.utils.getSetupProgressBar(
+            if(HTMITUI.utils.isSetupFlow()) {
+                setupProgressBar = HTMITUI.utils.getSetupProgressBar(
                     step, $('#progress-bar-container'));
             }
 
@@ -139,14 +139,14 @@
 
         handleBack: function(event) {
             var me = this,
-                destination = HTM-ITUI.utils.isSetupFlow() ?
+                destination = HTMITUI.utils.isSetupFlow() ?
                     me.site.paths.welcome + window.location.search :
                     me.site.paths.manage;
 
             event.stopPropagation();
             event.preventDefault();
 
-            HTM-ITUI.utils.go(destination);
+            HTMITUI.utils.go(destination);
         },
 
         handleNext: function(event) {
@@ -155,14 +155,14 @@
                 optIn = $checkbox.is(':checked') ? 'true' : 'false',
                 USERTRACK = me.api.CONST.SETTINGS.USERTRACK,
                 settings = {},
-                destination = HTM-ITUI.utils.isSetupFlow() ?
+                destination = HTMITUI.utils.isSetupFlow() ?
                     me.site.paths.auth + window.location.search :
                     me.site.paths.manage,
                 name = $('#name').val(),
                 company = $('#company').val(),
                 email = $('#email').val();
 
-            HTM-ITUI.utils.throb.start(me.site.state.save);
+            HTMITUI.utils.throb.start(me.site.state.save);
 
             event.stopPropagation();
             event.preventDefault();
@@ -177,19 +177,19 @@
                 settings,
                 me.api.CONST.SETTINGS.SECTIONS.USERTRACK,
                 function(error) {
-                    if(error) return HTM-ITUI.utils.modalError(error);
+                    if(error) return HTMITUI.utils.modalError(error);
 
                     // send a few extras to wufoo
-                    settings['edition'] = HTM-ITUI.product.edition;
-                    settings['version'] = HTM-ITUI.product.version;
-                    settings['build'] = HTM-ITUI.product.build;
+                    settings['edition'] = HTMITUI.product.edition;
+                    settings['version'] = HTMITUI.product.version;
+                    settings['build'] = HTMITUI.product.build;
 
                     // remove optin
                     delete settings[USERTRACK.OPTIN];
 
                     me.api.sendWufooForm(settings, function(error) {
-                        if(error) return HTM-ITUI.utils.modalError(error);
-                        HTM-ITUI.utils.go(destination);
+                        if(error) return HTMITUI.utils.modalError(error);
+                        HTMITUI.utils.go(destination);
                     });
                 }
             );

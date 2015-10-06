@@ -19,15 +19,15 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('HTM-IT API JS Client', function() {
+describe('HTMIT API JS Client', function() {
 
     describe('when constructed without options', function() {
 
-        var htm-it =      new HTM-ITAPI(),
+        var htmit =      new HTMITAPI(),
             handle =    null;
 
         it('should provide proper default options', function() {
-            expect(htm-it.opts).to.eql({
+            expect(htmit.opts).to.eql({
                 apiKey:     '',
                 endPoint:   '',
                 dataSource: 'cloudwatch'
@@ -37,20 +37,20 @@ describe('HTM-IT API JS Client', function() {
         describe('when making a request', function() {
 
             it('takes a single url param', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.eql('url');
                     return {};
                 };
-                handle = htm-it._makeRequest('url');
+                handle = htmit._makeRequest('url');
                 expect(handle).to.be.an('object');
             });
             it('takes a jQuery param object', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.eql('url');
                     expect(opts.type).to.eql('GET');
                     return {};
                 };
-                handle = htm-it._makeRequest({
+                handle = htmit._makeRequest({
                     url: 'url',
                     type: 'GET'
                 });
@@ -60,22 +60,22 @@ describe('HTM-IT API JS Client', function() {
             // calls callback
 
             it('calls callback (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it._makeRequest('url', function(error, result) {
+                handle = htmit._makeRequest('url', function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('calls callback (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     callback('fail');
                     return {};
                 };
-                handle = htm-it._makeRequest('url', function(error, result) {
+                handle = htmit._makeRequest('url', function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -88,10 +88,10 @@ describe('HTM-IT API JS Client', function() {
             // authorizes a users credentials
 
             it('authorizes a users credentials (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTH
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTH
                     ].join('/'));
                     expect(opts.type).to.be('POST');
                     expect(opts.data).to.be(JSON.stringify({
@@ -101,7 +101,7 @@ describe('HTM-IT API JS Client', function() {
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.auth(
+                handle = htmit.auth(
                     {
                         key: 'key',
                         val: 'val'
@@ -114,15 +114,15 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('authorizes a users credentials (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTH
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTH
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.auth(
+                handle = htmit.auth(
                     {},
                     function(error, result) {
                         expect(error).to.be('fail');
@@ -138,11 +138,11 @@ describe('HTM-IT API JS Client', function() {
             // sends user settings
 
             it('sends user settings (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.SETTINGS,
-                        htm-it.CONST.SETTINGS.SECTIONS.AWS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.SETTINGS,
+                        htmit.CONST.SETTINGS.SECTIONS.AWS
                     ].join('/'));
                     expect(opts.type).to.be('POST');
                     expect(opts.data).to.be(JSON.stringify({
@@ -152,12 +152,12 @@ describe('HTM-IT API JS Client', function() {
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.putSettings(
+                handle = htmit.putSettings(
                     {
                         key: 'key',
                         val: 'val'
                     },
-                    htm-it.CONST.SETTINGS.SECTIONS.AWS,
+                    htmit.CONST.SETTINGS.SECTIONS.AWS,
                     function(error, result) {
                         expect(error).to.be(null);
                         expect(result).to.be('success');
@@ -166,18 +166,18 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('sends user settings (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.SETTINGS,
-                        htm-it.CONST.SETTINGS.SECTIONS.AWS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.SETTINGS,
+                        htmit.CONST.SETTINGS.SECTIONS.AWS
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.putSettings(
+                handle = htmit.putSettings(
                     {},
-                    htm-it.CONST.SETTINGS.SECTIONS.AWS,
+                    htmit.CONST.SETTINGS.SECTIONS.AWS,
                     function(error, result) {
                         expect(error).to.be('fail');
                     }
@@ -188,17 +188,17 @@ describe('HTM-IT API JS Client', function() {
             // gets user settings
 
             it('gets user settings (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.SETTINGS,
-                        htm-it.CONST.SETTINGS.SECTIONS.AWS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.SETTINGS,
+                        htmit.CONST.SETTINGS.SECTIONS.AWS
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getSettings(
-                    htm-it.CONST.SETTINGS.SECTIONS.AWS,
+                handle = htmit.getSettings(
+                    htmit.CONST.SETTINGS.SECTIONS.AWS,
                     function(error, result) {
                         expect(error).to.be(null);
                         expect(result).to.be('success');
@@ -207,17 +207,17 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('gets user settings (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.SETTINGS,
-                        htm-it.CONST.SETTINGS.SECTIONS.AWS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.SETTINGS,
+                        htmit.CONST.SETTINGS.SECTIONS.AWS
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getSettings(
-                    htm-it.CONST.SETTINGS.SECTIONS.AWS,
+                handle = htmit.getSettings(
+                    htmit.CONST.SETTINGS.SECTIONS.AWS,
                     function(error, result) {
                         expect(error).to.be('fail');
                     }
@@ -232,32 +232,32 @@ describe('HTM-IT API JS Client', function() {
             // gets current data source details
 
             it('gets current data source details (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getDataSource(function(error, result) {
+                handle = htmit.getDataSource(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets current data source details (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getDataSource(function(error, result) {
+                handle = htmit.getDataSource(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -266,34 +266,34 @@ describe('HTM-IT API JS Client', function() {
             // gets regions
 
             it('gets regions (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
-                        htm-it.CONST.METRICS.PATHS.REGIONS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
+                        htmit.CONST.METRICS.PATHS.REGIONS
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getRegions(function(error, result) {
+                handle = htmit.getRegions(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets regions (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
-                        htm-it.CONST.METRICS.PATHS.REGIONS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
+                        htmit.CONST.METRICS.PATHS.REGIONS
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getRegions(function(error, result) {
+                handle = htmit.getRegions(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -302,56 +302,56 @@ describe('HTM-IT API JS Client', function() {
             // gets region metric details, with and without options
 
             it('gets region metric details without options (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
-                        htm-it.CONST.METRICS.PATHS.REGIONS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
+                        htmit.CONST.METRICS.PATHS.REGIONS,
                         'us-west-2'
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getRegionDetails('us-west-2', function(error, result) {
+                handle = htmit.getRegionDetails('us-west-2', function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets region metric details without options (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
-                        htm-it.CONST.METRICS.PATHS.REGIONS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
+                        htmit.CONST.METRICS.PATHS.REGIONS,
                         'us-west-2'
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getRegionDetails('us-west-2', function(error, result) {
+                handle = htmit.getRegionDetails('us-west-2', function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets region metric details with options (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
-                        htm-it.CONST.METRICS.PATHS.REGIONS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
+                        htmit.CONST.METRICS.PATHS.REGIONS,
                         'us-west-2'
                     ].join('/'));
-                    expect(opts.data.tags).to.be('Name:*htm-it*,Name:*test*');
+                    expect(opts.data.tags).to.be('Name:*htmit*,Name:*test*');
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getRegionDetails(
+                handle = htmit.getRegionDetails(
                     'us-west-2',
-                    { tags: 'Name:*htm-it*,Name:*test*' },
+                    { tags: 'Name:*htmit*,Name:*test*' },
                     function(error, result) {
                         expect(error).to.be(null);
                         expect(result).to.be('success');
@@ -360,21 +360,21 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('gets region metric details with options (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
-                        htm-it.CONST.METRICS.PATHS.REGIONS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
+                        htmit.CONST.METRICS.PATHS.REGIONS,
                         'us-west-2'
                     ].join('/'));
-                    expect(opts.data.tags).to.be('Name:*htm-it*,Name:*test*');
+                    expect(opts.data.tags).to.be('Name:*htmit*,Name:*test*');
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getRegionDetails(
+                handle = htmit.getRegionDetails(
                     'us-west-2',
-                    { tags: 'Name:*htm-it*,Name:*test*' },
+                    { tags: 'Name:*htmit*,Name:*test*' },
                     function(error, result) {
                         expect(error).to.be('fail');
                     }
@@ -385,7 +385,7 @@ describe('HTM-IT API JS Client', function() {
             // gets region+namespace metric details
 
             it('gets region+namespace metric details (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
                         this.opts.endPoint,
                         this.CONST.ENDPOINTS.METRICS,
@@ -396,7 +396,7 @@ describe('HTM-IT API JS Client', function() {
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getInstanceMetrics(
+                handle = htmit.getInstanceMetrics(
                     'us-west-2',
                     'AWS/EC2',
                     function(error, result) {
@@ -407,7 +407,7 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('gets region+namespace metric details (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
                         this.opts.endPoint,
                         this.CONST.ENDPOINTS.METRICS,
@@ -418,7 +418,7 @@ describe('HTM-IT API JS Client', function() {
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getInstanceMetrics(
+                handle = htmit.getInstanceMetrics(
                     'us-west-2',
                     'AWS/EC2',
                     function(error, result) {
@@ -431,34 +431,34 @@ describe('HTM-IT API JS Client', function() {
             // gets namespaces
 
             it('gets namespaces (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
-                        htm-it.CONST.METRICS.PATHS.NAMESPACES
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
+                        htmit.CONST.METRICS.PATHS.NAMESPACES
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getNamespaces(function(error, result) {
+                handle = htmit.getNamespaces(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets namespaces (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
-                        htm-it.CONST.METRICS.PATHS.NAMESPACES
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
+                        htmit.CONST.METRICS.PATHS.NAMESPACES
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getNamespaces(function(error, result) {
+                handle = htmit.getNamespaces(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -467,34 +467,34 @@ describe('HTM-IT API JS Client', function() {
             // gets namespace details
 
             it('gets namespace details (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
                         'AWS/EC2'
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getNamespaceDetails('AWS/EC2', function(error, result) {
+                handle = htmit.getNamespaceDetails('AWS/EC2', function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets namespace details (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
                         'AWS/EC2'
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getNamespaceDetails('AWS/EC2', function(error, result) {
+                handle = htmit.getNamespaceDetails('AWS/EC2', function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -503,32 +503,32 @@ describe('HTM-IT API JS Client', function() {
             // gets custom metrics
 
             it('gets custom metrics (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.CONST.METRICS.PATHS.CUSTOM
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.CONST.METRICS.PATHS.CUSTOM
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getHTM-ITCustomMetrics(function(error, result) {
+                handle = htmit.getHTMITCustomMetrics(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets custom metrics (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.CONST.METRICS.PATHS.CUSTOM
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.CONST.METRICS.PATHS.CUSTOM
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getHTM-ITCustomMetrics(function(error, result) {
+                handle = htmit.getHTMITCustomMetrics(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -537,18 +537,18 @@ describe('HTM-IT API JS Client', function() {
             // deletes custom metrics
 
             it('deletes custom metrics (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.CONST.METRICS.PATHS.CUSTOM,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.CONST.METRICS.PATHS.CUSTOM,
                         'fake-metric-id'
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
                     expect(opts.data).to.be(undefined);
                     callback(null, 'success');
                 };
-                htm-it.deleteHTM-ITCustomMetric('fake-metric-id',
+                htmit.deleteHTMITCustomMetric('fake-metric-id',
                         function(error, result) {
                             expect(error).to.be(null);
                             expect(result).to.be('success');
@@ -557,18 +557,18 @@ describe('HTM-IT API JS Client', function() {
             });
 
             it('deletes custom metrics (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.CONST.METRICS.PATHS.CUSTOM,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.CONST.METRICS.PATHS.CUSTOM,
                         'fake-metric-id'
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
                     expect(opts.data).to.be(undefined);
                     callback('fail');
                 };
-                htm-it.deleteHTM-ITCustomMetric('fake-metric-id',
+                htmit.deleteHTMITCustomMetric('fake-metric-id',
                         function(error, result) {
                             expect(error).to.be('fail');
                         }
@@ -582,30 +582,30 @@ describe('HTM-IT API JS Client', function() {
             // gets model info
 
             it('gets model info (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.MODELS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.MODELS
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getModels(function(error, result) {
+                handle = htmit.getModels(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets model info (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.MODELS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.MODELS
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getModels(function(error, result) {
+                handle = htmit.getModels(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -614,18 +614,18 @@ describe('HTM-IT API JS Client', function() {
             // gets model data
 
             it('gets model data (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.MODELS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.MODELS,
                         'modelId',
-                        htm-it.CONST.MODELS.PATHS.DATA
+                        htmit.CONST.MODELS.PATHS.DATA
                     ].join('/'));
                     expect(opts.data.limit).to.be(111);
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getModelData(
+                handle = htmit.getModelData(
                     'modelId',
                     { limit: 111 },
                     function(error, result) {
@@ -636,18 +636,18 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('gets model data (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.MODELS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.MODELS,
                         'modelId',
-                        htm-it.CONST.MODELS.PATHS.DATA
+                        htmit.CONST.MODELS.PATHS.DATA
                     ].join('/'));
                     expect(opts.data.limit).to.be(111);
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getModelData(
+                handle = htmit.getModelData(
                     'modelId',
                     { limit: 111 },
                     function(error, result) {
@@ -660,32 +660,32 @@ describe('HTM-IT API JS Client', function() {
             // exports models
 
             it('exports models (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.MODELS,
-                        htm-it.CONST.MODELS.PATHS.EXPORT
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.MODELS,
+                        htmit.CONST.MODELS.PATHS.EXPORT
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.exportModels(function(error, result) {
+                handle = htmit.exportModels(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('exports models (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.MODELS,
-                        htm-it.CONST.MODELS.PATHS.EXPORT
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.MODELS,
+                        htmit.CONST.MODELS.PATHS.EXPORT
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.exportModels(function(error, result) {
+                handle = htmit.exportModels(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -694,10 +694,10 @@ describe('HTM-IT API JS Client', function() {
             // creates models
 
             it('creates models (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.MODELS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.MODELS
                     ].join('/'));
                     expect(opts.type).to.be('POST');
                     expect(opts.data).to.be(JSON.stringify([
@@ -707,7 +707,7 @@ describe('HTM-IT API JS Client', function() {
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.createModels(
+                handle = htmit.createModels(
                     [
                         { blah: 'blah' },
                         { test: 'test' }
@@ -720,10 +720,10 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('creates models (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.MODELS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.MODELS
                     ].join('/'));
                     expect(opts.type).to.be('POST');
                     expect(opts.data).to.be(JSON.stringify([
@@ -733,7 +733,7 @@ describe('HTM-IT API JS Client', function() {
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.createModels(
+                handle = htmit.createModels(
                     [
                         { blah: 'blah' },
                         { test: 'test' }
@@ -748,10 +748,10 @@ describe('HTM-IT API JS Client', function() {
             // deletes a model
 
             it('deletes a model (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.MODELS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.MODELS,
                         'fake-model-id'
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
@@ -759,7 +759,7 @@ describe('HTM-IT API JS Client', function() {
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.deleteModel(
+                handle = htmit.deleteModel(
                     'fake-model-id',
                     function(error, result) {
                         expect(error).to.be(null);
@@ -769,10 +769,10 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('deletes a model (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.MODELS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.MODELS,
                         'fake-model-id'
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
@@ -780,7 +780,7 @@ describe('HTM-IT API JS Client', function() {
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.deleteModel(
+                handle = htmit.deleteModel(
                     'fake-model-id',
                     function(error, result) {
                         expect(error).to.be('fail');
@@ -796,30 +796,30 @@ describe('HTM-IT API JS Client', function() {
             // gets monitored instances
 
             it('gets monitored instances (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.INSTANCES
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.INSTANCES
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getMonitoredInstances(function(error, result) {
+                handle = htmit.getMonitoredInstances(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets monitored instances (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.INSTANCES
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.INSTANCES
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getMonitoredInstances(function(error, result) {
+                handle = htmit.getMonitoredInstances(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -828,10 +828,10 @@ describe('HTM-IT API JS Client', function() {
             // creates a monitored instance
 
             it('creates a monitored instance (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.INSTANCES,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.INSTANCES,
                         'us-east-1',
                         'AWS/EC2',
                         'i-12345'
@@ -840,7 +840,7 @@ describe('HTM-IT API JS Client', function() {
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.createMonitoredInstance(
+                handle = htmit.createMonitoredInstance(
                     'us-east-1',
                     'AWS/EC2',
                     'i-12345',
@@ -852,10 +852,10 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('creates a monitored instance (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.INSTANCES,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.INSTANCES,
                         'us-east-1',
                         'AWS/EC2',
                         'i-12345'
@@ -864,7 +864,7 @@ describe('HTM-IT API JS Client', function() {
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.createMonitoredInstance(
+                handle = htmit.createMonitoredInstance(
                     'us-east-1',
                     'AWS/EC2',
                     'i-12345',
@@ -878,10 +878,10 @@ describe('HTM-IT API JS Client', function() {
             // deletes monitored instances
 
             it('deletes monitored instances (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.INSTANCES
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.INSTANCES
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
                     expect(opts.data).to.be(
@@ -890,7 +890,7 @@ describe('HTM-IT API JS Client', function() {
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.deleteMonitoredInstances(
+                handle = htmit.deleteMonitoredInstances(
                     [ 'i-12345', 'i-54321' ],
                     function(error, result) {
                         expect(error).to.be(null);
@@ -900,10 +900,10 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('deletes monitored instances (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.INSTANCES
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.INSTANCES
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
                     expect(opts.data).to.be(
@@ -912,7 +912,7 @@ describe('HTM-IT API JS Client', function() {
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.deleteMonitoredInstances(
+                handle = htmit.deleteMonitoredInstances(
                     [ 'i-12345', 'i-54321' ],
                     function(error, result) {
                         expect(error).to.be('fail');
@@ -948,30 +948,30 @@ describe('HTM-IT API JS Client', function() {
             // gets autostacks
 
             it('gets autostacks (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getAutostacks(function(error, result) {
+                handle = htmit.getAutostacks(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets autostacks (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getAutostacks(function(error, result) {
+                handle = htmit.getAutostacks(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -980,17 +980,17 @@ describe('HTM-IT API JS Client', function() {
             // previews autostacks
 
             it('previews autostacks (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS,
-                        htm-it.CONST.AUTOSTACKS.PATHS.PREVIEW_INSTANCES
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS,
+                        htmit.CONST.AUTOSTACKS.PATHS.PREVIEW_INSTANCES
                     ].join('/'));
                     expect(opts.data).to.eql(previewData);
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getAutostackPreview(
+                handle = htmit.getAutostackPreview(
                     region,
                     filters,
                     function(error, result) {
@@ -1001,17 +1001,17 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('previews autostacks (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS,
-                        htm-it.CONST.AUTOSTACKS.PATHS.PREVIEW_INSTANCES
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS,
+                        htmit.CONST.AUTOSTACKS.PATHS.PREVIEW_INSTANCES
                     ].join('/'));
                     expect(opts.data).to.eql(previewData);
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getAutostackPreview(
+                handle = htmit.getAutostackPreview(
                     region,
                     filters,
                     function(error, result) {
@@ -1024,17 +1024,17 @@ describe('HTM-IT API JS Client', function() {
             // creates an autostack
 
             it('creates an autostack (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS
                     ].join('/'));
                     expect(opts.data).to.be(data);
                     expect(opts.type).to.be('POST');
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.createAutostack(
+                handle = htmit.createAutostack(
                     name,
                     region,
                     filters,
@@ -1046,17 +1046,17 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('creates an autostack (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS
                     ].join('/'));
                     expect(opts.data).to.be(data);
                     expect(opts.type).to.be('POST');
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.createAutostack(
+                handle = htmit.createAutostack(
                     name,
                     region,
                     filters,
@@ -1070,17 +1070,17 @@ describe('HTM-IT API JS Client', function() {
             // deletes an autostack
 
             it('deletes an autostack (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS,
                         id
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.deleteAutostack(
+                handle = htmit.deleteAutostack(
                     id,
                     function(error, result) {
                         expect(error).to.be(null);
@@ -1090,17 +1090,17 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('deletes an autostack (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS,
                         id
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.deleteAutostack(
+                handle = htmit.deleteAutostack(
                     id,
                     function(error, result) {
                         expect(error).to.be('fail');
@@ -1112,17 +1112,17 @@ describe('HTM-IT API JS Client', function() {
             // gets metrics for autostack
 
             it('gets metrics for autostack (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS,
                         id,
-                        htm-it.CONST.AUTOSTACKS.PATHS.METRICS
+                        htmit.CONST.AUTOSTACKS.PATHS.METRICS
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getAutostackMetrics(
+                handle = htmit.getAutostackMetrics(
                     id,
                     function(error, result) {
                         expect(error).to.be(null);
@@ -1132,17 +1132,17 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('gets metrics for autostack (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS,
                         id,
-                        htm-it.CONST.AUTOSTACKS.PATHS.METRICS
+                        htmit.CONST.AUTOSTACKS.PATHS.METRICS
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getAutostackMetrics(
+                handle = htmit.getAutostackMetrics(
                     id,
                     function(error, result) {
                         expect(error).to.be('fail');
@@ -1154,19 +1154,19 @@ describe('HTM-IT API JS Client', function() {
             // associates metrics with an autostack
 
             it('associates metrics with an autostack (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS,
                         id,
-                        htm-it.CONST.AUTOSTACKS.PATHS.METRICS
+                        htmit.CONST.AUTOSTACKS.PATHS.METRICS
                     ].join('/'));
                     expect(opts.data).to.be(metrics);
                     expect(opts.type).to.be('POST');
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.createAutostackMetrics(
+                handle = htmit.createAutostackMetrics(
                     id,
                     metrics,
                     function(error, result) {
@@ -1177,19 +1177,19 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('associates metrics with an autostack (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS,
                         id,
-                        htm-it.CONST.AUTOSTACKS.PATHS.METRICS
+                        htmit.CONST.AUTOSTACKS.PATHS.METRICS
                     ].join('/'));
                     expect(opts.data).to.be(metrics);
                     expect(opts.type).to.be('POST');
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.createAutostackMetrics(
+                handle = htmit.createAutostackMetrics(
                     id,
                     metrics,
                     function(error, result) {
@@ -1202,19 +1202,19 @@ describe('HTM-IT API JS Client', function() {
             // deletes a metric associated with an autostack
 
             it('deletes a metric associated with an autostack (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS,
                         id,
-                        htm-it.CONST.AUTOSTACKS.PATHS.METRICS,
+                        htmit.CONST.AUTOSTACKS.PATHS.METRICS,
                         metricID
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.deleteAutostackMetric(
+                handle = htmit.deleteAutostackMetric(
                     id,
                     metricID,
                     function(error, result) {
@@ -1225,19 +1225,19 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('deletes a metric associated with an autostack (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.AUTOSTACKS,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.AUTOSTACKS,
                         id,
-                        htm-it.CONST.AUTOSTACKS.PATHS.METRICS,
+                        htmit.CONST.AUTOSTACKS.PATHS.METRICS,
                         metricID
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.deleteAutostackMetric(
+                handle = htmit.deleteAutostackMetric(
                     id,
                     metricID,
                     function(error, result) {
@@ -1254,20 +1254,20 @@ describe('HTM-IT API JS Client', function() {
             // gets tags
 
             it('gets tags (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
                         'us-east-1',
-                        htm-it.CONST.METRICS.PATHS.TAGS,
+                        htmit.CONST.METRICS.PATHS.TAGS,
                         'instances',
                         'i-12345'
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getTags(
+                handle = htmit.getTags(
                     'us-east-1',
                     'instances',
                     'i-12345',
@@ -1279,20 +1279,20 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('gets tags (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.METRICS,
-                        htm-it.opts.dataSource,
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.METRICS,
+                        htmit.opts.dataSource,
                         'us-east-1',
-                        htm-it.CONST.METRICS.PATHS.TAGS,
+                        htmit.CONST.METRICS.PATHS.TAGS,
                         'instances',
                         'i-12345'
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getTags(
+                handle = htmit.getTags(
                     'us-east-1',
                     'instances',
                     'i-12345',
@@ -1310,30 +1310,30 @@ describe('HTM-IT API JS Client', function() {
             // checks for support access
 
             it('checks for support access (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.SUPPORT
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.SUPPORT
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getSupportAccess(function(error, result) {
+                handle = htmit.getSupportAccess(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('checks for support access (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.SUPPORT
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.SUPPORT
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getSupportAccess(function(error, result) {
+                handle = htmit.getSupportAccess(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -1342,32 +1342,32 @@ describe('HTM-IT API JS Client', function() {
             // allows support access
 
             it('allows support access (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.SUPPORT
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.SUPPORT
                     ].join('/'));
                     expect(opts.type).to.be('POST');
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.setSupportAccess(function(error, result) {
+                handle = htmit.setSupportAccess(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('allows support access (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.SUPPORT
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.SUPPORT
                     ].join('/'));
                     expect(opts.type).to.be('POST');
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.setSupportAccess(function(error, result) {
+                handle = htmit.setSupportAccess(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -1376,32 +1376,32 @@ describe('HTM-IT API JS Client', function() {
             // revoke support access
 
             it('revokes support access (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.SUPPORT
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.SUPPORT
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.removeSupportAccess(function(error, result) {
+                handle = htmit.removeSupportAccess(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('revokes support access (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.SUPPORT
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.SUPPORT
                     ].join('/'));
                     expect(opts.type).to.be('DELETE');
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.removeSupportAccess(function(error, result) {
+                handle = htmit.removeSupportAccess(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -1414,30 +1414,30 @@ describe('HTM-IT API JS Client', function() {
             // checks for an update
 
             it('checks for an update (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.UPDATE
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.UPDATE
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getUpdate(function(error, result) {
+                handle = htmit.getUpdate(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('checks for an update (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.UPDATE
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.UPDATE
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getUpdate(function(error, result) {
+                handle = htmit.getUpdate(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -1446,30 +1446,30 @@ describe('HTM-IT API JS Client', function() {
             // triggers an update
 
             it('triggers an update (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.UPDATE
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.UPDATE
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.setUpdate(function(error, result) {
+                handle = htmit.setUpdate(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('triggers an update (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.UPDATE
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.UPDATE
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.setUpdate(function(error, result) {
+                handle = htmit.setUpdate(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -1482,10 +1482,10 @@ describe('HTM-IT API JS Client', function() {
             // send user data to wufoo form
 
             it('sends data (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.WUFOO
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.WUFOO
                     ].join('/'));
                     expect(opts.data).to.be(
                         JSON.stringify({ name: 'User' })
@@ -1494,7 +1494,7 @@ describe('HTM-IT API JS Client', function() {
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.sendWufooForm(
+                handle = htmit.sendWufooForm(
                     { name: 'User' },
                     function(error, result) {
                         expect(error).to.be(null);
@@ -1504,10 +1504,10 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('sends data (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.WUFOO
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.WUFOO
                     ].join('/'));
                     expect(opts.data).to.be(
                         JSON.stringify({ name: 'User' })
@@ -1516,7 +1516,7 @@ describe('HTM-IT API JS Client', function() {
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.sendWufooForm(
+                handle = htmit.sendWufooForm(
                     { name: 'User' },
                     function(error, result) {
                         expect(error).to.be('fail');
@@ -1532,30 +1532,30 @@ describe('HTM-IT API JS Client', function() {
             // gets notifications
 
             it('gets notifications (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.NOTIFICATIONS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.NOTIFICATIONS
                     ].join('/'));
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getNotifications(function(error, result) {
+                handle = htmit.getNotifications(function(error, result) {
                     expect(error).to.be(null);
                     expect(result).to.be('success');
                 });
                 expect(handle).to.be.an('object');
             });
             it('gets notifications (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.NOTIFICATIONS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.NOTIFICATIONS
                     ].join('/'));
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getNotifications(function(error, result) {
+                handle = htmit.getNotifications(function(error, result) {
                     expect(error).to.be('fail');
                 });
                 expect(handle).to.be.an('object');
@@ -1564,10 +1564,10 @@ describe('HTM-IT API JS Client', function() {
             // sets notifications
 
             it('sets notification (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.NOTIFICATIONS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.NOTIFICATIONS
                     ].join('/'));
                     expect(opts.data).to.be(JSON.stringify({
                         blah: 'blah'
@@ -1575,7 +1575,7 @@ describe('HTM-IT API JS Client', function() {
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.setNotification(
+                handle = htmit.setNotification(
                     { blah: 'blah' },
                     function(error, result) {
                         expect(error).to.be(null);
@@ -1585,10 +1585,10 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('sets notification (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.NOTIFICATIONS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.NOTIFICATIONS
                     ].join('/'));
                     expect(opts.data).to.be(JSON.stringify({
                         blah: 'blah'
@@ -1596,7 +1596,7 @@ describe('HTM-IT API JS Client', function() {
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.setNotification(
+                handle = htmit.setNotification(
                     { blah: 'blah' },
                     function(error, result) {
                         expect(error).to.be('fail');
@@ -1608,17 +1608,17 @@ describe('HTM-IT API JS Client', function() {
             // gets notification history
 
             it('gets notification history (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.NOTIFICATIONS,
-                        htm-it.CONST.NOTIFICATIONS.PATHS.HISTORY
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.NOTIFICATIONS,
+                        htmit.CONST.NOTIFICATIONS.PATHS.HISTORY
                     ].join('/'));
                     expect(JSON.parse(opts.data).limit).to.be(111);
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getNotificationHistory(
+                handle = htmit.getNotificationHistory(
                     { limit: 111 },
                     function(error, result) {
                         expect(error).to.be(null);
@@ -1628,17 +1628,17 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('gets notification history (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.NOTIFICATIONS,
-                        htm-it.CONST.NOTIFICATIONS.PATHS.HISTORY
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.NOTIFICATIONS,
+                        htmit.CONST.NOTIFICATIONS.PATHS.HISTORY
                     ].join('/'));
                     expect(JSON.parse(opts.data).limit).to.be(111);
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getNotificationHistory(
+                handle = htmit.getNotificationHistory(
                     { limit: 111 },
                     function(error, result) {
                         expect(error).to.be('fail');
@@ -1653,17 +1653,17 @@ describe('HTM-IT API JS Client', function() {
             // gets annotations
 
             it('gets annotations (pass)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.ANNOTATIONS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.ANNOTATIONS
                     ].join('/'));
                     expect(JSON.parse(opts.data).from).to.be('2014-01-01 10:00:00');
                     expect(JSON.parse(opts.data).to).to.be('2014-01-15 10:00:00');
                     callback(null, 'success');
                     return {};
                 };
-                handle = htm-it.getAnnotations(
+                handle = htmit.getAnnotations(
                     { from: '2014-01-01 10:00:00', to: '2014-01-15 10:00:00' },
                     function(error, result) {
                         expect(error).to.be(null);
@@ -1673,17 +1673,17 @@ describe('HTM-IT API JS Client', function() {
                 expect(handle).to.be.an('object');
             });
             it('gets annotations (fail)', function() {
-                htm-it._makeRequest = function(opts, callback) {
+                htmit._makeRequest = function(opts, callback) {
                     expect(opts.url).to.be([
-                        htm-it.opts.endPoint,
-                        htm-it.CONST.ENDPOINTS.ANNOTATIONS
+                        htmit.opts.endPoint,
+                        htmit.CONST.ENDPOINTS.ANNOTATIONS
                     ].join('/'));
                     expect(JSON.parse(opts.data).from).to.be('2014-01-01 10:00:00');
                     expect(JSON.parse(opts.data).to).to.be('2014-01-15 10:00:00');
                     callback('fail');
                     return {};
                 };
-                handle = htm-it.getAnnotations(
+                handle = htmit.getAnnotations(
                     { from: '2014-01-01 10:00:00', to: '2014-01-15 10:00:00' },
                     function(error, result) {
                         expect(error).to.be('fail');
@@ -1698,15 +1698,15 @@ describe('HTM-IT API JS Client', function() {
 
     describe('when constructed with options', function() {
 
-        var htm-it = new HTM-ITAPI({
+        var htmit = new HTMITAPI({
             endPoint: 'test endpoint'
         });
 
         it('should override user-provided values', function() {
-            expect(htm-it.opts.endPoint).to.eql('test endpoint');
+            expect(htmit.opts.endPoint).to.eql('test endpoint');
         });
         it('should leave alone default values user did not override', function() {
-            expect(htm-it.opts.dataSource).to.eql('cloudwatch');
+            expect(htmit.opts.dataSource).to.eql('cloudwatch');
         });
 
     });

@@ -48,15 +48,15 @@ HTM_IT_CONFIG_FILES = [
 ]
 
 
-class TestHTM-ITInstallation(unittest.TestCase):
+class TestHTMITInstallation(unittest.TestCase):
 
 
-  def testHTM-ITConfigurationFilesPresent(self):
+  def testHTMITConfigurationFilesPresent(self):
     for confFile in HTM_IT_CONFIG_FILES:
       self.assertTrue(agamotto.file.exists(confFile), "%s missing" % confFile)
 
 
-  def testHTM-ITCronjobs(self):
+  def testHTMITCronjobs(self):
     self.assertTrue(agamotto.cron.entry(
       "7 * * * * /usr/local/sbin/lockrun --lockfile=/var/lock/shuffle_htm-itlogs -- /usr/local/sbin/shuffle_htm-itlogs 2>&1 | logger -t gs-shuffle-htm-itlogs"))
 
@@ -80,11 +80,11 @@ class TestHTM-ITInstallation(unittest.TestCase):
     self.assertTrue(agamotto.service.enabled("htm-it-preload"))
 
 
-  def testHTM-ITServicesEnabled(self):
+  def testHTMITServicesEnabled(self):
     self.assertTrue(agamotto.service.enabled("htm-itservices"))
 
 
-  def testHTM-ITupdates(self):
+  def testHTMITupdates(self):
     self.assertTrue(agamotto.service.enabled("htm-itupdates"))
 
 
@@ -104,7 +104,7 @@ class TestHTM-ITInstallation(unittest.TestCase):
                     'supervisor_helper="${NUMENTA}/supervisord-helper"'))
 
 
-  def testHTM-ITDatabaseExists(self):
+  def testHTMITDatabaseExists(self):
     mysqlPasswordFile = "/etc/htm-it/mysql_password"
     sqlPrefix = "mysql -u root --silent "
     if os.path.isfile(mysqlPasswordFile):

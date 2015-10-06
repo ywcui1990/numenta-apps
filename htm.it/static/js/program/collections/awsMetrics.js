@@ -26,14 +26,14 @@
    * @constructor
    * @copyright © 2014 Numenta
    * @public
-   * @requires Backbone, Backbone.Collection, HTM-ITUI.AwsMetricModel
+   * @requires Backbone, Backbone.Collection, HTMITUI.AwsMetricModel
    * @returns {Object} Backbone.js Collection object
    */
-  HTM-ITUI.AwsMetricsCollection = Backbone.Collection.extend({
+  HTMITUI.AwsMetricsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: HTM-ITUI.AwsMetricModel,
+    model: HTMITUI.AwsMetricModel,
 
     // Custom properties
 

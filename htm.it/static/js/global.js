@@ -24,7 +24,7 @@
     $(document).ready(function() {
 
         // kick off backbone client side routing
-        HTM-ITUI.router = new HTM-ITUI.Router();
+        HTMITUI.router = new HTMITUI.Router();
         Backbone.history.start({
             hashChange: false,
             pushState:  'pushState' in window.history,
@@ -37,18 +37,18 @@
         });
 
         // when views are finished rendering
-        HTM-ITUI.loader.on('finished', function() {
+        HTMITUI.loader.on('finished', function() {
 
             // only once, not after
-            HTM-ITUI.loader.off('finished');
+            HTMITUI.loader.off('finished');
 
             // Add handler for Help header link
-            $('.navbar .nav > .help').click(HTM-ITUI.utils.help.show);
+            $('.navbar .nav > .help').click(HTMITUI.utils.help.show);
 
             // if this is an embeddable widget request
             if(
                 window.location.pathname.match(/\/embed/) &&
-                HTM-ITUI.utils.getUrlParam('hash')
+                HTMITUI.utils.getUrlParam('hash')
             ) {
                 // skip everything else after this point, not necessary
                 return;
@@ -56,7 +56,7 @@
 
             // not setup flow, not welcome page, so...
             if(
-                (! HTM-ITUI.utils.isSetupFlow()) &&
+                (! HTMITUI.utils.isSetupFlow()) &&
                 (! window.location.href.match(/welcome/))
             ) {
                 // ...so show full header
@@ -64,17 +64,17 @@
             }
 
             // make sure they can use api
-            if(HTM-ITUI.utils.isAuthorized()) {
+            if(HTMITUI.utils.isAuthorized()) {
                 var apiOpts = {
-                        apiKey: HTM-ITUI.utils.store.get('apiKey')
+                        apiKey: HTMITUI.utils.store.get('apiKey')
                     },
-                    api = new HTM-ITAPI(apiOpts);
+                    api = new HTMITAPI(apiOpts);
 
                 // warn user if updates are available
                 api.getUpdate(function(error, results) {
-                    if(error) return HTM-ITUI.utils.modalError(error);
+                    if(error) return HTMITUI.utils.modalError(error);
                     if(results.result) {
-                        HTM-ITUI.loader.loadResources(
+                        HTMITUI.loader.loadResources(
                             {
                                 scripts:    [
                                     NTA.baseUrl + '/static/js/program/views/panels/alertUpdate.js'
@@ -88,14 +88,14 @@
                                 msgs: ['site']
                             },
                             function() {
-                                var view = new HTM-ITUI.AlertUpdateView({
+                                var view = new HTMITUI.AlertUpdateView({
                                     el: $('#alert .text'),
-                                    api: new HTM-ITAPI({
-                                        apiKey: HTM-ITUI.utils.store.get('apiKey')
+                                    api: new HTMITAPI({
+                                        apiKey: HTMITUI.utils.store.get('apiKey')
                                     })
                                 });
                             }
-                        ); // HTM-ITUI.loader.loadResources
+                        ); // HTMITUI.loader.loadResources
                     } // if
                 }); // api.getUpdate()
 
@@ -113,20 +113,20 @@
                             $disable.parent().addClass('off');
                         };
 
-                    if(error) return HTM-ITUI.utils.modalError(error);
+                    if(error) return HTMITUI.utils.modalError(error);
 
                     if(results.result) doEnable();
                     else doDisable();
 
                     $enable.on('click', function(event) {
                         api.setSupportAccess(function(error) {
-                            if(error) return HTM-ITUI.utils.modalError(error);
+                            if(error) return HTMITUI.utils.modalError(error);
                             doEnable();
                         });
                     });
                     $disable.on('click', function(event) {
                         api.removeSupportAccess(function(error) {
-                            if(error) return HTM-ITUI.utils.modalError(error);
+                            if(error) return HTMITUI.utils.modalError(error);
                             doDisable();
                         });
                     });
@@ -134,7 +134,7 @@
 
             } // if authed user
 
-        }); // HTM-ITUI loader on finished
+        }); // HTMITUI loader on finished
 
     }); // document ready
 

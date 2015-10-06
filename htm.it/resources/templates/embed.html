@@ -29,7 +29,7 @@ $def with (data)
         <script src="$data['baseUrl']/static/bower_components/bootbox/bootbox.min.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/lib/htm-it/nta.js?v=$data['product']['version']"></script>
         <script>
-            window.HTM-ITUI = {
+            window.HTMITUI = {
                 _apiEndpoint: "$data['endpoint']",
                 apiKey: "$data['apiKey']",
                 embed: {
@@ -46,7 +46,7 @@ $def with (data)
             NTA.baseUrl = "$data['baseUrl']";
         </script>
         <!-- HTM-IT API -->
-        <script src="$data['baseUrl']/static/js/lib/htm-it/HTM-ITAPI.js?v=$data['product']['version']"></script>
+        <script src="$data['baseUrl']/static/js/lib/htm-it/HTMITAPI.js?v=$data['product']['version']"></script>
         <!-- Backbone.Model(s) -->
         <script src="$data['baseUrl']/static/js/program/models/annotation.js?v=$data['product']['version']"></script>
         <script src="$data['baseUrl']/static/js/program/models/model.js?v=$data['product']['version']"></script>

@@ -23,7 +23,7 @@
 
     /* TODO: Rename this view to modalInstanceSelect or something cause it's a modal */
 
-    HTM-ITUI.InstanceSelectView = Backbone.View.extend({
+    HTMITUI.InstanceSelectView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -34,8 +34,8 @@
 
         // Custom properties
 
-        msgs: HTM-ITUI.msgs('instance-select-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('instance-select-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         api:        null,
         instances:  null,
@@ -124,7 +124,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            HTM-ITUI.utils.throb.start(me.site.state.instance.starts);
+            HTMITUI.utils.throb.start(me.site.state.instance.starts);
 
             $checkboxes.each(function() {
                 var $row = $(this).parents('tr'),
@@ -166,7 +166,7 @@
                         function(error, result) {
                             if(error) {
                                 me.trigger('view-models-created');
-                                return HTM-ITUI.utils.modalError(error);
+                                return HTMITUI.utils.modalError(error);
                             }
 
                             me.data.instances.add({
@@ -179,7 +179,7 @@
 
                             // update % in throbber
                             percent = Math.round((index / list.length) * 100);
-                            HTM-ITUI.utils.throb.message(
+                            HTMITUI.utils.throb.message(
                                 me.site.state.instance.starts +
                                 ' (' + percent + '%)'
                             );
@@ -198,7 +198,7 @@
                         function(error, results) {
                             if(error) {
                                 me.trigger('view-models-created');
-                                return HTM-ITUI.utils.modalError(error);
+                                return HTMITUI.utils.modalError(error);
                             }
 
                             me.data.models.add({
@@ -212,7 +212,7 @@
 
                             // update % in throbber
                             percent = Math.round((index / list.length) * 100);
-                            HTM-ITUI.utils.throb.message(
+                            HTMITUI.utils.throb.message(
                                 me.site.state.instance.starts +
                                 ' (' + percent + '%)'
                             );
@@ -227,7 +227,7 @@
                 // all done with recursive loop
                 me.$modal.modal('hide');
                 me.trigger('view-models-created');
-                HTM-ITUI.utils.throb.stop();
+                HTMITUI.utils.throb.stop();
             }
         }
 

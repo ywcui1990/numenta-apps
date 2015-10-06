@@ -21,7 +21,7 @@
 
 describe('HTM-IT Backbone.Model: AwsRegion', function() {
 
-    var model = new HTM-ITUI.AwsRegionModel();
+    var model = new HTMITUI.AwsRegionModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

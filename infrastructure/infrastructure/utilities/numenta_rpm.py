@@ -163,7 +163,7 @@ class NumentaRPM(object):
     logger.debug("RPM flavor: %s", config.flavor)
 
     if flavor == "htm-it":
-      return self.constructHTM-ITFakeroot()
+      return self.constructHTMITFakeroot()
 
     if flavor == "infrastructure":
       return self.constructInfrastructureFakeroot()
@@ -172,10 +172,10 @@ class NumentaRPM(object):
       return self.constructSaltcellarFakeroot()
 
     if flavor == "prebuilthtm-it":
-      return self.constructPreBuiltHTM-ITFakeroot()
+      return self.constructPreBuiltHTMITFakeroot()
 
 
-  def constructPreBuiltHTM-ITFakeroot(self):
+  def constructPreBuiltHTMITFakeroot(self):
     """
     Construct fakeroot from prebuilt htm-it
 
@@ -333,7 +333,7 @@ class NumentaRPM(object):
     return (iteration, fakerootSHA)
 
 
-  def constructHTM-ITFakeroot(self):
+  def constructHTMITFakeroot(self):
     """
     Construct a HTM-IT fakeroot directory tree.
 
@@ -366,7 +366,7 @@ class NumentaRPM(object):
 
     logger.info("Preparing HTM-IT fakeroot in %s\n", fakeroot)
 
-    actualSHA = self.installProductsIntoHTM-ITFakeroot()
+    actualSHA = self.installProductsIntoHTMITFakeroot()
 
     productsDirectory = self.productsDirectory
     htm-itPath = os.path.join(productsDirectory, "htm-it")
@@ -490,7 +490,7 @@ class NumentaRPM(object):
     logger.debug("New PYTHONPATH: %s", pythonpath)
 
 
-  def installProductsIntoHTM-ITFakeroot(self):
+  def installProductsIntoHTMITFakeroot(self):
     """
     Clone our git repo into the fakeroot directory tree.
 

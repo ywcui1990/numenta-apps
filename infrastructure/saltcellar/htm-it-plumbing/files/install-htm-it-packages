@@ -335,7 +335,7 @@ def installManifest(manifest):
 
 
 
-def installHTM-ITPackages():
+def installHTMITPackages():
   """
   Install HTM-IT packages
 
@@ -367,4 +367,4 @@ def installHTM-ITPackages():
   installManifest(manifest)
 
 if __name__ == "__main__":
-  installHTM-ITPackages()
+  installHTMITPackages()
