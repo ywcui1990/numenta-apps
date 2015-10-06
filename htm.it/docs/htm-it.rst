@@ -6,8 +6,8 @@ Subpackages
 
 .. toctree::
 
-    htm-it.app
-    htm-it.test_utils
+    htm.it.app
+    htm.it.test_utils
 
 Submodules
 ----------

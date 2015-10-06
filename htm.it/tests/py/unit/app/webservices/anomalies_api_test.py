@@ -124,12 +124,12 @@ class TestAnomaliesHandler(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(anomalies_api.app.wsgifunc())
 
-  @patch("htm-it.app.repository.engineFactory", autospec=True)
-  @patch("htm-it.app.repository.getMetricIdsSortedByDisplayValue", autospec=True)
-  @patch("htm-it.app.repository.getAllMetrics", autospec=True)
+  @patch("htm.it.app.repository.engineFactory", autospec=True)
+  @patch("htm.it.app.repository.getMetricIdsSortedByDisplayValue", autospec=True)
+  @patch("htm.it.app.repository.getAllMetrics", autospec=True)
   def testGETMetricsByPeriod(self, getAllMetricsMock,
                      getMetricIdsSortedByDisplayValueMock,
                      _getEngineMock,
@@ -153,8 +153,8 @@ class TestAnomaliesHandler(unittest.TestCase):
     self.assertEqual(result[3]['uid'], 'cebe9fab-f416-4845-8dab-02d292244113')
 
 
-  @patch("htm-it.app.repository.engineFactory", autospec=True)
-  @patch("htm-it.app.repository.getAllMetrics", autospec=True)
+  @patch("htm.it.app.repository.engineFactory", autospec=True)
+  @patch("htm.it.app.repository.getAllMetrics", autospec=True)
   def testGETMetricsByName(self, getAllMetricsMock, _getEngineMock, *args):
     getAllMetricsMock.return_value = self.metrics
 

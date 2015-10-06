@@ -57,7 +57,7 @@ def restartSupervisord():
   Force supervisord to close and reopen its logfiles
   """
   try:
-    with open("%s/htm-it/htm-it-supervisord.pid" % (_NUMENTA), "r+") as f:
+    with open("%s/htm.it/htm/it-supervisord.pid" % (_NUMENTA), "r+") as f:
       supervisordPid = f.read()
     os.system("/bin/kill -USR2 %s" % supervisordPid)
   except IOError as e:

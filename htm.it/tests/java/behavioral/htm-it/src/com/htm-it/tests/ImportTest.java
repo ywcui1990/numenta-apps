@@ -20,7 +20,7 @@
  *
  */
 
-package com.htm-it.tests;
+package com.htm.it.tests;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;

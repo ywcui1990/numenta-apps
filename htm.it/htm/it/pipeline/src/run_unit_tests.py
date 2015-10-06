@@ -140,7 +140,7 @@ def addAndParseArgs(jsonArgs):
   """
     Parse the command line arguments.
 
-    :returns : pipeline, buildWorkspace, htm-itSha, pipelineParams.
+    :returns : pipeline, buildWorkspace, htmItSha, pipelineParams.
   """
   parser = argparse.ArgumentParser(description="test tool to run Test for "
                                    "HTM-IT. Provide parameters either "

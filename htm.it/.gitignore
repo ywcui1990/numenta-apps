@@ -17,10 +17,10 @@ conf/quota.conf
 conf/rabbitmq.conf
 conf/supervisord.conf
 conf/overrides/
-htm-it.egg-info
-htm-it/engine/utils/logs
-htm-it-api-server/conf/
-htm-it-app/logs
+htm.it.egg-info
+htm.it/engine/utils/logs
+htm.it-api-server/conf/
+htm.it/logs
 htm-it-app/static/htm-it-common
 htm-it-supervisor.sock
 htm-it-supervisord.pid

@@ -78,7 +78,7 @@ class InstancesApiSingleTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(instances_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   @ManagedTempRepository("InstancesApiSingleInstance")
@@ -260,7 +260,7 @@ class InstancesApiMultipleInstanceTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(instances_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   @ManagedTempRepository("InstancesApiMultiple")
@@ -485,7 +485,7 @@ class InstancesApiUnhappyTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(instances_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   def testNoAuthHeaders(self):

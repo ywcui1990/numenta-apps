@@ -1,4 +1,4 @@
-htm-it.app.runtime package
+htm.it.app.runtime package
 ========================
 
 Subpackages
@@ -6,63 +6,63 @@ Subpackages
 
 .. toctree::
 
-    htm-it.app.runtime.notifications
+    htm.it.app.runtime.notifications
 
 Submodules
 ----------
 
-htm-it.app.runtime.aggregation module
+htm.it.app.runtime.aggregation module
 -----------------------------------
 
-.. automodule:: htm-it.app.runtime.aggregation
+.. automodule:: htm.it.app.runtime.aggregation
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.runtime.aggregator_instances module
+htm.it.app.runtime.aggregator_instances module
 --------------------------------------------
 
-.. automodule:: htm-it.app.runtime.aggregator_instances
+.. automodule:: htm.it.app.runtime.aggregator_instances
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.runtime.aggregator_metric_collection module
+htm.it.app.runtime.aggregator_metric_collection module
 ----------------------------------------------------
 
-.. automodule:: htm-it.app.runtime.aggregator_metric_collection
+.. automodule:: htm.it.app.runtime.aggregator_metric_collection
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.runtime.aggregator_service module
+htm.it.app.runtime.aggregator_service module
 ------------------------------------------
 
-.. automodule:: htm-it.app.runtime.aggregator_service
+.. automodule:: htm.it.app.runtime.aggregator_service
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.runtime.aggregator_utils module
+htm.it.app.runtime.aggregator_utils module
 ----------------------------------------
 
-.. automodule:: htm-it.app.runtime.aggregator_utils
+.. automodule:: htm.it.app.runtime.aggregator_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.runtime.metric_collector module
+htm.it.app.runtime.metric_collector module
 ----------------------------------------
 
-.. automodule:: htm-it.app.runtime.metric_collector
+.. automodule:: htm.it.app.runtime.metric_collector
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.runtime.notification_service module
+htm.it.app.runtime.notification_service module
 --------------------------------------------
 
-.. automodule:: htm-it.app.runtime.notification_service
+.. automodule:: htm.it.app.runtime.notification_service
     :members:
     :undoc-members:
     :show-inheritance:
@@ -71,7 +71,7 @@ htm-it.app.runtime.notification_service module
 Module contents
 ---------------
 
-.. automodule:: htm-it.app.runtime
+.. automodule:: htm.it.app.runtime
     :members:
     :undoc-members:
     :show-inheritance:

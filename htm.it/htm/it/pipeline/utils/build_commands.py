@@ -25,7 +25,7 @@ from infrastructure.utilities.exceptions import BuildFailureException
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput
 
-SCRIPTS_DIR = os.path.join(os.environ.get("PRODUCTS"), "htm-it", "htm-it",
+SCRIPTS_DIR = os.path.join(os.environ.get("PRODUCTS"), "htm.it", "htm", "it",
                            "pipeline", "scripts")
 
 
@@ -40,7 +40,7 @@ def buildHtmIt(env, pipelineConfig, logger):
         "buildWorkspace": "/path/to/build/in",
         "htmitRemote": "git@github.com:Numenta/numenta-apps.git",
         "htmitBranch": "master",
-        "htm-itSha": "HEAD",
+        "htmItSha": "HEAD",
         "pipelineParams": "{dict of parameters}",
         "pipelineJson": "/path/to/json/file"
       }

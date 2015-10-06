@@ -1,4 +1,4 @@
-htm-it.app.adapters.datasource package
+htm.it.app.adapters.datasource package
 ====================================
 
 Subpackages
@@ -6,13 +6,13 @@ Subpackages
 
 .. toctree::
 
-    htm-it.app.adapters.datasource.autostack
-    htm-it.app.adapters.datasource.cloudwatch
+    htm.it.app.adapters.datasource.autostack
+    htm.it.app.adapters.datasource.cloudwatch
 
 Module contents
 ---------------
 
-.. automodule:: htm-it.app.adapters.datasource
+.. automodule:: htm.it.app.adapters.datasource
     :members:
     :undoc-members:
     :show-inheritance:

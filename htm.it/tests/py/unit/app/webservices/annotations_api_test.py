@@ -46,7 +46,7 @@ def setUpModule():
 class AnnotationsHandlerTest(unittest.TestCase):
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(annotations_api.app.wsgifunc())
     self.annotation = {
       "uid": "f4aa70b361f04036b0b39530900f38fa",
@@ -64,7 +64,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     del self.request["created"]
 
 
-  @patch("htm-it.app.repository.getAnnotationById")
+  @patch("htm.it.app.repository.getAnnotationById")
   def testGETAnnotationById(self, getAnnotationById, _):
     """
       Test Get Annotation
@@ -100,7 +100,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     self.assertDictEqual(expected, actual[0])
 
 
-  @patch("htm-it.app.repository.getAnnotationById")
+  @patch("htm.it.app.repository.getAnnotationById")
   def testGETAnnotationByIdNotFound(self, getAnnotationById, _):
     """
       Test Get Annotation for unknown uid
@@ -121,7 +121,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     self.assertIn("Bad response: 404 Not Found", str(e.exception))
 
 
-  @patch("htm-it.app.repository.getAnnotations")
+  @patch("htm.it.app.repository.getAnnotations")
   def testGetAnnotations(self, getAnnotations, _):
     """
       Test Get Annotation
@@ -159,7 +159,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     self.assertDictEqual(expected, actual[0])
 
 
-  @patch("htm-it.app.repository.deleteAnnotationById")
+  @patch("htm.it.app.repository.deleteAnnotationById")
   def testDeleteAnnotationNotFound(self, deleteAnnotationById, _):
     """
     Test Delete unknown Annotation
@@ -179,7 +179,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     self.assertIn("Bad response: 404 Not Found", str(e.exception))
 
 
-  @patch("htm-it.app.repository.deleteAnnotationById")
+  @patch("htm.it.app.repository.deleteAnnotationById")
   def testDeleteAnnotation(self, deleteAnnotationById, _):
     """
     Test Delete Annotation
@@ -199,7 +199,7 @@ class AnnotationsHandlerTest(unittest.TestCase):
     self.assertTrue(deleteAnnotationById.called)
 
 
-  @patch("htm-it.app.repository.addAnnotation")
+  @patch("htm.it.app.repository.addAnnotation")
   def testAddAnnotation(self, addAnnotation, _):
     """
     Test Create new Annotation

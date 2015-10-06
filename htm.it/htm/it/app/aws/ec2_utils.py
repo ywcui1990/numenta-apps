@@ -278,8 +278,8 @@ def checkEC2Authorization(awsAccessKeyID, awsSecretAccessKey):
   :param awsAccessKeyID: AWS key id
   :param awsSecretAccessKey: AWS secret key
 
-  :raises htm-it.app.exceptions.AuthFailure:
-  :raises htm-it.app.exceptions.AWSPermissionsError:
+  :raises htm.it.app.exceptions.AuthFailure:
+  :raises htm.it.app.exceptions.AWSPermissionsError:
   """
   # NOTE: this function was salvaged from legacy cloudwatch adapter
   conn = boto.ec2.connection.EC2Connection(awsAccessKeyID, awsSecretAccessKey)
@@ -289,9 +289,9 @@ def checkEC2Authorization(awsAccessKeyID, awsSecretAccessKey):
   except boto.exception.EC2ResponseError as e:
     if (e.error_code == "AuthFailure" or
         e.error_code == "SignatureDoesNotMatch"):
-      raise htm-it.app.exceptions.AuthFailure(e.message)
-    raise htm-it.app.exceptions.AWSPermissionsError(
+      raise htm.it.app.exceptions.AuthFailure(e.message)
+    raise htm.it.app.exceptions.AWSPermissionsError(
         "IAM credentials don't have correct permissions. Please use read-only "
         "permissions as described here: "
-        "http://www.numenta.com/assets/pdf/htm-it/resources/1.3/"
+        "http://www.numenta.com/assets/pdf/grok/resources/1.3/"
         "Generate-Restrictive-Credentials.pdf")

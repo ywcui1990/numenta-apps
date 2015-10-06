@@ -54,7 +54,7 @@ def parseArgs():
                       required=True)
 
   parser.add_argument("--htm-it-sha",
-                      dest="htm-itSha",
+                      dest="htmItSha",
                       type=str,
                       help="Triggering SHA from HTM-IT")
 

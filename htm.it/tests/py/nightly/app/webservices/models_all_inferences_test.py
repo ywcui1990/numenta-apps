@@ -50,8 +50,8 @@ from htm.it.test_utils import aws_utils as aws
 #  variables as that the test environments are expected to set and apply them
 #  config overrides.
 @ConfigAttributePatch(
-  htm-it.app.config.CONFIG_NAME,
-  htm-it.app.config.baseConfigDir,
+  htm.it.app.config.CONFIG_NAME,
+  htm.it.app.config.baseConfigDir,
   (("aws", "aws_access_key_id", os.environ["AWS_ACCESS_KEY_ID"]),
    ("aws", "aws_secret_access_key", os.environ["AWS_SECRET_ACCESS_KEY"]),)
 )
@@ -76,7 +76,7 @@ class TestModelAllInferences(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(models_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.data = self.createTestData()
 
   def createTestData(self):

@@ -592,7 +592,7 @@ class HTMITDataPathProfiler(object):
     result = []
 
     # Example:
-    # 2014-05-14 22:43:39,479 - htm-it.model_runner(17177) - INFO - <VER=1.4.0,
+    # 2014-05-14 22:43:39,479 - htm.it.model_runner(17177) - INFO - <VER=1.4.0,
     # SERVICE=MRUN> {TAG:SWAP.MR.BATCH.DONE}
     # model=13751549a4054698b50340394b86cd1e;
     # batch=2ffb33dedbb911e3bcfd28cfe912e811; numItems= 1; tailRowID=19805;

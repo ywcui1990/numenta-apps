@@ -48,12 +48,12 @@ def getDeployTrack(htmitRemote, htmitBranch):
     deployTrack: <user-name>-numenta
     2)
     htmitRemote: git@github.com:Numenta/numenta-apps.git
-    deployTrack: htm-itsolutions
+    deployTrack: numenta
 
     :rtype: string
   """
   if checkIfSaneProductionParams(htmitRemote, htmitBranch):
-    return "htm-itsolutions"
+    return "numenta"
   else:
     return getGithubUserName(htmitRemote) + "-numenta"
 
@@ -69,7 +69,7 @@ def preBuildSetup(env, pipelineConfig):
         "buildWorkspace": "/path/to/build/in",
         "htmitRemote": "git@github.com:Numenta/numenta-apps.git",
         "htmitBranch": "master",
-        "htm-itSha": "HEAD",
+        "htmItSha": "HEAD",
         "pipelineParams": "{dict of parameters}",
         "pipelineJson": "/path/to/json/file"
       }
@@ -86,16 +86,16 @@ def preBuildSetup(env, pipelineConfig):
                 logger=g_logger)
 
   with changeToWorkingDir(env["HTM_IT_HOME"]):
-    if pipelineConfig["htm-itSha"]:
-      g_logger.debug("Resetting to %s", pipelineConfig["htm-itSha"])
-      git.resetHard(sha=pipelineConfig["htm-itSha"], logger=g_logger)
+    if pipelineConfig["htmItSha"]:
+      g_logger.debug("Resetting to %s", pipelineConfig["htmItSha"])
+      git.resetHard(sha=pipelineConfig["htmItSha"], logger=g_logger)
     else:
-      htm-itSha = git.getShaFromRemoteBranch(pipelineConfig["htmitRemote"],
+      htmItSha = git.getShaFromRemoteBranch(pipelineConfig["htmitRemote"],
                                            pipelineConfig["htmitBranch"],
                                            logger=g_logger)
-      pipelineConfig["htm-itSha"] = htm-itSha
-      g_logger.debug("Resetting to %s", htm-itSha)
-      git.resetHard(sha=htm-itSha, logger=g_logger)
+      pipelineConfig["htmItSha"] = htmItSha
+      g_logger.debug("Resetting to %s", htmItSha)
+      git.resetHard(sha=htmItSha, logger=g_logger)
 
 
 def addAndParseArgs(jsonArgs):
@@ -108,7 +108,7 @@ def addAndParseArgs(jsonArgs):
         "buildWorkspace": "/path/to/build/in",
         "htmitRemote": "git@github.com:Numenta/numenta-apps.git",
         "htmitBranch": "master",
-        "htm-itSha": "HEAD",
+        "htmItSha": "HEAD",
         "pipelineParams": "{dict of parameters}",
         "pipelineJson": "/path/to/json/file"
       }
@@ -126,7 +126,7 @@ def addAndParseArgs(jsonArgs):
   parser.add_argument("--htm-it-remote", dest="htmitRemote", type=str,
                       help="The htm-it remote you want to use, e.g.,  "
                            "git@github.com:Numenta/numenta-apps.git")
-  parser.add_argument("--htm-it-sha", dest="htm-itSha", type=str,
+  parser.add_argument("--htm-it-sha", dest="htmItSha", type=str,
                       help="HTM-IT SHA that will be built")
   parser.add_argument("--htm-it-branch", dest="htmitBranch", type=str,
                       help="The branch you are building from")
@@ -163,7 +163,7 @@ def addAndParseArgs(jsonArgs):
     "buildWorkspace": None,
     "htmitRemote": "git@github.com:Numenta/numenta-apps.git",
     "htmitBranch": "master",
-    "htm-itSha": "HEAD",
+    "htmItSha": "HEAD",
     "pipelineParams": pipelineParams,
     "pipelineJson": None
   }
@@ -180,8 +180,8 @@ def addAndParseArgs(jsonArgs):
                           pipelineParams.get("manifest", {}).get("htmitRemote"))
   pipelineConfig["htmitBranch"] = pipelineParams.get("htmitBranch",
                           pipelineParams.get("manifest", {}).get("htmitBranch"))
-  pipelineConfig["htm-itSha"] = pipelineParams.get("htm-itSha",
-                          pipelineParams.get("manifest", {}).get("htm-itSha"))
+  pipelineConfig["htmItSha"] = pipelineParams.get("htmItSha",
+                          pipelineParams.get("manifest", {}).get("htmItSha"))
 
   pipelineConfig["pipelineJson"] = args["pipelineJson"]
 
@@ -205,8 +205,8 @@ def main(jsonArgs):
   try:
     pipelineConfig = addAndParseArgs(jsonArgs)
 
-    htm-itUser = getGithubUserName(pipelineConfig["htmitRemote"])
-    amiName = (htm-itUser + "-" + pipelineConfig["htmitBranch"])
+    htmitUser = getGithubUserName(pipelineConfig["htmitRemote"])
+    amiName = (htmitUser + "-" + pipelineConfig["htmitBranch"])
     env = prepareEnv(pipelineConfig["buildWorkspace"], None, os.environ)
 
     preBuildSetup(env, pipelineConfig)
@@ -218,10 +218,10 @@ def main(jsonArgs):
                                  pipelineConfig["htmitBranch"])
 
     pipelineConfig["pipelineParams"]["build"] = {
-                              "htm-itSha": pipelineConfig["htm-itSha"],
+                              "htmItSha": pipelineConfig["htmItSha"],
                               "htm-itHome": env["HTM_IT_HOME"],
                               "deployTrack": deployTrack,
-                              "htm-itDeployTrack": htm-itUser,
+                              "htmItDeployTrack": htmitUser,
                               "amiName": amiName
                             }
     g_logger.debug(pipelineConfig["pipelineParams"])

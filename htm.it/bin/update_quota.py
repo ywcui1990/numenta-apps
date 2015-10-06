@@ -24,7 +24,7 @@
 Updates HTM-IT quota configuration based on HTM-IT production edition, the host
 platform, etc. (e.g., instance quota).
 
-HTM-IT application quota settings are available at rutime via the htm-it.app.quota
+HTM-IT application quota settings are available at rutime via the htm.it.app.quota
 interface.
 
 It's intended that this script will be called at boot time, since the user may
@@ -51,7 +51,7 @@ from htm.it.app.quota import Quota, QuotaConfig
 
 
 def _getLogger():
-  return logging.getLogger("htm-it.update_quota")
+  return logging.getLogger("htm.it.update_quota")
 
 
 

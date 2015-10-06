@@ -53,7 +53,7 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
   """ Datasource Adapter for HTM-IT Autostack Metrics
 
   NOTE: DO NOT instantiate this class directly. Use Datasource Adapter factory
-    instead: `htm-it.app.adapters.datasource.createDatasourceAdapter`; this is
+    instead: `htm.it.app.adapters.datasource.createDatasourceAdapter`; this is
     necessary for proper registration of all Datasource Adapters.
   """
 
@@ -69,7 +69,7 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
     """
     super(_AutostackDatasourceAdapter, self).__init__()
 
-    self._log = logging.getLogger("htm-it.autostack_datasource_adapter")
+    self._log = logging.getLogger("htm.it.autostack_datasource_adapter")
 
     self.connectionFactory = connectionFactory
 
@@ -79,7 +79,7 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
     """ Validate filters, raises an exception if check fails
 
     :param filters: Dictionary of filters; e.g.,
-        {"tag:Name":["*test*", "*htm-it*"], "tag:Description":["Blah", "foo"]}
+        {"tag:Name":["*test*", "*grok*"], "tag:Description":["Blah", "foo"]}
     :type filters: dict
     """
     try:
@@ -109,7 +109,7 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
             "region": "us-west-2",
             "resourceType": "AWS::EC2::Instance"
             "filters": {  # resourceType-specific filter
-              "tag:Name":["*test*", "*htm-it*"], "tag:Description":["Blah", "foo"]
+              "tag:Name":["*test*", "*grok*"], "tag:Description":["Blah", "foo"]
             },
           }
         }
@@ -126,11 +126,11 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
     region = aggSpec["region"]
 
     # Enforce the instances per AutoStack limit
-    adapter = htm-it.app.adapters.datasource.createDatasourceAdapter(
+    adapter = htm.it.app.adapters.datasource.createDatasourceAdapter(
       aggSpec["datasource"])
     instances = adapter.getMatchingResources(aggSpec)
     if len(instances) > MAX_INSTANCES_PER_AUTOSTACK:
-      raise htm-it.app.exceptions.TooManyInstancesError(
+      raise htm.it.app.exceptions.TooManyInstancesError(
         "The filters specified match %i instances but the limit per "
         "AutoStack is %i." % (len(instances), MAX_INSTANCES_PER_AUTOSTACK))
 
@@ -182,13 +182,13 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
 
     :returns: datasource-specific unique model identifier
 
-    :raises htm-it.app.exceptions.ObjectNotFoundError: if referenced autostack
+    :raises htm.it.app.exceptions.ObjectNotFoundError: if referenced autostack
       doesn't exist
 
-    :raises htm-it.app.exceptions.MetricNotSupportedError: if requested metric
+    :raises htm.it.app.exceptions.MetricNotSupportedError: if requested metric
       isn't supported
 
-    :raises htm-it.app.exceptions.MetricAlreadyMonitored: if the metric is already
+    :raises htm.it.app.exceptions.MetricAlreadyMonitored: if the metric is already
       being monitored
     """
     metricSpec = modelSpec["metricSpec"]
@@ -255,7 +255,7 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
                    % (matchingMetric.uid, nameColumnValue,
                       canonicalResourceName, matchingMetric))
             self._log.warning(msg)
-            raise htm-it.app.exceptions.MetricAlreadyMonitored(
+            raise htm.it.app.exceptions.MetricAlreadyMonitored(
                     msg,
                     uid=matchingMetric.uid)
 
@@ -303,10 +303,10 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
 
     :param metricId: unique identifier of the metric row
 
-    :raises htm-it.app.exceptions.ObjectNotFoundError: if metric with the
+    :raises htm.it.app.exceptions.ObjectNotFoundError: if metric with the
       referenced metric uid doesn't exist
 
-    :raises htm-it.app.exceptions.MetricStatisticsNotReadyError:
+    :raises htm.it.app.exceptions.MetricStatisticsNotReadyError:
     """
     raise NotImplementedError("not-applicable")
 
@@ -316,7 +316,7 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
 
     :param metricId: unique identifier of the metric row
 
-    :raises htm-it.app.exceptions.ObjectNotFoundError: if metric with the
+    :raises htm.it.app.exceptions.ObjectNotFoundError: if metric with the
       referenced metric uid doesn't exist
     """
     with self.connectionFactory() as conn:
@@ -351,7 +351,7 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
               "region": "us-west-2",
               "resourceType": "AWS::EC2::Instance"
               "filters": {  # resourceType-specific filter
-                "tag:Name":["*test*", "*htm-it*"],
+                "tag:Name":["*test*", "*grok*"],
                 "tag:Description":["Blah", "foo"]
               },
             }
@@ -427,7 +427,7 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
           conn,
           stackSpec["name"],
           aggSpec["region"])
-    except htm-it.app.exceptions.ObjectNotFoundError:
+    except htm.it.app.exceptions.ObjectNotFoundError:
       autostackObj = self.createAutostack(stackSpec)
 
     modelSpec = spec["modelSpec"]
@@ -436,7 +436,7 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
 
     try:
       return self.monitorMetric(modelSpec)
-    except htm-it.app.exceptions.MetricAlreadyMonitored as e:
+    except htm.it.app.exceptions.MetricAlreadyMonitored as e:
       self._log.warning("importModel: Autostack metric already monitored; "
                         "metricSpec=%s", metricSpec)
       return e.uid
@@ -499,7 +499,7 @@ class _AutostackDatasourceAdapter(DatasourceAdapterIface):
             conn,
             stackSpec["name"],
             aggSpec["region"])
-      except htm-it.app.exceptions.ObjectNotFoundError:
+      except htm.it.app.exceptions.ObjectNotFoundError:
         return None
       else:
         autostackId = autostackObj.uid

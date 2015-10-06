@@ -34,7 +34,7 @@ serverurl=http://%(SUPERVISOR_HOST)s:%(SUPERVISOR_PORT)s
 
 ;*************** METRIC_COLLECTOR **************
 [program:metric_collector]
-command=python -m htm-it.app.runtime.metric_collector
+command=python -m htm.it.app.runtime.metric_collector
 process_name=%%(program_name)s_%%(process_num)02d
 directory=%%(here)s/..
 ;user=vagrant
@@ -48,7 +48,7 @@ redirect_stderr=true
 
 ;*************** NOTIFICATION_SERVICE **************
 [program:notification_service]
-command=python -m htm-it.app.runtime.notification_service
+command=python -m htm.it.app.runtime.notification_service
 process_name=%%(program_name)s_%%(process_num)02d
 directory=%%(here)s/..
 ;user=vagrant
@@ -59,7 +59,7 @@ redirect_stderr=true
 
 ;*************** HTM-IT-API **************
 [program:htm-it-api]
-command=uwsgi --enable-threads --socket 0.0.0.0:19002 --master --vacuum --idle 300 --processes 8 --threads 4 --listen 1024 --module htm-it.app.webservices.webapp
+command=uwsgi --enable-threads --socket 0.0.0.0:19002 --master --vacuum --idle 300 --processes 8 --threads 4 --listen 1024 --module htm.it.app.webservices.webapp
 process_name=%%(program_name)s_%%(process_num)02d
 directory=%%(here)s/..
 ;user=vagrant
@@ -75,7 +75,7 @@ programs=metric_collector,notification_service,htm-it-api,aggregator_service
 
 ;*************** AGGREGATOR_SERVICE **************
 [program:aggregator_service]
-command=python -m htm-it.app.runtime.aggregator_service
+command=python -m htm.it.app.runtime.aggregator_service
 process_name=%%(program_name)s_%%(process_num)02d
 directory=%%(here)s/..
 ;user=vagrant

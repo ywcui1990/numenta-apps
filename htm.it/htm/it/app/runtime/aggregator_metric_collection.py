@@ -52,7 +52,7 @@ from htm.it.app.runtime.aggregator_utils import getAWSCredentials, TimeRange
 
 
 
-_MODULE_NAME = "htm-it.aggregator_metric_collection"
+_MODULE_NAME = "htm.it.aggregator_metric_collection"
 
 
 
@@ -768,7 +768,7 @@ class EC2InstanceMetricGetter(object):
 
     :param timeSlice: the time range of the metric data for which the statistics
         are to be gathered.
-    :type timeSlice: htm-it.app.runtime.aggregator_utils.TimeRange
+    :type timeSlice: htm.it.app.runtime.aggregator_utils.TimeRange
 
     :param instanceCache: Autostack instance cache. All Autostacks referenced in
         requests are expected to be present in instance cache
@@ -893,7 +893,7 @@ class EC2InstanceMetricGetter(object):
     :type autostacks: List of nametuple as returned by
       repository.getAutostackMetricsPendingDataCollection().  Each autostack
       item has attributes that match columns defined in
-      htm-it.app.repository.schema.autostack.  See also: AggregatorService.run()
+      htm.it.app.repository.schema.autostack.  See also: AggregatorService.run()
     """
     # Garbage-collect the Autostack instance cache
     if ((time.time() - self._lastInstanceCacheGCTimestamp) >
@@ -1000,7 +1000,7 @@ class EC2InstanceMetricGetter(object):
     :param period: Metric period in seconds; must be multiple of 60
     :type period: integer
     :returns: time range for collecting metrics for the current time window.
-    :rtype: htm-it.app.runtime.aggregator_utils.TimeRange
+    :rtype: htm.it.app.runtime.aggregator_utils.TimeRange
     """
     now = datetime.utcnow().replace(second=0, microsecond=0)
     endTime = now - timedelta(
@@ -1025,7 +1025,7 @@ class EC2InstanceMetricGetter(object):
     :returns: time range for collecting metrics adjusted for integral number of
               periods. If there is not enough time for at least one period,
               then end-time will be set equal to start-time
-    :rtype: htm-it.app.runtime.aggregator_utils.TimeRange
+    :rtype: htm.it.app.runtime.aggregator_utils.TimeRange
     """
     startTime, endTime = cloudwatch_utils.getMetricCollectionTimeRange(
       startTime=startTime,
@@ -1044,7 +1044,7 @@ class EC2InstanceMetricGetter(object):
     :type period: integer
     :returns: time range for collecting metric statistics adjusted for integral
               number of metric periods.
-    :rtype: htm-it.app.runtime.aggregator_utils.TimeRange
+    :rtype: htm.it.app.runtime.aggregator_utils.TimeRange
     """
     startTime, endTime = cloudwatch_utils.getMetricCollectionTimeRange(
       startTime=None,

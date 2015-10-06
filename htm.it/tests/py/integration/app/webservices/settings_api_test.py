@@ -23,7 +23,7 @@
 Integration test Settings API
 """
 import unittest
-import  htm-it.app
+import  htm.it.app
 from paste.fixture import TestApp, AppError
 from htm.it.test_utils.app.webservices import (
   getDefaultHTTPHeaders,
@@ -52,7 +52,7 @@ class SettingsHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(settings_api.app.wsgifunc())
 
 
@@ -189,7 +189,7 @@ class SettingsApiUnhappyTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(settings_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   def testNoAuthHeaders(self):

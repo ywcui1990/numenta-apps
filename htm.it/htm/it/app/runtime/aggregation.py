@@ -75,11 +75,11 @@ def getStatistics(metric):
 
   :raises: ValueError if the metric doesn't not belong to an Autostack
 
-  :raises: htm-it.app.exceptions.ObjectNotFoundError if the metric or the
+  :raises: htm.it.app.exceptions.ObjectNotFoundError if the metric or the
       corresponding autostack doesn't exist; this may happen if it got deleted
       by another process in the meantime.
 
-  :raises: htm-it.app.exceptions.MetricStatisticsNotReadyError if there are no or
+  :raises: htm.it.app.exceptions.MetricStatisticsNotReadyError if there are no or
       insufficent samples at this time; this may also happen if the metric and
       its data were deleted by another process in the meantime
   """

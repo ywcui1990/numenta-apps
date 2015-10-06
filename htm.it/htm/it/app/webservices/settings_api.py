@@ -45,15 +45,15 @@ HIDDEN_SETTINGS = {
 class SettingsHandler(object):
   def validSections(self):
     # Make sure we have the latest version of configuration
-    htm-it.app.config.loadConfig()
-    if htm-it.app.config.has_option("admin", "configurable_sections"):
-      return htm-it.app.config.get("admin", "configurable_sections").split(",")
+    htm.it.app.config.loadConfig()
+    if htm.it.app.config.has_option("admin", "configurable_sections"):
+      return htm.it.app.config.get("admin", "configurable_sections").split(",")
     else:
       return []
 
   def getAllSettings(self):
     # Make sure we have the latest version of configuration
-    htm-it.app.config.loadConfig()
+    htm.it.app.config.loadConfig()
 
     apikey = AuthenticatedBaseHandler.extractAuthHeader()
     authResult = AuthenticatedBaseHandler.compareAuthorization(apikey)
@@ -64,14 +64,14 @@ class SettingsHandler(object):
     res = {}
     for section in self.validSections():
       res[section] = {}
-      for key, value in htm-it.app.config.items(section):
+      for key, value in htm.it.app.config.items(section):
         if key not in HIDDEN_SETTINGS.get(section, set()):
           res[section][key] = value
     return res
 
   def getSectionSettings(self, section):
     # Make sure we have the latest version of configuration
-    htm-it.app.config.loadConfig()
+    htm.it.app.config.loadConfig()
     res = {}
 
     if section != "usertrack":
@@ -83,7 +83,7 @@ class SettingsHandler(object):
         AuthenticatedBaseHandler.raiseAuthFailure()
 
     if section in self.validSections():
-      for key, value in htm-it.app.config.items(section):
+      for key, value in htm.it.app.config.items(section):
         if key not in HIDDEN_SETTINGS.get(section, set()):
           res[key] = value
     return res

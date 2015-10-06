@@ -390,7 +390,7 @@ def getAutostackForNameAndRegion(conn, name, region, fields=None):
   :param fields: Sequence of columns to be returned by underlying query
   :returns: AutoStack
   :rtype: sqlalchemy.engine.RowProxy
-  :raises: htm-it.app.exceptions.ObjectNotFoundError if no match
+  :raises: htm.it.app.exceptions.ObjectNotFoundError if no match
   """
   fields = fields or [schema.autostack]
 
@@ -461,7 +461,7 @@ def _getCloudwatchMetricReadinessPredicate():
   :returns: sqlAlchemy predicate for use in `where` clause
   """
   # NOTE: the time arithmetic must be coordinated with
-  # htm-it.app.aws.cloudwatch_utils.getMetricCollectionBackoffSeconds()
+  # htm.it.app.aws.cloudwatch_utils.getMetricCollectionBackoffSeconds()
 
   # NOTE: the time difference logic here is a heuristic fine-tuned for
   # cloudwatch-based metrics as follows:
@@ -620,7 +620,7 @@ def getNotification(conn, notificationId, fields=None):
   :param fields: Sequence of columns to be returned by underlying query
   :returns: Notification
   :rtype: sqlalchemy.engine.RowProxy
-  :raises: htm-it.app.exceptions.ObjectNotFoundError if Notification doesn't
+  :raises: htm.it.app.exceptions.ObjectNotFoundError if Notification doesn't
     exist for given uid
   """
   fields = fields or [schema.notification]

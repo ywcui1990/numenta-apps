@@ -1246,7 +1246,7 @@ class TestRepositoryAPI(unittest.TestCase):
 
 
   def testaddAutostack(self):
-    filters = {"tag:Name":["*test*", "*htm-it*"],
+    filters = {"tag:Name":["*test*", "*grok*"],
                "tag:Description":["Blah", "foo"]}
     with self.engine.connect() as conn:
       autostackDict = repository.addAutostack(conn,
@@ -1262,7 +1262,7 @@ class TestRepositoryAPI(unittest.TestCase):
 
   def testDeleteAutostack(self):
     metricObj = self._addAutostackMetric()
-    filters = {"tag:Name":["*test*", "*htm-it*"],
+    filters = {"tag:Name":["*test*", "*grok*"],
                "tag:Description":["Blah", "foo"]}
     with self.engine.connect() as conn:
       autostackDict = repository.addAutostack(conn,

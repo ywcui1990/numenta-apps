@@ -34,7 +34,7 @@ from htm.it.app.aws import elb_utils
 class ELBUtilsTest(unittest.TestCase):
 
 
-  @patch("htm-it.app.aws.elb_utils.getELBInstances")
+  @patch("htm.it.app.aws.elb_utils.getELBInstances")
   def testGetSuggestedInstancesNone(self, getELBInstancesMock):
     getELBInstancesMock.return_value = []
 
@@ -46,7 +46,7 @@ class ELBUtilsTest(unittest.TestCase):
     getELBInstancesMock.assert_call_once_with("dummy-region")
 
 
-  @patch("htm-it.app.aws.elb_utils.getELBInstances")
+  @patch("htm.it.app.aws.elb_utils.getELBInstances")
   def testGetSuggestedInstancesTwoDifferentSize(self, getELBInstancesMock):
     region = "us-west-2"
     # Instance 1

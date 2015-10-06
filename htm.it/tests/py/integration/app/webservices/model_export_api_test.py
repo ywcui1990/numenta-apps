@@ -42,8 +42,8 @@ class TestModelExportHandler(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(models_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
-    data = open(os.path.join(htm-it.app.HTM_IT_HOME,
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
+    data = open(os.path.join(htm.it.app.HTM_IT_HOME,
      "tests/py/data/app/webservices/models_api_integration_test.json")).read()
     self.modelsTestData = json.loads(data)
 

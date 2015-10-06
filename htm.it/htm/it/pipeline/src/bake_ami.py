@@ -59,16 +59,16 @@ def addAndParseArgs(jsonArgs):
             "logLevel": <LOG_LEVEL>}
 
 
-    :returns: A dict containing releaseVersion, buildWorkspace, htm-itSha,
-    deployTrack, htm-itDeployTrack, amiName (all strings).
+    :returns: A dict containing releaseVersion, buildWorkspace, htmItSha,
+    deployTrack, htmItDeployTrack, amiName (all strings).
 
     Example dict:
     {
       "releaseVersion": "1.7.0,
       "buildWorkspace": "/path/to/Workspace",
-      "htm-itSha": "0xDEADBEEF",
+      "htmItSha": "0xDEADBEEF",
       "deployTrack": "production",
-      "htm-itDeployTrack": "production",
+      "htmItDeployTrack": "production",
       "amiName": "htm-it-pipeline"
     }
 
@@ -80,11 +80,11 @@ def addAndParseArgs(jsonArgs):
   """
   parser = argparse.ArgumentParser(description="Tool to bake AMI with "
                                    "given version of HTM-IT")
-  parser.add_argument("--htm-it-sha", dest="htm-itSha", type=str,
+  parser.add_argument("--htm-it-sha", dest="htmItSha", type=str,
                       help="SHA from HTM-IT used for this build")
   parser.add_argument("--release-version", dest="releaseVersion", type=str,
                       help="Current release version, this will be used as base")
-  parser.add_argument("--htm-it-deploy-track", dest="htm-itDeployTrack", type=str,
+  parser.add_argument("--htm-it-deploy-track", dest="htmItDeployTrack", type=str,
                       help="Deploy track for htm-it RPM")
   parser.add_argument("--ami-name", dest="amiName", type=str,
                       help="Descriptive key to be used with auto generated ami"
@@ -129,15 +129,15 @@ def addAndParseArgs(jsonArgs):
                      pipelineParams.get("buildWorkspace",
                      pipelineParams.get("manifest", {}).get("buildWorkspace")))
 
-  htm-itSha = pipelineParams.get("htm-itSha",
-              pipelineParams.get("build", {}).get("htm-itSha"))
+  htmItSha = pipelineParams.get("htmItSha",
+              pipelineParams.get("build", {}).get("htmItSha"))
   amiName = pipelineParams.get("amiName",
               pipelineParams.get("build", {}).get("amiName"))
   pipelineJson = args["pipelineJson"]
-  if releaseVersion and buildWorkspace and htm-itSha and amiName:
+  if releaseVersion and buildWorkspace and htmItSha and amiName:
     return {"releaseVersion": releaseVersion,
             "buildWorkspace": buildWorkspace,
-            "htm-itSha": htm-itSha,
+            "htmItSha": htmItSha,
             "amiName": amiName,
             "pipelineJson": pipelineJson}
   else:
@@ -174,7 +174,7 @@ def main(jsonArgs=None):
     artifactsDir = createOrReplaceArtifactsDir(logger=g_logger)
 
     g_logger.info("Creating the Ami")
-    pipeLineSrc = os.path.join(os.environ["PRODUCTS"], "htm-it", "htm-it",
+    pipeLineSrc = os.path.join(os.environ["PRODUCTS"], "htm.it", "htm", "it",
                                "pipeline", "src")
     with changeToWorkingDir(pipeLineSrc):
       g_logger.info("\n\n########## Baking AMI ##########")
@@ -196,8 +196,9 @@ def main(jsonArgs=None):
     shutil.copy(amiIDPath, artifactAmiIdPath)
     print "#############################################################"
     print "Running the Integration Tests"
-    runIntegrationTestScriptPath = os.path.join(os.environ["PRODUCTS"], "htm-it",
-                                    "htm-it", "pipeline", "src")
+    runIntegrationTestScriptPath = os.path.join(os.environ["PRODUCTS"],
+                                                "htm.it", "htm", "it",
+                                                "pipeline", "src")
     runIntegrationTestCommand = ("python " +
                                  "%s/run_htm_it_integration_tests.py"
                                  % runIntegrationTestScriptPath +

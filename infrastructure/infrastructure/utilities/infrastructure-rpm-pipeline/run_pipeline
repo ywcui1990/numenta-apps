@@ -28,16 +28,16 @@
   1. create rpm for salt-cellar
     a. run the script ./create-htm-it-saltcellar-rpm
 
-  2. move the rpm to rpmbuild.htm-itsolutions.com: /opt/numenta/s3Repo/s3/noarch
+  2. move the rpm to rpmbuild.groksolutions.com: /opt/numenta/s3Repo/s3/noarch
      with fabric api. put()
 
   3. create rpm for Numenta-infrastructure-pipeline
       a. run the script ./create-htm-it-infrastructure-rpm
 
-  4. move the rpm to rpmbuild.htm-itsolutions.com: /opt/numenta/s3Repo/s3/noarch
+  4. move the rpm to rpmbuild.groksolutions.com: /opt/numenta/s3Repo/s3/noarch
      with fabric api. put()
 
-  5.run update-individual-repo script from rpmbuild.htm-itsolutions.com
+  5.run update-individual-repo script from rpmbuild.groksolutions.com
     (running this script uploads the infrastructure and saltcellar rpms to s3)
 
 """
@@ -132,7 +132,7 @@ def executeScript(rpmNameBase, script, logger):
 
 def moveRpmToRpmbuild(rpmName, config, logger):
   """
-    Copies an RPM from slave to rpmbuild.htm-itsolutions.com
+    Copies an RPM from slave to rpmbuild.groksolutions.com
 
     :param rpmName: The RPM which is to be moved
     :param config: This is a dict of configuration data.

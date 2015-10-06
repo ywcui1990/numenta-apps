@@ -52,7 +52,7 @@ g_config["JOB_NAME"] = os.environ.get("JOB_NAME", "Local Run")
 
 g_dirname = os.path.abspath(os.path.dirname(__file__))
 g_remotePath = "/opt/numenta/htm-it/tests/results/py2/xunit/jenkins/results.xml"
-g_rpmBuilder = "rpmbuild.htm-itsolutions.com"
+g_rpmBuilder = "rpmbuild.groksolutions.com"
 g_s3RepoPath = "/opt/numenta/s3repo/s3/x86_64"
 s3Bucket = "public.numenta.com"
 

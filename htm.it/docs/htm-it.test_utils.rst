@@ -1,4 +1,4 @@
-htm-it.test_utils package
+htm.it.test_utils package
 =======================
 
 Subpackages
@@ -6,16 +6,16 @@ Subpackages
 
 .. toctree::
 
-    htm-it.test_utils.app
-    htm-it.test_utils.engine
+    htm.it.test_utils.app
+    htm.it.test_utils.engine
 
 Submodules
 ----------
 
-htm-it.test_utils.aws_utils module
+htm.it.test_utils.aws_utils module
 --------------------------------
 
-.. automodule:: htm-it.test_utils.aws_utils
+.. automodule:: htm.it.test_utils.aws_utils
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,7 +24,7 @@ htm-it.test_utils.aws_utils module
 Module contents
 ---------------
 
-.. automodule:: htm-it.test_utils
+.. automodule:: htm.it.test_utils
     :members:
     :undoc-members:
     :show-inheritance:

@@ -60,7 +60,7 @@ def parseCommandLineArguments():
   parser = argparse.ArgumentParser(description="Install HTM-IT from a manifest")
   parser.add_argument("--configuration-file",
                       help="Path to HTM-IT configuration",
-                      default="/etc/htm-it/htm-it-manifest.json")
+                      default="/etc/htm.it/htm/it-manifest.json")
 
   parser.add_argument("--debug",
                       dest="debug",

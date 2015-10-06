@@ -132,7 +132,7 @@ class InstancesHandlerTest(unittest.TestCase):
       .return_value)
 
 
-  @patch("htm-it.app.webservices.instances_api.repository.getInstances",
+  @patch("htm.it.app.webservices.instances_api.repository.getInstances",
          autospec=True)
   def testGetInstancesHandlerNonEmptyResponseWithSlash(self,
                                                        getInstancesMock,
@@ -158,7 +158,7 @@ class InstancesHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "listMetricIDsForInstance", autospec=True)
-  @patch("htm-it.app.webservices.models_api.ModelHandler.deleteModel",
+  @patch("htm.it.app.webservices.models_api.ModelHandler.deleteModel",
     new=Mock(spec_set=models_api.ModelHandler.deleteModel))
   def testDeleteInstancesHandler(self, listMetricIDsMock, engineFactoryMock):
     """
@@ -180,7 +180,7 @@ class InstancesHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "listMetricIDsForInstance", autospec=True)
-  @patch("htm-it.app.webservices.models_api.ModelHandler.deleteModel",
+  @patch("htm.it.app.webservices.models_api.ModelHandler.deleteModel",
     new=Mock(spec_set=models_api.ModelHandler.deleteModel))
   def testDeleteInstancesHandlerNonJSONData(self, listMetricIDsMock,
                                             _engineFactoryMock):
@@ -195,7 +195,7 @@ class InstancesHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "listMetricIDsForInstance", autospec=True)
-  @patch("htm-it.app.webservices.models_api.ModelHandler.deleteModel",
+  @patch("htm.it.app.webservices.models_api.ModelHandler.deleteModel",
     new=Mock(spec_set=models_api.ModelHandler.deleteModel))
   def testDeleteInstancesHandlerEmptyData(self, listMetricIDsMock,
                                             _engineFactoryMock):
@@ -222,7 +222,7 @@ class InstanceHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "listMetricIDsForInstance", autospec=True)
-  @patch("htm-it.app.webservices.models_api.ModelHandler.deleteModel",
+  @patch("htm.it.app.webservices.models_api.ModelHandler.deleteModel",
     new=Mock(spec_set=models_api.ModelHandler.deleteModel))
   def testDeleteInstanceHandler(self, listMetricIDsMock, engineFactoryMock):
     """
@@ -254,7 +254,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "listMetricIDsForInstance", autospec=True)
-  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm.it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel))
   def testInstanceDefaultsHandlerPOST(
       self, listMetricIDsMock, _engineFactoryMock):
@@ -298,7 +298,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
 
 
   @patch.object(repository, "getMetricCountForServer", autospec=True)
-  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm.it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel,
       side_effect=QuotaError("Server limit reached.")))
   def testInstanceDefaultsHandlerPOSTQuotaError(self,
@@ -318,7 +318,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
     self.assertEqual(result, {"result": "Server limit reached."})
 
 
-  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm.it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel))
   def testInstanceDefaultsHandlerPOSTWithoutInstanceId(self,
                                                        _engineFactoryMock):
@@ -332,7 +332,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
     self.assertIn("Invalid request", response.body)
 
 
-  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm.it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel))
   def testInstanceDefaultsHandlerPOSTInvalidNamespace(self, _engineFactoryMock):
     """
@@ -346,7 +346,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
     self.assertIn("Not supported.", response.body)
 
 
-  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm.it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel))
   def testInstanceDefaultsHandlerPOSTInvalidNamespeceInsteadAWS(
       self, _engineFactoryMock):
@@ -361,7 +361,7 @@ class InstanceDefaultsHandlerTest(unittest.TestCase):
     self.assertIn("Not supported.", response.body)
 
 
-  @patch("htm-it.app.webservices.models_api.ModelHandler.createModel",
+  @patch("htm.it.app.webservices.models_api.ModelHandler.createModel",
     new=Mock(spec_set=models_api.ModelHandler.createModel))
   def testInstanceDefaultsHandlerPOSTInvalidRegion(self, _engineFactoryMock):
     """

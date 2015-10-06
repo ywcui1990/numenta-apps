@@ -44,9 +44,9 @@ class SettingsHandlerTest(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.default_aws_access_key = htm-it.app.config.get("aws",
+    cls.default_aws_access_key = htm.it.app.config.get("aws",
      "aws_access_key_id")
-    cls.default_aws_secret_key = htm-it.app.config.get("aws",
+    cls.default_aws_secret_key = htm.it.app.config.get("aws",
      "aws_secret_access_key")
     cls.configurable_options = {
       "aws": set([
@@ -55,7 +55,7 @@ class SettingsHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(settings_api.app.wsgifunc())
 
 

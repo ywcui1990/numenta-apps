@@ -1,13 +1,13 @@
-htm-it.app.adapters.datasource.autostack package
+htm.it.app.adapters.datasource.autostack package
 ==============================================
 
 Submodules
 ----------
 
-htm-it.app.adapters.datasource.autostack.autostack_metric_adapter module
+htm.it.app.adapters.datasource.autostack.autostack_metric_adapter module
 ----------------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.autostack.autostack_metric_adapter
+.. automodule:: htm.it.app.adapters.datasource.autostack.autostack_metric_adapter
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ htm-it.app.adapters.datasource.autostack.autostack_metric_adapter module
 Module contents
 ---------------
 
-.. automodule:: htm-it.app.adapters.datasource.autostack
+.. automodule:: htm.it.app.adapters.datasource.autostack
     :members:
     :undoc-members:
     :show-inheritance:

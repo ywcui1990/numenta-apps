@@ -1,77 +1,77 @@
-htm-it.app.aws package
+htm.it.app.aws package
 ====================
 
 Submodules
 ----------
 
-htm-it.app.aws.asg_utils module
+htm.it.app.aws.asg_utils module
 -----------------------------
 
-.. automodule:: htm-it.app.aws.asg_utils
+.. automodule:: htm.it.app.aws.asg_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.aws.cloudwatch_utils module
+htm.it.app.aws.cloudwatch_utils module
 ------------------------------------
 
-.. automodule:: htm-it.app.aws.cloudwatch_utils
+.. automodule:: htm.it.app.aws.cloudwatch_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.aws.ec2_utils module
+htm.it.app.aws.ec2_utils module
 -----------------------------
 
-.. automodule:: htm-it.app.aws.ec2_utils
+.. automodule:: htm.it.app.aws.ec2_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.aws.elb_utils module
+htm.it.app.aws.elb_utils module
 -----------------------------
 
-.. automodule:: htm-it.app.aws.elb_utils
+.. automodule:: htm.it.app.aws.elb_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.aws.instance_utils module
+htm.it.app.aws.instance_utils module
 ----------------------------------
 
-.. automodule:: htm-it.app.aws.instance_utils
+.. automodule:: htm.it.app.aws.instance_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.aws.opsworks_utils module
+htm.it.app.aws.opsworks_utils module
 ----------------------------------
 
-.. automodule:: htm-it.app.aws.opsworks_utils
+.. automodule:: htm.it.app.aws.opsworks_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.aws.rds_utils module
+htm.it.app.aws.rds_utils module
 -----------------------------
 
-.. automodule:: htm-it.app.aws.rds_utils
+.. automodule:: htm.it.app.aws.rds_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.aws.s3_utils module
+htm.it.app.aws.s3_utils module
 ----------------------------
 
-.. automodule:: htm-it.app.aws.s3_utils
+.. automodule:: htm.it.app.aws.s3_utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.aws.ses_utils module
+htm.it.app.aws.ses_utils module
 -----------------------------
 
-.. automodule:: htm-it.app.aws.ses_utils
+.. automodule:: htm.it.app.aws.ses_utils
     :members:
     :undoc-members:
     :show-inheritance:
@@ -80,7 +80,7 @@ htm-it.app.aws.ses_utils module
 Module contents
 ---------------
 
-.. automodule:: htm-it.app.aws
+.. automodule:: htm.it.app.aws
     :members:
     :undoc-members:
     :show-inheritance:

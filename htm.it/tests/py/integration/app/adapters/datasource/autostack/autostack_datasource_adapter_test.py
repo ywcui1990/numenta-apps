@@ -100,7 +100,7 @@ class AutostackDatasourceAdapterTest(TestCaseBase):
   @classmethod
   def setUpClass(cls):
     # Load htm-it API Key as required by TestCaseBase
-    cls.apiKey = htm-it.app.config.get("security", "apikey")
+    cls.apiKey = htm.it.app.config.get("security", "apikey")
     cls.engine = repository.engineFactory()
 
 
@@ -172,7 +172,7 @@ class AutostackDatasourceAdapterTest(TestCaseBase):
     modelSpec = self.getModelSpec("cloudwatch", "CPUUtilization", autostack)
     modelId = adapter.monitorMetric(modelSpec)
 
-    with self.assertRaises(htm-it.app.exceptions.MetricAlreadyMonitored) as cm:
+    with self.assertRaises(htm.it.app.exceptions.MetricAlreadyMonitored) as cm:
       adapter.monitorMetric(modelSpec)
 
     self.assertEqual(cm.exception.uid, modelId)

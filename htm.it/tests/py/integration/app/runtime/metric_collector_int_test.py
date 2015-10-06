@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-Integration tests for htm-it.app.runtime.metric_collector
+Integration tests for htm.it.app.runtime.metric_collector
 
 TODO Need to test unhappy paths, too
 """
@@ -91,8 +91,8 @@ def _waitForServiceReady(outputFilePath):
 #  as config overrides.
 @RabbitmqVirtualHostPatch(clientLabel="MetricCollectorTestCase")
 @ConfigAttributePatch(
-  htm-it.app.config.CONFIG_NAME,
-  htm-it.app.config.baseConfigDir,
+  htm.it.app.config.CONFIG_NAME,
+  htm.it.app.config.baseConfigDir,
   (
     ("metric_collector", "poll_interval", "1.0"),
   )
@@ -101,12 +101,12 @@ class MetricCollectorTestCase(unittest.TestCase):
   """
   Fast facts about Metric Collector:
     Metric polling interval is controlled by:
-      htm-it.app.config.getfloat("metric_collector", "poll_interval")
+      htm.it.app.config.getfloat("metric_collector", "poll_interval")
 
     Publishes data points via ModelSwapperInterface.submitRequests
 
     Output data point batch size is controlled by:
-      htm-it.app.config.getint("metric_streamer", "chunk_size")
+      htm.it.app.config.getint("metric_streamer", "chunk_size")
 
   """
 
@@ -129,7 +129,7 @@ class MetricCollectorTestCase(unittest.TestCase):
 
     try:
       p = subprocess.Popen(args=[sys.executable, "-m",
-                                 "htm-it.app.runtime.metric_collector"],
+                                 "htm.it.app.runtime.metric_collector"],
                            stdin=subprocess.PIPE,
                            stdout=stdout,
                            stderr=stderr)

@@ -25,7 +25,7 @@
     thread-count="4">
     <test name="AdvancedUserLifeCycle">
         <classes>
-            <class name="com.htm-it.tests.AdvancedUserHTM-IT" />
+            <class name="com.htm.it.tests.AdvancedUserHTM-IT" />
         </classes>
     </test>
 </suite>

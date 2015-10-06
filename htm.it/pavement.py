@@ -240,7 +240,7 @@ def init_htm-itdb():
 
   import htm.it.app.repository
 
-  htm-it.app.repository.reset()
+  htm.it.app.repository.reset()
 
 
 

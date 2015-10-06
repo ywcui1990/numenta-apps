@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-Unit tests for htm-it.app.aws.cloudwatch_utils
+Unit tests for htm.it.app.aws.cloudwatch_utils
 """
 
 
@@ -44,7 +44,7 @@ def setUpModule():
 
 
 
-@patch.multiple("htm-it.app.aws.cloudwatch_utils",
+@patch.multiple("htm.it.app.aws.cloudwatch_utils",
                 INITIAL_RETRY_BACKOFF_SEC=0.001)
 class CloudWatchUtilsTestCase(unittest.TestCase):
 

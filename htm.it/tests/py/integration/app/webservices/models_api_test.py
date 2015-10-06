@@ -65,8 +65,8 @@ class TestModelHandler(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(models_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
-    data = open(os.path.join(htm-it.app.HTM_IT_HOME,
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
+    data = open(os.path.join(htm.it.app.HTM_IT_HOME,
      "tests/py/data/app/webservices/models_api_integration_test.json")).read()
     self.modelsTestData = json.loads(data)
 
@@ -465,17 +465,17 @@ class MetricDataHandlerTest(unittest.TestCase):
        GET with consitions, set to 5
     5) Decide queryParams for anomalyScore, to and from timestamp
     """
-    cls.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    cls.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
     # All other sevices needs AWS credentials to work
     # Set AWS credentials
-    htm-it.app.config.loadConfig()
+    htm.it.app.config.loadConfig()
 
     # Select test instance such that its running from longer time
     g_logger.info("Getting long-running EC2 Instances")
     instances = aws_utils.getLongRunningEC2Instances("us-west-2",
-      htm-it.app.config.get("aws", "aws_access_key_id"),
-      htm-it.app.config.get("aws", "aws_secret_access_key"), 15)
+      htm.it.app.config.get("aws", "aws_access_key_id"),
+      htm.it.app.config.get("aws", "aws_secret_access_key"), 15)
     testInstance = instances[randrange(1, len(instances))]
 
     createModelData = {

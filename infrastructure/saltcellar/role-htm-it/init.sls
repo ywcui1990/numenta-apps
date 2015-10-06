@@ -26,5 +26,5 @@
 include:
   - nta-nucleus
   - htm-it-plumbing
-  - role-htm-it.test-support
+  - role-htm.it.test-support
   - role-htm-it.install-htm-it

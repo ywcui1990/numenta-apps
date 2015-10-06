@@ -63,7 +63,7 @@ class TestHTMITInstallation(unittest.TestCase):
 
   def testMetricCollectorIsRunning(self):
     self.assertTrue(agamotto.process.running(
-                    "python -m htm-it.app.runtime.metric_collector"))
+                    "python -m htm.it.app.runtime.metric_collector"))
 
 
   def testAnomalyServiceIsRunning(self):

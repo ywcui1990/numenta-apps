@@ -1,10 +1,10 @@
-htm-it.app.adapters.datasource.custom package
+htm.it.app.adapters.datasource.custom package
 ===========================================
 
 Module contents
 ---------------
 
-.. automodule:: htm-it.app.adapters.datasource.custom
+.. automodule:: htm.it.app.adapters.datasource.custom
     :members:
     :undoc-members:
     :show-inheritance:

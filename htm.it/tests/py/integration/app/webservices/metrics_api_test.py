@@ -46,7 +46,7 @@ class MetricsHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(metrics_api.app.wsgifunc())
 
 
@@ -72,7 +72,7 @@ class MetricsApiUnhappyTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(metrics_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   def testNoAuthHeaders(self):

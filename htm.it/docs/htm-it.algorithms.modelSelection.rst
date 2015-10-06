@@ -1,13 +1,13 @@
-htm-it.algorithms.modelSelection package
+htm.it.algorithms.modelSelection package
 ======================================
 
 Submodules
 ----------
 
-htm-it.algorithms.modelSelection.clusterParams module
+htm.it.algorithms.modelSelection.clusterParams module
 ---------------------------------------------------
 
-.. automodule:: htm-it.algorithms.modelSelection.clusterParams
+.. automodule:: htm.it.algorithms.modelSelection.clusterParams
     :members:
     :undoc-members:
     :show-inheritance:
@@ -16,7 +16,7 @@ htm-it.algorithms.modelSelection.clusterParams module
 Module contents
 ---------------
 
-.. automodule:: htm-it.algorithms.modelSelection
+.. automodule:: htm.it.algorithms.modelSelection
     :members:
     :undoc-members:
     :show-inheritance:

@@ -70,9 +70,9 @@ class AggregatorServiceTestCase(unittest.TestCase):
     self.timeRange = timeRange
 
 
-  @patch("htm-it.app.runtime.aggregator_service.MetricStreamer",
+  @patch("htm.it.app.runtime.aggregator_service.MetricStreamer",
          autospec=True)
-  @patch("htm-it.app.runtime.aggregator_service.EC2InstanceMetricGetter",
+  @patch("htm.it.app.runtime.aggregator_service.EC2InstanceMetricGetter",
          autospec=True)
   @patch.object(aggregator_service, "repository", autospec=True)
   @patch("sqlalchemy.engine.Engine", autospec=True)

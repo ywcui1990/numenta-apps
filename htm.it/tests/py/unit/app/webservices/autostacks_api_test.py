@@ -48,7 +48,7 @@ def setUpModule():
   logging_support.LoggingSupport.initTestApp()
 
 
-@patch("htm-it.app.webservices.repository")
+@patch("htm.it.app.webservices.repository")
 class TestAutostacksHandler(unittest.TestCase):
 
   @classmethod
@@ -64,11 +64,11 @@ class TestAutostacksHandler(unittest.TestCase):
                                     "filters":{"tag:Name":["Bogus"]}})
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(autostacks_api.app.wsgifunc())
 
 
-  @patch("htm-it.app.webservices.autostacks_api.repository")
+  @patch("htm.it.app.webservices.autostacks_api.repository")
   def testGETAutostacks(self, repositoryMock, *_args):
     """ Test GETing all autostacks from autostacks API
     """
@@ -82,8 +82,8 @@ class TestAutostacksHandler(unittest.TestCase):
 
     self.assertDictEqual(json.loads(self.jsonAutostack), result[0])
 
-  @patch("htm-it.app.quota.repository")
-  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm.it.app.quota.repository")
+  @patch("htm.it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
   def testPOSTAutostacksQuota(self, adapterMock, quotaRepositoryMock,
                               _repositoryMock):
     quotaRepositoryMock.getInstanceCount.return_value = 0
@@ -97,8 +97,8 @@ class TestAutostacksHandler(unittest.TestCase):
     self.assertTrue(adapterMock.return_value.createAutostack.called)
 
 
-  @patch("htm-it.app.quota.repository")
-  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm.it.app.quota.repository")
+  @patch("htm.it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
   def testPOSTAutostacks(self, adapterMock, quotaRepositoryMock,
                          _repositoryMock):
     name = "Test"
@@ -126,7 +126,7 @@ class TestAutostacksHandler(unittest.TestCase):
     self.assertTrue(adapterMock.return_value.createAutostack.called)
 
 
-  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm.it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
   def testPOSTAutostacksNameInUse(self, createAutostackMock, _repositoryMock):
     createAutostackMock.side_effect = DuplicateRecordError
     with self.assertRaises(AppError) as cm:
@@ -141,7 +141,7 @@ class TestAutostacksHandler(unittest.TestCase):
 
 
 
-@patch("htm-it.app.webservices.repository")
+@patch("htm.it.app.webservices.repository")
 class TestAutostackHandler(unittest.TestCase):
 
   @classmethod
@@ -158,11 +158,11 @@ class TestAutostackHandler(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(autostacks_api.app.wsgifunc())
 
 
-  @patch("htm-it.app.webservices.autostacks_api.repository")
+  @patch("htm.it.app.webservices.autostacks_api.repository")
   def testDELETEAutostackWithoutModels(self, repositoryMock, *_args):
     autostack = Mock(uid="xyz",
                      name="Test",
@@ -178,7 +178,7 @@ class TestAutostackHandler(unittest.TestCase):
     repositoryMock.deleteAutostack.assert_called_with(ANY, autostack.uid)
 
 
-  @patch("htm-it.app.webservices.autostacks_api.repository")
+  @patch("htm.it.app.webservices.autostacks_api.repository")
   @patch("htmengine.model_swapper.utils.deleteHTMModel", autospec=True)
   def testDELETEAutostackWithModels(self,
                                     _deleteHTMModelMock,
@@ -197,15 +197,15 @@ class TestAutostackHandler(unittest.TestCase):
     repositoryMock.deleteAutostack.assert_called_with(ANY, autostack.uid)
 
 
-@patch("htm-it.app.webservices.repository")
+@patch("htm.it.app.webservices.repository")
 class TestAutostackInstancesHandler(unittest.TestCase):
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(autostacks_api.app.wsgifunc())
 
 
   @patch(
-    "htm-it.app.webservices.autostacks_api.createCloudwatchDatasourceAdapter")
+    "htm.it.app.webservices.autostacks_api.createCloudwatchDatasourceAdapter")
   def testAutostackInstancesPreview(self,
                                     adapterMock,
                                     _repositoryMock):
@@ -249,7 +249,7 @@ class TestAutostackInstancesHandler(unittest.TestCase):
 
 
   @patch(
-    "htm-it.app.webservices.autostacks_api.createCloudwatchDatasourceAdapter")
+    "htm.it.app.webservices.autostacks_api.createCloudwatchDatasourceAdapter")
   def testAutostackInstancesKnown(self, adapterMock, repositoryMock, *args):
     adapterMock.return_value.getMatchingResources.return_value = (
       [
@@ -293,14 +293,14 @@ class TestAutostackInstancesHandler(unittest.TestCase):
 
 
 
-@patch("htm-it.app.webservices.repository")
+@patch("htm.it.app.webservices.repository")
 class TestAutostackMetricsHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
     with open(
         os.path.join(
-          htm-it.app.HTM_IT_HOME,
+          htm.it.app.HTM_IT_HOME,
           "tests/py/data/app/webservices/models_list.json")) as fileObj:
       cls.model_list = json.load(fileObj)
 
@@ -349,11 +349,11 @@ class TestAutostackMetricsHandler(unittest.TestCase):
        "display_name":cls.metric.server})
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(autostacks_api.app.wsgifunc())
 
 
-  @patch("htm-it.app.webservices.autostacks_api.repository")
+  @patch("htm.it.app.webservices.autostacks_api.repository")
   def testGETAutostackMetrics(self, repositoryMock, *_args):
     repositoryMock.getAutostackMetrics.return_value = iter([self.metric])
     response = self.app.get(
@@ -363,9 +363,9 @@ class TestAutostackMetricsHandler(unittest.TestCase):
     self.assertDictEqual(json.loads(self.jsonMetric), result[0])
 
 
-  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
-  @patch("htm-it.app.repository.getMetric", autospec=True)
-  @patch("htm-it.app.repository.addMetric", autospec=True)
+  @patch("htm.it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm.it.app.repository.getMetric", autospec=True)
+  @patch("htm.it.app.repository.addMetric", autospec=True)
   def testPOSTAutostackMetricsNoMinMax(
         self,
         addMetricMock,
@@ -399,9 +399,9 @@ class TestAutostackMetricsHandler(unittest.TestCase):
 
 
 
-  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
-  @patch("htm-it.app.repository.getMetric", autospec=True)
-  @patch("htm-it.app.repository.addMetric", autospec=True)
+  @patch("htm.it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm.it.app.repository.getMetric", autospec=True)
+  @patch("htm.it.app.repository.addMetric", autospec=True)
   def testPOSTAutostackMetricsWithMinMax(
       self,
       addMetricMock,
@@ -425,8 +425,8 @@ class TestAutostackMetricsHandler(unittest.TestCase):
       {'max': 10.0, 'min': 0.0})
 
 
-  @patch("htm-it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
-  @patch("htm-it.app.webservices.models_api.repository.getAutostack")
+  @patch("htm.it.app.webservices.autostacks_api.createAutostackDatasourceAdapter")
+  @patch("htm.it.app.webservices.models_api.repository.getAutostack")
   def testPOSTAutostackMetricsHandlesObjectNotFoundError(
       self,
       autostackGetMock,
@@ -448,7 +448,7 @@ class TestAutostackMetricsHandler(unittest.TestCase):
 
 
   @patch("htmengine.model_swapper.utils.deleteHTMModel")
-  @patch("htm-it.app.webservices.autostacks_api.repository")
+  @patch("htm.it.app.webservices.autostacks_api.repository")
   def testDELETEAutostackMetrics(self, repositoryMock, deleteHTMModelMock,
                                  *_args):
     repositoryMock.getAutostackFromMetric.return_value = Mock(
@@ -464,7 +464,7 @@ class TestAutostackMetricsHandler(unittest.TestCase):
 
   @patch("htmengine.model_swapper.utils.deleteHTMModel",
          auto_spec=True)
-  @patch("htm-it.app.webservices.autostacks_api.repository",
+  @patch("htm.it.app.webservices.autostacks_api.repository",
          auto_spec=True)
   def testDELETEAutostackMetricsWrongAutostack(self, repositoryMock,
                                                *_args):
@@ -480,7 +480,7 @@ class TestAutostackMetricsHandler(unittest.TestCase):
       "autostack=blahblahblah", str(cm.exception))
 
 
-  @patch("htm-it.app.webservices.models_api.repository")
+  @patch("htm.it.app.webservices.models_api.repository")
   def testDELETEAutostackMetricsFromModelsAPI(self, repositoryMock, *_args):
     repositoryMock.getMetric.return_value = self.metric
 

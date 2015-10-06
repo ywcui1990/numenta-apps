@@ -30,7 +30,7 @@ import alembic.config
 import pkg_resources
 
 ALEMBIC_CONFIG = alembic.config.Config(pkg_resources.resource_filename(
-    "htm-it.app.repository", os.path.join("migrations", "alembic.ini")))
+    "htm.it.app.repository", os.path.join("migrations", "alembic.ini")))
 
 
 

@@ -75,7 +75,7 @@ class CloudwatchDatasourceAdapterBaseTest(TestCaseBase):
   @classmethod
   def setUpClass(cls):
     with open(os.path.join(
-        htm-it.app.HTM_IT_HOME,
+        htm.it.app.HTM_IT_HOME,
         "tests/py/integration/app/test_resources.yaml")) as fin:
       resources = yaml.load(fin)
     testCase = resources[aws_base.ResourceTypeNames.EC2_INSTANCE][0]
@@ -83,7 +83,7 @@ class CloudwatchDatasourceAdapterBaseTest(TestCaseBase):
     cls._testRegion = testCase["region"]
     cls._testId = testCase["dimensions"]["InstanceId"]
     # Load htm-it API Key as required by TestCaseBase
-    cls.apiKey = htm-it.app.config.get("security", "apikey")
+    cls.apiKey = htm.it.app.config.get("security", "apikey")
 
     cls._modelSpecNoMinMax = {"datasource":testCase["datasource"],
                               "metricSpec":{

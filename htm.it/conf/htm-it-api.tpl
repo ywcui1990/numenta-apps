@@ -49,11 +49,11 @@ http {
     location = /_msgs {
       include nginx-uwsgi.conf;
     }
-    # In the updater, maintenance.html does an ajax call to /htm-it/embed/charts
+    # In the updater, maintenance.html does an ajax call to /htmit/embed/charts
     # to determine that the API server is alive. This has to be done over http
     # because Chrome throws an error about our unsigned SSL cert otherwise and
     # the maintenance.html spins forever.
-    location = /htm-it/embed/charts {
+    location = /htmit/embed/charts {
       include nginx-uwsgi.conf;
     }
     location ^~ /static {
@@ -80,8 +80,8 @@ http {
     # Disable SSLv3 to cope with POODLE
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
 
-    rewrite ^/htm-it/$ /htm-it permanent;
-    rewrite ^/htm-it/mobile /htm-it/complete permanent;
+    rewrite ^/htmit/$ /htmit permanent;
+    rewrite ^/htmit/mobile /htmit/complete permanent;
 
     location ^~ /static {
       root %(HTM_IT_HOME)s;

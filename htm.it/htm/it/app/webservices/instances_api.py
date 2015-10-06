@@ -263,7 +263,7 @@ class InstancesHandler(AuthenticatedBaseHandler):
                 "status": 2
                 "parameters": {
                     "region": "us-west-2",
-                    "AutoScalingGroupName": "htm-itsolutions-com-ssl"
+                    "AutoScalingGroupName": "groksolutions-com-ssl"
                 },
 
             },
@@ -322,7 +322,7 @@ class InstanceSuggestionsHandler(AuthenticatedBaseHandler):
               {
                   "region": "us-west-2",
                   "namespace": "AWS/ELB",
-                  "id": "htm-it-docs-elb"
+                  "id": "grok-docs-elb"
               },
               ... (up to 22 total alternatives) ...
           ]

@@ -34,7 +34,7 @@ reporoot=$(git rev-parse --show-toplevel)
 time ./create-numenta-rpm --rpm-flavor htm-it \
   --description "HTM-IT installed from products rpm - ends up in /opt/numenta/products/htm-it" \
   --rpm-name nta-products-htm-it \
-  --cleanup-script htm-it/htm-it/pipeline/scripts/rpm-creator/clean-htm-it-tree-for-packaging \
+  --cleanup-script htm.it/htm/it/pipeline/scripts/rpm-creator/clean-htm-it-tree-for-packaging \
   --whitelist htm-it \
   --whitelist htmengine \
   --whitelist install-htm-it.sh \

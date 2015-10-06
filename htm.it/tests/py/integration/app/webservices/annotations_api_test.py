@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 """
-Integration test for :class:`htm-it.app.webservices.annotations_api`
+Integration test for :class:`htm.it.app.webservices.annotations_api`
 
   1. Happy path
     * Create Annotation

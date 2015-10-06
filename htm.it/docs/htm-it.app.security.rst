@@ -1,10 +1,10 @@
-htm-it.app.security package
+htm.it.app.security package
 =========================
 
 Module contents
 ---------------
 
-.. automodule:: htm-it.app.security
+.. automodule:: htm.it.app.security
     :members:
     :undoc-members:
     :show-inheritance:

@@ -18,10 +18,10 @@ print "all databases BEFORE PATCH:", getAllDatabaseNames()
 with ManagedTempRepository("MyTest") as repo:
   print "all databases IN PATCH:", getAllDatabaseNames()
 
-  print "repository db in-proc:", htm-it.app.config.get("repository", "db")
+  print "repository db in-proc:", htm.it.app.config.get("repository", "db")
 
   p = subprocess.Popen(["python", "-c", "import htm.it.app; print 'repository db in subprocess:', "
-                        "htm-it.app.config.get('repository', 'db')"])
+                        "htm.it.app.config.get('repository', 'db')"])
   returnCode = p.wait()
 
 

@@ -1,4 +1,4 @@
-htm-it.app.adapters package
+htm.it.app.adapters package
 =========================
 
 Subpackages
@@ -6,12 +6,12 @@ Subpackages
 
 .. toctree::
 
-    htm-it.app.adapters.datasource
+    htm.it.app.adapters.datasource
 
 Module contents
 ---------------
 
-.. automodule:: htm-it.app.adapters
+.. automodule:: htm.it.app.adapters
     :members:
     :undoc-members:
     :show-inheritance:

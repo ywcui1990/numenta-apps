@@ -101,7 +101,7 @@
                 this.data.monitored.models.fetch(fetchOpts),
                 this.data.source.aws.regions.fetch(fetchOpts),
                 this.data.source.aws.namespaces.fetch(fetchOpts),
-                this.data.source.htm-it.autostacks.fetch(fetchOpts),
+                this.data.source.htm.it.autostacks.fetch(fetchOpts),
                 this.data.source.htm-it.customs.fetch(fetchOpts)
             ]).done(function() {
                 // now we have all the data
@@ -270,7 +270,7 @@
                 api:    this.api,
                 site:   this.site,
                 data: {
-                    autostacks: this.data.source.htm-it.autostacks,
+                    autostacks: this.data.source.htm.it.autostacks,
                     customs:    this.data.source.htm-it.customs,
                     instances:  this.data.monitored.instances,
                     metrics:    this.data.source.aws.metrics,

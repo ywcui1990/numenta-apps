@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-Unit tests for htm-it.app.runtime.metric_collector
+Unit tests for htm.it.app.runtime.metric_collector
 """
 
 # Disable warning: Used builtin function 'map' (bad-builtin)
@@ -102,12 +102,12 @@ def _makeFreshMetricMockInstance(metricPollInterval, uid):
                 _NO_PENDING_METRICS_SLEEP_SEC=0.001,
                 _METRIC_QUARANTINE_DURATION_RATIO=0.0001,
                 _RESOURCE_STATUS_UPDATE_INTERVAL_SEC=0.0)
-@ConfigAttributePatch(htm-it.app.config.CONFIG_NAME,
-                      htm-it.app.config.baseConfigDir,
+@ConfigAttributePatch(htm.it.app.config.CONFIG_NAME,
+                      htm.it.app.config.baseConfigDir,
                       (("metric_collector", "poll_interval", "0.000001"),))
 class MetricCollectorTestCase(unittest.TestCase):
   """
-  Unit tests for htm-it.app.runtime.metric_collector
+  Unit tests for htm.it.app.runtime.metric_collector
   """
 
   @patch.object(metric_collector, "createDatasourceAdapter", autospec=True)
@@ -169,8 +169,8 @@ class MetricCollectorTestCase(unittest.TestCase):
         resultOfRunCollector["exception"] = sys.exc_info()[1]
         raise
     with ConfigAttributePatch(
-        htm-it.app.config.CONFIG_NAME,
-        htm-it.app.config.baseConfigDir,
+        htm.it.app.config.CONFIG_NAME,
+        htm.it.app.config.baseConfigDir,
         (("metric_streamer", "chunk_size", str(metricsPerChunk)),)):
 
       # We run it in a thread in order to detect if MetricCollector.run fails to

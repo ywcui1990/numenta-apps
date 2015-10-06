@@ -69,8 +69,8 @@ urls = (
   # Web UI
   "", "DefaultHandler",
   "/", "DefaultHandler",
-  "/htm-it", "HTMITHandler",
-  r"/htm-it/([-\/\w]*)", "HTMITHandler",
+  "/htmit", "HTMITHandler",
+  r"/htmit/([-\/\w]*)", "HTMITHandler",
 
   # i18n strings
   "/_msgs", "MessagesHandler",
@@ -92,13 +92,13 @@ urls = (
 )
 
 messageManager = messagemanager.MessageManager(
-  open(os.path.join(htm-it.app.HTM_IT_HOME,
+  open(os.path.join(htm.it.app.HTM_IT_HOME,
                     "resources/messages/us/messages.json")).read()
 )
 
 # Get the build sha to display in web ui for easy debugging
 try:
-  buildSha = open(os.path.join(htm-it.app.HTM_IT_HOME, "static/htm-it.sha")).read()
+  buildSha = open(os.path.join(htm.it.app.HTM_IT_HOME, "static/htm-it.sha")).read()
 except IOError:
   try:
     buildSha = check_output(["git", "rev-parse", "--verify", "HEAD"])
@@ -133,11 +133,11 @@ class DefaultHandler(object):
 class HTMITHandler(object):
   def GET(self, path=None):  # pylint: disable=R0201,W0613,C0103
     # Make sure we have the latest version of configuration
-    htm-it.app.config.loadConfig()
-    htm-it.app.product.loadConfig()
+    htm.it.app.config.loadConfig()
+    htm.it.app.product.loadConfig()
 
     # prep data
-    apiKey = htm-it.app.config.get("security", "apikey")
+    apiKey = htm.it.app.config.get("security", "apikey")
     hostname = socket.gethostname()
     isEmbed = path and ("embed/" in path)
     params = web.input(hash="", width=720, height=480)
@@ -147,18 +147,18 @@ class HTMITHandler(object):
     refererUri = web.ctx.env.get("HTTP_REFERER", "")
     referer = urlparse(refererUri).hostname or ""
     sha1 = hashlib.sha1()
-    render = web.template.render(os.path.join(htm-it.app.HTM_IT_HOME,
+    render = web.template.render(os.path.join(htm.it.app.HTM_IT_HOME,
                                               "resources/templates"))
 
     instanceData = _getInstanceMetadata()
 
-    data = {"baseUrl": htm-it.app.config.get("web", "base_url"),
+    data = {"baseUrl": htm.it.app.config.get("web", "base_url"),
             "embed": {"height":   paramHeight,
                       "width":    paramWidth},
-            "endpoint": htm-it.app.config.get("web", "base_url"),
+            "endpoint": htm.it.app.config.get("web", "base_url"),
             "hostname": hostname,
             "product": {"build": buildSha[:7],
-                        "edition": htm-it.app.product.get("edition",
+                        "edition": htm.it.app.product.get("edition",
                                                         "type").title(),
                         "version": __version__.__version__},
             "site": messageManager.getMessagesByKey("site"),
@@ -196,15 +196,15 @@ class MessagesHandler(object):
     data = web.input()
     messagesOut = {}
 
-    if htm-it.app.DEBUG_LEVEL > 0:
+    if htm.it.app.DEBUG_LEVEL > 0:
       # When debugging, read the file and create new MessageManager on
       # every request so we can change messages.json on the fly.
-      with open(os.path.join(htm-it.app.HTM_IT_HOME,
+      with open(os.path.join(htm.it.app.HTM_IT_HOME,
                              "resources/messages/us/messages.json")) as f:
         messageManager = messagemanager.MessageManager(f.read())
 
     # Make sure we have the latest version of configuration
-    htm-it.app.config.loadConfig()
+    htm.it.app.config.loadConfig()
     for templateKey in data:
       templateLocation = data[templateKey]
 
@@ -217,7 +217,7 @@ class MessagesHandler(object):
       else:
         # To get the right relative lookup path for messages.json, we"ll
         # remove known template paths.
-        baseUrl = htm-it.app.config.get("web", "base_url")
+        baseUrl = htm.it.app.config.get("web", "base_url")
         path = templateLocation\
               .replace(baseUrl + "/static/js/program/templates/", "")
         msgs = messageManager.getMessagesForTemplate(path)
@@ -240,11 +240,11 @@ class AWSAuthHandler(object):
 
   def POST(self):  # pylint: disable=C0103
     data = jsonDecode(web.data())
-    htm-it.app.config.loadConfig()
+    htm.it.app.config.loadConfig()
     # if they already authed, new aws creds must match the originals
-    if htm-it.app.config.has_section("aws"):
-      if htm-it.app.config.has_option("aws", "aws_access_key_id"):
-        awsAccessKeyId = htm-it.app.config.get("aws", "aws_access_key_id")
+    if htm.it.app.config.has_section("aws"):
+      if htm.it.app.config.has_option("aws", "aws_access_key_id"):
+        awsAccessKeyId = htm.it.app.config.get("aws", "aws_access_key_id")
         if awsAccessKeyId and awsAccessKeyId != data["aws_access_key_id"]:
           raise UnauthorizedResponse({
               "result": ("Please use the same AWS Credentials that you "
@@ -261,14 +261,14 @@ class AWSAuthHandler(object):
 
     apikey = None
 
-    if htm-it.app.config.has_section("security"):
-      if htm-it.app.config.has_option("security", "apikey"):
-        apikey = htm-it.app.config.get("security", "apikey")
+    if htm.it.app.config.has_section("security"):
+      if htm.it.app.config.has_option("security", "apikey"):
+        apikey = htm.it.app.config.get("security", "apikey")
 
     if not apikey:
       apikey = self.generateAPIKey()
-      htm-it.app.config.set("security", "apikey", apikey)
-      htm-it.app.config.save()
+      htm.it.app.config.set("security", "apikey", apikey)
+      htm.it.app.config.save()
 
     result["apikey"] = apikey
 

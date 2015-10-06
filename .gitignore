@@ -15,7 +15,7 @@ conf/quota.conf
 conf/rabbitmq.conf
 conf/supervisord.conf
 conf/overrides/
-htm-it.egg-info
+htm.it.egg-info
 htm-it/engine/utils/logs
 htm-it-api-server/conf/
 htm-it-app/logs
@@ -61,7 +61,7 @@ android/libs/android-support-v4.jar.properties
 android/libs/achartengine-1.1.0.jar.properties
 android/libs/msgpack-0.6.9.jar.properties
 android/password.properties
-android/htm-it.keystore
+android/grok.keystore
 .metadata
 
 # Idea project files
