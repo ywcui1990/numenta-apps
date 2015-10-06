@@ -71,9 +71,11 @@ export default class Chart extends React.Component {
   componentWillUnmount() {
     if (this._dygraph) {
       this._dygraph.destroy();
-      delete this._dygraph;
+      this._dygraph = null;
     }
-    delete this._chartXrange;
+    if (this._chartXrange) {
+      this._chartXrange = null;
+    }
   }
 
   componentDidUpdate() {
