@@ -28,13 +28,13 @@
     // global view options
     var _viewOpts = {
         el: $('#content'),
-        api: new HTM-ITAPI({
-            apiKey: HTM-ITUI.utils.store.get('apiKey') || HTM-ITUI.apiKey
+        api: new HTMITAPI({
+            apiKey: HTMITUI.utils.store.get('apiKey') || HTMITUI.apiKey
         })
     };
 
 
-    HTM-ITUI.routes = {
+    HTMITUI.routes = {
 
         urls: {
             // first time user Setup flow
@@ -463,7 +463,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.AuthView(_viewOpts);
+                    new HTMITUI.AuthView(_viewOpts);
                 });
             },
 
@@ -479,7 +479,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.AutostackView(_viewOpts);
+                    new HTMITUI.AutostackView(_viewOpts);
                 });
             },
 
@@ -495,7 +495,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.CompleteView(_viewOpts);
+                    new HTMITUI.CompleteView(_viewOpts);
                 });
             },
 
@@ -511,7 +511,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.ConfirmView(_viewOpts);
+                    new HTMITUI.ConfirmView(_viewOpts);
                 });
             },
 
@@ -527,7 +527,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.InstancesAutoView(_viewOpts);
+                    new HTMITUI.InstancesAutoView(_viewOpts);
                 });
             },
 
@@ -543,7 +543,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.InstancesImportView(_viewOpts);
+                    new HTMITUI.InstancesImportView(_viewOpts);
                 });
             },
 
@@ -559,7 +559,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.InstancesManualView(_viewOpts);
+                    new HTMITUI.InstancesManualView(_viewOpts);
                 });
             },
 
@@ -575,7 +575,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.ManageCustomMetricsView(_viewOpts);
+                    new HTMITUI.ManageCustomMetricsView(_viewOpts);
                 });
             },
 
@@ -592,7 +592,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.MobileView(_viewOpts);
+                    new HTMITUI.MobileView(_viewOpts);
                 });
             },
 
@@ -608,7 +608,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.NotifyView(_viewOpts);
+                    new HTMITUI.NotifyView(_viewOpts);
                 });
             },
 
@@ -624,7 +624,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.RegisterView(_viewOpts);
+                    new HTMITUI.RegisterView(_viewOpts);
                 });
             },
 
@@ -640,7 +640,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.TermsView(_viewOpts);
+                    new HTMITUI.TermsView(_viewOpts);
                 });
             },
 
@@ -656,7 +656,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.WelcomeView(_viewOpts);
+                    new HTMITUI.WelcomeView(_viewOpts);
                 });
             },
 
@@ -675,7 +675,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.ManageView(_viewOpts);
+                    new HTMITUI.ManageView(_viewOpts);
                 });
             },
 
@@ -704,7 +704,7 @@
                     $.widget.bridge('uibutton', $.ui.button);     
                     $.fn.tooltip = $bstooltip;
                     $.fn.button = $bsbutton;                    
-                    new HTM-ITUI.ChartsView(_viewOpts);
+                    new HTMITUI.ChartsView(_viewOpts);
                 });
             },
 
@@ -723,7 +723,7 @@
                     scripts: scripts,
                     msgs: _messages
                 }, function() {
-                    new HTM-ITUI.NotFoundView(_viewOpts);
+                    new HTMITUI.NotFoundView(_viewOpts);
                 });
             }
 

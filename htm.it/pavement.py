@@ -54,16 +54,16 @@ HTM_IT_HOME = os.path.abspath(os.path.dirname(__file__))
 
 
 
-def getOrCreateHTM-ITId():
+def getOrCreateHTMITId():
   htm-itIdPath = "%s/conf/.htm_it_id" % HTM_IT_HOME
   if os.path.exists(htm-itIdPath):
     with open(htm-itIdPath, "r") as htm-itIdFile:
       return htm-itIdFile.read()
   else:
-    newHTM-ITId = uuid.uuid4().hex
+    newHTMITId = uuid.uuid4().hex
     with open(htm-itIdPath, "w") as htm-itIdFile:
-      htm-itIdFile.write(newHTM-ITId)
-    return newHTM-ITId
+      htm-itIdFile.write(newHTMITId)
+    return newHTMITId
 
 
 
@@ -82,7 +82,7 @@ data["NGINX_SSL_CERTIFICATE"] = \
   os.path.join(HTM_IT_HOME, "conf/ssl/localhost.crt")
 data["NGINX_SSL_CERTIFICATE_KEY"] = \
   os.path.join(HTM_IT_HOME, "conf/ssl/localhost.key")
-data["HTM_IT_ID"] = getOrCreateHTM-ITId()
+data["HTM_IT_ID"] = getOrCreateHTMITId()
 data["HTM_IT_UPDATE_EPOCH"] = "%f" % (time.time())
 data["HTM_IT_SEND_TO_WUFOO"] = "no"
 data["WUFOO_URL"] = ""
@@ -117,7 +117,7 @@ def configure_htm-it(options):
   # First, generate HTM-IT's baseline config objects
   call_task("gen_htm_it_base_config", options={"target": options.target})
 
-  from htm.it.app import config, HTM-ITAppConfig
+  from htm.it.app import config, HTMItAppConfig
 
   # Delete all configuration override objects
   config.clearAllConfigOverrides()
@@ -129,7 +129,7 @@ def configure_htm-it(options):
       random.choice("".join(set(string.letters + string.digits) - set('1iLl0Oo')))
       for _ in xrange(5))
 
-  config = HTM-ITAppConfig(mode=HTM-ITAppConfig.MODE_OVERRIDE_ONLY)
+  config = HTMItAppConfig(mode=HTMItAppConfig.MODE_OVERRIDE_ONLY)
   config.add_section("security")
   config.set("security", "apikey", apiKey)
   config.save()
@@ -240,7 +240,7 @@ def init_htm-itdb():
 
   import htm.it.app.repository
 
-  htm-it.app.repository.reset()
+  htm.it.app.repository.reset()
 
 
 

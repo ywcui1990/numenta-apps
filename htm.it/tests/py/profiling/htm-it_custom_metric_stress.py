@@ -21,8 +21,8 @@
 # ----------------------------------------------------------------------
 
 """
-Exercise the HTM-IT Custom Metrics functionality by gradually increasing the
-number of HTM-IT Custom Models
+Exercise the HTMIT Custom Metrics functionality by gradually increasing the
+number of HTMIT Custom Models
 
 NOTE: see prerequisites in this tool's help string
 """
@@ -54,7 +54,7 @@ _CsvRow = namedtuple(
 )
 
 
-# We grow the number of HTM-IT Custom Metric models every period
+# We grow the number of HTMIT Custom Metric models every period
 # by "metric increment" specified via command-line options, which defaults to
 #_DEFAULT_METRIC_INCREMENT
 _METRIC_INCREASE_PERIOD_SEC = 10 * 60
@@ -78,7 +78,7 @@ _METRIC_DATA_PERIOD = 5 * 60
 _PLAINTEXT_PORT = 2003
 
 
-def _createHTM-ITCustomModel(htm-ithost, apikey, metricName):
+def _createHTMITCustomModel(htm-ithost, apikey, metricName):
   """
   :returns: dictionary result of the _models POST request on success;
     None if quota limit was exceeded. Raises exception otherwise
@@ -119,7 +119,7 @@ def _createHTM-ITCustomModel(htm-ithost, apikey, metricName):
 
 @abortProgramOnAnyException(1, logger=gLog)
 def feedMetricData(htm-ithost, metricNames):
-  """ Thread function for feeding metric data to the given HTM-IT Custom Metrics
+  """ Thread function for feeding metric data to the given HTMIT Custom Metrics
   """
   # Try to avoid thundering herd
   time.sleep(random.random() * _METRIC_DATA_PERIOD)
@@ -148,9 +148,9 @@ def feedMetricData(htm-ithost, metricNames):
 def main(htm-ithost, apikey, minmodels, metricIncrement, csvFilePath,
          feedforever):
   """
-  :param htm-ithost: HTM-IT server's hostname or IP address string
+  :param htm-ithost: HTMIT server's hostname or IP address string
 
-  :param apikey: HTM-IT server's API key
+  :param apikey: HTMIT server's API key
 
   :param minmodels: Minimum number of models to add at start-up;
     NOTE: models are added in increments of metricIncrement
@@ -193,7 +193,7 @@ def main(htm-ithost, apikey, minmodels, metricIncrement, csvFilePath,
         modelGroupNumber, metricNumber)
 
       # Create the next model
-      response = _createHTM-ITCustomModel(
+      response = _createHTMITCustomModel(
         htm-ithost=htm-ithost,
         apikey=apikey,
         metricName=metricName)
@@ -267,12 +267,12 @@ def _parseArgs():
      "feedforever": <feedforever>}
   """
   helpString = (
-    "%%prog [OPTIONS] HTM-ITHOST HTM_IT_APIKEY\n"
-    "Exercise the HTM-IT Custom Metrics functionality by gradually increasing "
-    "the number of HTM-IT Custom Models and feeding data to each model on a "
+    "%%prog [OPTIONS] HTMITHOST HTM_IT_APIKEY\n"
+    "Exercise the HTMIT Custom Metrics functionality by gradually increasing "
+    "the number of HTMIT Custom Models and feeding data to each model on a "
     "5-minute interval.\n"
-    "PREREQUISITES: profiling must be enabled on the HTM-IT server under "
-    "test in application.conf and model-swapper.conf; HTM-IT log rotation must "
+    "PREREQUISITES: profiling must be enabled on the HTMIT server under "
+    "test in application.conf and model-swapper.conf; HTMIT log rotation must "
     "be disabled via `sudo crontab -e`"
     )
 

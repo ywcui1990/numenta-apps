@@ -19,9 +19,9 @@
  * http://numenta.org/licenses/
  * ---------------------------------------------------------------------- */
 
-describe('HTM-IT Backbone.Model: HTM-ITCustomMetric', function() {
+describe('HTMIT Backbone.Model: HTMITCustomMetric', function() {
 
-    var model = new HTM-ITUI.HTM-ITCustomMetricModel();
+    var model = new HTMITUI.HTMITCustomMetricModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

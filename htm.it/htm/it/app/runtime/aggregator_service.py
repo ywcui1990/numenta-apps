@@ -51,7 +51,7 @@ from htm.it.htm_it_logging import (getExtendedLogger,
 
 
 
-_MODULE_NAME = "htm-it.aggregator"
+_MODULE_NAME = "htm.it.aggregator"
 
 
 

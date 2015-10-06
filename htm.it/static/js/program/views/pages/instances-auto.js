@@ -23,7 +23,7 @@
 
     var viewName = 'instances-auto';
 
-    HTM-ITUI.InstancesAutoView = Backbone.View.extend({
+    HTMITUI.InstancesAutoView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -38,8 +38,8 @@
 
         name: viewName,
 
-        msgs: HTM-ITUI.msgs(viewName + '-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs(viewName + '-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         instanceListView:       null,
         setupProgressBarView:   null,
@@ -64,27 +64,27 @@
                 },
                 fetchOpts = {
                     error: function(collection, response, options) {
-                        return HTM-ITUI.utils.modalError(error);
+                        return HTMITUI.utils.modalError(error);
                     }
                 };
 
             this.api = options.api;
 
-            this.data.instances =   new HTM-ITUI.InstancesCollection([], collectOpts);
-            this.data.models =      new HTM-ITUI.ModelsCollection([], collectOpts);
+            this.data.instances =   new HTMITUI.InstancesCollection([], collectOpts);
+            this.data.models =      new HTMITUI.ModelsCollection([], collectOpts);
 
-            HTM-ITUI.utils.title(this.msgs.title);
+            HTMITUI.utils.title(this.msgs.title);
 
             // go setup if they have not yet
-            if(! HTM-ITUI.utils.isAuthorized()) {
+            if(! HTMITUI.utils.isAuthorized()) {
                 location.href = this.site.paths.welcome;
                 return;
             }
 
             // next get list of AWS regions
             this.api.getRegions(function(error, regions) {
-                if(error) return HTM-ITUI.utils.modalError(error);
-                HTM-ITUI.utils.throb.stop();
+                if(error) return HTMITUI.utils.modalError(error);
+                HTMITUI.utils.throb.stop();
 
                 // rename region for display, get rid of extra text at end
                 Object.keys(regions).forEach(function(region) {
@@ -117,7 +117,7 @@
 
             me.$el.html(me.template(data));
 
-            this.instanceListView = new HTM-ITUI.InstanceListView({
+            this.instanceListView = new HTMITUI.InstanceListView({
                 el:     $('#instance-list'),
                 api:    this.api,
                 site:   this.site,
@@ -141,7 +141,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            HTM-ITUI.utils.go(destination);
+            HTMITUI.utils.go(destination);
         },
 
         /**
@@ -167,10 +167,10 @@
 
             // The user must select a region
             if (!region) {
-                return HTM-ITUI.utils.modalError(me.msgs.errors.selectRegion);
+                return HTMITUI.utils.modalError(me.msgs.errors.selectRegion);
             }
 
-            HTM-ITUI.utils.throb.start(me.site.state.instance.find);
+            HTMITUI.utils.throb.start(me.site.state.instance.find);
 
             // de-emphasize Start button
             $target.toggleClass('btn-primary btn-default');
@@ -193,14 +193,14 @@
                     "AWS/EC2", // We are only interested in EC2 instances here
                     opts,
                     function(error, results) {
-                        if(error) return HTM-ITUI.utils.modalError(error);
+                        if(error) return HTMITUI.utils.modalError(error);
 
                         regionDetails = regionDetails.concat(results);
                         targetCount++;
 
                         // update % in throbber
                         percent = Math.round((targetCount / targetRegions.length) * 100);
-                        HTM-ITUI.utils.throb.message(
+                        HTMITUI.utils.throb.message(
                             me.site.state.instance.find +
                             ' (' + percent + '%)'
                         );
@@ -209,8 +209,8 @@
                         if(targetCount === targetRegions.length) {
                             if(! region) {
                                 // all regions + htm-it custom metrics
-                                me.api.getHTM-ITCustomMetrics(function(error, metrics) {
-                                    if(error) return HTM-ITUI.utils.modalError(error);
+                                me.api.getHTMITCustomMetrics(function(error, metrics) {
+                                    if(error) return HTMITUI.utils.modalError(error);
                                     regionDetails = regionDetails.concat(metrics);
                                     me.displaySelectionModal(regionDetails);
                                 });
@@ -239,11 +239,11 @@
                     return 0;
                 };
 
-            HTM-ITUI.utils.throb.stop();
+            HTMITUI.utils.throb.stop();
 
             if(data.length <= 0) {
                 // no results
-                return HTM-ITUI.utils.modalError(me.msgs.errors.empty);
+                return HTMITUI.utils.modalError(me.msgs.errors.empty);
             }
 
             data.sort(sortFn).forEach(function(metric) {
@@ -280,7 +280,7 @@
                         display: display,
                         service: service,
                         region: region,
-                        creator: HTM-ITUI.utils.encodeXmlEntities(
+                        creator: HTMITUI.utils.encodeXmlEntities(
                             JSON.stringify(metric)
                         )
                     };
@@ -295,7 +295,7 @@
             // modal
             // TODO: prep data before view, or send to view??
             // select view should be general - not specfici to auto model creation here!
-            me.instanceSelectView = new HTM-ITUI.InstanceSelectView({
+            me.instanceSelectView = new HTMITUI.InstanceSelectView({
                 api:        me.api,
                 instances:  instances,
                 data: {
@@ -304,10 +304,10 @@
                 }
             });
             me.instanceSelectView.bind('view-models-created', function() {
-                HTM-ITUI.utils.throb.stop();
+                HTMITUI.utils.throb.stop();
                 me.data.instances.fetch({
                     error: function(collection, response, options) {
-                        return HTM-ITUI.utils.modalError(error);
+                        return HTMITUI.utils.modalError(error);
                     }
                 });
             });

@@ -64,12 +64,12 @@ class NotificationServiceTest(unittest.TestCase):
       service.sendNotificationEmail(mockEngine, self.settingObj,
                                     notificationObj)
 
-  @ConfigAttributePatch(htm-it.app.config.CONFIG_NAME,
-                        htm-it.app.config.baseConfigDir,
+  @ConfigAttributePatch(htm.it.app.config.CONFIG_NAME,
+                        htm.it.app.config.baseConfigDir,
                         (("notifications", "sender",
                           "test@numenta.com"),))
-  @patch('htm-it.app.runtime.notification_service.timezone')
-  @patch("htm-it.app.runtime.notification_service.ses_utils.sendEmail")
+  @patch('htm.it.app.runtime.notification_service.timezone')
+  @patch("htm.it.app.runtime.notification_service.ses_utils.sendEmail")
   def testSendNotificationEmailDefault(self, sendEmailMock, timezoneMock,
                                        repoMock, _availabilityZoneMock):
     """TODO: Add description of test"""
@@ -131,12 +131,12 @@ class NotificationServiceTest(unittest.TestCase):
     self.assertEqual(kwargs["toAddresses"], "foo@bar.com")
 
 
-  @ConfigAttributePatch(htm-it.app.config.CONFIG_NAME,
-                        htm-it.app.config.baseConfigDir,
+  @ConfigAttributePatch(htm.it.app.config.CONFIG_NAME,
+                        htm.it.app.config.baseConfigDir,
                         (("notifications", "sender",
                           "test@numenta.com"),))
-  @patch('htm-it.app.runtime.notification_service.timezone')
-  @patch("htm-it.app.runtime.notification_service.ses_utils.sendEmail")
+  @patch('htm.it.app.runtime.notification_service.timezone')
+  @patch("htm.it.app.runtime.notification_service.ses_utils.sendEmail")
   def testSendNotificationEmailCustom(self, sendEmailMock, timezoneMock,
                                       repoMock, _availabilityZoneMock):
     """TODO: Add description of test"""

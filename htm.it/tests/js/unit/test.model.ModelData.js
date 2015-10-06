@@ -21,8 +21,8 @@
 
 describe('HTM-IT Backbone.Model: ModelData', function() {
 
-    var api =   new HTM-ITAPI({ apiKey: 'xxx' }),
-        model = new HTM-ITUI.ModelDataModel({}, { api: api });
+    var api =   new HTMITAPI({ apiKey: 'xxx' }),
+        model = new HTMITUI.ModelDataModel({}, { api: api });
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

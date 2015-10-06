@@ -40,7 +40,7 @@ metric_collector
 The module `metric_collector` will collect metric data from all data sources
 using the appropriate [data adapter](../adapters) at the metric scheduled
 interval.  Once the model processes the newly streamed data the results are
-pushed to the `htm-it.model.data` exchange and stored in the `metric_data`
+pushed to the `htm.it.model.data` exchange and stored in the `metric_data`
 database table.
 
 metric_streamer

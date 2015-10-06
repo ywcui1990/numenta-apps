@@ -56,7 +56,7 @@ from nta.utils.error_handling import abortProgramOnAnyException
 
 
 
-_MODULE_NAME = "htm-it.metric_collector"
+_MODULE_NAME = "htm.it.metric_collector"
 
 _EXIT_CODE_ON_UNHANDLED_EXCEPTION_IN_THREAD = 1
 
@@ -245,13 +245,13 @@ class MetricCollector(object):
     self._log = htm_it_logging.getExtendedLogger(self.__class__.__name__)
 
     self._profiling = (
-      htm-it.app.config.getboolean("debugging", "profiling") or
+      htm.it.app.config.getboolean("debugging", "profiling") or
       self._log.isEnabledFor(logging.DEBUG))
 
-    self._pollInterval = htm-it.app.config.getfloat(
+    self._pollInterval = htm.it.app.config.getfloat(
       "metric_collector", "poll_interval")
 
-    self._metricErrorGracePeriod = htm-it.app.config.getfloat(
+    self._metricErrorGracePeriod = htm.it.app.config.getfloat(
       "metric_collector", "metric_error_grace_period")
 
     # Interval for periodic garbage collection of our caches (e.g.,

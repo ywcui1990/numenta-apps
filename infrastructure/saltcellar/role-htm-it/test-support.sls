@@ -18,7 +18,7 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-# Formula: role-htm-it.test-support
+# Formula: role-htm.it.test-support
 #
 # Install htm-it testing tooling
 

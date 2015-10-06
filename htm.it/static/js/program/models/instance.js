@@ -59,7 +59,7 @@
    * @requires Backbone.js
    * @returns {Object} Backbone.js Model object
    */
-  HTM-ITUI.InstanceModel = Backbone.Model.extend({
+  HTMITUI.InstanceModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

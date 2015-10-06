@@ -26,7 +26,7 @@
     /**
      * Backbone.View() - Embed: Charts > Tabs
      */
-    HTM-ITUI.EmbedChartsTabsView = Backbone.View.extend({
+    HTMITUI.EmbedChartsTabsView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -38,8 +38,8 @@
 
         // Custom properties
 
-        msgs: HTM-ITUI.msgs(_viewName + '-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs(_viewName + '-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         api:    null,
         hash:   null,

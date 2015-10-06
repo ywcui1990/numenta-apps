@@ -53,13 +53,13 @@ from nta.utils.file_lock import ExclusiveFileLock
 
 
 # Path format for writing Android logs.
-_LOG_FORMAT_ANDROID = os.path.join(os.path.dirname(htm-it.__file__), "..",
+_LOG_FORMAT_ANDROID = os.path.join(os.path.dirname(htm.it.__file__), "..",
                                    "logs", "android.log")
 _LOGGER = htm_it_logging.getExtendedLogger(__name__)
 
 _AWS_ACCESS_KEY = config.get("aws", "aws_access_key_id")
 _AWS_SECRET_KEY = config.get("aws", "aws_secret_access_key")
-_BUCKET = "htm-it.logs"
+_BUCKET = "htm.it.logs"
 _MACHINE_ID = uuid.getnode()
 _KEY_PREFIX = "metric_dumps/%s-" % _MACHINE_ID
 _UPLOAD_ATTEMPTS = 3

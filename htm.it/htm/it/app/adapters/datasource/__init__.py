@@ -39,7 +39,7 @@ def createAutostackDatasourceAdapter():
   Metrics
 
   :returns: datasource adapter for HTM-IT Autostack Metrics
-  :rtype: htm-it.app.adapters.datasource.cloudwatch._AutostackDatasourceAdapter
+  :rtype: htm.it.app.adapters.datasource.cloudwatch._AutostackDatasourceAdapter
   """
   return createDatasourceAdapter("autostack")
 
@@ -50,7 +50,7 @@ def createCloudwatchDatasourceAdapter():
   Metrics
 
   :returns: datasource adapter for Cloudwatch Metrics
-  :rtype: htm-it.app.adapters.datasource.cloudwatch._CloudwatchDatasourceAdapter
+  :rtype: htm.it.app.adapters.datasource.cloudwatch._CloudwatchDatasourceAdapter
   """
   return createDatasourceAdapter("cloudwatch")
 

@@ -45,7 +45,7 @@ from infrastructure.utilities.exceptions import (
   InstanceNotReadyError,
   InvalidParametersError)
 from infrastructure.utilities.diagnostics import initPipelineLogger
-from infrastructure.utilities.htm_it_server import waitForHTM-ITServerToBeReady
+from infrastructure.utilities.htm_it_server import waitForHtmItServerToBeReady
 from infrastructure.utilities.s3 import getLastStableAmi
 
 
@@ -172,7 +172,7 @@ def main(args):
       "Failed to find stable ami id and no server specified")
   try:
     publicDnsName, instanceId = launchInstance(amiId, g_config, g_logger)
-    waitForHTM-ITServerToBeReady(publicDnsName, serverKey, g_config["USER"],
+    waitForHtmItServerToBeReady(publicDnsName, serverKey, g_config["USER"],
                                g_logger)
     testCommand = 'cd %s && ./run_selenium_tests %s "%s" "%s"' % (
       g_tests_root, publicDnsName, args.platform.upper(), args.browser.upper())

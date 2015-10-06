@@ -22,14 +22,14 @@
 (function() {
 
   /**
-   * Backbone.js Model for a single HTM-IT Custom Metric
+   * Backbone.js Model for a single HTMIT Custom Metric
    * @constructor
    * @copyright © 2014 Numenta
    * @public
    * @requires Backbone.js
    * @returns {Object} Backbone.js Model object
    */
-  HTM-ITUI.HTM-ITCustomMetricModel = Backbone.Model.extend({
+  HTMITUI.HTMITCustomMetricModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

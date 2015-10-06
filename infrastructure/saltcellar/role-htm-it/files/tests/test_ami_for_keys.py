@@ -26,7 +26,7 @@ import agamotto
 import unittest
 from agamotto.process import execute
 
-class TestHTM-ITAMI(unittest.TestCase):
+class TestHTMITAMI(unittest.TestCase):
 
   def testNoNewPemFilesInSalt(self):
     """

@@ -22,18 +22,18 @@
 (function() {
 
   /**
-   * Backbone.Collection for a group of HTM-IT Autostacks
+   * Backbone.Collection for a group of HTMIT Autostacks
    * @constructor
    * @copyright © 2014 Numenta
    * @public
-   * @requires Backbone, Backbone.Collection, HTM-ITUI.HTM-ITAutostackModel
+   * @requires Backbone, Backbone.Collection, HTMITUI.HTMITAutostackModel
    * @returns {Object} Backbone.Collection object
    */
-  HTM-ITUI.HTM-ITAutostacksCollection = Backbone.Collection.extend({
+  HTMITUI.HTMITAutostacksCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: HTM-ITUI.HTM-ITAutostackModel,
+    model: HTMITUI.HTMITAutostackModel,
 
     // Custom properties
 

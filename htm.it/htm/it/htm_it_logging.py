@@ -22,7 +22,7 @@ import logging
 import hashlib
 
 from htm.it import __version__, CONF_DIR
-from htm.it.HTM-ITExtendedLogger import HTM-ITExtendedLogger
+from htm.it.HtmItExtendedLogger import HtmItExtendedLogger
 
 from nta.utils.config import Config
 
@@ -35,7 +35,7 @@ def getLogger(name=None):
 
 
 def getExtendedLogger(name=None):
-  logging.setLoggerClass(HTM-ITExtendedLogger)
+  logging.setLoggerClass(HtmItExtendedLogger)
   log = logging.getLogger(name)
   log.setLogPrefix(getStandardLogPrefix())
   return log
@@ -48,10 +48,10 @@ def getStandardLogPrefix():
   """
   try:
     config = Config("application.conf", CONF_DIR)
-    htm-itID = config.get("usertrack", "htm_it_id")
+    htmitID = config.get("usertrack", "htm_it_id")
   except ValueError:
-    htm-itID = "N/A"
-  return 'HTM-ITID=%s, VER=%s' % (htm-itID, __version__.__version__)
+    htmitID = "N/A"
+  return 'HTMITID=%s, VER=%s' % (htmitID, __version__.__version__)
 
 
 

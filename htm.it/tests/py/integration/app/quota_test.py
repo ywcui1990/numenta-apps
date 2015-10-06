@@ -63,7 +63,7 @@ class QuotaTest(TestCaseBase):
     cls.customApp = TestApp(custom_api.app.wsgifunc())
     cls.instancesApp = TestApp(instances_api.app.wsgifunc())
     cls.modelApp = TestApp(models_api.app.wsgifunc())
-    cls.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    cls.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
     cls.plaintextPort = config.getint("metric_listener", "plaintext_port")
     cls.apiKey = config.get("security", "apikey")

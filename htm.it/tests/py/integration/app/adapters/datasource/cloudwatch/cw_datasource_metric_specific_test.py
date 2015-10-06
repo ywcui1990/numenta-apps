@@ -82,12 +82,12 @@ class CloudwatchDatasourceAdapterMetricsTest(TestCaseBase):
   def setUpClass(cls):
 
     with open(os.path.join(
-        htm-it.app.HTM_IT_HOME,
+        htm.it.app.HTM_IT_HOME,
         "tests/py/integration/app/test_resources.yaml")) as fin:
       resources = yaml.load(fin)
 
     # Load htm-it API Key as required by TestCaseBase
-    cls.apiKey = htm-it.app.config.get("security", "apikey")
+    cls.apiKey = htm.it.app.config.get("security", "apikey")
 
     cls._testCases = {}
     cls._tagNames = {}

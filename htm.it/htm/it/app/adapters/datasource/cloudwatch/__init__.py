@@ -96,7 +96,7 @@ NAMESPACE_TO_RESOURCE_TYPE = {
 class _CloudwatchDatasourceAdapter(DatasourceAdapterIface):
   """ Datasource Adapter for Cloudwatch Metrics
   NOTE: DO NOT instantiate this class directly. Use Datasource Adapter factory
-    instead: `htm-it.app.adapters.datasource.createDatasourceAdapter`; this is
+    instead: `htm.it.app.adapters.datasource.createDatasourceAdapter`; this is
     necessary for proper registration of all Datasource Adapters.
 
   IMPLEMENTATION NOTE: implementation shall retry on "throttle" and other
@@ -117,7 +117,7 @@ class _CloudwatchDatasourceAdapter(DatasourceAdapterIface):
     """
     super(_CloudwatchDatasourceAdapter, self).__init__()
 
-    self._log = logging.getLogger("htm-it.cw_datasource_adapter")
+    self._log = logging.getLogger("htm.it.cw_datasource_adapter")
 
     self.connectionFactory = connectionFactory
 
@@ -185,13 +185,13 @@ class _CloudwatchDatasourceAdapter(DatasourceAdapterIface):
 
     :returns: datasource-specific unique model identifier
 
-    :raises htm-it.app.exceptions.ObjectNotFoundError: if referenced metric
+    :raises htm.it.app.exceptions.ObjectNotFoundError: if referenced metric
       doesn't exist
 
-    :raises htm-it.app.exceptions.MetricNotSupportedError: if requested metric
+    :raises htm.it.app.exceptions.MetricNotSupportedError: if requested metric
       isn't supported
 
-    :raises htm-it.app.exceptions.MetricAlreadyMonitored: if the metric is already
+    :raises htm.it.app.exceptions.MetricAlreadyMonitored: if the metric is already
       being monitored
     """
     metricSpec = modelSpec["metricSpec"]
@@ -258,7 +258,7 @@ class _CloudwatchDatasourceAdapter(DatasourceAdapterIface):
                      "monitoring metric=%s on resource=%s; model=%r"
                      % (m.uid, nameColumnValue, canonicalResourceName, m))
               self._log.warning(msg)
-              raise htm-it.app.exceptions.MetricAlreadyMonitored(msg, uid=m.uid)
+              raise htm.it.app.exceptions.MetricAlreadyMonitored(msg, uid=m.uid)
 
           # Add a metric row for the requested metric
           metricDict = repository.addMetric(
@@ -294,7 +294,7 @@ class _CloudwatchDatasourceAdapter(DatasourceAdapterIface):
 
     :param metricId: unique identifier of the metric row
 
-    :raises htm-it.app.exceptions.ObjectNotFoundError: if metric with the
+    :raises htm.it.app.exceptions.ObjectNotFoundError: if metric with the
       referenced metric uid doesn't exist
     """
     # Delete the metric from the database
@@ -318,10 +318,10 @@ class _CloudwatchDatasourceAdapter(DatasourceAdapterIface):
 
     :param metricId: unique identifier of the metric row
 
-    :raises htm-it.app.exceptions.ObjectNotFoundError: if metric with the
+    :raises htm.it.app.exceptions.ObjectNotFoundError: if metric with the
       referenced metric uid doesn't exist
 
-    :raises htm-it.app.exceptions.MetricStatisticsNotReadyError:
+    :raises htm.it.app.exceptions.MetricStatisticsNotReadyError:
     """
     with self.connectionFactory() as conn:
       # TODO: This function is identical to custom metric activateModel()
@@ -380,7 +380,7 @@ class _CloudwatchDatasourceAdapter(DatasourceAdapterIface):
           }
         }
 
-    :raises htm-it.app.exceptions.ObjectNotFoundError: if referenced metric
+    :raises htm.it.app.exceptions.ObjectNotFoundError: if referenced metric
       doesn't exist
     """
     with self.connectionFactory() as conn:
@@ -400,12 +400,12 @@ class _CloudwatchDatasourceAdapter(DatasourceAdapterIface):
 
     :returns: datasource-specific unique metric identifier
 
-    :raises htm-it.app.exceptions.MetricNotSupportedError: if requested metric
+    :raises htm.it.app.exceptions.MetricNotSupportedError: if requested metric
       isn't supported
     """
     try:
       return self.monitorMetric(spec)
-    except htm-it.app.exceptions.MetricAlreadyMonitored as e:
+    except htm.it.app.exceptions.MetricAlreadyMonitored as e:
       self._log.warning("importModel: metric already monitored; metricSpec=%s",
                         spec["metricSpec"])
       return e.uid

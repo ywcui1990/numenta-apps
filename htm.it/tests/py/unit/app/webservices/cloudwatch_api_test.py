@@ -46,7 +46,7 @@ class CWDefaultHandlerTest(unittest.TestCase):
   """
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
     adapter = datasource_adapter_factory.createCloudwatchDatasourceAdapter()
     self.resources = adapter.describeSupportedMetrics()
@@ -61,7 +61,7 @@ class CWDefaultHandlerTest(unittest.TestCase):
     self.assertEqual(result, expectedResult)
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testCWDefaultHandlerDefault(self, adapterMock):
     """
@@ -73,7 +73,7 @@ class CWDefaultHandlerTest(unittest.TestCase):
     self._getCloudWatchCommon("", {"regions": {}, "namespaces": {}})
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testCWDefaultHandlerDefaultWithSlash(self, adapterMock):
     """
@@ -101,11 +101,11 @@ class CWNamespaceHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetListNamespaceNoRegions(self, adapterMock):
     """
@@ -121,7 +121,7 @@ class CWNamespaceHandlerTest(unittest.TestCase):
     self.assertEqual(result, {'Autostacks': {'metrics': ['InstanceCount']}})
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetNamespaceAWSType(self, adapterMock):
     """
@@ -145,7 +145,7 @@ class CWNamespaceHandlerTest(unittest.TestCase):
                                               'DiskReadBytes']}})
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetNamespaceAWSInvalidType(self, adapterMock):
     """
@@ -177,11 +177,11 @@ class TestCWRegionsHandler(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetListRegionsEmptyResponse(self, adapterMock):
     """
@@ -195,7 +195,7 @@ class TestCWRegionsHandler(unittest.TestCase):
     self.assertEqual(result, {})
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetListRegionsNonEmptyResponse(self, adapterMock):
     """
@@ -210,7 +210,7 @@ class TestCWRegionsHandler(unittest.TestCase):
     self.assertEqual(result, dict(self.regions))
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetListRegionMetricsEmptyResponse(self, adapterMock):
     """
@@ -240,11 +240,11 @@ class TestCWInstanceHandler(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetInstanceWithInvalidRegion(self, adapterMock):
     """
@@ -263,7 +263,7 @@ class TestCWInstanceHandler(unittest.TestCase):
     self.assertEqual(response.body, "Region 'fake-region' was not found")
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetInstanceWithInvalidNamespace(self, adapterMock):
     """
@@ -281,7 +281,7 @@ class TestCWInstanceHandler(unittest.TestCase):
     self.assertEqual(response.body, "Namespace 'AWS/foo' was not found")
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetInstanceWithDimension(self,adapterMock):
     """
@@ -308,7 +308,7 @@ class TestCWInstanceHandler(unittest.TestCase):
                         for metric in result))
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetInstanceWithDimensionNotFoundEmpty(self, adapterMock):
     """
@@ -349,11 +349,11 @@ class TestCWMetricHandler(unittest.TestCase):
     cls.regions = adapter.describeRegions()
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetMetricsWithInvalidRegion(self, adapterMock):
     """
@@ -371,7 +371,7 @@ class TestCWMetricHandler(unittest.TestCase):
     assertions.assertNotFound(self, response)
     self.assertEqual(response.body, "Region 'fake-region' was not found")
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetMetricInvalidNamespace(self, adapterMock):
     """
@@ -389,7 +389,7 @@ class TestCWMetricHandler(unittest.TestCase):
     assertions.assertNotFound(self, response)
     self.assertEqual(response.body, "Namespace 'AWS/foo' was not found")
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetMetricValidInputEmptyResponse(self, adapterMock):
     """
@@ -408,7 +408,7 @@ class TestCWMetricHandler(unittest.TestCase):
     self.assertEqual(result, [])
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetMetricDimensionWithResponse(self, adapterMock):
     """
@@ -466,7 +466,7 @@ class CWApiUnhappyTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   def testNoAuthHeaders(self):

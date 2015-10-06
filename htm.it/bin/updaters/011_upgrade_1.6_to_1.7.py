@@ -47,7 +47,7 @@ def regenerateBaselineConfigObjects():
 
 
 
-def fixUpHTM-ITDB():
+def fixUpHTMItDB():
   g_log.info("******* UPDATING HTM-ITDB *******")
 
   # Perform manual db migration to switch to sqlalchemy
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     # First, regenerate baseline configuraiton objects
     regenerateBaselineConfigObjects()
 
-    fixUpHTM-ITDB()
+    fixUpHTMItDB()
 
   except:
     g_log.exception("Updater script failed")

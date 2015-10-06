@@ -118,7 +118,7 @@ class InstancesHandler(AuthenticatedBaseHandler):
                 "status": 2
                 "parameters": {
                     "region": "us-west-2",
-                    "AutoScalingGroupName": "htm-itsolutions-com-ssl"
+                    "AutoScalingGroupName": "groksolutions-com-ssl"
                 },
 
             },

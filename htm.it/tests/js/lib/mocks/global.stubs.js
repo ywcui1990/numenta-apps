@@ -1,6 +1,6 @@
 window.NTA = {};
 
-window.HTM-ITUI = {
+window.HTMITUI = {
     msgs: function() {
         return {
             title: 'Test Title',

@@ -49,17 +49,17 @@ class TesMetetricsHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.metrics = json.load(open(os.path.join(htm-it.app.HTM_IT_HOME,
+    cls.metrics = json.load(open(os.path.join(htm.it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/cw_metric.json")))
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(metrics_api.app.wsgifunc())
 
 
   @patch.object(handlers, "web", spec_set=handlers.web)
-  @patch("htm-it.app.webservices.metrics_api.listDatasourceNames", autospec=True)
+  @patch("htm.it.app.webservices.metrics_api.listDatasourceNames", autospec=True)
   def testGetDatasourcesWithReturnValue(self, listDatasourceNamesMock, web):
     """
     Test getDatasources
@@ -83,7 +83,7 @@ class TesMetetricsHandler(unittest.TestCase):
 
 
   @patch.object(handlers, "web", spec_set=handlers.web)
-  @patch("htm-it.app.webservices.metrics_api.listDatasourceNames", autospec=True)
+  @patch("htm.it.app.webservices.metrics_api.listDatasourceNames", autospec=True)
   def testGetDatasourcesWithReturnEmpty(self, listDatasourceNamesMock, web):
     """
     Test getDatasources
@@ -105,7 +105,7 @@ class TesMetetricsHandler(unittest.TestCase):
     self.assertIsNotNone(result)
 
 
-  @patch("htm-it.app.webservices.metrics_api.MetricsHandler.getDatasources")
+  @patch("htm.it.app.webservices.metrics_api.MetricsHandler.getDatasources")
   def testGetMetricsWithEmptyResponse(self, getDatasourcesMock):
     """
     Test get "/datasources"
@@ -118,7 +118,7 @@ class TesMetetricsHandler(unittest.TestCase):
     self.assertEqual(result, [])
 
 
-  @patch("htm-it.app.webservices.metrics_api.MetricsHandler.getDatasources")
+  @patch("htm.it.app.webservices.metrics_api.MetricsHandler.getDatasources")
   def testGetMetricsWithNonEmptyResponse(self, getDatasourcesMock):
     """
     Test get "/datasources", with non empty response
@@ -133,7 +133,7 @@ class TesMetetricsHandler(unittest.TestCase):
     self.assertEqual(result, ["autostack", "cloudwatch", "custom"])
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testGetCloudwatch(self, adapterMock):
     """

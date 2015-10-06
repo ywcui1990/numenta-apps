@@ -21,12 +21,12 @@
 
 (function() {
 
-    HTM-ITUI.ManageView = Backbone.View.extend({
+    HTMITUI.ManageView = Backbone.View.extend({
 
         template: _.template($('#manage-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('manage-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('manage-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
         },
@@ -34,11 +34,11 @@
         initialize: function(options) {
             this.api = options.api;
 
-            HTM-ITUI.utils.title(this.msgs.title);
+            HTMITUI.utils.title(this.msgs.title);
 
             // go setup if they have not yet
-            if(! HTM-ITUI.utils.isAuthorized()) {
-                HTM-ITUI.utils.go(this.site.paths.welcome);
+            if(! HTMITUI.utils.isAuthorized()) {
+                HTMITUI.utils.go(this.site.paths.welcome);
                 return;
             }
 
@@ -56,14 +56,14 @@
 
             this.$el.html(this.template(data));
 
-            instanceListView = new HTM-ITUI.InstanceListView({
+            instanceListView = new HTMITUI.InstanceListView({
                 el:     $('#instance-list'),
                 api:    this.api,
                 site:   this.site
             });
             instanceListView.render();
 
-            embedView = new HTM-ITUI.EmbedFormView({
+            embedView = new HTMITUI.EmbedFormView({
                 el: $('#embed-form'),
                 api: this.api
             });

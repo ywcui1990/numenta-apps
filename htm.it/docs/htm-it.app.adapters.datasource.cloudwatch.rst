@@ -1,93 +1,93 @@
-htm-it.app.adapters.datasource.cloudwatch package
+htm.it.app.adapters.datasource.cloudwatch package
 ===============================================
 
 Submodules
 ----------
 
-htm-it.app.adapters.datasource.cloudwatch.aws_autoscaling_group module
+htm.it.app.adapters.datasource.cloudwatch.aws_autoscaling_group module
 --------------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_autoscaling_group
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_autoscaling_group
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.adapters.datasource.cloudwatch.aws_base module
+htm.it.app.adapters.datasource.cloudwatch.aws_base module
 -------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_base
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_base
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.adapters.datasource.cloudwatch.aws_dynamodb_table module
+htm.it.app.adapters.datasource.cloudwatch.aws_dynamodb_table module
 -----------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_dynamodb_table
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_dynamodb_table
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.adapters.datasource.cloudwatch.aws_ebs_volume module
+htm.it.app.adapters.datasource.cloudwatch.aws_ebs_volume module
 -------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_ebs_volume
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_ebs_volume
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.adapters.datasource.cloudwatch.aws_ec2_instance module
+htm.it.app.adapters.datasource.cloudwatch.aws_ec2_instance module
 ---------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_ec2_instance
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_ec2_instance
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.adapters.datasource.cloudwatch.aws_elb_load_balancer module
+htm.it.app.adapters.datasource.cloudwatch.aws_elb_load_balancer module
 --------------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_elb_load_balancer
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_elb_load_balancer
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.adapters.datasource.cloudwatch.aws_opsworks_stack module
+htm.it.app.adapters.datasource.cloudwatch.aws_opsworks_stack module
 -----------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_opsworks_stack
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_opsworks_stack
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.adapters.datasource.cloudwatch.aws_rds_dbinstance module
+htm.it.app.adapters.datasource.cloudwatch.aws_rds_dbinstance module
 -----------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_rds_dbinstance
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_rds_dbinstance
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.adapters.datasource.cloudwatch.aws_redshift_cluster module
+htm.it.app.adapters.datasource.cloudwatch.aws_redshift_cluster module
 -------------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_redshift_cluster
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_redshift_cluster
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.adapters.datasource.cloudwatch.aws_sns_topic module
+htm.it.app.adapters.datasource.cloudwatch.aws_sns_topic module
 ------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_sns_topic
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_sns_topic
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.app.adapters.datasource.cloudwatch.aws_sqs_queue module
+htm.it.app.adapters.datasource.cloudwatch.aws_sqs_queue module
 ------------------------------------------------------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch.aws_sqs_queue
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch.aws_sqs_queue
     :members:
     :undoc-members:
     :show-inheritance:
@@ -96,7 +96,7 @@ htm-it.app.adapters.datasource.cloudwatch.aws_sqs_queue module
 Module contents
 ---------------
 
-.. automodule:: htm-it.app.adapters.datasource.cloudwatch
+.. automodule:: htm.it.app.adapters.datasource.cloudwatch
     :members:
     :undoc-members:
     :show-inheritance:

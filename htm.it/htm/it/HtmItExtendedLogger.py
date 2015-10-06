@@ -25,14 +25,14 @@ from nta.utils.extended_logger import ExtendedLogger
 
 from htm.it import CONF_DIR
 
-class HTM-ITExtendedLogger(ExtendedLogger):
+class HtmItExtendedLogger(ExtendedLogger):
   """ Extends the NuPIC ExtendedLogger by calculating the duration of a htm-it
   instance and adding it as a prefix to the log message.
   """
   cached_htm_it_update_epoch = None
 
   def __init__(self, name):
-    super(HTM-ITExtendedLogger, self).__init__(name)
+    super(HtmItExtendedLogger, self).__init__(name)
     self._logPrefix = ""
 
 

@@ -21,7 +21,7 @@
 
 describe('HTM-IT Backbone.Model: Instance', function() {
 
-    var model = new HTM-ITUI.InstanceModel();
+    var model = new HTMITUI.InstanceModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

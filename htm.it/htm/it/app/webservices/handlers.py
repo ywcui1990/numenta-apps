@@ -38,10 +38,10 @@ class AuthenticatedBaseHandler(object):
   def compareAuthorization(userAPIKey):
     """ Returns bool, or None if not applicable.  Therefore, not suitable for
     blind bool evaluation... """
-    htm-it.app.config.loadConfig()
-    if htm-it.app.config.has_section("security"):
+    htm.it.app.config.loadConfig()
+    if htm.it.app.config.has_section("security"):
       try:
-        validAPIKey = htm-it.app.config.get("security", "apikey")
+        validAPIKey = htm.it.app.config.get("security", "apikey")
       except ConfigParser.NoOptionError:
         raise Exception("Internal error, could not get config apikey...")
 

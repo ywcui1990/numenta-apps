@@ -20,7 +20,7 @@
  *
  */
 
-package com.htm-it.tests;
+package com.htm.it.tests;
 
 import com.htm-it.utils.TestUtilities;
 

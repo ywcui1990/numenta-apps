@@ -23,14 +23,14 @@
 
     var viewName = 'autostack';
 
-    HTM-ITUI.AutostackView = Backbone.View.extend({
+    HTMITUI.AutostackView = Backbone.View.extend({
 
         name: viewName,
 
         template: _.template($('#' + viewName + '-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs(viewName + '-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs(viewName + '-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'submit': 'handleBegin',
@@ -53,24 +53,24 @@
                 }
             };
 
-            HTM-ITUI.utils.title(me.msgs.title);
+            HTMITUI.utils.title(me.msgs.title);
 
             // go setup if they have not yet
-            if(! HTM-ITUI.utils.isAuthorized()) {
+            if(! HTMITUI.utils.isAuthorized()) {
                 location.href = me.site.paths.welcome;
                 return;
             }
 
             // prep a list of default AWS/EC2 metrics and dimensions for later
             me.api.getNamespaceDetails('AWS/EC2', function(error, nsdetails) {
-                if(error) return HTM-ITUI.utils.modalError(error);
+                if(error) return HTMITUI.utils.modalError(error);
                 me.namespaces['AWS/EC2'].metrics = nsdetails['AWS/EC2'].metrics;
             });
 
             // next get list of AWS regions
             me.api.getRegions(function(error, regions) {
-                if(error) return HTM-ITUI.utils.modalError(error);
-                HTM-ITUI.utils.throb.stop();
+                if(error) return HTMITUI.utils.modalError(error);
+                HTMITUI.utils.throb.stop();
 
                 // rename region for display, get rid of extra text at end
                 Object.keys(regions).forEach(function(region) {
@@ -120,7 +120,7 @@
                 }
             })
 
-            this.instanceListView = new HTM-ITUI.InstanceListView({
+            this.instanceListView = new HTMITUI.InstanceListView({
                 el:     $('#instance-list'),
                 api:    this.api,
                 site:   this.site
@@ -137,7 +137,7 @@
             event.preventDefault();
             event.stopPropagation();
 
-            HTM-ITUI.utils.go(destination);
+            HTMITUI.utils.go(destination);
         },
 
         /**
@@ -222,13 +222,13 @@
             event.preventDefault();
             event.stopPropagation();
 
-            HTM-ITUI.utils.throb.start(me.site.state.instance.find);
+            HTMITUI.utils.throb.start(me.site.state.instance.find);
 
             me.api.getAutostackPreview(
                 region,
                 collapsedFilters,
                 function(error, results) {
-                    if(error) return HTM-ITUI.utils.modalError(error);
+                    if(error) return HTMITUI.utils.modalError(error);
 
                     var instanceOutput = results.map(function(instance) {
                         var name = instance.tags.Name,
@@ -247,7 +247,7 @@
                         '</dl>'
                     ].join('');
 
-                    HTM-ITUI.utils.throb.stop();
+                    HTMITUI.utils.throb.stop();
 
                     bootbox.confirm({
                         animate: false,
@@ -265,7 +265,7 @@
                         },
                         callback: function(result) {
                             if(result) {
-                                HTM-ITUI.utils.throb.start(me.site.state.instance.starts);
+                                HTMITUI.utils.throb.start(me.site.state.instance.starts);
                                 me.createAutostack(name, region, collapsedFilters);
                             }
                         }
@@ -290,7 +290,7 @@
                 region,
                 filters,
                 function(error, results) {
-                    if(error) return HTM-ITUI.utils.modalError(error);
+                    if(error) return HTMITUI.utils.modalError(error);
 
                     var metrics = me.namespaces['AWS/EC2'].metrics.filter(function(metric) {
                         // Select only specific default metrics
@@ -310,7 +310,7 @@
                         results.uid,
                         metrics,
                         function(error) {
-                            if(error) return HTM-ITUI.utils.modalError(error);
+                            if(error) return HTMITUI.utils.modalError(error);
 
                             // clear out entry fields
                             $('#region').val('').focus();
@@ -332,10 +332,10 @@
                             // all done
                             me.instanceListView.data.instances.fetch({
                                 error: function(collection, response, options) {
-                                    return HTM-ITUI.utils.modalError(response);
+                                    return HTMITUI.utils.modalError(response);
                                 },
                                 success: function(collection, response, options) {
-                                    HTM-ITUI.utils.throb.stop();
+                                    HTMITUI.utils.throb.stop();
                                 }
                             });
                         }

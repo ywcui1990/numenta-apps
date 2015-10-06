@@ -65,7 +65,7 @@ class AutostackDatasourceAdapterTest(unittest.TestCase):
     self.assertRaises(ValueError, adapter.createAutostack, stackSpec)
 
 
-  @patch("htm-it.app.adapters.datasource.autostack.repository.getAutostack")
+  @patch("htm.it.app.adapters.datasource.autostack.repository.getAutostack")
   def testMonitorMetricNoExistingAutostack(self, getAutostackMock,
                                            _mockEngineFactory):
     adapter = datasource_adapter_factory.createAutostackDatasourceAdapter()

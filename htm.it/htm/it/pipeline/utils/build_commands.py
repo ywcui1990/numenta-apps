@@ -25,12 +25,12 @@ from infrastructure.utilities.exceptions import BuildFailureException
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.cli import runWithOutput
 
-SCRIPTS_DIR = os.path.join(os.environ.get("PRODUCTS"), "htm-it", "htm-it",
+SCRIPTS_DIR = os.path.join(os.environ.get("PRODUCTS"), "htm.it", "htm", "it",
                            "pipeline", "scripts")
 
 
 
-def buildHTM-IT(env, pipelineConfig, logger):
+def buildHtmIt(env, pipelineConfig, logger):
   """
     Builds HTM-IT with given HTM-IT SHA.
     :param env: The environment which will be set before building
@@ -38,9 +38,9 @@ def buildHTM-IT(env, pipelineConfig, logger):
     :param pipelineConfig: dict of the pipeline config values, e.g.:
       {
         "buildWorkspace": "/path/to/build/in",
-        "htm-itRemote": "git@github.com:Numenta/numenta-apps.git",
-        "htm-itBranch": "master",
-        "htm-itSha": "HEAD",
+        "htmitRemote": "git@github.com:Numenta/numenta-apps.git",
+        "htmitBranch": "master",
+        "htmItSha": "HEAD",
         "pipelineParams": "{dict of parameters}",
         "pipelineJson": "/path/to/json/file"
       }

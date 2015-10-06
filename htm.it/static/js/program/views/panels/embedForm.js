@@ -21,12 +21,12 @@
 
 (function() {
 
-    HTM-ITUI.EmbedFormView = Backbone.View.extend({
+    HTMITUI.EmbedFormView = Backbone.View.extend({
 
         template: _.template($('#embed-form-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('embed-form-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('embed-form-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'input #domain': 'handleInputChange',
@@ -123,7 +123,7 @@
 
         generateCode: function(domain, width, height) {
             var me = this,
-                apiKey = HTM-ITUI.utils.store.get('apiKey'),
+                apiKey = HTMITUI.utils.store.get('apiKey'),
                 hash = Crypto.SHA1(apiKey + domain),
                 serverURL = 'http://' + window.location.hostname +
                             "/htm-it/embed/charts",

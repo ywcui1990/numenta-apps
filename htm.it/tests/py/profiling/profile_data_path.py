@@ -47,7 +47,7 @@ _EPOCH = datetime.utcfromtimestamp(0).replace(tzinfo=dateutil.tz.tzutc())
 
 
 
-# This class describes a trace of HTM-IT Custom metric batches throgh the system
+# This class describes a trace of HTMIT Custom metric batches throgh the system
 #
 # listenerGroup: _CustomMetricListenerGroup object
 # storerRxRecord: _CustomMetricStorerRxRecord
@@ -57,13 +57,13 @@ _EPOCH = datetime.utcfromtimestamp(0).replace(tzinfo=dateutil.tz.tzutc())
 #   processed by Model Runner
 # anomalyBatch: _AnomalyBatch object representing the batch as it's processed
 #   by Anomaly Service
-_HTM-ITCustomMetricTrace = namedtuple(
-  "_HTM-ITCustomMetricTrace",
+_HTMITCustomMetricTrace = namedtuple(
+  "_HTMITCustomMetricTrace",
   ("listenerGroup storerRxRecord inputBatch modelRunnerBatch anomalyBatch"))
 
 
 
-# This class describes a metric data group in HTM-IT Custom MetricListener Service
+# This class describes a metric data group in HTMIT Custom MetricListener Service
 # NOTE: rows here should match rows in _StreamedToModelBatch, but collation
 # may be different in _StreamedToModelBatch, etc.
 #
@@ -75,7 +75,7 @@ _CustomMetricListenerGroup = namedtuple(
 
 
 
-# This class describes a metric data sample received by HTM-IT Custom MetricStorer
+# This class describes a metric data sample received by HTMIT Custom MetricStorer
 # from MetricListener
 #
 # rowTimestamp: datetime objects representing the metric data sample's
@@ -147,10 +147,10 @@ _CsvRow = namedtuple(
 
 _DEBUG = False
 
-class HTM-ITDataPathProfiler(object):
+class HTMITDataPathProfiler(object):
   def __init__(self, logDir):
     """
-    :param logDir: path to HTM-IT log directory
+    :param logDir: path to HTMIT log directory
     """
     self._logDir = logDir
 
@@ -169,12 +169,12 @@ class HTM-ITDataPathProfiler(object):
       print "ANOMALY:\n", pprint.pformat(anomalyBatches)
 
     # Trace htm-it custom metric data
-    customMetricTraces = self._traceHTM-ITCustomData(
+    customMetricTraces = self._traceHTMITCustomData(
       originatedBatches=originatedBatches,
       modeRunnerBatches=modeRunnerBatches,
       anomalyBatches=anomalyBatches)
     if _DEBUG:
-      print "HTM-IT CUSTOM METRIC TRACES:\n", pprint.pformat(customMetricTraces)
+      print "HTMIT CUSTOM METRIC TRACES:\n", pprint.pformat(customMetricTraces)
 
     # Trace Cloudwatch (non-Autostack) metric data
     cloudwatchMetricTraces = self._collateMetricCollectorBatches(
@@ -186,9 +186,9 @@ class HTM-ITDataPathProfiler(object):
       print "CLOUDWATCH METRIC TRACES:\n", pprint.pformat(
         cloudwatchMetricTraces)
 
-    # Generate a sequence of _CsvRow objects representing output rows for HTM-IT
+    # Generate a sequence of _CsvRow objects representing output rows for HTMIT
     # Custom Metrics data-path profiling
-    customRows = self._generateHTM-ITCustomMetricOutputRows(customMetricTraces)
+    customRows = self._generateHTMITCustomMetricOutputRows(customMetricTraces)
 
     # Generate a sequence of _CsvRow objects representing output rows for
     # CloudWatch Metrics data-path profiling
@@ -199,7 +199,7 @@ class HTM-ITDataPathProfiler(object):
     self._emitCSV(outputStream=sys.stdout, rows=customRows + cloudwatchRows)
 
 
-  def _traceHTM-ITCustomData(self, originatedBatches, modeRunnerBatches,
+  def _traceHTMITCustomData(self, originatedBatches, modeRunnerBatches,
                            anomalyBatches):
     """
     :param originatedBatches: sequence of _StreamedToModelBatch objects
@@ -207,7 +207,7 @@ class HTM-ITDataPathProfiler(object):
     :param modeRunnerBatches: sequence of _ModelRunnerBatch objects
     :param anomalyBatches: sequence of _AnomalyBatch objects
 
-    :returns: sequence of _HTM-ITCustomMetricTrace objects
+    :returns: sequence of _HTMITCustomMetricTrace objects
     """
     # Trace model batches
     modelBatchTraces = self._collateMetricCollectorBatches(
@@ -216,7 +216,7 @@ class HTM-ITDataPathProfiler(object):
       anomalyBatches=anomalyBatches,
       datasource="custom")
     if _DEBUG:
-      print "HTM-IT CUSTOM MODEL BATCH TRACES:\n", (
+      print "HTMIT CUSTOM MODEL BATCH TRACES:\n", (
         pprint.pformat(modelBatchTraces))
 
     # Link metric listener groups and metric storer rx records with model batch
@@ -246,7 +246,7 @@ class HTM-ITDataPathProfiler(object):
       if msRxRecord is None:
         continue
 
-      trace = _HTM-ITCustomMetricTrace(
+      trace = _HTMITCustomMetricTrace(
         listenerGroup=mlGroup,
         storerRxRecord=msRxRecord,
         inputBatch=inputBatch,
@@ -259,11 +259,11 @@ class HTM-ITDataPathProfiler(object):
     return customMetricDataTraces
 
 
-  def _generateHTM-ITCustomMetricOutputRows(self, customMetricTraces):
-    """ Generate a sequence of objects representing output rows for HTM-IT Custom
+  def _generateHTMITCustomMetricOutputRows(self, customMetricTraces):
+    """ Generate a sequence of objects representing output rows for HTMIT Custom
     Metrics data-path profiling
 
-    :param customMetricTraces: sequence of _HTM-ITCustomMetricTrace objects
+    :param customMetricTraces: sequence of _HTMITCustomMetricTrace objects
 
     :returns: a sequence of _CsvRow objects
     """
@@ -551,7 +551,7 @@ class HTM-ITDataPathProfiler(object):
       samplesToModelDoneTag = "{TAG:STRM.DATA.TO_MODEL.DONE}"
       logFileNames = [
         "uwsgi.log", # when a custom metric with data is promoted to model
-        "metric_storer.log", # HTM-IT Custom metrics
+        "metric_storer.log", # HTMIT Custom metrics
         "metrics_collector.log" # Cloudwatch (non-Autostack) metrics
       ]
 
@@ -592,7 +592,7 @@ class HTM-ITDataPathProfiler(object):
     result = []
 
     # Example:
-    # 2014-05-14 22:43:39,479 - htm-it.model_runner(17177) - INFO - <VER=1.4.0,
+    # 2014-05-14 22:43:39,479 - htm.it.model_runner(17177) - INFO - <VER=1.4.0,
     # SERVICE=MRUN> {TAG:SWAP.MR.BATCH.DONE}
     # model=13751549a4054698b50340394b86cd1e;
     # batch=2ffb33dedbb911e3bcfd28cfe912e811; numItems= 1; tailRowID=19805;
@@ -920,4 +920,4 @@ def _parseArgs():
 
 if __name__ == "__main__":
 
-  HTM-ITDataPathProfiler(**_parseArgs()).run()  # pylint: disable=W0142
+  HTMITDataPathProfiler(**_parseArgs()).run()  # pylint: disable=W0142

@@ -21,12 +21,12 @@
 
 (function() {
 
-    HTM-ITUI.AlertUpdateView = Backbone.View.extend({
+    HTMITUI.AlertUpdateView = Backbone.View.extend({
 
         template: _.template($('#alert-update-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('alert-update-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('alert-update-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'click button': 'handleButtonClick'
@@ -55,9 +55,9 @@
         handleButtonClick: function(event) {
             var me = this;
             me.api.setUpdate(function(error) {
-                if(error) return HTM-ITUI.utils.modalError(error);
-                HTM-ITUI.utils.store.clear('originalHTM-ITSHA');
-                HTM-ITUI.utils.go(me.site.paths.update);
+                if(error) return HTMITUI.utils.modalError(error);
+                HTMITUI.utils.store.clear('originalHTMITSHA');
+                HTMITUI.utils.go(me.site.paths.update);
             });
         }
 

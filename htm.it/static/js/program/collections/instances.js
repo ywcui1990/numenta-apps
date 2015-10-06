@@ -30,11 +30,11 @@
    * @requires Backbone.js, HTM-IT InstanceModel class
    * @returns {Object} Backbone.js Collection object
    */
-  HTM-ITUI.InstancesCollection = Backbone.Collection.extend({
+  HTMITUI.InstancesCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: HTM-ITUI.InstanceModel,
+    model: HTMITUI.InstanceModel,
 
     // Custom properties
 

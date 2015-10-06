@@ -9,7 +9,7 @@
   "manifest":{
     "buildWorkspace":"/opt/numenta/jenkins/workspace/htm-it-product-pipeline/2014-12-04_20-11-33SXydjO",
     "pipeline":"htm-it",
-    "htm-itRemote":"git@github.com:Numenta/numenta-apps.git",
+    "htmitRemote":"git@github.com:Numenta/numenta-apps.git",
     "logLevel":"debug",
     "releaseVersion":"master",
     "sha":"ca0e329c5d08e403f743ceb2265944f8e6a66d08",
@@ -17,15 +17,15 @@
     "ciBranch":"CI"
   },
   "packageRpm":{
-    "htm-it":"htm-it-py27-htm-itsolutions-master-20141204.20.26.23.x86_64.rpm",
+    "htm-it":"htm-it-py27-groksolutions-master-20141204.20.26.23.x86_64.rpm",
     "syncRpm":true,
     "repoName":"x86_64"
   },
   "build":{
     "htm-itHome":"/opt/numenta/jenkins/workspace/htm-it-product-pipeline/2014-12-04_20-11-33SXydjO/products/htm-it",
-    "htm-itDeployTrack":"htm-itsolutions",
-    "deployTrack":"htm-itsolutions-numenta",
-    "amiName":"htm-itsolutions-8a5dc36a6cacd5546b3a515755a5c165cf2202e5",
-    "htm-itSha":"ca0e329c5d08e403f743ceb2265944f8e6a66d08",
+    "htmItDeployTrack":"groksolutions",
+    "deployTrack":"groksolutions-numenta",
+    "amiName":"groksolutions-8a5dc36a6cacd5546b3a515755a5c165cf2202e5",
+    "htmItSha":"ca0e329c5d08e403f743ceb2265944f8e6a66d08",
   }
 }

@@ -34,7 +34,7 @@ from htm.it.test_utils.app.webservices import (
 )
 from paste.fixture import TestApp
 from htmengine import utils as app_utils
-from htm.it.app import HTM-ITAppConfig
+from htm.it.app import HTMItAppConfig
 from htm.it.app.webservices import settings_api
 
 
@@ -44,9 +44,9 @@ class SettingsHandlerTest(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.default_aws_access_key = htm-it.app.config.get("aws",
+    cls.default_aws_access_key = htm.it.app.config.get("aws",
      "aws_access_key_id")
-    cls.default_aws_secret_key = htm-it.app.config.get("aws",
+    cls.default_aws_secret_key = htm.it.app.config.get("aws",
      "aws_secret_access_key")
     cls.configurable_options = {
       "aws": set([
@@ -55,7 +55,7 @@ class SettingsHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(settings_api.app.wsgifunc())
 
 
@@ -63,7 +63,7 @@ class SettingsHandlerTest(unittest.TestCase):
   # testcases run any order
   # This will make sure we have clean config for each testcase
   def tearDown(self):
-    config = HTM-ITAppConfig(mode=HTM-ITAppConfig.MODE_OVERRIDE_ONLY)
+    config = HTMItAppConfig(mode=HTMItAppConfig.MODE_OVERRIDE_ONLY)
     if not config.has_section("aws"):
       config.add_section("aws")
     config.set("aws", "aws_secret_access_key", self.default_aws_secret_key)
@@ -107,7 +107,7 @@ class SettingsHandlerTest(unittest.TestCase):
     except AssertionError, ae:
       print ae.message
     finally:
-      config = HTM-ITAppConfig()
+      config = HTMItAppConfig()
       self.assertEqual(config.get("aws", "aws_access_key_id"),
         "dummy_value_aws_key")
 
@@ -124,7 +124,7 @@ class SettingsHandlerTest(unittest.TestCase):
     except AssertionError, ae:
       print ae.message
     finally:
-      config = HTM-ITAppConfig()
+      config = HTMItAppConfig()
       self.assertEqual(config.get("aws", "aws_secret_access_key"),
         "dummy_value_aws_secret")
       self.assertEqual(config.get("aws", "aws_access_key_id"),

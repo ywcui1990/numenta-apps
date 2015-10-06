@@ -22,18 +22,18 @@
 (function() {
 
   /**
-   * Backbone.js Collection for a group of HTM-IT Custom Metrics
+   * Backbone.js Collection for a group of HTMIT Custom Metrics
    * @constructor
    * @copyright © 2014 Numenta
    * @public
-   * @requires Backbone.js, HTM-IT HTM-ITCustomMetricModel class
+   * @requires Backbone.js, HTMIT HTMITCustomMetricModel class
    * @returns {Object} Backbone.js Collection object
    */
-  HTM-ITUI.HTM-ITCustomMetricsCollection = Backbone.Collection.extend({
+  HTMITUI.HTMITCustomMetricsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: HTM-ITUI.HTM-ITCustomMetricModel,
+    model: HTMITUI.HTMITCustomMetricModel,
 
     // Custom properties
 
@@ -63,7 +63,7 @@
           break;
 
         case 'read':
-          result = this.api.getHTM-ITCustomMetrics(function(error, metrics) {
+          result = this.api.getHTMITCustomMetrics(function(error, metrics) {
             if(error) return options.error(error);
             return options.success(metrics);
           });

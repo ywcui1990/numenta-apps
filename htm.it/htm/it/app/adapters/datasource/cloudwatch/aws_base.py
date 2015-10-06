@@ -296,7 +296,7 @@ class AWSResourceAdapterBase(object):
         except boto.exception.BotoServerError as ex:
           if ex.status == 400 and ex.error_code == "Throttling":
             # TODO: unit-test
-            raise htm-it.app.exceptions.MetricThrottleError(repr(ex))
+            raise htm.it.app.exceptions.MetricThrottleError(repr(ex))
           else:
             raise
 
@@ -583,7 +583,7 @@ class AWSResourceAdapterBase(object):
     :returns: metric adapter object that supports the given metricSpec
     :rtype: derived from AWSResourceAdapterBase class
 
-    :raises htm-it.app.exceptions.MetricNotSupportedError: if requested metric
+    :raises htm.it.app.exceptions.MetricNotSupportedError: if requested metric
       isn't supported
     """
     metricClass = cls._findMetricAdapter(
@@ -661,7 +661,7 @@ class AWSResourceAdapterBase(object):
 
     :returns: metric adapter class
 
-    :raises htm-it.app.exceptions.MetricNotSupportedError: if requested metric
+    :raises htm.it.app.exceptions.MetricNotSupportedError: if requested metric
       isn't supported
     """
     for dim in dimensions:
@@ -670,7 +670,7 @@ class AWSResourceAdapterBase(object):
       if entry is not None:
         break
     else:
-      raise htm-it.app.exceptions.MetricNotSupportedError(
+      raise htm.it.app.exceptions.MetricNotSupportedError(
         "No matching metric adapter for namespace=%r, metric=%r, dimensions=%r"
         % (namespace, metricName, dimensions))
 
@@ -679,7 +679,7 @@ class AWSResourceAdapterBase(object):
     # Verify that the dimensions match one of the dimension groups in the
     # metric adapter
     if sorted(dimensions) not in entry["sortedDimensionGroups"]:
-      raise htm-it.app.exceptions.MetricNotSupportedError(
+      raise htm.it.app.exceptions.MetricNotSupportedError(
         "No matching dimension group in metric adapter=%r for dimensions=%r" %
         (adapterClass, dimensions))
 
@@ -705,7 +705,7 @@ class AWSResourceAdapterBase(object):
     :returns: name tag value if available or None if not
     :rtype: string or NoneType
 
-    :raises htm-it.app.exceptions.InvalidAWSRegionName:
+    :raises htm.it.app.exceptions.InvalidAWSRegionName:
     """
     filters = {
       "resource-type": resourceTagType,
@@ -785,13 +785,13 @@ class AWSResourceAdapterBase(object):
 
     :returns: boto connection object
 
-    :raises htm-it.app.exceptions.InvalidAWSRegionName:
+    :raises htm.it.app.exceptions.InvalidAWSRegionName:
     """
     conn = serviceModule.connect_to_region(
                 region_name=region,
                 **cls._getFreshAWSAuthenticationArgs())
     if conn is None:
-      raise htm-it.app.exceptions.InvalidAWSRegionName(region)
+      raise htm.it.app.exceptions.InvalidAWSRegionName(region)
 
     return conn
 
@@ -809,12 +809,12 @@ class AWSResourceAdapterBase(object):
     # Make sure we have the latest version of configuration
     # TODO: probably don't need to do this here. Instead, get them on demand in
     #   AWSResourceAdapterBase
-    htm-it.app.config.loadConfig()
+    htm.it.app.config.loadConfig()
 
     return {
       "aws_access_key_id":
-        htm-it.app.config.get("aws", "aws_access_key_id"),
+        htm.it.app.config.get("aws", "aws_access_key_id"),
       "aws_secret_access_key":
-        htm-it.app.config.get("aws", "aws_secret_access_key")
+        htm.it.app.config.get("aws", "aws_secret_access_key")
     }
 

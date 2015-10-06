@@ -192,7 +192,7 @@ class AutostackInstancesHandler(AuthenticatedBaseHandler):
     """ Format InstanceInfo namedtuple to dict for API consumption
 
         :param instance: InstanceInfo object
-        :type instance: htm-it.app.runtime.aggregator_instances.InstanceInfo
+        :type instance: htm.it.app.runtime.aggregator_instances.InstanceInfo
         :param keys: Keys to be included in resulting dict
         :type keys: tuple
         :return: Formatted InstanceInfo dict containing keys defined by keys

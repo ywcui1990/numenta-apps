@@ -40,7 +40,7 @@ _USAGE = "Usage: upload_logs.py [--force] path/to/log/dir"
 
 _AWS_ACCESS_KEY = config.get("aws", "aws_access_key_id")
 _AWS_SECRET_KEY = config.get("aws", "aws_secret_access_key")
-_BUCKET = "htm-it.logs"
+_BUCKET = "htm.it.logs"
 _KEY_PREFIX = "upload/%s-" % config.get("usertrack", "htm_it_id")
 _UPLOADED_DIR = "uploaded"
 _UPLOAD_ATTEMPTS = 3

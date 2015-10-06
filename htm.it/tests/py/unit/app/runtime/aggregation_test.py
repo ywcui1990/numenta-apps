@@ -163,8 +163,8 @@ class AggregateTest(unittest.TestCase):
 class GetStatisticsTest(unittest.TestCase):
   """Unit tests for the getStatistics function."""
 
-  @patch("htm-it.app.runtime.aggregation.repository")
-  @patch("htm-it.app.runtime.aggregation.EC2InstanceMetricGetter")
+  @patch("htm.it.app.runtime.aggregation.repository")
+  @patch("htm.it.app.runtime.aggregation.EC2InstanceMetricGetter")
   def testGetStatisticsNoData(self, ec2InstanceMetricGetterMock,
                                  repositoryMock):
     metricID = "abc"
@@ -196,8 +196,8 @@ class GetStatisticsTest(unittest.TestCase):
     metricGetterMock.close.assert_called_once()
 
 
-  @patch("htm-it.app.runtime.aggregation.repository")
-  @patch("htm-it.app.runtime.aggregation.EC2InstanceMetricGetter")
+  @patch("htm.it.app.runtime.aggregation.repository")
+  @patch("htm.it.app.runtime.aggregation.EC2InstanceMetricGetter")
   def testGetStatisticsSingleInstance(self, ec2InstanceMetricGetterMock,
                                       repositoryMock):
     metricID = "abc"
@@ -240,9 +240,9 @@ class GetStatisticsTest(unittest.TestCase):
     metricGetterMock.close.assert_called_once()
 
 
-  @patch("htm-it.app.runtime.aggregation.repository.engineFactory", autospec=True)
-  @patch("htm-it.app.repository.getAutostackFromMetric", autospec=True)
-  @patch("htm-it.app.runtime.aggregation.EC2InstanceMetricGetter", autospec=True)
+  @patch("htm.it.app.runtime.aggregation.repository.engineFactory", autospec=True)
+  @patch("htm.it.app.repository.getAutostackFromMetric", autospec=True)
+  @patch("htm.it.app.runtime.aggregation.EC2InstanceMetricGetter", autospec=True)
   def testGetStatisticsMultpleInstances(self, ec2InstanceMetricGetterMock,
                                         getAutostackFromMetricMock,
                                         _engineFactoryMock):

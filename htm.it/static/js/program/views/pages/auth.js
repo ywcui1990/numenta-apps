@@ -21,12 +21,12 @@
 
 (function() {
 
-    HTM-ITUI.AuthView = Backbone.View.extend({
+    HTMITUI.AuthView = Backbone.View.extend({
 
         template: _.template($('#auth-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('auth-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('auth-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'click #back' : 'handleBack',
@@ -47,19 +47,19 @@
 
             me.api = options.api;
 
-            HTM-ITUI.utils.title(me.msgs.title);
+            HTMITUI.utils.title(me.msgs.title);
 
             // setup? deactive header logo link & hide header setup menu
-            if(HTM-ITUI.utils.isSetupFlow()) {
+            if(HTMITUI.utils.isSetupFlow()) {
                 $('.navbar-brand').attr('href', '#');
             }
 
-            if(HTM-ITUI.utils.isAuthorized()) {
+            if(HTMITUI.utils.isAuthorized()) {
                 // if logged in with apikey, get previous settings
                 me.api.getSettings(
                     me.api.CONST.SETTINGS.SECTIONS.AWS,
                     function(error, settings) {
-                        if(error) return HTM-ITUI.utils.modalError(error);
+                        if(error) return HTMITUI.utils.modalError(error);
                         me.previousKey = settings[me.api.CONST.SETTINGS.AWS.KEY];
                         me.render(settings);
                     }
@@ -80,10 +80,10 @@
                     baseUrl: NTA.baseUrl,
                     msgs: me.msgs,
                     site: me.site,
-                    isSetup: HTM-ITUI.utils.isSetupFlow(),
+                    isSetup: HTMITUI.utils.isSetupFlow(),
                     button: {
                         back: me.site.buttons.back,
-                        next: HTM-ITUI.utils.isSetupFlow() ?
+                        next: HTMITUI.utils.isSetupFlow() ?
                             me.site.buttons.next : (
                                 settings[me.api.CONST.SETTINGS.AWS.KEY] ?
                                     me.site.buttons.done : me.site.buttons.save
@@ -100,8 +100,8 @@
 
             me.$el.html(me.template(data));
 
-            if(HTM-ITUI.utils.isSetupFlow()) {
-                setupProgressBar = HTM-ITUI.utils.getSetupProgressBar(
+            if(HTMITUI.utils.isSetupFlow()) {
+                setupProgressBar = HTMITUI.utils.getSetupProgressBar(
                     step, $('#progress-bar-container'));
             }
 
@@ -118,7 +118,7 @@
         handleBack: function(event) {
             event.stopPropagation();
             event.preventDefault();
-            HTM-ITUI.utils.go(this.site.paths.register + window.location.search);
+            HTMITUI.utils.go(this.site.paths.register + window.location.search);
         },
 
         handleFormSubmit: function(event) {
@@ -128,9 +128,9 @@
                 settings = {},
                 destination = null;
 
-            if(HTM-ITUI.utils.isSetupFlow()) {
+            if(HTMITUI.utils.isSetupFlow()) {
                 // setup flow
-                if(HTM-ITUI.utils.isExpert()) {
+                if(HTMITUI.utils.isExpert()) {
                     // expert setup flow
                     destination = me.site.paths.complete;
                 }
@@ -153,11 +153,11 @@
 
             // if already entered a key, no form, just next page simply
             if(me.previousKey) {
-                HTM-ITUI.utils.go(destination);
+                HTMITUI.utils.go(destination);
                 return;
             }
 
-            HTM-ITUI.utils.throb.start(me.site.state.auth);
+            HTMITUI.utils.throb.start(me.site.state.auth);
 
             settings[me.api.CONST.SETTINGS.AWS.KEY] = $key.val();
             settings[me.api.CONST.SETTINGS.AWS.SECRET] = $secret.val();
@@ -177,11 +177,11 @@
                         $secret.parents('.form-group').addClass('has-error');
                         $secret.val('');
                     }
-                    return HTM-ITUI.utils.modalError(error);
+                    return HTMITUI.utils.modalError(error);
                 }
 
                 // "login"
-                HTM-ITUI.utils.store.set('apiKey', results.apikey);
+                HTMITUI.utils.store.set('apiKey', results.apikey);
 
                 // update API instance with key
                 me.api.setApiKey(results.apikey);
@@ -191,8 +191,8 @@
                     settings,
                     me.api.CONST.SETTINGS.SECTIONS.AWS,
                     function(error) {
-                        if(error) return HTM-ITUI.utils.modalError(error);
-                        HTM-ITUI.utils.go(destination);
+                        if(error) return HTMITUI.utils.modalError(error);
+                        HTMITUI.utils.go(destination);
                     }
                 );
             });

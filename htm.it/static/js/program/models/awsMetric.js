@@ -29,7 +29,7 @@
    * @requires Backbone, Backbone.Model
    * @returns {Object} Backbone.Model object
    */
-  HTM-ITUI.AwsMetricModel = Backbone.Model.extend({
+  HTMITUI.AwsMetricModel = Backbone.Model.extend({
 
     // Backbone.Model properties
 

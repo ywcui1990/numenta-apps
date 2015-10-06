@@ -35,7 +35,7 @@ from .aggregator_utils import getAWSCredentials
 
 from htm.it import htm_it_logging
 
-_MODULE_NAME = "htm-it.aggregator_instances"
+_MODULE_NAME = "htm.it.aggregator_instances"
 
 
 
@@ -162,7 +162,7 @@ def getAutostackInstances(regionName, filters):
       spedified filters (intersection).
   :type filters: a dict; the each key is a filter name ("tag:" + tag-name) and
       the corresponding value is a sequence of one or more filter values. E.g.,
-      {"tag:Name":["*test*", "*htm-it*"], "tag:Description":["Blah", "foo"]}
+      {"tag:Name":["*test*", "*grok*"], "tag:Description":["Blah", "foo"]}
 
   :returns: a sequence of zero or more InstanceInfo objects matching the given
       filters in the given region

@@ -27,7 +27,7 @@ def getDefaultHTTPHeaders(config):
   """
   This returns Basic Aunthentication headers for webservices
   calls.
-  config :htm-it.app.config
+  config :htm.it.app.config
   """
   headers = {}
 

@@ -21,11 +21,11 @@
 
 (function() {
 
-    HTM-ITUI.NoSuggestedInstancesView = Backbone.View.extend({
+    HTMITUI.NoSuggestedInstancesView = Backbone.View.extend({
 
         template: _.template($('#no-suggested-instances-tmpl').html()),
 
-        site: HTM-ITUI.msgs('site'),
+        site: HTMITUI.msgs('site'),
 
         events: {},
 

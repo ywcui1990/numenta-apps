@@ -45,7 +45,7 @@ from infrastructure.utilities.path import changeToWorkingDir
 
 PRODUCTS_PATH = os.environ.get("PRODUCTS")
 OPERATIONS_SCRIPTS = os.path.join(PRODUCTS_PATH,
-                                  "htm-it/htm-it/pipeline/scripts/rpm-creator")
+                                  "htm.it/htm/it/pipeline/scripts/rpm-creator")
 
 g_config = yaml.load(pkg_resources.resource_stream(__name__,
                                                    "../conf/config.yaml"))
@@ -81,11 +81,11 @@ def uploadShaFiletoBucket(rpmName, filename, logger):
 def checkExistsOnRpmbuild(rpmname, config, logger):
   """
     This method checks if a particular rpm is present in the
-    rpmbuild.htm-itsolutions.com repository.
+    rpmbuild.groksolutions.com repository.
 
     :param rpmName: The actuall rpm name which needs to be checked.
     :param config: This is a dict of configuration data.
-    :returns: True if the rpm exists on rpmbuild.htm-itsoltions.com else False
+    :returns: True if the rpm exists on rpmbuild.groksolutions.com else False
     :raises: re-raising the base exceptions.
   """
   try:
@@ -96,7 +96,7 @@ def checkExistsOnRpmbuild(rpmname, config, logger):
       return exists(path, use_sudo=False, verbose=True)
   except Exception:
     logger.exception("Failed to check if %s RPM "
-                     "exist on rpmbuild.htm-itsoltions.com" % rpmname)
+                     "exist on rpmbuild.groksolutions.com" % rpmname)
     raise
 
 
@@ -116,14 +116,14 @@ def checkRpmExists(rpmName, sha, rpmNameDetails, config, logger):
   """
     This method reads the rpmName from sha.json from the bucket
     builds.numenta.com, and then checks if the rpm is present on
-    rpmbuild.htm-itsolutions.com or in S3
+    rpmbuild.groksolutions.com or in S3
 
     :param rpmName: For now, this is always HTM-IT
                     i.e., builds.numenta.com/htm-it if checking for htm-it rpm
     :param sha: The sha of htm-it which we are searching for
     :rpmNameDetails: This is a dict which is used to store the RPM name
                      which we are searching for
-    :returns: True if rpm exists on S3 and rpmbuild.htm-itsolutions.com else False
+    :returns: True if rpm exists on S3 and rpmbuild.groksolutions.com else False
     :raises: re-raising the base exceptions.
   """
   try:
@@ -164,7 +164,7 @@ def checkRpmExists(rpmName, sha, rpmNameDetails, config, logger):
       return False
   except Exception:
     logger.exception("Failed while checking if RPM exists on s3 and "
-                     "rpmbuild.htm-itsolutions.com")
+                     "rpmbuild.groksolutions.com")
     raise
 
 
@@ -173,7 +173,7 @@ def createShaFile(nameOfRpmCreated, sha):
   Creates the sha.json and writes a json which includes RPM name and sha.
   for eg :
   {"sha": "001dde486f8b97b645aee95543658af81cae05a6",
-   "rpm": "htm-it-py27-htm-itsolutions-1.6-20140818.22.38.06.x86_64.rpm"}
+   "rpm": "htm-it-py27-groksolutions-1.6-20140818.22.38.06.x86_64.rpm"}
   :param nameOfRpmCreated: The rpm name which was created.
   :param sha: The sha is used as the name of the file.
   :returns: the name of file created
@@ -187,7 +187,7 @@ def createShaFile(nameOfRpmCreated, sha):
 
 def moveRpmsToRpmbuild(rpmName, config, logger):
   """
-  Copies an rpm from slave to rpmbuild.htm-itsolutions.com
+  Copies an rpm from slave to rpmbuild.groksolutions.com
 
   :param rpmName: The rpm which is to be moved
   :param config: This is a dict of configuration data.
@@ -206,8 +206,8 @@ def moveRpmsToRpmbuild(rpmName, config, logger):
     raise
 
 
-def buildRpms(env, htm-itSha, releaseVersion,
-              artifactsDir, logger, config, htm-itRemote):
+def buildRpms(env, htmItSha, releaseVersion,
+              artifactsDir, logger, config, htmitRemote):
   """
   Builds an rpm for htm-it
 
@@ -216,7 +216,7 @@ def buildRpms(env, htm-itSha, releaseVersion,
   not it creates the rpm.
 
   :param env: The environment variables which is set.
-  :param htm-itSha: The htm-it sha.
+  :param htmItSha: The htm-it sha.
   :param releaseVersion: The product version which will be used
                          in the name of RPM
   :param artifactsDir: In this directory the artifacts will be stored.
@@ -229,14 +229,14 @@ def buildRpms(env, htm-itSha, releaseVersion,
            when RPM is not found.
            infrastructure.utilities.exceptions.FailedToMoveRPM,
            if there is some error while moving RPM's to
-           rpmbuild.htm-itsolutions.com
+           rpmbuild.groksolutions.com
   """
 
   rpmNameDetails = {}
   rpmName = "htm-it"
   try:
     syncRpm = False
-    sha = htm-itSha
+    sha = htmItSha
     rpmExists = checkRpmExists(rpmName, sha, rpmNameDetails, config, logger)
     with shell_env(**env):
       if not rpmExists:
@@ -256,7 +256,7 @@ def buildRpms(env, htm-itSha, releaseVersion,
             command = ("%s/create-numenta-rpm" % infrastuctureCommonPath +
                        " --rpm-flavor htm-it" +
                        " --debug" +
-                       " --cleanup-script htm-it/htm-it/pipeline/scripts/rpm-creator" +
+                       " --cleanup-script htm.it/htm/it/pipeline/scripts/rpm-creator" +
                        "/clean-htm-it-tree-for-packaging" +
                        " --whitelist htm-it" +
                        " --whitelist nta.utils" +
@@ -273,9 +273,9 @@ def buildRpms(env, htm-itSha, releaseVersion,
                        " --setup-py-dir htmengine" +
                        " --setup-py-dir infrastructure" +
                        " --extend-pythonpath htm-it/lib/python2.7/site-packages" +
-                       " --sha " + htm-itSha +
+                       " --sha " + htmItSha +
                        " --artifact opt" +
-                       " --git-url " + htm-itRemote)
+                       " --git-url " + htmitRemote)
             # Due to some environment issue's I have used local here,
             # we can change this later.
             # fixme https://jira.numenta.com/browse/TAUR-797
@@ -326,7 +326,7 @@ def addAndParseArgs(jsonArgs):
   """
   This method parses the command line paramaters passed to the script.
 
-  :returns: logger, buildWorkspace, htm-itSha, releaseVersion,
+  :returns: logger, buildWorkspace, htmItSha, releaseVersion,
             pipelineParams, pipelineJson
   """
 
@@ -336,9 +336,9 @@ def addAndParseArgs(jsonArgs):
                       help="The manifest file name")
   parser.add_argument("--build-workspace", dest="buildWorkspace", type=str,
                       help="Common dir prefix for htm-it")
-  parser.add_argument("--htm-itSha", dest="htm-itSha", type=str,
-                      help="The htm-itSha for which are creating rpm")
-  parser.add_argument("--htm-it-remote", dest="htm-itRemote", type=str,
+  parser.add_argument("--htmItSha", dest="htmItSha", type=str,
+                      help="The htmItSha for which are creating rpm")
+  parser.add_argument("--htm-it-remote", dest="htmitRemote", type=str,
                       help="The htm-it remote you want to use, "
                            "e.g. git@github.com:Numenta/numenta-apps.git")
   parser.add_argument("--unit-test-status", dest="testStatus", type=str,
@@ -376,14 +376,14 @@ def addAndParseArgs(jsonArgs):
   buildWorkspace = os.environ.get("BUILD_WORKSPACE",
                      pipelineParams.get("buildWorkspace",
                      pipelineParams.get("manifest", {}).get("buildWorkspace")))
-  htm-itSha = pipelineParams.get("htm-itSha",
-              pipelineParams.get("build", {}).get("htm-itSha"))
+  htmItSha = pipelineParams.get("htmItSha",
+              pipelineParams.get("build", {}).get("htmItSha"))
   unitTestStatus = pipelineParams.get("testStatus",
                     pipelineParams.get("test", {}).get("testStatus"))
   releaseVersion = pipelineParams.get("releaseVersion",
                     pipelineParams.get("manifest", {}).get("releaseVersion"))
-  htm-itRemote = pipelineParams.get("htm-itRemote",
-                    pipelineParams.get("manifest", {}).get("htm-itRemote"))
+  htmitRemote = pipelineParams.get("htmitRemote",
+                    pipelineParams.get("manifest", {}).get("htmitRemote"))
 
   if platform.system() not in "Linux":
     g_logger.error("RPM's will be built only on Linux (CentOS). Bailing out.")
@@ -393,9 +393,9 @@ def addAndParseArgs(jsonArgs):
     g_logger.error("Unit Test failed. RPM's will not be created.")
     raise exceptions.UnittestFailed("Unit Test failed")
 
-  if buildWorkspace and htm-itSha and htm-itRemote:
-    return (buildWorkspace, htm-itSha, releaseVersion,
-            pipelineParams, args["pipelineJson"], htm-itRemote)
+  if buildWorkspace and htmItSha and htmitRemote:
+    return (buildWorkspace, htmItSha, releaseVersion,
+            pipelineParams, args["pipelineJson"], htmitRemote)
   else:
     parser.error("Please provide all parameters, "
                  "Use --help for further details")
@@ -416,8 +416,8 @@ def main(jsonArgs=None):
     :raises: raises generic Exception if anything else goes wrong.
   """
   jsonArgs = jsonArgs or {}
-  (buildWorkspace, htm-itSha, releaseVersion,
-   pipelineParams, pipelineJson, htm-itRemote) = addAndParseArgs(jsonArgs)
+  (buildWorkspace, htmItSha, releaseVersion,
+   pipelineParams, pipelineJson, htmitRemote) = addAndParseArgs(jsonArgs)
   try:
     # TODO: TAUR-841: Use an IAM role on the the jenkins instances instead of
     # embedding the AWS keypair in the repo. Boto will take care of either
@@ -429,9 +429,9 @@ def main(jsonArgs=None):
 
     env = prepareEnv(buildWorkspace, None, os.environ)
     artifactsDir = jenkins.createOrReplaceArtifactsDir(logger=g_logger)
-    syncRpm, rpmNameDetails = buildRpms(env, htm-itSha,
+    syncRpm, rpmNameDetails = buildRpms(env, htmItSha,
                                         releaseVersion, artifactsDir,
-                                        g_logger, g_config, htm-itRemote)
+                                        g_logger, g_config, htmitRemote)
     packageRpm = {"syncRpm": syncRpm,
                   "htm-itRpmName": rpmNameDetails["htm-it"],
                   "repoName": "x86_64"}

@@ -29,11 +29,11 @@
    * @requires Backbone.js, HTM-IT AnnotationModel class
    * @returns {Object} Backbone.js Collection object
    */
-  HTM-ITUI.AnnotationsCollection = Backbone.Collection.extend({
+  HTMITUI.AnnotationsCollection = Backbone.Collection.extend({
 
     // Backbone.Collection properties
 
-    model: HTM-ITUI.AnnotationModel,
+    model: HTMITUI.AnnotationModel,
 
     // Custom properties
     

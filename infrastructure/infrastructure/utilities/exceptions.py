@@ -64,7 +64,7 @@ class FailedToMoveRPM(PipelineError):
 
 
 
-class HTM-ITConfigError(PipelineError):
+class HTMITConfigError(PipelineError):
   pass
 
 

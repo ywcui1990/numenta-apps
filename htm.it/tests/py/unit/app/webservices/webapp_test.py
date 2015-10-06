@@ -46,7 +46,7 @@ class DefaultHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(webapp.app.wsgifunc())
 
 
@@ -69,13 +69,13 @@ class DefaultHandlerTest(unittest.TestCase):
 
 
 
-@patch("htm-it.app.webservices.webapp.instance_utils.getInstanceData",
+@patch("htm.it.app.webservices.webapp.instance_utils.getInstanceData",
        autospec=True, return_value={})
-class HTM-ITHandlerTest(unittest.TestCase):
+class HTMITHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(webapp.app.wsgifunc())
 
 
@@ -90,8 +90,8 @@ class HTM-ITHandlerTest(unittest.TestCase):
 
 
 @ConfigAttributePatch(
-    htm-it.app.config.CONFIG_NAME,
-    htm-it.app.config.baseConfigDir,
+    htm.it.app.config.CONFIG_NAME,
+    htm.it.app.config.baseConfigDir,
     (("aws", "aws_access_key_id", ""),
      ("aws", "aws_secret_access_key", ""))
 )
@@ -99,11 +99,11 @@ class AWSAuthHandlerTest(unittest.TestCase):
 
 
   def setUp(self):
-    #self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    #self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(webapp.app.wsgifunc())
 
 
-  @patch("htm-it.app.webservices.webapp.checkEC2Authorization")
+  @patch("htm.it.app.webservices.webapp.checkEC2Authorization")
   def testAuthInvalidCredentials(self, checkEC2AuthorizationMock):
     errorMessage = ("AWS was not able to validate the provided access "
                     "credentials")
@@ -122,7 +122,7 @@ class AWSAuthHandlerTest(unittest.TestCase):
     self.assertIn(errorMessage, cm.exception.message)
 
 
-  @patch("htm-it.app.webservices.webapp.checkEC2Authorization")
+  @patch("htm.it.app.webservices.webapp.checkEC2Authorization")
   def testAuthCredentialsMissingPermissions(self, checkEC2AuthorizationMock):
     errorMessage = ("IAM credentials don't have correct permissions.")
     exc = AWSPermissionsError(errorMessage)
@@ -145,7 +145,7 @@ class AjaxTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(webapp.app.wsgifunc())
 
 
@@ -181,7 +181,7 @@ class AjaxTest(unittest.TestCase):
     self.assertTrue(getDatasources.called)
 
 
-  @patch("htm-it.app.webservices.cloudwatch_api.datasource_adapter_factory."
+  @patch("htm.it.app.webservices.cloudwatch_api.datasource_adapter_factory."
          "createCloudwatchDatasourceAdapter")
   def testMetricsAPIGETCouldWatch(self, adapterMock):
     adapterMock.return_value.describeRegions.return_value = []
@@ -196,17 +196,17 @@ class TestMessageHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.web_data = open(os.path.join(htm-it.app.HTM_IT_HOME,
+    cls.web_data = open(os.path.join(htm.it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/msg_manager.txt")).read()
     cls.message_manager_data = json.load(
         open(os.path.join(
-            htm-it.app.HTM_IT_HOME,
+            htm.it.app.HTM_IT_HOME,
             "tests/py/data/app/webservices/message_manager_data.json")))
 
 
   def setUp(self):
     self.app = TestApp(webapp.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   def testPOSTWithExplicit(self):

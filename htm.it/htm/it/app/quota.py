@@ -39,7 +39,7 @@ from nta.utils.config import Config
 
 
 def _getLogger():
-  return htm_it_logging.getExtendedLogger("htm-it.app.quota")
+  return htm_it_logging.getExtendedLogger("htm.it.app.quota")
 
 
 
@@ -151,7 +151,7 @@ def checkQuotaForInstanceAndRaise(conn, instanceName):
   :param instanceName: Instance name
   :type instanceName str:
 
-  :raises: htm-it.app.exceptions.QuotaError
+  :raises: htm.it.app.exceptions.QuotaError
   """
   instanceCount = repository.getInstanceCount(conn)
   instanceQuota = Quota.getInstanceQuota()
@@ -178,7 +178,7 @@ def checkQuotaForCustomMetricAndRaise(conn):
   :param conn: SQLAlchemy connection object
   :type conn: sqlalchemy.engine.Connection
 
-  :raises: htm-it.app.exceptions.QuotaError
+  :raises: htm.it.app.exceptions.QuotaError
   """
   instanceCount = repository.getInstanceCount(conn)
   instanceQuota = Quota.getInstanceQuota()

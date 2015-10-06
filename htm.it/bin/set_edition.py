@@ -43,7 +43,7 @@ import sys
 from nupic.support.decorators import logEntryExit
 
 from htm.it import logging_support
-from htm.it.app import HTM-ITProductConfig
+from htm.it.app import HTMItProductConfig
 
 
 
@@ -61,7 +61,7 @@ def setEdition(args):
     "%%prog %s\n\n"
     "IT MUST BE CALLED AFTER INITIALIZATION OF HTM-IT CONFIGURATION, BUT BEFORE "
     "update_quota.py"
-    ) % (HTM-ITProductConfig.CONFIG_NAME, "|".join(supportedEditions),)
+    ) % (HTMItProductConfig.CONFIG_NAME, "|".join(supportedEditions),)
 
   parser = OptionParser(helpString)
 
@@ -76,7 +76,7 @@ def setEdition(args):
     parser.error("Got unsupported HTM-IT product edition string %r; expected one "
                  "of %s" % (editionType, supportedEditions,))
 
-  config = HTM-ITProductConfig(mode=HTM-ITProductConfig.MODE_OVERRIDE_ONLY)
+  config = HTMItProductConfig(mode=HTMItProductConfig.MODE_OVERRIDE_ONLY)
   if not config.has_section("edition"):
     config.add_section("edition")
   config.set("edition", "type", editionType)

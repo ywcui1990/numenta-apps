@@ -21,7 +21,7 @@
 
 describe('HTM-IT Backbone.Model: ModelExport', function() {
 
-    var model = new HTM-ITUI.ModelExportModel();
+    var model = new HTMITUI.ModelExportModel();
 
     it('should construct simply', function() {
         expect(model).to.be.an('object');

@@ -22,7 +22,7 @@
 (function() {
 
     var _viewName = 'embed-charts-row',
-        _site =     HTM-ITUI.msgs('site'),
+        _site =     HTMITUI.msgs('site'),
 
         WEEKDAY = ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
 
@@ -62,7 +62,7 @@
     /**
      * Backbone.View() - Embed: Charts > Rows > Row
      */
-    HTM-ITUI.EmbedChartsRowView = Backbone.View.extend({
+    HTMITUI.EmbedChartsRowView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -74,7 +74,7 @@
 
         // Custom properties
 
-        msgs: HTM-ITUI.msgs(_viewName + '-tmpl'),
+        msgs: HTMITUI.msgs(_viewName + '-tmpl'),
         site: _site,
 
         annotations:        null,
@@ -172,7 +172,7 @@
             var ctx =           e.drawingContext,
                 points =        e.points,
                 y_bottom =      e.dygraph.toDomYCoord(0),
-                gradientMap =   HTM-ITUI.utils.makeGradientMap(barHeight, [
+                gradientMap =   HTMITUI.utils.makeGradientMap(barHeight, [
                     color.red, color.yellow, color.green
                 ]),
                 perBar =        _site.charts.instance.anomaly.minutesPerBar,
@@ -248,11 +248,11 @@
                 outputLabels =  [ 'Time', 'Anomaly' ];
 
             modelOutput.forEach(function(dataRow, i) {
-                var scaled = HTM-ITUI.utils.logScale(dataRow[indexAnomaly]),
+                var scaled = HTMITUI.utils.logScale(dataRow[indexAnomaly]),
                     datum = parseFloat(scaled);
 
                 // Round time stamp to closest 5 min interval
-                var timestamp = HTM-ITUI.utils.getUTCDateFromTimestamp(dataRow[indexTimestamp]).getTime();
+                var timestamp = HTMITUI.utils.getUTCDateFromTimestamp(dataRow[indexTimestamp]).getTime();
                 timestamp = Math.ceil(timestamp/300000) * 300000;
                 outputData.push([
                     timestamp,
@@ -453,7 +453,7 @@
                 msPerBar =      this.minutesPerBar * 60000, // milliseconds per
                 output =        [],
                 startIndex =    0,
-                startData =     HTM-ITUI.utils.getUTCDateFromTimestamp(input[startIndex][indexTimestamp]),
+                startData =     HTMITUI.utils.getUTCDateFromTimestamp(input[startIndex][indexTimestamp]),
                 startBucket =   new Date(Math.ceil(startData.getTime() / msPerBar) * msPerBar),
                 i =             0;
 
@@ -467,7 +467,7 @@
                     (input[startIndex + 1])
                 ) {
                     startIndex++;
-                    startData = HTM-ITUI.utils.getUTCDateFromTimestamp(input[startIndex][indexTimestamp]);
+                    startData = HTMITUI.utils.getUTCDateFromTimestamp(input[startIndex][indexTimestamp]);
                 }
 
                 // now shape into buckets based on divider
@@ -491,11 +491,11 @@
                     }
 
                     if(input[i - 1]) {
-                        timestamp = HTM-ITUI.utils.getUTCDateFromTimestamp(input[i - 1][indexTimestamp]).getTime();
+                        timestamp = HTMITUI.utils.getUTCDateFromTimestamp(input[i - 1][indexTimestamp]).getTime();
                         timestamp = new Date(Math.ceil(timestamp / msPerBar) * msPerBar);
 
                         output.push([
-                            HTM-ITUI.utils.getUTCTimestamp(timestamp),
+                            HTMITUI.utils.getUTCTimestamp(timestamp),
                             maxValue,
                             maxAnomaly
                         ]);

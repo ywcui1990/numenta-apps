@@ -1,4 +1,4 @@
-htm-it.engine package
+htm.it.engine package
 ===================
 
 Subpackages
@@ -6,14 +6,14 @@ Subpackages
 
 .. toctree::
 
-    htm-it.engine.model_checkpoint_mgr
-    htm-it.engine.model_swapper
-    htm-it.engine.utils
+    htm.it.engine.model_checkpoint_mgr
+    htm.it.engine.model_swapper
+    htm.it.engine.utils
 
 Module contents
 ---------------
 
-.. automodule:: htm-it.engine
+.. automodule:: htm.it.engine
     :members:
     :undoc-members:
     :show-inheritance:

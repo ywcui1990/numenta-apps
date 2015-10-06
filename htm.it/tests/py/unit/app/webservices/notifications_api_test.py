@@ -42,12 +42,12 @@ class TestNotificationsHandler(unittest.TestCase):
 
   @classmethod
   def setUpClass(cls):
-    cls.model_list = json.load(open(os.path.join(htm-it.app.HTM_IT_HOME,
+    cls.model_list = json.load(open(os.path.join(htm.it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/models_list.json")))
 
 
   def setUp(self):
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
     self.app = TestApp(notifications_api.app.wsgifunc())
 
     # Set up dummy notification assets
@@ -181,7 +181,7 @@ class TestNotificationsHandler(unittest.TestCase):
       engineMock.return_value.connect.return_value.__enter__.return_value, uids)
 
 
-  @patch("htm-it.app.webservices.notifications_api.repository", autospec=True)
+  @patch("htm.it.app.webservices.notifications_api.repository", autospec=True)
   def testGETNotificationHistory(self, repositoryMock, _engineMock):
     """ Test GET notification history
     """
@@ -201,7 +201,7 @@ class TestNotificationsHandler(unittest.TestCase):
     self.assertSequenceEqual(result, jsonNotifications)
 
 
-  @patch("htm-it.app.webservices.notifications_api.repository", autospec=True)
+  @patch("htm.it.app.webservices.notifications_api.repository", autospec=True)
   def testGETNotificationSettings(self, repositoryMock, _engineMock):
     """ Test GET notification settings
     """
@@ -220,7 +220,7 @@ class TestNotificationsHandler(unittest.TestCase):
     self.assertDictEqual(result, jsonNotificationSettings)
 
 
-  @patch("htm-it.app.webservices.notifications_api.repository", autospec=True)
+  @patch("htm.it.app.webservices.notifications_api.repository", autospec=True)
   def testPUTNotificationSettingsUpdate(self, repositoryMock, engineMock):
     """ Test PUT notification settings (update)
     """
@@ -246,7 +246,7 @@ class TestNotificationsHandler(unittest.TestCase):
        "email_addr": "updated@host.tld"})
 
 
-  @patch("htm-it.app.webservices.notifications_api.repository", autospec=True)
+  @patch("htm.it.app.webservices.notifications_api.repository", autospec=True)
   def testPUTNotificationSettingsCreate(self, repositoryMock, engineMock):
     """ Test PUT notification settings (create)
     """

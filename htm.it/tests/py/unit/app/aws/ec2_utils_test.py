@@ -34,7 +34,7 @@ from htm.it.app.aws import ec2_utils
 class EC2UtilsTest(unittest.TestCase):
 
 
-  @patch("htm-it.app.aws.ec2_utils.getEC2Instances")
+  @patch("htm.it.app.aws.ec2_utils.getEC2Instances")
   def testGetSuggestedInstancesNone(self, getEC2InstancesMock):
     getEC2InstancesMock.return_value = []
 
@@ -46,7 +46,7 @@ class EC2UtilsTest(unittest.TestCase):
     getEC2InstancesMock.assert_call_once_with("dummy-region")
 
 
-  @patch("htm-it.app.aws.ec2_utils.getEC2Instances")
+  @patch("htm.it.app.aws.ec2_utils.getEC2Instances")
   def testGetSuggestedInstancesNoRunning(self, getEC2InstancesMock):
     instanceMock1 = Mock(spec="boto.ec2.instance.Instance")
     instanceMock1.state = "stopped"
@@ -62,7 +62,7 @@ class EC2UtilsTest(unittest.TestCase):
     getEC2InstancesMock.assert_call_once_with("dummy-region")
 
 
-  @patch("htm-it.app.aws.ec2_utils.getEC2Instances")
+  @patch("htm.it.app.aws.ec2_utils.getEC2Instances")
   def testGetSuggestedInstancesTwoDifferentSize(self, getEC2InstancesMock):
     regionMock = Mock(spec="boto.ec2.region.Region")
     regionMock.name = "us-west-2"
@@ -100,7 +100,7 @@ class EC2UtilsTest(unittest.TestCase):
     getEC2InstancesMock.assert_call_once_with(regionMock.name)
 
 
-  @patch("htm-it.app.aws.ec2_utils.getEC2Instances")
+  @patch("htm.it.app.aws.ec2_utils.getEC2Instances")
   def testGetSuggestedInstancesTwoSameSize(self, getEC2InstancesMock):
     regionMock = Mock(spec="boto.ec2.region.Region")
     regionMock.name = "us-west-2"

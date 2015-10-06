@@ -37,6 +37,6 @@ The pipeline can be run end-to-end via the driver script, or each individual ste
 ```
      python build.py --pipeline-json pipeline.json --log debug
 ```
-  Find sample json products/htm-it/htm-it/pipeline/src/pipeline.json.template
+  Find sample json products/htm.it/htm/it/pipeline/src/pipeline.json.template
 
   **NOTE**: Currently, only the individual tools accept pipeline JSON files.  The overall pipeline execution relies on the full set of parameters.

@@ -21,8 +21,8 @@
 
 describe('HTM-IT Backbone.Collection: AwsRegions', function() {
 
-    var api =         new HTM-ITAPI({ apiKey: 'xxx' }),
-        collection =  new HTM-ITUI.AwsRegionsCollection([], { api: api });
+    var api =         new HTMITAPI({ apiKey: 'xxx' }),
+        collection =  new HTMITUI.AwsRegionsCollection([], { api: api });
 
     it('should construct simply', function() {
         expect(collection).to.be.an('object');

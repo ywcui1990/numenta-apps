@@ -35,9 +35,9 @@ TimeRange = namedtuple("TimeRange", "start end")
 
 def getAWSCredentials():
   # Reload config, if it changed
-  htm-it.app.config.loadConfig()
+  htm.it.app.config.loadConfig()
 
   return dict(
-    aws_access_key_id=htm-it.app.config.get("aws", "aws_access_key_id"),
-    aws_secret_access_key=htm-it.app.config.get("aws", 'aws_secret_access_key')
+    aws_access_key_id=htm.it.app.config.get("aws", "aws_access_key_id"),
+    aws_secret_access_key=htm.it.app.config.get("aws", 'aws_secret_access_key')
   )

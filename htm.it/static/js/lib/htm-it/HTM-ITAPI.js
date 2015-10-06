@@ -20,18 +20,18 @@
  * ---------------------------------------------------------------------- */
 
 /**
- * JavaScript library for the HTM-IT API
- * @class HTM-IT API Javascript Client
+ * JavaScript library for the HTMIT API
+ * @class HTMIT API Javascript Client
  * @copyright © 2013-2015 Numenta
  * @module
  * @requires jQuery
- * @see HTM-IT REST API Documentation: products/htm-it/app/webservices/README.md
+ * @see HTMIT REST API Documentation: products/htm-it/app/webservices/README.md
  */
 
 (function() {
 
     /**
-     * Create a new instance of the HTM-ITAPI class.
+     * Create a new instance of the HTMITAPI class.
      * @constructor
      * @param {Object} [opts] Options object to pass in.
      * @param {String} [opts.endPoint] API EndPoint to use.
@@ -40,7 +40,7 @@
      * @public
      * @returns {Object} New instance object of constructed class.
      */
-    var HTM-ITAPI = function(opts) {
+    var HTMITAPI = function(opts) {
         this.CONST = {
 
             // see: htm-it/webservices/README.md
@@ -152,14 +152,14 @@
     /**
      *
      */
-    HTM-ITAPI.prototype.setApiKey = function(key) {
+    HTMITAPI.prototype.setApiKey = function(key) {
         this.opts.apiKey = key;
     };
 
     /**
      *
      */
-    HTM-ITAPI.prototype._isFlatJson = function(val) {
+    HTMITAPI.prototype._isFlatJson = function(val) {
         if(typeof val === 'string') {
             try {
                 JSON.parse(val);
@@ -175,7 +175,7 @@
     /**
      *
      */
-    HTM-ITAPI.prototype._formatData = function(data) {
+    HTMITAPI.prototype._formatData = function(data) {
         if(typeof data === 'object') {
             return JSON.stringify(data);
         }
@@ -192,7 +192,7 @@
      * @private
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype._makeRequest = function(opts, callback) {
+    HTMITAPI.prototype._makeRequest = function(opts, callback) {
         var me = this,
             request;
 
@@ -204,7 +204,7 @@
                 xhr.setRequestHeader(
                     'Authorization',
                     'Basic ' +
-                        HTM-ITUI.utils.Base64.encode(me.opts.apiKey + ':')
+                        HTMITUI.utils.Base64.encode(me.opts.apiKey + ':')
                 );
             };
         }
@@ -230,7 +230,7 @@
 
 
     /**
-     * Authorize users AWS creds via HTM-IT API (EC2 auth check)
+     * Authorize users AWS creds via HTMIT API (EC2 auth check)
      * @method
      * @param {Object} keys Object holding values and keys: 'aws_access_key_id',
      *  and 'aws_secret_access_key'
@@ -239,7 +239,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.auth = function(keys, callback) {
+    HTMITAPI.prototype.auth = function(keys, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.AUTH
@@ -254,7 +254,7 @@
 
 
     /**
-     * Create a monitored instance via HTM-IT API
+     * Create a monitored instance via HTMIT API
      * @method
      * @param {String} region Region ID ('us-east-1')
      * @param {String} namespace Namespace Service Type name ('AWS/EC2')
@@ -264,7 +264,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.createMonitoredInstance = function(
+    HTMITAPI.prototype.createMonitoredInstance = function(
         region, namespace, instance, callback
     ) {
         var url = [
@@ -283,7 +283,7 @@
 
 
     /**
-     * Delete monitored instance(s) via HTM-IT API
+     * Delete monitored instance(s) via HTMIT API
      * @method
      * @param {Array} instances List of Instance ID's to delete
      * @param {Function} [callback] function(Object error, Object results):
@@ -291,7 +291,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.deleteMonitoredInstances = function(instances, callback) {
+    HTMITAPI.prototype.deleteMonitoredInstances = function(instances, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.INSTANCES
@@ -306,14 +306,14 @@
 
 
     /**
-     * Get a list of monitored instances via HTM-IT API
+     * Get a list of monitored instances via HTMIT API
      * @method
      * @param {Function} [callback] function(Object error, Object results):
      *  Function to run when call finishes.
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getMonitoredInstances = function(callback) {
+    HTMITAPI.prototype.getMonitoredInstances = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.INSTANCES
@@ -324,14 +324,14 @@
 
 
     /**
-     * Get a list of autostacks via HTM-IT API
+     * Get a list of autostacks via HTMIT API
      * @method
      * @param {Function} [callback] function(Object error, Object results):
      *  Function to run when call finishes.
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getAutostacks = function(callback) {
+    HTMITAPI.prototype.getAutostacks = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.AUTOSTACKS
@@ -343,14 +343,14 @@
 
     /**
      * Get a preview list of instances to be associated with an autostack
-     * via HTM-IT API
+     * via HTMIT API
      * @method
      * @param {Function} [callback] function(Object error, Object results):
      *  Function to run when call finishes.
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getAutostackPreview = function(
+    HTMITAPI.prototype.getAutostackPreview = function(
         region, filters, callback
     ) {
         var url = [
@@ -371,7 +371,7 @@
 
 
     /**
-     * Create an autostack via HTM-IT API
+     * Create an autostack via HTMIT API
      * @method
      * @param {String} name Autostack name
      * @param {String} region Region ID ('us-east-1')
@@ -381,7 +381,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.createAutostack = function(
+    HTMITAPI.prototype.createAutostack = function(
         name, region, filters, callback
     ) {
         var url = [
@@ -403,7 +403,7 @@
 
 
     /**
-     * Delete an autostack via HTM-IT API
+     * Delete an autostack via HTMIT API
      * @method
      * @param {String} autostackID Autostack ID
      * @param {Function} [callback] function(Object error, Object results):
@@ -411,7 +411,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.deleteAutostack = function(autostackID, callback) {
+    HTMITAPI.prototype.deleteAutostack = function(autostackID, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.AUTOSTACKS,
@@ -426,7 +426,7 @@
 
 
     /**
-     * Get a list of metrics for an autostack via HTM-IT API
+     * Get a list of metrics for an autostack via HTMIT API
      * @method
      * @param {String} autostackID Autostack ID
      * @param {Function} [callback] function(Object error, Object results):
@@ -434,7 +434,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getAutostackMetrics = function(autostackID, callback) {
+    HTMITAPI.prototype.getAutostackMetrics = function(autostackID, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.AUTOSTACKS,
@@ -447,7 +447,7 @@
 
 
     /**
-     * Associate a list of metrics with an autostack via HTM-IT API
+     * Associate a list of metrics with an autostack via HTMIT API
      * @method
      * @param {String} autostackID Autostack ID
      * @param {Object} [metrics] List of metric dictionaries
@@ -457,7 +457,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.createAutostackMetrics = function(
+    HTMITAPI.prototype.createAutostackMetrics = function(
         autostackID, metrics, callback
     ) {
         var url = [
@@ -476,7 +476,7 @@
 
 
     /**
-     * Delete a metric associated with an autostack via HTM-IT API
+     * Delete a metric associated with an autostack via HTMIT API
      * @method
      * @param {String} autostackID Autostack ID
      * @param {String} metricID Metric ID
@@ -485,7 +485,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.deleteAutostackMetric = function(autostackID, metricID, callback) {
+    HTMITAPI.prototype.deleteAutostackMetric = function(autostackID, metricID, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.AUTOSTACKS,
@@ -502,7 +502,7 @@
 
 
     /**
-     * Send settings to HTM-IT API
+     * Send settings to HTMIT API
      * @method
      * @param {Object} settings Settings object
      * @param {String} [section] Specific Section of config to act upon
@@ -511,7 +511,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.putSettings = function(settings, section, callback) {
+    HTMITAPI.prototype.putSettings = function(settings, section, callback) {
         if(typeof section === 'function') {
             callback = section;
             section = null;
@@ -535,7 +535,7 @@
 
 
     /**
-     * Get settings from HTM-IT API
+     * Get settings from HTMIT API
      * @method
      * @param {String} [section] Specific Section of config to act upon
      * @param {Function} [callback] function(Object error, Object results):
@@ -543,7 +543,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getSettings = function(section, callback) {
+    HTMITAPI.prototype.getSettings = function(section, callback) {
         if(typeof section === 'function') {
             callback = section;
             section = null;
@@ -563,14 +563,14 @@
 
 
     /**
-     * Get current Data Source details from HTM-IT API
+     * Get current Data Source details from HTMIT API
      * @method
      * @param {Function} [callback] function(Object error, Object results):
      *  Function to run when call finishes.
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getDataSource = function(callback) {
+    HTMITAPI.prototype.getDataSource = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.METRICS,
@@ -582,14 +582,14 @@
 
 
     /**
-     * Get list of Regions from HTM-IT API
+     * Get list of Regions from HTMIT API
      * @method
      * @param {Function} [callback] function(Object error, Object results):
      *  Function to run when call finishes.
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getRegions = function(callback) {
+    HTMITAPI.prototype.getRegions = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.METRICS,
@@ -602,7 +602,7 @@
 
 
     /**
-     * Get details for a specific Region from HTM-IT API
+     * Get details for a specific Region from HTMIT API
      * @method
      * @param {String} region Region to use ('us-east-1')
      * @param {Object} [opts] Options to pass in: 'tags' filter
@@ -611,7 +611,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getRegionDetails = function(region, opts, callback) {
+    HTMITAPI.prototype.getRegionDetails = function(region, opts, callback) {
         if(typeof opts === 'function') {
             callback = opts;
         }
@@ -632,7 +632,7 @@
 
     /**
      * Get list of all instance metrics for a specific Region and Namespace
-     *  from HTM-IT API.
+     *  from HTMIT API.
      * @method
      * @param {String} region Region to use ('us-east-1')
      * @param {String} namespace Namespace to use ('AWS/EC2')
@@ -641,7 +641,7 @@
      *  Function to run when call finishes.
      * @public
      */
-    HTM-ITAPI.prototype.getInstanceMetrics = function(region, namespace, opts, callback) {
+    HTMITAPI.prototype.getInstanceMetrics = function(region, namespace, opts, callback) {
         if(typeof opts === 'function') {
             callback = opts;
         }
@@ -662,14 +662,14 @@
 
 
     /**
-     * Get list of Namespaces from HTM-IT API
+     * Get list of Namespaces from HTMIT API
      * @method
      * @param {Function} [callback] function(Object error, Object results):
      *  Function to run when call finishes.
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getNamespaces = function(callback) {
+    HTMITAPI.prototype.getNamespaces = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.METRICS,
@@ -682,7 +682,7 @@
 
 
     /**
-     * Get details for a specific Namespace from HTM-IT API
+     * Get details for a specific Namespace from HTMIT API
      * @method
      * @param {String} namespace Namespace to investigate ('AWS/EC2')
      * @param {Function} [callback] function(Object error, Object results):
@@ -690,7 +690,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getNamespaceDetails = function(namespace, callback) {
+    HTMITAPI.prototype.getNamespaceDetails = function(namespace, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.METRICS,
@@ -703,14 +703,14 @@
 
 
     /**
-     * Get HTM-IT Custom Metrics from API
+     * Get HTMIT Custom Metrics from API
      * @method
      * @param {Function} [callback] function(Object error, Object results):
      *  Function to run when call finishes.
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getHTM-ITCustomMetrics = function(callback) {
+    HTMITAPI.prototype.getHTMITCustomMetrics = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.METRICS,
@@ -722,7 +722,7 @@
 
 
     /**
-     * Deletes a HTM-IT Custom Metric (uses metricName as in custom_api.py)
+     * Deletes a HTMIT Custom Metric (uses metricName as in custom_api.py)
      * @method
      * @param {String} Metric name
      * @param {Function} [callback] function(Object error, Object results):
@@ -730,7 +730,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.deleteHTM-ITCustomMetric = function(metricName, callback) {
+    HTMITAPI.prototype.deleteHTMITCustomMetric = function(metricName, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.METRICS,
@@ -755,7 +755,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getTags = function(region, res_type, index, callback) {
+    HTMITAPI.prototype.getTags = function(region, res_type, index, callback) {
         if(typeof res_type === 'function') {
             callback = res_type;
             res_type = null;
@@ -788,7 +788,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getModels = function(callback) {
+    HTMITAPI.prototype.getModels = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.MODELS
@@ -807,7 +807,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getModelsSortedByAnomaly = function(callback, range) {
+    HTMITAPI.prototype.getModelsSortedByAnomaly = function(callback, range) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.ANOMALIES,
@@ -829,7 +829,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getModelData = function(modelId, opts, callback) {
+    HTMITAPI.prototype.getModelData = function(modelId, opts, callback) {
         if(typeof opts === 'function') {
             callback = opts;
             opts = {};
@@ -856,7 +856,7 @@
      *  Function to run when call finishes.
      * @public
      */
-    HTM-ITAPI.prototype.getInstanceSuggestions = function(region, callback) {
+    HTMITAPI.prototype.getInstanceSuggestions = function(region, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.INSTANCES,
@@ -870,7 +870,7 @@
 
 
     /**
-     * Select instance using HTM-IT API
+     * Select instance using HTMIT API
      * @method
      * @param {String} Instance identifier (<region>/<namespace>/<id>)
      * @param {Function} [callback] function(Object error, Object results):
@@ -878,7 +878,7 @@
      * @param {Boolean} Issue call asynchronously
      * @public
      */
-    HTM-ITAPI.prototype.selectInstance = function(instance, callback) {
+    HTMITAPI.prototype.selectInstance = function(instance, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.INSTANCES,
@@ -893,7 +893,7 @@
 
 
     /**
-     * Select instances using HTM-IT API (batch mode)
+     * Select instances using HTMIT API (batch mode)
      * @method
      * @param {Array} Instance identifiers
      * @param {Function} [callback] function(Object error, Object results):
@@ -902,7 +902,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.selectInstances = function(region, namespace, instances, callback) {
+    HTMITAPI.prototype.selectInstances = function(region, namespace, instances, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.INSTANCES,
@@ -926,7 +926,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.exportModels = function(callback) {
+    HTMITAPI.prototype.exportModels = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.MODELS,
@@ -938,7 +938,7 @@
 
 
     /**
-     * Create model(s) via HTM-IT API, using creation object(s) we got previously.
+     * Create model(s) via HTMIT API, using creation object(s) we got previously.
      * @method
      * @param {Object|Array} modelCreators Model creation data which was
      *  fetched previously from the API, and later sent back to it.
@@ -947,7 +947,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.createModels = function(modelCreators, callback) {
+    HTMITAPI.prototype.createModels = function(modelCreators, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.MODELS
@@ -962,7 +962,7 @@
 
 
     /**
-     * Delete a single model via HTM-IT API, using model id.
+     * Delete a single model via HTMIT API, using model id.
      * @method
      * @param {String} Model id
      * @param {Function} [callback] function(Object error, Object results):
@@ -970,7 +970,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.deleteModel = function(modelId, callback) {
+    HTMITAPI.prototype.deleteModel = function(modelId, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.MODELS,
@@ -992,7 +992,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-     HTM-ITAPI.prototype.getNotifications = function(callback) {
+     HTMITAPI.prototype.getNotifications = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.NOTIFICATIONS
@@ -1012,7 +1012,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-     HTM-ITAPI.prototype.setNotification = function(data, callback) {
+     HTMITAPI.prototype.setNotification = function(data, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.NOTIFICATIONS
@@ -1035,7 +1035,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getNotificationHistory = function(opts, callback) {
+    HTMITAPI.prototype.getNotificationHistory = function(opts, callback) {
         if(typeof opts === 'function') {
             callback = opts;
             opts = {};
@@ -1062,7 +1062,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getSupportAccess = function(callback) {
+    HTMITAPI.prototype.getSupportAccess = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.SUPPORT
@@ -1080,7 +1080,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.removeSupportAccess = function(callback) {
+    HTMITAPI.prototype.removeSupportAccess = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.SUPPORT
@@ -1101,7 +1101,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.setSupportAccess = function(callback) {
+    HTMITAPI.prototype.setSupportAccess = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.SUPPORT
@@ -1122,7 +1122,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getUpdate = function(callback) {
+    HTMITAPI.prototype.getUpdate = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.UPDATE
@@ -1140,7 +1140,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.setUpdate = function(callback) {
+    HTMITAPI.prototype.setUpdate = function(callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.UPDATE
@@ -1162,7 +1162,7 @@
      * @public
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.sendWufooForm = function(opts, callback) {
+    HTMITAPI.prototype.sendWufooForm = function(opts, callback) {
         var url = [
                 this.opts.endPoint,
                 this.CONST.ENDPOINTS.WUFOO
@@ -1183,7 +1183,7 @@
      *  Function to run when call finishes.
      * @returns {Object} jqXHR object
      */
-    HTM-ITAPI.prototype.getAnnotations = function(opts, callback) {
+    HTMITAPI.prototype.getAnnotations = function(opts, callback) {
         if(typeof opts === 'function') {
             callback = opts;
             opts = {};
@@ -1206,15 +1206,15 @@
      **************************************************************************/
     if(typeof module !== 'undefined') {
         // Node CommonJS module
-        module.exports = HTM-ITAPI;
+        module.exports = HTMITAPI;
     }
     else if(typeof define !== 'undefined') {
         // AMD module
-        define('HTM-ITAPI', function() { return HTM-ITAPI });
+        define('HTMITAPI', function() { return HTMITAPI });
     }
     else {
         // Browser
-        window.HTM-ITAPI = HTM-ITAPI;
+        window.HTMITAPI = HTMITAPI;
     }
 
 }());

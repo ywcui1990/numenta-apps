@@ -21,7 +21,7 @@
 
 (function() {
 
-    var _site = HTM-ITUI.msgs('site'),
+    var _site = HTMITUI.msgs('site'),
 
         indexTimestamp =    _site.charts.instance.anomaly.index.timestamp,
         indexValue =        _site.charts.instance.anomaly.index.value,
@@ -31,7 +31,7 @@
     /**
      * Backbone.View() - Embed: Charts > Rows > Row (Metric Detail)
      */
-    HTM-ITUI.EmbedChartsRowMetricDetailView = HTM-ITUI.EmbedChartsRowView.extend({
+    HTMITUI.EmbedChartsRowMetricDetailView = HTMITUI.EmbedChartsRowView.extend({
 
         // Backbone.View properties
 
@@ -51,7 +51,7 @@
          * Backbone.View.initialize() METRIC row
          */
         initialize: function(options) {
-            HTM-ITUI.EmbedChartsRowView.prototype.initialize.call(this, options);
+            HTMITUI.EmbedChartsRowView.prototype.initialize.call(this, options);
 
             this.modelId = options.modelId;
 
@@ -118,7 +118,7 @@
             );
             this.chart.render();
 
-            HTM-ITUI.EmbedChartsRowView.prototype.render.call(this, options);
+            HTMITUI.EmbedChartsRowView.prototype.render.call(this, options);
             return this;
         },
 
@@ -136,7 +136,7 @@
 
             modelOutput.forEach(function(dataRow, i) {
                 outputData.push([
-                    HTM-ITUI.utils.getUTCDateFromTimestamp(dataRow[indexTimestamp]),
+                    HTMITUI.utils.getUTCDateFromTimestamp(dataRow[indexTimestamp]),
                     dataRow[indexValue]
                 ]);
             });

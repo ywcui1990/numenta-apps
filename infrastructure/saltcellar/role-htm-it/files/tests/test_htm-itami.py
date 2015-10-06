@@ -29,7 +29,7 @@ import unittest
 import agamotto
 
 
-class TestHTM-ITAMI(unittest.TestCase):
+class TestHTMITAMI(unittest.TestCase):
 
   def testMySQLCommunityRepoMustBePresent(self):
     """Confirm that the mysql community repo files are on the HTM-IT AMI."""

@@ -87,7 +87,7 @@ def _getCurrentRegion():
   if instanceDataResult is not None:
     currentRegion = instanceDataResult.text.strip()[:-1]
   else:
-    currentRegion = htm-it.app.config.get("aws", "default_region")
+    currentRegion = htm.it.app.config.get("aws", "default_region")
 
   _getCurrentRegion.currentRegion = currentRegion
   return _getCurrentRegion.currentRegion
@@ -159,11 +159,11 @@ class NotificationService(object):
   """
   def __init__(self):
     # Make sure we have the latest version of configuration
-    htm-it.app.config.loadConfig()
+    htm.it.app.config.loadConfig()
 
     self._log = getExtendedLogger(self.__class__.__name__)
     self._modelResultsExchange = (
-      htm-it.app.config.get("metric_streamer", "results_exchange_name"))
+      htm.it.app.config.get("metric_streamer", "results_exchange_name"))
 
 
   def sendNotificationEmail(self, engine, settingObj, notificationObj):
@@ -192,7 +192,7 @@ class NotificationService(object):
         ============ ===========
     """
 
-    subject = htm-it.app.config.get("notifications", "subject")
+    subject = htm.it.app.config.get("notifications", "subject")
 
     bodyType = "default"
     with engine.connect() as conn:
@@ -200,8 +200,8 @@ class NotificationService(object):
     if metricObj.datasource == "custom":
       bodyType = "custom"
 
-    body = open(resource_filename(htm-it.__name__, os.path.join("../conf",
-      htm-it.app.config.get("notifications", "body_" + bodyType)))).read()
+    body = open(resource_filename(htm.it.__name__, os.path.join("../conf",
+      htm.it.app.config.get("notifications", "body_" + bodyType)))).read()
     body = body.replace("\n", "\r\n") # Ensure windows newlines
 
     # Template variable storage (to be expanded in call to str.format())
@@ -266,7 +266,7 @@ class NotificationService(object):
       message.ack()
       return
 
-    htm-it.app.config.loadConfig() # reload config on every batch
+    htm.it.app.config.loadConfig() # reload config on every batch
     engine = repository.engineFactory()
     # Cache minimum threshold to trigger any notification to avoid permuting
     # settings x metricDataRows

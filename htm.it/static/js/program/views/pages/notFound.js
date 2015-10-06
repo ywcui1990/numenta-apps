@@ -21,11 +21,11 @@
 
 (function() {
 
-    HTM-ITUI.NotFoundView = Backbone.View.extend({
+    HTMITUI.NotFoundView = Backbone.View.extend({
 
         template: _.template($('#not-found-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('not-found-tmpl'),
+        msgs: HTMITUI.msgs('not-found-tmpl'),
 
         events: {
         },
@@ -33,7 +33,7 @@
         initialize: function(options) {
             var me = this;
 
-            HTM-ITUI.utils.title(me.msgs.title);
+            HTMITUI.utils.title(me.msgs.title);
 
             me.render();
         },
@@ -43,7 +43,7 @@
                 data = {
                     baseUrl: NTA.baseUrl,
                     msgs: me.msgs,
-                    site: HTM-ITUI.msgs('site')
+                    site: HTMITUI.msgs('site')
                 };
 
             me.$el.html(me.template(data));

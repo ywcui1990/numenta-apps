@@ -1,29 +1,29 @@
-htm-it.engine.utils package
+htm.it.engine.utils package
 =========================
 
 Submodules
 ----------
 
-htm-it.engine.utils.amqp module
+htm.it.engine.utils.amqp module
 -----------------------------
 
-.. automodule:: htm-it.engine.utils.amqp
+.. automodule:: htm.it.engine.utils.amqp
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.engine.utils.exceptions module
+htm.it.engine.utils.exceptions module
 -----------------------------------
 
-.. automodule:: htm-it.engine.utils.exceptions
+.. automodule:: htm.it.engine.utils.exceptions
     :members:
     :undoc-members:
     :show-inheritance:
 
-htm-it.engine.utils.message_bus_connector module
+htm.it.engine.utils.message_bus_connector module
 ----------------------------------------------
 
-.. automodule:: htm-it.engine.utils.message_bus_connector
+.. automodule:: htm.it.engine.utils.message_bus_connector
     :members:
     :undoc-members:
     :show-inheritance:
@@ -32,7 +32,7 @@ htm-it.engine.utils.message_bus_connector module
 Module contents
 ---------------
 
-.. automodule:: htm-it.engine.utils
+.. automodule:: htm.it.engine.utils
     :members:
     :undoc-members:
     :show-inheritance:

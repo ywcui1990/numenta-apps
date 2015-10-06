@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 """
-Updates HTM-IT release version by modifying the contents of `htm-it/__version__.py`
+Updates HTM-IT release version by modifying the contents of `htm.it/__version__.py`
 to match the specified version.  If no version specified, default to the
 results of `git describe --tags`, which will result in a version of the format
 "{tag}-{N}-{sha}", where {tag} is the most recent git tag, {N} is the number of
@@ -47,14 +47,14 @@ from nupic.support.decorators import logEntryExit
 
 
 def _getLogger():
-  return logging.getLogger("htm-it.update_release_version")
+  return logging.getLogger("htm.it.update_release_version")
 
 
 
 @logEntryExit(_getLogger, entryExitLogLevel=logging.INFO)
 def updateReleaseVersion(args):
   helpString = (
-    "This script updates HTM-IT release version in htm-it/__version__.py.\n"
+    "This script updates HTM-IT release version in htm/it/__version__.py.\n"
     "%%prog\n\n")
 
   parser = OptionParser(helpString)
@@ -76,7 +76,7 @@ def updateReleaseVersion(args):
 
   pattern = re.compile(r"__version__\s?=\s?[\'\"](.+)[\'\"]")
 
-  with open(resource_filename("htm-it", "__version__.py"), "r+") as fp:
+  with open(resource_filename("htm/it", "__version__.py"), "r+") as fp:
     lines = fp.readlines() # Read entire file into `lines`
     fp.seek(0) # Seek to beginning
     for line in lines:

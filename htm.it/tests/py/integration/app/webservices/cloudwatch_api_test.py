@@ -52,7 +52,7 @@ from htm.it import logging_support
 # which is running production releases. In case this node is replaced please
 # update testdata which new stable node details (e.g rpmbuilder etc)
 VALID_EC2_INSTANCE = {"InstanceId": "i-f52075fe",
-                      "Name": "jenkins-master.htm-itsolutions.com",
+                      "Name": "jenkins-master.groksolutions.com",
                       "Description": "Jenkin Master(Python 2.7)"}
 
 
@@ -72,7 +72,7 @@ class CWDefaultHandlerTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
   def _testGETCloudWatchImpl(self, url):
     response = self.app.get(url, headers=self.headers)
@@ -123,7 +123,7 @@ class CWNamespaceHandlerTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   @staticmethod
@@ -214,12 +214,12 @@ class CWRegionsHandlerTest(unittest.TestCase):
   """
   @classmethod
   def setUpClass(cls):
-    cls.regions = json.load(open(os.path.join(htm-it.app.HTM_IT_HOME,
+    cls.regions = json.load(open(os.path.join(htm.it.app.HTM_IT_HOME,
       "tests/py/data/app/webservices/cw_regions.json")))
 
   def setUp(self):
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
   @ManagedTempRepository("CWRegionsHandlerTest")
   def testGETListRegions(self):
@@ -300,7 +300,7 @@ class CWInstanceHandlerTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   @ManagedTempRepository("CWInstanceHandlerTest")
@@ -450,7 +450,7 @@ class CWMetricHandlerTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   @ManagedTempRepository("CWMetricHandlerTest")
@@ -566,7 +566,7 @@ class CWApiUnhapypTest(unittest.TestCase):
 
   def setUp(self):
     self.app = TestApp(cloudwatch_api.app.wsgifunc())
-    self.headers = getDefaultHTTPHeaders(htm-it.app.config)
+    self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
   def testNoAuthHeaders(self):

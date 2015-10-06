@@ -21,7 +21,7 @@
 
 (function() {
 
-    HTM-ITUI.ModalMetricListView = Backbone.View.extend({
+    HTMITUI.ModalMetricListView = Backbone.View.extend({
 
         // Backbone.View properties
 
@@ -33,8 +33,8 @@
 
         // Custom properties
 
-        msgs: HTM-ITUI.msgs('modal-metric-list-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('modal-metric-list-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         $modal: null,
 
@@ -91,8 +91,8 @@
                 id = this.instance.split('/').pop(),
                 autostackDataHandle = null;
 
-            if(this.isHTM-ITAutostack()) {
-                // Prep data - get possible HTM-IT Autostacks
+            if(this.isHTMITAutostack()) {
+                // Prep data - get possible HTMIT Autostacks
                 var htm-itAutostackNamespace =    this.data.namespaces.get('Autostacks'),
                     htm-itAutostackMetrics =      htm-itAutostackNamespace.get('metrics'),
                     awsEc2Namespace =           this.data.namespaces.get('AWS/EC2'),
@@ -101,7 +101,7 @@
                 for(var i=0; i<htm-itAutostackMetrics.length; i++) {
                     var metric = htm-itAutostackMetrics[i];
                     me.metrics[metric] = false;
-                    me.creators[metric] = new HTM-ITUI.AwsMetricModel({
+                    me.creators[metric] = new HTMITUI.AwsMetricModel({
                         metric:     metric,
                         region:     me.region,
                         namespace:  htm-itAutostackNamespace.id,
@@ -111,7 +111,7 @@
                 for(var i=0; i<awsEc2Metrics.length; i++) {
                     var metric = awsEc2Metrics[i];
                     me.metrics[metric] = false;
-                    me.creators[metric] = new HTM-ITUI.AwsMetricModel({
+                    me.creators[metric] = new HTMITUI.AwsMetricModel({
                         metric:     metric,
                         region:     me.region,
                         namespace:  awsEc2Namespace.id,
@@ -129,7 +129,7 @@
                 );
 
                 if (!matchedAutostacks.length) {
-                    return HTM-ITUI.utils.modalError("Autostack not found.");
+                    return HTMITUI.utils.modalError("Autostack not found.");
                 }
 
                 var autostack = matchedAutostacks[0];
@@ -142,7 +142,7 @@
                     autostack.get('region'),
                     autostack.get('filters'),
                     function(error, instances) {
-                        if(error) return HTM-ITUI.utils.modalError(error);
+                        if(error) return HTMITUI.utils.modalError(error);
 
                         var members = instances.map(function(instance) {
                             var name = instance.tags.Name,
@@ -155,13 +155,13 @@
                     }.bind(this)
                 );
             }
-            else if(this.isHTM-ITCustomMetric()) {
-                // Prep data - get possible HTM-IT Custom Metrics
+            else if(this.isHTMITCustomMetric()) {
+                // Prep data - get possible HTMIT Custom Metrics
                 me.region = me.site.name + ' ' + me.site.regions.htm-it.custom;
                 me.namespace = me.site.namespaces.htm-it.custom;
 
                 me.data.customs.forEach(function(metric) {
-                    // only want single current HTM-IT Custom Metric
+                    // only want single current HTMIT Custom Metric
                     if(me.name === metric.get('name')) {
                         var key = metric.get('name');
                         me.metrics[key] = false;
@@ -186,7 +186,7 @@
 
             // got all the data, now mark which metrics are "on"
             this.data.models.forEach(function(model) {
-                var instance = (this.isHTM-ITAutostack() || this.isHTM-ITCustomMetric()) ?
+                var instance = (this.isHTMITAutostack() || this.isHTMITCustomMetric()) ?
                         this.instance :
                         [ this.region, this.namespace, this.id ].join('/');
 
@@ -277,18 +277,18 @@
         // Custom methods
 
         /**
-         * Is this a HTM-IT Autostack?
+         * Is this a HTMIT Autostack?
          * @returns {boolean}
          */
-        isHTM-ITAutostack: function() {
+        isHTMITAutostack: function() {
             return this.instance.match(this.site.instances.types.autostack);
         },
 
         /**
-         * Is this a HTM-IT Custom Metric?
+         * Is this a HTMIT Custom Metric?
          * @returns {boolean}
          */
-        isHTM-ITCustomMetric: function() {
+        isHTMITCustomMetric: function() {
             return this.namespace.match(this.site.namespaces.htm-it.custom);
         },
 
@@ -310,14 +310,14 @@
                                 metric: metric
                             } : this.creators[metric].toJSON();
 
-            if(this.isHTM-ITAutostack()) {
+            if(this.isHTMITAutostack()) {
                 modelFilter = {
                     location:   this.region,
                     server:     this.instance,
                     metric:     metric
                 };
             }
-            else if(this.isHTM-ITCustomMetric()) {
+            else if(this.isHTMITCustomMetric()) {
                 modelFilter = {
                     server: metric,
                     metric: metric
@@ -336,8 +336,8 @@
             modelId = (models.length > 0) ? models[0].id : null;
 
             if(checked && (metric in me.creators)) {
-                HTM-ITUI.utils.throb.start(me.site.state.metric.start);
-                if(this.isHTM-ITAutostack()) {
+                HTMITUI.utils.throb.start(me.site.state.metric.start);
+                if(this.isHTMITAutostack()) {
                     // create autostack
                     me.api.createAutostackMetrics(
                         id,
@@ -346,7 +346,7 @@
                             namespace:  this.creators[metric].get('namespace')
                         }],
                         function(error, response) {
-                            if(error) return HTM-ITUI.utils.modalError(error);
+                            if(error) return HTMITUI.utils.modalError(error);
                             me.data.models.add({
                                 datasource: me.creators[metric].get('datasource'),
                                 location:   me.creators[metric].get('region'),
@@ -355,44 +355,44 @@
                                 id:         response.metric.uid,
                                 uid:        response.metric.uid
                             });
-                            return HTM-ITUI.utils.throb.stop();
+                            return HTMITUI.utils.throb.stop();
                         }
                     );
                 } else {
                     // create regular model
                     me.data.models.create(newModel, {
                         error: function(model, response, options) {
-                            return HTM-ITUI.utils.modalError(response);
+                            return HTMITUI.utils.modalError(response);
                         },
                         success: function(model, response, options) {
-                            return HTM-ITUI.utils.throb.stop();
+                            return HTMITUI.utils.throb.stop();
                         }
                     });
                 }
             }
             else if((! checked) && modelId) {
-                HTM-ITUI.utils.throb.start(me.site.state.metric.stop);
+                HTMITUI.utils.throb.start(me.site.state.metric.stop);
 
-                if (me.isHTM-ITAutostack()) {
+                if (me.isHTMITAutostack()) {
                     me.api.deleteAutostackMetric(id, modelId, function(error) {
-                        if(error) return HTM-ITUI.utils.modalError(error);
+                        if(error) return HTMITUI.utils.modalError(error);
                         me.data.models.remove(me.data.models.get(modelId));
                         return me.data.models.fetch({
                             error: function(model, response, options) {
-                                return HTM-ITUI.utils.modalError(response);
+                                return HTMITUI.utils.modalError(response);
                             },
                             success: function(model, response, options) {
-                                return HTM-ITUI.utils.throb.stop();
+                                return HTMITUI.utils.throb.stop();
                             }
                         });
                     });
                 } else {
                     me.data.models.get(modelId).destroy({
                         error: function(model, response, options) {
-                            return HTM-ITUI.utils.modalError(response);
+                            return HTMITUI.utils.modalError(response);
                         },
                         success: function(model, response, options) {
-                            return HTM-ITUI.utils.throb.stop();
+                            return HTMITUI.utils.throb.stop();
                         }
                     });
                 }

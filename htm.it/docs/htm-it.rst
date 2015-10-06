@@ -6,16 +6,16 @@ Subpackages
 
 .. toctree::
 
-    htm-it.app
-    htm-it.test_utils
+    htm.it.app
+    htm.it.test_utils
 
 Submodules
 ----------
 
-htm-it.HTM-ITExtendedLogger module
+htm-it.HtmItExtendedLogger module
 ------------------------------
 
-.. automodule:: htm-it.HTM-ITExtendedLogger
+.. automodule:: htm-it.HtmItExtendedLogger
     :members:
     :undoc-members:
     :show-inheritance:

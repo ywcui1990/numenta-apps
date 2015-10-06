@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-Integration tests for htm-it.app.runtime.aggregator_metric_collection
+Integration tests for htm.it.app.runtime.aggregator_metric_collection
 """
 
 # Suppress "access to protected member" warning

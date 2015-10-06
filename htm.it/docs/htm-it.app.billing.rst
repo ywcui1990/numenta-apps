@@ -1,10 +1,10 @@
-htm-it.app.billing package
+htm.it.app.billing package
 ========================
 
 Module contents
 ---------------
 
-.. automodule:: htm-it.app.billing
+.. automodule:: htm.it.app.billing
     :members:
     :undoc-members:
     :show-inheritance:

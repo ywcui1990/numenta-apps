@@ -21,12 +21,12 @@
 
 (function() {
 
-    HTM-ITUI.WelcomeView = Backbone.View.extend({
+    HTMITUI.WelcomeView = Backbone.View.extend({
 
         template: _.template($('#welcome-tmpl').html()),
 
-        msgs: HTM-ITUI.msgs('welcome-tmpl'),
-        site: HTM-ITUI.msgs('site'),
+        msgs: HTMITUI.msgs('welcome-tmpl'),
+        site: HTMITUI.msgs('site'),
 
         events: {
             'change #novice' : 'handleNoviceSelected',
@@ -38,16 +38,16 @@
             var me = this;
             me.api = options.api;
 
-            HTM-ITUI.utils.title(me.msgs.title);
+            HTMITUI.utils.title(me.msgs.title);
 
             // deactive header logo link
             $('.navbar-brand').attr('href', '#');
 
             // redirects
-            if(HTM-ITUI.utils.isAuthorized()) {
+            if(HTMITUI.utils.isAuthorized()) {
                 // logged in, and not in setup flow => manage page
-                if(! HTM-ITUI.utils.isSetupFlow()) {
-                    HTM-ITUI.utils.go(me.site.paths.manage);
+                if(! HTMITUI.utils.isSetupFlow()) {
+                    HTMITUI.utils.go(me.site.paths.manage);
                     return;
                 }
                 me.getRegions();
@@ -57,15 +57,15 @@
                 me.api.getSettings(
                     me.api.CONST.SETTINGS.SECTIONS.USERTRACK,
                     function(error, settings) {
-                        if(error) return HTM-ITUI.utils.modalError(error);
+                        if(error) return HTMITUI.utils.modalError(error);
                         if(
-                            (! HTM-ITUI.utils.isSetupFlow()) &&
+                            (! HTMITUI.utils.isSetupFlow()) &&
                             settings &&
                             ('optin' in settings) &&
                             (settings.optin !== '')
                         ) {
                             // setup already => auth page to login
-                            HTM-ITUI.utils.go(me.site.paths.auth);
+                            HTMITUI.utils.go(me.site.paths.auth);
                             return;
                         }
                         me.getRegions();
@@ -78,7 +78,7 @@
             var me = this;
 
             me.api.getRegions(function(error, regions) {
-                if(error) return HTM-ITUI.utils.modalError(error);
+                if(error) return HTMITUI.utils.modalError(error);
 
                 Object.keys(regions).forEach(function(region) {
                     regions[region] = regions[region].replace(' Region', '');
@@ -96,10 +96,10 @@
                     msgs: me.msgs,
                     button: me.site.buttons.next,
                     site: me.site,
-                    edition: HTM-ITUI.product.edition,
-                    version: HTM-ITUI.product.version,
+                    edition: HTMITUI.product.edition,
+                    version: HTMITUI.product.version,
                     regions: me.regions,
-                    currentRegion: HTM-ITUI.instanceData.region
+                    currentRegion: HTMITUI.instanceData.region
                 };
 
             me.$el.html(me.template(data));
@@ -125,14 +125,14 @@
             var expert = $("#expert").is(":checked");
 
             if (expert) {
-                HTM-ITUI.utils.go(this.site.paths.register +
+                HTMITUI.utils.go(this.site.paths.register +
                                 this.site.urltag.setup +
                                 this.site.urltag.expert);
             }
             else {
                 var region = $("#region").val();
 
-                HTM-ITUI.utils.go(this.site.paths.register +
+                HTMITUI.utils.go(this.site.paths.register +
                                 this.site.urltag.setup +
                                 this.site.urltag.region + region);
             }

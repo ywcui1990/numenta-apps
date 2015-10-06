@@ -23,7 +23,7 @@ debug_level = 0
 
 [metric_streamer]
 # Exchange to push model results
-results_exchange_name = htm-it.model.results
+results_exchange_name = htm.it.model.results
 # Max records per batch to stream to model
 chunk_size = 1440
 
@@ -59,7 +59,7 @@ metric_error_grace_period = 10800
 [metric_listener]
 # Port to listen on for plaintext protocol messages
 plaintext_port = 2003
-queue_name = htm-it.metric.custom.data
+queue_name = htm.it.metric.custom.data
 
 [security]
 apikey =

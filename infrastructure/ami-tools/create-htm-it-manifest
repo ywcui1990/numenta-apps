@@ -47,7 +47,7 @@ def parseCLA():
   """
   global g_logger
 
-  parser = argparse.ArgumentParser(description="Create a HTM-IT manifest")
+  parser = argparse.ArgumentParser(description="Create an HTMIT manifest")
 
   parser.add_argument("--set-version",
                       dest="manifestVersion",
@@ -118,9 +118,9 @@ def parseCLA():
 
 
 
-def createHTM-ITManifest():
+def createHTMITManifest():
   """
-  Create a HTM-IT Manifest file
+  Create an HTMIT Manifest file
   """
   global g_config
 
@@ -161,4 +161,4 @@ def createHTM-ITManifest():
 
 if __name__ == "__main__":
 
-  createHTM-ITManifest()
+  createHTMITManifest()

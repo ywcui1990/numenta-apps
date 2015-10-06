@@ -18,7 +18,7 @@ standard.dev.dev = 1000
 
 
 [actual]
-# Actual quota as determined and overridden dynamically by the htm-it.app.quota
+# Actual quota as determined and overridden dynamically by the htm.it.app.quota
 # module at runtime before HTM-IT services are started.
 
 instance_quota = 32
