@@ -86,7 +86,7 @@ def invokeBuild(jobName, buildParams):
                                                  buildNum)
 
 
-def invokeHTM-ITBuild(gitRemote, branch, buildSha):
+def invokeHtmItBuild(gitRemote, branch, buildSha):
   """
     TODO: Define params, flesh out implementation details, and uncomment the
     actual `invokeBuild` command
@@ -104,11 +104,11 @@ def invokeHTM-ITBuild(gitRemote, branch, buildSha):
   params = {"GIT_REMOTE": gitRemote,
             "BRANCH": branch,
             "COMMIT_SHA": buildSha}
-  invokeBuild("htm-it-product-pipeline", params)
+  invokeBuild("grok-product-pipeline", params)
   g_logger.info("Invoking HTM-IT Build")
 
 
-def invokeHTM-ITMobileBuild(gitRemote, branch, buildSha):
+def invokeHtmItMobileBuild(gitRemote, branch, buildSha):
   """
     This function invokes the Jenkins job related to HTM-IT-Mobile builds.
 
@@ -124,7 +124,7 @@ def invokeHTM-ITMobileBuild(gitRemote, branch, buildSha):
             "BRANCH": branch,
             "COMMIT_SHA": buildSha,
             "PIPELINE": "product-master-build"}
-  invokeBuild("htm-it-mobile-product-pipeline", params)
+  invokeBuild("grok-mobile-product-pipeline", params)
 
 
 def invokeTaurusBuild(gitRemote, branch, buildSha):
@@ -275,14 +275,14 @@ def main(args):
     g_logger.info("Folders with modifications: %s", rootFolders)
 
     #STEP 2: Execute the appropriate sub-pipelines as needed
-    if set(["htm-it", "htmengine", "nta.utils"]) & rootFolders:
-      invokeHTM-ITBuild(args.gitRemote, branch, currentSha)
+    if set(["htm.it", "htmengine", "nta.utils"]) & rootFolders:
+      invokeHtmItBuild(args.gitRemote, branch, currentSha)
     if (set(["taurus", "taurus.metric_collectors", "htmengine", "nta.utils"]) &
         rootFolders):
       invokeTaurusBuild(args.gitRemote, branch, currentSha)
-    if (set(["htm-it", "htmengine", "htm-it-mobile", "mobile-core", "nta.utils"]) &
+    if (set(["htm.it", "htmengine", "grok-mobile", "mobile-core", "nta.utils"]) &
         rootFolders):
-      invokeHTM-ITMobileBuild(args.gitRemote, branch, currentSha)
+      invokeHtmItMobileBuild(args.gitRemote, branch, currentSha)
     if set(["taurus", "taurus.metric_collectors", "nta.utils", "htmengine",
             "taurus-mobile", "mobile-core"]) & rootFolders:
       invokeTaurusMobileBuild(args.gitRemote, branch, currentSha)
