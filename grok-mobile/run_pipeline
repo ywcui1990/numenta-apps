@@ -50,7 +50,7 @@ from infrastructure.utilities.exceptions import (
   TestsFailed)
 
 from infrastructure.utilities.cli import runWithOutput
-from infrastructure.utilities.grok_server import (waitForGrokServerToBeReady,
+from infrastructure.utilities.htm_it_server import (waitForGrokServerToBeReady,
   getApiKey)
 from infrastructure.utilities import jenkins
 from infrastructure.utilities.diagnostics import initPipelineLogger
