@@ -59,7 +59,7 @@ def buildHtmIt(env, pipelineConfig, logger):
 
     # Setup the baseline configuration
     with changeToWorkingDir(env["HTM_IT_HOME"]):
-      runWithOutput("python setup.py configure_htm-it", env=env, logger=logger)
+      runWithOutput("python setup.py configure_htm_it", env=env, logger=logger)
   except:
     logger.exception("Unknown failure")
     raise BuildFailureException("HTM-IT building failed. Exiting.")
