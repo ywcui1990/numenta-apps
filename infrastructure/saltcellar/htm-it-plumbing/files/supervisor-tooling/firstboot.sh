@@ -56,45 +56,45 @@ else
 fi
 
 initialize_htm-it() {
-  pushd "${HTM-IT_HOME}"
+  pushd "${HTM_IT_HOME}"
     log_info "Running htm-it init"
     python setup.py init 2>&1
     if [ "$?" -ne 0 ]; then
-      die "python setup.py init failed in ${HTM-IT_HOME}"
+      die "python setup.py init failed in ${HTM_IT_HOME}"
     fi
   popd
 }
 
-set_htm-it_edition() {
+set_htm_it_edition() {
   log_info "Setting edition"
   EDITION="standard"
-  "${HTM-IT_HOME}/bin/set_edition.py" "${EDITION}"
+  "${HTM_IT_HOME}/bin/set_edition.py" "${EDITION}"
   if [ "$?" -ne 0 ]; then
     die "set_edition.py failed"
   fi
 }
 
-update_htm-it_quota() {
+update_htm_it_quota() {
   log_info "first boot: running update_quota.py"
-  "${HTM-IT_HOME}/bin/update_quota.py" 2>&1
+  "${HTM_IT_HOME}/bin/update_quota.py" 2>&1
   if [ "$?" -ne 0 ]; then
     die "update_quota.py failed"
   fi
 }
 
-log_htm-it_server_details() {
-  if [ -f "${HTM-IT_HOME}/bin/log_server_details.py" ]; then
+log_htm_it_server_details() {
+  if [ -f "${HTM_IT_HOME}/bin/log_server_details.py" ]; then
     log_info "Logging server details"
-    pushd "${HTM-IT_HOME}"
+    pushd "${HTM_IT_HOME}"
       bin/log_server_details.py 2>&1
       if [ "$?" -ne 0 ]; then
-        die "log_htm-it_server_details.py failed"
+        die "log_htm_it_server_details.py failed"
       fi
     popd
   fi
 }
 
-htm-it_postconfigure_housekeeping() {
+htm_it_postconfigure_housekeeping() {
   if [ -f "${STAMPFILE}" ]; then
     # Yes, update_quota.py is called from two places in the script. This is
     # deliberate.
@@ -103,18 +103,18 @@ htm-it_postconfigure_housekeeping() {
     # python setup.py init, so only run it here when we see the ${STAMPFILE}.
     # Otherwise, wait till after setup.py later in the script.
     log_info "running update_quota.py after first instance boot"
-    update_htm-it_quota
-    log_htm-it_server_details
+    update_htm_it_quota
+    log_htm_it_server_details
   fi
 }
 
-cd "${HTM-IT_HOME}"
+cd "${HTM_IT_HOME}"
 
 # Everything after this check is run only on the very first boot for
 # an instance.
 # We only want to run this once, on the first boot
 if [ -f "${STAMPFILE}" ]; then
-  htm-it_postconfigure_housekeeping
+  htm_it_postconfigure_housekeeping
 
   log_info "Found ${STAMPFILE}, exiting firstboot.sh"
   ls -l "${STAMPFILE}"
@@ -122,8 +122,8 @@ if [ -f "${STAMPFILE}" ]; then
 fi
 
 initialize_htm-it
-set_htm-it_edition
-update_htm-it_quota
-log_htm-it_server_details
+set_htm_it_edition
+update_htm_it_quota
+log_htm_it_server_details
 
 date > "${STAMPFILE}"

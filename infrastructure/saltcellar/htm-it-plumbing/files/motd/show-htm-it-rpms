@@ -24,8 +24,8 @@
 
 # HTM-IT data
 if [ -f /etc/htm-it/build.time ]; then
-  htm-it_ami_build_time=$(cat /etc/htm-it/build.time)
-  echo "HTM-IT AMI Build time: ${htm-it_ami_build_time}"
+  htm_it_ami_build_time=$(cat /etc/htm-it/build.time)
+  echo "HTM-IT AMI Build time: ${htm_it_ami_build_time}"
 fi
 echo
 
@@ -40,7 +40,7 @@ do
 done
 
 CENTOS_SHA_F=/etc/htm-it/centos/operations-scripts.sha
-HTM-IT_SHA_F=/opt/numenta/products/htm-it/static/htm-it.sha
+HTM_IT_SHA_F=/opt/numenta/products/htm-it/static/htm-it.sha
 NUPIC_SHA_F=/opt/numenta/nupic/nupic.build.sa
 
 echo
@@ -50,8 +50,8 @@ if [ -f "${CENTOS_SHA_F}" ]; then
   echo " centos: $(cat ${CENTOS_SHA_F})"
 fi
 
-if [ -f "${HTM-IT_SHA_F}" ]; then
-  echo "   htm-it: $(cat ${HTM-IT_SHA_F})"
+if [ -f "${HTM_IT_SHA_F}" ]; then
+  echo "   htm-it: $(cat ${HTM_IT_SHA_F})"
 fi
 
 if [ -f "${NUPIC_SHA_F}" ]; then

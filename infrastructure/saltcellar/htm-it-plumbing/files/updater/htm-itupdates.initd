@@ -33,7 +33,7 @@ if [ $(/usr/bin/id -u) -ne 0 ]; then
     exit 1
 fi
 
-HTM-IT_FINGERPRINT_FILE=/etc/htm-it/fingerprint.txt
+HTM_IT_FINGERPRINT_FILE=/etc/htm-it/fingerprint.txt
 
 # Source init functions
 source /etc/rc.d/init.d/functions
@@ -44,7 +44,7 @@ export PATH="${NUMENTA}/anaconda/bin:/bin:/usr/bin:/usr/sbin:/sbin:/usr/local/sb
 start()
 {
   gs-check-for-updates | logger -t "htm-it-updates-boot-check"
-  show-htm-it-info > "${HTM-IT_FINGERPRINT_FILE}"
+  show-htm-it-info > "${HTM_IT_FINGERPRINT_FILE}"
 }
 
 case "${1}" in
