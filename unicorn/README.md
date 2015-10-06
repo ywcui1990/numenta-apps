@@ -376,9 +376,10 @@ NEED `npm run blah` examples here! @TODO
 
 ## @TODO
 
-* Gulp/Webpack config settings for loading differing bundle/code for
-  Desktop or Browser. Split build sources and targets for certain dirs?
-  Sync with recent `nconf` work. Also new Electron/Node4 doesn't need babel.
+* Spread global config around! `nconf` work.
+* New Electron/Node4 doesn't need babel bundle anymore!?.
+* Brev add unit tests for DB Client/Server code, etc.
+* Brev Electron integration test skeleton
 * Add in Flow type checking
 * i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
 * Document where are imports=>requires handled? Babel/Webpack?
