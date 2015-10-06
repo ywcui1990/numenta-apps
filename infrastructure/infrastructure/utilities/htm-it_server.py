@@ -185,16 +185,16 @@ def getApiKey(instanceId, publicDnsName, config, logger):
   for _ in xrange(HTM_IT_AWS_CREDENTIALS_SETUP_TRIES):
     logger.debug("Trying to setup HTM-IT AWS Credentials.")
     try:
-      HtmItApiKey = setupHTM-ITAWSCredentials(publicDnsName, config)
+      htm-itApiKey = setupHTM-ITAWSCredentials(publicDnsName, config)
     except (HTM-ITConfigError, AttributeError):
       # We want to retry this, so just keep going on a HTM-ITConfigError or
       # AttributeError (which probably indicates that the response was empty)
       pass
-    if HtmItApiKey:
-      logger.info("HTM-IT API Key: %s" % HtmItApiKey)
+    if htm-itApiKey:
+      logger.info("HTM-IT API Key: %s" % htm-itApiKey)
       break
     sleep(SLEEP_DELAY)
   else:
     raise HTM-ITConfigError("Failed to get API Key for instance %s" %
                           instanceId)
-  return HtmItApiKey
+  return htm-itApiKey
