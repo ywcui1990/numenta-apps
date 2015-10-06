@@ -51,15 +51,15 @@ def checkHTMITServicesStatus(logger):
   """
   cmd = ("source /etc/htm-it/supervisord.vars && "
          "supervisorctl -c /opt/numenta/htm.it/conf/supervisord.conf status")
-  htm-itServicesState = run(cmd)
+  htmItServicesState = run(cmd)
 
-  for service in htm-itServicesState.split("\r\n"):
+  for service in htmItServicesState.split("\r\n"):
     if set(["FATAL", "EXITED"]) & set(service.split(" ")):
       raise InstanceLaunchError("Some HTM-IT services failed to start:\r\n%s" %
-                                htm-itServicesState.stdout)
+                                htmItServicesState.stdout)
     elif set(["STOPPED", "STARTING", "UNKNOWN"]) & set(service.split(" ")):
       logger.debug("Some HTM-IT services are not yet ready: \r\n %s" %
-                   htm-itServicesState.stdout)
+                   htmItServicesState.stdout)
       break
   else:
     return True
@@ -113,7 +113,7 @@ def waitForHtmItServerToBeReady(publicDnsName, serverKey, user, logger):
     :raises infrastructure.utilities.exceptions.InstanceLaunchError:
       If a HTM-IT service fails to startup.
   """
-  nginx = htm-itServices = False
+  nginx = htmItServices = False
   with settings(host_string = publicDnsName,
                 key_filename = serverKey, user = user,
                 connection_attempts = 30, warn_only = True):
@@ -121,13 +121,13 @@ def waitForHtmItServerToBeReady(publicDnsName, serverKey, user, logger):
       logger.info("Checking to see if nginx and HTM-IT Services are running")
       try:
         nginx = checkNginxStatus(logger)
-        htm-itServices = checkHTMITServicesStatus(logger)
+        htmItServices = checkHTMITServicesStatus(logger)
       except EOFError:
         # If SSH hasn't started completely on the remote system, we may get an
         # EOFError trying to provide a password for the user. Instead, just log
         # a warning and continue to retry
         logger.warning("SSH hasn't started completely on the remote machine")
-      if nginx and htm-itServices:
+      if nginx and htmItServices:
         break
       sleep(SLEEP_DELAY)
     else:
