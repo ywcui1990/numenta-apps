@@ -25,8 +25,8 @@
 # Do `rake -T` to see what AMI configurations are available.
 
 CENTOS6_CONFIG="ami-configurations/centos6.json"
-GROK_PIPELINE_CONFIG="ami-configurations/grok-pipeline.json"
-GROK_PLUMBING_CONFIG="ami-configurations/grok-plumbing.json"
+HTM-IT_PIPELINE_CONFIG="ami-configurations/htm-it-pipeline.json"
+HTM-IT_PLUMBING_CONFIG="ami-configurations/htm-it-plumbing.json"
 INFRASTRUCTURE_256GB_CONFIG="ami-configurations/infrastructure-base-256gb.json"
 INFRASTRUCTURE_CONFIG="ami-configurations/infrastructure-base.json"
 WEB_CONFIG="ami-configurations/salt-webserver.json"
@@ -44,19 +44,19 @@ end
 # task aliases
 task :clean => [:cleanup]
 task :default => [:help]
-task :grok => [:bake_grok_pipeline]
+task :htm-it => [:bake_htm-it_pipeline]
 task :h => [:help]
 task :i => [:bake_infrastructure]
 task :inf128 => [:bake_infrastructure_128gb]
-task :plumbing => [:bake_grok_plumbing]
+task :plumbing => [:bake_htm-it_plumbing]
 task :webserver => [:bake_webserver]
 
 # Validation section
 
 desc "Validate all packer configuration files"
 task :validate_all => [:validate_centos6,
-                       :validate_grok_pipeline,
-                       :validate_grok_plumbing,
+                       :validate_htm-it_pipeline,
+                       :validate_htm-it_plumbing,
                        :validate_infrastructure,
                        :validate_webserver]
 
@@ -67,24 +67,24 @@ task :validate_centos6 => [:products_sha,
   sh %{ packer validate #{CENTOS6_CONFIG} }
 end
 
-desc "Validate Grok Pipeline configuration"
-task :validate_grok_pipeline => [:products_sha,
-                                 :grok_repos,
+desc "Validate HTM-IT Pipeline configuration"
+task :validate_htm-it_pipeline => [:products_sha,
+                                 :htm-it_repos,
                                  :yum_plugin] do
-  sh %{ packer validate #{GROK_PIPELINE_CONFIG} }
+  sh %{ packer validate #{HTM-IT_PIPELINE_CONFIG} }
 end
 
-desc "Validate Grok Plumbing configuration"
-task :validate_grok_plumbing => [:products_sha,
+desc "Validate HTM-IT Plumbing configuration"
+task :validate_htm-it_plumbing => [:products_sha,
                                  :salt_bootstrap,
-                                 :grok_repos,
+                                 :htm-it_repos,
                                  :yum_plugin] do
-  sh %{ packer validate #{GROK_PLUMBING_CONFIG} }
+  sh %{ packer validate #{HTM-IT_PLUMBING_CONFIG} }
 end
 
 desc "Validate Infrastructure configuration"
 task :validate_infrastructure => [:products_sha,
-                                  :grok_repos,
+                                  :htm-it_repos,
                                   :infrastructure_minion_id,
                                   :salt_bootstrap,
                                   :yum_plugin] do
@@ -93,7 +93,7 @@ end
 
 desc "Validate Infrastructure 256GB configuration"
 task :validate_infrastructure_256gb => [:products_sha,
-                                        :grok_repos,
+                                        :htm-it_repos,
                                         :salt_bootstrap,
                                         :yum_plugin] do
   sh %{ packer validate #{INFRASTRUCTURE_256GB_CONFIG} }
@@ -116,24 +116,24 @@ task :bake_centos6 => [:products_sha,
 end
 
 # This task takes two parameters from the environment, which are passed from
-# the grok-pipeline to the ami-pipeline
-desc "Bake a new Grok Pipeline AMI"
-task :bake_grok_pipeline => [:products_sha,
+# the htm-it-pipeline to the ami-pipeline
+desc "Bake a new HTM-IT Pipeline AMI"
+task :bake_htm-it_pipeline => [:products_sha,
                              :yum_plugin,
                              :epel_repo,
-                             :grok_repos,
-                             :validate_grok_pipeline ] do
-  sh %{ packer build -var 'ami_name=#{ENV["AMI_NAME"]}' #{GROK_PIPELINE_CONFIG} }
+                             :htm-it_repos,
+                             :validate_htm-it_pipeline ] do
+  sh %{ packer build -var 'ami_name=#{ENV["AMI_NAME"]}' #{HTM-IT_PIPELINE_CONFIG} }
 end
 
-desc "Bake a new Grok Plumbing AMI"
-task :bake_grok_plumbing => [:products_sha,
+desc "Bake a new HTM-IT Plumbing AMI"
+task :bake_htm-it_plumbing => [:products_sha,
                              :yum_plugin,
                              :epel_repo,
-                             :grok_repos,
+                             :htm-it_repos,
                              :salt_bootstrap,
-                             :validate_grok_plumbing ] do
-  sh %{ packer build #{GROK_PLUMBING_CONFIG} }
+                             :validate_htm-it_plumbing ] do
+  sh %{ packer build #{HTM-IT_PLUMBING_CONFIG} }
 end
 
 task :revoke_infrastructure_bake_id do
@@ -148,7 +148,7 @@ end
 
 desc "Bake a new Infrastructure AMI"
 task :bake_infrastructure => [:devtools_repo,
-                              :grok_repos,
+                              :htm-it_repos,
                               :infrastructure_minion_id,
                               :products_sha,
                               :salt_bootstrap,
@@ -163,7 +163,7 @@ end
 
 desc "Bake a new 256GB Infrastructure AMI"
 task :bake_infrastructure_256gb => [:devtools_repo,
-                                    :grok_repos,
+                                    :htm-it_repos,
                                     :infrastructure_minion_id,
                                     :products_sha,
                                     :salt_bootstrap,
@@ -274,11 +274,11 @@ task :secretsauce_repo do
   end
 end
 
-# Copy the grok repos from the saltcellar so we aren't maintaining them
+# Copy the htm-it repos from the saltcellar so we aren't maintaining them
 # in two places.
-desc "Copy the grok repos from the saltcellar"
-task :grok_repos do
-  sh %{ rsync ../saltcellar/grok-plumbing/files/repos/grok*repo repos }
+desc "Copy the htm-it repos from the saltcellar"
+task :htm-it_repos do
+  sh %{ rsync ../saltcellar/htm-it-plumbing/files/repos/htm-it*repo repos }
 end
 
 # Make saltcellar tarball

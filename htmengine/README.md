@@ -519,7 +519,7 @@ With MySQL already started start/restart RabbitMQ:
 `rabbitmq-server -detached`
 
 Setup the htmengine MySQL database:
-(don't do this if you're testing on Grok, Taurus, or another HTMEngine application)
+(don't do this if you're testing on HTM-IT, Taurus, or another HTMEngine application)
 `./tests/support/skeleton-app/reset_db.py`
 
 Start `supervisord`:
