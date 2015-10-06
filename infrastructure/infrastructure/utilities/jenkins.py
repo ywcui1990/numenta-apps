@@ -34,11 +34,6 @@ from infrastructure.utilities.path import mkdirp
 
 
 
-XUNIT_TEST_RESULTS_FILE_PATH = ("/opt/numenta/htm-it/tests/results/py2/xunit"
-                                "/jenkins/results.xml")
-
-
-
 def getTestResult(filename):
   """
     Get output by reading filename
