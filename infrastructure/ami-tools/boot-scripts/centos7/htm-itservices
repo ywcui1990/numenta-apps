@@ -83,7 +83,7 @@ start()
   syslog-rabbit-status
   echo -n "Starting ${prog}: "
   logger -t htm-itservices "start()"
-  cd "${HTM_IT_HOME}"
+  cd "${HTM-IT_HOME}"
   su centos -c "${supervisor_helper} start"
   echo
   kill_preload
@@ -95,7 +95,7 @@ stop()
   syslog-rabbit-status
   echo -n "Shutting down ${prog}: "
   logger -t htm-itservices "stop()"
-  cd "${HTM_IT_HOME}"
+  cd "${HTM-IT_HOME}"
   su centos -c "${supervisor_helper} stop"
   /etc/init.d/htm-it-preload htm-it-stopped
   echo
@@ -111,7 +111,7 @@ status()
   syslog-rabbit-status
   echo -n "Status of ${prog}: "
   logger -t htm-itservices "status()"
-  cd "${HTM_IT_HOME}"
+  cd "${HTM-IT_HOME}"
   su centos -c "${supervisor_helper} status"
   echo
 }
@@ -122,7 +122,7 @@ restart()
   run-rootboot-helper
   echo -n "Restarting ${prog}: "
   logger -t htm-itservices "restart()"
-  cd "${HTM_IT_HOME}"
+  cd "${HTM-IT_HOME}"
   su centos -c "${supervisor_helper} restart"
   /etc/init.d/htm-it-preload restart-htm-it
   echo
@@ -138,7 +138,7 @@ tickle()
   if [ -f "${FIRSTBOOT_RECEIPT}" ]; then
     echo -n "Tickling $prog: "
     logger -t htm-itservices "tickle()"
-    cd "${HTM_IT_HOME}"
+    cd "${HTM-IT_HOME}"
     su centos -c "${supervisor_helper} tickle"
   else
     echo "skipping tickle; firtboot hasn't run."

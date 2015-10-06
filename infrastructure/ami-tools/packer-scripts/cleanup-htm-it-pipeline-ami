@@ -31,10 +31,10 @@ source /etc/htm-it/supervisord.vars
 
 NUMENTA_D=/opt/numenta
 PRODUCTS_D="${NUMENTA_D}/products"
-HTM_IT_HOME="${PRODUCTS_D}/htm-it"
+HTM-IT_HOME="${PRODUCTS_D}/htm-it"
 
-CONF_D="${HTM_IT_HOME}/conf"
-UPDATERS_D="${HTM_IT_HOME}/bin/updaters"
+CONF_D="${HTM-IT_HOME}/conf"
+UPDATERS_D="${HTM-IT_HOME}/bin/updaters"
 RECEIPTS_D=/etc/htm-it/updater_statuses
 
 get_password(){
@@ -75,9 +75,9 @@ reset_mysql_and_rabbit_passwords() {
   rm -f /etc/htm-it/mysql_password /etc/htm-it/rabbit_password
 }
 
-cleanup_htm_it_conf_files(){
+cleanup_htm-it_conf_files(){
   echo "Cleaning up application conf files"
-  pushd "${HTM_IT_HOME}/conf"
+  pushd "${HTM-IT_HOME}/conf"
     for file in *.tpl
     do
       conf=${file%.*}.conf
@@ -99,7 +99,7 @@ confirm_authorized_keys_removal(){
   find /root -iname '*.pub' -print
 }
 
-cleanup_htm_it_logfiles() {
+cleanup_htm-it_logfiles() {
   echo "**********"
   echo "Cleaning rabbit logs"
   rm -frv "${NUMENTA_D}"/logs/rabbitmq/*
@@ -114,7 +114,7 @@ cleanup_htm_it_logfiles() {
 
   echo "**********"
   echo "Clearing htm-it uuid"
-  rm -vf "${CONF_D}/.htm_it_id"
+  rm -vf "${CONF_D}/.htm-it_id"
 
   # Fix MER-2120
   if [ -d "${UPDATERS_D}" ]; then
@@ -133,12 +133,12 @@ echo "Resetting mysql and rabbitmq passwords to default"
 reset_mysql_and_rabbit_passwords
 
 echo "Running python setup init for HTM-IT application cleanup"
-pushd "${HTM_IT_HOME}"
+pushd "${HTM-IT_HOME}"
   python setup.py init
 popd
 
-cleanup_htm_it_conf_files
-cleanup_htm_it_logfiles
+cleanup_htm-it_conf_files
+cleanup_htm-it_logfiles
 
 confirm_authorized_keys_removal
 

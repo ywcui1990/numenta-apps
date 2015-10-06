@@ -64,7 +64,7 @@ def prepareEnv(workspace, nupicBuildDir=None, environ=None):
         "BUILD_WORKSPACE": "path/to/workspace",
         "REPOSITORY": "path/to/nupic/repository",
         "PY_VERSION": "python version",
-        "HTM_IT_HOME": "path/to/htm-it/home",
+        "HTM-IT_HOME": "path/to/htm-it/home",
         "NUPIC": "/path/to/nupic",
         "NTA": "/path/to/nupic/build/release",
         "PATH": "path/to/nupic/build/release/bin",
@@ -86,7 +86,7 @@ def prepareEnv(workspace, nupicBuildDir=None, environ=None):
     REPOSITORY=os.path.join(nupicBuildDir or workspace, "nupic"),
     PY_VERSION=sys.version[:3],
     PRODUCTS=os.path.join(workspace, "numenta-apps"),
-    HTM_IT_HOME=os.path.join(workspace, "numenta-apps", "htm-it")
+    HTM-IT_HOME=os.path.join(workspace, "numenta-apps", "htm-it")
   )
 
   env.update(
@@ -104,7 +104,7 @@ def prepareEnv(workspace, nupicBuildDir=None, environ=None):
                                                     environ.get("PYTHONPATH")),
     NTA_ROOT_DIR=env["NTA"],
     NTA_DATA_PATH=os.path.join(env["NTA"], "share/prediction/data"),
-    APPLICATION_CONFIG_PATH=os.path.join(env["HTM_IT_HOME"], "conf")
+    APPLICATION_CONFIG_PATH=os.path.join(env["HTM-IT_HOME"], "conf")
   )
 
   env.update(
@@ -112,8 +112,8 @@ def prepareEnv(workspace, nupicBuildDir=None, environ=None):
   )
 
   env.update(
-    PATH=prependPath(os.path.join(env["HTM_IT_HOME"], "bin"), env["PATH"]),
-    PYTHONPATH=prependPath(os.path.join(env["HTM_IT_HOME"],
+    PATH=prependPath(os.path.join(env["HTM-IT_HOME"], "bin"), env["PATH"]),
+    PYTHONPATH=prependPath(os.path.join(env["HTM-IT_HOME"],
                            "lib/python%s/site-packages" % env["PY_VERSION"]),
                            env["PYTHONPATH"])
   )

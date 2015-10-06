@@ -57,7 +57,7 @@ else
   die "Could not load supervisord.vars"
 fi
 
-${HTM_IT_HOME:?"You must set the HTM_IT_HOME env var"}
+${HTM-IT_HOME:?"You must set the HTM-IT_HOME env var"}
 
 setup_logdirs() {
   # setup logdir if missing

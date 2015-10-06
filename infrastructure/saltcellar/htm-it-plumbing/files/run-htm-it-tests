@@ -23,8 +23,8 @@
 # Run the htm-it tests and write the results into static/doublesecretprobation
 # so we can read the results remotely.
 
-HTM_IT_HOME=/opt/numenta/htm-it
-SECRET_D="${HTM_IT_HOME}/static/doublesecretprobation"
+HTM-IT_HOME=/opt/numenta/htm-it
+SECRET_D="${HTM-IT_HOME}/static/doublesecretprobation"
 TEST_RESULTS="${SECRET_D}/test_results.txt"
 AMI_TEST_RESULTS="${SECRET_D}/ami_test_results.txt"
 
@@ -40,6 +40,6 @@ source /etc/htm-it/supervisord.vars
 
 mkdir -p "${SECRET_D}"
 
-cd "${HTM_IT_HOME}"
-"${HTM_IT_HOME}/run_tests.sh" -l py > "${TEST_RESULTS}"
-"${HTM_IT_HOME}/run_tests.sh" -l py --ami > "${AMI_TEST_RESULTS}"
+cd "${HTM-IT_HOME}"
+"${HTM-IT_HOME}/run_tests.sh" -l py > "${TEST_RESULTS}"
+"${HTM-IT_HOME}/run_tests.sh" -l py --ami > "${AMI_TEST_RESULTS}"

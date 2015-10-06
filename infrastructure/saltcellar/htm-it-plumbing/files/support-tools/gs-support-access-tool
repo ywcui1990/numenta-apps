@@ -38,7 +38,7 @@ SUPPORT_KEYDIR=/etc/htm-it/sshkeys.d
 
 CUSTOMER_EC2USER_PUBKEYS="${SAVED_KEYS_D}/ec2-user.authorized_keys"
 CUSTOMER_ROOT_PUBKEYS="${SAVED_KEYS_D}/root.authorized_keys"
-HTM_IT_SUPPORT_PUBKEYS=/etc/htm-it/support_ssh_keys
+HTM-IT_SUPPORT_PUBKEYS=/etc/htm-it/support_ssh_keys
 
 EC2USER_AUTHFILE=/home/ec2-user/.ssh/authorized_keys
 ROOT_AUTHFILE=/root/.ssh/authorized_keys
@@ -106,7 +106,7 @@ function perform_sanity_check() {
 
 # Download the htm-it support keys from S3, but only if user has enabled
 # remote support
-function create_htm_it_keylist() {
+function create_htm-it_keylist() {
   if [ -f "${SUPPORT_ENABLE_FLAG}" ]; then
     echo "Preparing HTM-IT support keys for import..."
     TMPFILE=$(mktemp --tmpdir GetSSSHsupportkeys.XXXXX)
@@ -119,8 +119,8 @@ function create_htm_it_keylist() {
     fi
     # Only actually do the replacement if there is something in there
     if [ -s "${TMPFILE}" ]; then
-      cat "${TMPFILE}" > "${HTM_IT_SUPPORT_PUBKEYS}"
-      chmod 644 "${HTM_IT_SUPPORT_PUBKEYS}"
+      cat "${TMPFILE}" > "${HTM-IT_SUPPORT_PUBKEYS}"
+      chmod 644 "${HTM-IT_SUPPORT_PUBKEYS}"
     fi
     rm -rf "${TMPFILE}"
   fi
@@ -135,7 +135,7 @@ function update_ec2user_keys() {
   # If support is enabled, add those keys to the the list of allowed keys
   if [ -f "${SUPPORT_ENABLE_FLAG}" ]; then
     echo "Enabling support access"
-    cat "${HTM_IT_SUPPORT_PUBKEYS}" >> "${TEMPKEYS}"
+    cat "${HTM-IT_SUPPORT_PUBKEYS}" >> "${TEMPKEYS}"
   fi
 
   # Check to see if we need to bother replacing the authorized_keys file
@@ -160,7 +160,7 @@ function update_root_keys() {
   # If support is enabled, add those keys to the the list of allowed keys
   if [ -f "${SUPPORT_ENABLE_FLAG}" ]; then
     echo "Enabling support access"
-    cat "${HTM_IT_SUPPORT_PUBKEYS}" >> "${TEMPKEYS}"
+    cat "${HTM-IT_SUPPORT_PUBKEYS}" >> "${TEMPKEYS}"
   fi
 
   # Check to see if we need to bother replacing the authorized_keys file
@@ -179,13 +179,13 @@ function update_root_keys() {
 # Don't leave the support keys lying around. We want to always get the latest
 # version of the keylist when a user enables support access.
 function purge_support_key_file() {
-  rm -f "${HTM_IT_SUPPORT_PUBKEYS}"
+  rm -f "${HTM-IT_SUPPORT_PUBKEYS}"
 }
 
 echo "Starting pubkey management"
 reload_keys_from_AWS
 perform_sanity_check
-create_htm_it_keylist
+create_htm-it_keylist
 update_ec2user_keys
 update_root_keys
 purge_support_key_file

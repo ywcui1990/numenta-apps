@@ -9,7 +9,7 @@
 
 ## Usage
 
-`rake bake_htm_it_plumbing` - Generate a HTM-IT Plumbing AMI candidate (HVM, 32GB)
+`rake bake_htm-it_plumbing` - Generate a HTM-IT Plumbing AMI candidate (HVM, 32GB)
 `rake bake_webserver` - Generate a webserver AMI candidate (HVM, 32GB)
 
 ## Notes:

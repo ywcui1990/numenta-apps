@@ -70,7 +70,7 @@ fi
 start()
 {
   echo -n "Starting ${prog}: "
-  cd "${HTM_IT_HOME}"
+  cd "${HTM-IT_HOME}"
   ${prog_bin} -c conf/supervisord.conf
   echo
 }
@@ -78,7 +78,7 @@ start()
 stop()
 {
   echo -n "Shutting down ${prog}: "
-  cd "${HTM_IT_HOME}"
+  cd "${HTM-IT_HOME}"
   "${exec_prefix}/bin/supervisorctl" -c conf/supervisord.conf shutdown
   echo
 }
@@ -86,7 +86,7 @@ stop()
 status()
 {
   echo -n "Restarting ${prog}: "
-  cd "${HTM_IT_HOME}"
+  cd "${HTM-IT_HOME}"
   "${exec_prefix}/bin/supervisorctl" -c conf/supervisord.conf status
   echo
 }
@@ -94,7 +94,7 @@ status()
 restart()
 {
   echo -n "Restarting ${prog}: "
-  cd "${HTM_IT_HOME}"
+  cd "${HTM-IT_HOME}"
   "${exec_prefix}/bin/supervisorctl" -c conf/supervisord.conf restart all
   echo
 }
@@ -103,7 +103,7 @@ tickle()
 {
   if [ -f "${FIRSTBOOT_RECEIPT}" ]; then
     echo -n "Tickling ${prog}: "
-    cd "${HTM_IT_HOME}"
+    cd "${HTM-IT_HOME}"
     "${exec_prefix}/bin/supervisorctl" -c conf/supervisord.conf start all
   else
     echo "Skipping tickle, firstboot hasn't run"
