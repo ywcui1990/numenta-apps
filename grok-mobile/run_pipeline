@@ -339,8 +339,8 @@ def main(args):
 
     serverKey = os.path.join("~", ".ssh", g_config["KEY"] + ".pem")
 
-    waitForGrokServerToBeReady(publicDnsName, serverKey, g_config["USER"],
-                               logger)
+    waitForHtmItServerToBeReady(publicDnsName, serverKey, g_config["USER"],
+                                logger)
     apiKey = args.apiKey or getApiKey(instanceId, publicDnsName, awsConfig,
                                       logger)
     logEmulatorStatus(logger)
