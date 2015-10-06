@@ -22,7 +22,7 @@
 from time import sleep
 
 from fabric.api import run, settings
-from htm-itcli.api import HTM-ITSession
+from grokcli.api import HTM-ITSession
 
 from infrastructure.utilities.exceptions import (
   HTM-ITConfigError,

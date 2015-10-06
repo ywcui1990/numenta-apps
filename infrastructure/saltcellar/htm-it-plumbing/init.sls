@@ -120,10 +120,10 @@ disable-salt-cronjob:
 numenta-infrastructure-python:
   pkg.latest
 
-# We'll need htm-itcli
-anaconda-htm-itcli:
+# We'll need grokcli
+anaconda-grokcli:
   pip.installed:
-    - name: htm-itcli >= 1.1.1
+    - name: grokcli >= 1.1.1
     - bin_env: /opt/numenta/anaconda/bin/pip
     - watch_in:
       - cmd: enforce-anaconda-permissions
