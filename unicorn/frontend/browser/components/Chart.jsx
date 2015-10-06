@@ -58,7 +58,7 @@ export default class Chart extends React.Component {
     this._dygraph = null;
 
     // Chart Range finder value: For Fixed-width-chart & auto-scroll-to-right
-    this._chartXrange = 200;  // static 200 datapoints
+    this._chartXrange = null;
   }
 
   componentDidMount() {
@@ -66,6 +66,8 @@ export default class Chart extends React.Component {
     if (this.props.data.length) {
       this._dygraph = new Dygraph(el, this.props.data, this.props.options);
     }
+
+    this._chartXrange = 200;  // static 200 datapoints
   }
 
   componentWillUnmount() {
@@ -83,6 +85,7 @@ export default class Chart extends React.Component {
       // fix X-width of graph view (don't grow visually with new data)
       let [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
       let rangeDateWindow = [(graphXmax - this._chartXrange), graphXmax];
+      // update chart
       let options = {
         file: this.props.data,
         dateWindow: rangeDateWindow
