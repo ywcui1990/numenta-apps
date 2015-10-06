@@ -58,8 +58,7 @@ export default class Chart extends React.Component {
     this._dygraph = null;
 
     // Chart Range finder value: For Fixed-width-chart & auto-scroll-to-right
-    this._chartXrange = 200;  // static 200px
-    // this._chartXrange = Math.floor((graphXmax - graphXmin) * 0.2); // dynamic
+    this._chartXrange = 200;  // static 200 datapoints
   }
 
   componentDidMount() {
