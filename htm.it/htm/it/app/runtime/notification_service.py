@@ -200,7 +200,7 @@ class NotificationService(object):
     if metricObj.datasource == "custom":
       bodyType = "custom"
 
-    body = open(resource_filename(htm.it.__name__, os.path.join("../conf",
+    body = open(resource_filename(htm.it.__name__, os.path.join("../../conf",
       htm.it.app.config.get("notifications", "body_" + bodyType)))).read()
     body = body.replace("\n", "\r\n") # Ensure windows newlines
 

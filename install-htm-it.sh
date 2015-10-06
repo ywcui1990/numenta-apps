@@ -31,4 +31,4 @@ function install {
 install nta.utils $1 $2
 install htmengine $1 $2
 install infrastructure $1 $2
-install htm-it $1 $2
+install htm.it $1 $2

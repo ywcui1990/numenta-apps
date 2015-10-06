@@ -19,10 +19,10 @@ from setuptools import find_packages
 
 version = {}
 
-if os.path.exists("htm-it/__version__.py"):
-  execfile("htm-it/__version__.py", {}, version)
+if os.path.exists("htm/it/__version__.py"):
+  execfile("htm/it/__version__.py", {}, version)
 else:
-  exec(marshal.loads(open("htm-it/__init__.pyc").read()[8:]), {}, version)
+  exec(marshal.loads(open("htm/it/__init__.pyc").read()[8:]), {}, version)
 
 setup_requirements = ["PyYAML", "psutil"]
 install_requirements = []
@@ -44,7 +44,7 @@ setup(
   dependency_links=dependency_links,
   install_requires=install_requirements,
   setup_requires=setup_requirements,
-  name="htm-it",
+  name="htm.it",
   packages=find_packages(),
   include_package_data=True,
   version=version["__version__"]
@@ -55,14 +55,14 @@ HTM_IT_HOME = os.path.abspath(os.path.dirname(__file__))
 
 
 def getOrCreateHTMITId():
-  htm-itIdPath = "%s/conf/.htm_it_id" % HTM_IT_HOME
-  if os.path.exists(htm-itIdPath):
-    with open(htm-itIdPath, "r") as htm-itIdFile:
-      return htm-itIdFile.read()
+  htmItIdPath = "%s/conf/.htm_it_id" % HTM_IT_HOME
+  if os.path.exists(htmItIdPath):
+    with open(htmItIdPath, "r") as htmItIdFile:
+      return htmItIdFile.read()
   else:
     newHTMITId = uuid.uuid4().hex
-    with open(htm-itIdPath, "w") as htm-itIdFile:
-      htm-itIdFile.write(newHTMITId)
+    with open(htmItIdPath, "w") as htmItIdFile:
+      htmItIdFile.write(newHTMITId)
     return newHTMITId
 
 
@@ -109,7 +109,7 @@ data.update(os.environ)
             "product configration files"),
       metavar="FILE")
   ])
-def configure_htm-it(options):
+def configure_htm_it(options):
   """ Initialize HTM-IT's baseline and long-lasting ("override") configuration
   objects
   NOTE: called by jenkins-ec2 / jenkins-ci / src / run_pipeline.py
@@ -233,7 +233,7 @@ def configure_supervisord(options):
 
 
 @task
-def init_htm-itdb():
+def init_htm_itdb():
   """ Initialize HTM-IT database """
   if "APPLICATION_CONFIG_PATH" not in os.environ:
     os.environ["APPLICATION_CONFIG_PATH"] = data["APPLICATION_CONFIG_PATH"]
@@ -266,7 +266,7 @@ def clean_rabbitmq():
 
   # Delete queues individually
   for queue in json.loads(result):
-    if (queue["name"].startswith("htm-it.") or
+    if (queue["name"].startswith("htm.it.") or
         queue["name"] == "notifications"):
 
       subprocess.check_call(["rabbitmqadmin",
@@ -288,7 +288,7 @@ def clean_rabbitmq():
 
   # Delete exchanges individually
   for exchange in json.loads(result):
-    if exchange["name"].startswith("htm-it."):
+    if exchange["name"].startswith("htm.it."):
       subprocess.check_call(["rabbitmqadmin",
                              "--username=%s" % rabbitmq_user,
                              "--password=%s" % rabbitmq_password,
@@ -322,7 +322,7 @@ def init():
   """Perform all necessary initialization."""
   call_task("configure_supervisord", options={"target": SD_CONFIG_FILE})
   call_task("configure_nginx", options={"target": NGINX_CONFIG_FILE})
-  call_task("configure_htm-it", options={"target": APPLICATION_CONFIG_PATH})
-  call_task("init_htm-itdb")
+  call_task("configure_htm_it", options={"target": APPLICATION_CONFIG_PATH})
+  call_task("init_htm_itdb")
   call_task("clean_rabbitmq")
   call_task("clean_checkpoints")

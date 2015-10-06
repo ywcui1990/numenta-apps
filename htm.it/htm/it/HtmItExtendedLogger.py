@@ -53,7 +53,7 @@ class HtmItExtendedLogger(ExtendedLogger):
         cls.cached_htm_it_update_epoch = (
           config.getfloat("usertrack", "htm_it_update_epoch"))
         duration = time.time() - cls.cached_htm_it_update_epoch
-      htm-itExtendedMsg = "<DUR=%f, %s>%s" % (duration, cls._logPrefix, msg)
+      htmItExtendedMsg = "<DUR=%f, %s>%s" % (duration, cls._logPrefix, msg)
     except (ImportError, ValueError):
-      htm-itExtendedMsg = "<DUR=NA, %s>%s" % (cls._logPrefix, msg)
-    return htm-itExtendedMsg
+      htmItExtendedMsg = "<DUR=NA, %s>%s" % (cls._logPrefix, msg)
+    return htmItExtendedMsg
