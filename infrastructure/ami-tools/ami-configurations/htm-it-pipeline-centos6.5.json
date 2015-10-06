@@ -1,6 +1,6 @@
 {
   "variables": {
-    "htm-it_rpm_name": "{{env `HTM-IT_RPM_NAME`}}",
+    "htm_it_rpm_name": "{{env `HTM_IT_RPM_NAME`}}",
     "ami_name":"{{env `AMI_NAME`}}"
   },
   "builders": [
@@ -76,7 +76,7 @@
       "type": "shell",
       "script": "packer-scripts/configure-htm-it-pipeline-ami",
       "environment_vars": [
-        "HTM-IT_RPM_NAME={{user `htm-it_rpm_name`}}"
+        "HTM_IT_RPM_NAME={{user `htm_it_rpm_name`}}"
       ]
     },
     {

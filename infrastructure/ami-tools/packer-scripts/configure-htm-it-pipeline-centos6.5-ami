@@ -120,7 +120,7 @@ run-salt() {
 install-htm-it() {
   splat
   echo "Installing HTM-IT..."
-  yum install -y "${S3_ROOT_URL}/${HTM-IT_RPM_NAME}"
+  yum install -y "${S3_ROOT_URL}/${HTM_IT_RPM_NAME}"
   if [ $? != 0 ]; then
     echo "Failed to install HTM-IT RPM"
     exit 1
