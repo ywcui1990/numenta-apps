@@ -86,12 +86,12 @@ def invokeBuild(jobName, buildParams):
                                                  buildNum)
 
 
-def invokeGrokBuild(gitRemote, branch, buildSha):
+def invokeHTM-ITBuild(gitRemote, branch, buildSha):
   """
     TODO: Define params, flesh out implementation details, and uncomment the
     actual `invokeBuild` command
 
-    This function will be used to invoke the Jenkins job related to Grok builds
+    This function will be used to invoke the Jenkins job related to HTM-IT builds
     as appropriate.
 
     :param gitRemote: The remote to be used when accessing git (e.g.:
@@ -104,13 +104,13 @@ def invokeGrokBuild(gitRemote, branch, buildSha):
   params = {"GIT_REMOTE": gitRemote,
             "BRANCH": branch,
             "COMMIT_SHA": buildSha}
-  invokeBuild("grok-product-pipeline", params)
-  g_logger.info("Invoking Grok Build")
+  invokeBuild("htm-it-product-pipeline", params)
+  g_logger.info("Invoking HTM-IT Build")
 
 
-def invokeGrokMobileBuild(gitRemote, branch, buildSha):
+def invokeHTM-ITMobileBuild(gitRemote, branch, buildSha):
   """
-    This function invokes the Jenkins job related to Grok-Mobile builds.
+    This function invokes the Jenkins job related to HTM-IT-Mobile builds.
 
     :param gitRemote: The remote to be used when accessing git (e.g.:
       git@github.com:Numenta/numenta-apps.git)
@@ -119,12 +119,12 @@ def invokeGrokMobileBuild(gitRemote, branch, buildSha):
 
     :param buildSha: The commit SHA to set the git repo to before building.
   """
-  g_logger.info("Invoking Grok Mobile Build")
+  g_logger.info("Invoking HTM-IT Mobile Build")
   params = {"GIT_REMOTE": gitRemote,
             "BRANCH": branch,
             "COMMIT_SHA": buildSha,
             "PIPELINE": "product-master-build"}
-  invokeBuild("grok-mobile-product-pipeline", params)
+  invokeBuild("htm-it-mobile-product-pipeline", params)
 
 
 def invokeTaurusBuild(gitRemote, branch, buildSha):
@@ -275,14 +275,14 @@ def main(args):
     g_logger.info("Folders with modifications: %s", rootFolders)
 
     #STEP 2: Execute the appropriate sub-pipelines as needed
-    if set(["grok", "htmengine", "nta.utils"]) & rootFolders:
-      invokeGrokBuild(args.gitRemote, branch, currentSha)
+    if set(["htm-it", "htmengine", "nta.utils"]) & rootFolders:
+      invokeHTM-ITBuild(args.gitRemote, branch, currentSha)
     if (set(["taurus", "taurus.metric_collectors", "htmengine", "nta.utils"]) &
         rootFolders):
       invokeTaurusBuild(args.gitRemote, branch, currentSha)
-    if (set(["grok", "htmengine", "grok-mobile", "mobile-core", "nta.utils"]) &
+    if (set(["htm-it", "htmengine", "htm-it-mobile", "mobile-core", "nta.utils"]) &
         rootFolders):
-      invokeGrokMobileBuild(args.gitRemote, branch, currentSha)
+      invokeHTM-ITMobileBuild(args.gitRemote, branch, currentSha)
     if set(["taurus", "taurus.metric_collectors", "nta.utils", "htmengine",
             "taurus-mobile", "mobile-core"]) & rootFolders:
       invokeTaurusMobileBuild(args.gitRemote, branch, currentSha)

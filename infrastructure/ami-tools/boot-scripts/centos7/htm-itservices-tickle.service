@@ -1,0 +1,11 @@
+[Unit]
+Description=HTM-IT services (tickle)
+
+[Install]
+Alias=htm-itservices-tickle.service
+
+[Service]
+Type=forking
+ExecStart=/etc/init.d/htm-itservices tickle
+ExecStop=/etc/init.d/htm-itservices stop
+Restart=on-abort

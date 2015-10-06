@@ -23,7 +23,7 @@
 """
 Package products repository into an RPM.
 
-Builds either saltcellar, infrastructure-common, or grok flavored RPMs.
+Builds either saltcellar, infrastructure-common, or htm-it flavored RPMs.
 
 For saltcellar RPMs, unless --internal-only has been specified, only
 includes formulas that have explicitly been marked public by having a
@@ -151,10 +151,10 @@ def parseCLA():
 
   parser.add_argument("--rpm-flavor",
                       dest="flavor",
-                      choices=["grok",
+                      choices=["htm-it",
                                "infrastructure",
                                "saltcellar",
-                               "prebuiltgrok"],
+                               "prebuilthtm-it"],
                       help="Set the rpm type")
 
   parser.add_argument("--rpm-name",
@@ -180,7 +180,7 @@ def parseCLA():
 
   parser.add_argument("--site-packages-tarball",
                       dest="sitePackagesTarball",
-                      help="Explode a tarball into grok/lib/python2.7",
+                      help="Explode a tarball into htm-it/lib/python2.7",
                       default=None)
 
   parser.add_argument("--tempdir",
@@ -208,8 +208,8 @@ def parseCLA():
   g_logger.debug("Configuration: %s", g_config)
 
   if g_config.sitePackagesTarball:
-    if g_config.flavor != "grok":
-      failmsg = "--site-packages is only used for grok packages."
+    if g_config.flavor != "htm-it":
+      failmsg = "--site-packages is only used for htm-it packages."
       parser.error(failmsg)
 
   if g_config.flavor == None:
@@ -218,8 +218,8 @@ def parseCLA():
 
   if g_config.artifacts == []:
     failmsg = "You must specify artifacts in the fakeroot to package."
-    if g_config.flavor == "grok":
-      failmsg = failmsg + " Grok rpms should specify opt"
+    if g_config.flavor == "htm-it":
+      failmsg = failmsg + " HTM-IT rpms should specify opt"
     if g_config.flavor == "infrastructure":
       failmsg = failmsg + " Infrastructure rpms should specify opt"
     if g_config.flavor == "saltcellar":

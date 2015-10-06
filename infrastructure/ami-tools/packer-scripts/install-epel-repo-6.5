@@ -37,7 +37,7 @@ yum install -y ca-certificates
 # Now that our certificates are current, we can reinstall epel
 yum install -y http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 
-# We don't want testing rpms on Grok servers
+# We don't want testing rpms on HTM-IT servers
 rm -f /etc/yum.repos.d/epel-testing.repo
 
 # Confirm our repo list

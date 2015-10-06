@@ -40,10 +40,10 @@ logrotate-directory:
     - require:
       - file: logrotate-directory
 
-install-groklog_rotator:
+install-htm-itlog_rotator:
   file.managed:
-    - name: /usr/local/sbin/groklog_rotator
-    - source: salt://logrotate/files/groklog_rotator
+    - name: /usr/local/sbin/htm-itlog_rotator
+    - source: salt://logrotate/files/htm-itlog_rotator
     - user: root
     - group: root
     - mode: 0755
