@@ -27,7 +27,7 @@ import optparse
 import random
 import sys
 
-from htm-itcli.api import HTM-ITSession
+from grokcli.api import GrokSession
 
 from htm-it.app import config
 
