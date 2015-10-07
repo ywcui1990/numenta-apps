@@ -33,7 +33,7 @@ public class DataUtils{
     public static let SECONDS_IN_DAY :Int64 = Int64(60*60*24)
  
     
-    public static let MILLIS_PER_MINUTE : Int64 = 60 * 1000;
+    public static let MILLIS_PER_MINUTE : Int64 = 60 * 1000
     public static let MILLIS_PER_HOUR : Int64 = 60 * MILLIS_PER_MINUTE
 
     public static let MILLIS_PER_DAY : Int64 = 24 * MILLIS_PER_HOUR
@@ -72,21 +72,24 @@ public class DataUtils{
         if (value > 0.99999) {
             return 1;
         }
-        return log(1.0000000001 - value) / LOG_1_MINUS_0_9999999999;
+        return log(1.0000000001 - value) / LOG_1_MINUS_0_9999999999
     }
     
     static func parseGrokDate (date : String)->NSDate? {
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        // FIXME verify that our date is in GMT
-        return  dateFormatter.dateFromString(date)
+        dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+       
+        let dateObj = dateFormatter.dateFromString(date)
+
+        return   dateObj
     }
     
     
     static func parseHTMDate (date : String)->NSDate? {
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        // FIXME verify that our date is in GMT
+         dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
         return  dateFormatter.dateFromString(date)
     }
     
