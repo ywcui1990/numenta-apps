@@ -95,6 +95,37 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
       self.assertEqual(exitCode, 2)
 
 
+  def testRetryNoRetries(self):
+    """ Test that no retires are performed when timeoutSec == 0 """
+    pass
+
+
+  def testRetryWaitsInitialRetryDelaySec(self):
+    """ Test that first retry delay is initialRetryDelaySec and subsequent 
+    retry delays are 2 * initialRetryDelaySec  """
+    pass
+
+
+  def testRetryMaxRetryDelaySecOverrides(self):
+    """ Test that maxRetryDelaySec overrides default behavior for
+    2 * initialRetryDelaySec retry delay """
+    pass
+
+
+  def testRetryRetryExceptionIncludedExcluded(self):
+    """ Test that retry is triggered iff raised exeception is in 
+    retryExceptions """
+    pass
+
+
+  def testRetryRetryFilter(self):
+    """ Test that if retryFilter is specified and exception is in retryExceptions,
+      retries iff retryFilter returns true """
+    pass
+
+
+
+
 
 if __name__ == '__main__':
   unittest.main()
