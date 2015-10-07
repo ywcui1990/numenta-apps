@@ -168,11 +168,11 @@ public class TaurusClient : GrokClient {
         - parameter callback : will be called once for each tweet
     */
     func getTweets ( metricName: String, from: NSDate, to : NSDate, callback : (Tweet?)->Void? ){
-        // NEED  to implement
         var keyConditions : [String: AWSDynamoDBCondition] = [: ]
         let dateFormatter : NSDateFormatter  = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        
+        dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+
         // Set up the UID condition
         let metricCondition = AWSDynamoDBCondition()
         metricCondition.comparisonOperator = AWSDynamoDBComparisonOperator.EQ
@@ -228,8 +228,8 @@ public class TaurusClient : GrokClient {
                 let results = taskResult as! AWSDynamoDBQueryOutput
                 
                 let myResults  = results.items
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH"
+               // let dateFormatter = NSDateFormatter()
+               // dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH"
                 
                 for item  in myResults{
                     //    print( item )
@@ -274,6 +274,8 @@ public class TaurusClient : GrokClient {
         var keyConditions : [String: AWSDynamoDBCondition] = [: ]
         let dateFormatter : NSDateFormatter  = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+
         
         // Set up the UID condition
         let uidCondition = AWSDynamoDBCondition()
@@ -328,8 +330,8 @@ public class TaurusClient : GrokClient {
                 
                 let myResults  = results.items
                 //   print("object: \(myResults.description)")
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH"
+              //  let dateFormatter = NSDateFormatter()
+              //  dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH"
                 
                 for item  in myResults{
                     //    print( item )
@@ -340,7 +342,7 @@ public class TaurusClient : GrokClient {
                     let anonomaly_score = Float((item["anomaly_score"] as! AWSDynamoDBAttributeValue).N)!
                     
         if ( anonomaly_score == 0 || anonomaly_score.isNaN){
-            print (anonomaly_score)
+         //   print (anonomaly_score)
                     }
                     let dateSeconds = Int64(date!.timeIntervalSince1970*1000)
                     
@@ -370,7 +372,7 @@ public class TaurusClient : GrokClient {
         ascending : Bool,callback : (InstanceData)->Void?){
             
             
-            print (date)
+         //   print (date)
             let query = AWSDynamoDBQueryInput()
             query.tableName = TaurusClient.INSTANCE_DATA_HOURLY_TABLE
             var keyConditions : [String: AWSDynamoDBCondition] = [: ]
@@ -432,7 +434,9 @@ public class TaurusClient : GrokClient {
                  
                     let dateFormatter = NSDateFormatter()
                     dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH"
+                    dateFormatter.timeZone =   NSTimeZone(forSecondsFromGMT: 0)
 
+                    
                     for item  in myResults{
                         var anomalyScore :Double = 0.0
                         let date_hour = item["date_hour"] as! AWSDynamoDBAttributeValue
@@ -450,7 +454,7 @@ public class TaurusClient : GrokClient {
                         for (key, anomalyValue) in anonomaly_score {
                             let score :Double = Double ( anomalyValue.N)!
                             let scaledScore = DataUtils.logScale(abs(score))
-                            print ("score : %s", scaledScore)
+                         //   print ("score : %s", scaledScore)
                             
                             if (scaledScore >= TaurusApplication.getYellowBarFloor()){
                                 metricMask.insert(MetricType.enumForKey(key as! String))
@@ -505,7 +509,7 @@ public class TaurusClient : GrokClient {
                 getAllInstanceDataForDate(date, fromHour:0, toHour: 23, ascending: ascending, callback : callback)
                 
                 // FIXME verify this handles end of year wrapping properly
-                date = calendar.dateByAddingUnit(NSCalendarUnit.Day, value: interval, toDate: date, options: NSCalendarOptions.WrapComponents)!
+                date = calendar.dateByAddingUnit(NSCalendarUnit.Day, value: interval, toDate: date, options: [])!
             }
         }
     }
