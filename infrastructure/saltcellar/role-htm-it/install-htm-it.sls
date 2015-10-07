@@ -26,10 +26,10 @@
 # include:
 #   - htm-it.scripted-packages
 
-# Add helper script to restart the htm-itservices service
-/usr/local/bin/htm-itservices:
+# Add helper script to restart the htm-it-services service
+/usr/local/bin/htm-it-services:
   file.managed:
-    - source: salt://role-htm-it/files/htm-itservices-helper
+    - source: salt://role-htm-it/files/htm-it-services-helper
     - user: ec2-user
     - group: ec2-user
     - mode: 0755

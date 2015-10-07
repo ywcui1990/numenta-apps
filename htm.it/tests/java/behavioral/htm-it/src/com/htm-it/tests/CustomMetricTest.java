@@ -40,7 +40,7 @@ public class CustomMetricTest {
     static By OPEN_MANAGE_DROPDOWN = By
             .xpath("//li[@class='setup dropdown']/a/span[2]");
     static By NAVIGATE_TO_IMPORT_PAGE = By
-            .xpath("//a[@href='/htm-it/instances/import']");
+            .xpath("//a[@href='/htmit/instances/import']");
     static int WAIT_TIME = 10;
 
     public static void customMetricPageTitleVerification(WebDriver driver) {

@@ -44,38 +44,38 @@ AWS::AutoScaling::AutoScalingGroup:
     tag_name: west-webserver-vpc-backend
     modelParams: {min: 0, max: 10000000}
 # DynamoDB
-# Using table DONOTREMOVE-htm-it-test
+# Using table DONOTREMOVE-grok-test
 AWS::DynamoDB::Table:
   - metric: ConsumedReadCapacityUnits
     region: us-west-2
     namespace: AWS/DynamoDB
     datasource: cloudwatch
-    dimensions: {TableName: DONOTREMOVE-htm-it-test}
+    dimensions: {TableName: DONOTREMOVE-grok-test}
     modelParams: {min: 0, max: 20}
   - metric: ConsumedWriteCapacityUnits
     region: us-west-2
     namespace: AWS/DynamoDB
     datasource: cloudwatch
-    dimensions: {TableName: DONOTREMOVE-htm-it-test}
+    dimensions: {TableName: DONOTREMOVE-grok-test}
     modelParams: {min: 0, max: 20}
 # The following is deprecated re: MER-3802
 #  - metric: ReturnedItemCount
 #    region: us-west-2
 #    namespace: AWS/DynamoDB
 #    datasource: cloudwatch
-#    dimensions: {TableName: DONOTREMOVE-htm-it-test}
+#    dimensions: {TableName: DONOTREMOVE-grok-test}
 #    modelParams: {min: 0, max: 20}
 #  - metric: ReturnedItemCount
 #    region: us-west-2
 #    namespace: AWS/DynamoDB
 #    datasource: cloudwatch
-#    dimensions: {TableName: DONOTREMOVE-htm-it-test, Operation: Scan}
+#    dimensions: {TableName: DONOTREMOVE-grok-test, Operation: Scan}
 #    modelParams: {min: 0, max: 20}
 #  - metric: SuccessfulRequestLatency
 #    region: us-west-2
 #    namespace: AWS/DynamoDB
 #    datasource: cloudwatch
-#    dimensions: {TableName: DONOTREMOVE-htm-it-test, Operation: Scan}
+#    dimensions: {TableName: DONOTREMOVE-grok-test, Operation: Scan}
 #    modelParams: {min: 0, max: 1000}
 # EC2
 # Using instance jira.numenta.com
@@ -116,7 +116,7 @@ AWS::EC2::Instance:
     tag_name: jira.numenta.com
     modelParams: {min: 0, max: 1000000}
 # EBS
-# Using volume DONOTREMOVE-htm-it-test
+# Using volume DONOTREMOVE-grok-test
 AWS::EC2::Volume:
   - metric: VolumeQueueLength
     region: us-west-2
@@ -164,7 +164,7 @@ AWS::ElasticLoadBalancing::LoadBalancer:
     dimensions: {LoadBalancerName: numenta-com-vpc-asg}
     modelParams: {min: 0, max: 1000}
 # OpsWorks
-# Using stack DONOTREMOVE-htm-it-test
+# Using stack DONOTREMOVE-grok-test
 AWS::OpsWorks::Stack:
   - metric: cpu_idle
     region: us-east-1
@@ -314,53 +314,53 @@ AWS::RDS::DBInstance:
     dimensions: {DBInstanceIdentifier: jiradbinstance}
     modelParams: {min: 0, max: 500000}
 # Redshift
-# Using instance donotremove-htm-it-test
+# Using instance donotremove-grok-test
 AWS::Redshift::Cluster:
   - metric: DatabaseConnections
     region: us-west-2
     namespace: AWS/Redshift
     datasource: cloudwatch
-    dimensions: {ClusterIdentifier: donotremove-htm-it-test}
+    dimensions: {ClusterIdentifier: donotremove-grok-test}
     modelParams: {min: 0, max: 500}
 # SNS
-# Using topic DONOTREMOVE-htm-it-test
+# Using topic DONOTREMOVE-grok-test
 AWS::SNS::Topic:
   - metric: NumberOfMessagesPublished
     region: us-west-2
     namespace: AWS/SNS
     datasource: cloudwatch
-    dimensions: {Topic: DONOTREMOVE-htm-it-test}
+    dimensions: {Topic: DONOTREMOVE-grok-test}
     modelParams: {min: 0, max: 500}
 # SQS
-# Using queue DONOTREMOVE-htm-it-test
+# Using queue DONOTREMOVE-grok-test
 AWS::SQS::Queue:
   - metric: NumberOfEmptyReceives
     region: us-west-2
     namespace: AWS/SQS
     datasource: cloudwatch
-    dimensions: {QueueName: DONOTREMOVE-htm-it-test}
+    dimensions: {QueueName: DONOTREMOVE-grok-test}
     modelParams: {min: 0, max: 1000}
   - metric: NumberOfMessagesDeleted
     region: us-west-2
     namespace: AWS/SQS
     datasource: cloudwatch
-    dimensions: {QueueName: DONOTREMOVE-htm-it-test}
+    dimensions: {QueueName: DONOTREMOVE-grok-test}
     modelParams: {min: 0, max: 1000}
   - metric: NumberOfMessagesReceived
     region: us-west-2
     namespace: AWS/SQS
     datasource: cloudwatch
-    dimensions: {QueueName: DONOTREMOVE-htm-it-test}
+    dimensions: {QueueName: DONOTREMOVE-grok-test}
     modelParams: {min: 0, max: 1000}
   - metric: NumberOfMessagesSent
     region: us-west-2
     namespace: AWS/SQS
     datasource: cloudwatch
-    dimensions: {QueueName: DONOTREMOVE-htm-it-test}
+    dimensions: {QueueName: DONOTREMOVE-grok-test}
     modelParams: {min: 0, max: 1000}
   - metric: SentMessageSize
     region: us-west-2
     namespace: AWS/SQS
     datasource: cloudwatch
-    dimensions: {QueueName: DONOTREMOVE-htm-it-test}
+    dimensions: {QueueName: DONOTREMOVE-grok-test}
     modelParams: {min: 0, max: 10000}

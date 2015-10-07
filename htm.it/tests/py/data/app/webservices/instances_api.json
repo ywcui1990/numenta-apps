@@ -27,11 +27,11 @@
       "name": null,
       "namespace": "AWS/ELB",
       "parameters": {"datasource": "cloudwatch",
-                     "metricSpec": {"dimensions": {"LoadBalancerName": "htm-it-docs-elb"},
+                     "metricSpec": {"dimensions": {"LoadBalancerName": "grok-docs-elb"},
                                     "metric": "Latency",
                                     "namespace": "AWS/ELB",
                                     "region": "us-west-2"}},
-      "server": "us-west-2/AWS/ELB/htm-it-docs-elb",
+      "server": "us-west-2/AWS/ELB/grok-docs-elb",
       "status": 1}
   ]
 }

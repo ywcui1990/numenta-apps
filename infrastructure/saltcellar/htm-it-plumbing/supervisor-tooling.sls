@@ -27,10 +27,10 @@
 #   the generic one installed by CentOS
 
 # Put in our own supervisord init script
-htm-itservices-init-script:
+htm-it-services-init-script:
   file.managed:
-    - name: /etc/init.d/htm-itservices
-    - source: salt://htm-it-plumbing/files/supervisor-tooling/htm-itservices.initd
+    - name: /etc/init.d/htm-it-services
+    - source: salt://htm-it-plumbing/files/supervisor-tooling/htm-it-services.initd
     - user: root
     - group: root
     - mode: 0755
@@ -59,15 +59,15 @@ supervisord:
     - only_if:
       - cmd: test -f /etc/init.d/supervisord
 
-# Make sure our htm-itservices init script is set to run at boot
-htm-itservices:
+# Make sure our htm-it-services init script is set to run at boot
+htm-it-services:
   service.enabled:
     - require:
       - file: /usr/local/sbin/lockrun
       - file: firstboot-helper
       - file: firstboot-root-helper
       - file: htm-it-preload-init-script
-      - file: htm-itservices-init-script
+      - file: htm-it-services-init-script
       - file: set-mysql-root-password
       - file: set-rabbitmq-root-password
 
@@ -83,7 +83,7 @@ rabbitmq-status-cronjob:
       - file: /usr/local/sbin/lockrun
       - pkg: rabbitmq-server
 
-# Helpers needed by htm-itservices init script
+# Helpers needed by htm-it-services init script
 
 firstboot-root-helper:
   file.managed:

@@ -32,13 +32,13 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/usr/local/sbin
 
 AWS_INSTANCE_KEY_URL="http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key"
 
-SAVED_KEYS_D=/etc/htm-it/sshkeys.d/originals
+SAVED_KEYS_D=/etc/htm.it/sshkeys.d/originals
 SUPPORT_ENABLE_FLAG=/tmp/enable_support_access
-SUPPORT_KEYDIR=/etc/htm-it/sshkeys.d
+SUPPORT_KEYDIR=/etc/htm.it/sshkeys.d
 
 CUSTOMER_EC2USER_PUBKEYS="${SAVED_KEYS_D}/ec2-user.authorized_keys"
 CUSTOMER_ROOT_PUBKEYS="${SAVED_KEYS_D}/root.authorized_keys"
-HTM_IT_SUPPORT_PUBKEYS=/etc/htm-it/support_ssh_keys
+HTM_IT_SUPPORT_PUBKEYS=/etc/htm.it/support_ssh_keys
 
 EC2USER_AUTHFILE=/home/ec2-user/.ssh/authorized_keys
 ROOT_AUTHFILE=/root/.ssh/authorized_keys

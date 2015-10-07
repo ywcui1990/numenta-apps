@@ -23,7 +23,7 @@
 # Help the instance pass marketplace acceptance by ensuring we don't leave
 # any stale SSH public keys on the instance.
 
-# Kill every pubkey in the /etc/htm-it/sshkeys.d tree with fire.
+# Kill every pubkey in the /etc/htm.it/sshkeys.d tree with fire.
 zap-ssh-public-keys:
   cmd.run:
-    - name: find /etc/htm-it/sshkeys.d -type f -name '*.pub' -delete
+    - name: find /etc/htm.it/sshkeys.d -type f -name '*.pub' -delete

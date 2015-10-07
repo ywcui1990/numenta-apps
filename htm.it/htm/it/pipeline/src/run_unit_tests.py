@@ -112,7 +112,7 @@ def runUnitTests(env, buildWorkspace):
     :returns: return True if tests are successful
     :rtype: bool
   """
-  rawResultsFile = os.path.join(buildWorkspace, "numenta-apps", "htm-it", "tests",
+  rawResultsFile = os.path.join(buildWorkspace, "numenta-apps", "htm.it", "tests",
                                 "results", "py2", "xunit", "jenkins",
                                 "results.xml")
   finalResultsFile = os.path.join(prepareResultsDir(),
@@ -120,7 +120,7 @@ def runUnitTests(env, buildWorkspace):
                                     getBuildNumber(logger=g_logger))
 
 
-  with changeToWorkingDir(os.path.join(buildWorkspace, "numenta-apps", "htm-it")):
+  with changeToWorkingDir(os.path.join(buildWorkspace, "numenta-apps", "htm.it")):
     try:
       runWithOutput(command=("./run_tests.sh --unit --language py --results "
                              "jenkins"),

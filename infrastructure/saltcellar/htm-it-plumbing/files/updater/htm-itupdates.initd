@@ -33,7 +33,7 @@ if [ $(/usr/bin/id -u) -ne 0 ]; then
     exit 1
 fi
 
-HTM_IT_FINGERPRINT_FILE=/etc/htm-it/fingerprint.txt
+HTM_IT_FINGERPRINT_FILE=/etc/htm.it/fingerprint.txt
 
 # Source init functions
 source /etc/rc.d/init.d/functions

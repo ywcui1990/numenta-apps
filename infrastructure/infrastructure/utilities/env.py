@@ -86,7 +86,7 @@ def prepareEnv(workspace, nupicBuildDir=None, environ=None):
     REPOSITORY=os.path.join(nupicBuildDir or workspace, "nupic"),
     PY_VERSION=sys.version[:3],
     PRODUCTS=os.path.join(workspace, "numenta-apps"),
-    HTM_IT_HOME=os.path.join(workspace, "numenta-apps", "htm-it")
+    HTM_IT_HOME=os.path.join(workspace, "numenta-apps", "htm.it")
   )
 
   env.update(

@@ -27,11 +27,11 @@ export NUPIC="${NUMENTA}/nupic"
 
 # Set PATH & PYTHONPATH from supervisord.vars so upload_logs.py doesn't
 # choke when run as root by cron
-source /etc/htm-it/supervisord.vars
+source /etc/htm.it/supervisord.vars
 
 LOG_D="${NUMENTA}/htm-it/logs"
 UPLOADER="${NUMENTA}/htm-it/bin/upload_logs.py"
-STAMPFILE=/etc/htm-it/firstboot.run
+STAMPFILE=/etc/htm.it/firstboot.run
 
 if [ -f "${STAMPFILE}" ]; then
   htm-itlog_rotator "${LOG_D}"

@@ -33,7 +33,7 @@ fi
 # We don't want to use the system nginx.conf - we want to use the
 # htm-it-api.conf installed as part of htm-it app
 
-HTM_IT_HOME=/opt/numenta/htm-it
+HTM_IT_HOME=/opt/numenta/htm.it
 
 prog=nginx
 nginx=/usr/sbin/nginx

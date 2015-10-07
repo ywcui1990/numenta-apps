@@ -53,7 +53,7 @@ fi
 # We don't want to use the system nginx.conf - we want to use the
 # htm-it-api.conf installed as part of htm-it app
 
-source /etc/htm-it/supervisord.vars
+source /etc/htm.it/supervisord.vars
 
 prog=nginx
 nginx=/usr/sbin/nginx

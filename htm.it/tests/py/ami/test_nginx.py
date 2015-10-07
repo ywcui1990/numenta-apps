@@ -30,7 +30,7 @@ import socket
 import unittest
 
 
-CONF_D = os.environ.get("APPLICATION_CONFIG_PATH", "/opt/numenta/htm-it/conf")
+CONF_D = os.environ.get("APPLICATION_CONFIG_PATH", "/opt/numenta/htm.it/conf")
 
 def probePort(host="127.0.0.1", port=80, command=None):
   s = socket.socket()
@@ -66,7 +66,7 @@ class TestNginxInstallation(unittest.TestCase):
 
 
   def testCheckHttpsContent(self):
-    self.assertIn("<title>| HTM-IT</title>", probeHttps(path="/htm-it"),
+    self.assertIn("<title>| HTM-IT</title>", probeHttps(path="/htmit"),
                   "port 443 is not returning a HTM-IT title")
 
 
@@ -88,7 +88,7 @@ class TestNginxInstallation(unittest.TestCase):
   def testNginxInitScript(self):
     self.assertTrue(agamotto.file.exists("/etc/init.d/nginx"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",
-                    "HTM_IT_HOME=/opt/numenta/htm-it"))
+                    "HTM_IT_HOME=/opt/numenta/htm.it"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",
                     "HTM_IT_NGINX_CONF=conf/htm-it-api.conf"))
     self.assertTrue(agamotto.file.contains("/etc/init.d/nginx",

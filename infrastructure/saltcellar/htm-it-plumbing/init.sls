@@ -27,7 +27,7 @@
 # Ensure the directories we need are in place
 etc-htm-it:
   file.directory:
-    - name: /etc/htm-it
+    - name: /etc/htm.it
     - user: ec2-user
     - group: ec2-user
     - mode: 0755

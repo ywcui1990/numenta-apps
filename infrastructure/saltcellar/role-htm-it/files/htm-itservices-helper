@@ -20,4 +20,4 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-sudo service htm-itservices "$@"
+sudo service htm-it-services "$@"

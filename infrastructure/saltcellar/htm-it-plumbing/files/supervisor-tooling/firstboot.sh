@@ -25,12 +25,12 @@ set -o pipefail
 
 export NUMENTA=/opt/numenta
 
-mkdir -p /etc/htm-it
+mkdir -p /etc/htm.it
 
 # If you stop writing to $STAMPFILE, or change the path, you will break
 # integration testing. The integration test suite uses the presence of
 # $STAMPFILE to tell that the htm-it services have been configured.
-STAMPFILE="/etc/htm-it/firstboot.run"
+STAMPFILE="/etc/htm.it/firstboot.run"
 export PIP_SCRATCH_D=$(mktemp --directory /tmp/pip_scratch_d.XXXXX)
 
 log_info() {
@@ -48,9 +48,9 @@ die() {
   exit 1
 }
 
-if [ -r /etc/htm-it/supervisord.vars ]; then
-  log_info "Loading environment from /etc/htm-it/supervisord.vars"
-  source /etc/htm-it/supervisord.vars
+if [ -r /etc/htm.it/supervisord.vars ]; then
+  log_info "Loading environment from /etc/htm.it/supervisord.vars"
+  source /etc/htm.it/supervisord.vars
 else
   die "Could not load supervisord.vars"
 fi
