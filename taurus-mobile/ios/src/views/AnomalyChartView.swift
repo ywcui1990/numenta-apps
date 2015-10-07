@@ -133,18 +133,18 @@ class AnomalyChartView: UIView {
                 CGContextSaveGState( context)
                 var color : CGColor
               //  print (value.1)
-
+                 bar.size.height  = -CGFloat(rect.height)
                 let level = getLevel(DataUtils.logScale(value.1))
              //   print (level)
                 if (level>=9000){
                     color = UIColor.redColor().CGColor
-                    bar.size.height = -9.0
+                    bar.size.height -= -0.0
                 } else if (level>4000){
                     color = UIColor.yellowColor().CGColor
-                    bar.size.height = -6.0
+                    bar.size.height += 5.0
                 }else {
                     color = UIColor.greenColor().CGColor
-                    bar.size.height = -3.0
+                    bar.size.height += 10.0
                 }
                 
                 CGContextSetFillColorWithColor(context, color)
