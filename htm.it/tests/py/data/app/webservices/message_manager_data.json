@@ -9,23 +9,23 @@
             "url": "http://www.numenta.com"
         },
         "paths": {
-            "welcome":          "/htm-it/welcome",
-            "auth":             "/htm-it/auth",
-            "register":         "/htm-it/register",
-            "confirm":          "/htm-it/confirm",
-            "instances-auto":   "/htm-it/instances/auto",
-            "instances-manual": "/htm-it/instances/manual",
-            "instances-import": "/htm-it/instances/import",
-            "autostack":        "/htm-it/instances/autostack",
-            "manage-custom-metrics": "/htm-it/custom",
-            "notify":           "/htm-it/notify",
-            "complete":         "/htm-it/complete",
-            "manage":           "/htm-it",
-            "charts":           "/htm-it/embed/charts",
+            "welcome":          "/htmit/welcome",
+            "auth":             "/htmit/auth",
+            "register":         "/htmit/register",
+            "confirm":          "/htmit/confirm",
+            "instances-auto":   "/htmit/instances/auto",
+            "instances-manual": "/htmit/instances/manual",
+            "instances-import": "/htmit/instances/import",
+            "autostack":        "/htmit/instances/autostack",
+            "manage-custom-metrics": "/htmit/custom",
+            "notify":           "/htmit/notify",
+            "complete":         "/htmit/complete",
+            "manage":           "/htmit",
+            "charts":           "/htmit/embed/charts",
             "update":           "/static/maintenance.html"
         },
         "resources": {
-            "help": "http://www.numenta.com/assets/pdf/htm-it/resources/%version%/Grok-%version%-MasterGuide.pdf"
+            "help": "http://www.numenta.com/assets/pdf/grok/resources/%version%/Grok-%version%-MasterGuide.pdf"
         },
         "buttons": {
             "agree":    "Agree",

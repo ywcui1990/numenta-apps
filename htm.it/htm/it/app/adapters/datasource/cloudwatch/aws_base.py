@@ -130,7 +130,7 @@ class AWSResourceAdapterBase(object):
     :param region: AWS region
     :param dimensions: dict of Cloudwatch dimensions for the metric
     """
-    self._log = logging.getLogger("htm-it." + self.__class__.__name__)
+    self._log = logging.getLogger("htm.it." + self.__class__.__name__)
     self._region = region
     self._dimensions = dimensions
 

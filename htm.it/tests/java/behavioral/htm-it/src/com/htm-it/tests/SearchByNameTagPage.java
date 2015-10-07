@@ -57,7 +57,7 @@ public class SearchByNameTagPage {
     static By OPEN_MANAGE_DROPDOWN = By
             .xpath("//li[@class='setup dropdown']/a/span[2]");
     static By NAVIGATE_TO_AUTOSTACK_PAGE = By
-            .xpath("//a[@href='/htm-it/instances/autostack']");
+            .xpath("//a[@href='/htmit/instances/autostack']");
     static By REMOVE_All_BUTTON = By
             .xpath(".//*[@id='instance-list']/div/form/div/button[2]");
     static By OK_BUTTON = By

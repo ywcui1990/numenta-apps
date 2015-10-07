@@ -42,7 +42,7 @@ public class BrowseTest {
     static By OPEN_MANAGE_DROPDOWN = By.xpath
             ("//li[@class='setup dropdown']/a/span[2]");
     static By NAVIGATE_TO_NOTIFICATION_PAGE = By.xpath
-            ("//a[@href='/htm-it/notify']");
+            ("//a[@href='/htmit/notify']");
     static By BROWSE_PAGE_INSTANCE_LIST_HEADING = By.xpath
             (".//*[@id='content']/div/section/div[2]/p");
     static By BROWSE_US_WEST_2 = By.xpath

@@ -167,8 +167,8 @@ Use HTM-IT
 
 - Web App:
 
-  - Initial Setup: https://localhost/htm-it/welcome
-  - Home: https://localhost/htm-it
+  - Initial Setup: https://localhost/htmit/welcome
+  - Home: https://localhost/htmit
 
 - Supervisor:
 

@@ -142,7 +142,7 @@
 
         if(message.match(regex.apiKey)) {
             HTMITUI.utils.store.clear('apiKey');
-            HTMITUI.utils.go('/htm-it/welcome');
+            HTMITUI.utils.go('/htmit/welcome');
             return;
         }
         if(message.match(regex.awsSecret)) {
@@ -153,7 +153,7 @@
             edition = HTMITUI.product.edition;
             title = 'Limit Reached';
             body = 'Sorry, HTM-IT is limited to monitoring ' + limit + ' instances and AutoStacks on an AWS EC2 server of the current size.';
-            message = 'Please upgrade to a bigger AWS EC2 instance type in order to <a href="http://www.numenta.com/assets/pdf/htm-it/resources/1.5/Upgrade-AWS-EC2-Instance-Size.pdf" target="_new">increase the monitoring capacity of HTM-IT</a>.';
+            message = 'Please upgrade to a bigger AWS EC2 instance type in order to <a href="http://www.numenta.com/assets/pdf/grok/resources/1.5/Upgrade-AWS-EC2-Instance-Size.pdf" target="_new">increase the monitoring capacity of HTM-IT</a>.';
         }
 
         bootbox.alert({

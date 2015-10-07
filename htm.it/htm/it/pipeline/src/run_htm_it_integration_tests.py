@@ -51,7 +51,7 @@ g_config = yaml.load(resource_stream(__name__, "../conf/config.yaml"))
 g_config["JOB_NAME"] = os.environ.get("JOB_NAME", "Local Run")
 
 g_dirname = os.path.abspath(os.path.dirname(__file__))
-g_remotePath = "/opt/numenta/htm-it/tests/results/py2/xunit/jenkins/results.xml"
+g_remotePath = "/opt/numenta/htm.it/tests/results/py2/xunit/jenkins/results.xml"
 g_rpmBuilder = "rpmbuild.groksolutions.com"
 g_s3RepoPath = "/opt/numenta/s3repo/s3/x86_64"
 s3Bucket = "public.numenta.com"
@@ -186,7 +186,7 @@ def main():
                         % os.environ["AWS_ACCESS_KEY_ID"] +
                         " && export AWS_SECRET_ACCESS_KEY=%s"
                         % os.environ["AWS_SECRET_ACCESS_KEY"] +
-                        " && source /etc/htm-it/supervisord.vars" +
+                        " && source /etc/htm.it/supervisord.vars" +
                         " && cd $HTM_IT_HOME" +
                         " && ./run_tests.sh --integration --language py" +
                         " --results jenkins")

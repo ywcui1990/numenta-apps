@@ -49,7 +49,7 @@ def checkHTMITServicesStatus(logger):
     :returns: True if HTM-ITServices are running properly.
     :rtype: boolean
   """
-  cmd = ("source /etc/htmit/supervisord.vars && "
+  cmd = ("source /etc/htm.it/supervisord.vars && "
          "supervisorctl -c /opt/numenta/htm.it/conf/supervisord.conf status")
   htmItServicesState = run(cmd)
 

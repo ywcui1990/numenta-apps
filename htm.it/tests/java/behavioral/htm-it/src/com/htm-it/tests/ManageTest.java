@@ -74,9 +74,9 @@ public class ManageTest {
     static By REVOKE_TECH_SUPPORT_ACCESS = By
             .xpath(".//*[@id='support-access-disable']");
     static By NAVIGATE_TO_AUTOSTACK_PAGE = By
-            .xpath("//a[@href='/htm-it/instances/autostack']");
+            .xpath("//a[@href='/htmit/instances/autostack']");
     static By NAVIGATE_TO_SBNT_PAGE = By
-            .xpath("//a[@href='/htm-it/instances/auto']");
+            .xpath("//a[@href='/htmit/instances/auto']");
     static By FIND_MEMBERS_BUTTON = By.id("begin");
     static By OK_BUTTON = By.xpath("html/body/div[3]/div/div/div[3]/button[2]");
     static int WAIT_TIME = 20;
@@ -120,14 +120,14 @@ public class ManageTest {
         Assert.assertEquals(managePageDropDown, "Monitor Additional Instances");
     }
 
-    public static void addhtm-itToWebPageTitleVerification(WebDriver driver) {
+    public static void addhtmItToWebPageTitleVerification(WebDriver driver) {
         String managePageHTM-ITToWebPageTitle = TestUtilities.waitGetText(
                 MANAGE_ADD_HTM_IT_TITLE, driver, WAIT_TIME);
         Assert.assertEquals(managePageHTM-ITToWebPageTitle,
                 "Add HTM-IT to Any Web Page");
     }
 
-    public static void htm-itToWebPageHelpTextVerification(WebDriver driver) {
+    public static void htmItToWebPageHelpTextVerification(WebDriver driver) {
         String managePageHTM-ITToWebPageTitle = TestUtilities.waitGetText(
                 MANAGE_ADD_HTM_IT_HELP_TEXT_TITLE, driver, WAIT_TIME);
         /*
@@ -152,7 +152,7 @@ public class ManageTest {
                         + "source code of your website.");
     }
 
-    public static void htm-itToWebPageLabelVerification(WebDriver driver) {
+    public static void htmItToWebPageLabelVerification(WebDriver driver) {
         String managePageHostnameLabel = TestUtilities.waitGetText(
                 MANAGE_HOST_NAME, driver, WAIT_TIME);
         String managePageWidthLabel = TestUtilities.waitGetText(MANAGE_WIDTH,

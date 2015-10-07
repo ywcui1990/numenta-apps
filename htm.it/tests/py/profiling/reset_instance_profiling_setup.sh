@@ -34,7 +34,7 @@
 
 MODELNUM=$1
 
-SUPERVISOR_CONF="/opt/numenta/htm-it/conf/supervisord.conf"
+SUPERVISOR_CONF="/opt/numenta/htm.it/conf/supervisord.conf"
 
 # First, stop supervisord services
 supervisorctl -c $SUPERVISOR_CONF stop all
@@ -44,22 +44,22 @@ ps aux | grep [c]apture_ | awk {'print $2'} | xargs kill
 
 # Delete old logs
 # Remember the directory this script was called from (we assume the capture scripts are in the same dir)
-pushd /opt/numenta/htm-it/
+pushd /opt/numenta/htm.it/
 rm -r logs/*
 
 # Reinitialize everything
 python setup.py init
 
 # Set profiling flags in application.conf and model-swapper.conf
-sed '5s/false/true/' /opt/numenta/htm-it/conf/application.conf > /opt/numenta/htm-it/conf/application.conf.new
-mv /opt/numenta/htm-it/conf/application.conf.new /opt/numenta/htm-it/conf/application.conf
-sed '5s/false/true/' /opt/numenta/htm-it/conf/model-swapper.conf > /opt/numenta/htm-it/conf/model-swapper.conf.new
-mv /opt/numenta/htm-it/conf/model-swapper.conf.new /opt/numenta/htm-it/conf/model-swapper.conf
+sed '5s/false/true/' /opt/numenta/htm.it/conf/application.conf > /opt/numenta/htm.it/conf/application.conf.new
+mv /opt/numenta/htm.it/conf/application.conf.new /opt/numenta/htm.it/conf/application.conf
+sed '5s/false/true/' /opt/numenta/htm.it/conf/model-swapper.conf > /opt/numenta/htm.it/conf/model-swapper.conf.new
+mv /opt/numenta/htm.it/conf/model-swapper.conf.new /opt/numenta/htm.it/conf/model-swapper.conf
 
 # Update the model quota
-sed -E "s/= ([0-9]+)/= $MODELNUM/" /opt/numenta/htm-it/conf/quota.conf > /opt/numenta/htm-it/conf/quota.conf.new
-mv /opt/numenta/htm-it/conf/quota.conf.new /opt/numenta/htm-it/conf/quota.conf
-/opt/numenta/htm-it/bin/update_quota.py
+sed -E "s/= ([0-9]+)/= $MODELNUM/" /opt/numenta/htm.it/conf/quota.conf > /opt/numenta/htm.it/conf/quota.conf.new
+mv /opt/numenta/htm.it/conf/quota.conf.new /opt/numenta/htm.it/conf/quota.conf
+/opt/numenta/htm.it/bin/update_quota.py
 
 # Reload supervisord's configs
 supervisorctl -c $SUPERVISOR_CONF reread
@@ -81,4 +81,4 @@ popd
 
 # Print the api key
 echo "API key: "
-grep apikey /opt/numenta/htm-it/conf/application.conf
+grep apikey /opt/numenta/htm.it/conf/application.conf

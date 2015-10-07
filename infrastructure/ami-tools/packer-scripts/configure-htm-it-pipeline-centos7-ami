@@ -71,7 +71,7 @@ install-prerequisites-and-update-repos() {
   for folder in "${NUMENTA}" \
     "${NUMENTA}/bin" \
     "${NUMENTA}/lib/python2.7/site-packages" \
-    /etc/htmit
+    /etc/htm.it
   do
     sudo mkdir -p "${folder}"
     sudo chown -R centos:centos "${folder}"
@@ -87,8 +87,8 @@ configure-private-settings() {
 
   echo "Write private settings from env vars to private-settings.sh file"
   
-  if [ -f /etc/htmit/private-settings.sh ]; then
-    sudo rm -f /etc/htmit/private-settings.sh
+  if [ -f /etc/htm.it/private-settings.sh ]; then
+    sudo rm -f /etc/htm.it/private-settings.sh
   fi
 
   echo "# Configure S3 credentials for log uploading
@@ -103,7 +103,7 @@ configure-private-settings() {
     export NOTIFICATIONS_AWS_ACCESS_KEY_ID=${NOTIFICATIONS_AWS_ACCESS_KEY_ID}
     export NOTIFICATIONS_AWS_SECRET_ACCESS_KEY=${NOTIFICATIONS_AWS_SECRET_ACCESS_KEY}
     export NOTIFICATIONS_SENDER_EMAIL=${NOTIFICATIONS_SENDER_EMAIL}
-    " >> /etc/htmit/private-settings.sh
+    " >> /etc/htm.it/private-settings.sh
 }
 
 install-htm-it() {
@@ -122,15 +122,15 @@ install-htm-it() {
   git checkout "${GIT_BRANCH}"
   git reset --hard "${GIT_COMMIT_SHA}"
 
-  echo "Creating symlink to ${NUMENTA}/htmit"
-  ln -s "${HTM_IT_HOME}" "${NUMENTA}/htmit"
+  echo "Creating symlink to ${NUMENTA}/htm.it"
+  ln -s "${HTM_IT_HOME}" "${NUMENTA}/htm.it"
 
   echo "Creating symlink for supervisord.vars"
-  ln -s "${HTM_IT_HOME}/supervisord.vars" /etc/htmit/
+  ln -s "${HTM_IT_HOME}/supervisord.vars" /etc/htm.it/
   echo "Enabling wufoo"
-  touch /etc/htmit/enable_wufoo
+  touch /etc/htm.it/enable_wufoo
   echo "Sourcing supervisord.vars..."
-  source /etc/htmit/supervisord.vars
+  source /etc/htm.it/supervisord.vars
 
   BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts/centos7"
 

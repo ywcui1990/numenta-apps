@@ -34,7 +34,7 @@ updater-directory:
 
 updater-status-directory:
   file.directory:
-    - name: /etc/htm-it/updater_statuses
+    - name: /etc/htm.it/updater_statuses
     - user: root
     - group: root
     - mode: 0755

@@ -30,15 +30,15 @@ public class HeaderPageObject {
 
     static By HTM_IT_LOGO = By.xpath("//a[@class='navbar-brand']");
     static By HELP_LOGO = By.xpath("//li[@class='help']");
-    static By MANAGE_TAB = By.xpath("//li/a[@href='/htm-it']");
-    static By CHARTS = By.xpath("//li/a[@href='/htm-it/embed/charts']");
-    static By SETUP_DROPDOWN = By.xpath("//li/a[@href='/htm-it/welcome']");
+    static By MANAGE_TAB = By.xpath("//li/a[@href='/htmit']");
+    static By CHARTS = By.xpath("//li/a[@href='/htmit/embed/charts']");
+    static By SETUP_DROPDOWN = By.xpath("//li/a[@href='/htmit/welcome']");
 
     public HeaderPageObject(WebDriver driver) {
         this.driver = driver;
     }
 
-    public String htm-itLogo() {
+    public String htmItLogo() {
         return driver.findElement(HTM_IT_LOGO).getText();
 
     }

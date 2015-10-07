@@ -126,7 +126,7 @@
                 apiKey = HTMITUI.utils.store.get('apiKey'),
                 hash = Crypto.SHA1(apiKey + domain),
                 serverURL = 'http://' + window.location.hostname +
-                            "/htm-it/embed/charts",
+                            "/htmit/embed/charts",
                 code = "<iframe width=\"" + width + "\" " +
                         "height=\"" + height + "\" " +
                         "style=\"border:0\" " +

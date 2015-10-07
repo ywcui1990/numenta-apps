@@ -26,15 +26,15 @@
 set -o errexit
 set -o pipefail
 
-source /etc/htm-it/supervisord.vars
+source /etc/htm.it/supervisord.vars
 
 NUMENTA_D=/opt/numenta
 PRODUCTS_D="${NUMENTA_D}/numenta-apps"
-HTM_IT_HOME="${PRODUCTS_D}/htm-it"
+HTM_IT_HOME="${PRODUCTS_D}/htm.it"
 
 CONF_D="${HTM_IT_HOME}/conf"
 UPDATERS_D="${HTM_IT_HOME}/bin/updaters"
-RECEIPTS_D=/etc/htm-it/updater_statuses
+RECEIPTS_D=/etc/htm.it/updater_statuses
 
 cleanup_htm_it_conf_files(){
   echo "Cleaning up application conf files"
@@ -71,7 +71,7 @@ cleanup_htm_it_logfiles() {
 
   echo "**********"
   echo "Removing firstboot tag files"
-  rm -fv /etc/htm-it/firstboot.run /etc/htm-it/firstboot-root.run
+  rm -fv /etc/htm.it/firstboot.run /etc/htm.it/firstboot-root.run
 
   echo "**********"
   echo "Clearing htm-it uuid"
@@ -106,7 +106,7 @@ confirm_authorized_keys_removal
 # to remove them so we can drop the `-e "mercury-"` search from this list.
 echo "Numenta packages:"
 rpm -qa | \
-  grep -e htm-it -e "mercury-" -e nupic -e "nta-" -e salt | \
+  grep -e grok -e htm-it -e "mercury-" -e nupic -e "nta-" -e salt | \
   sort
 
 echo
