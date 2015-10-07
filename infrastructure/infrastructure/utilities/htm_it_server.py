@@ -30,16 +30,16 @@ from infrastructure.utilities.exceptions import (
   InstanceNotReadyError)
 
 HTM_IT_AWS_CREDENTIALS_SETUP_TRIES = 30
-MAX_RETRIES_FOR_INSTANCE_READY = 18
+MAX_RETRIES_FOR_READY = 18
 SLEEP_DELAY = 10
 
 
 
 def checkHTMITServicesStatus(logger):
   """
-    Checks to see if all HTM-IT Services are running. Returns True if all Services
-    are running and False if any are not running.  This should be wrapped in
-    retry logic with error handling.
+    Checks to see if all HTM-IT Services are running. Returns True
+    if all Services are running and False if any are not running.
+    This should be wrapped in retry logic with error handling.
 
     :param logger: Initialized logger
 
@@ -68,8 +68,9 @@ def checkHTMITServicesStatus(logger):
 
 def checkNginxStatus(logger):
   """
-    Checks to see if Nginx is running for HTM-IT. Returns True if it is and False
-    otherwise. This should be wrapped in retry logic with error handling.
+    Checks to see if Nginx is running for HTM-IT. Returns True if
+    it is and False otherwise. This should be wrapped in retry logic
+    with error handling.
 
     :param logger: Initialized logger
 
@@ -85,7 +86,8 @@ def checkNginxStatus(logger):
   if "htm-it-error.conf" in output.stdout:
     raise InstanceLaunchError("Nginx launched in Error state: \r\n %s" %
                               output.stdout)
-  # Else if we're still stopped or currently loading HTM-IT, just log a debug msg
+  # Else if we're still stopped or currently loading HTM-IT, just
+  # log a debug msg
   elif ("htm-it-loading.conf" in output.stdout or
         "htm-it-stopped.conf" in output.stdout):
     logger.debug("Nginx has not yet finished loading: \r\n %s" % output.stdout)
@@ -106,9 +108,9 @@ def waitForHtmItServerToBeReady(publicDnsName, serverKey, user, logger):
 
     :param logger: Initialized logger
 
-    :raises:
-      infrastructure.utilities.exceptions.InstanceNotReadyError
-      If either HTM-IT or Nginx fails to come up properly in the prescribed time.
+    :raises infrastructure.utilities.exceptions.InstanceNotReadyError:
+      If either HTM-IT or Nginx fails to come up properly in the
+      prescribed time.
 
     :raises infrastructure.utilities.exceptions.InstanceLaunchError:
       If a HTM-IT service fails to startup.
@@ -117,7 +119,7 @@ def waitForHtmItServerToBeReady(publicDnsName, serverKey, user, logger):
   with settings(host_string = publicDnsName,
                 key_filename = serverKey, user = user,
                 connection_attempts = 30, warn_only = True):
-    for _ in xrange(MAX_RETRIES_FOR_INSTANCE_READY):
+    for _ in xrange(MAX_RETRIES_FOR_READY):
       logger.info("Checking to see if nginx and HTM-IT Services are running")
       try:
         nginx = checkNginxStatus(logger)
@@ -131,23 +133,24 @@ def waitForHtmItServerToBeReady(publicDnsName, serverKey, user, logger):
         break
       sleep(SLEEP_DELAY)
     else:
-      raise InstanceNotReadyError("HTM-IT services not ready on server %s after "
-                                  "%d seconds." % (publicDnsName,
-                                                MAX_RETRIES_FOR_INSTANCE_READY *
-                                                SLEEP_DELAY))
+      raise InstanceNotReadyError("HTM-IT services not ready on server %s after"
+                                  " %d seconds." % (publicDnsName,
+                                                    MAX_RETRIES_FOR_READY *
+                                                    SLEEP_DELAY))
 
 
 def setupHTMITAWSCredentials(publicDnsName, config):
   """
-    Using the HTM-IT CLI, connect to HTM-IT to obtain the API Key for the instance.
+    Using the HTM-IT CLI, connect to HTM-IT to obtain the API Key
+    for the instance.
 
-    :param publicDnsName: A reachable DNS entry for the HTM-IT server that needs
-      to be configured
+    :param publicDnsName: A reachable DNS entry for the HTM-IT
+      server that needs to be configured
 
     :param config: A dict containing values for `AWS_ACCESS_KEY_ID`
       and `AWS_SECRET_ACCESS_KEY`
 
-    :raises: infrastructure.utilities.exceptions.HTMITConfigError if
+    :raises infrastructure.utilities.exceptions.HTMITConfigError: if
       it is unable to obtain the API Key
 
     :returns: The API Key of the HTM-IT server
