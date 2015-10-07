@@ -34,6 +34,9 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     @IBOutlet weak var name : UILabel!
     @IBOutlet weak var date : UILabel!
     @IBOutlet weak var menuButton:UIBarButtonItem!
+    @IBOutlet weak var condensedToggle: UISwitch?
+    
+    var showCondensed = false
     
     // Serial queue for loading chart data
     let loadQueue = dispatch_queue_create("com.numenta.TwitterController", nil)
@@ -53,6 +56,17 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         }
     }
     
+    @IBAction func toggleCondensed(){
+        self.showCondensed = (condensedToggle?.on)!
+        self.instanceTable.reloadData()
+        
+        if (self.showCondensed){
+            self.instanceTable.separatorColor =  UIColor.blackColor()
+        } else{
+            self.instanceTable.separatorColor = UIColor.lightGrayColor()
+        }
+    }
+    
     /** bind data to view
     */
     func configureView() {
@@ -68,7 +82,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         ticker?.text = chartData?.ticker
         name?.text = chartData?.name
         
-        if (metricChartData != nil){
+        if (metricChartData != nil && metricChartData?.rawData != nil ){
             metricChartView?.data  = metricChartData!.rawData!
             metricChartView?.anomalies = metricChartData!.data!
             metricChartView?.updateData()
@@ -83,7 +97,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        
+       
        
         timeSlider?.showBottom = false
         timeSlider?.transparentBackground = true
@@ -94,17 +108,24 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         self.instanceTable.rowHeight = UITableViewAutomaticDimension
         
         if self.revealViewController() != nil {
-            menuButton.target = self.revealViewController()
-            menuButton.action = "revealToggle:"
-            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
+            let menuIcon = UIImage(named: "menu")
+            let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self.revealViewController(), action: "rightRevealToggle:")
+            self.menuButton = b2
             
-            // Uncomment to change the width of menu
-            // self.revealViewController().rearViewRevealWidth = 62
+            self.navigationItem.rightBarButtonItems = [menuButton!]
+            
+            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
         }
         
+        condensedToggle?.on = false
+        self.instanceTable.separatorColor = UIColor.lightGrayColor()
         configureView()
         
-        loadTwitterData()
+        let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
+        dispatch_async(dispatch_get_global_queue(priority, 0)) {
+            self.loadTwitterData()
+        }
+        
     }
     
 
@@ -127,7 +148,11 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         let ts = twitterIndex [section]
         let date = DataUtils.dateFromTimestamp(ts)
         
-        let s = date.description
+       
+        let formatter = NSDateFormatter()
+        formatter.dateFormat = "h:mma"
+        
+        let s = formatter.stringFromDate ( date )
         return s
     }
     
@@ -157,8 +182,29 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         let items : [Tweet]? = twittermap[tsIndex]
         let tweet = items![ indexPath.item]
         
+        if (showCondensed){
+            let attrs = [NSFontAttributeName : UIFont.boldSystemFontOfSize(14.0)]
+            var attrStr = NSMutableAttributedString(string: tweet.cannonicalText, attributes:attrs)
+            if (tweet.hasLinks){
+                let bodyAttrs = [NSFontAttributeName : UIFont.systemFontOfSize(14.0)]
+                var tweetText = NSMutableAttributedString(string: " links", attributes:bodyAttrs)
+                attrStr.appendAttributedString(tweetText)
+            
+            }
+            cell?.label?.attributedText = attrStr
+        }else{
         
-        cell?.label?.text = tweet.text
+            let attrs = [NSFontAttributeName : UIFont.boldSystemFontOfSize(14.0)]
+            var attrStr = NSMutableAttributedString(string:"@" + tweet.userName, attributes:attrs)
+            let bodyAttrs = [NSFontAttributeName : UIFont.systemFontOfSize(14.0)]
+               var tweetText = NSMutableAttributedString(string: "\r\n" + tweet.text, attributes:bodyAttrs)
+            
+            attrStr.appendAttributedString(tweetText)
+            
+            
+      
+            cell?.label?.attributedText = attrStr
+        }
         return cell
     }
     
@@ -207,7 +253,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             self.twitterIndex = Array(self.twittermap.keys)
             
             self.twitterIndex.sortInPlace {
-                return $0 < $1
+                return $0 >  $1
             }
             
             self.instanceTable?.reloadData()

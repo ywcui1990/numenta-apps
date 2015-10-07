@@ -69,39 +69,157 @@ class Tweet  {
         self.hasLinks = false
         self.aggregatedCount = 0
         self.retweetCount = 0
-        /* FIXME  do all this clean up
-        //  // Clean up HTML encoded text
-        _text = text.replaceAll("&amp;", "&").replaceAll("&quot;", "\"").replaceAll("&lt;", "<").replaceAll("&gt;", ">")
-        //  // Remove duplicate tweets using specific set of rules. See "getCannonicalText" for rules
-        var rawText: String! = _text
-        //  // Remove "..."
-        rawText = DOT_DOT_DOT_REGEX.matcher(rawText).replaceAll("")
-        //  // Remove all links
-        var matcher: Matcher! = LINKS_REGEX.matcher(rawText)
-        _hasLinks = matcher.find()
-        if _hasLinks {
-            rawText = matcher.replaceAll(" ")
-        }
-        //  // Remove "RT" re-tweets
-        rawText = RT_REGEX.matcher(rawText).replaceAll(" ")
-        //  // Remove Hash and dollar tags from the left
-        matcher = LEFT_HASHTAG_UP_TO_COLON_REGEX.matcher(rawText)
-        if matcher.find() {
-            //  // Remove everything up to the colon
-            rawText = matcher.replaceAll(" ")
-        }
-        else {
-            //  // Keep last hash tag
-            rawText = LEFT_HASHTAG_UP_TO_LAST_REGEX.matcher(rawText).replaceAll("$1")
-        }
-        //  // Remove hash tags from the right
-        rawText = RIGHT_HASHTAG_REGEX.matcher(rawText).replaceAll(" ")
-        //  // Remove line feeds and extra spaces
-        rawText = TWO_OR_MORE_SPACES_REGEX.matcher(rawText).replaceAll(" ")
-        _cannonicalText = rawText.replaceAll("\\n|\\r", "").trim()
-        */
+        
+        self.cannonicalText = self.makeCannonicalText(text)
+
+        
+              //  // Clean up HTML encoded text
+       var cleanedText = text.stringByReplacingOccurrencesOfString("&amp;", withString: "&")
+        cleanedText = cleanedText.stringByReplacingOccurrencesOfString("&quot;", withString: "\"")
+        cleanedText = cleanedText.stringByReplacingOccurrencesOfString("&lt;", withString: "<")
+        cleanedText = cleanedText.stringByReplacingOccurrencesOfString("&gt;", withString: ">")
+ 
+        self.text = cleanedText
+        
+        
     }
 
+    /**
+    * Return twitter text without retweets (RT) and other decorators. The current logic is:
+    *
+    * <ul>
+    * <li> Remove "RT " from the beginning of the text up to the colon.</li>
+    * <li> Remove all links from the text.</li>
+    * <li> From left side – remove @, #, $ up to colon symbol.</li>
+    * <li> If no colon – remove @, #, $ when there are multiple in a row (up to last one).</li>
+    * <li>From right side – remove @, #, $ (only remove $ when followed by letter, not a number)
+    * up to text</li>
+    * </ul>
+    * <p>
+    * For example:
+    * <ol>
+    * <li>
+    * <b>Original:</b> "RT @Kelly_Evans: Salesforce $CRM just reopened over at Post 6 and surging
+    * 13% on BBG reports of possible suitors @NYSE"
+    * <br>
+    * <b>Condensed:</b> "Salesforce $CRM just reopened over at Post 6 and surging 13% on BBG
+    * reports of possible suitors"
+    * </li>
+    * <li>
+    * <b>Original:</b> "RT @hblodget: Someone offered to buy Salesforce! RT@SAI: Salesforce
+    * has hired advisors to fend off takeover offers $CRM http://t.co/DGfSez"
+    * <br>
+    * <b>Condensed: </b>"Someone offered to buy Salesforce! RT@SAI: Salesforce has hired
+    * advisors to fend off takeover offers $CRM <b>link</b>"
+    * </li>
+    * <li>
+    * <b>Original:</b> "RT @BloombergDeals: Breaking on Bloomberg: http://t.co/nuMtaw43j is
+    * said to hire bankers to field takeover interest. Terminal link: http://t.co/ssfSEca3rk"
+    * <br>
+    * <b>Condensed:</b> "Breaking on Bloomberg: is said to hire bankers to field takeover
+    * interest. Terminal link: <b>link</b>"
+    * </li>
+    * <li>
+    * <b>Original:</b> "RT @OptionHawk: $CRM takeover talks, whoa!"
+    * <br>
+    * <b>Condensed:</b> "$CRM takeover talks, whoa!"
+    * </li>
+    * <li>
+    * <b>Original:</b> "$SUTI Has now seen 400% gains in the past 2 weeks!
+    * Special update: http://t.co/DGfSez3QA $ESRX $COST $BIIB"
+    * <br>
+    * <b>Condensed:</b> "Has now seen 400% gains in the past 2 weeks! Special update: <b>link</b>"
+    * </li>
+    * <li>
+    * <b>Original:</b> "MCD McDonalds Corp. Volume http://t.co/sfda3SDA $MCD $DG $MRO $FCEL
+    * $MCD #stock #tradeideas"
+    * <br>
+    * <b>Condensed:</b> "MCD McDonalds Corp. Volume <b>link</b>"
+    * </li>
+    * <li>
+    * <b>Original:</b> "RT @wbznewsradio: NEW: @CharterCom to buy @TWC for $53.33 billion in
+    * cash-and-stock deal. Charter will also buy @BrighHouseNow for $10B+"
+    * <br>
+    * <b>Condensed:</b> "NEW: @CharterCom to buy @TWC for $53.33 billion in cash-and-stock
+    * deal. Charter will also buy @BrighHouseNow for $10B+"
+    * </li>
+    * </ol>
+    * </p>
+    */
+    func makeCannonicalText( rawTweet : String)->String{
+         var rawText: String = rawTweet
+        
+        
+        // Remove ...
+        
+        let dotdotdotRegEx = try! NSRegularExpression(pattern: DOT_DOT_DOT_REGEX,
+            options: [.CaseInsensitive])
+        rawText = dotdotdotRegEx.stringByReplacingMatchesInString(rawText, options:[],
+            range: NSMakeRange(0, rawText.characters.count ), withTemplate: "")
+        
+        // Links
+        let linkRegEx = try! NSRegularExpression(pattern: LINKS_REGEX,
+            options: [.CaseInsensitive])
+        
+       
+        if ( linkRegEx.firstMatchInString(rawText, options:[],
+            range: NSMakeRange(0, rawText.characters.count ) ) != nil ){
+                
+                self.hasLinks = true
+                
+                rawText = linkRegEx.stringByReplacingMatchesInString(rawText, options:[],
+                    range: NSMakeRange(0, rawText.characters.count ), withTemplate: " ")
+                
+        }
+        
+        
+        let rtRegEx = try! NSRegularExpression(pattern: RT_REGEX,
+            options: [.CaseInsensitive])
+        rawText = rtRegEx.stringByReplacingMatchesInString(rawText, options:[],
+            range: NSMakeRange(0, rawText.characters.count ), withTemplate: " ")
+       
+        let leftHashRegEx = try! NSRegularExpression(pattern: LEFT_HASHTAG_UP_TO_COLON_REGEX,
+            options: [.CaseInsensitive])
+       
+
+        
+        if ( leftHashRegEx.firstMatchInString(rawText, options:[],
+            range: NSMakeRange(0, rawText.characters.count ) ) != nil ){
+        
+                rawText = leftHashRegEx.stringByReplacingMatchesInString(rawText, options:[],
+                    range: NSMakeRange(0, rawText.characters.count ), withTemplate: " ")
+                
+        }else{
+            rawText = leftHashRegEx.stringByReplacingMatchesInString(rawText, options:[],
+                range: NSMakeRange(0, rawText.characters.count ), withTemplate: "$1")
+
+        }
+        
+        // Remove hash tags from the right
+        let rightHashRegEx = try! NSRegularExpression(pattern: RIGHT_HASHTAG_REGEX,
+            options: [.CaseInsensitive])
+        rawText = rightHashRegEx.stringByReplacingMatchesInString(rawText, options:[],
+            range: NSMakeRange(0, rawText.characters.count ), withTemplate: " ")
+        
+        
+        let twospaceRegEx = try! NSRegularExpression(pattern: TWO_OR_MORE_SPACES_REGEX,
+            options: [.CaseInsensitive])
+        rawText = twospaceRegEx.stringByReplacingMatchesInString(rawText, options:[],
+            range: NSMakeRange(0, rawText.characters.count ), withTemplate: " ")
+
+        rawText =  rawText.stringByReplacingOccurrencesOfString("\\n", withString:"")
+        rawText = rawText.stringByReplacingOccurrencesOfString("\\r", withString:"")
+        
+        
+        
+     // Remove duplicate tweets using specific set of rules. See "getCannonicalText"for rules
+        
+        
+        
+        
+       return rawText
+    
+    }
 
 
 
