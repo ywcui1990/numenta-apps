@@ -140,6 +140,8 @@ on streams of data, predicting future values, and detecting pattern anomalies.
   * Streaming task runner: [Gulp](https://github.com/gulpjs/gulp)
   * JS transpiling (ES6, JSX, etc): [Babel](https://github.com/babel/babel)
   * Linting: [eslint](http://eslint.org/)
+  * JS auto-formatting (like `gofmt`):
+    [esformatter](https://github.com/millermedeiros/esformatter)
 
 #### Description
 
@@ -387,4 +389,3 @@ NEED `npm run blah` examples here! @TODO
   * Copy in Arch doc Errors section to this doc
     * Errors can do screenshots:
       https://github.com/atom/electron/blob/master/docs/api/browser-window.md#browserwindowcapturepagerect-callback
-* JS formatting: [jsfmt](https://github.com/rdio/jsfmt) - NO ES6/7 yet
