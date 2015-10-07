@@ -17,9 +17,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" image="ic_logo_below" translatesAutoresizingMaskIntoConstraints="NO" id="7FZ-my-1e4">
-                                <rect key="frame" x="164" y="45" width="358" height="329"/>
-                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Grok" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="92k-Jt-XK6">
                                 <rect key="frame" x="67" y="419" width="108" height="58"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="48"/>
@@ -32,6 +29,9 @@
                                 <color key="textColor" red="0.40000000596046448" green="0.80000001192092896" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" image="ic_logo_below" translatesAutoresizingMaskIntoConstraints="NO" id="7FZ-my-1e4">
+                                <rect key="frame" x="155" y="210" width="173" height="164"/>
+                            </imageView>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" red="0.098039217293262482" green="0.098039217293262482" blue="0.098039217293262482" alpha="1" colorSpace="calibratedRGB"/>
@@ -39,7 +39,7 @@
                             <constraint firstItem="d38-bi-k4v" firstAttribute="baseline" secondItem="92k-Jt-XK6" secondAttribute="baseline" id="Ew1-op-enW"/>
                             <constraint firstItem="7FZ-my-1e4" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Nyv-ZL-I0m"/>
                             <constraint firstItem="92k-Jt-XK6" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" constant="-90" id="d2i-j7-oJc"/>
-                            <constraint firstItem="d38-bi-k4v" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" constant="70" id="oft-DF-eGi"/>
+                            <constraint firstItem="d38-bi-k4v" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" constant="75" id="oft-DF-eGi"/>
                         </constraints>
                     </view>
                 </viewController>
