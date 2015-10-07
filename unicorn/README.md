@@ -140,6 +140,8 @@ on streams of data, predicting future values, and detecting pattern anomalies.
   * Streaming task runner: [Gulp](https://github.com/gulpjs/gulp)
   * JS transpiling (ES6, JSX, etc): [Babel](https://github.com/babel/babel)
   * Linting: [eslint](http://eslint.org/)
+  * JS auto-formatting (like `gofmt`):
+    [esformatter](https://github.com/millermedeiros/esformatter)
 
 #### Description
 
@@ -376,9 +378,10 @@ NEED `npm run blah` examples here! @TODO
 
 ## @TODO
 
-* Gulp/Webpack config settings for loading differing bundle/code for
-  Desktop or Browser. Split build sources and targets for certain dirs?
-  Sync with recent `nconf` work. Also new Electron/Node4 doesn't need babel.
+* Spread global config around! `nconf` work.
+* New Electron/Node4 doesn't need babel bundle anymore!?.
+* Brev add unit tests for DB Client/Server code, etc.
+* Brev Electron integration test skeleton
 * Add in Flow type checking
 * i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
 * Document where are imports=>requires handled? Babel/Webpack?
@@ -386,4 +389,3 @@ NEED `npm run blah` examples here! @TODO
   * Copy in Arch doc Errors section to this doc
     * Errors can do screenshots:
       https://github.com/atom/electron/blob/master/docs/api/browser-window.md#browserwindowcapturepagerect-callback
-* JS formatting: [jsfmt](https://github.com/rdio/jsfmt) - NO ES6/7 yet
