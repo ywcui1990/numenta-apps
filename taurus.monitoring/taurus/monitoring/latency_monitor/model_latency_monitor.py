@@ -124,7 +124,7 @@ class ModelLatencyChecker(MonitorDispatcher):
       monitorName=__name__ + ":" + checkFn.__name__,
       resourceName=repr(self),
       message=self.formatTraceback(excType, excValue, excTraceback),
-      subjectPrefix="???",
+      subjectPrefix="Model Latency Monitor",
       params=self.emailParams
     )
 
