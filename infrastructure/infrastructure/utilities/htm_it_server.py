@@ -161,6 +161,7 @@ def setupHTMITAWSCredentials(publicDnsName, config):
   }
   server = "https://%s" % publicDnsName
   htmIt = GrokSession(server=server)
+  logger.debug("Verifying credentials {%s} on server %s", credentials, server)
   htmIt.apikey = htmIt.verifyCredentials(**credentials)
   if htmIt.apikey:
     htmIt.updateSettings(settings=credentials, section="aws")
@@ -192,7 +193,8 @@ def getApiKey(instanceId, publicDnsName, config, logger):
     except (HTMITConfigError, AttributeError):
       # We want to retry this, so just keep going on a HTMITConfigError or
       # AttributeError (which probably indicates that the response was empty)
-      pass
+      logger.warning("Unable to get the API Key")
+      continue
     if htmItApiKey:
       logger.info("HTM-IT API Key: %s" % htmItApiKey)
       break
