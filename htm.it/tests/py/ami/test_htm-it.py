@@ -58,7 +58,7 @@ class TestHTMITInstallation(unittest.TestCase):
 
   def testHTMITCronjobs(self):
     self.assertTrue(agamotto.cron.entry(
-      "7 * * * * /usr/local/sbin/lockrun --lockfile=/var/lock/shuffle_htm_it_logs -- /usr/local/sbin/shuffle_htm-itlogs 2>&1 | logger -t gs-shuffle-htm-itlogs"))
+      "7 * * * * /usr/local/sbin/lockrun --lockfile=/var/lock/shuffle_htm_it_logs -- /usr/local/sbin/shuffle_htm_it_logs 2>&1 | logger -t gs-shuffle-htm-itlogs"))
 
 
   def testMetricCollectorIsRunning(self):

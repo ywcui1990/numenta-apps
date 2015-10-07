@@ -149,12 +149,12 @@ case "${1}" in
 
   start)
     start
-    lockrun --lockfile=/var/lock/shuffle_htm-itlogs -- /usr/local/sbin/shuffle_htm-itlogs 2>&1 | logger -t gs-shuffle-htm-itlogs
+    lockrun --lockfile=/var/lock/shuffle_htm_it_logs -- /usr/local/sbin/shuffle_htm_it_logs 2>&1 | logger -t gs-shuffle-htm-itlogs
   ;;
 
   stop)
     stop
-    lockrun --lockfile=/var/lock/shuffle_htm-itlogs -- /usr/local/sbin/shuffle_htm-itlogs 2>&1 | logger -t gs-shuffle-htm-itlogs
+    lockrun --lockfile=/var/lock/shuffle_htm_it_logs -- /usr/local/sbin/shuffle_htm_it_logs 2>&1 | logger -t gs-shuffle-htm-itlogs
   ;;
 
   status)

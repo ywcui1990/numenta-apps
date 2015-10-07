@@ -25,14 +25,14 @@
 # Rotate htm-it's logfiles, and upload to S3 if user has enabled it.
 shuffle-htm-itlogs:
   file.managed:
-    - name: /usr/local/sbin/shuffle_htm-itlogs
-    - source: salt://htm-it-plumbing/files/loghandling/shuffle_htm-itlogs
+    - name: /usr/local/sbin/shuffle_htm_it_logs
+    - source: salt://htm-it-plumbing/files/loghandling/shuffle_htm_it_logs
     - user: root
     - group: root
     - mode: 0755
   cron.present:
-    - name: /usr/local/sbin/lockrun --lockfile=/var/lock/shuffle_htm-itlogs -- /usr/local/sbin/shuffle_htm-itlogs 2>&1 | logger -t gs-shuffle-htm-itlogs
-    - identifier: shuffle_htm-itlogs
+    - name: /usr/local/sbin/lockrun --lockfile=/var/lock/shuffle_htm_it_logs -- /usr/local/sbin/shuffle_htm_it_logs 2>&1 | logger -t gs-shuffle-htm-itlogs
+    - identifier: shuffle_htm_it_logs
     - user: root
     - hour: '*'
     - minute: '7'
