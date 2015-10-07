@@ -116,12 +116,21 @@ export default class Chart extends React.Component {
    * DyGrpahs Chart Initalize and Render
    */
   _chartInitalize() {
-    let options = {};
+    let rangeSelectNode;
+    let options = {
+      clickCallback: this._chartClickCallback.bind(this),
+      zoomCallback: this._chartZoomCallback.bind(this)
+    };
     let el = React.findDOMNode(this.refs.chart);
-    options.clickCallback = this._chartClickCallback.bind(this);
-    options.zoomCallback = this._chartZoomCallback.bind(this);
+
     Object.assign(options, this.props.options);
     this._dygraph = new Dygraph(el, this.props.data, options);
+
+    // range selector custom events
+    rangeSelectNode = el.getElementsByClassName('dygraph-rangesel-fgcanvas');
+    rangeSelectNode[0].addEventListener('click', (event) => {
+      console.log('^!^', event);
+    });
   }
 
   /**
@@ -160,6 +169,8 @@ export default class Chart extends React.Component {
     let [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
     let graphXrange = graphXmax - graphXmin;
     let graphXdiff = graphXmax - rangeXmax;
+
+    console.log('^ZOOM^');
 
     // user moved chart range slider
     this._chartScrollLock = false;
