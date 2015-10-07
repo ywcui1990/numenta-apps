@@ -22,7 +22,7 @@
 #
 # This should only contain settings specific to HTM-IT Plumbing AMIs
 
-source /etc/htm-it/supervisord.vars
+source /etc/htm.it/supervisord.vars
 
 echo "Marking instance as being an AMI build..."
 AMIBUILD_LOCK=/tmp/baking-ami
@@ -52,13 +52,13 @@ splat() {
 
 install-prerequisites-and-update-repos() {
   splat
-  # clean any stale /etc/htm-it and remake the folder
-  rm -rf /etc/htm-it
-  mkdir -p /etc/htm-it
+  # clean any stale /etc/htm.it and remake the folder
+  rm -rf /etc/htm.it
+  mkdir -p /etc/htm.it
 
   echo "Engraving products SHA and build timestamp into AMI"
-  cp /tmp/products.sha /etc/htm-it/ami-operations.sha
-  date > /etc/htm-it/ami-bake.time
+  cp /tmp/products.sha /etc/htm.it/ami-operations.sha
+  date > /etc/htm.it/ami-bake.time
   rm -f /tmp/products.sha /tmp/build.time
 
   echo "Purging old htm-it repo file..."
@@ -135,13 +135,13 @@ install-htm-it() {
   fi
 
   echo "Creating symlink for supervisord.vars"
-  ln -s "${PRODUCTS}/htm-it/supervisord.vars" /etc/htm-it/supervisord.vars
+  ln -s "${PRODUCTS}/htm.it/supervisord.vars" /etc/htm.it/supervisord.vars
   echo "Sourcing supervisord.vars..."
-  source /etc/htm-it/supervisord.vars
+  source /etc/htm.it/supervisord.vars
 
-  echo "Creating symlink to ${NUMENTA}/htm-it and setting permissions"
-  rm -fr "${NUMENTA}"/htm-it
-  ln -s "${PRODUCTS}/htm-it" "${NUMENTA}"/htm-it
+  echo "Creating symlink to ${NUMENTA}/htm.it and setting permissions"
+  rm -fr "${NUMENTA}"/htm.it
+  ln -s "${PRODUCTS}/htm.it" "${NUMENTA}"/htm.it
   chown -R ec2-user:ec2-user "${PRODUCTS}"
 
   pushd "${PRODUCTS}"
@@ -158,9 +158,9 @@ install-htm-it() {
 start-htm-it() {
   splat
   echo "Starting htm-it services..."
-  service htm-itservices start
+  service htm-it-services start
   if [ $? != 0 ]; then
-    echo "htm-itservices start failed"
+    echo "htm-it-services start failed"
     exit 1
   fi
 }

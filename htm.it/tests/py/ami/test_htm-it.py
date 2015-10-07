@@ -31,7 +31,7 @@ APPLICATION_CONFIG_PATH = os.environ.get("APPLICATION_CONFIG_PATH",
 
 HTM_IT_SCRIPTS = [
   "/usr/local/bin/run-htm-it-tests",
-  "/usr/local/sbin/htm-itlog_rotator",
+  "/usr/local/sbin/htm_it_log_rotator",
   "/usr/local/sbin/update-motd"
 ]
 
@@ -58,7 +58,7 @@ class TestHTMITInstallation(unittest.TestCase):
 
   def testHTMITCronjobs(self):
     self.assertTrue(agamotto.cron.entry(
-      "7 * * * * /usr/local/sbin/lockrun --lockfile=/var/lock/shuffle_htm-itlogs -- /usr/local/sbin/shuffle_htm-itlogs 2>&1 | logger -t gs-shuffle-htm-itlogs"))
+      "7 * * * * /usr/local/sbin/lockrun --lockfile=/var/lock/shuffle_htm_it_logs -- /usr/local/sbin/shuffle_htm-itlogs 2>&1 | logger -t gs-shuffle-htm-itlogs"))
 
 
   def testMetricCollectorIsRunning(self):
@@ -81,7 +81,7 @@ class TestHTMITInstallation(unittest.TestCase):
 
 
   def testHTMITServicesEnabled(self):
-    self.assertTrue(agamotto.service.enabled("htm-itservices"))
+    self.assertTrue(agamotto.service.enabled("htm-it-services"))
 
 
   def testHTMITupdates(self):
@@ -93,19 +93,19 @@ class TestHTMITInstallation(unittest.TestCase):
 
 
   def testSupervisordConfiguration(self):
-    self.assertTrue(agamotto.file.exists("/etc/htm-it/supervisord.vars"))
-    self.assertTrue(agamotto.file.exists("/etc/init.d/htm-itservices"))
+    self.assertTrue(agamotto.file.exists("/etc/htm.it/supervisord.vars"))
+    self.assertTrue(agamotto.file.exists("/etc/init.d/htm-it-services"))
 
 
   def testSupervisordInitscript(self):
-    self.assertTrue(agamotto.file.contains("/etc/init.d/htm-itservices",
+    self.assertTrue(agamotto.file.contains("/etc/init.d/htm-it-services",
                     'su ec2-user -c "${supervisor_helper} start"'))
-    self.assertTrue(agamotto.file.contains("/etc/init.d/htm-itservices",
+    self.assertTrue(agamotto.file.contains("/etc/init.d/htm-it-services",
                     'supervisor_helper="${NUMENTA}/supervisord-helper"'))
 
 
   def testHTMITDatabaseExists(self):
-    mysqlPasswordFile = "/etc/htm-it/mysql_password"
+    mysqlPasswordFile = "/etc/htm.it/mysql_password"
     sqlPrefix = "mysql -u root --silent "
     if os.path.isfile(mysqlPasswordFile):
       with open(mysqlPasswordFile) as passwordFile:

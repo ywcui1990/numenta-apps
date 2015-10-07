@@ -20,7 +20,7 @@
  *
  */
 
-package com.htm-it.utils;
+package com.htmit.utils;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -61,7 +61,7 @@ public class ReusableTests {
     public static void testHeaderDuringSetup(WebDriver driver)
             throws InterruptedException {
         HeaderPageObject header = new HeaderPageObject(driver);
-        String htm_it_logo = header.htm-itLogo();
+        String htm_it_logo = header.htmitLogo();
         String htm_it_help = header.helpLogo();
         Assert.assertEquals(htm_it_logo, "HTM-IT");
         Assert.assertEquals(htm_it_help, "Help");
@@ -71,12 +71,12 @@ public class ReusableTests {
             throws InterruptedException {
         HeaderPageObject header = new HeaderPageObject(driver);
         testHeaderDuringSetup(driver);
-        boolean htm-itSetup = header.setupDropDown();
-        boolean htm-itCharts = header.chartsTab();
-        boolean htm-itManage = header.manageTab();
-        Assert.assertEquals(htm-itCharts, true);
-        Assert.assertEquals(htm-itManage, true);
-        Assert.assertEquals(htm-itSetup, true);
+        boolean htmItSetup = header.setupDropDown();
+        boolean htmItCharts = header.chartsTab();
+        boolean htmItManage = header.manageTab();
+        Assert.assertEquals(htmitCharts, true);
+        Assert.assertEquals(htmitManage, true);
+        Assert.assertEquals(htmItSetup, true);
     }
 
     public static void testSetUpProgressText(WebDriver driver)
@@ -89,7 +89,7 @@ public class ReusableTests {
         Assert.assertEquals(str, "Setup Progress:");
     }
 
-    public static void testInstancesCurrentlyMonitoredByHTM-ITColumnNamesVerification(
+    public static void testInstancesCurrentlyMonitoredByHTMITColumnNamesVerification(
             WebDriver driver) {
         String instanceColumn1 = TestUtilities.waitGetText(INSTANCE_COLUMN,
                 driver, WAIT_TIME);
@@ -124,12 +124,12 @@ public class ReusableTests {
         Assert.assertEquals(RemoveAllButtonVerfication, "Remove All");
     }
 
-    public static void testInstancesCurrentlyMonitoredByHTM-ITTitleVerification(
+    public static void testInstancesCurrentlyMonitoredByHTMITTitleVerification(
             WebDriver driver) {
-        String instancesCurrentlyMonitoredByHTM-ITSectionTitle = TestUtilities
+        String instancesCurrentlyMonitoredByHTMITSectionTitle = TestUtilities
                 .waitGetText(INSTANCES_CURRENTLY_MONITORED_BY_HTM_IT_TITLE,
                         driver, WAIT_TIME);
-        Assert.assertEquals(instancesCurrentlyMonitoredByHTM-ITSectionTitle,
+        Assert.assertEquals(instancesCurrentlyMonitoredByHTMITSectionTitle,
                 "Instances Currently Monitored by HTM-IT");
     }
 

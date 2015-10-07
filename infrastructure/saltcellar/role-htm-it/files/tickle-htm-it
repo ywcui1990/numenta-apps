@@ -36,4 +36,4 @@ if [ ! -f "${HTM_IT_APP_CONF}" ]; then
   exit 0
 fi
 
-service htm-itservices tickle
+service htm-it-services tickle

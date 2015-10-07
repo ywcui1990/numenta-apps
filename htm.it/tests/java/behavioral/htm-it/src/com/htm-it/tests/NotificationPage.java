@@ -37,14 +37,14 @@ public class NotificationPage {
     static By NOTIFICATION_PAGE_SAVE_BUTTON = By.xpath
             ("//button[@id='next']");
     static By NAVIGATE_TO_IMPORT_PAGE = By.xpath
-            ("//a[@href='/htm-it/instances/import']");
+            ("//a[@href='/htmit/instances/import']");
     static By NOTIFICATION_EMAIL_TEXT_AREA = By.xpath(".//*[@id='sender']");
     static By NOTIFICATION_LABEL_NOTIFICATION_EMAIL = By.xpath
             (".//*[@id='content']/div/div/form/fieldset/div[1]/label");
     static By NOTIFICATION_LABEL_AWS_REGION = By.xpath
             ("//label[@for='region']");
     static By NAVIGATE_TO_CUSTOM_METRIC_PAGE = By.xpath
-            ("//a[@href='/htm-it/custom']");
+            ("//a[@href='/htmit/custom']");
     static By OPEN_MANAGE_DROPDOWN = By.xpath
             ("//li[@class='setup dropdown']/a/span[2]");
     static By NOTIFICATION_HELP_TEXT_1 = By.xpath

@@ -107,7 +107,7 @@ class ManagedTempRepository(object):
   @classmethod
   def getDatabaseNameFromConfig(cls):
     return config.get(cls.REPO_SECTION_NAME,
-                               cls.REPO_DATABASE_ATTR_NAME)
+                      cls.REPO_DATABASE_ATTR_NAME)
 
 
   def __enter__(self):

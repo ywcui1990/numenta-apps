@@ -19,9 +19,9 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-# /etc/rc.d/init.d/htm-itservices
+# /etc/rc.d/init.d/htm-it-services
 #
-# htm-itservices uses supervisord to start up htm-it services.
+# htm-it-services uses supervisord to start up htm-it services.
 #
 # chkconfig: - 99 10
 # description: Starts HTM-IT Services
@@ -38,13 +38,13 @@ fi
 
 # Source init functions
 . /etc/rc.d/init.d/functions
-source /etc/htm-it/supervisord.vars
+source /etc/htm.it/supervisord.vars
 
 prog="supervisord"
 supervisor_helper="${NUMENTA}/supervisord-helper"
-FIRSTBOOT_RECEIPT=/etc/htm-it/firstboot.run
+FIRSTBOOT_RECEIPT=/etc/htm.it/firstboot.run
 ROOTBOOT_HELPER=/usr/local/sbin/firstboot-root.sh
-export ROOTBOOT_RECEIPT=/etc/htm-it/firstboot.run
+export ROOTBOOT_RECEIPT=/etc/htm.it/firstboot.run
 UPDATE_IS_RUNNING=/tmp/gs-perform-htm-it-update.lock
 
 run-rootboot-helper() {
@@ -76,13 +76,13 @@ start()
 {
   # There is an issue with rabbitmq, erlang, systemd notify, and systemd that
   # means it's difficult to get rabbitmq to run as an independent service.
-  # Therefore, we start and stop rabbitmq inside the htm-itservices scripts to
+  # Therefore, we start and stop rabbitmq inside the htm-it-services scripts to
   # ensure it is running when needed.
   /usr/sbin/rabbitmq-server -detached
   run-rootboot-helper
   syslog-rabbit-status
   echo -n "Starting ${prog}: "
-  logger -t htm-itservices "start()"
+  logger -t htm-it-services "start()"
   cd "${HTM_IT_HOME}"
   su centos -c "${supervisor_helper} start"
   echo
@@ -94,14 +94,14 @@ stop()
 {
   syslog-rabbit-status
   echo -n "Shutting down ${prog}: "
-  logger -t htm-itservices "stop()"
+  logger -t htm-it-services "stop()"
   cd "${HTM_IT_HOME}"
   su centos -c "${supervisor_helper} stop"
   /etc/init.d/htm-it-preload htm-it-stopped
   echo
   # There is an issue with rabbitmq, erlang, systemd notify, and systemd that
   # means it's difficult to get rabbitmq to run as an independent service.
-  # Therefore, we start and stop rabbitmq inside the htm-itservices scripts to
+  # Therefore, we start and stop rabbitmq inside the htm-it-services scripts to
   # ensure it is running when needed.
   /usr/sbin/rabbitmqctl stop
 }
@@ -110,7 +110,7 @@ status()
 {
   syslog-rabbit-status
   echo -n "Status of ${prog}: "
-  logger -t htm-itservices "status()"
+  logger -t htm-it-services "status()"
   cd "${HTM_IT_HOME}"
   su centos -c "${supervisor_helper} status"
   echo
@@ -121,7 +121,7 @@ restart()
   syslog-rabbit-status
   run-rootboot-helper
   echo -n "Restarting ${prog}: "
-  logger -t htm-itservices "restart()"
+  logger -t htm-it-services "restart()"
   cd "${HTM_IT_HOME}"
   su centos -c "${supervisor_helper} restart"
   /etc/init.d/htm-it-preload restart-htm-it
@@ -131,13 +131,13 @@ restart()
 tickle()
 {
   if [ -d "${UPDATE_IS_RUNNING}" ]; then
-    logger -t htm-itservices "tickle() - Skipping, updater running"
+    logger -t htm-it-services "tickle() - Skipping, updater running"
     exit 0
   fi
   syslog-rabbit-status
   if [ -f "${FIRSTBOOT_RECEIPT}" ]; then
     echo -n "Tickling $prog: "
-    logger -t htm-itservices "tickle()"
+    logger -t htm-it-services "tickle()"
     cd "${HTM_IT_HOME}"
     su centos -c "${supervisor_helper} tickle"
   else

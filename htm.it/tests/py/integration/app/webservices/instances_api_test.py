@@ -52,18 +52,18 @@ from htm.it.test_utils.app.sqlalchemy_test_utils import ManagedTempRepository
 # update testdata which new stable node details (e.g rpmbuilder etc)
 # As a positive test for posting multiple instance, we need two instances
 # belonging to same region currently its us-west-2. Keep this in mind
-# while updating replacing testdata for rpm-builder, htm-it-docs
+# while updating replacing testdata for rpm-builder, grok-docs
 VALID_EC2_INSTANCES = {
   "jenkins-master":{
     "instanceId":"i-f52075fe",
     "region":"us-west-2"
   },
-  "rpm-builder":{
-    "instanceId":"i-12d67826",
+  "pypi.numenta.com":{
+    "instanceId":"i-ca41b302",
     "region":"us-west-2"
   },
-  "htm-it-docs":{
-    "instanceId":"i-5c890c6b",
+  "jira.numenta.com":{
+    "instanceId":"i-88ca4981",
     "region":"us-west-2"
   }
 }
@@ -81,7 +81,7 @@ class InstancesApiSingleTest(unittest.TestCase):
     self.headers = getDefaultHTTPHeaders(htm.it.app.config)
 
 
-  @ManagedTempRepository("InstancesApiSingleInstance")
+  @ManagedTempRepository("InstancesApiSingle")
   def testLifecycleForSingleInstance(self):
     """
     Test for Get '/_instances'
@@ -147,7 +147,7 @@ class InstancesApiSingleTest(unittest.TestCase):
     # getPostDeleteResponse.body)
 
 
-  @ManagedTempRepository("InstancesApiSingleInstance")
+  @ManagedTempRepository("InstancesApiSingle")
   def testPostWithInvalidRegion(self):
     """
     Test for post '/_instances/region/namespace/instanceId'
@@ -163,7 +163,7 @@ class InstancesApiSingleTest(unittest.TestCase):
     self.assertIn("Not supported.", response.body)
 
 
-  @ManagedTempRepository("InstancesApiSingleInstance")
+  @ManagedTempRepository("InstancesApiSingle")
   def testPostWithInvalidNamespace(self):
     """
     Test for post '/_instances/region/namespace/instanceId'
@@ -179,7 +179,7 @@ class InstancesApiSingleTest(unittest.TestCase):
     self.assertIn("Not supported.", response.body)
 
 
-  @ManagedTempRepository("InstancesApiSingleInstance")
+  @ManagedTempRepository("InstancesApiSingle")
   def testPostWithInvalidServiceName(self):
     """
     Test for post '/_instances/region/namespace/instanceId'
@@ -196,7 +196,7 @@ class InstancesApiSingleTest(unittest.TestCase):
     self.assertIn("Not supported.", response.body)
 
 
-  @ManagedTempRepository("InstancesApiSingleInstance")
+  @ManagedTempRepository("InstancesApiSingle")
   def testPostWithInvalidInstanceId(self):
     """
     Test for post '/_instances/region/namespace/instanceId'
@@ -216,13 +216,13 @@ class InstancesApiSingleTest(unittest.TestCase):
       headers=self.headers, status="*")
     assertions.assertSuccess(self, response)
 
-  @ManagedTempRepository("InstancesApiSingleInstance")
+  @ManagedTempRepository("InstancesApiSingle")
   def testPostInstanceIdToIncorrectNamespace(self):
     """
     Test for post '/_instances/region/namespace/instanceId'
     response is validated for appropriate headers, body and status
     Invoke Api call with instance to incorrect namespace.
-    e.g post htm-it-docs-elb to AWS/EC2
+    e.g post grok-docs-elb to AWS/EC2
 
     Expect a 200 OK even when attempting to POST an instance to the wrong
     namespace, this saves the overhead of asking AWS if we're dealing with a
@@ -232,13 +232,13 @@ class InstancesApiSingleTest(unittest.TestCase):
     """
     region = "us-west-2"
     namespace = "EC2"
-    instanceId = "htm-it-docs-elb"
+    instanceId = "grok-docs-elb"
     response = self.app.post("/%s/AWS/%s/%s" % (region, namespace, instanceId),
       headers=self.headers, status="*")
     assertions.assertSuccess(self, response)
 
 
-  @ManagedTempRepository("InstancesApiSingleInstance")
+  @ManagedTempRepository("InstancesApiSingle")
   def testPostWithoutInstanceId(self):
     """
     Test for post '/_instances/region/namespace/instanceId' without instanceId
@@ -303,8 +303,8 @@ class InstancesApiMultipleInstanceTest(unittest.TestCase):
     # test will execute this as temporary. This will add expected instances
     # under monitor. Which will be used for further tests
     # here adding
-    params = [VALID_EC2_INSTANCES["rpm-builder"]["instanceId"],
-      VALID_EC2_INSTANCES["htm-it-docs"]["instanceId"]]
+    params = [VALID_EC2_INSTANCES["jira.numenta.com"]["instanceId"],
+      VALID_EC2_INSTANCES["pypi.numenta.com"]["instanceId"]]
     region = "us-west-2"
     namespace = "EC2"
     for instance in params:
@@ -411,7 +411,7 @@ class InstancesApiMultipleInstanceTest(unittest.TestCase):
     We expect the CLI user to know what instance ID he/she is looking for.
 
     """
-    params = ["htm-it-docs-elb"]
+    params = ["grok-docs-elb"]
     response = self.app.post("/us-west-2/AWS/EC2",
       params=app_utils.jsonEncode(params), headers=self.headers, status="*")
     assertions.assertSuccess(self, response)

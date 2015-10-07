@@ -24,8 +24,8 @@
 
 # These directories are required by gs-support-access-tool
 # and gs-get-support-keys
-{% for dirpath in ['/etc/htm-it/sshkeys.d',
-                   '/etc/htm-it/sshkeys.d/originals'] %}
+{% for dirpath in ['/etc/htm.it/sshkeys.d',
+                   '/etc/htm.it/sshkeys.d/originals'] %}
 {{ dirpath }}:
   file.directory:
     - user: root

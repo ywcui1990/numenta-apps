@@ -45,7 +45,7 @@ htm-it-preload-init-script:
       - pkg: nginx
       - file: prehtm-it-html
 
-# Make sure our htm-itservices init script is set to run at boot
+# Make sure our htm-it-services init script is set to run at boot
 htm-it-preload-service:
   service.enabled:
     - name: htm-it-preload

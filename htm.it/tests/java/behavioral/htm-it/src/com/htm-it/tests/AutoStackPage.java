@@ -58,17 +58,17 @@ public class AutoStackPage {
     static By AUTOSTACK_PAGE_FINDMEMBER_BUTTON = By
             .xpath("//button[@id='begin']");
     static By NAVIGATE_TO_BROWSE_PAGE = By
-            .xpath("//a[@href='/htm-it/instances/manual']");
+            .xpath("//a[@href='/htmit/instances/manual']");
     static By AUTOSTACK_PAGE_CREATE_BUTTON = By
             .xpath("html/body/div[3]/div/div/div[3]/button[2]");
     static By NAVIGATE_TO_IMPORT_PAGE = By
-            .xpath("//a[@href='/htm-it/instances/import']");
+            .xpath("//a[@href='/htmit/instances/import']");
     static By OPEN_MANAGE_DROPDOWN = By
             .xpath("//li[@class='setup dropdown']/a/span[2]");
     static By AUTOSTACK_CREATED = By
             .linkText("test_autostack (HTM-IT Autostack)");
     static By NAVIGATE_TO_CUSTOM_METRIC_PAGE = By
-            .xpath("//a[@href='/htm-it/custom']");
+            .xpath("//a[@href='/htmit/custom']");
     static int WAIT_TIME = 10;
 
     public static void autoStackPageTitleVerification(WebDriver driver) {

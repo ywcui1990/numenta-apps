@@ -62,7 +62,7 @@
       "inline": [
         "echo 'Sleeping for 30s, waiting for system to settle down.'",
         "sleep 30",
-        "mkdir -p /etc/htm-it",
+        "mkdir -p /etc/htm.it",
         "mkdir -p /etc/numenta",
         "mkdir -p /srv/salt"
       ],

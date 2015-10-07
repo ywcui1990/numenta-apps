@@ -25,7 +25,7 @@ set -o pipefail
 
 NUMENTA=/opt/numenta
 PRODUCTS="${NUMENTA}/numenta-apps"
-HTM_IT_HOME="${PRODUCTS}/htm-it"
+HTM_IT_HOME="${PRODUCTS}/htmit"
 
 splat() {
   # Make it easier to distinguish phases of the script in the scrollback
@@ -71,7 +71,7 @@ install-prerequisites-and-update-repos() {
   for folder in "${NUMENTA}" \
     "${NUMENTA}/bin" \
     "${NUMENTA}/lib/python2.7/site-packages" \
-    /etc/htm-it
+    /etc/htm.it
   do
     sudo mkdir -p "${folder}"
     sudo chown -R centos:centos "${folder}"
@@ -87,8 +87,8 @@ configure-private-settings() {
 
   echo "Write private settings from env vars to private-settings.sh file"
   
-  if [ -f /etc/htm-it/private-settings.sh ]; then
-    sudo rm -f /etc/htm-it/private-settings.sh
+  if [ -f /etc/htm.it/private-settings.sh ]; then
+    sudo rm -f /etc/htm.it/private-settings.sh
   fi
 
   echo "# Configure S3 credentials for log uploading
@@ -103,7 +103,7 @@ configure-private-settings() {
     export NOTIFICATIONS_AWS_ACCESS_KEY_ID=${NOTIFICATIONS_AWS_ACCESS_KEY_ID}
     export NOTIFICATIONS_AWS_SECRET_ACCESS_KEY=${NOTIFICATIONS_AWS_SECRET_ACCESS_KEY}
     export NOTIFICATIONS_SENDER_EMAIL=${NOTIFICATIONS_SENDER_EMAIL}
-    " >> /etc/htm-it/private-settings.sh
+    " >> /etc/htm.it/private-settings.sh
 }
 
 install-htm-it() {
@@ -122,30 +122,31 @@ install-htm-it() {
   git checkout "${GIT_BRANCH}"
   git reset --hard "${GIT_COMMIT_SHA}"
 
-  echo "Creating symlink to ${NUMENTA}/htm-it"
-  ln -s "${HTM_IT_HOME}" "${NUMENTA}/htm-it"
+  echo "Creating symlink to ${NUMENTA}/htm.it"
+  ln -s "${HTM_IT_HOME}" "${NUMENTA}/htm.it"
 
   echo "Creating symlink for supervisord.vars"
-  ln -s "${HTM_IT_HOME}/supervisord.vars" /etc/htm-it/
+  ln -s "${HTM_IT_HOME}/supervisord.vars" /etc/htm.it/
   echo "Enabling wufoo"
-  touch /etc/htm-it/enable_wufoo
+  touch /etc/htm.it/enable_wufoo
   echo "Sourcing supervisord.vars..."
-  source /etc/htm-it/supervisord.vars
+  source /etc/htm.it/supervisord.vars
 
   BOOTSCRIPTS_D="${PRODUCTS}/infrastructure/ami-tools/boot-scripts/centos7"
 
   for file in firstboot.sh \
     firstboot-root.sh \
     set-mysql-root-password \
-    wait-until-network-up shuffle_htm-itlogs \
-    htm-itlog_rotator \
+    wait-until-network-up \
+    shuffle_htm_it_logs \
+    htm_it_log_rotator \
     lockrun
   do
     echo "Creating symlink for ${file}"
     sudo ln -s "${BOOTSCRIPTS_D}/${file}" /usr/local/sbin/
   done
 
-  for file in htm-itservices htm-it-preload
+  for file in htm-it-services htm-it-preload
   do
     echo "Creating symlink for ${file} init script"
     sudo ln -s "${BOOTSCRIPTS_D}/${file}" /etc/init.d/
@@ -155,7 +156,7 @@ install-htm-it() {
     htm-it-loading.service \
     htm-it-preload.service \
     htm-it-stopped.service \
-    htm-itservices-tickle.service
+    htm-it-services-tickle.service
   do
     echo "Creating symlink for ${service} systemd script"
     sudo ln -s "${BOOTSCRIPTS_D}/${service}" /etc/systemd/system/
@@ -164,8 +165,8 @@ install-htm-it() {
   # NOTE: Per https://bugzilla.redhat.com/show_bug.cgi?id=955379 we need to use
   # the absolute path to the file instead of the symlink in /etc/systemd to
   # enable the services
-  echo "Enabling htm-itservices.service to start at boot"
-  sudo systemctl enable "${BOOTSCRIPTS_D}/htm-itservices.service"
+  echo "Enabling htm-it-services.service to start at boot"
+  sudo systemctl enable "${BOOTSCRIPTS_D}/htm-it-services.service"
 
   sudo systemctl daemon-reload
 

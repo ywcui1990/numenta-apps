@@ -167,8 +167,8 @@ Use HTM-IT
 
 - Web App:
 
-  - Initial Setup: https://localhost/htm-it/welcome
-  - Home: https://localhost/htm-it
+  - Initial Setup: https://localhost/htmit/welcome
+  - Home: https://localhost/htmit
 
 - Supervisor:
 
@@ -187,15 +187,15 @@ Specify AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY CLI options.
 
 ::
 
-    htm-it credentials HTM_IT_SERVER_URL --AWS_ACCESS_KEY_ID=... --AWS_SECRET_ACCESS_KEY=...
+    grok credentials HTM_IT_SERVER_URL --AWS_ACCESS_KEY_ID=... --AWS_SECRET_ACCESS_KEY=...
 
 
 Set AWS credentials from a specific file using the -d, or --data CLI options.
 
 ::
 
-    htm-it credentials HTM_IT_SERVER_URL -d PATH_TO_FILE
-    htm-it credentials HTM_IT_SERVER_URL --data=PATH_TO_FILE
+    grok credentials HTM_IT_SERVER_URL -d PATH_TO_FILE
+    grok credentials HTM_IT_SERVER_URL --data=PATH_TO_FILE
 
 
 For more details refer HTM-IT CLI readme.

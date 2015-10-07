@@ -40,7 +40,7 @@ prog_bin="supervisord"
 PIDFILE="/var/run/${prog}.pid"
 
 FIRSTBOOT_HELPER=/usr/local/sbin/firstboot.sh
-FIRSTBOOT_RECEIPT=/etc/htm-it/firstboot.run
+FIRSTBOOT_RECEIPT=/etc/htm.it/firstboot.run
 
 if [ ! -z "${DEBUG}" ]; then
   echo "============="
@@ -49,7 +49,7 @@ if [ ! -z "${DEBUG}" ]; then
   echo "sourcing supervisord.vars"
 fi
 
-source /etc/htm-it/supervisord.vars
+source /etc/htm.it/supervisord.vars
 
 if [ ! -z "${DEBUG}" ]; then
   echo "============="

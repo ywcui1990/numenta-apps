@@ -82,7 +82,7 @@ class NotificationServiceTest(unittest.TestCase):
       tag_name = None
     metricRowMock = Mock(uid="abc",
                          spec_set=MetricSpec,
-                         server="us-west-2/AWS/ELB/htm-it-docs-elb",
+                         server="us-west-2/AWS/ELB/grok-docs-elb",
                          datasource="cloudwatch",
                          tag_name=None)
     metricRowMock.name = "AWS/ELB/RequestCount"
@@ -116,7 +116,7 @@ class NotificationServiceTest(unittest.TestCase):
 
     self.assertTrue(
       kwargs["body"].startswith("HTM-IT has detected unusual behavior."))
-    self.assertIn("Instance:\t\t\tus-west-2/AWS/ELB/htm-it-docs-elb",
+    self.assertIn("Instance:\t\t\tus-west-2/AWS/ELB/grok-docs-elb",
                   kwargs["body"])
     self.assertIn("Metric:\t\t\tAWS/ELB/RequestCount",
                   kwargs["body"])
