@@ -37,9 +37,9 @@ SLEEP_DELAY = 10
 
 def checkHTMITServicesStatus(logger):
   """
-    Checks to see if all HTM-IT Services are running. Returns True if all Services
-    are running and False if any are not running.  This should be wrapped in
-    retry logic with error handling.
+    Checks to see if all HTM-IT Services are running. Returns True
+    if all Services are running and False if any are not running.
+    This should be wrapped in retry logic with error handling.
 
     :param logger: Initialized logger
 
@@ -51,15 +51,15 @@ def checkHTMITServicesStatus(logger):
   """
   cmd = ("source /etc/htm-it/supervisord.vars && "
          "supervisorctl -c /opt/numenta/htm.it/conf/supervisord.conf status")
-  htm-itServicesState = run(cmd)
+  htm_itServicesState = run(cmd)
 
-  for service in htm-itServicesState.split("\r\n"):
+  for service in htm_itServicesState.split("\r\n"):
     if set(["FATAL", "EXITED"]) & set(service.split(" ")):
       raise InstanceLaunchError("Some HTM-IT services failed to start:\r\n%s" %
-                                htm-itServicesState.stdout)
+                                htm_itServicesState.stdout)
     elif set(["STOPPED", "STARTING", "UNKNOWN"]) & set(service.split(" ")):
       logger.debug("Some HTM-IT services are not yet ready: \r\n %s" %
-                   htm-itServicesState.stdout)
+                   htm_itServicesState.stdout)
       break
   else:
     return True
@@ -68,8 +68,9 @@ def checkHTMITServicesStatus(logger):
 
 def checkNginxStatus(logger):
   """
-    Checks to see if Nginx is running for HTM-IT. Returns True if it is and False
-    otherwise. This should be wrapped in retry logic with error handling.
+    Checks to see if Nginx is running for HTM-IT. Returns True if
+    it is and False otherwise. This should be wrapped in retry logic
+    with error handling.
 
     :param logger: Initialized logger
 
@@ -85,7 +86,8 @@ def checkNginxStatus(logger):
   if "htm-it-error.conf" in output.stdout:
     raise InstanceLaunchError("Nginx launched in Error state: \r\n %s" %
                               output.stdout)
-  # Else if we're still stopped or currently loading HTM-IT, just log a debug msg
+  # Else if we're still stopped or currently loading HTM-IT, just
+  # log a debug msg
   elif ("htm-it-loading.conf" in output.stdout or
         "htm-it-stopped.conf" in output.stdout):
     logger.debug("Nginx has not yet finished loading: \r\n %s" % output.stdout)
@@ -106,14 +108,14 @@ def waitForHtmItServerToBeReady(publicDnsName, serverKey, user, logger):
 
     :param logger: Initialized logger
 
-    :raises:
-      infrastructure.utilities.exceptions.InstanceNotReadyError
-      If either HTM-IT or Nginx fails to come up properly in the prescribed time.
+    :raises infrastructure.utilities.exceptions.InstanceNotReadyError:
+      If either HTM-IT or Nginx fails to come up properly in the
+      prescribed time.
 
     :raises infrastructure.utilities.exceptions.InstanceLaunchError:
       If a HTM-IT service fails to startup.
   """
-  nginx = htm-itServices = False
+  nginx = htm_itServices = False
   with settings(host_string = publicDnsName,
                 key_filename = serverKey, user = user,
                 connection_attempts = 30, warn_only = True):
@@ -121,33 +123,34 @@ def waitForHtmItServerToBeReady(publicDnsName, serverKey, user, logger):
       logger.info("Checking to see if nginx and HTM-IT Services are running")
       try:
         nginx = checkNginxStatus(logger)
-        htm-itServices = checkHTMITServicesStatus(logger)
+        htm_itServices = checkHTMITServicesStatus(logger)
       except EOFError:
         # If SSH hasn't started completely on the remote system, we may get an
         # EOFError trying to provide a password for the user. Instead, just log
         # a warning and continue to retry
         logger.warning("SSH hasn't started completely on the remote machine")
-      if nginx and htm-itServices:
+      if nginx and htm_itServices:
         break
       sleep(SLEEP_DELAY)
     else:
-      raise InstanceNotReadyError("HTM-IT services not ready on server %s after "
-                                  "%d seconds." % (publicDnsName,
-                                                MAX_RETRIES_FOR_INSTANCE_READY *
-                                                SLEEP_DELAY))
+      raise InstanceNotReadyError("HTM-IT services not ready on server %s after"
+                                  " %d seconds." % (publicDnsName,
+                                                    MAX_RETRIES_FOR_INSTANCE_READY *
+                                                    SLEEP_DELAY))
 
 
 def setupHTMITAWSCredentials(publicDnsName, config):
   """
-    Using the HTM-IT CLI, connect to HTM-IT to obtain the API Key for the instance.
+    Using the HTM-IT CLI, connect to HTM-IT to obtain the API Key
+    for the instance.
 
-    :param publicDnsName: A reachable DNS entry for the HTM-IT server that needs
-      to be configured
+    :param publicDnsName: A reachable DNS entry for the HTM-IT
+      server that needs to be configured
 
     :param config: A dict containing values for `AWS_ACCESS_KEY_ID`
       and `AWS_SECRET_ACCESS_KEY`
 
-    :raises: infrastructure.utilities.exceptions.HTMITConfigError if
+    :raises infrastructure.utilities.exceptions.HTMITConfigError: if
       it is unable to obtain the API Key
 
     :returns: The API Key of the HTM-IT server
@@ -157,11 +160,11 @@ def setupHTMITAWSCredentials(publicDnsName, config):
     "aws_secret_access_key": config["AWS_SECRET_ACCESS_KEY"]
   }
   server = "https://%s" % publicDnsName
-  htm-it = GrokSession(server=server)
-  htm-it.apikey = htm-it.verifyCredentials(**credentials)
-  if htm-it.apikey:
-    htm-it.updateSettings(settings=credentials, section="aws")
-    return htm-it.apikey
+  htm_it = GrokSession(server=server)
+  htm_it.apikey = htm_it.verifyCredentials(**credentials)
+  if htm_it.apikey:
+    htm_it.updateSettings(settings=credentials, section="aws")
+    return htm_it.apikey
   else:
     raise HTMITConfigError("Unable to obtain HTM-IT API Key")
 
@@ -185,16 +188,16 @@ def getApiKey(instanceId, publicDnsName, config, logger):
   for _ in xrange(HTM_IT_AWS_CREDENTIALS_SETUP_TRIES):
     logger.debug("Trying to setup HTM-IT AWS Credentials.")
     try:
-      htm-itApiKey = setupHTMITAWSCredentials(publicDnsName, config)
+      htm_itApiKey = setupHTMITAWSCredentials(publicDnsName, config)
     except (HTMITConfigError, AttributeError):
       # We want to retry this, so just keep going on a HTMITConfigError or
       # AttributeError (which probably indicates that the response was empty)
       pass
-    if htm-itApiKey:
-      logger.info("HTM-IT API Key: %s" % htm-itApiKey)
+    if htm_itApiKey:
+      logger.info("HTM-IT API Key: %s" % htm_itApiKey)
       break
     sleep(SLEEP_DELAY)
   else:
     raise HTMITConfigError("Failed to get API Key for instance %s" %
-                          instanceId)
-  return htm-itApiKey
+                           instanceId)
+  return htm_itApiKey
