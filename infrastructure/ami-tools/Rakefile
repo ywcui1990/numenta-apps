@@ -44,7 +44,7 @@ end
 # task aliases
 task :clean => [:cleanup]
 task :default => [:help]
-task :htm-it => [:bake_htm_it_pipeline]
+task :htmit => [:bake_htm_it_pipeline]
 task :h => [:help]
 task :i => [:bake_infrastructure]
 task :inf128 => [:bake_infrastructure_128gb]
