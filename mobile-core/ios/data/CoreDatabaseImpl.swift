@@ -108,7 +108,7 @@ class  CoreDatabaseImpl : CoreDatabase {
         - returns : array of metrics
     */
     func getAllMetrics() -> [Metric]!{
-        let unmutableCollection = metricsCache.values.array
+        let unmutableCollection = Array(metricsCache.values)
         return unmutableCollection
     }
     
