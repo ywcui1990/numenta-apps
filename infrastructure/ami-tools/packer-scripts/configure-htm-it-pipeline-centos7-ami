@@ -124,6 +124,8 @@ install-htm-it() {
 
   echo "Creating symlink to ${NUMENTA}/htm.it"
   ln -s "${HTM_IT_HOME}" "${NUMENTA}/htm.it"
+  echo "Creating log dir"
+  mkdir -p "${HTM_IT_HOME}/logs"
 
   echo "Creating symlink for supervisord.vars"
   ln -s "${HTM_IT_HOME}/supervisord.vars" /etc/htm.it/
