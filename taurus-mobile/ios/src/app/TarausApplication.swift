@@ -37,7 +37,7 @@ class TaurusApplication : GrokApplication{
     }
     
     static func getYellowBarFloor()->Double{
-        return 10.0
+        return 0.4
     }
     
     static func setup(){
@@ -59,6 +59,65 @@ class TaurusApplication : GrokApplication{
     
     static func connectToTaurus()->TaurusClient?{
         return client
+    }
+    
+    /** favorites are stored as a dictionary
+    
+    
+    */
+    /**
+    * Checks whether the given instance was marked as a favorite by the user
+    *
+    * -parameter instance: The instance ID to check
+    * - returns: if it is a favorite,
+    */
+    static func isInstanceFavorite(instance:String)->Bool {
+    
+        let favorites = NSUserDefaults.standardUserDefaults().objectForKey("favorites")
+        if (favorites == nil ){
+            return false
+        }
+        let dict : [String:Int] = favorites! as! [String : Int]
+        return dict[instance] != nil
+    }
+    
+    /**
+    * Return a collection with all instances marked as favorite by the user
+    */
+    static func getFavoriteInstances()->[String] {
+        let favorites = NSUserDefaults.standardUserDefaults().objectForKey("favorites")
+        if (favorites == nil ){
+            return []
+        }
+        let dict : [String:Int] = favorites! as! [String : Int]
+        return Array(dict.keys)
+    }
+    
+    /**
+    * Add the given instance to the user's preference list.
+ 
+    *
+    * @- parameter instance: The instance ID to add
+    */
+    static func addInstanceToFavorites(instance: String) {
+        let favorites = NSUserDefaults.standardUserDefaults().objectForKey("favorites")
+        var dict : [String:Int] = favorites! as! [String : Int]
+        dict[instance] = 0
+        NSUserDefaults.standardUserDefaults().setObject(dict, forKey: "favorites")
+        
+     }
+    
+    /**
+    * Remove the given instance to the user's preference list.
+    *     x
+    * @- parameter instance: The instance ID to add
+    */
+    static func removeInstanceToFavorites(instance: String) {
+        let favorites = NSUserDefaults.standardUserDefaults().objectForKey("favorites")
+        var dict : [String:Int] = favorites! as! [String : Int]
+        dict.removeValueForKey(instance)
+        NSUserDefaults.standardUserDefaults().setObject(dict, forKey: "favorites")
+        
     }
     
 }
