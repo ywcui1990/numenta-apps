@@ -208,7 +208,7 @@
                 },
                 regionNamespaceMetrics = this.data.metrics.where(regionNamespaceFilter),
                 isHTMITAutostack = namespace.match(this.site.instances.types.autostack),
-                isHTMITCustomMetric = namespace.match(this.site.namespaces.htm-it.custom),
+                isHTMITCustomMetric = namespace.match(this.site.namespaces.htmit.custom),
                 makeView = function() {
                     var modalMetricList = new HTMITUI.ModalMetricListView({
                         api:        this.api,
@@ -356,8 +356,8 @@
                 namespace = $row.data('namespace');
             }
             else {
-                region = me.site.name + ' ' + me.site.regions.htm-it.custom;
-                namespace = me.site.namespaces.htm-it.custom;
+                region = me.site.name + ' ' + me.site.regions.htmit.custom;
+                namespace = me.site.namespaces.htmit.custom;
             }
 
             display = '<code class="truncate">' + [
