@@ -28,7 +28,7 @@ import UserError from './UserError';
 import os from 'os';
 
 const MODEL_RUNNER_PATH = path.join(
-  __dirname, '..', '..', 'backend', 'unicorn_backend', 'model_runner.py'
+  __dirname, '..', '..', 'dist', 'model_runner'
 );
 
 
@@ -102,8 +102,8 @@ export class ModelServer extends EventEmitter {
       throw new DuplicateIDError();
     }
 
-    let params = [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats];
-    let child = childProcess.spawn('python', params);
+    let params = ['--model', modelId, '--stats', stats];
+    let child = childProcess.spawn(MODEL_RUNNER_PATH, params);
 
     child.stdout.setEncoding('utf8');
     child.stdin.setDefaultEncoding('utf8');

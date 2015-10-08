@@ -40,9 +40,9 @@ check_for_tmpwatch() {
 
 start() {
   check_for_tmpwatch
-  # Nuke grok flag files explicitly
+  # Nuke htm-it flag files explicitly
   rm -f /tmp/gs-*
-  rm -f /tmp/grok-*
+  rm -f /tmp/htm-it-*
   #
   flags=-umc
   ${TMP_CLEANER} "$flags" -x /tmp/.X11-unix \

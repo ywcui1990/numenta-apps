@@ -26,13 +26,13 @@
   Workflow:
 
   1. create rpm for salt-cellar
-    a. run the script ./create-grok-saltcellar-rpm
+    a. run the script ./create-htm-it-saltcellar-rpm
 
   2. move the rpm to rpmbuild.groksolutions.com: /opt/numenta/s3Repo/s3/noarch
      with fabric api. put()
 
   3. create rpm for Numenta-infrastructure-pipeline
-      a. run the script ./create-grok-infrastructure-rpm
+      a. run the script ./create-htm-it-infrastructure-rpm
 
   4. move the rpm to rpmbuild.groksolutions.com: /opt/numenta/s3Repo/s3/noarch
      with fabric api. put()
@@ -73,7 +73,7 @@ def removeStaleRpms(rpmNamePattern, logger):
     Removes the Stale RPM
 
     :param rpmNamePattern: Delete pattern matching RPM Name.
-                           example : grok-saltcellar-*.rpm
+                           example : htm-it-saltcellar-*.rpm
 
     :param logger: An initialized logger.
 
@@ -96,7 +96,7 @@ def executeScript(rpmNameBase, script, logger):
     Runs the script to create the RPM.
 
     :param rpmNameBase: Base name of the RPM to be created
-                        example: grok-saltcellar
+                        example: htm-it-saltcellar
 
     :param script: script to be executed, which is basically a bash script
                    which creates RPM
@@ -182,7 +182,7 @@ def parseArgs():
   """
   parser = argparse.ArgumentParser(description=("Build the "
                                                 "Infrastructure-rpm-pipeline "
-                                                "and grok-saltcellar-rpm "))
+                                                "and htm-it-saltcellar-rpm "))
 
   parser.add_argument("--log", dest="logLevel", type=str, default="info",
                       help="Logging level, optional parameter and defaulted to"
@@ -200,8 +200,8 @@ def main(args):
   logger = initPipelineLogger("Infrastructure-rpm-pipeline",
                               logLevel=args.logLevel)
 
-  removeStaleRpms("grok-saltcellar-*.rpm", logger)
-  rpmName = executeScript("grok-saltcellar", "./create-grok-saltcellar-rpm",
+  removeStaleRpms("htm-it-saltcellar-*.rpm", logger)
+  rpmName = executeScript("htm-it-saltcellar", "./create-htm-it-saltcellar-rpm",
                           logger)
   moveRpmToRpmbuild(rpmName, g_config, logger)
 

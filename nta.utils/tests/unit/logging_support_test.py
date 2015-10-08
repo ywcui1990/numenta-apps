@@ -42,7 +42,7 @@ from nta.utils.logging_support_raw import LoggingSupport as LS
 _SAMPLE_CONNECTION_CONTENTS = """
 # MySQL database connection parameters
 [config_test_database]
-db = grok
+db = htm-it
 host = localhost
 user = root
 passwd =
@@ -94,9 +94,9 @@ class LoggingSupportTest(unittest.TestCase):
 
 
     def resourceFilenamePatch(module, path):
-      self.assertEqual(module, "grok")
+      self.assertEqual(module, "htm-it")
       self.assertEqual(path, "")
-      return os.path.join(self._tempDir, "grok")
+      return os.path.join(self._tempDir, "htm-it")
 
     environPatch = patch.dict(logging_support_raw.os.environ,
                               values=environCopy, clear=True)

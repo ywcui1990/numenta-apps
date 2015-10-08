@@ -192,6 +192,7 @@ git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/unicorn
 pip install -r backend/requirements.txt
 npm install
+npm run prepare:python # to freeze model_runner.py so that it can be used in Unicorn.
 export APPLICATION_LOG_DIR=logs  # to change to model_runner.py param?
 ```
 
@@ -200,9 +201,24 @@ export APPLICATION_LOG_DIR=logs  # to change to model_runner.py param?
 
 ### Desktop App
 
+Important note: when running `npm run desktop` the application will fail to find
+`dist/model_runner` if `model_runner.py` was never frozen before. Make sure
+to run `npm run prepare:python` beforehand, if any of the following applies:
+* The script `model_runner.py` has never been frozen (i.e. neither `npm run build`
+  nor `npm run prepare:python` have been run before)
+* Changes were made to the the code under `unicon/backend`.
+* Changes to NuPIC were made.
+
+
 Start code via Electron as a Desktop App:
 
 ```shell
+# Freeze the model runner if:
+# - It was never frozen before
+# - Changes were made to the the code under unicon/backend
+# - Changes to NuPIC were made.
+npm run prepare:python
+
 # desktop dev
 npm run desktop
 NODE_ENV=development npm run desktop  # same

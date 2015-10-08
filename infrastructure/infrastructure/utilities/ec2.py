@@ -84,12 +84,12 @@ def launchInstance(amiID, config, logger):
 
   # Make sure we have the right security groups setup for the instance. We use
   # `basic_server` to allow SSH access from our office and specified secure IPs.
-  # `grok_server` allows access to the server from ports 80 & 443 universally,
+  # `htm_it_server` allows access to the server from ports 80 & 443 universally,
   # but can be limited if necessary.
   if config["REGION"] == "us-west-2":
-    securityGroups = ["basic_server", "grok_server"]
+    securityGroups = ["basic_server", "htm_it_server"]
   if config["REGION"] == "us-east-1":
-    securityGroups = ["basic_server", "grok_server_east"]
+    securityGroups = ["basic_server", "htm_it_server_east"]
 
   conn = getEC2Connection(config)
   image = conn.get_image(amiID)

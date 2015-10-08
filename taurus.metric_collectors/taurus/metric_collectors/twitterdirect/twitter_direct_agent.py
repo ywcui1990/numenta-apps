@@ -1363,7 +1363,7 @@ def _parseArgs():
   helpString = (
     "%prog [options]"
     "This fetches twitter messages directly from twitter and sends message "
-    "volume to grok server as custom metrics. Metric configuration is in "
+    "volume to htm-it server as custom metrics. Metric configuration is in "
     "conf/metrics.json.")
 
   parser = OptionParser(helpString)

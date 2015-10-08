@@ -68,7 +68,7 @@ const log = bunyan.createLogger({
       write(rec) {
         let name = bunyan.nameFromLevel[rec.level];
         let method = (name === 'debug') ? 'log' : name;
-        console[method]('[%s] %s: %s', rec.time.toISOString(), name, rec.msg);
+        console[method]('[%s]: %s', name, rec.msg);
       }
     },
     type: 'raw'
