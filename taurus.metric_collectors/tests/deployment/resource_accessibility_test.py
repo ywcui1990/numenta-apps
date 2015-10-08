@@ -151,19 +151,21 @@ class TaurusMetricCollectorsResourceAccessibilityTestCase(unittest.TestCase):
     data = getData(formattedStartTime, formattedEndTime)
 
     if data["Outcome"] == "RequestError":
-      # Try again with an expanded window. In the case that this test is run
-      # after-hours, during which xignite returns "RequestError", rather than
-      # "Success"This approximates the xignite metric collector in which the
-      # agent always requests a window of time between the last successful
-      # response time and _now_ aligned to the most recent 5-minute bucket
+      # Try again with an expanded window. Start by adjusting the start time to
+      # 14 days prior, and then repeatedly reduce the end time by one until a
+      # successful response is returned, or the window narrows such that the
+      # end time is less than, or equal to the start time.
+
       startTime -= timedelta(days=14)
-      formattedStartTime = startTime.strftime(xignite_stock_agent.DATE_FMT)
-      formattedEndTime = endTime.strftime(xignite_stock_agent.DATE_FMT)
-      data = getData(formattedStartTime, formattedEndTime)
+      while data["Outcome"] != "Success" and endTime > startTime:
+        formattedStartTime = startTime.strftime(xignite_stock_agent.DATE_FMT)
+        formattedEndTime = endTime.strftime(xignite_stock_agent.DATE_FMT)
+        data = getData(formattedStartTime, formattedEndTime)
+        endTime -= timedelta(days=1)
 
     self.assertEqual(data["Outcome"], "Success",
-      "XIgnite API not returning data for AAPL from {} to {}".format(
-        formattedStartTime, formattedEndTime))
+      ("Unable to query the XIgnite API for recent data for AAPL between {} "
+       "and now").format(startTime))
 
 
   @_RETRY_SERVICE_RUNNING_CHECK
