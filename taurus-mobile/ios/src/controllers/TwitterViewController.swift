@@ -36,6 +36,10 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     @IBOutlet weak var menuButton:UIBarButtonItem!
     @IBOutlet weak var condensedToggle: UISwitch?
     
+    
+    var twittermap = [ Int64 : [Tweet]]()
+    var twitterIndex = [Int64]()
+
     var showCondensed = false
     
     // Serial queue for loading chart data
@@ -43,12 +47,8 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     
     var  metricChartData : MetricAnomalyChartData?
     
-    //
     var _aggregation: AggregationType = TaurusApplication.getAggregation()
-       
-   // var tableData = [InstanceAnomalyChartData]()
-    
-    
+
     var chartData: InstanceAnomalyChartData? {
         didSet {
             // Update the view.
@@ -56,6 +56,9 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         }
     }
     
+    
+    /** handle the UISwitch for condensed tweets
+    */
     @IBAction func toggleCondensed(){
         self.showCondensed = (condensedToggle?.on)!
         self.instanceTable.reloadData()
@@ -87,18 +90,13 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             metricChartView?.anomalies = metricChartData!.data!
             metricChartView?.updateData()
         }
-        
-
-        
     }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-       
-       
+
         timeSlider?.showBottom = false
         timeSlider?.transparentBackground = true
         // on iOS 8+ need to make sure table background is clear
@@ -117,6 +115,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
         }
         
+        metricChartView.selectionCallback = self.selection
         condensedToggle?.on = false
         self.instanceTable.separatorColor = UIColor.lightGrayColor()
         configureView()
@@ -218,8 +217,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     
-    var twittermap = [ Int64 : [Tweet]]()
-    var twitterIndex = [Int64]()
+    
     /** load twitter data
         fixme - do the more optimal load
     */
@@ -261,9 +259,26 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
 
     }
     
+    /** Scroll table to match the selection
+        - parameter index:
+    */
+    func selection( index : Int)->Void{
+        let timeStamp = Int64(index) * DataUtils.METRIC_DATA_INTERVAL + DataUtils.timestampFromDate( metricChartData!.getStartTimestamp() )
+        
     
-    
-    
-    
+        var section = 0
+        for val in twitterIndex {
+            if ( val < timeStamp)
+            {
+                break
+            }
+            section++
+            
+        }
+        let index = NSIndexPath(forRow: 0, inSection: section)
+        self.instanceTable?.selectRowAtIndexPath(index, animated: false, scrollPosition: UITableViewScrollPosition.Top)
+
+    }
+
 }
 
