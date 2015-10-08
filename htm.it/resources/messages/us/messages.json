@@ -1,7 +1,7 @@
 {
 
     "site": {
-        "name": "HTM-IT",
+        "name": "HTM for IT",
         "company": {
             "name": "Numenta",
             "url": "http://www.numenta.com"
@@ -88,7 +88,7 @@
                 "load": "Loading instance metrics",
                 "start": "Selecting metric for monitoring",
                 "stop": "Removing metric from monitoring",
-                "remove": "Deleting metric(s) from HTM-IT"
+                "remove": "Deleting metric(s) from HTM for IT"
             },
             "save": "Saving",
             "update": "Updating"
@@ -96,9 +96,9 @@
         "regions": {
             "type": {
                 "aws":  "AWS",
-                "htm-it": "Custom"
+                "htmit": "Custom"
             },
-            "htm-it": {
+            "htmit": {
                 "custom": "Custom Metrics"
             }
         },
@@ -106,8 +106,8 @@
             "aws": {
                 "real":     "AWS/"
             },
-            "htm-it": {
-                "custom":   "Custom HTM-IT"
+            "htmit": {
+                "custom":   "Custom HTM for IT"
             }
         },
         "instances": {
@@ -144,14 +144,14 @@
     "pages": {
 
         "welcome": {
-            "title": "Welcome to HTM-IT",
+            "title": "Welcome to HTM for IT",
             "options": {
                 "novice": {
                     "text": "First time user",
-                    "subtext": "HTM-IT will automatically select an initial set of your instances to monitor from this region:"
+                    "subtext": "HTM for IT will automatically select an initial set of your instances to monitor from this region:"
                 },
                 "expert": {
-                    "text": "Advanced HTM-IT user",
+                    "text": "Advanced HTM for IT user",
                     "subtext": "Manually select regions and instances."
                 }
             }
@@ -169,8 +169,8 @@
                     "name":     "Your Name",
                     "company":  "Company",
                     "email":    "Work Email",
-                    "usage":    "I authorize the collection of anonymous usage statistics to improve HTM-IT.",
-                    "sla":      "I accept the HTM-IT Software License Agreement."
+                    "usage":    "I authorize the collection of anonymous usage statistics to improve HTM for IT.",
+                    "sla":      "I accept the HTM for IT Software License Agreement."
                 },
                 "placeholder": {
                     "name":     "First Last",
@@ -200,13 +200,13 @@
         "confirm": {
             "title": "Select Instances to Monitor",
             "info": [
-                "To get you started quickly, HTM-IT has automatically selected some of the largest and longest running instances from your AWS environment and suggested 8 of these for HTM-IT to monitor.",
+                "To get you started quickly, HTM for IT has automatically selected some of the largest and longest running instances from your AWS environment and suggested 8 of these for HTM for IT to monitor.",
                 "You can change - or simply confirm these selections.",
                 "You can also change these selections after installation, including adding additional instances or regions to support monitoring of your entire AWS environment. "
             ],
             "errors": {
-                "free": "If you have received this error, something has gone wrong with your HTM-IT instance. You can try restarting the HTM-IT machine to correct this problem. If that does not solve your problem, please contact support@numenta.com",
-                "standard": "HTM-IT is limited to monitoring <%= capacity %> instances and AutoStacks on an AWS EC2 server of the current size. Please upgrade to a bigger AWS EC2 instance type in order to increase the monitoring capacity of HTM-IT."
+                "free": "If you have received this error, something has gone wrong with your HTM for IT instance. You can try restarting the HTM for IT machine to correct this problem. If that does not solve your problem, please contact support@numenta.com",
+                "standard": "HTM for IT is limited to monitoring <%= capacity %> instances and AutoStacks on an AWS EC2 server of the current size. Please upgrade to a bigger AWS EC2 instance type in order to increase the monitoring capacity of HTM for IT."
             },
             "form": {
                 "defaults": {
@@ -281,7 +281,7 @@
                 "empty": "No instances were found during this search, adjust your settings and try again."
             },
             "notes": [
-                "Create a group of logically related EC2 instances that will be monitored as a single \"Instance\" within HTM-IT",
+                "Create a group of logically related EC2 instances that will be monitored as a single \"Instance\" within HTM for IT",
                 "Servers within this logical group need to <ul><li>Be in the same AWS Region</li><li>Have been previously tagged in AWS</li></ul>",
                 "You must give this group a unique name"
             ],
@@ -308,11 +308,11 @@
 
         "notify": {
             "title": "Notification Settings",
-            "lead": "You will be able to control Notifications you receive on the HTM-IT Application on your mobile phone. By default, these are sent from a standard, unmonitored Numenta account. If you change the settings below, HTM-IT will use AWS Simple Email Service (SES) to send emails from your account. Additional AWS charges may apply.",
+            "lead": "You will be able to control Notifications you receive on the HTM for IT Application on your mobile phone. By default, these are sent from a standard, unmonitored Numenta account. If you change the settings below, HTM for IT will use AWS Simple Email Service (SES) to send emails from your account. Additional AWS charges may apply.",
             "notes": [
                 "Enter an email address and select a region from which notifications will be sent.",
                 "<a target=\"_new\" href=\"http://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html\">Verify your selected email address</a> with the AWS Simple Email Service.",
-                "Verify AWS Identity and Access Management (IAM) Credentials used to launch this HTM-IT server have 'ses:SendEmail' permissions.",
+                "Verify AWS Identity and Access Management (IAM) Credentials used to launch this HTM for IT server have 'ses:SendEmail' permissions.",
                 "If you are not using SES in 'Production' mode, you will only be able to send email to verified email addresses and domains.",
                 "SES is region specific, so ensure that the region you enter below is the same as that of the sender email/domain."
             ],
@@ -331,7 +331,7 @@
         },
 
         "complete": {
-            "title": "Install HTM-IT Mobile App"
+            "title": "Install HTM for IT Mobile App"
         },
 
         "manage": {
@@ -342,7 +342,7 @@
         "manage-custom-metrics": {
             "title": "Manage Custom Metrics",
             "table": {
-                "name": "Custom Metrics Recorded by HTM-IT",
+                "name": "Custom Metrics Recorded by HTM for IT",
                 "empty": "No custom metrics exist.",
                 "headers": {
                     "metric": "Metric",
@@ -371,7 +371,7 @@
 
         "alertUpdate": {
             "title": "Update Available",
-            "desc": "A new version of HTM-IT is ready to be installed:",
+            "desc": "A new version of HTM for IT is ready to be installed:",
             "button": "Update Now",
             "list": [
                 "Click the <strong>Update Now</strong> button to begin a server update.",
@@ -393,7 +393,7 @@
         },
 
         "instanceList": {
-            "title": "Instances Currently Monitored by HTM-IT",
+            "title": "Instances Currently Monitored by HTM for IT",
             "table": {
                 "empty": "No instances have been selected for monitoring.",
                 "headers": {
@@ -495,8 +495,8 @@
         },
 
         "embedForm": {
-            "title": "Add HTM-IT to Any Web Page",
-            "subtitle": "To place a HTM-IT Charts dashboard widget on your web page:",
+            "title": "Add HTM for IT to Any Web Page",
+            "subtitle": "To place a HTM for IT Charts dashboard widget on your web page:",
             "notes": [
                 "Enter the hostname where you will embed the widget, and the width and height.",
                 "Copy the Embed Code, and place it in the HTML source code of your website."
