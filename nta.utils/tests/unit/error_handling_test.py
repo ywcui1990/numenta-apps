@@ -25,16 +25,24 @@
 import os
 import Queue
 import unittest
+import logging
+import time
 
 from mock import patch
 
 from nta.utils import error_handling
 
+from nta.utils.logging_support_raw import LoggingSupport
+
+def setUpModule():
+  LoggingSupport.initTestApp()
+
 
 
 class ErrorHandlingUtilsTest(unittest.TestCase):
   """ Unit tests for the error-handling utilities """
-
+  
+  
   def testAbortProgramOnAnyExceptionWithoutException(self):
 
     @error_handling.abortProgramOnAnyException(exitCode=2)
@@ -96,8 +104,27 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
 
 
   def testRetryNoRetries(self):
-    """ Test that no retires are performed when timeoutSec == 0 """
-    pass
+    """ Test that when timeoutSec == 0, function is executed exactly once 
+    with no retries, and raises an exception on failure. """    
+    
+    _retry = error_handling.retry(timeoutSec=0, initialRetryDelaySec=0.2, 
+      maxRetryDelaySec=10)
+    retryList = []
+    
+    @_retry
+    def testFunction():
+      retryList.append(time.time())
+      print "len retryList", len(retryList)
+      raise Exception("Test exception")
+    
+    osExitCodeQ = Queue.Queue()
+    with patch.object(os, "_exit", autospec=True,
+                      side_effect=osExitCodeQ.put):
+                      
+      with self.assertRaises(Exception):
+        testFunction()      
+        
+    self.assertEqual(len(retryList), 1)
 
 
   def testRetryWaitsInitialRetryDelaySec(self):
@@ -112,8 +139,14 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     pass
 
 
-  def testRetryRetryExceptionIncludedExcluded(self):
-    """ Test that retry is triggered iff raised exeception is in 
+  def testRetryRetryExceptionIncluded(self):
+    """ Test that retry is triggered if raised exeception is in 
+    retryExceptions """
+    pass
+
+
+  def testRetryRetryExceptionExcluded(self):
+    """ Test that retry is not triggered if raised exeception is not in 
     retryExceptions """
     pass
 
