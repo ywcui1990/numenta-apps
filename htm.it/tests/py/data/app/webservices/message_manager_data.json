@@ -3,7 +3,7 @@
     },
 
     "site": {
-        "name": "HTM-IT",
+        "name": "HTM for IT",
         "company": {
             "name": "Numenta",
             "url": "http://www.numenta.com"
@@ -90,7 +90,7 @@
                 "load": "Loading instance metrics",
                 "start": "Selecting metric for monitoring",
                 "stop": "Removing metric from monitoring",
-                "remove": "Deleting metric(s) from HTM-IT"
+                "remove": "Deleting metric(s) from HTM for IT"
             },
             "save": "Saving",
             "update": "Updating"
@@ -98,9 +98,9 @@
         "regions": {
             "type": {
                 "aws":  "AWS",
-                "htm-it": "Custom"
+                "htmit": "Custom"
             },
-            "htm-it": {
+            "htmit": {
                 "custom": "Custom Metrics"
             }
         },
@@ -108,8 +108,8 @@
             "aws": {
                 "real":     "AWS/"
             },
-            "htm-it": {
-                "custom":   "Custom HTM-IT"
+            "htmit": {
+                "custom":   "Custom HTM for IT"
             }
         },
         "instances": {
