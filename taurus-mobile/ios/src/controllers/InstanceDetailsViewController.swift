@@ -28,7 +28,8 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
     @IBOutlet var timeSlider: TimeSliderView?
     @IBOutlet weak var instanceTable: UITableView!
     @IBOutlet weak var anomalyChartView : AnomalyChartView!
-    
+    @IBOutlet weak var marketHoursSwitch : UISwitch?
+
     @IBOutlet weak var ticker : UILabel!
     @IBOutlet weak var name : UILabel!
     @IBOutlet weak var date : UILabel!
@@ -42,7 +43,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
     
     //
     var _aggregation: AggregationType = TaurusApplication.getAggregation()
-
+    var marketHoursOnly = false
     
   //  var tableData = [InstanceAnomalyChartData]()
    
@@ -58,18 +59,25 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
     */
     func configureView() {
         if (chartData == nil){
-            return
+                       return
         }
         
-        if ( chartData?.getEndDate() != nil){
-            timeSlider?.endDate = (chartData?.getEndDate()!)!
-            timeSlider?.setNeedsDisplay()
+        print (chartData?.getEndDate() )
+
+        
+        if ( chartData?.getEndDate() != nil && timeSlider != nil){
+          //  timeSlider?.endDate = (chartData?.getEndDate()!)!
+            
+        //    print (timeSlider?.endDate)
+        //    timeSlider?.setNeedsDisplay()
+            
+               updateTimeSlider ( (chartData?.getEndDate()!)!)
         }
         
-        timeSlider?.disableTouches = true
+        timeSlider?.disableTouches = false
         
-        anomalyChartView?.setData (chartData!.getData())
-        
+        updateAnomalyChartView()
+       
         ticker?.text = chartData?.ticker
         name?.text = chartData?.name
         
@@ -84,6 +92,8 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
             
             return left < right
         }
+        
+       
     
     }
 
@@ -99,14 +109,14 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
          panRec.addTarget(self, action: "draggedView:")
          timeSlider?.addGestureRecognizer(panRec)
          timeSlider?.showBottom = false
-            timeSlider?.transparentBackground = true
+         timeSlider?.transparentBackground = true
         // on iOS 8+ need to make sure table background is clear
         
         instanceTable.backgroundColor = UIColor.clearColor()
         
-        instanceTable.tableFooterView = UIView(frame:CGRectZero)
-        instanceTable.separatorColor = UIColor.clearColor()
-
+      //  instanceTable.tableFooterView = UIView(frame:CGRectZero)
+     //   instanceTable.separatorColor = UIColor.clearColor()
+  
         if self.revealViewController() != nil {
             menuButton.target = self.revealViewController()
             menuButton.action = "revealToggle:"
@@ -116,15 +126,46 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
             // self.revealViewController().rearViewRevealWidth = 62
         }
         
+         marketHoursSwitch?.on = self.marketHoursOnly
+        
          configureView()
+      
     }
 
     
-
+    func updateAnomalyChartView(){
+        if (marketHoursOnly){
+            anomalyChartView?.setData (chartData!.getCollapsedData())
+        }else{
+            anomalyChartView?.setData (chartData!.getData())
+        }
+    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    @IBAction func toggleMarketHours(){
+        self.marketHoursOnly = marketHoursSwitch!.on
+        self.timeSlider?.collapsed =  self.marketHoursOnly
+        self.timeSlider?.setNeedsDisplay()
+        
+        updateAnomalyChartView()
+        //self.anomalyChartView.setCollapsed (self.marketHoursOnly)
+        for cell in cellSet {
+            
+            if (cell.data != nil){
+              
+                cell.data?.collapsed = self.marketHoursOnly
+                cell.data?.refreshData()
+                
+                cell.chart.data  = cell.data!.rawData!
+                cell.chart.anomalies = cell.data!.data!
+                cell.chart.updateData()
+                cell.setNeedsDisplay()
+            }
+        }
     }
     
     /**
@@ -152,21 +193,19 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         let minDate = maxDate - (Int64(TaurusApplication.getNumberOfDaysToSync() - 1)) * DataUtils.MILLIS_PER_DAY;
         // Check max date and no date
         if (endDateInd > maxDate) {
-            flooredDate =  NSDate(timeIntervalSince1970: Double(maxDate)/1000.0 )
+            flooredDate =   DataUtils.floorTo5Mins(NSDate(timeIntervalSince1970: Double(maxDate)/1000.0 ))
         }
         // Check min date
         if (endDateInd < minDate) {
             flooredDate =  NSDate(timeIntervalSince1970: Double(minDate)/1000.0 )
         }
         
-       // print (distance/(60*60))
-     //   print ((timeSlider?.endDate,flooredDate))
-        timeSlider?.endDate =  flooredDate
-        timeSlider?.setNeedsDisplay()
-        
+        updateTimeSlider (flooredDate)
         chartData?.setEndDate(flooredDate)
         chartData?.load()
-        anomalyChartView?.setData (chartData!.getData())
+        
+        updateAnomalyChartView()
+       
         
         
         // FIXME can I use indexPathsForVisibleRows instead?
@@ -174,6 +213,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
             
             if (cell.data != nil){
                 cell.data?.setEndDate (flooredDate)
+                cell.data?.collapsed = self.marketHoursOnly
                 cell.data?.refreshData()
 
                 cell.chart.data  = cell.data!.rawData!
@@ -184,6 +224,18 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         }
        }
     
+    
+    func updateTimeSlider ( date : NSDate){
+        timeSlider?.endDate =  date
+        timeSlider?.setNeedsDisplay()
+        
+        let dayTimePeriodFormatter = NSDateFormatter()
+        dayTimePeriodFormatter.dateFormat = "EEE M/d"
+        
+        let dateString = dayTimePeriodFormatter.stringFromDate(date)
+        
+        self.date?.text = dateString
+    }
     
     /** get the amount of time to shift
         -parameter distance: length of swipe
@@ -225,7 +277,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
     func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell!{
         let cell = self.instanceTable.dequeueReusableCellWithIdentifier("metricCell")
         
-        
+        cell?.selectionStyle = UITableViewCellSelectionStyle.None
         let metricCell =  cell    as! MetricCell?
 
         if ( metricCell == nil ){
@@ -241,10 +293,15 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         
         metricCell?.label.text = cellData.getName()
         
-        if (MetricType.enumForKey(cellData.metric.getUserInfo("metricType")) == MetricType.StockPrice){
+        let type = MetricType.enumForKey(cellData.metric.getUserInfo("metricType"))
+        if ( type == MetricType.StockPrice){
              metricCell?.chart?.wholeNumbers = false
         }else{
             metricCell?.chart?.wholeNumbers = true
+        }
+        
+        if ( type == MetricType.TwitterVolume){
+            metricCell?.prompt.text = "tap for details"
         }
         
         
@@ -284,7 +341,8 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         - parameter data: Metric chart data to load
     */
     func loadChartData(cell : MetricCell, data: MetricAnomalyChartData){
-       
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+
         dispatch_async(loadQueue) {
             
             data.load()
@@ -297,6 +355,9 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
                     cell.chart.anomalies = data.data!
                     cell.chart.updateData()
                     cell.data = data
+                    
+                    UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+
                                    }
             }
         }
