@@ -161,7 +161,6 @@ def setupHTMITAWSCredentials(publicDnsName, config):
   }
   server = "https://%s" % publicDnsName
   htmIt = GrokSession(server=server)
-  logger.debug("Verifying credentials {%s} on server %s", credentials, server)
   htmIt.apikey = htmIt.verifyCredentials(**credentials)
   if htmIt.apikey:
     htmIt.updateSettings(settings=credentials, section="aws")
