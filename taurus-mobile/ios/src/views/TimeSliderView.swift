@@ -63,6 +63,8 @@ class TimeSliderView: UIView {
 
     }
     
+   
+    
     /** draw the view*
         -prameter rect: rect to draw in
     */
@@ -75,15 +77,15 @@ class TimeSliderView: UIView {
         var time :Int64 = (Int64(endDate.timeIntervalSince1970*1000)/interval)*interval
         
         let barWidth = Double(Double(rect.width)/Double(chartTotalBars))
-        var left = Double(rect.width) - barWidth
+        var left = Double(rect.width) - barWidth-0.5
 
         let top = Double(frame.origin.y)
         let bottom = Double(frame.height)
         
+     //   print (endDate)
         // Draw right to left all of the bars.
         while (bar>0){
-            if (transparentBackground){
-                
+          /*  if (transparentBackground){
                 if (!previousCollapsed){
                     calendarTime = NSDate(timeIntervalSince1970: Double(time)/1000.0)
                     //drawLabelsBackground()
@@ -92,21 +94,21 @@ class TimeSliderView: UIView {
                         drawLabel  (rect, time: time, left: left, top: top, right: 0.0, bottom:bottom)
                     }
                 }
-            }
+            }*/
+            let open = TaurusApplication.marketCalendar.isOpen(time + DataUtils.METRIC_DATA_INTERVAL)
             
             if (showBackground){
                 let context = UIGraphicsGetCurrentContext()
                 
                 CGContextSaveGState( context)
-                let open = TaurusApplication.marketCalendar.isOpen(time + DataUtils.METRIC_DATA_INTERVAL)
-              
+                
                 
                 if (transparentBackground){
                     if (open){
                         CGContextSetFillColorWithColor(context, UIColor.clearColor().CGColor)
                         
                     }else{
-                        CGContextSetFillColorWithColor(context, UIColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.1).CGColor)
+                        CGContextSetFillColorWithColor(context, UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5).CGColor)
                         
                     }
                 }else{
@@ -120,14 +122,15 @@ class TimeSliderView: UIView {
                     }
                     
                 }
-                let backRect : CGRect = CGRectMake(CGFloat(left), CGFloat(top), CGFloat(barWidth+0.5), CGFloat(bottom))
+                let backRect : CGRect = CGRectMake(CGFloat(left), CGFloat(top), CGFloat(barWidth+0.95), CGFloat(bottom))
+              //  print (backRect)
                 CGContextFillRect(context, backRect)
 
                 CGContextRestoreGState( context)
                 
             }
             
-            if (!previousCollapsed && transparentBackground == false){
+            if (!previousCollapsed ){
                 calendarTime = NSDate(timeIntervalSince1970: Double(time)/1000.0)
                 //drawLabelsBackground()
                 let hourOfDay = getHour (calendarTime)
@@ -139,7 +142,18 @@ class TimeSliderView: UIView {
             previousCollapsed = false
             
             if (collapsed){
-                
+                var newTime  = time
+                while ( open == false ) {
+                     newTime  -= interval
+                     var marketOpen = TaurusApplication.marketCalendar.isOpen(newTime + DataUtils.METRIC_DATA_INTERVAL)
+                    
+                    if (marketOpen)
+                    {
+                        break
+                    }
+                    time-=interval
+                }
+            
             }
             
             left -= barWidth
