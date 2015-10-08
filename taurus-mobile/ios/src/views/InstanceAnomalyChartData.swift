@@ -115,7 +115,7 @@ class InstanceAnomalyChartData : AnomalyChartData {
             return $0.0 < $1.0
         }
         
-        if (self.ticker == "MO"){
+       /* if (self.ticker == "MO"){
             let nsStartDate = NSDate(timeIntervalSince1970: Double(startDate)/1000.0)
 
             let nsEndDate = NSDate(timeIntervalSince1970: Double(endDate)/1000.0)
@@ -125,7 +125,7 @@ class InstanceAnomalyChartData : AnomalyChartData {
               
             }
            // print (scores)
-        }
+        }*/
         
      
         
@@ -234,5 +234,32 @@ class InstanceAnomalyChartData : AnomalyChartData {
         return rank
     }
 
+    func getCollapsedData()->[(Int64, Double)]{
+        var marketCalendar = TaurusApplication.marketCalendar
+        var marketClosed = false
+        var collapsedData = [(Int64, Double)]()
+        
+        for val in self.data! {
+            let time = val.0 + DataUtils.METRIC_DATA_INTERVAL
+            
+            if ( marketCalendar.isOpen( time) == false){
+                marketClosed = true
+                continue
+            }
+            
+            if (marketClosed){
+                collapsedData.append( (0,0) )
+                marketClosed = false
+            }
+            collapsedData.append ( val )
+        }
+        
+        if (marketClosed){
+            collapsedData.append( (0,0) )
+          
+        }
+        return collapsedData
+        
+    }
     
 }

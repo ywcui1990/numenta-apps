@@ -33,10 +33,12 @@
         var rawData : [Double]?
         var allRawData:[Double]?
         var collapsed: Bool = false
-        var collapsedData : [Float]?
+        var collapsedData : [Double]?
 
         var allAnomalies : [(Int64, Double )] = [(Int64, Double )]()
         var anomalies : [(Int64, Double )] = [(Int64, Double )]()
+    
+    
     
         var BAR_INTERVAL = TaurusApplication.getAggregation().milliseconds()
     
@@ -112,8 +114,10 @@
         lastTimestamp = TaurusApplication.getDatabase().getLastTimestamp()
         let to = DataUtils.dateFromTimestamp(lastTimestamp)
         let fromTime = lastTimestamp - numOfDays * DataUtils.MILLIS_PER_DAY
-        let from = DataUtils.dateFromTimestamp(lastTimestamp - numOfDays * DataUtils.MILLIS_PER_DAY)
+        let from = DataUtils.dateFromTimestamp(fromTime)
         
+        print (to)
+        print (from)
         
         client.getMetricsValues (getId(),  from: from, to: to,ascending: true ){( metricId: String,  timestamp: Int64,  value: Float,  anomaly: Float) in
             
@@ -122,11 +126,16 @@
             if (idx >=  Int(newRawData.count)) {
                 idx = newRawData.count - 1;
             }
+            
+            if (idx<0){
+                print (DataUtils.dateFromTimestamp(timestamp) )
+                return nil
+            }
 
             newRawData[idx] = Double(value)
             
-            if (  newRawData[idx] == 0){
-                print ( newRawData[idx])
+            if (  newRawData[idx] != 0){
+                print ( DataUtils.dateFromTimestamp(timestamp))
             }
             let hour = DataUtils.floorTo60Minutes(timestamp)
             let score = aggregated[hour]
@@ -174,16 +183,28 @@
     
 
     func getStartTimestamp()->NSDate{
-        let startStamp =  endDate - ( 1 * DataUtils.MILLIS_PER_DAY )
+        let startStamp =  endDate - ( TaurusApplication.getNumberOfDaysToSync() * DataUtils.MILLIS_PER_DAY )
         return DataUtils.dateFromTimestamp(startStamp)
     }
     
     func computeDataForCurrentPeriod(){
+        
+        if (self.lastTimestamp==0){
+            return
+        }
+        
+        if (self.endDate == 0){
+            self.endDate = self.lastTimestamp
+        }
+        
+        print (self.getEndDate())
+        print (self.getStartTimestamp())
+        
         var end: Int = allRawData!.count
         let bars = TaurusApplication.getTotalBarsOnChart()
         var size = (Int64(bars) * BAR_INTERVAL / DataUtils.METRIC_DATA_INTERVAL)
         
-        end = max(Int64(self.allRawData!.count) - (self.lastTimestamp - self.endDate) / BAR_INTERVAL - bars, 0)
+        end = max(Int64(self.allRawData!.count) - (self.lastTimestamp - self.endDate) / DataUtils.METRIC_DATA_INTERVAL , 0)
         
         var start: Int = end - Int(size)
         if (start < 0){
@@ -221,11 +242,23 @@
     }
     
     func refreshData(){
+        
+       
         computeDataForCurrentPeriod()
         computeAnomalies()
+        
+        if (self.collapsed){
+            computeCollapsed()
+            self.rawData = self.collapsedData
+            
+        }
     }
     
     func computeAnomalies(){
+        
+        if (anomalies.count<=0){
+            return
+        }
         var result = [(Int64, Double)]()
         let startTime = anomalies[0].0
         for item in anomalies {
@@ -236,4 +269,95 @@
         self.data = result
     }
     
+    /**
+     Compute and set the data for the compressed view
+    */
+    func computeCollapsed(){
+        var bars = Int64(TaurusApplication.getTotalBarsOnChart())
+        
+        let size = (Int64(bars) * BAR_INTERVAL / DataUtils.METRIC_DATA_INTERVAL)
+        let interval = AggregationType(period:60).milliseconds()
+        
+        var time :Int64 = (endDate/interval)*interval
+        let intervalsPerBar = size/bars
+        print (endDate)
+        
+         var results = [Double](count: Int(size), repeatedValue: Double.NaN)
+        
+        let emptyValue = (Int64(0), Double.NaN)
+        var collapsedAnomalies : [(Int64, Double )] = [(Int64,Double)](count: Int(bars), repeatedValue: emptyValue )
+        
+        let startTime = DataUtils.timestampFromDate( self.getStartTimestamp())
+        
+        let anomalySize = Int64( allAnomalies.count)
+        let anomalyStart = max(anomalySize - (lastTimestamp - endDate) / BAR_INTERVAL - bars, 0)
+        let anomalyEnd =  min ( Int(anomalyStart+bars), Int(anomalySize))
+        
+        var barIndex = anomalyEnd - 1
+        // get 24 bars worth of data
+        while (bars>0){
+            
+            let open = TaurusApplication.marketCalendar.isOpen(time + DataUtils.METRIC_DATA_INTERVAL)
+            
+            let endIndex = max(Int64(self.allRawData!.count) - (self.lastTimestamp - time) / DataUtils.METRIC_DATA_INTERVAL , size)
+           
+            
+            if (open){
+                // Copy over values for time period
+                for (var i : Int64 = 0; i < intervalsPerBar; i++){
+                    let index = Int((bars-1) * intervalsPerBar + i  )
+                    let srcIndex  = endIndex - (intervalsPerBar - i - 1)
+                    results[ index ] = allRawData![ Int(srcIndex) ]
+
+                    
+                }
+                
+                // copy over anomalies
+                collapsedAnomalies[bars-1] = ( (bars-1)*intervalsPerBar , self.allAnomalies[barIndex].1 )
+                
+            }else{
+                
+                var newTime  = time
+                
+                // loop until we find a time when the market is open again
+                while ( open == false ) {
+                    newTime  -= interval
+                    let marketOpen = TaurusApplication.marketCalendar.isOpen(newTime + DataUtils.METRIC_DATA_INTERVAL)
+                    
+                    if (marketOpen)
+                    {
+                        
+                        break
+                    }
+                    
+                    time -= interval
+                    barIndex--
+                }
+            }
+            time -= interval
+            bars--
+            barIndex--
+            
+        
+            // stop if we get to the time before we have data
+            if (time < startTime){
+                break
+            }
+            
+            if (barIndex<0){
+                barIndex = 0
+            }
+            
+            
+        }
+        
+        self.collapsedData = results
+        self.data = collapsedAnomalies
+    }
+
+    
+    
+    
+    
+  
   }
