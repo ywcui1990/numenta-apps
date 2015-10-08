@@ -184,7 +184,7 @@
     parseLocation: function(instance) {
       if(! instance.location) {
         instance.location = this.collection.site.name;
-        instance.namespace = this.collection.site.namespaces.htm-it.custom;
+        instance.namespace = this.collection.site.namespaces.htmit.custom;
       }
       return instance;
     },

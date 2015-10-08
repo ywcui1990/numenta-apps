@@ -78,7 +78,7 @@
                         namespaces: new HTMITUI.AwsNamespacesCollection([], collectOpts),
                         regions:    new HTMITUI.AwsRegionsCollection([], collectOpts)
                     },
-                    htm-it: {
+                    htmit: {
                         autostacks: new HTMITUI.HTMITAutostacksCollection([], collectOpts),
                         customs:    new HTMITUI.HTMITCustomMetricsCollection([], collectOpts)
                     }
@@ -101,13 +101,13 @@
                 this.data.monitored.models.fetch(fetchOpts),
                 this.data.source.aws.regions.fetch(fetchOpts),
                 this.data.source.aws.namespaces.fetch(fetchOpts),
-                this.data.source.htm.it.autostacks.fetch(fetchOpts),
-                this.data.source.htm-it.customs.fetch(fetchOpts)
+                this.data.source.htmit.autostacks.fetch(fetchOpts),
+                this.data.source.htmit.customs.fetch(fetchOpts)
             ]).done(function() {
                 // now we have all the data
 
                 // map data into UI data structures
-                this.processHTMITCustomMetrics(this.data.source.htm-it.customs);
+                this.processHTMITCustomMetrics(this.data.source.htmit.customs);
                 this.processAwsRegionsNamespaces(
                     this.data.source.aws.regions,
                     this.data.source.aws.namespaces
@@ -219,7 +219,7 @@
                     });
                 }
                 // or, start monitoring htm-it custom metric
-                else if(namespace.match(me.site.namespaces.htm-it.custom)) {
+                else if(namespace.match(me.site.namespaces.htmit.custom)) {
                     var metrics =
                             me.regions[region].
                             namespaces[namespace].
@@ -270,8 +270,8 @@
                 api:    this.api,
                 site:   this.site,
                 data: {
-                    autostacks: this.data.source.htm.it.autostacks,
-                    customs:    this.data.source.htm-it.customs,
+                    autostacks: this.data.source.htmit.autostacks,
+                    customs:    this.data.source.htmit.customs,
                     instances:  this.data.monitored.instances,
                     metrics:    this.data.source.aws.metrics,
                     models:     this.data.monitored.models,
@@ -336,26 +336,26 @@
         processHTMITCustomMetrics: function(metrics) {
             var me = this,
                 displayName = '<strong>' + me.site.name + '</strong>: ' +
-                    me.site.regions.htm-it.custom,
+                    me.site.regions.htmit.custom,
                 namespaces,
                 instances;
 
             if(metrics.length) {
                 // top-level "HTMIT" Custom Metrics pseudo-Region
                 me.regions[me.site.name] = {
-                    name: me.site.regions.htm-it.custom,
-                    type: me.site.regions.type.htm-it,
+                    name: me.site.regions.htmit.custom,
+                    type: me.site.regions.type.htmit,
                     namespaces: {}
                 };
 
                 // "Custom HTMIT" namespace below that
                 namespaces = me.regions[me.site.name].namespaces;
-                namespaces[me.site.namespaces.htm-it.custom] = {
+                namespaces[me.site.namespaces.htmit.custom] = {
                     instances: {}
                 };
 
                 // HTMIT Custom Metrics are the Instances in this case
-                instances = namespaces[me.site.namespaces.htm-it.custom].instances;
+                instances = namespaces[me.site.namespaces.htmit.custom].instances;
                 metrics.forEach(function(metric) {
                     var name = metric.get('name');
                     instances[name] = {
@@ -368,9 +368,9 @@
                 me.tree.push({
                     label: displayName,
                     id: me.site.name,
-                    type: me.site.regions.type.htm-it,
+                    type: me.site.regions.type.htmit,
                     children: [{
-                        label: me.site.namespaces.htm-it.custom,
+                        label: me.site.namespaces.htmit.custom,
                         children: metrics.map(function(metric) {
                             return {
                                 label:  metric.get('name'),
