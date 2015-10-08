@@ -26,21 +26,33 @@
 */
 public class MarketCalendar {
 
-    /** FIXME right now just assume the market is open 9-3
+    var workweek = [ false,true, true, true, true, true, false]
+    /** FIXME right now just assume the market is open 9-4
     */
     public func isOpen (date : NSDate)->Bool {
         let calendar = NSCalendar.currentCalendar()
+        
+        // check day of week
+        let dayOfWeek = calendar.components( (NSCalendarUnit.NSWeekdayCalendarUnit), fromDate: date)
+        
+        if ( workweek[ dayOfWeek.weekday - 1 ]==false){
+            return false
+        }
+        
         let comp = calendar.components((NSCalendarUnit.NSHourCalendarUnit), fromDate: date)
         let hour = comp.hour
-        if (hour>=9 && hour<16)
+        if (hour>=9 && hour<=16)
         {
             return true
         }
+        
         return false
     }
     
     public func isOpen (date : Int64)->Bool {
-       var time = NSDate(timeIntervalSince1970: Double(date)/1000.0)
+        let time = NSDate(timeIntervalSince1970: Double(date)/1000.0)
         return isOpen(time)
     }
+    
+
 }
