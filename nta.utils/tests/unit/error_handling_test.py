@@ -156,11 +156,13 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     _retry = error_handling.retry(
       timeoutSec=30, initialRetryDelaySec=2,
       maxRetryDelaySec=10)
-    fcnExecCounter = [0]
+
+    class _CounterContainer(object):
+      fcnExecCounter = 0
 
     @_retry
     def testFunction():
-      fcnExecCounter[0] += 1
+      _CounterContainer.fcnExecCounter += 1
       raise Exception("Test exception")
 
     with patch.object(os, "_exit", autospec=True):
@@ -171,7 +173,7 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
                                             call(10), call(10)])
 
     # Currently fails due to ENG-78
-    self.assertEqual(fcnExecCounter[0], 6)
+    self.assertEqual(_CounterContainer.fcnExecCounter, 6)
 
 
   @patch("time.sleep")
