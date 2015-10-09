@@ -18,14 +18,15 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-from optparse import OptionParser
-import os
-import traceback
 import types
 
 from nta.utils import error_reporting
-from nta.utils.config import Config
 from nta.utils.supervisor_utils import SupervisorClient
+
+from taurus.monitoring.monitor_dispatcher import MonitorDispatcher
+from taurus.monitoring import (loadConfig,
+                               loadEmailParamsFromConfig,
+                               MonitorOptionParser)
 
 
 
@@ -44,79 +45,51 @@ class SupervisorProcessInFatalState(SupervisorMonitorError):
 
 
 
-class SupervisorChecker(object):
-  parser = OptionParser()
+class SupervisorChecker(MonitorDispatcher):
 
-  parser.add_option("--monitorConfPath",
-                    help=("Specify full path to ConfigParser-compatible"
-                          " monitor conf file, containing a [S1] section and"
-                          " the following configuration directives:\n\n"
-                          "MODELS_MONITOR_EMAIL_SENDER_ADDRESS\n"
-                          "MODELS_MONITOR_EMAIL_RECIPIENTS\n"
-                          "MODELS_MONITOR_EMAIL_AWS_REGION\n"
-                          "MODELS_MONITOR_EMAIL_SES_ENDPOINT"))
+  parser = MonitorOptionParser()
+
   parser.add_option("--serverUrl",
                     help="Supervisor API (e.g. http://127.0.0.1:9001)")
   parser.add_option("--subjectPrefix",
                     help="Prefix to add to subject in emails")
 
-  _checks = []
-
 
   def __init__(self):
-    (options, args) = self.parser.parse_args()
-
-    if args:
-      self.parser.error("Unexpected positional arguments: {}"
-                        .format(repr(args)))
+    options = self.parser.parse_options()
 
     self.server = SupervisorClient(options.serverUrl)
     self.subjectPrefix = options.subjectPrefix
 
-    confDir = os.path.dirname(options.monitorConfPath)
-    confFileName = os.path.basename(options.monitorConfPath)
-    config = Config(confFileName, confDir)
-
-    self.emailParams = (
-      dict(senderAddress=(
-            config.get("S1", "MODELS_MONITOR_EMAIL_SENDER_ADDRESS")),
-           recipients=config.get("S1", "MODELS_MONITOR_EMAIL_RECIPIENTS"),
-           awsRegion= config.get("S1", "MODELS_MONITOR_EMAIL_AWS_REGION"),
-           sesEndpoint=config.get("S1", "MODELS_MONITOR_EMAIL_SES_ENDPOINT"),
-           awsAccessKeyId=None,
-           awsSecretAccessKey=None))
+    self.config = loadConfig(options)
+    self.emailParams = loadEmailParamsFromConfig(self.config)
 
 
-  def checkAll(self):
-    """ Run all previously-registered checks and send an email upon failure
+  def dispatchNotification(self, checkFn, excType, excValue, excTraceback):
+    """  Send notification.
+
+    :param function checkFn: The check function that raised an exception
+    :param type excType: Exception type
+    :param exception excValue: Exception value
+    :param traceback excTraceback: Exception traceback
+
+    Required by MonitorDispatcher abc protocol.
     """
-    for check in self._checks:
-      try:
-        check(self.server)
-      except Exception as err:
-        error_reporting.sendMonitorErrorEmail(
-          monitorName=__name__ + ":" + check.__name__,
-          resourceName=repr(self.server),
-          message=traceback.format_exc(),
-          subjectPrefix=self.subjectPrefix,
-          params=self.emailParams)
-
-
-  @classmethod
-  def registerCheck(cls, fn):
-    """ Function decorator to register an externally defined function as a
-    check.  Function must accept a ServerProxy instance as its first
-    argument.
-    """
-    cls._checks.append(fn)
+    error_reporting.sendMonitorErrorEmail(
+      monitorName=__name__ + ":" + checkFn.__name__,
+      resourceName=repr(self),
+      message=self.formatTraceback(excType, excValue, excTraceback),
+      subjectPrefix=self.subjectPrefix,
+      params=self.emailParams
+    )
 
 
 
 @SupervisorChecker.registerCheck
-def checkSupervisordState(server):
+def checkSupervisordState(monitorObj):
   """ Check that supervisord is running
   """
-  state = server.supervisor.getState()
+  state = monitorObj.server.supervisor.getState()
   if not isinstance(state, types.DictType):
     raise SupervisorMonitorError("Unexpected response from"
                                  " `server.supervisor.getState()`: {}"
@@ -127,11 +100,12 @@ def checkSupervisordState(server):
                                "{}".format(repr(state)))
 
 
+
 @SupervisorChecker.registerCheck
-def checkSupervisorProcesses(server):
+def checkSupervisorProcesses(monitorObj):
   """ Check that there are no processes in a 'FATAL' state.
   """
-  processes = server.supervisor.getAllProcessInfo()
+  processes = monitorObj.server.supervisor.getAllProcessInfo()
 
   if not isinstance(processes, types.ListType):
     raise SupervisorMonitorError("Unexpected response from"
@@ -140,7 +114,7 @@ def checkSupervisorProcesses(server):
 
   for process in processes:
     if process.get("statename") == "FATAL":
-      logTail = server.supervisor.tailProcessLog(
+      logTail = monitorObj.server.supervisor.tailProcessLog(
         process["group"] + ":" + process["name"], -2048, 2048)
 
       errMessage = ("{group}:{name} is in a FATAL state: {description}"
@@ -153,4 +127,3 @@ def checkSupervisorProcesses(server):
                     "\n\n=======================\n")
 
       raise SupervisorProcessInFatalState(errMessage)
-

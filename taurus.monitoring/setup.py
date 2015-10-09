@@ -22,7 +22,9 @@ setup(
       ("taurus-server-supervisor-monitor = "
        "%s.supervisord_monitor.taurus_server_supervisord_monitor:main" % name),
       ("taurus-collector-supervisor-monitor = "
-       "%s.supervisord_monitor.taurus_collector_supervisord_monitor:main" % name)
+       "%s.supervisord_monitor.taurus_collector_supervisord_monitor:main" % name),
+      ("taurus-model-latency-monitor = "
+       "%s.latency_monitor.model_latency_monitor:main" % name)
     ]
   }
 )
