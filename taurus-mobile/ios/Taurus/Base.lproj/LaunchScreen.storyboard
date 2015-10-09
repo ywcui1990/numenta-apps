@@ -17,20 +17,20 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" image="ic_logo_below" translatesAutoresizingMaskIntoConstraints="NO" id="7FZ-my-1e4">
-                                <rect key="frame" x="155" y="210" width="173" height="164"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_logo_below" translatesAutoresizingMaskIntoConstraints="NO" id="7FZ-my-1e4">
+                                <rect key="frame" x="210" y="118" width="179" height="164"/>
                             </imageView>
-                            <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DBh-mg-y36">
-                                <rect key="frame" x="54" y="400" width="366" height="128"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DBh-mg-y36">
+                                <rect key="frame" x="150" y="282" width="300" height="75"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="for Stocks" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d38-bi-k4v">
-                                        <rect key="frame" x="140" y="35" width="211" height="58"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="for Stocks" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d38-bi-k4v">
+                                        <rect key="frame" x="112" y="9" width="210.5" height="57.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="48"/>
                                         <color key="textColor" red="0.40000000596046448" green="0.80000001192092896" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="Grok" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="92k-Jt-XK6">
-                                        <rect key="frame" x="24" y="34" width="108" height="58"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Grok" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="92k-Jt-XK6">
+                                        <rect key="frame" x="0.0" y="9" width="108" height="57.5"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="48"/>
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
@@ -38,15 +38,21 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="d38-bi-k4v" firstAttribute="centerY" secondItem="92k-Jt-XK6" secondAttribute="centerY" id="ltU-Ee-XwY"/>
+                                    <constraint firstItem="d38-bi-k4v" firstAttribute="leading" secondItem="92k-Jt-XK6" secondAttribute="trailing" constant="4" id="7qI-vv-s0h"/>
+                                    <constraint firstItem="d38-bi-k4v" firstAttribute="centerY" secondItem="DBh-mg-y36" secondAttribute="centerY" id="V9A-vi-VcU"/>
+                                    <constraint firstAttribute="height" constant="75" id="kVq-lM-sLn"/>
+                                    <constraint firstAttribute="width" constant="300" id="lIt-pv-MNu"/>
+                                    <constraint firstItem="92k-Jt-XK6" firstAttribute="leading" secondItem="DBh-mg-y36" secondAttribute="leading" id="nfd-Sg-Gw6"/>
+                                    <constraint firstItem="92k-Jt-XK6" firstAttribute="centerY" secondItem="DBh-mg-y36" secondAttribute="centerY" id="wsF-5t-gZn"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" red="0.098039217293262482" green="0.098039217293262482" blue="0.098039217293262482" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="DBh-mg-y36" firstAttribute="top" secondItem="7FZ-my-1e4" secondAttribute="bottom" constant="5" id="5WC-yV-O9d"/>
+                            <constraint firstItem="DBh-mg-y36" firstAttribute="top" secondItem="7FZ-my-1e4" secondAttribute="bottom" id="5WC-yV-O9d"/>
                             <constraint firstItem="7FZ-my-1e4" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Nyv-ZL-I0m"/>
+                            <constraint firstItem="7FZ-my-1e4" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="-100" id="pvc-ID-Cix"/>
                             <constraint firstItem="DBh-mg-y36" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="zpz-zL-J2v"/>
                         </constraints>
                     </view>
