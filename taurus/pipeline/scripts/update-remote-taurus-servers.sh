@@ -227,13 +227,13 @@ pushd "${REPOPATH}"
      if [ -f taurus-supervisord.pid ]; then
        supervisorctl --serverurl http://localhost:9001 stop all
        let attempts=1
-       supervisorctl status | grep -E \"RUNNING|STOPPING\"
+       supervisorctl --serverurl http://localhost:9001 status | grep -E \"RUNNING|STOPPING\"
        while [ \$? -eq 0  ] && [ \$attempts -le 5 ]; do
          sleep 1
-         supervisorctl status | grep -E \"RUNNING|STOPPING\";
+         supervisorctl --serverurl http://localhost:9001 status | grep -E \"RUNNING|STOPPING\";
          let \"attempts+=1\"
        done
-       supervisorctl status | grep -E \"RUNNING|STOPPING\"
+       supervisorctl --serverurl http://localhost:9001 status | grep -E \"RUNNING|STOPPING\"
        if [ \$? -eq 0 ]; then
          echo \"Unable to stop all processes...\"
          exit;
