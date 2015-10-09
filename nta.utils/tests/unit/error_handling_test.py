@@ -25,8 +25,6 @@
 import os
 import Queue
 import unittest
-import logging
-import time
 
 from mock import patch, call
 
@@ -40,8 +38,8 @@ def setUpModule():
 
 class ErrorHandlingUtilsTest(unittest.TestCase):
   """ Unit tests for the error-handling utilities """
-  
-  
+
+
   def testAbortProgramOnAnyExceptionWithoutException(self):
 
     @error_handling.abortProgramOnAnyException(exitCode=2)
@@ -101,215 +99,189 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
       exitCode = osExitCodeQ.get_nowait()
       self.assertEqual(exitCode, 2)
 
-  @patch('time.sleep')
-  @patch('time.time')
-  def testRetryNoRetries(self, mockTime, mockSleep):
-    """ Test that when timeoutSec == 0, function is executed exactly once 
-    with no retries, and raises an exception on failure. """    
-    
-    accumulatedTime = [0]
-    
+
+  def mockSleepTime(self, mockTime, mockSleep):
+    class _TimeContainer(object):
+      accumulatedTime = 0
+
     def testTime():
-      return accumulatedTime[0]
-    
+      return _TimeContainer.accumulatedTime
+
     def testSleep(duration):
-      accumulatedTime[0] += duration  
-    
+      _TimeContainer.accumulatedTime += duration
+
     mockTime.side_effect = testTime
     mockSleep.side_effect = testSleep
-    
-    _retry = error_handling.retry(timeoutSec=0, initialRetryDelaySec=0.2, 
+
+
+  @patch("time.sleep")
+  @patch("time.time")
+  def testRetryNoRetries(self, mockTime, mockSleep):
+    """ Test that when timeoutSec == 0, function is executed exactly once
+    with no retries, and raises an exception on failure. """
+
+    self.mockSleepTime(mockTime, mockSleep)
+
+    _retry = error_handling.retry(
+      timeoutSec=0, initialRetryDelaySec=0.2,
       maxRetryDelaySec=10)
+
     fcnExecCounter = [0]
-    
+
     @_retry
     def testFunction():
       fcnExecCounter[0] += 1
       raise Exception("Test exception")
-    
+
     osExitCodeQ = Queue.Queue()
     with patch.object(os, "_exit", autospec=True,
                       side_effect=osExitCodeQ.put):
-                      
+
       with self.assertRaises(Exception):
-        testFunction()      
-        
+        testFunction()
+
     self.assertEqual(mockSleep.mock_calls, [])
     self.assertEqual(fcnExecCounter[0], 1)
 
 
-  @patch('time.sleep')
-  @patch('time.time')
+  @patch("time.sleep")
+  @patch("time.time")
   def testRetryWaitsInitialRetryDelaySec(self, mockTime, mockSleep):
-    """ Test that first retry delay is initialRetryDelaySec and subsequent 
+    """ Test that first retry delay is initialRetryDelaySec and subsequent
     retry delays are geometrically doubling up to maxRetryDelaySec  """
-    
-    accumulatedTime = [0]
-    
-    def testTime():
-      return accumulatedTime[0]
-    
-    def testSleep(duration):
-      accumulatedTime[0] += duration  
-    
-    mockTime.side_effect = testTime
-    mockSleep.side_effect = testSleep
-        
-    _retry = error_handling.retry(timeoutSec=30, initialRetryDelaySec=2, 
+
+    self.mockSleepTime(mockTime, mockSleep)
+
+    _retry = error_handling.retry(
+      timeoutSec=30, initialRetryDelaySec=2,
       maxRetryDelaySec=10)
     fcnExecCounter = [0]
-    
+
     @_retry
     def testFunction():
       fcnExecCounter[0] += 1
       raise Exception("Test exception")
-    
+
     with patch.object(os, "_exit", autospec=True):
       with self.assertRaises(Exception):
-        testFunction()      
-    
+        testFunction()
+
     print fcnExecCounter[0]
-    
-    self.assertEqual(mockSleep.mock_calls, [call(2), call(4), call(8), 
+
+    self.assertEqual(mockSleep.mock_calls, [call(2), call(4), call(8),
                                             call(10), call(10)])
-    
+
     # Currently fails due to ENG-78
     self.assertEqual(fcnExecCounter[0], 6)
-             
 
-  @patch('time.sleep')
-  @patch('time.time')
+
+  @patch("time.sleep")
+  @patch("time.time")
   def testRetryRetryExceptionIncluded(self, mockTime, mockSleep):
-    """ Test that retry is triggered if raised exeception is in 
+    """ Test that retry is triggered if raised exeception is in
     retryExceptions """
 
-    accumulatedTime = [0]
-    
-    def testTime():
-      return accumulatedTime[0]
-    
-    def testSleep(duration):
-      accumulatedTime[0] += duration  
-    
-    mockTime.side_effect = testTime
-    mockSleep.side_effect = testSleep
-    
+    self.mockSleepTime(mockTime, mockSleep)
+
     class TestParentException(Exception):
       pass
-    
+
     class TestChildException(TestParentException):
       pass
-    
-    _retry = error_handling.retry(timeoutSec=1, initialRetryDelaySec=1, 
+
+    _retry = error_handling.retry(
+      timeoutSec=1, initialRetryDelaySec=1,
       maxRetryDelaySec=10, retryExceptions=(TestParentException,))
-    
+
     @_retry
     def testFunction():
       raise TestChildException("Test exception")
-    
+
     with patch.object(os, "_exit", autospec=True):
       with self.assertRaises(Exception):
-        testFunction()      
-        
+        testFunction()
+
     self.assertEqual(mockSleep.call_count, 1)
 
 
-  @patch('time.sleep')
-  @patch('time.time')
+  @patch("time.sleep")
+  @patch("time.time")
   def testRetryRetryExceptionExcluded(self, mockTime, mockSleep):
-    """ Test that retry is not triggered if raised exeception is not in 
+    """ Test that retry is not triggered if raised exeception is not in
     retryExceptions """
 
-    accumulatedTime = [0]
-    
-    def testTime():
-      return accumulatedTime[0]
-    
-    def testSleep(duration):
-      accumulatedTime[0] += duration  
-    
-    mockTime.side_effect = testTime
-    mockSleep.side_effect = testSleep
-    
+    self.mockSleepTime(mockTime, mockSleep)
+
     class TestExceptionA(Exception):
       pass
-    
+
     class TestExceptionB(Exception):
       pass
-    
-    _retry = error_handling.retry(timeoutSec=1, initialRetryDelaySec=1, 
+
+    _retry = error_handling.retry(
+      timeoutSec=1, initialRetryDelaySec=1,
       maxRetryDelaySec=10, retryExceptions=(TestExceptionA,))
-    
+
     @_retry
     def testFunction():
       raise TestExceptionB("Test exception")
-    
+
     with patch.object(os, "_exit", autospec=True):
       with self.assertRaises(TestExceptionB):
-        testFunction()      
-        
+        testFunction()
+
     self.assertEqual(mockSleep.call_count, 0)
 
 
-  @patch('time.sleep')
-  @patch('time.time')
+  @patch("time.sleep")
+  @patch("time.time")
   def testRetryRetryFilter(self, mockTime, mockSleep):
-    """ Test that if retryFilter is specified and exception is in retryExceptions,
-      retries iff retryFilter returns true """
+    """ Test that if retryFilter is specified and exception is in
+    retryExceptions, retries iff retryFilter returns true """
 
-    accumulatedTime = [0]
-    
-    def testTime():
-      return accumulatedTime[0]
-    
-    def testSleep(duration):
-      accumulatedTime[0] += duration  
-    
-    mockTime.side_effect = testTime
-    mockSleep.side_effect = testSleep
-    
+    self.mockSleepTime(mockTime, mockSleep)
+
     class TestParentException(Exception):
       pass
-    
+
     class TestChildException(TestParentException):
       pass
-    
+
     # Test with retryFilter returning True
-    
-    _retryTrueFilter = error_handling.retry(timeoutSec=1, initialRetryDelaySec=1, 
+
+    _retryTrueFilter = error_handling.retry(
+      timeoutSec=1, initialRetryDelaySec=1,
       maxRetryDelaySec=10, retryExceptions=(TestParentException,),
       retryFilter=lambda _1, _2, _3: True)
-    
+
     @_retryTrueFilter
-    def testFunction():
+    def testFunctionTrue():
       raise TestChildException("Test exception")
-    
+
     with patch.object(os, "_exit", autospec=True):
       with self.assertRaises(TestChildException):
-        testFunction()      
+        testFunctionTrue()
 
     self.assertEqual(mockSleep.call_count, 1)
 
     # Test with retryFilter returning False
-    
+
     mockSleep.reset_mock()
-    
-    _retryFalseFilter = error_handling.retry(timeoutSec=1, initialRetryDelaySec=1, 
+
+    _retryFalseFilter = error_handling.retry(
+      timeoutSec=1, initialRetryDelaySec=1,
       maxRetryDelaySec=10, retryExceptions=(TestParentException,),
       retryFilter=lambda _1, _2, _3: False)
-    
+
     @_retryFalseFilter
-    def testFunction():
+    def testFunctionFalse():
       raise TestChildException("Test exception")
-    
+
     with patch.object(os, "_exit", autospec=True):
       with self.assertRaises(TestChildException):
-        testFunction()      
+        testFunctionFalse()
 
     self.assertEqual(mockSleep.call_count, 0)
-
-
-
 
 
 if __name__ == '__main__':
