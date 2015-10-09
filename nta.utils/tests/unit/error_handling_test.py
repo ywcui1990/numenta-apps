@@ -29,8 +29,9 @@ import unittest
 from mock import patch, call
 
 from nta.utils import error_handling
-
 from nta.utils.logging_support_raw import LoggingSupport
+
+
 
 def setUpModule():
   LoggingSupport.initTestApp()
