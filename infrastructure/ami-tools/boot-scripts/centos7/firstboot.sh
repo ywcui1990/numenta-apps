@@ -25,12 +25,12 @@ set -o pipefail
 
 export NUMENTA=/opt/numenta
 
-mkdir -p /etc/grok
+mkdir -p /etc/htm.it
 
 # If you stop writing to $STAMPFILE, or change the path, you will break
 # integration testing. The integration test suite uses the presence of
-# $STAMPFILE to tell that the grok services have been configured.
-STAMPFILE="/etc/grok/firstboot.run"
+# $STAMPFILE to tell that the htm-it services have been configured.
+STAMPFILE="/etc/htm.it/firstboot.run"
 export PIP_SCRATCH_D=$(mktemp --directory /tmp/pip_scratch_d.XXXXX)
 
 log_info() {
@@ -48,53 +48,53 @@ die() {
   exit 1
 }
 
-if [ -r /etc/grok/supervisord.vars ]; then
-  log_info "Loading environment from /etc/grok/supervisord.vars"
-  source /etc/grok/supervisord.vars
+if [ -r /etc/htm.it/supervisord.vars ]; then
+  log_info "Loading environment from /etc/htm.it/supervisord.vars"
+  source /etc/htm.it/supervisord.vars
 else
   die "Could not load supervisord.vars"
 fi
 
-initialize_grok() {
-  pushd "${GROK_HOME}"
-    log_info "Running grok init"
+initialize_htm-it() {
+  pushd "${HTM_IT_HOME}"
+    log_info "Running htm-it init"
     python setup.py init 2>&1
     if [ "$?" -ne 0 ]; then
-      die "python setup.py init failed in ${GROK_HOME}"
+      die "python setup.py init failed in ${HTM_IT_HOME}"
     fi
   popd
 }
 
-set_grok_edition() {
+set_htm_it_edition() {
   log_info "Setting edition"
   EDITION="standard"
-  "${GROK_HOME}/bin/set_edition.py" "${EDITION}"
+  "${HTM_IT_HOME}/bin/set_edition.py" "${EDITION}"
   if [ "$?" -ne 0 ]; then
     die "set_edition.py failed"
   fi
 }
 
-update_grok_quota() {
+update_htm_it_quota() {
   log_info "first boot: running update_quota.py"
-  "${GROK_HOME}/bin/update_quota.py" 2>&1
+  "${HTM_IT_HOME}/bin/update_quota.py" 2>&1
   if [ "$?" -ne 0 ]; then
     die "update_quota.py failed"
   fi
 }
 
-log_grok_server_details() {
-  if [ -f "${GROK_HOME}/bin/log_server_details.py" ]; then
+log_htm_it_server_details() {
+  if [ -f "${HTM_IT_HOME}/bin/log_server_details.py" ]; then
     log_info "Logging server details"
-    pushd "${GROK_HOME}"
+    pushd "${HTM_IT_HOME}"
       bin/log_server_details.py 2>&1
       if [ "$?" -ne 0 ]; then
-        die "log_grok_server_details.py failed"
+        die "log_htm_it_server_details.py failed"
       fi
     popd
   fi
 }
 
-grok_postconfigure_housekeeping() {
+htm_it_postconfigure_housekeeping() {
   if [ -f "${STAMPFILE}" ]; then
     # Yes, update_quota.py is called from two places in the script. This is
     # deliberate.
@@ -103,27 +103,27 @@ grok_postconfigure_housekeeping() {
     # python setup.py init, so only run it here when we see the ${STAMPFILE}.
     # Otherwise, wait till after setup.py later in the script.
     log_info "running update_quota.py after first instance boot"
-    update_grok_quota
-    log_grok_server_details
+    update_htm_it_quota
+    log_htm_it_server_details
   fi
 }
 
-cd "${GROK_HOME}"
+cd "${HTM_IT_HOME}"
 
 # Everything after this check is run only on the very first boot for
 # an instance.
 # We only want to run this once, on the first boot
 if [ -f "${STAMPFILE}" ]; then
-  grok_postconfigure_housekeeping
+  htm_it_postconfigure_housekeeping
 
   log_info "Found ${STAMPFILE}, exiting firstboot.sh"
   ls -l "${STAMPFILE}"
   exit 0
 fi
 
-initialize_grok
-set_grok_edition
-update_grok_quota
-log_grok_server_details
+initialize_htm-it
+set_htm_it_edition
+update_htm_it_quota
+log_htm_it_server_details
 
 date > "${STAMPFILE}"

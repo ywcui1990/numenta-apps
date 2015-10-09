@@ -43,14 +43,14 @@ from infrastructure.utilities.ec2 import (
   stopInstance,
   terminateInstance)
 from infrastructure.utilities.exceptions import (
-  GrokConfigError,
+  HTMITConfigError,
   InstanceLaunchError,
   InstanceNotReadyError,
   InvalidParametersError,
   TestsFailed)
 
 from infrastructure.utilities.cli import runWithOutput
-from infrastructure.utilities.grok_server import (waitForGrokServerToBeReady,
+from infrastructure.utilities.htm_it_server import (waitForHtmItServerToBeReady,
   getApiKey)
 from infrastructure.utilities import jenkins
 from infrastructure.utilities.diagnostics import initPipelineLogger
@@ -339,8 +339,8 @@ def main(args):
 
     serverKey = os.path.join("~", ".ssh", g_config["KEY"] + ".pem")
 
-    waitForGrokServerToBeReady(publicDnsName, serverKey, g_config["USER"],
-                               logger)
+    waitForHtmItServerToBeReady(publicDnsName, serverKey, g_config["USER"],
+                                logger)
     apiKey = args.apiKey or getApiKey(instanceId, publicDnsName, awsConfig,
                                       logger)
     logEmulatorStatus(logger)
@@ -354,7 +354,7 @@ def main(args):
                        args.androidVersion)
 
     logEmulatorStatus(logger)
-  except (InstanceNotReadyError, GrokConfigError):
+  except (InstanceNotReadyError, HTMITConfigError):
     logger.exception("Failure to setup instance properly")
     if instanceId:
       # terminate the instance because it didn't start properly

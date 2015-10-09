@@ -110,15 +110,18 @@ on streams of data, predicting future values, and detecting pattern anomalies.
       [Babel](https://babeljs.io/)
     * Some experimental [ECMAScript 7](https://babeljs.io/docs/usage/experimental/)
       features via [Babel](https://babeljs.io/)
+    * Flow Control for A/Synchronous code: [js-csp](https://github.com/ubolonton/js-csp),
+      [Learn More!](http://jlongster.com/Taming-the-Asynchronous-Beast-with-CSP-in-JavaScript)
     * Facebook [Flow](http://flowtype.org/) JS Typing
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
 * Framework: [Electron](https://github.com/atom/electron)
   * Engines: [Chromium](https://www.chromium.org/Home),
-    [IO.js](https://iojs.org/), [Node](https://github.com/joyent/node)
+      [Node.js](https://github.com/joyent/node)
     * Package Manager: [npm](https://www.npmjs.com/)
     * Module Loading and Bundling: [WebPack](https://github.com/webpack/webpack)
     * Configuration: [nconf](https://github.com/indexzero/nconf)
+    * Logging w/structured JSON: [bunyan](https://github.com/trentm/node-bunyan)
     * Database on filesystem: [LevelUp](https://github.com/Level/levelup)
       interface to [LevelDB](https://github.com/google/leveldb), with
       [mdeadown](https://www.npmjs.com/package/medeadown) backend
@@ -144,10 +147,12 @@ The Frontend contains code to manage Models on the Backend. It also contians
 the Graphical User Interface that allows users to explore HTM Models on their
 own data.
 
-The GUI for this application is web code. Javascript, HTML, and CSS are loaded
-into a browser. For Desktop, this browser is a bare-bones Chrome window opened
-by the Electron framework. Electron also runs IO.js (Node.js edge) to connect
-with the host Operating System, allowing for cross-platform native controls.
+The GUI for this application is web code. `Javascript`, `HTML`, and `CSS` are
+loaded into a browser. For Desktop, this browser is a bare-bones Chrome window
+opened by the Electron framework. Electron also runs Node.js to connect with the
+host Operating System, allowing for cross-platform native controls. Since web
+code is notoriously asynchronous, we use `js-csp` to handle a/synchronous
+data flow.
 
 In the browser, we run a one-way Uni-directional data flow, an Architecture
 known as "Flux".
@@ -187,6 +192,7 @@ git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/unicorn
 pip install -r backend/requirements.txt
 npm install
+npm run prepare:python # to freeze model_runner.py so that it can be used in Unicorn.
 export APPLICATION_LOG_DIR=logs  # to change to model_runner.py param?
 ```
 
@@ -195,12 +201,28 @@ export APPLICATION_LOG_DIR=logs  # to change to model_runner.py param?
 
 ### Desktop App
 
+Important note: when running `npm run desktop` the application will fail to find
+`dist/model_runner` if `model_runner.py` was never frozen before. Make sure
+to run `npm run prepare:python` beforehand, if any of the following applies:
+* The script `model_runner.py` has never been frozen (i.e. neither `npm run build`
+  nor `npm run prepare:python` have been run before)
+* Changes were made to the the code under `unicon/backend`.
+* Changes to NuPIC were made.
+
+
 Start code via Electron as a Desktop App:
 
 ```shell
+# Freeze the model runner if:
+# - It was never frozen before
+# - Changes were made to the the code under unicon/backend
+# - Changes to NuPIC were made.
+npm run prepare:python
+
 # desktop dev
 npm run desktop
 NODE_ENV=development npm run desktop  # same
+npm run desktop | `npm bin`/bunyan    # pretty logs
 
 # desktop prod
 NODE_ENV=production npm run desktop
@@ -219,7 +241,8 @@ at `http://localhost:9999`:
 ```shell
 # web dev (same)
 npm run web
-NODE_ENV=development npm run web
+NODE_ENV=development npm run web  # same
+npm run web | `npm bin`/bunyan    # pretty logs
 
 # web prod
 NODE_ENV=production npm run web
@@ -323,14 +346,17 @@ WARNING: In progress and subject to change.
 
 ## Debug
 
+NEED `npm run blah` examples here! @TODO
+
 ### Backend
 
 * @TODO Python, NuPIC, Models, debugging etc.
 
-### Node/io.js system-level
+### Node.js system-level
 
 * [Electron with node-inspector](https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
 * [Node debugger](https://nodejs.org/api/debugger.html)
+* Low level [Bunyan and DTrace](https://github.com/trentm/node-bunyan#runtime-log-snooping-via-dtrace)
 
 ### Command-line
 
@@ -353,7 +379,6 @@ WARNING: In progress and subject to change.
 * Gulp/Webpack config settings for loading differing bundle/code for
   Desktop or Browser. Split build sources and targets for certain dirs?
   Sync with recent `nconf` work. Also new Electron/Node4 doesn't need babel.
-* Setup logging: Winston or Bunyan? => Joe thinking about it. output: ./logs/
 * Add in Flow type checking
 * i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
 * Document where are imports=>requires handled? Babel/Webpack?

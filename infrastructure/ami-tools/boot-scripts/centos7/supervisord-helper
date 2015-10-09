@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# Helper script for grok supervisor
+# Helper script for htm-it supervisor
 #
 # Because we need to run as centos, using su to switch users makes us
 # lose our environment settings. Putting a helper in place that can be
@@ -40,7 +40,7 @@ prog_bin="supervisord"
 PIDFILE="/var/run/${prog}.pid"
 
 FIRSTBOOT_HELPER=/usr/local/sbin/firstboot.sh
-FIRSTBOOT_RECEIPT=/etc/grok/firstboot.run
+FIRSTBOOT_RECEIPT=/etc/htm.it/firstboot.run
 
 if [ ! -z "${DEBUG}" ]; then
   echo "============="
@@ -49,7 +49,7 @@ if [ ! -z "${DEBUG}" ]; then
   echo "sourcing supervisord.vars"
 fi
 
-source /etc/grok/supervisord.vars
+source /etc/htm.it/supervisord.vars
 
 if [ ! -z "${DEBUG}" ]; then
   echo "============="
@@ -61,7 +61,7 @@ fi
 if [ -x "${FIRSTBOOT_HELPER}" ]; then
   "${FIRSTBOOT_HELPER}" 2>&1 | tee >(logger -t supervisord-helper)
   if [ $? != "0" ]; then
-    sudo service grok-preload grok-error
+    sudo service htm-it-preload htm-it-error
     exit 1
   fi
 fi
@@ -69,7 +69,7 @@ fi
 start()
 {
   echo -n "Starting ${prog}: "
-  cd "${GROK_HOME}"
+  cd "${HTM_IT_HOME}"
   ${prog_bin} -c conf/supervisord.conf
   echo
 }
@@ -77,7 +77,7 @@ start()
 stop()
 {
   echo -n "Shutting down ${prog}: "
-  cd "${GROK_HOME}"
+  cd "${HTM_IT_HOME}"
   supervisorctl -c conf/supervisord.conf shutdown
   echo
 }
@@ -85,7 +85,7 @@ stop()
 status()
 {
   echo -n "Restarting ${prog}: "
-  cd "${GROK_HOME}"
+  cd "${HTM_IT_HOME}"
   supervisorctl -c conf/supervisord.conf status
   echo
 }
@@ -93,7 +93,7 @@ status()
 restart()
 {
   echo -n "Restarting ${prog}: "
-  cd "${GROK_HOME}"
+  cd "${HTM_IT_HOME}"
   supervisorctl -c conf/supervisord.conf restart all
   echo
 }
@@ -102,7 +102,7 @@ tickle()
 {
   if [ -f "${FIRSTBOOT_RECEIPT}" ]; then
     echo -n "Tickling ${prog}: "
-    cd "${GROK_HOME}"
+    cd "${HTM_IT_HOME}"
     supervisorctl -c conf/supervisord.conf start all
   else
     echo "Skipping tickle, firstboot hasn't run"

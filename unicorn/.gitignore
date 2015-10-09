@@ -5,6 +5,7 @@ bundle.js
 bundle.js.map
 backend/build/
 backend/dist/
+dist/
 frontend/database/data/*.json
 frontend/database/data/*medea*
 logs/*.log
