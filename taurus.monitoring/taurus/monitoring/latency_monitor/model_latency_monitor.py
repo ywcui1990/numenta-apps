@@ -79,11 +79,11 @@ class ModelLatencyChecker(MonitorDispatcher):
                           "most-recent known timestamp before a model may be "
                           "_considered_ as not having recent data "
                           "(Default: {})").format(MIN_THRESHOLD))
-  parser.add_option("--sigmaMultipler",
+  parser.add_option("--sigmaMultiplier",
                     default=SIGMA_MULTIPLIER,
                     type="int",
-                    dest="sigmaMultipler",
-                    help=("Standard deviation multiplier. Consider 68–95–99.7 "
+                    dest="sigmaMultiplier",
+                    help=("Standard deviation multiplier. Consider 68-95-99.7 "
                           "rule.  For example, 99.7% of values fall within 3 "
                           "standard deviations of the mean.  Any value greater"
                           " than 3 x stddev is considered exceptional. "
@@ -113,7 +113,7 @@ class ModelLatencyChecker(MonitorDispatcher):
     self.awsSecretAccessKey = self.config.get(
       "S1", "MODELS_MONITOR_TAURUS_DYNAMODB_AWS_SECRET_ACCESS_KEY")
     self.threshold = options.threshold
-    self.sigmaMultipler = options.sigmaMultipler
+    self.sigmaMultiplier = options.sigmaMultiplier
 
     if not options.metricDataTable:
       self.parser.error("You must specify a --metricDataTable argument.")
