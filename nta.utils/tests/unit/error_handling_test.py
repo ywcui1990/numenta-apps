@@ -133,7 +133,7 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     with self.assertRaises(Exception):
       _retry(testFunction)()
 
-    self.assertEqual(mockSleep.mock_calls, [])
+    self.assertFalse(mockSleep.called)
     testFunction.assert_called_once_with()
 
 
