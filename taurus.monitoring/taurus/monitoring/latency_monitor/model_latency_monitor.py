@@ -39,7 +39,7 @@ from taurus.monitoring import (loadConfig,
 MIN_THRESHOLD = 3600 # Required minimum number of seconds to pass since last
                      # known timestamp before a model may be _considered_ as
                      # not having recent data
-SIGMA_MULTIPLIER = 3 # Standard deviation multiplier.  According to 68–95–99.7
+SIGMA_MULTIPLIER = 3 # Standard deviation multiplier.  According to 68-95-99.7
                      # rule, 99.73% of values are within 3 standard deviations
                      # from the mean, assuming a normal distribution.  For our
                      # purposes, intervals greater than 3 x stddev are
