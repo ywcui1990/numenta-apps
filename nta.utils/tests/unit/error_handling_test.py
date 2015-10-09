@@ -26,7 +26,7 @@ import os
 import Queue
 import unittest
 
-from mock import patch, call
+from mock import patch, call, Mock
 
 from nta.utils import error_handling
 from nta.utils.logging_support_raw import LoggingSupport
@@ -127,22 +127,14 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
       timeoutSec=0, initialRetryDelaySec=0.2,
       maxRetryDelaySec=10)
 
-    fcnExecCounter = [0]
+    testFunction = Mock(side_effect=Exception("Test exception"),
+                        __name__="testFunction")
 
-    @_retry
-    def testFunction():
-      fcnExecCounter[0] += 1
-      raise Exception("Test exception")
-
-    osExitCodeQ = Queue.Queue()
-    with patch.object(os, "_exit", autospec=True,
-                      side_effect=osExitCodeQ.put):
-
-      with self.assertRaises(Exception):
-        testFunction()
+    with self.assertRaises(Exception):
+      _retry(testFunction)()
 
     self.assertEqual(mockSleep.mock_calls, [])
-    self.assertEqual(fcnExecCounter[0], 1)
+    testFunction.assert_called_once_with()
 
 
   @patch("time.sleep")
@@ -157,29 +149,23 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
       timeoutSec=30, initialRetryDelaySec=2,
       maxRetryDelaySec=10)
 
-    class _CounterContainer(object):
-      fcnExecCounter = 0
+    testFunction = Mock(side_effect=Exception("Test exception"),
+                        __name__="testFunction")
 
-    @_retry
-    def testFunction():
-      _CounterContainer.fcnExecCounter += 1
-      raise Exception("Test exception")
-
-    with patch.object(os, "_exit", autospec=True):
-      with self.assertRaises(Exception):
-        testFunction()
+    with self.assertRaises(Exception):
+      _retry(testFunction)()
 
     self.assertEqual(mockSleep.mock_calls, [call(2), call(4), call(8),
                                             call(10), call(10)])
 
     # Currently fails due to ENG-78
-    self.assertEqual(_CounterContainer.fcnExecCounter, 6)
+    self.assertEqual(testFunction.call_count, 6)
 
 
   @patch("time.sleep")
   @patch("time.time")
   def testRetryRetryExceptionIncluded(self, mockTime, mockSleep):
-    """ Test that retry is triggered if raised exeception is in
+    """ Test that retry is triggered if raised exception is in
     retryExceptions """
 
     self.mockSleepTime(mockTime, mockSleep)
@@ -198,9 +184,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     def testFunction():
       raise TestChildException("Test exception")
 
-    with patch.object(os, "_exit", autospec=True):
-      with self.assertRaises(Exception):
-        testFunction()
+    with self.assertRaises(Exception):
+      testFunction()
 
     self.assertEqual(mockSleep.call_count, 1)
 
@@ -227,9 +212,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     def testFunction():
       raise TestExceptionB("Test exception")
 
-    with patch.object(os, "_exit", autospec=True):
-      with self.assertRaises(TestExceptionB):
-        testFunction()
+    with self.assertRaises(TestExceptionB):
+      testFunction()
 
     self.assertEqual(mockSleep.call_count, 0)
 
@@ -259,9 +243,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     def testFunctionTrue():
       raise TestChildException("Test exception")
 
-    with patch.object(os, "_exit", autospec=True):
-      with self.assertRaises(TestChildException):
-        testFunctionTrue()
+    with self.assertRaises(TestChildException):
+      testFunctionTrue()
 
     self.assertEqual(mockSleep.call_count, 1)
 
@@ -278,9 +261,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     def testFunctionFalse():
       raise TestChildException("Test exception")
 
-    with patch.object(os, "_exit", autospec=True):
-      with self.assertRaises(TestChildException):
-        testFunctionFalse()
+    with self.assertRaises(TestChildException):
+      testFunctionFalse()
 
     self.assertEqual(mockSleep.call_count, 0)
 
