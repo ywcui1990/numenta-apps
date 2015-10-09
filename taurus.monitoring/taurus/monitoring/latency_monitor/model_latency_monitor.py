@@ -39,8 +39,12 @@ from taurus.monitoring import (loadConfig,
 MIN_THRESHOLD = 3600 # Required minimum number of seconds to pass since last
                      # known timestamp before a model may be _considered_ as
                      # not having recent data
-SIGMA_MULTIPLIER = 3 # Standard deviation multiplier
-FIXED_WINDOW = 14 # Number of days over which to calculate stddev
+SIGMA_MULTIPLIER = 3 # Standard deviation multiplier.  According to 68–95–99.7
+                     # rule, 99.73% of values are within 3 standard deviations
+                     # from the mean, assuming a normal distribution.  For our
+                     # purposes, intervals greater than 3 x stddev are
+                     # exceptional for that data set
+FIXED_WINDOW = 14 # Number of days over which to calculate stddev.
 
 
 
@@ -88,13 +92,13 @@ class ModelLatencyChecker(MonitorDispatcher):
 
 
   def __init__(self):
-    options = self.parser.parse_args()
+    options = self.parser.parse_options()
 
     self.config = loadConfig(options)
     self.emailParams = loadEmailParamsFromConfig(self.config)
     self.apiKey = self.config.get("S1", "MODELS_MONITOR_TAURUS_API_KEY")
     self.modelsUrl = self.config.get("S1", "MODELS_MONITOR_TAURUS_MODELS_URL")
-    self.region = self.config.get(
+    self.awsDynamoDBRegion = self.config.get(
       "S1", "MODELS_MONITOR_TAURUS_DYNAMODB_REGION")
     self.awsAccessKeyId = self.config.get(
       "S1", "MODELS_MONITOR_TAURUS_DYNAMODB_AWS_ACCESS_KEY_ID")
@@ -148,7 +152,7 @@ def checkAllModelLatency(monitorObj):
                               .format(response.status_code,
                                       monitorObj.modelsUrl))
   conn = boto.dynamodb2.connect_to_region(
-    monitorObj.region,
+    monitorObj.awsDynamoDBRegion,
     aws_access_key_id=monitorObj.awsAccessKeyId,
     aws_secret_access_key=monitorObj.awsSecretAccessKey)
 

@@ -13,7 +13,7 @@ local changes without conflicts:
 
     cp -r conf conf-user
 
-Alternatively, the configureation files' path can be overidden using the
+Alternatively, the configuration files' path can be overidden using the
 TAURUS_MONITORS_DB_CONFIG_PATH environment variable.
 
 ### First, install `nta.utils`.  Then, to install `taurus.monitors`:

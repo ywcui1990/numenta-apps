@@ -57,7 +57,7 @@ class SupervisorChecker(MonitorDispatcher):
 
 
   def __init__(self):
-    options = self.parser.parse_args()
+    options = self.parser.parse_options()
 
     self.server = xmlrpclib.Server(urljoin(options.serverUrl, "RPC2"))
     self.subjectPrefix = options.subjectPrefix

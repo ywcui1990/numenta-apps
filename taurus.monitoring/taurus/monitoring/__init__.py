@@ -46,13 +46,28 @@ if CONF_DIR is None:
   CONF_DIR = os.path.join(TAURUS_MONITORS_HOME, "conf")
 
 
+
 def loadConfig(options):
+  """ Load, and return a Config object given a OptionParser object
+
+  :param object options: Object having `monitorConfPath` attr representing the
+    path to a configuration file.
+  :returns: Config object
+  :rtype: nta.utils.config.Config
+  """
   confDir = os.path.dirname(options.monitorConfPath)
   confFileName = os.path.basename(options.monitorConfPath)
   return Config(confFileName, confDir)
 
 
+
 def loadEmailParamsFromConfig(config):
+  """ Extract email-related configuration directives from a Config object
+
+  :params nta.utils.config.Config config:
+  :returns: Dict having `senderAddress`, `recipients`, `awsRegion`,
+    `sesEndpoint`, `awsAccessKeyId`, and `awsSecretAccessKey` keys.
+  """
   return dict(
     senderAddress=(
       config.get("S1", "MODELS_MONITOR_EMAIL_SENDER_ADDRESS")),
@@ -67,8 +82,13 @@ def loadEmailParamsFromConfig(config):
 
 
 class MonitorOptionParser(OptionParser):
+  """ OptionParser subclass that implements a --monitorConfPath default
+  option and adds a parse_options() helper function to enforce behavior with
+  respect to positional arguments.  Monitors that accept command line arguments
+  should use this instead of the standard OptionParser class for consistency.
+  """
+
   def __init__(self, *args, **kwargs):
-    #super(self.__class__, self).__init__(*args, **kwargs)
     OptionParser.__init__(self, *args, **kwargs)
     self.add_option("--monitorConfPath",
                     help=("Specify full path to ConfigParser-compatible"
@@ -80,7 +100,14 @@ class MonitorOptionParser(OptionParser):
                           "MODELS_MONITOR_EMAIL_SES_ENDPOINT"))
 
 
-  def parse_args(self, *args, **kwargs):
+  def parse_options(self, *args, **kwargs):
+    """ Parse and return command line options.  Enforcing a common convention
+    in which positional arguments are not allowed, allowing only named
+    arguments
+
+    :returns: First result of OptionParser.parse_args()
+    :rtype: object
+    """
     (options, args) = OptionParser.parse_args(self, *args, **kwargs)
 
     if args:
