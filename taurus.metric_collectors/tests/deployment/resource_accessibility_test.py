@@ -137,7 +137,7 @@ class TaurusMetricCollectorsResourceAccessibilityTestCase(unittest.TestCase):
         apitoken=os.environ.get("XIGNITE_API_TOKEN"),
         barlength=5,
         startTime=formattedStartTime,
-        endTime=formattedStartTime,
+        endTime=formattedEndTime,
         fields=["Outcome"])
 
     now = datetime.now(xignite_stock_agent._UTC_TZ)
