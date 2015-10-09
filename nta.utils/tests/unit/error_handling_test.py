@@ -167,8 +167,6 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
       with self.assertRaises(Exception):
         testFunction()
 
-    print fcnExecCounter[0]
-
     self.assertEqual(mockSleep.mock_calls, [call(2), call(4), call(8),
                                             call(10), call(10)])
 
