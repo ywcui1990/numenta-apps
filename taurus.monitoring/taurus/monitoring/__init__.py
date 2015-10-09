@@ -80,7 +80,6 @@ def loadEmailParamsFromConfig(config):
 
 
 
-
 class MonitorOptionParser(OptionParser):
   """ OptionParser subclass that implements a --monitorConfPath default
   option and adds a parse_options() helper function to enforce behavior with
@@ -115,4 +114,3 @@ class MonitorOptionParser(OptionParser):
                         .format(repr(args)))
 
     return options
-
