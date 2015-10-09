@@ -60,30 +60,38 @@ class LatencyMonitorError(Exception):
 
 class ModelLatencyChecker(MonitorDispatcher):
   parser = MonitorOptionParser(
-    usage="Usage: %prog --table=TABLE [options]",
+    usage="Usage: %prog --metricDataTable=TABLE [options]",
     description=("Monitoring script to alert on models that do not have recent"
-                 " data in public dynamodb table.  A model is considered to "
-                 "have exceeded the acceptable threshold if the time since the"
-                 "most recent sample exceeds a minimum, user-defined threshold"
-                 " (in seconds) AND such interval exceeds a multiple of the "
-                 "standard deviation for all intervals for that model during "
-                 "a fixed window of time (14 days)."))
+                 " data in public metric data dynamodb table.  A model is "
+                 "considered to have exceeded the acceptable threshold if the "
+                 "time since the most recent sample exceeds a minimum, "
+                 "user-defined threshold (in seconds) AND such interval "
+                 "exceeds a multiple of the standard deviation for all "
+                 "intervals for that model during a fixed window of time (14 "
+                 "days)."))
 
   parser.add_option("--threshold",
                     default=MIN_THRESHOLD,
                     type="int",
                     dest="threshold",
                     metavar="SECONDS",
-                    help="Default: {}".format(MIN_THRESHOLD))
-  parser.add_option("--sigma",
+                    help=("Required minimum number of seconds to pass since "
+                          "most-recent known timestamp before a model may be "
+                          "_considered_ as not having recent data "
+                          "(Default: {})").format(MIN_THRESHOLD))
+  parser.add_option("--sigmaMultipler",
                     default=SIGMA_MULTIPLIER,
                     type="int",
-                    dest="sigma",
-                    help="Default: {}".format(SIGMA_MULTIPLIER))
-  parser.add_option("--table",
+                    dest="sigmaMultipler",
+                    help=("Standard deviation multiplier. Consider 68–95–99.7 "
+                          "rule.  For example, 99.7% of values fall within 3 "
+                          "standard deviations of the mean.  Any value greater"
+                          " than 3 x stddev is considered exceptional. "
+                          "(Default: {})").format(SIGMA_MULTIPLIER))
+  parser.add_option("--metricDataTable",
                     type="string",
-                    dest="table",
-                    help="**REQUIRED dynamodb table name**")
+                    dest="metricDataTable",
+                    help="**REQUIRED metric data dynamodb table name**")
   parser.add_option("--days",
                     default=FIXED_WINDOW,
                     type="int",
@@ -105,11 +113,11 @@ class ModelLatencyChecker(MonitorDispatcher):
     self.awsSecretAccessKey = self.config.get(
       "S1", "MODELS_MONITOR_TAURUS_DYNAMODB_AWS_SECRET_ACCESS_KEY")
     self.threshold = options.threshold
-    self.sigma = options.sigma
+    self.sigmaMultipler = options.sigmaMultipler
 
-    if not options.table:
-      self.parser.error("You must specify a --table argument.")
-    self.table = options.table
+    if not options.metricDataTable:
+      self.parser.error("You must specify a --metricDataTable argument.")
+    self.metricDataTable = options.metricDataTable
 
     self.days = options.days
 
@@ -156,7 +164,7 @@ def checkAllModelLatency(monitorObj):
     aws_access_key_id=monitorObj.awsAccessKeyId,
     aws_secret_access_key=monitorObj.awsSecretAccessKey)
 
-  table = Table(monitorObj.table, connection=conn)
+  metricDataTable = Table(monitorObj.metricDataTable, connection=conn)
 
   errors = []
 
@@ -164,7 +172,8 @@ def checkAllModelLatency(monitorObj):
     # Query recent DynamoDB metric data for each model
     then = str(datetime.datetime.now() -
                datetime.timedelta(days=monitorObj.days))
-    resultSet = table.query_2(uid__eq=model["uid"], timestamp__gte=then[:19])
+    resultSet = metricDataTable.query_2(uid__eq=model["uid"],
+                                        timestamp__gte=then[:19])
 
     # Track all time intervals between valid (e.g. non-zero) samples
     intervals = []
@@ -173,7 +182,7 @@ def checkAllModelLatency(monitorObj):
     for sample in resultSet:
 
       if not sample["metric_value"]:
-        continue # Skip
+        continue
 
       timestamp = datetime.datetime.strptime(sample["timestamp"],
                                              "%Y-%m-%dT%H:%M:%S")
@@ -202,7 +211,8 @@ def checkAllModelLatency(monitorObj):
     # minimum threshold.  More frequent companies will have a lower stddev and
     # therefore required a higher, if artifical, threshold to avoid too many
     # false positives
-    acceptableThreshold = max(monitorObj.threshold, monitorObj.sigma * stddev)
+    acceptableThreshold = max(monitorObj.threshold,
+                              monitorObj.sigmaMultiplier * stddev)
 
     # If the hypothetical interval exceeds the acceptable threshold, then we
     # have a reasonable expectation that there may be a problem with the model
@@ -213,14 +223,16 @@ def checkAllModelLatency(monitorObj):
 
   if errors:
     msg = ("The following models have exceeded the acceptable threshold for "
-           "time since last timestamp in {} DynamoDB table:\n    "
-           .format(table.table_name)) + "\n    ".join(str(error)
-                                                      for error in errors)
+           "time since last timestamp in {} DynamoDB table:\n    {}"
+           .format(metricDataTable.table_name,
+                   "\n    ".join(str(error) for error in errors)))
     raise LatencyMonitorError(msg)
+
 
 
 def main():
   ModelLatencyChecker().checkAll()
+
 
 
 if __name__ == "__main__":
