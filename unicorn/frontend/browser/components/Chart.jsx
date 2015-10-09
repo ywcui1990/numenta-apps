@@ -24,9 +24,9 @@ import Dygraph from 'dygraphs';
 import Material from 'material-ui';
 import React from 'react';
 
-const {
-  Paper
-} = Material;
+const {Paper} = Material;
+
+const CHART_DEFAULT_RANGE = 200; // chart range finder static 200 datapoints
 
 
 // MAIN
@@ -57,22 +57,19 @@ export default class Chart extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    this.state = {
+      // Chart Range finder values: For Fixed-width-chart & auto-scroll-to-right
+      chartBusy: false,
+      chartRange: [0, CHART_DEFAULT_RANGE],
+      chartRangeWidth: CHART_DEFAULT_RANGE,
+      chartScrollLock: true // if chart far-right, stay floated right
+    };
+
     // DyGraphs chart container
     this._dygraph = null;
-
-    // Chart Range finder values: For Fixed-width-chart & auto-scroll-to-right
-    this._chartBusy = null;
-    this._chartRange = null;
-    this._chartRangeWidth = null;
-    this._chartScrollLock = null;
   }
 
   componentDidMount() {
-    this._chartBusy = false;
-    this._chartRangeWidth = 200; // chart range finder static 200 datapoints
-    this._chartRange = [0, this._chartRangeWidth]; // hold current range window
-    this._chartScrollLock = true; // if chart far-right, stay floated right
-
     if (this.props.data.length) {
       this._chartInitalize();
     }
@@ -83,11 +80,6 @@ export default class Chart extends React.Component {
       this._dygraph.destroy();
       this._dygraph = null;
     }
-
-    this._chartBusy = null;
-    this._chartRange = null;
-    this._chartRangeWidth = null;
-    this._chartScrollLock = null;
   }
 
   componentDidUpdate() {
@@ -141,18 +133,21 @@ export default class Chart extends React.Component {
   _chartUpdate() {
     let options = {};
     let graphXmin, graphXmax;
+    let chartRange = this.state.chartRange;
 
-    if(this._chartScrollLock && !this._chartBusy) {
+    if(this.state.chartScrollLock && !this.state.chartBusy) {
       // if range scroll is locked, we're far right, so stay far right on chart
       [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
-      this._chartRange = [(graphXmax - this._chartRangeWidth), graphXmax];
+      chartRange = [(graphXmax - this.state.chartRangeWidth), graphXmax];
     }
 
     // update chart
-    options.dateWindow = this._chartRange; // fixed width
+    options.dateWindow = chartRange;
     options.file = this.props.data; // new data
     Object.assign(options, this.props.options);
     this._dygraph.updateOptions(options);
+
+    this.setState({ chartRange });
   }
 
   /**
@@ -160,7 +155,7 @@ export default class Chart extends React.Component {
    */
   _chartClickCallback() {
     // user touched chart: turn off far-right scroll lock for now
-    this._chartScrollLock = false;
+    this.setState({ chartScrollLock: false });
   }
 
   /**
@@ -173,28 +168,31 @@ export default class Chart extends React.Component {
     let graphXdiff = graphXmax - rangeXmax;
 
     // if range slider is moved far to the right, re-enable auto scroll
-    this._chartScrollLock = this._isScrollLockActive(graphXdiff, graphXrange);
+    this.setState({
+      chartScrollLock: this._isScrollLockActive(graphXdiff, graphXrange)
+    });
   }
 
   /**
    * DyGrpahs Chart RangeSelector mousedown callback function
    */
   _rangeMouseDownCallback(event) {
-    this._chartBusy = true;
+    this.setState({ chartBusy: true });
   }
 
   /**
    * DyGrpahs Chart RangeSelector mouseup callback function
    */
   _rangeMouseUpCallback(event) {
-    let [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
+    let [graphXmin, graphXmax] = this._dygraph.xAxisExtremes();
     let graphXrange = graphXmax - graphXmin;
-    let graphXdiff = graphXmax - this._chartRange[1];
-
-    this._chartBusy = false;
+    let graphXdiff = graphXmax - this.state.chartRange[1];
 
     // if range slider is moved far to the right, re-enable auto scroll
-    this._chartScrollLock = this._isScrollLockActive(graphXdiff, graphXrange);
+    this.setState({
+      chartBusy: false,
+      chartScrollLock: this._isScrollLockActive(graphXdiff, graphXrange)
+    });
   }
 
   /**
@@ -204,4 +202,4 @@ export default class Chart extends React.Component {
     return (xDiff < (xRange * 0.1));  // near right edge ~10%
   }
 
-};
+}
