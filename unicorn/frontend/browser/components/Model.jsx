@@ -44,8 +44,7 @@ export default class Model extends React.Component {
   };
   static contextTypes = {
     executeAction: React.PropTypes.func,
-    getStore: React.PropTypes.func,
-    muiTheme: React.PropTypes.object
+    getStore: React.PropTypes.func
   };
 
   constructor(props, context) {

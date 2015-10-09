@@ -54,10 +54,10 @@ import ModelDataStore from './stores/ModelDataStore';
 import MainComponent from './components/Main';
 
 // Unicorn Client Libraries
-import ConfigClient from './lib/ConfigClient';
-import DatabaseClient from './lib/DatabaseClient';
-import FileClient from './lib/FileClient';
-import ModelClient from './lib/ModelClient';
+import ConfigClient from './lib/Unicorn/ConfigClient';
+import DatabaseClient from './lib/Unicorn/DatabaseClient';
+import FileClient from './lib/Unicorn/FileClient';
+import ModelClient from './lib/Unicorn/ModelClient';
 
 const config = new ConfigClient();
 const log = bunyan.createLogger({

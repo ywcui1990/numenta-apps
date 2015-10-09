@@ -45,16 +45,21 @@ const {
 @connectToStores([ FileStore, ModelStore ], (context) => ({
   files: context.getStore(FileStore).getFiles()
 }))
+
 export default class FileList extends React.Component {
 
   static contextTypes = {
     executeAction: React.PropTypes.func,
     getStore: React.PropTypes.func,
-    muiTheme: React.PropTypes.object,
+    muiTheme: React.PropTypes.object
   };
 
   constructor(props, context) {
     super(props, context);
+
+    this.state = {
+      muiTheme: this.context.muiTheme
+    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -62,7 +67,7 @@ export default class FileList extends React.Component {
   }
 
   _getStyles() {
-    let leftNavStyle = this.context.muiTheme.component.leftNav;
+    let leftNavStyle = this.state.muiTheme.leftNav;
     return {
       root: {
         position: 'fixed',
@@ -71,7 +76,7 @@ export default class FileList extends React.Component {
         top: 0,
         left: 0,
         zIndex: 10,
-        backgroundColor: leftNavStyle.color,
+        backgroundColor: leftNavStyle.color
       }
     };
   }

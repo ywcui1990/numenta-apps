@@ -30,6 +30,8 @@
 import csp from 'js-csp';
 import Material from 'material-ui';
 import React from 'react';
+import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
+import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 // internals
 
@@ -37,13 +39,9 @@ import FileAddAction from '../actions/FileAdd';
 import FileList from '../components/FileList';
 import FileUploadAction from '../actions/FileUpload';
 import ModelList from '../components/ModelList';
-import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
+import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
 
-const {
-  FloatingActionButton, Styles
-} = Material;
-
-const ThemeManager = new Styles.ThemeManager();
+const {FloatingActionButton} = Material;
 
 
 // MAIN
@@ -66,7 +64,7 @@ module.exports = React.createClass({
    */
   getChildContext () {
     return {
-      muiTheme: ThemeManager.getCurrentTheme()
+      muiTheme: ThemeManager.getMuiTheme(UnicornTheme)
     };
   },
 

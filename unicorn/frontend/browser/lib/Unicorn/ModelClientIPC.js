@@ -20,8 +20,8 @@
 'use strict';
 
 import ipc from 'ipc';
-import ModelErrorAction from '../actions/ModelError';
-import ReceiveDataAction from '../actions/ReceiveData';
+import ModelErrorAction from '../../actions/ModelError';
+import ReceiveDataAction from '../../actions/ReceiveData';
 
 const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 

@@ -47,10 +47,6 @@ export default class Chart extends React.Component {
     options: {}
   };
 
-  static contextTypes = {
-    muiTheme: React.PropTypes.object,
-  };
-
   constructor(props, context) {
     super(props, context);
 
