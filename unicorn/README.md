@@ -380,7 +380,6 @@ NEED `npm run blah` examples here! @TODO
 
 * Spread global config around! `nconf` work.
 * New Electron/Node4 doesn't need babel bundle anymore!?.
-* Brev add unit tests for DB Client/Server code, etc.
 * Brev Electron integration test skeleton
 * Add in Flow type checking
 * i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
