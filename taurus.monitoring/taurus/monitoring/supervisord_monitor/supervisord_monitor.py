@@ -22,11 +22,10 @@ from optparse import OptionParser
 import os
 import traceback
 import types
-from urlparse import urljoin
-import xmlrpclib
 
 from nta.utils import error_reporting
 from nta.utils.config import Config
+from nta.utils.supervisor_utils import SupervisorClient
 
 
 
@@ -71,7 +70,7 @@ class SupervisorChecker(object):
       self.parser.error("Unexpected positional arguments: {}"
                         .format(repr(args)))
 
-    self.server = xmlrpclib.Server(urljoin(options.serverUrl, "RPC2"))
+    self.server = SupervisorClient(options.serverUrl)
     self.subjectPrefix = options.subjectPrefix
 
     confDir = os.path.dirname(options.monitorConfPath)
