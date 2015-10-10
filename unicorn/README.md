@@ -115,6 +115,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Facebook [Flow](http://flowtype.org/) JS Typing
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
+    [SASS](http://sass-lang.com) pre-processing
 * Framework: [Electron](https://github.com/atom/electron)
   * Engines: [Chromium](https://www.chromium.org/Home),
       [Node.js](https://github.com/joyent/node)
@@ -132,7 +133,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * View Components: [React](https://github.com/facebook/react),
       [JSX](https://facebook.github.io/jsx/)
     * Graphing and Charting: [DyGraphs](http://dygraphs.com/)
-      * @TODO Alternatives: [react-chartjs](https://github.com/jhudson8/react-chartjs)
+      * @TODO Alternatives? [react-chartjs](https://github.com/jhudson8/react-chartjs)
         Canvas, [react-d3](https://github.com/esbullington/react-d3) SVG
 * Testing:
   * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)

@@ -1,29 +1,22 @@
-/* -----------------------------------------------------------------------------
- * Copyright © 2015, Numenta, Inc. Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
- * following terms and conditions apply:
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero Public License version 3 as published by
- * the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for
- * more details.
- *
- * You should have received a copy of the GNU Affero Public License along with
- * this program. If not, see http://www.gnu.org/licenses.
- *
- * http://numenta.org/licenses/
- * -------------------------------------------------------------------------- */
+// Copyright © 2015, Numenta, Inc.  Unless you have purchased from
+// Numenta, Inc. a separate commercial license for this software code, the
+// following terms and conditions apply:
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the Free
+// Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
+//
+// You should have received a copy of the GNU Affero Public License along with
+// this program.  If not, see http://www.gnu.org/licenses.
+//
+// http://numenta.org/licenses/
 
 'use strict';
 
-
-/**
- * React View Component: Foo
- */
 
 // externals
 
@@ -35,6 +28,8 @@ import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 // internals
 
+import '../stylesheets/Main.scss';
+
 import FileAddAction from '../actions/FileAdd';
 import FileList from '../components/FileList';
 import FileUploadAction from '../actions/FileUpload';
@@ -44,29 +39,28 @@ import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
 const {FloatingActionButton} = Material;
 
 
-// MAIN
-
 /**
- *
+ * React Main View Component
  */
-module.exports = React.createClass({
+export default class MainComponent extends React.Component {
 
-  contextTypes: {
+  static contextTypes = {
     executeAction: React.PropTypes.func.isRequired
-  },
+  };
 
-  childContextTypes: {
+  static childContextTypes = {
     muiTheme: React.PropTypes.object
-  },
+  };
 
-  /**
-   *
-   */
-  getChildContext () {
+  constructor(props, context) {
+    super(props, context);
+  }
+
+  getChildContext() {
     return {
       muiTheme: ThemeManager.getMuiTheme(UnicornTheme)
     };
-  },
+  }
 
   /**
    * Add "+" upload new data/CSV file button onClick event handler
@@ -78,7 +72,7 @@ module.exports = React.createClass({
     let fileInput = React.findDOMNode(this.refs.fileInput);
     fileInput.value = null;
     fileInput.click();
-  },
+  }
 
   _onFileSelect(e) {
     let selectedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
@@ -101,28 +95,29 @@ module.exports = React.createClass({
     /* The file input is limited to 1 file only, so files.length is always 1 */
     file = files[0];
     this.context.executeAction(FileUploadAction, file);
-  },
+  }
 
   /**
-   *
-   * @TODO Migrate inline styles on Card
+   * Render
    * @TODO Better + ADD fonticon
    * @TODO Tooltip on + ADD icon - "Upload new CSV file" or something
    */
-  render () {
+  render() {
     return (
       <div>
-        <div style={{marginLeft: '256px'}}>
+        <nav>
+          <ModelList/>
+          <FileList/>
+        </nav>
+        <main>
           <h1>Unicorn</h1>
-          <FloatingActionButton onClick={this._onClick}>
+          <FloatingActionButton onClick={this._onClick.bind(this)}>
             <SvgIconContentAdd/>
           </FloatingActionButton>
-          <input onChange={this._onFileSelect} ref="fileInput"
-            style={{display: 'none'}} type="file"/>
-        </div>
-        <ModelList/>
-        <FileList/>
+          <input onChange={this._onFileSelect.bind(this)} ref="fileInput" type="file" />
+        </main>
       </div>
     );
   }
-});
+
+}
