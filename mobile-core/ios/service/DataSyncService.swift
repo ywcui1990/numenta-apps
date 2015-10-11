@@ -54,7 +54,7 @@ public class DataSyncService{
     /** Broadcast the REFRESH_STATE_EVENT notification
     */
     func fireRefreshStateEvent(isRefreshing: Bool, result: String){
-        NSNotificationCenter.defaultCenter().postNotificationName(DataSyncService.REFRESH_STATE_EVENT, object: self)
+        NSNotificationCenter.defaultCenter().postNotificationName(DataSyncService.REFRESH_STATE_EVENT, object: isRefreshing)
     }
     
     

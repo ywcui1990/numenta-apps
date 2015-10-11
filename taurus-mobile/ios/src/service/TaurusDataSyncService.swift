@@ -31,8 +31,9 @@ public class TaurusDataSyncService: DataSyncService{
         
             let db = TaurusApplication.getTaurusDatabase()
             var from = db.getLastTimestamp()
-            let now = Int64(NSDate().timeIntervalSince1970*1000)
         
+            let nowDate = NSDate()
+            let now = DataUtils.timestampFromDate( nowDate )
         // The server updates the instance data table into hourly buckets as the models process
         // data. This may leave the last hour with outdated values when the server updates the
         // instance data table after we start loading the new hourly bucket.
@@ -40,24 +41,41 @@ public class TaurusDataSyncService: DataSyncService{
         // now and on when the time is above a certain threshold (15 minutes) also download the
         // previous hour once.
         
-/*        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         
-        // Check if we need to update the previous hour
-        long previousHourThreshold = prefs.getLong(PREF_PREVIOUS_HOUR_THRESHOLD, now);
-        if (now >= previousHourThreshold) {
+        let defaults = NSUserDefaults.standardUserDefaults()
+        var date = defaults.objectForKey("previous_hour_threshold") as? NSDate
+        if ( date == nil ){
+            date = NSDate()
+        }
+
+        if (now >= DataUtils.timestampFromDate(date!)) {
             // Download the previous hour
             from -= DataUtils.MILLIS_PER_HOUR;
+            var units : NSCalendarUnit = [NSCalendarUnit.NSYearCalendarUnit,
+                NSCalendarUnit.NSMonthCalendarUnit     ,
+                NSCalendarUnit.NSDayCalendarUnit ,
+                NSCalendarUnit.NSHourCalendarUnit ,
+                NSCalendarUnit.NSMinuteCalendarUnit]
             
-            // Set threshold time to minute 15 of next hour
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(now);
-            calendar.add(Calendar.HOUR, 1);
-            calendar.set(Calendar.MINUTE, 15);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            prefs.edit().putLong(PREF_PREVIOUS_HOUR_THRESHOLD, calendar.getTimeInMillis()).apply();
+            
+           
+            var newDate =  NSCalendar.currentCalendar().dateByAddingUnit(
+                NSCalendarUnit.NSHourCalendarUnit, // adding hours
+                value: 1,
+                toDate: nowDate ,
+                options: []
+            )
+            
+            
+            var components = NSCalendar.currentCalendar().components (units, fromDate: newDate!)
+            components.minute = 15
+            components.second = 0
+           
+            newDate = NSCalendar.currentCalendar().dateFromComponents(components)
+            
+            defaults.setObject( newDate, forKey: "previous_hour_threshold")
         }
-        */
+        
         
         
         let oldestTimestamp = DataUtils.floorTo60Minutes (  now - TaurusApplication.getNumberOfDaysToSync() * DataUtils.MILLIS_PER_DAY )
@@ -69,9 +87,10 @@ public class TaurusDataSyncService: DataSyncService{
         
         // Don't fetch data olders than NUMBER_OF_DAYS_TO_SYNC
         
-        from = max ( from, oldestTimestamp)
+        from = max (from, oldestTimestamp)
         
-        getClient().getAllInstanceData( NSDate(timeIntervalSinceReferenceDate : Double(from)/1000.0),  to: NSDate(timeIntervalSinceReferenceDate : Double(now)/1000.0),  ascending : false, callback:{
+        let fromDate = DataUtils.dateFromTimestamp( from )
+        getClient().getAllInstanceData(  fromDate,  to: nowDate,  ascending : false, callback:{
             (instance: InstanceData) in
 
                 // FIXME Batch these up and do the database work on a different thread?

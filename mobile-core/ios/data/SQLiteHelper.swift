@@ -25,7 +25,7 @@ import Foundation
   */
 public class SQLiteHelper {
     
-    var database : FMDatabase
+    var dbQueue : FMDatabaseQueue
     var dateFormater: NSDateFormatter
     
     //Constant for conflict
@@ -37,7 +37,7 @@ public class SQLiteHelper {
     - returns: number of rows that have been removed
     
     */
-    func delete (table :String , whereClause: String?, whereArgs:[String]?)->Int32{
+    func delete (database: FMDatabase, table :String , whereClause: String?, whereArgs:[String]?)->Int32{
         
         
         var statement : String = "DELETE FROM " + table
@@ -63,10 +63,8 @@ public class SQLiteHelper {
         let checkValidation = NSFileManager.defaultManager()
         let  exists = checkValidation.fileExistsAtPath(databasePath)
     
-        database = FMDatabase(path: databasePath as String)
-        if (database.open() == false) {
-            print ("Error creating table: " + database.lastErrorMessage())
-          }
+    
+        dbQueue = FMDatabaseQueue(path: databasePath as String)
     
         if (!exists){
             if let path = NSBundle.mainBundle().pathForResource("createdb", ofType:"sql") {
@@ -74,12 +72,18 @@ public class SQLiteHelper {
                     let data = try String(contentsOfFile:path, encoding: NSUTF8StringEncoding)
                     let commandList = data.componentsSeparatedByCharactersInSet(NSCharacterSet (charactersInString: ";"))
                     
-                    for cmd in commandList {
-                       let success =  database.executeUpdate(cmd, withArgumentsInArray:nil)
-                        if !success{
-                            print ("Error creating table: " + database.lastErrorMessage())
+                    dbQueue.inDatabase() {
+                        database in
+                        
+                            for cmd in commandList {
+                              let success =  database.executeUpdate(cmd, withArgumentsInArray:nil)
+                              if !success{
+                                    print ("Error creating table: " + database.lastErrorMessage())
+                                }
                         }
                     }
+  
+           
                     } catch _ {
                         // What to do if we can't create tables?
                     }
@@ -94,9 +98,9 @@ public class SQLiteHelper {
     
     /** Start a database transaction
     */
-    func beginTransactionModeNonExclusive(){
+  /*  func beginTransactionModeNonExclusive(){
         database.beginTransaction()
-    }
+    }*/
     
     /** insert a row into the table
     - parameter table : tablename
@@ -104,7 +108,7 @@ public class SQLiteHelper {
     - parameter conflictAlgorithm : How to handle conflicts
     - returns: id of row add, -1 for failure
     */
-    func insertWithOnConflict(table : String,  values :  Dictionary<String, AnyObject> ,  conflictAlgorithm : String) ->Int64{
+    func insertWithOnConflict(database: FMDatabase, table : String,  values :  Dictionary<String, AnyObject> ,  conflictAlgorithm : String) ->Int64{
         
         let statement =  prepareInsertStatement(table, columns: Array(values.keys), status : conflictAlgorithm)
         let rows =  database.executeUpdate(statement, withParameterDictionary: values )
@@ -118,7 +122,7 @@ public class SQLiteHelper {
     /** Update a row in a table
         needs to be implemented
     */
-    func update(table : String, values :  Dictionary<String, Any>,  whereClause : String,  whereArgs: [String])->Int64{
+    func update(database: FMDatabase, table : String, values :  Dictionary<String, Any>,  whereClause : String,  whereArgs: [String])->Int64{
         return -1;
     }
     
@@ -126,7 +130,7 @@ public class SQLiteHelper {
     /** commit DB changes
     */
     func commit(){
-        database.commit()
+      //  database.commit()
     }
     
     /** build an insert statement for use with a dictionary of parameters
@@ -149,14 +153,14 @@ public class SQLiteHelper {
     
     /**
     */
-    func buildInsertStatement (tableName: String, data : Dictionary<String, Any>)->String{
+    func buildInsertStatement (database: FMDatabase, tableName: String, data : Dictionary<String, Any>)->String{
         return ""
     }
     
 
     /**
     */
-    func queryAll(tableName:String)->FMResultSet!{
+    func queryAll(database: FMDatabase, tableName:String)->FMResultSet!{
      return nil
     }
     
@@ -168,7 +172,7 @@ public class SQLiteHelper {
         - parameter sortBy: order by clause. optional
         - return: result set
     */
-    func query( tableName: String , columns: [String]?, whereClause: String?, whereArgs:[AnyObject]?, sortBy: String?)->FMResultSet!{
+    func query(database: FMDatabase, tableName: String , columns: [String]?, whereClause: String?, whereArgs:[AnyObject]?, sortBy: String?)->FMResultSet!{
         var query : String = "Select "
       
         if (columns==nil){
@@ -194,7 +198,7 @@ public class SQLiteHelper {
     
      /** not currently needed
     */
-    func queryNumEntries(tableName: String, whereClause: String!)->Int32{
+    func queryNumEntries(database: FMDatabase, tableName: String, whereClause: String!)->Int32{
         return 0;
     }
     
@@ -215,7 +219,7 @@ public class SQLiteHelper {
     - parameter limit: count as a string
     - return: result set
     */
-    func queryDistinct( tableName: String , columns: [String]?, whereClause: String?,  limit: String? )->FMResultSet!{
+    func queryDistinct(database: FMDatabase, table: String , columns: [String]?, whereClause: String?,  limit: String? )->FMResultSet!{
         var query : String = "Select "
         query += "DISTINCT "
         
@@ -226,7 +230,7 @@ public class SQLiteHelper {
             query += colStr!
         }
         query += " FROM "
-        query += tableName
+        query += table
         
         if (whereClause != nil){
             query += " WHERE "  + whereClause!

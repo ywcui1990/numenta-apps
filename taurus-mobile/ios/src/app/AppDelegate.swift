@@ -44,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let syncService = TaurusDataSyncService(client:client)
         
         TaurusApplication.client = syncService.client as? TaurusClient
-      //  syncService.synchronizeWithServer()
+        syncService.synchronizeWithServer()
         
         return true
     }

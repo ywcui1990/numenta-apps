@@ -32,6 +32,8 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
     var lastUpdated: Int64 = 0
     
     var  instanceDataCache = [String :  InstanceCacheEntry ] ()
+    
+    static let INSTANCEDATALOADED : String = "com.numenta.taurusdatabase.instancedataloaded"
   
     /**
         - parameter dataFactory: used to creat DB objects
@@ -39,26 +41,44 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
     override init(dataFactory : CoreDataFactory){
         super.init(dataFactory : dataFactory)
         
+        
+        NSNotificationCenter.defaultCenter().addObserverForName(DataSyncService.REFRESH_STATE_EVENT, object: nil, queue: nil, usingBlock: {
+            [unowned self] note in
+            
+            let property = note.object as! Bool
+                if (property == false){
+                    dispatch_async(dispatch_get_global_queue( QOS_CLASS_USER_INITIATED, 0)) {
+                        
+                        self.loadAllInstanceData()
+                    }
+                }
+            
+            })
         // Load instance data
         // FIXME Do we want to be lazy about this? Loading the 6 or 7 rows when required is probably a heck of a lot faster
-     //   dispatch_async(dispatch_get_global_queue( QOS_CLASS_USER_INITIATED, 0)) {
+        dispatch_async(dispatch_get_global_queue( QOS_CLASS_USER_INITIATED, 0)) {
 
             self.loadAllInstanceData()
-   //     }
+       }
     }
     
     /** loads all the instance data
+        FIXME Do we want to be lazy about this? Loading the 6 or 7 rows when required is probably a heck of a lot faster
     */
     func loadAllInstanceData(){
         var to:Int64 = Int64(NSDate().timeIntervalSince1970*1000)
         var from =  to-DataUtils.SECONDS_IN_DAY*1000
-      
-        //lastTimestamp = 0
         var oldestTimeStamp = to
+        
+        sqlHelper.dbQueue.inDatabase() {
+            db in
+
+        //lastTimestamp = 0
+       
         for ( var i = 0; i < TaurusApplication.getNumberofDaysToSync(); i++){
             let whereClause:String? = nil // "timestamp >= ? AND timestamp <= ?"
             let columns = ["instance_id", "timestamp", "anomaly_score"/*, "aggregation"*/, "metric_mask"]
-            let cursor = sqlHelper.query(InstanceData.TABLE_NAME, columns: columns,
+            let cursor = self.sqlHelper.query(db, tableName: InstanceData.TABLE_NAME, columns: columns,
             whereClause: whereClause, whereArgs: [NSNumber(longLong:from), NSNumber(longLong:to)], sortBy: nil)
         
      
@@ -79,19 +99,15 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
                 let  timestamp = cursor.longLongIntForColumnIndex(timestampColumn)
                 let anomalyScore = Float(cursor.doubleForColumnIndex(anomalyColumn))
 
-                
-                
-               
+           //     print ( DataUtils.dateFromTimestamp((timestamp)))
                 var metricMask = MetricType()
                 metricMask.rawValue = Int(cursor.intForColumnIndex(metricMaskColumn))
-                
-              
-                
+
                 let anomalyValue = AnomalyValue( anomaly: anomalyScore, metricMask: metricMask)
-                var cacheEntry = instanceDataCache[instanceId]
+                var cacheEntry = self.instanceDataCache[instanceId]
                 if ( cacheEntry == nil){
                     cacheEntry = InstanceCacheEntry()
-                    instanceDataCache[instanceId] = cacheEntry
+                    self.instanceDataCache[instanceId] = cacheEntry
                 }
                 
                 cacheEntry!.data[timestamp] =  anomalyValue
@@ -100,8 +116,8 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
              //   let ts = NSDate(timeIntervalSince1970: Double(object.timestamp)/1000.0)
              //   print (ts)
                // var value = getInstanceCacheValues (instanceData.instanceId)
-                if (timestamp > lastTimestamp){
-                    lastTimestamp = timestamp
+                if (timestamp > self.lastTimestamp){
+                    self.lastTimestamp = timestamp
                 }
                 
                 if (timestamp<oldestTimeStamp){
@@ -113,8 +129,11 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
             from -= DataUtils.SECONDS_IN_DAY*1000
             to -= DataUtils.SECONDS_IN_DAY*1000
         }
+        }
   
         self.firstTimestamp = oldestTimeStamp
+        
+        NSNotificationCenter.defaultCenter().postNotificationName(TaurusDatabase.INSTANCEDATALOADED, object: self)
     }
     
     /** get Ticker symbol for the given instance ID
@@ -186,10 +205,44 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
     /** update instance cacha
     */
     func updateInstanceDataCache(data: InstanceData )->Bool {
-        return false;
+        let taurusInstanceData = data as! TaurusInstanceData
+        var cacheEntry = getInstanceCachedValues(data.getInstanceId())
+        let timestamp = data.getTimestamp()
+        
+        if (cacheEntry != nil){
+       
+          
+            let oldValue : AnomalyValue? = cacheEntry!.data[ timestamp]
+            if (oldValue != nil){
+                if ((oldValue!.anomaly == data.getAnomalyScore() ) && (oldValue!.metricMask == taurusInstanceData.getMetricMask())){
+                        return false
+                }
+            }
+            
+        }
+        
+       // need to update
+        let newValue = AnomalyValue(anomaly: data.getAnomalyScore(), metricMask: taurusInstanceData.getMetricMask())
+        
+        
+        if ( cacheEntry == nil){
+            cacheEntry = InstanceCacheEntry()
+            instanceDataCache[data.getInstanceId()] = cacheEntry
+        }
+        
+        cacheEntry!.data[timestamp] = newValue
+        
+        if (timestamp > lastTimestamp) {
+            lastTimestamp = timestamp;
+        }
+        if (timestamp < firstTimestamp) {
+            firstTimestamp = timestamp;
+        }
+        lastUpdated = DataUtils.timestampFromDate( NSDate())
+        return true 
     }
     
-    /** retreive id from cache
+    /** retrieve id from cache
         - parameter instanceId:
     */
     func  getInstanceCachedValues( instanceId: String) ->InstanceCacheEntry?{
