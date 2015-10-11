@@ -115,17 +115,7 @@ class InstanceAnomalyChartData : AnomalyChartData {
             return $0.0 < $1.0
         }
         
-       /* if (self.ticker == "MO"){
-            let nsStartDate = NSDate(timeIntervalSince1970: Double(startDate)/1000.0)
-
-            let nsEndDate = NSDate(timeIntervalSince1970: Double(endDate)/1000.0)
-            
-            for score in scores{
-                let datestampe = NSDate(timeIntervalSince1970: Double(score.0)/1000.0)
-              
-            }
-           // print (scores)
-        }*/
+       
         
      
         
