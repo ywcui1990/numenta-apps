@@ -37,7 +37,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
 
     // Serial queue for loading chart data
     let loadQueue = dispatch_queue_create("com.numenta.InstanceDetailsController", nil)
-    var cellSet = Set<MetricCell>()
+  //  var cellSet = Set<MetricCell>()
     
     var  metricChartData  = [MetricAnomalyChartData]()
     
@@ -152,18 +152,20 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         self.timeSlider?.setNeedsDisplay()
         
         updateAnomalyChartView()
-        //self.anomalyChartView.setCollapsed (self.marketHoursOnly)
-        for cell in cellSet {
-            
-            if (cell.data != nil){
+        
+        let visibleCells = self.instanceTable.visibleCells
+        for cell in visibleCells{
+            let metricCell = cell as! MetricCell
+
+            if (metricCell.data != nil){
               
-                cell.data?.collapsed = self.marketHoursOnly
-                cell.data?.refreshData()
+                metricCell.data?.collapsed = self.marketHoursOnly
+                metricCell.data?.refreshData()
                 
-                cell.chart.data  = cell.data!.rawData!
-                cell.chart.anomalies = cell.data!.data!
-                cell.chart.updateData()
-                cell.setNeedsDisplay()
+                metricCell.chart.data  = metricCell.data!.rawData!
+                metricCell.chart.anomalies = metricCell.data!.data!
+                metricCell.chart.updateData()
+                metricCell.setNeedsDisplay()
             }
         }
     }
@@ -205,26 +207,27 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         chartData?.load()
         
         updateAnomalyChartView()
-       
-        
-        
-        // FIXME can I use indexPathsForVisibleRows instead?
-        for cell in cellSet {
-            
-            if (cell.data != nil){
-                cell.data?.setEndDate (flooredDate)
-                cell.data?.collapsed = self.marketHoursOnly
-                cell.data?.refreshData()
 
-                cell.chart.data  = cell.data!.rawData!
-                cell.chart.anomalies = cell.data!.data!
-                cell.chart.updateData()
-                cell.setNeedsDisplay()
+        let visibleCells = self.instanceTable.visibleCells
+        for cell in visibleCells{
+            let metricCell = cell as! MetricCell
+            
+            if (metricCell.data != nil){
+                metricCell.data?.setEndDate (flooredDate)
+                metricCell.data?.collapsed = self.marketHoursOnly
+                metricCell.data?.refreshData()
+
+                metricCell.chart.data  = metricCell.data!.rawData!
+                metricCell.chart.anomalies = metricCell.data!.data!
+                metricCell.chart.updateData()
+                metricCell.setNeedsDisplay()
             }
         }
        }
     
-    
+    /** Update timeslider view to match the passed in date
+        - parameter date: end date to show
+    */
     func updateTimeSlider ( date : NSDate){
         timeSlider?.endDate =  date
         timeSlider?.setNeedsDisplay()
@@ -247,7 +250,6 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         // Scroll date by aggregation interval
         let interval = Double(TaurusApplication.getAggregation().milliseconds())/1000.0
         let timeDistance = Double(interval * scrolledBars)*(1.0)
-     //   print ((pixels, scrolledBars, timeDistance))
         return timeDistance
     }
     
@@ -284,11 +286,11 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
           return metricCell
         }
         
+        metricCell?.chart.emptyTextString = "Market Closed"
         metricCell?.backgroundColor = UIColor.clearColor()
     //    metricCell?.selectionStyle =   UITableViewCellSelectionStyle.Blue
     //    metricCell?.userInteractionEnabled = true
         
-        cellSet.insert(metricCell!)
         let cellData =  metricChartData[ indexPath.item]
         
         metricCell?.label.text = cellData.getName()
@@ -308,18 +310,10 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         loadChartData( metricCell!, data: cellData)
         return cell
     }
-
- /*   func tableView(tableView: UITableView, willSelectRowAtIndexPath indexPath: NSIndexPath)->NSIndexPath {
-        
-        let cellData =  metricChartData[ indexPath.item]
-        
-        if (MetricType.enumForKey(cellData.metric.getUserInfo("metricType")) == MetricType.TwitterVolume){
-     //       performSegueWithIdentifier("twitterSegue", sender: nil)
-        }
-        return indexPath
-        
-    }*/
     
+    /** Handle selection of row
+    
+    */
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
          let cellData =  metricChartData[ indexPath.item]
@@ -336,7 +330,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
     
    
 
-    /** load teh chart data and then update the table cell
+    /** load the chart data and then update the table cell
         - parameter cell: table cell to update
         - parameter data: Metric chart data to load
     */
@@ -357,37 +351,24 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
                     cell.data = data
                     
                     UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-
-                                   }
+                  }
             }
         }
     }
     
 
-    /** load twitter view
+    /** load twitter scene
     */
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "twitterSegue" {
             if let indexPath = self.instanceTable.indexPathForSelectedRow {
-                
-              //  let data = self.tableData[indexPath.row]
-                
-                //   let object = objects[indexPath.row] as! NSDate
                 let controller = segue.destinationViewController as! TwitterViewController
                 
                 controller.metricChartData = self.metricChartData[indexPath.row]
-              
                 controller.chartData = self.chartData
-                
-                //      controller.detailItem = object
-                /*  controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
-                controller.navigationItem.leftItemsSupplementBackButton = true*/
             }
         }
     }
-    
-  
-
 
 }
 
