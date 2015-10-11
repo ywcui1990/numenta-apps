@@ -47,7 +47,7 @@ export default class ModelClientIPC {
   removeModel(modelId) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
       'modelId': modelId,
-      'command': 'remove',
+      'command': 'remove'
     });
   }
 
