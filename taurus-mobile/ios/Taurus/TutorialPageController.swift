@@ -40,7 +40,7 @@ class TutorialPageController: UIViewController {
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        var image =  UIImage(named: dataObject)
+        let image =  UIImage(named: dataObject)
         imageView.image = image
        // self.dataLabel!.text = dataObject
     }
