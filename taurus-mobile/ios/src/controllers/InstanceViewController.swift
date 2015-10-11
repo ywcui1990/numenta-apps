@@ -104,11 +104,12 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         instanceTable.backgroundColor = UIColor.clearColor()
         
         self.syncWithDB()
-        //  syncDBWithServer()
 
-        // Register to listen for sync changes. Reload data when that happens
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "syncWithDB", name: DataSyncService.METRIC_CHANGED_EVENT, object: nil)
-
+        NSNotificationCenter.defaultCenter().addObserverForName(TaurusDatabase.INSTANCEDATALOADED, object: nil, queue: nil, usingBlock: {
+            [unowned self] note in
+                self.syncWithDB()
+            })
+        
         
        if self.revealViewController() != nil {
             menuButton!.target = self.revealViewController()
@@ -116,10 +117,13 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
             self.self.revealViewController().rightViewRevealWidth = 160
         }
-        
+      
         
     }
 
+    
+   
+    
     /** shows search bar in navigation area
     */
     func showSearch() {
@@ -177,12 +181,13 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
      //   print ((timeSlider?.endDate,flooredDate))
         timeSlider?.endDate =  flooredDate
         timeSlider?.setNeedsDisplay()
-        
-        for cell in cellSet{
-            cell.data?.setEndDate (flooredDate)
-            cell.data?.load()
-            cell.chart.setData(cell.data?.getData())
-            cell.setNeedsDisplay()
+        let visibleCells = self.instanceTable.visibleCells
+        for cell in visibleCells{
+            let instanceCell = cell as! InstanceCell
+            instanceCell.data?.setEndDate (flooredDate)
+            instanceCell.data?.load()
+            instanceCell.chart.setData(instanceCell.data?.getData())
+            instanceCell.setNeedsDisplay()
         }
        }
     
@@ -205,23 +210,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
      func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 4
     }
-    
-    /* func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String?{
-       
-        switch section {
-        case 0:
-            return "Stock & Twitter"
-        case 1:
-            return "Stock"
-        case 2:
-            return "Twitter"
-            
-            
-        default:
-            return "No anomalies"
-        }
-        
-    }*/
+
     
     func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int{
         
@@ -231,9 +220,6 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         }
         return 0
     }
-    
-    var cellSet = Set<InstanceCell>()
-    
     
     func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell!{
         let cell:InstanceCell? = self.instanceTable.dequeueReusableCellWithIdentifier("InstanceCell") as! InstanceCell?
@@ -247,9 +233,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             cell?.ticker.text = chartData.ticker
             cell?.name.text  = chartData.name
             cell?.data = chartData
-            cellSet.insert (cell!)
-            
-            if (chartData.hasData() && !chartData.modified){
+               if (chartData.hasData() && !chartData.modified){
                 let cv : AnomalyChartView? = cell!.chart
                 let valueData = chartData.getData()
                  cv!.setData (valueData)
@@ -265,7 +249,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         
         
-        return cell
+        return cell!
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -285,16 +269,16 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         headerView.font  = UIFont.boldSystemFontOfSize( 14.0)
         
         switch section {
-        case 0:
-            headerView.text =  "Stock & Twitter"
-        case 1:
-              headerView.text =  "Stock"
-        case 2:
-              headerView.text =  "Twitter"
-            
-            
-        default:
-              headerView.text =  "No anomalies"
+            case 0:
+                headerView.text =  "Stock & Twitter"
+            case 1:
+                  headerView.text =  "Stock"
+            case 2:
+                  headerView.text =  "Twitter"
+                
+                
+            default:
+                  headerView.text =  "No anomalies"
         }
         return headerView
     }
@@ -337,14 +321,14 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             }
             for  instance in instanceSet {
                 
-                var instanceChartData = InstanceAnomalyChartData(instanceId: instance, aggregation: self._aggregation)
+                let instanceChartData = InstanceAnomalyChartData(instanceId: instance, aggregation: self._aggregation)
                 
-                 instanceChartData.load()
+                instanceChartData.load()
                 
-                 var metrics = instanceChartData.anomalousMetrics
+                let metrics = instanceChartData.anomalousMetrics
                 var index  = 3
-                var hasStock = metrics.contains (MetricType.StockPrice) || metrics.contains(MetricType.StockVolume)
-                var hasTwitter = metrics.contains(MetricType.TwitterVolume)
+                let hasStock = metrics.contains (MetricType.StockPrice) || metrics.contains(MetricType.StockVolume)
+                let hasTwitter = metrics.contains(MetricType.TwitterVolume)
                 
                 if (hasTwitter && hasStock){
                     index = 0
@@ -358,8 +342,6 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
                 var instanceArray = listData[index]
                 instanceArray!.append ( instanceChartData)
                 listData[index] = instanceArray
-                
-                
 
             }
         
@@ -412,10 +394,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     
     func updateSearchResultsForSearchController(searchController: UISearchController)
     {
-     /*   filteredTableData.removeAll(keepCapacity: false)
-    */
-        
-         let text = searchController.searchBar.text
+        let text = searchController.searchBar.text
         
         if ( text!.isEmpty ){
             self.tableData = self.allData
@@ -449,10 +428,6 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "showInstanceDetail" {
             if let indexPath = self.instanceTable.indexPathForSelectedRow {
-                
-              //  let data = self.tableData[indexPath.row]
-                
-                //   let object = objects[indexPath.row] as! NSDate
                 let controller = segue.destinationViewController as! InstanceDetailsViewController
                 
                 let data = tableData[indexPath.section]
@@ -471,48 +446,6 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         }
     }
     
-    func syncDBWithServer(){
-        
-        
-        dispatch_async(dispatch_get_global_queue( QOS_CLASS_USER_INITIATED, 0)) { // 1
-            
-            
-            let credentialsProvider = AWSCognitoCredentialsProvider(
-                regionType: AWSRegionType.USEast1,
-                identityPoolId: AppConfig.identityPoolId)
-            
-            let client : TaurusClient = TaurusClient( provider : credentialsProvider, region: AWSRegionType.USWest2 )
-            
-            let metrics = client.getMetrics()
-            for metric in metrics{
-                TaurusApplication.getDatabase().addMetric(metric)
-            }
-            
-            let oneWeekAgo = NSDate().dateByAddingTimeInterval(Double(-60*60*24*14))
-            let now = NSDate()
-            let sortAscending = true
-            
-            client.getAllInstanceData( oneWeekAgo, to: now, ascending: sortAscending, callback: self.handleInstanceData)
-            
-        //    let instances = TaurusApplication.getDatabase().getAllInstances()
-            
-            
-            self.syncWithDB()
-        }
-        
-    }
-    
-    func handleInstanceData (data : InstanceData)->Void?{
-        
-        // Could batch this up for performance reason
-        TaurusApplication.getDatabase().addInstanceDataBatch( [data])
-        
-        
-        
-        return nil
-    }
-    
-
 
 }
 

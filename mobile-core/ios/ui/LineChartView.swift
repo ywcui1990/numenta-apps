@@ -22,6 +22,9 @@ class LineChartView: UIView {
     var minPadding : Double = 5.0
     var markerX = -1.0
     
+    var emptyTextString : String?
+    var isEmpty : Bool = false
+    
     // Callback for when the chart is touched. The int is the index to the closest data element
     var selectionCallback :( (Int)->Void)?
     
@@ -235,6 +238,30 @@ class LineChartView: UIView {
     }
     
     func drawYLabels (rect: CGRect){
+        
+        if (self.isEmpty){
+            if (self.emptyTextString == nil){
+                return
+            }
+            let context = UIGraphicsGetCurrentContext()
+            
+            let fieldColor: UIColor = UIColor.whiteColor()
+            let fontName = "HelveticaNeue-Bold"
+            let font = UIFont(name: fontName, size: 16.0)
+            
+            CGContextSaveGState( context)
+            
+            let size = self.emptyTextString?.sizeWithAttributes([NSFontAttributeName : font!,  NSForegroundColorAttributeName: fieldColor])
+            let x = rect.width/2 - size!.width/2
+            let top =  rect.height/2 - size!.height/2
+            self.emptyTextString?.drawAtPoint(CGPointMake(x, top),
+                withAttributes: [NSFontAttributeName : font!,  NSForegroundColorAttributeName: fieldColor])
+            
+        
+        
+            CGContextRestoreGState( context)
+            return
+        }
         let context = UIGraphicsGetCurrentContext()
         
         let fieldColor: UIColor = UIColor.whiteColor()
@@ -285,7 +312,13 @@ class LineChartView: UIView {
     
     
     func updateData(){
-       
+        self.isEmpty = true
+        for value in self.data {
+            if (value.isNaN  == false){
+                isEmpty = false
+                break
+            }
+        }
         refreshScale()
         self.setNeedsDisplay()
     }
