@@ -144,8 +144,8 @@ class TimeSliderView: UIView {
             if (collapsed){
                 var newTime  = time
                 while ( open == false ) {
-                     newTime  -= interval
-                     var marketOpen = TaurusApplication.marketCalendar.isOpen(newTime + DataUtils.METRIC_DATA_INTERVAL)
+                    newTime  -= interval
+                    let marketOpen = TaurusApplication.marketCalendar.isOpen(newTime + DataUtils.METRIC_DATA_INTERVAL)
                     
                     if (marketOpen)
                     {
