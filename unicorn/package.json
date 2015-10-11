@@ -33,7 +33,7 @@
     "node-inspector": "node-inspector",
     "prepare": "npm run prepare:lint && npm run prepare:webpack",
     "prepare:lint": "eslint frontend/",
-    "prepare:webpack": "gulp webpack || exit 1",
+    "prepare:webpack": "gulp webpack",
     "serve": "http-server -p 9999 ./frontend/browser/",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "mocha --opts tests/js/mocha.opts tests/js/unit",

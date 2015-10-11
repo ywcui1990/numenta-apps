@@ -57,6 +57,7 @@ gulp.task('webpack', ()  => {
 
   return gulp.src('frontend/browser/app.js')
     .pipe(webpacker({
+      bail: true,
       devtool: 'source-map',
       module: {
         loaders: [
