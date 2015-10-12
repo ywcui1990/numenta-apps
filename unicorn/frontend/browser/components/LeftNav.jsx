@@ -58,8 +58,9 @@ export default class LeftNav extends React.Component {
    * @this LeftNav
    */
   render() {
+    let menuItems = {};
     return (
-      <MuiLeftNav className="LeftNav" title="Unicorn" zDepth={16} />
+      <MuiLeftNav className="LeftNav" menuItems={menuItems} title="Unicorn" zDepth={16} />
     );
   }
 
