@@ -209,21 +209,69 @@ class RetryDecoratorTest(unittest.TestCase):
     self.assertEqual(mockSleep.call_count, 0)
 
 
-  def testReturnsExpectedWithExpectedArgs(self):
+  @patch("time.sleep", autospec=True)
+  @patch("time.time", autospec=True)
+  def testReturnsExpectedWithExpectedArgs(self, mockTime, mockSleep):
     """Test that docorated function receives only expected args and
     that it returns the expected value on success."""
-    pass
+
+    self.mockSleepTime(mockTime, mockSleep)
+
+    _retry = error_handling.retry(
+      timeoutSec=30, initialRetryDelaySec=2,
+      maxRetryDelaySec=10)
+
+    testFunction = Mock(return_value=321,
+                        __name__="testFunction", autospec=True)
+
+    return_value = _retry(testFunction)(1, 2, a=3, b=4)
+
+    self.assertEqual(return_value, 321)
+    testFunction.assert_called_once_with(1, 2, a=3, b=4)
 
 
-  def testNoRetryIfCallSucceeds(self):
+  @patch("time.sleep", autospec=True)
+  @patch("time.time", autospec=True)
+  def testNoRetryIfCallSucceeds(self, mockTime, mockSleep):
     """If the initial call succeeds, test that no retries are performed."""
-    pass
+
+    self.mockSleepTime(mockTime, mockSleep)
+
+    _retry = error_handling.retry(
+      timeoutSec=30, initialRetryDelaySec=2,
+      maxRetryDelaySec=10)
+
+    testFunction = Mock(__name__="testFunction", autospec=True)
+
+    _retry(testFunction)()
+
+    testFunction.assert_called_once_with()
 
 
-  def testFailsFirstSucceedsLater(self):
+  @patch("time.sleep", autospec=True)
+  @patch("time.time", autospec=True)
+  def testFailsFirstSucceedsLater(self, mockTime, mockSleep):
     """If initial attempts fail but subsequent attempt succeeds, ensure that
     expected number of retries is performed and expected value is returned."""
-    pass
+
+    self.mockSleepTime(mockTime, mockSleep)
+
+    _retry = error_handling.retry(
+      timeoutSec=30, initialRetryDelaySec=2,
+      maxRetryDelaySec=10)
+
+    testFunction = Mock(
+      side_effect=[
+        TestParentException("Test exception 1"),
+        TestParentException("Test exception 2"),
+        321
+      ],
+      __name__="testFunction", autospec=True)
+    
+    return_value = _retry(testFunction)()
+
+    self.assertEqual(return_value, 321)
+    self.assertEqual(testFunction.call_count, 3)
 
 
 class ErrorHandlingUtilsTest(unittest.TestCase):
