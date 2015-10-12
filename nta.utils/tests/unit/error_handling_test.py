@@ -44,68 +44,8 @@ def setUpModule():
   LoggingSupport.initTestApp()
 
 
-class ErrorHandlingUtilsTest(unittest.TestCase):
-  """ Unit tests for the error-handling utilities """
-
-
-  def testAbortProgramOnAnyExceptionWithoutException(self):
-
-    @error_handling.abortProgramOnAnyException(exitCode=2)
-    def doSomething(*args, **kwargs):
-      return args, kwargs
-
-
-    inputArgs = (1, 2, 3)
-    inputKwargs = dict(a="A", b="B", c="C")
-
-    outputArgs, outputKwargs = doSomething(*inputArgs, **inputKwargs)
-
-    # Validate that doSomething got the right inputs
-    self.assertEqual(outputArgs, inputArgs)
-    self.assertEqual(outputKwargs, inputKwargs)
-
-
-  def testAbortProgramOnAnyExceptionWithRuntimeErrorException(self):
-    @error_handling.abortProgramOnAnyException(exitCode=2)
-    def doSomething(*_args, **_kwargs):
-      raise RuntimeError()
-
-
-    # Patch os._exit and run model in SlotAgent
-    osExitCodeQ = Queue.Queue()
-    with patch.object(os, "_exit", autospec=True,
-                      side_effect=osExitCodeQ.put):
-      inputArgs = (1, 2, 3)
-      inputKwargs = dict(a="A", b="B", c="C")
-
-      with self.assertRaises(RuntimeError):
-        doSomething(*inputArgs, **inputKwargs)
-
-      exitCode = osExitCodeQ.get_nowait()
-      self.assertEqual(exitCode, 2)
-
-
-  def testAbortProgramOnAnyExceptionWithSystemExitException(self):
-    # Repeat of the other test, but his time with SystemExit exception,
-    # which is derived from BaseException
-
-    @error_handling.abortProgramOnAnyException(exitCode=2)
-    def doSomething(*_args, **_kwargs):
-      raise SystemExit
-
-
-    # Patch os._exit and run model in SlotAgent
-    osExitCodeQ = Queue.Queue()
-    with patch.object(os, "_exit", autospec=True,
-                      side_effect=osExitCodeQ.put):
-      inputArgs = (1, 2, 3)
-      inputKwargs = dict(a="A", b="B", c="C")
-
-      with self.assertRaises(SystemExit):
-        doSomething(*inputArgs, **inputKwargs)
-
-      exitCode = osExitCodeQ.get_nowait()
-      self.assertEqual(exitCode, 2)
+class RetryDecoratorTest(unittest.TestCase):
+  """Unit tests specific to retry decorator."""
 
 
   def mockSleepTime(self, mockTime, mockSleep):
@@ -267,6 +207,87 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
       testFunctionFalse()
 
     self.assertEqual(mockSleep.call_count, 0)
+
+
+  def testReturnsExpectedWithExpectedArgs(self):
+    """Test that docorated function receives only expected args and
+    that it returns the expected value on success."""
+    pass
+
+
+  def testNoRetryIfCallSucceeds(self):
+    """If the initial call succeeds, test that no retries are performed."""
+    pass
+
+
+  def testFailsFirstSucceedsLater(self):
+    """If initial attempts fail but subsequent attempt succeeds, ensure that
+    expected number of retries is performed and expected value is returned."""
+    pass
+
+
+class ErrorHandlingUtilsTest(unittest.TestCase):
+  """ Unit tests for the error-handling utilities """
+
+
+  def testAbortProgramOnAnyExceptionWithoutException(self):
+
+    @error_handling.abortProgramOnAnyException(exitCode=2)
+    def doSomething(*args, **kwargs):
+      return args, kwargs
+
+
+    inputArgs = (1, 2, 3)
+    inputKwargs = dict(a="A", b="B", c="C")
+
+    outputArgs, outputKwargs = doSomething(*inputArgs, **inputKwargs)
+
+    # Validate that doSomething got the right inputs
+    self.assertEqual(outputArgs, inputArgs)
+    self.assertEqual(outputKwargs, inputKwargs)
+
+
+  def testAbortProgramOnAnyExceptionWithRuntimeErrorException(self):
+    @error_handling.abortProgramOnAnyException(exitCode=2)
+    def doSomething(*_args, **_kwargs):
+      raise RuntimeError()
+
+
+    # Patch os._exit and run model in SlotAgent
+    osExitCodeQ = Queue.Queue()
+    with patch.object(os, "_exit", autospec=True,
+                      side_effect=osExitCodeQ.put):
+      inputArgs = (1, 2, 3)
+      inputKwargs = dict(a="A", b="B", c="C")
+
+      with self.assertRaises(RuntimeError):
+        doSomething(*inputArgs, **inputKwargs)
+
+      exitCode = osExitCodeQ.get_nowait()
+      self.assertEqual(exitCode, 2)
+
+
+  def testAbortProgramOnAnyExceptionWithSystemExitException(self):
+    # Repeat of the other test, but his time with SystemExit exception,
+    # which is derived from BaseException
+
+    @error_handling.abortProgramOnAnyException(exitCode=2)
+    def doSomething(*_args, **_kwargs):
+      raise SystemExit
+
+
+    # Patch os._exit and run model in SlotAgent
+    osExitCodeQ = Queue.Queue()
+    with patch.object(os, "_exit", autospec=True,
+                      side_effect=osExitCodeQ.put):
+      inputArgs = (1, 2, 3)
+      inputKwargs = dict(a="A", b="B", c="C")
+
+      with self.assertRaises(SystemExit):
+        doSomething(*inputArgs, **inputKwargs)
+
+      exitCode = osExitCodeQ.get_nowait()
+      self.assertEqual(exitCode, 2)
 
 
 if __name__ == '__main__':
