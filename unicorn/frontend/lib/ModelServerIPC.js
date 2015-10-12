@@ -17,20 +17,29 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
-
 
 import ipc from 'ipc';
-import { ModelServer } from './ModelServer';
+import {ModelServer} from './ModelServer';
 
 export const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 
 
 /**
  * IPC interface to ModelServer
+ * @class
+ * @exports
+ * @module
+ * @public
  */
 export default class ModelServerIPC {
 
+  /**
+   * @constructor
+   * @method
+   * @public
+   * @returns {object} this
+   * @this ModelServerIPC
+   */
   constructor() {
     this._webContents = null;
     this._attached = new Set();
@@ -39,6 +48,11 @@ export default class ModelServerIPC {
 
   /**
    * Start listening for IPC events
+   * @method
+   * @param {object} webContents - Electron webContents object for IPC messages.
+   * @public
+   * @returns {undefined} undefined
+   * @this ModelServerIPC
    */
   start(webContents) {
     // Initialize IPC events
@@ -49,6 +63,10 @@ export default class ModelServerIPC {
 
   /**
    * Stop listening for IPC Events
+   * @method
+   * @public
+   * @returns {undefined} undefined
+   * @this ModelServerIPC
    */
   stop() {
     ipc.removeAllListeners(MODEL_SERVER_IPC_CHANNEL);
@@ -63,6 +81,7 @@ export default class ModelServerIPC {
    *  - 'remove': Stops and remove the model
    *  - 'list':   List running models as an Array of IDs in 'returnValue.models'
    *  - 'sendData': Send data to the model. See 'sendData' for 'params' format
+   * @method
    * @param  {Event}  event   IPC Event Object.
    *                          Any error will be returned via 'returnValue.error'
    * @param  {Object} payload Event payload in the following format:
@@ -72,23 +91,23 @@ export default class ModelServerIPC {
    *                            				 | 'sendData'
    *                            'params': {Object} // Optional
    *                          }
+   * @private
+   * @returns {undefined} undefined
+   * @this ModelServerIPC
    */
   _handleIPCEvent(event, payload) {
-    let {
-      modelId, command
-    } = payload;
-
+    const {modelId, command} = payload;
     try {
       if (command === 'create') {
-        this._onCreate(modelId, payload.params) || {};
+        this._onCreate(modelId, payload.params);
       } else if (command === 'remove') {
-        this._onRemove(modelId) || {};
+        this._onRemove(modelId);
       } else if (command === 'list') {
-        event.returnValue = this._onList() || {};
+        event.returnValue = this._onList();
       } else if (command === 'sendData') {
-        this._onSendData(modelId, payload.params) || {};
+        this._onSendData(modelId, payload.params);
       } else {
-        throw new Error('Unknown model command "' + command + '"');
+        throw new Error(`Unknown model command ${command}`);
       }
     } catch (error) {
       if (this._webContents) {
@@ -97,15 +116,23 @@ export default class ModelServerIPC {
           MODEL_SERVER_IPC_CHANNEL,
           modelId,
           'error',
-          { error, ipcevent: payload }
+          {error, ipcevent: payload}
         );
       }
     }
   }
 
+  /**
+   * Start up a new model
+   * @method
+   * @param {string} modelId - New ID of New Model to start up
+   * @private
+   * @returns {undefined} undefined
+   * @this ModelServerIPC
+   */
   _attach(modelId) {
     if (this._attached.has(modelId)) {
-      return ;
+      return;
     }
     this._attached.add(modelId);
     this._server.on(modelId, (command, payload) => {
@@ -114,12 +141,21 @@ export default class ModelServerIPC {
       }
       // forward event to BrowserWindow
       if (this._webContents) {
-        this._webContents.send(MODEL_SERVER_IPC_CHANNEL,
-                              modelId, command, payload);
+        this._webContents.send(
+          MODEL_SERVER_IPC_CHANNEL, modelId, command, payload
+        );
       }
     });
   }
 
+  /**
+   * Close down a running model
+   * @method
+   * @param {string} modelId - ID of existing Model to shut down
+   * @private
+   * @returns {undefined} undefined
+   * @this ModelServerIPC
+   */
   _dettach(modelId) {
     if (this._attached.has(modelId)) {
       this._attached.delete(modelId);
@@ -127,24 +163,58 @@ export default class ModelServerIPC {
     }
   }
 
+  /**
+   * Event callback handler for sending data to client
+   * @method
+   * @param {string} modelId - ID of Model to transmit data for
+   * @param {string} data - JSON-encoded string of data to send
+   * @private
+   * @returns {undefined} undefined
+   * @this ModelServerIPC
+   */
   _onSendData(modelId, data) {
-    let input = JSON.parse(data);
+    const input = JSON.parse(data);
     this._server.sendData(modelId, input);
   }
 
+  /**
+   * Event callback handler for listing data
+   * @method
+   * @private
+   * @returns {object} Current Models + State
+   * @this ModelServerIPC
+   */
   _onList() {
     return {
       models: this._server.getModels()
     };
   }
 
+  /**
+   * Event callback handler for creating a new model
+   * @method
+   * @param {string} modelId - New ID of New Model to create
+   * @param {object} params - Model Parameters to use in model creation
+   * @private
+   * @returns {undefined} undefined
+   * @this ModelServerIPC
+   */
   _onCreate(modelId, params) {
     this._attach(modelId);
     this._server.createModel(modelId, params);
   }
 
+  /**
+   * Event callback handler for removing an existing model
+   * @method
+   * @param {string} modelId - ID of existing Model to shut down
+   * @private
+   * @returns {undefined} undefined
+   * @this ModelServerIPC
+   */
   _onRemove(modelId) {
     this._dettach(modelId);
     this._server.removeModel(modelId);
   }
-};
+
+}
