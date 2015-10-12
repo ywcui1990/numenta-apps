@@ -41,23 +41,21 @@ import tapEventInject from 'react-tap-event-plugin';
 
 // internals
 
-// Fluxible.Actions
 import ListFilesAction from './actions/ListFiles';
 import ListMetricsAction from './actions/ListMetrics';
 
-// Fluxible.Stores
 import FileStore from './stores/FileStore';
 import ModelStore from './stores/ModelStore';
 import ModelDataStore from './stores/ModelDataStore';
 
-// Fluxible.Components (React)
 import MainComponent from './components/Main';
 
-// Unicorn Client Libraries
 import ConfigClient from './lib/Unicorn/ConfigClient';
 import DatabaseClient from './lib/Unicorn/DatabaseClient';
 import FileClient from './lib/Unicorn/FileClient';
 import ModelClient from './lib/Unicorn/ModelClient';
+
+// setup
 
 const config = new ConfigClient();
 const log = bunyan.createLogger({
@@ -85,10 +83,8 @@ let context;
 
 // MAIN
 
-
 // UnicornPlugin plugin exposing unicorn clients from contexts
 // See https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md
-
 let UnicornPlugin = {
   name: 'Unicorn',
   plugContext: function (options, context, app) {
@@ -154,7 +150,7 @@ let UnicornPlugin = {
 }; // UnicornPlugin
 
 
-// GUI APP
+// APP BROWSER GUI
 
 document.addEventListener('DOMContentLoaded', () => {
   csp.go(function* () {

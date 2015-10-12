@@ -21,14 +21,13 @@
 // externals
 
 import Dygraph from 'dygraphs';
-import Material from 'material-ui';
 import React from 'react';
+
+import Paper from 'material-ui/lib/paper';
 
 // internals
 
 import '../stylesheets/Chart.scss';
-
-const {Paper} = Material;
 
 
 /**

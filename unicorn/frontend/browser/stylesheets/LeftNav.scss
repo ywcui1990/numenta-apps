@@ -16,20 +16,9 @@
 // http://numenta.org/licenses/
 
 /**
- * Component SASS Stylesheet: Main
+ * Component SASS Stylesheet: LeftNav
  */
-body {
-  background: #eee;
-
-  > main {
-    background: #eee;
-
-    > section {
-      margin-left: 256px;
-
-      > input[type="file"] {
-        display: none;
-      }
-    }
-  }
+.LeftNav {
+  background: #fff;
+  z-index: 2;
 }

@@ -19,32 +19,42 @@
 
 'use strict';
 
-import connectToStores from 'fluxible-addons-react/connectToStores';
-import Material from 'material-ui';
+
+// externals
+
 import React from 'react';
-import StopModelAction from '../actions/StopModel';
+
+import connectToStores from 'fluxible-addons-react/connectToStores';
+
+import Avatar from 'material-ui/lib/avatar';
+import Card from 'material-ui/lib/card/card';
+import CardActions from 'material-ui/lib/card/card-actions';
+import CardHeader from 'material-ui/lib/card/card-header';
+import CardText from 'material-ui/lib/card/card-text';
+import Colors from 'material-ui/lib/styles/colors';
+import FlatButton from 'material-ui/lib/flat-button';
+
+// internals
+
 import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
+import StopModelAction from '../actions/StopModel';
 
-const {
-  Card, CardHeader, CardText, CardActions, FlatButton, Avatar, Styles
-} = Material;
-const {Colors} = Styles;
+const StoreDecorator = () => ({});
 
-@connectToStores([ModelStore], () => ({
-}))
+
+/**
+ *
+ */
+@connectToStores([ModelStore], StoreDecorator)
 export default class Model extends React.Component {
 
-  static propTypes = {
-    zDepth: React.PropTypes.number,
-    modelId: React.PropTypes.string.isRequired
-  };
-  static defaultProps = {
-    zDepth: 1
-  };
   static contextTypes = {
     executeAction: React.PropTypes.func,
     getStore: React.PropTypes.func
+  };
+  static propTypes = {
+    modelId: React.PropTypes.string.isRequired
   };
 
   constructor(props, context) {
@@ -111,4 +121,5 @@ export default class Model extends React.Component {
       </Card>
     );
   }
-};
+
+}

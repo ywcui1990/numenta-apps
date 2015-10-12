@@ -23,29 +23,41 @@
 
 // externals
 
-import Material from 'material-ui';
 import React from 'react';
+
+import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
+import connectToStores from 'fluxible-addons-react/connectToStores';
+
+import Checkbox from 'material-ui/lib/checkbox';
+import List from 'material-ui/lib/lists/list';
+import ListItem from 'material-ui/lib/lists/list-item';
+import Paper from 'material-ui/lib/paper';
+import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 // internals
 
 import AddModelAction from '../actions/AddModel';
 import DeleteModelAction from '../actions/DeleteModel';
-import connectToStores from 'fluxible-addons-react/connectToStores';
 import FileStore from '../stores/FileStore';
 import ModelStore from '../stores/ModelStore';
+import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
 import Utils from '../../lib/Utils';
 
-const {
-  List, ListItem, Checkbox, Paper
-} = Material;
-
-
-// MAIN
-
-@connectToStores([ FileStore, ModelStore ], (context) => ({
+const StoreDecorator = (context) => ({
   files: context.getStore(FileStore).getFiles()
-}))
+});
+const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 
+
+/**
+ * @module
+ * @exports
+ * @class
+ * @public
+ * @extends React.Component
+ */
+@applyMaterialTheme(ThemeDecorator)
+@connectToStores([FileStore, ModelStore], StoreDecorator)
 export default class FileList extends React.Component {
 
   static contextTypes = {
@@ -53,13 +65,15 @@ export default class FileList extends React.Component {
     getStore: React.PropTypes.func,
     muiTheme: React.PropTypes.object
   };
+  static propTypes = {
+    zDepth: React.PropTypes.number
+  };
+  static defaultProps = {
+    zDepth: 1
+  };
 
   constructor(props, context) {
     super(props, context);
-
-    this.state = {
-      muiTheme: this.context.muiTheme
-    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -67,7 +81,7 @@ export default class FileList extends React.Component {
   }
 
   _getStyles() {
-    let leftNavStyle = this.state.muiTheme.leftNav;
+    let leftNavStyle = this.context.muiTheme.leftNav;
     return {
       root: {
         position: 'fixed',
@@ -103,16 +117,14 @@ export default class FileList extends React.Component {
         if (metric.type !== 'date') {
           let modelId = Utils.generateModelId(file.filename, metric.name);
           let modelStore = this.context.getStore(ModelStore);
-          let checked = modelStore.getModel(modelId)
-            ? true
-            : false;
+          let checked = modelStore.getModel(modelId) ? true : false;
           return (
             <ListItem key={modelId}
               leftCheckbox={<Checkbox name={modelId}
               checked={checked}
               onCheck={this._onMetricCheck.bind(this, modelId, file.filename,
                 timestampField.name, metric.name)}/>}
-              primaryText={metric.name}/>
+              primaryText={metric.name} />
           );
         }
       });
@@ -135,14 +147,15 @@ export default class FileList extends React.Component {
   render() {
     let styles = this._getStyles();
     return (
-      <Paper style={styles.root} zDepth={2}>
-        <List subheader='Sample Data'>
+      <Paper style={styles.root} zDepth={this.props.zDepth}>
+        <List subheader="Sample Data">
           {this._renderFiles('sample')}
         </List>
-        <List subheader='Your Data'>
+        <List subheader="Your Data">
           {this._renderFiles('uploaded')}
         </List>
       </Paper>
     );
   }
-};
+
+}

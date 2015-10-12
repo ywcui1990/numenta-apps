@@ -19,14 +19,27 @@
 
 'use strict';
 
-import connectToStores from 'fluxible-addons-react/connectToStores';
-import React from 'react';
-import ModelDataStore from '../stores/ModelDataStore';
-import Chart from '../components/Chart';
 
-@connectToStores([ModelDataStore], (context) => ({
+// externals
+
+import React from 'react';
+
+import connectToStores from 'fluxible-addons-react/connectToStores';
+
+// internals
+
+import Chart from '../components/Chart';
+import ModelDataStore from '../stores/ModelDataStore';
+
+const StoreDecorator = (context) => ({
   modelDataStore: context.getStore(ModelDataStore)
-}))
+});
+
+
+/**
+ *
+ */
+@connectToStores([ModelDataStore], StoreDecorator)
 export default class ModelData extends React.Component {
 
   static propTypes = {
@@ -51,4 +64,5 @@ export default class ModelData extends React.Component {
       );
     }
   }
-};
+
+}

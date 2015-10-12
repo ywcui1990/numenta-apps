@@ -21,8 +21,12 @@
 // externals
 
 import csp from 'js-csp';
-import Material from 'material-ui';
 import React from 'react';
+
+import AppBar from 'material-ui/lib/app-bar';
+import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
+import FloatingActionButton from 'material-ui/lib/floating-action-button';
+import MenuItem from 'material-ui/lib/menus/menu-item';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
@@ -33,33 +37,30 @@ import '../stylesheets/Main.scss';
 import FileAddAction from '../actions/FileAdd';
 import FileList from '../components/FileList';
 import FileUploadAction from '../actions/FileUpload';
+import LeftNav from '../components/LeftNav';
 import ModelList from '../components/ModelList';
 import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
 
-const {FloatingActionButton} = Material;
+const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 
 
 /**
  * React Main View Component
+ * @class
+ * @extends React.Component
+ * @module
+ * @public
+ * @this MainComponent
  */
+@applyMaterialTheme(ThemeDecorator)
 export default class MainComponent extends React.Component {
 
   static contextTypes = {
     executeAction: React.PropTypes.func.isRequired
   };
 
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object
-  };
-
   constructor(props, context) {
     super(props, context);
-  }
-
-  getChildContext() {
-    return {
-      muiTheme: ThemeManager.getMuiTheme(UnicornTheme)
-    };
   }
 
   /**
@@ -99,24 +100,32 @@ export default class MainComponent extends React.Component {
 
   /**
    * Render
+   * @method
+   * @public
+   * @returns {object} Abstracted React/JSX DOM representation to render to HTML
+   * @this MainComponent
    * @TODO Better + ADD fonticon
    * @TODO Tooltip on + ADD icon - "Upload new CSV file" or something
    */
   render() {
+    let style = {zIndex: 4};
     return (
-      <div>
+      <main>
+        <AppBar title="Unicorn" zDepth={4} style={style} />
+        <LeftNav />
         <nav>
-          <ModelList/>
-          <FileList/>
+          <ModelList />
+          <FileList />
         </nav>
-        <main>
+        <section>
           <h1>Unicorn</h1>
-          <FloatingActionButton onClick={this._onClick.bind(this)}>
+          <FloatingActionButton onClick={this._onClick.bind(this)} zDepth={6}>
             <SvgIconContentAdd/>
           </FloatingActionButton>
-          <input onChange={this._onFileSelect.bind(this)} ref="fileInput" type="file" />
-        </main>
-      </div>
+          <input onChange={this._onFileSelect.bind(this)} ref="fileInput"
+                 type="file" />
+        </section>
+      </main>
     );
   }
 
