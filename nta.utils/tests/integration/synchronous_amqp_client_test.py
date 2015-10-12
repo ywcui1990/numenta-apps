@@ -237,11 +237,6 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     self.assertEqual(queue["message_stats"]["ack"], _NUM_TEST_MESSAGES)
 
 
-  @_RETRY_ON_ASSERTION_ERROR
-  def _hasEvent(self):
-    self.assertTrue(self.client.hasEvent())
-
-
   def testDeclareAndDeleteDirectExchange(self):
     """  Test creating and deleting a new exchange (type = direct) """
     self._connectToClient()
@@ -688,7 +683,6 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     self._verifyQueue(queueName, testMessageCount=_NUM_TEST_MESSAGES)
 
     consumer = self.client.createConsumer(queueName)
-    self._hasEvent()
 
     for i in range(0, _NUM_TEST_MESSAGES):
       message = self.client.getNextEvent()
@@ -722,7 +716,6 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     self._verifyQueue(queueName, testMessageCount=_NUM_TEST_MESSAGES)
 
     consumer = self.client.createConsumer(queueName)
-    self._hasEvent()
 
     for i in range(0, _NUM_TEST_MESSAGES):
       message = self.client.getNextEvent()
@@ -789,7 +782,6 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     self._verifyQueue(queueName, testMessageCount=_NUM_TEST_MESSAGES)
 
     self.client.createConsumer(queueName)
-    self._hasEvent()
 
     for i in range(0, _NUM_TEST_MESSAGES):
       self.client.getNextEvent().ack()
@@ -816,7 +808,6 @@ class SynchronousAmqpClientTest(unittest.TestCase):
     self._verifyQueue(queueName, testMessageCount=_NUM_TEST_MESSAGES)
 
     self.client.createConsumer(queueName)
-    self._hasEvent()
 
     self._verifyQueue(queueName, testMessageCount=_NUM_TEST_MESSAGES,
                       testConsumerCount=1)
