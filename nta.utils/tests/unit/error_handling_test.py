@@ -122,8 +122,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     mockSleep.side_effect = testSleep
 
 
-  @patch("time.sleep")
-  @patch("time.time")
+  @patch("time.sleep", autospec=True)
+  @patch("time.time", autospec=True)
   def testRetryNoRetries(self, mockTime, mockSleep):
     """ Test that when timeoutSec == 0, function is executed exactly once
     with no retries, and raises an exception on failure. """
@@ -135,7 +135,7 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
       maxRetryDelaySec=10)
 
     testFunction = Mock(side_effect=Exception("Test exception"),
-                        __name__="testFunction")
+                        __name__="testFunction", autospec=True)
 
     with self.assertRaises(Exception):
       _retry(testFunction)()
@@ -144,8 +144,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     testFunction.assert_called_once_with()
 
 
-  @patch("time.sleep")
-  @patch("time.time")
+  @patch("time.sleep", autospec=True)
+  @patch("time.time", autospec=True)
   def testRetryWaitsInitialRetryDelaySec(self, mockTime, mockSleep):
     """ Test that first retry delay is initialRetryDelaySec and subsequent
     retry delays are geometrically doubling up to maxRetryDelaySec  """
@@ -157,7 +157,7 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
       maxRetryDelaySec=10)
 
     testFunction = Mock(side_effect=Exception("Test exception"),
-                        __name__="testFunction")
+                        __name__="testFunction", autospec=True)
 
     with self.assertRaises(Exception):
       _retry(testFunction)()
@@ -169,8 +169,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     self.assertEqual(testFunction.call_count, 6)
 
 
-  @patch("time.sleep")
-  @patch("time.time")
+  @patch("time.sleep", autospec=True)
+  @patch("time.time", autospec=True)
   def testRetryRetryExceptionIncluded(self, mockTime, mockSleep):
     """ Test that retry is triggered if raised exception is in
     retryExceptions """
@@ -197,8 +197,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     self.assertEqual(mockSleep.call_count, 1)
 
 
-  @patch("time.sleep")
-  @patch("time.time")
+  @patch("time.sleep", autospec=True)
+  @patch("time.time", autospec=True)
   def testRetryRetryExceptionExcluded(self, mockTime, mockSleep):
     """ Test that retry is not triggered if raised exeception is not in
     retryExceptions """
@@ -225,8 +225,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     self.assertEqual(mockSleep.call_count, 0)
 
 
-  @patch("time.sleep")
-  @patch("time.time")
+  @patch("time.sleep", autospec=True)
+  @patch("time.time", autospec=True)
   def testRetryRetryFilter(self, mockTime, mockSleep):
     """ Test that if retryFilter is specified and exception is in
     retryExceptions, retries iff retryFilter returns true """
