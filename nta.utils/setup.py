@@ -37,6 +37,8 @@ setup(
        "nta.utils.tools.supervisord_state:getStateMain"),
       ("nta-wait-for-supervisord-running = "
        "nta.utils.tools.supervisord_state:waitForRunningStateMain"),
+      ("nta-wait-for-supervisord-processes-stopped = "
+       "nta.utils.tools.supervisord_state:waitForAllToStop"),
     ]
   }
 )

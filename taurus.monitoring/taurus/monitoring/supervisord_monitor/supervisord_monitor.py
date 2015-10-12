@@ -19,16 +19,14 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 import types
-from urlparse import urljoin
-import xmlrpclib
 
 from nta.utils import error_reporting
+from nta.utils.supervisor_utils import SupervisorClient
 
 from taurus.monitoring.monitor_dispatcher import MonitorDispatcher
 from taurus.monitoring import (loadConfig,
                                loadEmailParamsFromConfig,
                                MonitorOptionParser)
-
 
 
 
@@ -48,6 +46,7 @@ class SupervisorProcessInFatalState(SupervisorMonitorError):
 
 
 class SupervisorChecker(MonitorDispatcher):
+
   parser = MonitorOptionParser()
 
   parser.add_option("--serverUrl",
@@ -59,7 +58,7 @@ class SupervisorChecker(MonitorDispatcher):
   def __init__(self):
     options = self.parser.parse_options()
 
-    self.server = xmlrpclib.Server(urljoin(options.serverUrl, "RPC2"))
+    self.server = SupervisorClient(options.serverUrl)
     self.subjectPrefix = options.subjectPrefix
 
     self.config = loadConfig(options)
@@ -101,6 +100,7 @@ def checkSupervisordState(monitorObj):
                                "{}".format(repr(state)))
 
 
+
 @SupervisorChecker.registerCheck
 def checkSupervisorProcesses(monitorObj):
   """ Check that there are no processes in a 'FATAL' state.
@@ -127,4 +127,3 @@ def checkSupervisorProcesses(monitorObj):
                     "\n\n=======================\n")
 
       raise SupervisorProcessInFatalState(errMessage)
-
