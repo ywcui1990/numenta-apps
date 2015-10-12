@@ -1017,7 +1017,7 @@ def _parseArgs():
     type="string",
     dest="metricDestAddr",
     help=("Destination address for metrics as host:port; typically address of "
-          "Grok's custom metrics listener; Grok's default metric listener port "
+          "HTM-IT's custom metrics listener; HTM-IT's default metric listener port "
           "is 2003"))
 
   options, _ = parser.parse_args()

@@ -34,11 +34,6 @@ from infrastructure.utilities.path import mkdirp
 
 
 
-XUNIT_TEST_RESULTS_FILE_PATH = ("/opt/numenta/grok/tests/results/py2/xunit"
-                                "/jenkins/results.xml")
-
-
-
 def getTestResult(filename):
   """
     Get output by reading filename
@@ -70,7 +65,7 @@ def defineBuildWorkspace(logger):
 
     :returns: /path/to/buildWorkspace as defined by the output of getWorkspace()
       and getBuildNumber(). Examples:
-      - /opt/numenta/jenkins/workspace/grok-product-pipeline/build-123
+      - /opt/numenta/jenkins/workspace/htm-it-product-pipeline/build-123
       - ~/nta/numenta-apps/build-aa980430f4ae64d22f9a5327f79fa4dab706459c
     :rtype: str
   """
@@ -90,7 +85,7 @@ def getWorkspace(logger):
 
     :returns: The value of the `WORKSPACE` environment variable, or the root
       folder of the current repo. This should be a folder path. Examples:
-      - /opt/numenta/jenkins/workspace/grok-product-pipeline
+      - /opt/numenta/jenkins/workspace/htm-it-product-pipeline
       - ~/nta/numenta-apps
     :rtype: str
   """

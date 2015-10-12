@@ -225,12 +225,24 @@ pushd "${REPOPATH}"
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "cd /opt/numenta/products/taurus &&
      if [ -f taurus-supervisord.pid ]; then
+       supervisorctl --serverurl http://localhost:9001 stop all
+       let attempts=1
+       supervisorctl --serverurl http://localhost:9001 status | grep -E \"RUNNING|STOPPING\"
+       while [ \$? -eq 0  ] && [ \$attempts -le 5 ]; do
+         sleep 1
+         supervisorctl --serverurl http://localhost:9001 status | grep -E \"RUNNING|STOPPING\";
+         let \"attempts+=1\"
+       done
+       supervisorctl --serverurl http://localhost:9001 status | grep -E \"RUNNING|STOPPING\"
+       if [ \$? -eq 0 ]; then
+         echo \"Unable to stop all processes...\"
+         exit;
+       fi
        supervisorctl --serverurl http://localhost:9001 shutdown
      fi  &&
      if [ -f /var/run/nginx.pid ]; then
        sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s stop;
      fi"
-
 
   # Sync git histories with taurus server for current HEAD
   ${GIT} push --force \

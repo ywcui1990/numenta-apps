@@ -65,16 +65,16 @@ install-epel-repo:
     - source: salt://nta-yum/files/{{ repo }}
     - mode: 0644
     - require:
-      - file: remove-stale-grok-repo
+      - file: remove-stale-htm-it-repo
     - watch_in:
       - cmd: epel-installed
       - cmd: reload-yum-database
 {% endfor %}
 
-# Purge the old grok.repo file
-remove-stale-grok-repo:
+# Purge the old htm-it.repo file
+remove-stale-htm-it-repo:
   file.absent:
-    - name: /etc/yum.repos.d/grok.repo
+    - name: /etc/yum.repos.d/htm-it.repo
     - watch_in:
       - cmd: reload-yum-database
 

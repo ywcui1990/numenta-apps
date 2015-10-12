@@ -28,12 +28,12 @@ base:
   'webserver-*':
     - nta-nucleus
     - role-webserver
-  'grok-plumbing':
-    - grok-plumbing
+  'htm-it-plumbing':
+    - htm-it-plumbing
     - devtools
-  'grok-server':
+  'htm-it-server':
     - devtools
-    - grok-plumbing
-    - role-grok
+    - htm-it-plumbing
+    - role-htm-it
   'role-infrastructure-ami':
     - role-infrastructure
