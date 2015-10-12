@@ -47,7 +47,7 @@ if (isElectronRenderer) {
   let remote;
   try {
     remote = require('remote');
-  } catch (error) {}
+  } catch (error) { /* Ignore */ }
   // pseduo-DatabaseClientIPC
   DatabaseClient = remote.require('./lib/DatabaseServer');
 } else {

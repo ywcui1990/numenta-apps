@@ -39,7 +39,7 @@ export class MaximumConcurrencyError extends UserError {
   constructor() {
     super('Too many models running');
   }
-};
+}
 
 /**
  * Thrown when attempting to create a model with the same ID as a previous model
@@ -48,7 +48,7 @@ export class DuplicateIDError extends UserError {
   constructor() {
     super('Duplicate model ID');
   }
-};
+}
 
 /**
  * Thrown when attempting to perform an operation on an unknown model
@@ -57,7 +57,7 @@ export class ModelNotFoundError extends UserError {
   constructor() {
     super('Model not found');
   }
-};
+}
 
 
 /**

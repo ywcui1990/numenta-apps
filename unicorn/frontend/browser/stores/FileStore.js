@@ -74,4 +74,4 @@ export default class FileStore extends BaseStore {
       this.emitChange();
     }
   }
-};
+}

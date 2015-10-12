@@ -287,7 +287,7 @@ DatabaseServer.prototype.putMetricData = function(metricData, callback) {
 
   if (typeof metricDatas === 'string') {
     // JSONify here to get around Electron IPC remote() memory leaks
-    metricDatas = JSON.parse(metricDatas);
+    metricData = JSON.parse(metricData);
   }
 
   if (validation.errors.length) {
@@ -331,37 +331,6 @@ DatabaseServer.prototype.putMetricDatas = function(metricDatas, callback) {
   // execute
   table.batch(ops, callback);
 };
-
-/**
- * Put a single Model to DB
- */
-DatabaseServer.prototype.putModel = function(model, callback) {
-  let table = this.db.sublevel('model');
-  let validation = this.validator.validate(model, ModelSchema);
-
-  if (validation.errors.length) {
-    callback(validation.errors, null);
-    return;
-  }
-
-  table.put(model.uid, model, callback);
-};
-
-/**
- * Put a single ModelData record to DB
- */
-DatabaseServer.prototype.putModelData = function(modelData, callback) {
-  let table = this.db.sublevel('modelData');
-  let validation = this.validator.validate(modelData, ModelDataSchema);
-
-  if (validation.errors.length) {
-    callback(validation.errors, null);
-    return;
-  }
-
-  table.put(modelData.model_uid, modelData, callback);
-};
-
 
 // EXPORTS
 
