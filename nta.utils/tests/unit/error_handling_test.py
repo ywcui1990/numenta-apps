@@ -102,6 +102,13 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
 
 
   def mockSleepTime(self, mockTime, mockSleep):
+    """ Configures mocks for time.time and time.sleep such that every call
+    to time.sleep(x) increments the return value of time.time() by x.
+    
+    mockTime:     time.time mock
+    mockSleep:    time.sleep mock
+    """
+
     class _TimeContainer(object):
       accumulatedTime = 0
 
