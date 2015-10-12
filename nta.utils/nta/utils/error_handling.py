@@ -220,10 +220,9 @@ def retry(timeoutSec, initialRetryDelaySec, maxRetryDelaySec,
               clientLabel, func, numAttempts, delaySec, timeoutSec,
               ''.join(traceback.format_stack()), exc_info=True)
 
+          time.sleep(delaySec)
 
-            time.sleep(delaySec)
-
-            delaySec = min(delaySec*2, maxRetryDelaySec)
+          delaySec = min(delaySec*2, maxRetryDelaySec)
         else:
           if numAttempts > 1:
             logger.info('[%s] %r succeeded on attempt # %d',
