@@ -147,4 +147,4 @@ export default class ModelServerIPC {
     this._dettach(modelId);
     this._server.removeModel(modelId);
   }
-};
+}

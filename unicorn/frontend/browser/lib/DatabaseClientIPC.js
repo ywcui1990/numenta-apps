@@ -21,6 +21,7 @@
 
 
 import ipc from 'ipc';
+import ModelErrorAction from '../actions/ModelError';
 
 const DATABASE_SERVER_IPC_CHANNEL = 'DATABASE_SERVER_IPC_CHANNEL';
 
