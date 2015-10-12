@@ -18,15 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
-
-/**
- * Unicorn: ConfigServer - Respond to a ConfigClient over IPC, sharing our
- *  access to the Node/io.js-layer config settings.
- *
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
- */
 
 // externals
 
@@ -38,7 +29,7 @@ import path from 'path';
 const CONFIG_FILE = 'default.json';
 const CONFIG_PATH = path.join('frontend', 'config');
 
-let Defaults = {
+const Defaults = {
   NODE_ENV: 'development',
   UNICORN_TARGET: 'desktop',
   TEST_HOST: 'http://localhost',
@@ -47,28 +38,28 @@ let Defaults = {
 };
 
 
-// MAIN
-
 /**
- *
+ * Unicorn: ConfigServer - Respond to a ConfigClient over IPC, sharing our
+ *  access to the Node/io.js-layer config settings.
+ * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
+ * @returns {Object} - Configuration data handler object
  */
-var ConfigServer = function () {
-  let config = nconf.env().argv().defaults(Defaults);
+function ConfigServer() {
+  const config = nconf.env().argv().defaults(Defaults);
 
   config.file(path.join(CONFIG_PATH, CONFIG_FILE));
   config.file(
     'environment',
-    path.join(CONFIG_PATH, 'environment.' + config.get('NODE_ENV') + '.json')
+    path.join(CONFIG_PATH, `environment.${config.get('NODE_ENV')}.json`)
   );
   config.file(
     'target',
-    path.join(CONFIG_PATH, 'target.' + config.get('UNICORN_TARGET') + '.json')
+    path.join(CONFIG_PATH, `target.${config.get('UNICORN_TARGET')}.json`)
   );
 
   return config;
-};
+}
 
 
 // EXPORTS
-
 module.exports = ConfigServer;

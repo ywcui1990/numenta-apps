@@ -17,9 +17,10 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
 
 import {ACTIONS} from '../lib/Constants';
+
+
 export default (actionContext, payload) => {
   let {command, modelId, error} = payload;
   if (command === 'create') {

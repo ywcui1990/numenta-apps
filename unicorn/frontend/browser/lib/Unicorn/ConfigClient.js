@@ -18,15 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
-
-/**
- * Unicorn: ConfigClient - Talk to a ConfigServer over IPC or HTTP, gaining
- *  access to the Node/io.js-layer configuration settings. Connects via HTTP or
- *  IPC adapter. ConfigClientIPC adpater is currently a pseudo-library, using
- *  the magic of Electron's `remote` module.
- */
 
 // externals
 
@@ -39,8 +30,12 @@ import ConfigClientHTTP from './ConfigClientHTTP';
 let ConfigClient;
 
 
-// MAIN
-
+/**
+ * Unicorn: ConfigClient - Talk to a ConfigServer over IPC or HTTP, gaining
+ *  access to the Node/io.js-layer configuration settings. Connects via HTTP or
+ *  IPC adapter. ConfigClientIPC adpater is currently a pseudo-library, using
+ *  the magic of Electron's `remote` module.
+ */
 if (isElectronRenderer) { // desktop
   let remote;
   try {
@@ -53,5 +48,4 @@ if (isElectronRenderer) { // desktop
 
 
 // EXPORT
-
 export default ConfigClient;

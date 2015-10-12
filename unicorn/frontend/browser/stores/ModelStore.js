@@ -17,11 +17,12 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
 
 import BaseStore from 'fluxible/addons/BaseStore';
 
+
 export default class ModelStore extends BaseStore {
+
   static storeName = 'ModelStore';
   static handlers = {
     'ADD_MODEL_SUCCESS': '_handleAddModel',
@@ -180,4 +181,5 @@ export default class ModelStore extends BaseStore {
     }
     return false;
   }
-};
+
+}

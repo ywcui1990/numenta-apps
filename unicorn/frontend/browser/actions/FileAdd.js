@@ -18,8 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
 
 /**
  * Fluxible Action: Add (user adding new file)

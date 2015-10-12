@@ -17,7 +17,6 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
 export const ACTIONS = Object.freeze({
   ADD_MODEL_SUCCESS: 'ADD_MODEL_SUCCESS',
   ADD_MODEL_FAILED: 'ADD_MODEL_FAILED',

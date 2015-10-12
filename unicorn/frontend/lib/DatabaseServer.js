@@ -18,15 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
-
-/**
- * Unicorn: DatabaseServer - Respond to a DatabaseClient over IPC, sharing our
- *  access to a file-based Node/io.js database system, for heavy persistence.
- *
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
- */
 
 // externals
 
@@ -51,10 +42,12 @@ const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 // const DB_FILE_PATH = path.join('frontend', 'database', 'data');
 
 
-// MAIN
-
 /**
- * Unicorn DatabaseServer
+ * Unicorn: DatabaseServer - Respond to a DatabaseClient over IPC, sharing our
+ *  access to a file-based Node/io.js database system, for heavy persistence.
+ *
+ * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
+ *
  * @class
  * @module
  * @returns {object} this

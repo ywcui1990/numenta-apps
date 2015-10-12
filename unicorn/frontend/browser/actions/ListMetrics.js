@@ -17,8 +17,6 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
-
 
 // internals
 

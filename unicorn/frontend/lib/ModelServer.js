@@ -18,17 +18,16 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
 
 import childProcess from 'child_process';
 import EventEmitter from 'events';
 import path from 'path';
 import UserError from './UserError';
-import os from 'os';
+import system from 'os';
 
 const MODEL_RUNNER_PATH = path.join(
   __dirname, '..', '..', 'dist', 'model_runner'
+  // __dirname, '..', '..', 'backend', 'unicorn_backend', 'model_runner.py'
 );
 
 
@@ -39,7 +38,7 @@ export class MaximumConcurrencyError extends UserError {
   constructor() {
     super('Too many models running');
   }
-};
+}
 
 /**
  * Thrown when attempting to create a model with the same ID as a previous model
@@ -48,7 +47,7 @@ export class DuplicateIDError extends UserError {
   constructor() {
     super('Duplicate model ID');
   }
-};
+}
 
 /**
  * Thrown when attempting to perform an operation on an unknown model
@@ -57,7 +56,7 @@ export class ModelNotFoundError extends UserError {
   constructor() {
     super('Model not found');
   }
-};
+}
 
 
 /**
@@ -65,6 +64,10 @@ export class ModelNotFoundError extends UserError {
  * to Unicorn Backend Model Runner python and NuPIC processes.
  */
 export class ModelServer extends EventEmitter {
+
+  /**
+   * @constructor
+   */
   constructor() {
     super();
     this._models = new Map();
@@ -72,17 +75,19 @@ export class ModelServer extends EventEmitter {
   }
 
   /**
-   * calculate max model concurrency
+   * Calculate max model concurrency
+   * @returns {Number} - Maximum concurrency for this system
    */
   _calculateMaxConcurrency() {
     // Adapted from htmengine/model_swapper/model_scheduler_service.py
-    let cpus = os.cpus().length;
-    let totalmem = os.totalmem();
+    const cpus = system.cpus().length;
+    const totalmem = system.totalmem();
     return Math.max(Math.min(cpus - 1, totalmem / 1073741824), 2);
   }
 
   /**
    * Returns the number of slots available to run new models
+   * @returns {Number} - Maximum available slots avilable on this system
    */
   availableSlots() {
     return this._maxConcurrency - this._models.size;
@@ -90,8 +95,9 @@ export class ModelServer extends EventEmitter {
 
   /**
    * Creates new HTM model
-   * @param  {String}   modelId  Unique identifier for the model
-   * @param  {Object}   stats    HTM Model parameters. See model_runner.py
+   * @param  {String} modelId - Unique identifier for the model
+   * @param  {Object} stats - HTM Model parameters. See model_runner.py
+   * @returns {Undefined} - undefined
    * @throws MaximumConcurrencyError, DuplicateIDError
    */
   createModel(modelId, stats) {
@@ -102,8 +108,10 @@ export class ModelServer extends EventEmitter {
       throw new DuplicateIDError();
     }
 
-    let params = ['--model', modelId, '--stats', stats];
-    let child = childProcess.spawn(MODEL_RUNNER_PATH, params);
+    // const params = [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats];
+    // const child = childProcess.spawn('python', params);
+    const params = ['--model', modelId, '--stats', stats];
+    const child = childProcess.spawn(MODEL_RUNNER_PATH, params);
 
     child.stdout.setEncoding('utf8');
     child.stdin.setDefaultEncoding('utf8');
@@ -126,28 +134,30 @@ export class ModelServer extends EventEmitter {
       // this.emit(modelId, 'close', code);
     });
 
-    this._models.set(modelId, { modelId, stats, child });
+    this._models.set(modelId, {modelId, stats, child});
   }
 
   /**
    * Sends data to the model
-   * @param {[String]} modelId   The model to send data
-   * @param {[Array]} inputData The data values to be sent to the model,
-   *                             usually in the following format:
-   *                             '[timestamp, value]'
+   * @param {String} modelId - The model to send data
+   * @param {Array} inputData - The data values to be sent to the model, usually
+   *  in the following format: '[timestamp, value]'
+   * @returns {Undefined} - undefined
    * @throws ModelNotFoundError
    */
   sendData(modelId, inputData) {
     if (!this._models.has(modelId)) {
       throw new ModelNotFoundError();
     }
-    let model = this._models.get(modelId);
-    model.child.stdin.write(JSON.stringify(inputData) + '\n');
+
+    const model = this._models.get(modelId);
+    const value = [JSON.stringify(inputData), '\n'].join('');
+    model.child.stdin.write(value);
   }
 
   /**
    * Returns a list of active models
-   * @return {Array} List of Model IDs with the active models
+   * @returns {Array} - List of Model IDs with the active models
    */
   getModels() {
     return Array.from(this._models.keys());
@@ -155,17 +165,18 @@ export class ModelServer extends EventEmitter {
 
   /**
    * Stops and remove the model
-   * @param  {String} modelId The model to stop
-   * @return {Boolean}        True on success, false otherwise
+   * @param {String} modelId - The model to stop
+   * @returns {Boolean} - True on success, false otherwise
    */
   removeModel(modelId) {
     if (!this._models.has(modelId)) {
       throw new ModelNotFoundError();
     }
 
-    let model = this._models.get(modelId);
+    const model = this._models.get(modelId);
     this._models.delete(modelId);
     model.child.kill();
     this.removeAllListeners(modelId);
   }
+
 }

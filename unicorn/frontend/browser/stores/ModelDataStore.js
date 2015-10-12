@@ -17,11 +17,12 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
 
 import BaseStore from 'fluxible/addons/BaseStore';
 
+
 export default class ModelDataStore extends BaseStore {
+
   static storeName = 'ModelDataStore';
   static handlers = {
     'RECEIVE_DATA_SUCCESS': '_handReceiveData',
@@ -90,4 +91,5 @@ export default class ModelDataStore extends BaseStore {
   getData(modelId) {
     return this._models.get(modelId) || {modelId: modelId, data:[], modified:0};
   }
+
 }

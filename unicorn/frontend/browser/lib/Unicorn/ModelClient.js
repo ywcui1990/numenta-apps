@@ -18,13 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
-
-/**
- * Unicorn: ModelClient - Talk to a ModelServer over IPC or HTTP, gaining
- *  access to the Backend NuPIC Model Runner. Connects via HTTP or IPC adapter.
- */
 
 // externals
 
@@ -38,8 +31,10 @@ import ModelClientIPC from './ModelClientIPC';
 let ModelClient;
 
 
-// MAIN
-
+/**
+ * Unicorn: ModelClient - Talk to a ModelServer over IPC or HTTP, gaining
+ *  access to the Backend NuPIC Model Runner. Connects via HTTP or IPC adapter.
+ */
 if (isElectronRenderer) {
   ModelClient = ModelClientIPC;
 } else {
@@ -48,5 +43,4 @@ if (isElectronRenderer) {
 
 
 // EXPORT
-
 export default ModelClient;

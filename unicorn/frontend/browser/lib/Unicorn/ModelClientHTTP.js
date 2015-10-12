@@ -18,17 +18,11 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
 
 /**
  * Unicorn: ModelClientHTTP - HTTP Adapter (one of many) for ModelClient (talks
  *  to a ModelServer) to access the backend Py + NuPIC + Model process runner.
  */
-
-
-// MAIN
-
 export default class ModelClientHTTP {
 
   /**

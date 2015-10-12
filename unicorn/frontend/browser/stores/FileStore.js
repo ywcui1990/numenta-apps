@@ -17,7 +17,6 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
 
 import BaseStore from 'fluxible/addons/BaseStore';
 
@@ -74,4 +73,5 @@ export default class FileStore extends BaseStore {
       this.emitChange();
     }
   }
-};
+
+}

@@ -18,18 +18,12 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
 
 /**
  * Unicorn: DatabaseClientHTTP - HTTP Adapter (one of many) for DatabaseClient
  *  (talks to a DatabaseServer) to access the Node/io.js flat file
  *  database layer for heavy persistence.
  */
-
-
-// MAIN
-
 export default class DatabaseClientHTTP {
 
   constructor() {

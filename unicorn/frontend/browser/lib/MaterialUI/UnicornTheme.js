@@ -17,7 +17,6 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
 
 import Colors from 'material-ui/lib/styles/colors';
 import ColorManipulator from 'material-ui/lib/utils/color-manipulator';

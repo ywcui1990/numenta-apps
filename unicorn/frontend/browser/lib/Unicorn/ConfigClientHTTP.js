@@ -18,17 +18,11 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
 
 /**
  * Unicorn: ConfigClientHTTP - HTTP Adapter (one of many) for ConfigClient
  *  (talks to a ConfigServer) to access the Node/io.js-layer config settings.
  */
-
-
-// MAIN
-
 export default class ConfigClientHTTP {
 
   /**

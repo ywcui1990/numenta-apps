@@ -17,7 +17,6 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
 
 import ipc from 'ipc';
 import ModelErrorAction from '../../actions/ModelError';
@@ -27,6 +26,7 @@ const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 
 
 export default class ModelClientIPC {
+
   constructor() {
     this._context = null;
   }
@@ -97,4 +97,5 @@ export default class ModelClientIPC {
     });
     this._context.executeAction(ReceiveDataAction, { modelId, data });
   }
+
 }

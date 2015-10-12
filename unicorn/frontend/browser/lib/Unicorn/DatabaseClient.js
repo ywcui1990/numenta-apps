@@ -18,16 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
-
-/**
- * Unicorn: DatabaseClient - Talk to a DatabaseServer over IPC or HTTP, gaining
- *  access to the Node/io.js layer of filesystem, so we can CRUD against a
- *  flat-file database. Connects via HTTP or IPC adapter. DatabaseClientIPC
- *  adpater is currently a pseudo-library, using the magic of Electron's
- *  `remote` module.
- */
 
 // externals
 
@@ -40,8 +30,13 @@ import DatabaseClientHTTP from './DatabaseClientHTTP';
 let DatabaseClient;
 
 
-// MAIN
-
+/**
+ * Unicorn: DatabaseClient - Talk to a DatabaseServer over IPC or HTTP, gaining
+ *  access to the Node/io.js layer of filesystem, so we can CRUD against a
+ *  flat-file database. Connects via HTTP or IPC adapter. DatabaseClientIPC
+ *  adpater is currently a pseudo-library, using the magic of Electron's
+ *  `remote` module.
+ */
 if (isElectronRenderer) {
   // desktop
   let remote;

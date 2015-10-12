@@ -18,16 +18,12 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
 
 /**
  * Unicorn: FileClientHTTP - HTTP Adapter (one of many) for FileClient (talks to
  *  a FileServer) to access the Node/io.js layer of filesystem, so we can
  *  CRUD files.
  */
-
-// MAIN
-
 export default class FileClientHTTP {
 
   /**
@@ -52,4 +48,5 @@ export default class FileClientHTTP {
       files: ['uno.csv', 'dos.csv']
     });
   }
+
 }

@@ -18,15 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
-
-/**
- * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
- *  to a user using their own data stream or files.
- *
- * Main browser web code Application GUI entry point.
- */
 
 // externals
 
@@ -81,7 +72,12 @@ let app;
 let context;
 
 
-// MAIN
+/**
+ * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
+ *  to a user using their own data stream or files.
+ *
+ * Main browser web code Application GUI entry point.
+ */
 
 // UnicornPlugin plugin exposing unicorn clients from contexts
 // See https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md

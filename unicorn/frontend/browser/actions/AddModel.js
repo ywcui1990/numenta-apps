@@ -17,9 +17,10 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
+
 import {ACTIONS} from '../lib/Constants';
 import StartModelAction from './StartModel';
+
 
 /**
  * Add new model

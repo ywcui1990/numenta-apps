@@ -37,7 +37,7 @@ export default class ModelServerIPC {
    * @constructor
    * @method
    * @public
-   * @returns {object} this
+   * @returns {Object} - this
    * @this ModelServerIPC
    */
   constructor() {
@@ -49,9 +49,9 @@ export default class ModelServerIPC {
   /**
    * Start listening for IPC events
    * @method
-   * @param {object} webContents - Electron webContents object for IPC messages.
+   * @param {Object} webContents - Electron webContents object for IPC messages.
    * @public
-   * @returns {undefined} undefined
+   * @returns {Undefined} - undefined
    * @this ModelServerIPC
    */
   start(webContents) {
@@ -65,7 +65,7 @@ export default class ModelServerIPC {
    * Stop listening for IPC Events
    * @method
    * @public
-   * @returns {undefined} undefined
+   * @returns {Undefined} - undefined
    * @this ModelServerIPC
    */
   stop() {
@@ -92,7 +92,7 @@ export default class ModelServerIPC {
    *                            'params': {Object} // Optional
    *                          }
    * @private
-   * @returns {undefined} undefined
+   * @returns {Undefined} - undefined
    * @this ModelServerIPC
    */
   _handleIPCEvent(event, payload) {
@@ -125,9 +125,9 @@ export default class ModelServerIPC {
   /**
    * Start up a new model
    * @method
-   * @param {string} modelId - New ID of New Model to start up
+   * @param {String} modelId - New ID of New Model to start up
    * @private
-   * @returns {undefined} undefined
+   * @returns {Undefined} - undefined
    * @this ModelServerIPC
    */
   _attach(modelId) {
@@ -151,9 +151,9 @@ export default class ModelServerIPC {
   /**
    * Close down a running model
    * @method
-   * @param {string} modelId - ID of existing Model to shut down
+   * @param {String} modelId - ID of existing Model to shut down
    * @private
-   * @returns {undefined} undefined
+   * @returns {Undefined} - undefined
    * @this ModelServerIPC
    */
   _dettach(modelId) {
@@ -166,10 +166,10 @@ export default class ModelServerIPC {
   /**
    * Event callback handler for sending data to client
    * @method
-   * @param {string} modelId - ID of Model to transmit data for
-   * @param {string} data - JSON-encoded string of data to send
+   * @param {String} modelId - ID of Model to transmit data for
+   * @param {String} data - JSON-encoded string of data to send
    * @private
-   * @returns {undefined} undefined
+   * @returns {Undefined} - undefined
    * @this ModelServerIPC
    */
   _onSendData(modelId, data) {
@@ -181,7 +181,7 @@ export default class ModelServerIPC {
    * Event callback handler for listing data
    * @method
    * @private
-   * @returns {object} Current Models + State
+   * @returns {Object} - Current Models + State
    * @this ModelServerIPC
    */
   _onList() {
@@ -193,10 +193,10 @@ export default class ModelServerIPC {
   /**
    * Event callback handler for creating a new model
    * @method
-   * @param {string} modelId - New ID of New Model to create
-   * @param {object} params - Model Parameters to use in model creation
+   * @param {String} modelId - New ID of New Model to create
+   * @param {Object} params - Model Parameters to use in model creation
    * @private
-   * @returns {undefined} undefined
+   * @returns {Undefined} - undefined
    * @this ModelServerIPC
    */
   _onCreate(modelId, params) {
@@ -207,9 +207,9 @@ export default class ModelServerIPC {
   /**
    * Event callback handler for removing an existing model
    * @method
-   * @param {string} modelId - ID of existing Model to shut down
+   * @param {String} modelId - ID of existing Model to shut down
    * @private
-   * @returns {undefined} undefined
+   * @returns {Undefined} - undefined
    * @this ModelServerIPC
    */
   _onRemove(modelId) {

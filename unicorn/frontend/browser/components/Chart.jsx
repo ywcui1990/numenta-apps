@@ -15,8 +15,6 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
-
 
 // externals
 
@@ -100,7 +98,6 @@ export default class Chart extends React.Component {
       this._chartInitalize();
     }
   }
-
 
   /**
    * DyGrpahs Chart Initalize and Render
