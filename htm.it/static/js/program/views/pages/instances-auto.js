@@ -248,10 +248,10 @@
 
             data.sort(sortFn).forEach(function(metric) {
                 var service = metric.namespace ?
-                        metric.namespace : me.site.namespaces.htm-it.custom,
+                        metric.namespace : me.site.namespaces.htmit.custom,
                     region = metric.region ?
                         metric.region :
-                        me.site.name + ' ' + me.site.regions.htm-it.custom;
+                        me.site.name + ' ' + me.site.regions.htmit.custom;
 
                 // prettify
                 if(metric.name) {

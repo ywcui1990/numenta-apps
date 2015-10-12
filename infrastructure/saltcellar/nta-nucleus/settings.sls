@@ -26,7 +26,7 @@
 set-sane-path-in-crontab:
   cron.env_present:
     - name: PATH
-    - value: /opt/numenta/anaconda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/usr/bin:/bin
+    - value: /opt/numenta/anaconda/bin:/usr/local/git/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/usr/bin:/bin
 
 # Per TAUR-564, bump up somaxconn in sysctl.conf
 set-somaxconn-sysctl-conf:

@@ -122,20 +122,50 @@ class TaurusMetricCollectorsResourceAccessibilityTestCase(unittest.TestCase):
 
   @_RETRY_SERVICE_RUNNING_CHECK
   def testXigniteSecuritiesInterfaceIsAccessible(self):
+
+    def getData(formattedStartTime, formattedEndTime):
+      """ Get data for specified window of time
+
+      :param str formattedStartTime: Formatted timestamp representing the start
+        of the request window
+      :param str formattedEndTime: Formatted timestamp representing the end of
+        the request window
+      :returns: Response dict.  See xignite_stock_agent.getData()
+      """
+      return xignite_stock_agent.getData(
+        symbol="AAPL",
+        apitoken=os.environ.get("XIGNITE_API_TOKEN"),
+        barlength=5,
+        startTime=formattedStartTime,
+        endTime=formattedEndTime,
+        fields=["Outcome"])
+
     now = datetime.now(xignite_stock_agent._UTC_TZ)
     startTime = (
       ((now - timedelta(days=1)).astimezone(xignite_stock_agent._EASTERN_TZ)))
     endTime = now.astimezone(xignite_stock_agent._EASTERN_TZ)
 
-    data = xignite_stock_agent.getData(
-      symbol="AAPL",
-      apitoken=os.environ.get("XIGNITE_API_TOKEN"),
-      barlength=5,
-      startTime=startTime.strftime(xignite_stock_agent.DATE_FMT),
-      endTime=endTime.strftime(xignite_stock_agent.DATE_FMT),
-      fields=["Outcome"])
+    formattedStartTime = startTime.strftime(xignite_stock_agent.DATE_FMT)
+    formattedEndTime = endTime.strftime(xignite_stock_agent.DATE_FMT)
 
-    self.assertEqual(data["Outcome"], "Success")
+    data = getData(formattedStartTime, formattedEndTime)
+
+    if data["Outcome"] == "RequestError":
+      # Try again with an expanded window. Start by adjusting the start time to
+      # 14 days prior, and then repeatedly reduce the end time by one until a
+      # successful response is returned, or the window narrows such that the
+      # end time is less than, or equal to the start time.
+
+      startTime -= timedelta(days=14)
+      while data["Outcome"] != "Success" and endTime > startTime:
+        formattedStartTime = startTime.strftime(xignite_stock_agent.DATE_FMT)
+        formattedEndTime = endTime.strftime(xignite_stock_agent.DATE_FMT)
+        data = getData(formattedStartTime, formattedEndTime)
+        endTime -= timedelta(days=1)
+
+    self.assertEqual(data["Outcome"], "Success",
+      ("Unable to query the XIgnite API for recent data for AAPL between {} "
+       "and now").format(startTime))
 
 
   @_RETRY_SERVICE_RUNNING_CHECK

@@ -93,18 +93,18 @@
 
             if(this.isHTMITAutostack()) {
                 // Prep data - get possible HTMIT Autostacks
-                var htm-itAutostackNamespace =    this.data.namespaces.get('Autostacks'),
-                    htm-itAutostackMetrics =      htm-itAutostackNamespace.get('metrics'),
+                var htmitAutostackNamespace =   this.data.namespaces.get('Autostacks'),
+                    htmitAutostackMetrics =     htmitAutostackNamespace.get('metrics'),
                     awsEc2Namespace =           this.data.namespaces.get('AWS/EC2'),
                     awsEc2Metrics =             awsEc2Namespace.get('metrics');
 
-                for(var i=0; i<htm-itAutostackMetrics.length; i++) {
-                    var metric = htm-itAutostackMetrics[i];
+                for(var i=0; i<htmitAutostackMetrics.length; i++) {
+                    var metric = htmitAutostackMetrics[i];
                     me.metrics[metric] = false;
                     me.creators[metric] = new HTMITUI.AwsMetricModel({
                         metric:     metric,
                         region:     me.region,
-                        namespace:  htm-itAutostackNamespace.id,
+                        namespace:  htmitAutostackNamespace.id,
                         identifier: me.instance
                     });
                 }
@@ -157,8 +157,8 @@
             }
             else if(this.isHTMITCustomMetric()) {
                 // Prep data - get possible HTMIT Custom Metrics
-                me.region = me.site.name + ' ' + me.site.regions.htm-it.custom;
-                me.namespace = me.site.namespaces.htm-it.custom;
+                me.region = me.site.name + ' ' + me.site.regions.htmit.custom;
+                me.namespace = me.site.namespaces.htmit.custom;
 
                 me.data.customs.forEach(function(metric) {
                     // only want single current HTMIT Custom Metric
@@ -289,7 +289,7 @@
          * @returns {boolean}
          */
         isHTMITCustomMetric: function() {
-            return this.namespace.match(this.site.namespaces.htm-it.custom);
+            return this.namespace.match(this.site.namespaces.htmit.custom);
         },
 
         /**

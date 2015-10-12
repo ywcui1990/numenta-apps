@@ -38,25 +38,25 @@
 
         urls: {
             // first time user Setup flow
-            'htm-it/auth':                'auth',
-            'htm-it/complete':            'complete',
-            'htm-it/confirm':             'confirm',
-            'htm-it/instances/auto':      'instances-auto',
-            'htm-it/instances/autostack': 'autostack',
-            'htm-it/instances/import':    'instances-import',
-            'htm-it/instances/manual':    'instances-manual',
-            'htm-it/custom':              'manage-custom-metrics',
-            'htm-it/complete':            'complete',
-            'htm-it/notify':              'notify',
-            'htm-it/register':            'register',
-            'htm-it/terms':               'terms',
-            'htm-it/welcome':             'welcome',
+            'htmit/auth':                'auth',
+            'htmit/complete':            'complete',
+            'htmit/confirm':             'confirm',
+            'htmit/instances/auto':      'instances-auto',
+            'htmit/instances/autostack': 'autostack',
+            'htmit/instances/import':    'instances-import',
+            'htmit/instances/manual':    'instances-manual',
+            'htmit/custom':              'manage-custom-metrics',
+            'htmit/complete':            'complete',
+            'htmit/notify':              'notify',
+            'htmit/register':            'register',
+            'htmit/terms':               'terms',
+            'htmit/welcome':             'welcome',
 
             // returning user home page Manage Instances
-            'htm-it': 'manage',
+            'htmit': 'manage',
 
             // embed widgets
-            'htm-it/embed/charts': 'charts',
+            'htmit/embed/charts': 'charts',
 
             // problems
             '404':  'notFound',
