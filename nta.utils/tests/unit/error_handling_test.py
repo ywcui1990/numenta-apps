@@ -109,7 +109,7 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
 
 
   def mockSleepTime(self, mockTime, mockSleep):
-    """ Configures mocks for time.time and time.sleep such that every call
+    """Configures mocks for time.time and time.sleep such that every call
     to time.sleep(x) increments the return value of time.time() by x.
     
     mockTime:     time.time mock
@@ -131,9 +131,10 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
 
   @patch("time.sleep", autospec=True)
   @patch("time.time", autospec=True)
-  def testRetryNoRetries(self, mockTime, mockSleep):
-    """ Test that when timeoutSec == 0, function is executed exactly once
-    with no retries, and raises an exception on failure. """
+  def testRetryNoTimeForRetries(self, mockTime, mockSleep):
+    """Test that when timeoutSec == 0, function is executed exactly once
+    with no retries, and raises an exception on failure.
+    """
 
     self.mockSleepTime(mockTime, mockSleep)
 
@@ -154,8 +155,7 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
   @patch("time.sleep", autospec=True)
   @patch("time.time", autospec=True)
   def testRetryWaitsInitialRetryDelaySec(self, mockTime, mockSleep):
-    """ Test that first retry delay is initialRetryDelaySec and subsequent
-    retry delays are geometrically doubling up to maxRetryDelaySec  """
+  """Test that delay times are correct."""
 
     self.mockSleepTime(mockTime, mockSleep)
 
@@ -179,8 +179,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
   @patch("time.sleep", autospec=True)
   @patch("time.time", autospec=True)
   def testRetryRetryExceptionIncluded(self, mockTime, mockSleep):
-    """ Test that retry is triggered if raised exception is in
-    retryExceptions """
+    """Test that retry is triggered if raised exception is in
+    retryExceptions."""
 
     self.mockSleepTime(mockTime, mockSleep)
 
@@ -229,8 +229,8 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
   @patch("time.sleep", autospec=True)
   @patch("time.time", autospec=True)
   def testRetryRetryFilter(self, mockTime, mockSleep):
-    """ Test that if retryFilter is specified and exception is in
-    retryExceptions, retries iff retryFilter returns true """
+    """Test that if retryFilter is specified and exception is in
+    retryExceptions, retries iff retryFilter returns true."""
 
     self.mockSleepTime(mockTime, mockSleep)
 
