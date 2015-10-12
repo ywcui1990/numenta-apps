@@ -224,9 +224,9 @@ class RetryDecoratorTest(unittest.TestCase):
     testFunction = Mock(return_value=321,
                         __name__="testFunction", autospec=True)
 
-    return_value = _retry(testFunction)(1, 2, a=3, b=4)
+    returnValue = _retry(testFunction)(1, 2, a=3, b=4)
 
-    self.assertEqual(return_value, 321)
+    self.assertEqual(returnValue, 321)
     testFunction.assert_called_once_with(1, 2, a=3, b=4)
 
 
@@ -268,9 +268,9 @@ class RetryDecoratorTest(unittest.TestCase):
       ],
       __name__="testFunction", autospec=True)
     
-    return_value = _retry(testFunction)()
+    returnValue = _retry(testFunction)()
 
-    self.assertEqual(return_value, 321)
+    self.assertEqual(returnValue, 321)
     self.assertEqual(testFunction.call_count, 3)
 
 
