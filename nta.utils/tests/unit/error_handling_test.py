@@ -95,7 +95,7 @@ class RetryDecoratorTest(unittest.TestCase):
   @patch("time.sleep", autospec=True)
   @patch("time.time", autospec=True)
   def testRetryWaitsInitialRetryDelaySec(self, mockTime, mockSleep):
-  """Test that delay times are correct."""
+    """Test that delay times are correct."""
 
     self.mockSleepTime(mockTime, mockSleep)
 
