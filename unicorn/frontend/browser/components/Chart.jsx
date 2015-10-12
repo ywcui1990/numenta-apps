@@ -32,7 +32,17 @@ import '../stylesheets/Chart.scss';
 
 /**
  * Chart Widget.
- * Wraps http://dygraphs.com/ as a React Component
+ *  Wraps http://dygraphs.com/ as a React Component.
+ * @class
+ * @exports
+ * @extends React.Component
+ * @module
+ * @public
+ * @this Chart
+ * @todo The local variables (this._chart*) should be refactored to React state.
+ *  And, React's `render()` should be overrided with DyGraphs `updateOptions()`,
+ *  possibly using Reacts's `shouldComponentUpdate()` method to skip React's
+ *  state change => render cycle for DyGraphs to not have it's DOM node reset.
  */
 export default class Chart extends React.Component {
 
@@ -41,7 +51,6 @@ export default class Chart extends React.Component {
     options: React.PropTypes.object,
     zDepth: React.PropTypes.number,
   };
-
   static defaultProps = {
     data: [],
     options: {},
@@ -54,17 +63,22 @@ export default class Chart extends React.Component {
     // DyGraphs chart container
     this._dygraph = null;
 
-    // Chart Range finder value: For Fixed-width-chart & auto-scroll-to-right
-    this._chartXrange = null;
+    // Chart Range finder values: For Fixed-width-chart & auto-scroll-to-right
+    this._chartBusy = null;
+    this._chartRange = null;
+    this._chartRangeWidth = null;
+    this._chartScrollLock = null;
   }
 
   componentDidMount() {
-    let el = React.findDOMNode(this.refs.chart);
-    if (this.props.data.length) {
-      this._dygraph = new Dygraph(el, this.props.data, this.props.options);
-    }
+    this._chartBusy = false;
+    this._chartRangeWidth = 200; // chart range finder static 200 datapoints
+    this._chartRange = [0, this._chartRangeWidth]; // hold current range window
+    this._chartScrollLock = true; // if chart far-right, stay floated right
 
-    this._chartXrange = 200;  // static 200 datapoints
+    if (this.props.data.length) {
+      this._chartInitalize();
+    }
   }
 
   componentWillUnmount() {
@@ -72,27 +86,109 @@ export default class Chart extends React.Component {
       this._dygraph.destroy();
       this._dygraph = null;
     }
-    if (this._chartXrange) {
-      this._chartXrange = null;
-    }
+
+    this._chartBusy = null;
+    this._chartRange = null;
+    this._chartRangeWidth = null;
+    this._chartScrollLock = null;
   }
 
   componentDidUpdate() {
     if (this._dygraph) {
-      // fix X-width of graph view (don't grow visually with new data)
-      let [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
-      let rangeDateWindow = [(graphXmax - this._chartXrange), graphXmax];
-      // update chart
-      let options = {
-        file: this.props.data,
-        dateWindow: rangeDateWindow
-      };
-      Object.assign(options, this.props.options);
-      this._dygraph.updateOptions(options);
+      this._chartUpdate();
     } else if (this.props.data.length) {
-      let el = React.findDOMNode(this.refs.chart);
-      this._dygraph = new Dygraph(el, this.props.data, this.props.options);
+      this._chartInitalize();
     }
+  }
+
+
+  /**
+   * DyGrpahs Chart Initalize and Render
+   */
+  _chartInitalize() {
+    let options = {
+      clickCallback: this._chartClickCallback.bind(this),
+      zoomCallback: this._chartZoomCallback.bind(this)
+    };
+    let el = React.findDOMNode(this.refs.chart);
+    let selector;
+
+    Object.assign(options, this.props.options);
+    this._dygraph = new Dygraph(el, this.props.data, options);
+
+    // range selector custom events
+    selector = el.getElementsByClassName('dygraph-rangesel-fgcanvas')[0];
+    selector.addEventListener('mousedown', this._rangeMouseDownCallback.bind(this));
+    selector.addEventListener('mouseup', this._rangeMouseUpCallback.bind(this));
+  }
+
+  /**
+   * DyGrpahs Chart Update and Re-Render
+   */
+  _chartUpdate() {
+    let options = {};
+    let graphXmin, graphXmax;
+
+    if(this._chartScrollLock && !this._chartBusy) {
+      // if range scroll is locked, we're far right, so stay far right on chart
+      [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
+      this._chartRange = [(graphXmax - this._chartRangeWidth), graphXmax];
+    }
+
+    // update chart
+    options.dateWindow = this._chartRange; // fixed width
+    options.file = this.props.data; // new data
+    Object.assign(options, this.props.options);
+    this._dygraph.updateOptions(options);
+  }
+
+  /**
+   * DyGrpahs Chart click callback function
+   */
+  _chartClickCallback() {
+    // user touched chart: turn off far-right scroll lock for now
+    this._chartScrollLock = false;
+  }
+
+  /**
+   * DyGrpahs Chart range finder change/zoom callback function
+   */
+  _chartZoomCallback(rangeXmin, rangeXmax, yRanges) {
+    // chart range finder, far-right scroll lock
+    let [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
+    let graphXrange = graphXmax - graphXmin;
+    let graphXdiff = graphXmax - rangeXmax;
+
+    // if range slider is moved far to the right, re-enable auto scroll
+    this._chartScrollLock = this._isScrollLockActive(graphXdiff, graphXrange);
+  }
+
+  /**
+   * DyGrpahs Chart RangeSelector mousedown callback function
+   */
+  _rangeMouseDownCallback(event) {
+    this._chartBusy = true;
+  }
+
+  /**
+   * DyGrpahs Chart RangeSelector mouseup callback function
+   */
+  _rangeMouseUpCallback(event) {
+    let [graphXmin, graphXmax] = this._dygraph.xAxisExtremes();
+    let graphXrange = graphXmax - graphXmin;
+    let graphXdiff = graphXmax - this._chartRange[1];
+
+    this._chartBusy = false;
+
+    // if range slider is moved far to the right, re-enable auto scroll
+    this._chartScrollLock = this._isScrollLockActive(graphXdiff, graphXrange);
+  }
+
+  /**
+   * Should scroll lock be turned on? (Is chart range slider far-to-the-right?)
+   */
+  _isScrollLockActive(xDiff, xRange) {
+    return (xDiff < (xRange * 0.1));  // near right edge ~10%
   }
 
   render() {
