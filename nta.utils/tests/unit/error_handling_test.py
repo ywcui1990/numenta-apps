@@ -33,6 +33,13 @@ from nta.utils.logging_support_raw import LoggingSupport
 
 
 
+class TestParentException(Exception):
+  pass
+
+class TestChildException(TestParentException):
+  pass
+
+
 def setUpModule():
   LoggingSupport.initTestApp()
 
@@ -134,10 +141,10 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
       timeoutSec=0, initialRetryDelaySec=0.2,
       maxRetryDelaySec=10)
 
-    testFunction = Mock(side_effect=Exception("Test exception"),
+    testFunction = Mock(side_effect=TestParentException("Test exception"),
                         __name__="testFunction", autospec=True)
 
-    with self.assertRaises(Exception):
+    with self.assertRaises(TestParentException):
       _retry(testFunction)()
 
     self.assertFalse(mockSleep.called)
@@ -156,10 +163,10 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
       timeoutSec=30, initialRetryDelaySec=2,
       maxRetryDelaySec=10)
 
-    testFunction = Mock(side_effect=Exception("Test exception"),
+    testFunction = Mock(side_effect=TestParentException("Test exception"),
                         __name__="testFunction", autospec=True)
 
-    with self.assertRaises(Exception):
+    with self.assertRaises(TestParentException):
       _retry(testFunction)()
 
     self.assertEqual(mockSleep.mock_calls, [call(2), call(4), call(8),
@@ -177,12 +184,6 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
 
     self.mockSleepTime(mockTime, mockSleep)
 
-    class TestParentException(Exception):
-      pass
-
-    class TestChildException(TestParentException):
-      pass
-
     _retry = error_handling.retry(
       timeoutSec=1, initialRetryDelaySec=1,
       maxRetryDelaySec=10, retryExceptions=(TestParentException,))
@@ -191,7 +192,7 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     def testFunction():
       raise TestChildException("Test exception")
 
-    with self.assertRaises(Exception):
+    with self.assertRaises(TestChildException):
       testFunction()
 
     self.assertEqual(mockSleep.call_count, 1)
@@ -232,12 +233,6 @@ class ErrorHandlingUtilsTest(unittest.TestCase):
     retryExceptions, retries iff retryFilter returns true """
 
     self.mockSleepTime(mockTime, mockSleep)
-
-    class TestParentException(Exception):
-      pass
-
-    class TestChildException(TestParentException):
-      pass
 
     # Test with retryFilter returning True
 
