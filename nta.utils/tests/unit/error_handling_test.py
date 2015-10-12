@@ -112,7 +112,6 @@ class RetryDecoratorTest(unittest.TestCase):
     self.assertEqual(mockSleep.mock_calls, [call(2), call(4), call(8),
                                             call(10), call(10)])
 
-    # Currently fails due to ENG-78
     self.assertEqual(testFunction.call_count, 6)
 
 
