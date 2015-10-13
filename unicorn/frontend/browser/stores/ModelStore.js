@@ -24,13 +24,14 @@ import BaseStore from 'fluxible/addons/BaseStore';
 export default class ModelStore extends BaseStore {
   static storeName = 'ModelStore';
   static handlers = {
-    'ADD_MODEL_SUCCESS': '_handleAddModel',
-    'DELETE_MODEL_SUCCESS': '_handleDeleteModel',
-    'LIST_MODELS_SUCCESS': '_handleListModels',
-    'STOP_MODEL_SUCCESS': '_handleStopModel',
-    'START_MODEL_SUCCESS': '_handleStartModel',
-    'STOP_MODEL_FAILED': '_handleModelFailed',
-    'START_MODEL_FAILED': '_handleModelFailed'
+    ADD_MODEL_SUCCESS: '_handleAddModel',
+    DELETE_MODEL_SUCCESS: '_handleDeleteModel',
+    LIST_MODELS_SUCCESS: '_handleListModels',
+    STOP_MODEL_SUCCESS: '_handleStopModel',
+    START_MODEL_SUCCESS: '_handleStartModel',
+    STOP_MODEL_FAILED: '_handleModelFailed',
+    START_MODEL_FAILED: '_handleModelFailed',
+    UNKNOWN_MODEL_FAILURE: '_handleModelFailed'
   };
 
   constructor(dispatcher) {
@@ -78,7 +79,7 @@ export default class ModelStore extends BaseStore {
     if (Array.isArray(payload) && payload.length) {
       payload.forEach(model => {
         if ('modelId' in model) {
-          this._models.set(modelId, model);
+          this._models.set(model.modelId, model);
         }
       });
       this.emitChange();
@@ -180,4 +181,4 @@ export default class ModelStore extends BaseStore {
     }
     return false;
   }
-};
+}
