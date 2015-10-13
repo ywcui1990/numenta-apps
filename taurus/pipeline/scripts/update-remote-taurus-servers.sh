@@ -385,7 +385,7 @@ pushd "${REPOPATH}"
      else
        supervisord -c conf/supervisord.conf
      fi &&
-     nta-wait-for-supervisord-running  &&
+     nta-wait-for-supervisord-running --supervisorApiUrl=http://localhost:8001 &&
      py.test tests/deployment/health_check_test.py &&
      ${TAURUS_COLLECTOR_UNIT_AND_INTEGRATION_TESTS} &&
      taurus-collectors-set-opmode active &&
