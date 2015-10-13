@@ -137,16 +137,13 @@ public class DataSyncService{
         - FIXME need to change this to use iOS background service
     */
     func synchronizeWithServer () {
-        
-        let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
-            dispatch_async(dispatch_get_global_queue(priority, 0)) {
-                self.fireRefreshStateEvent(true, result: "")
+                      self.fireRefreshStateEvent(true, result: "")
                 self.loadAllMetrics()
                 self.loadAllAnnotations()
                 self.loadAllData()
                 self.synchronizeNotification()
                 self.fireRefreshStateEvent (false, result: "")
-        }
+        
     }
     
     func synchronizeNotification (){

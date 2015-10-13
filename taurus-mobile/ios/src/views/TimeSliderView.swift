@@ -46,6 +46,8 @@ class TimeSliderView: UIView {
     
     let labelFormatter = NSDateFormatter()
    
+    var openColor : CGColorRef = UIColor.whiteColor().CGColor
+    var closedColor : CGColorRef =  UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0).CGColor
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -102,29 +104,21 @@ class TimeSliderView: UIView {
                 
                 CGContextSaveGState( context)
                 
-                
-                if (transparentBackground){
-                    if (open){
-                        CGContextSetFillColorWithColor(context, UIColor.clearColor().CGColor)
-                        
-                    }else{
-                        CGContextSetFillColorWithColor(context, UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5).CGColor)
-                        
-                    }
+
+                if (open){
+                    CGContextSetFillColorWithColor(context, self.openColor)
+                    
                 }else{
-                    
-                    if (open){
-                        CGContextSetFillColorWithColor(context, UIColor.whiteColor().CGColor)
-                        
-                    }else{
-                        CGContextSetFillColorWithColor(context, UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0).CGColor)
-                        
-                    }
-                    
+                    CGContextSetFillColorWithColor(context, self.closedColor)
                 }
-                let backRect : CGRect = CGRectMake(CGFloat(left), CGFloat(top), CGFloat(barWidth+0.95), CGFloat(bottom))
+                
+               
+                let backRect : CGRect = CGRectMake((CGFloat(left)), CGFloat(top), (CGFloat(barWidth+0.5)), CGFloat(bottom))
               //  print (backRect)
+                
+                CGContextSetAllowsAntialiasing (context, false)
                 CGContextFillRect(context, backRect)
+                CGContextSetAllowsAntialiasing (context, true)
 
                 CGContextRestoreGState( context)
                 

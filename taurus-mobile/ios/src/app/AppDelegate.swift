@@ -44,8 +44,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let syncService = TaurusDataSyncService(client:client)
         
         TaurusApplication.client = syncService.client as? TaurusClient
-        syncService.synchronizeWithServer()
         
+        
+        let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
+        dispatch_async(dispatch_get_global_queue(priority, 0)) {
+
+            syncService.synchronizeWithServer()
+        }
+        
+        
+        
+        let defaults = NSUserDefaults.standardUserDefaults()
+        let frequency =  defaults.integerForKey("refreshFrequency")
+        
+         var interval : NSTimeInterval  = Double(frequency) * 60.0
+        if (interval<60.0){
+            interval = 60.0
+        }
+        // Request background syncs
+        UIApplication.sharedApplication().setMinimumBackgroundFetchInterval(interval)
         return true
     }
 
@@ -69,6 +86,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+    
+    
+    func application(application: UIApplication, performFetchWithCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+        
+        let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
+        dispatch_async(dispatch_get_global_queue(priority, 0)) {
+            let syncService = TaurusDataSyncService(client: TaurusApplication.client!)
+            syncService.synchronizeWithServer()
+            completionHandler(.NewData)
+        }
     }
     
    

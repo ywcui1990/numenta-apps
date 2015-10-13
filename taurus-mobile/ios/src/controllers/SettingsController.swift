@@ -86,11 +86,9 @@ class SettingsController: UITableViewController {
     /** update enabled switch
     */
     @IBAction func notificationSwitch( sender: UIButton ){
-        
         let defaults = NSUserDefaults.standardUserDefaults()
         defaults.setBool(notificationSwitch!.on, forKey: "notificationsEnabled")
-        
-          }
+    }
     
     
     /** update refresh cell text
@@ -127,7 +125,12 @@ class SettingsController: UITableViewController {
                 let defaults = NSUserDefaults.standardUserDefaults()
                 defaults.setInteger(item, forKey: "refreshFrequency")
                 
+          
+                let interval : NSTimeInterval  = Double(item) * 60.0
+               
+                // Request background sync frequency
                 
+                UIApplication.sharedApplication().setMinimumBackgroundFetchInterval(interval)
                 self.updateRefreshLabel()
             })
             
