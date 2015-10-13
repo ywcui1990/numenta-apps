@@ -100,7 +100,11 @@ class TaurusApplication : GrokApplication{
     * @- parameter instance: The instance ID to add
     */
     static func addInstanceToFavorites(instance: String) {
-        let favorites = NSUserDefaults.standardUserDefaults().objectForKey("favorites")
+        var favorites = NSUserDefaults.standardUserDefaults().objectForKey("favorites")
+        
+        if (favorites == nil){
+            favorites = [String : Int]()
+        }
         var dict : [String:Int] = favorites! as! [String : Int]
         dict[instance] = 0
         NSUserDefaults.standardUserDefaults().setObject(dict, forKey: "favorites")
