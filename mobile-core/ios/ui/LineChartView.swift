@@ -102,21 +102,25 @@ class LineChartView: UIView {
 
                 bar.origin.x =  CGFloat(left)
                                var color : CGColor
-                //  print (value.1)
                 
-                let level = getLevel(DataUtils.logScale(value.1))
-                //   print (level)
+                let level = abs(value.1 * 10000.0)
+                
                 if (level>=9000){
                     color = UIColor.redColor().CGColor
-                    bar.size.height -= 5.0
+                    bar.size.height -= 10.0
                 } else if (level>4000){
                     color = UIColor.yellowColor().CGColor
-                    bar.size.height -= 10.0
+                    bar.size.height -= 5.0
                 }else {
                  //   color = UIColor.greenColor().CGColor
                    // bar.size.height += 0.0
                     continue
                 }
+                
+                
+              
+
+                
                 
                 CGContextSaveGState( context)
                 CGContextSetFillColorWithColor(context, color)
