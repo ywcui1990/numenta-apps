@@ -380,8 +380,12 @@ pushd "${REPOPATH}"
        supervisorctl --serverurl http://localhost:8001 shutdown
      fi &&
      py.test tests/deployment/resource_accessibility_test.py &&
-     supervisord -c conf/supervisord.conf &&
-     nta-wait-for-supervisord-running http://localhost:8001 &&
+     if [ -f supervisord.pid ]; then
+       supervisorctl --serverurl http://localhost:8001 reload
+     else
+       supervisord -c conf/supervisord.conf
+     fi &&
+     nta-wait-for-supervisord-running  &&
      py.test tests/deployment/health_check_test.py &&
      ${TAURUS_COLLECTOR_UNIT_AND_INTEGRATION_TESTS} &&
      taurus-collectors-set-opmode active &&
