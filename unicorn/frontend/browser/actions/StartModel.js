@@ -110,8 +110,6 @@ function getMetricDataFromDatabase(options) {
       if (error) {
         csp.putAsync(channel, new DatabaseGetError(error));
       } else {
-        // JSONized here to get around Electron IPC remote() memory leaks
-        results = JSON.parse(results);
         csp.putAsync(channel, results);
       }
     }
