@@ -183,10 +183,10 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         
         if (showCondensed){
             let attrs = [NSFontAttributeName : UIFont.boldSystemFontOfSize(14.0)]
-            var attrStr = NSMutableAttributedString(string: tweet.cannonicalText, attributes:attrs)
+            let attrStr = NSMutableAttributedString(string: tweet.cannonicalText, attributes:attrs)
             if (tweet.hasLinks){
                 let bodyAttrs = [NSFontAttributeName : UIFont.systemFontOfSize(14.0)]
-                var tweetText = NSMutableAttributedString(string: " links", attributes:bodyAttrs)
+                let tweetText = NSMutableAttributedString(string: " links", attributes:bodyAttrs)
                 attrStr.appendAttributedString(tweetText)
             
             }
@@ -194,9 +194,9 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         }else{
         
             let attrs = [NSFontAttributeName : UIFont.boldSystemFontOfSize(14.0)]
-            var attrStr = NSMutableAttributedString(string:"@" + tweet.userName, attributes:attrs)
+            let attrStr = NSMutableAttributedString(string:"@" + tweet.userName, attributes:attrs)
             let bodyAttrs = [NSFontAttributeName : UIFont.systemFontOfSize(14.0)]
-               var tweetText = NSMutableAttributedString(string: "\r\n" + tweet.text, attributes:bodyAttrs)
+               let tweetText = NSMutableAttributedString(string: "\r\n" + tweet.text, attributes:bodyAttrs)
             
             attrStr.appendAttributedString(tweetText)
             
@@ -207,8 +207,26 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         return cell
     }
     
-    
+    /** prompt the user if they want to open the tweet when a row is selected
+    */
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        let alertView = UIAlertController(title: "Open Twitter", message: "Are you sure you want to open this message using twitter?", preferredStyle: .Alert)
+
+
+        alertView.addAction(UIAlertAction(title: "Open", style: .Default, handler: { (alertAction) -> Void in
+            let section = indexPath.section
+            let tsIndex = self.twitterIndex[section]
+            let items : [Tweet]? = self.twittermap[tsIndex]
+            let tweet = items![ indexPath.item]
+            
+            let uri = "http://twitter.com/" + tweet.userName + "/status/" + tweet.id
+            
+            UIApplication.sharedApplication().openURL(NSURL(string: uri)!)
+
+        }))
+        alertView.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
+        presentViewController(alertView, animated: true, completion: nil)
     }
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
