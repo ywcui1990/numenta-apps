@@ -103,7 +103,7 @@ function getMetricDataFromDatabase(options) {
   let databaseClient = actionContext.getDatabaseClient();
 
   databaseClient.getMetricDatas(
-    { 'metric_uid': Utils.generateModelId(model.filename, model.metric) },
+    {metric_uid: Utils.generateModelId(model.filename, model.metric)},
     (error, results) => {
       if (error) {
         csp.putAsync(channel, new DatabaseGetError(error));
@@ -138,15 +138,15 @@ function streamData(actionContext, modelId) {
       let metricData = yield csp.take(getMetricDataFromDatabase(opts));
       if (metricData instanceof Error) {
         reject(metricData);
-        console.error(metricData);
+        throw new DatabaseGetError(metricData);
         return;
       }
       if (metricData.length > 0) {
         log.debug('yes metric data is already in DB, use it');
         metricData.forEach((row) => {
           actionContext.executeAction(SendDataAction, {
-            'modelId': model.modelId,
-            'data': [
+            modelId: model.modelId,
+            data: [
               new Date(row[model.timestampField]).getTime() / 1000,
               new Number(row['metric_value']).valueOf()
             ]});
@@ -159,9 +159,7 @@ function streamData(actionContext, modelId) {
 
       log.debug('No metric data in DB, load direct from filesystem and save');
       fileClient.getData(model.filename, (error, data) => {
-        let row;
-        let timestamp;
-        let value;
+        let row, timestamp, value;
 
         if (error) {
           actionContext.executeAction(StopModelAction, model.modelId);
@@ -178,18 +176,18 @@ function streamData(actionContext, modelId) {
           value = new Number(row[model.metric]).valueOf();
           rows.push({ // getting around Electron IPC remote() memory leaks
             uid: Utils.generateDataId(model.filename, model.metric, timestamp),
-            'metric_uid': Utils.generateModelId(model.filename, model.metric),
+            metric_uid: Utils.generateModelId(model.filename, model.metric),
             rowid: rowId,
             timestamp: timestamp.toISOString(),
-            'metric_value': value,
-            'display_value': value
+            metric_value: value,
+            display_value: value
           });
           rowId++;
 
           log.debug('send row to UI');
           actionContext.executeAction(SendDataAction, {
-            'modelId': model.modelId,
-            'data': [(timestamp.getTime() / 1000), value]
+            modelId: model.modelId,
+            data: [(timestamp.getTime() / 1000), value]
           });
         } else {
           log.debug('End of data - Save to DB for future runs.');
@@ -215,10 +213,10 @@ function streamData(actionContext, modelId) {
 
 /**
  * Action used to Start streaming data to the nupic model. The file will be
- * streamed one record at the time. 'ReceiveData' Action will be fired as
- * results become available
- * @param  {[type]} actionContext
- * @param  {String} model         The model to start
+ *  streamed one record at the time. 'ReceiveData' Action will be fired as
+ *  results become available.
+ * @param {Object} actionContext - Fluxible action context object
+ * @param {String} model - An object with model+data to start
  */
 export default function (actionContext, modelId) {
   let log = actionContext.getLoggerClient();
@@ -226,9 +224,8 @@ export default function (actionContext, modelId) {
   let modelStore = actionContext.getStore(ModelStore);
   let model = modelStore.getModel(modelId);
 
-  let fileStats;
+  let fileStats, opts;
   let metric = {};
-  let opts;
   let stats = {};
 
   return new Promise((resolve, reject) => {
@@ -238,7 +235,7 @@ export default function (actionContext, modelId) {
       metric = yield csp.take(getMetricFromDatabase({actionContext, model}));
       if (metric instanceof Error) {
         reject(metric);
-        console.error(metric);
+        log.error(metric);
         return;
       }
       if (metric && ('min' in metric) && ('max' in metric)) {
@@ -254,7 +251,7 @@ export default function (actionContext, modelId) {
           (!(model.metric in fileStats))
         ) {
           reject(fileStats);
-          console.error(fileStats);
+          log.error(fileStats);
           return;
         }
 
@@ -265,8 +262,8 @@ export default function (actionContext, modelId) {
           actionContext,
           metric: { // electron ipc remote() needs this obj to rebuilt here :(
             uid: metric.uid,
-            'file_uid': metric['file_uid'],
-            'model_uid': modelId,
+            file_uid: metric['file_uid'],
+            model_uid: modelId,
             name: metric.name,
             type: metric.type,
             min: stats.min,
@@ -276,7 +273,7 @@ export default function (actionContext, modelId) {
         fileStats = yield csp.take(putMetricStatsIntoDatabase(opts));
         if (fileStats instanceof Error) {
           reject(fileStats);
-          console.error(fileStats);
+          log.error(fileStats);
           return;
         }
       }

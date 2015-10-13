@@ -48,7 +48,7 @@ export default class DatabaseClientIPC {
    *
    */
   getFile(uid, callback) {
-    let params = { uid, callback };
+    let params = {uid, callback};
     ipc.send(DATABASE_SERVER_IPC_CHANNEL, {
       command: 'getFile',
       params: JSON.stringify(params)
@@ -59,7 +59,7 @@ export default class DatabaseClientIPC {
    *
    */
   getFiles(query, callback) {
-    let params = { query, callback };
+    let params = {query, callback};
     ipc.send(DATABASE_SERVER_IPC_CHANNEL, {
       command: 'getFiles',
       params: JSON.stringify(params)
@@ -70,7 +70,7 @@ export default class DatabaseClientIPC {
    *
    */
   putFile(file, callback) {
-    let params = { file, callback };
+    let params = {file, callback};
     ipc.send(DATABASE_SERVER_IPC_CHANNEL, {
       command: 'putFile',
       params: JSON.stringify(params)
@@ -81,7 +81,7 @@ export default class DatabaseClientIPC {
    *
    */
   putFiles(files, callback) {
-    let params = { files, callback };
+    let params = {files, callback};
     ipc.send(DATABASE_SERVER_IPC_CHANNEL, {
       command: 'putFiles',
       params: JSON.stringify(params)
@@ -99,7 +99,7 @@ export default class DatabaseClientIPC {
         let {error, ipcevent} = payload;
         setTimeout(() => this._handleIPCError(error, ipcevent));
       } else {
-        console.error('Unknown command:' + command, payload);
+        throw new Error(`Unknown command: ${command}, payload: ${payload}`);
       }
     }
   }
@@ -109,14 +109,14 @@ export default class DatabaseClientIPC {
    */
   _handleIPCError(error, ipcevent) {
     let {command} = ipcevent;
-    this._context.executeAction(ModelErrorAction, { command, error });
+    this._context.executeAction(ModelErrorAction, {command, error});
   }
 
   /**
    *
    */
   _handleData(payload) {
-    // this._context.executeAction(ReceiveDataAction, { 'data': data });
+    // this._context.executeAction(ReceiveDataAction, {'data': data});
   }
 
 }

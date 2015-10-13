@@ -27,11 +27,11 @@
 export default class DatabaseClientHTTP {
 
   constructor() {
-    this.db = {};
+    this.dbh = {};
   }
 
   get(key, callback) {
-    let results = key ? this.db[key] : this.db;
+    let results = key ? this.dbh[key] : this.dbh;
     callback(null, results);
   }
 
@@ -40,7 +40,7 @@ export default class DatabaseClientHTTP {
       callback(new Error('missing key or value on db put'), false);
       return;
     }
-    this.db[key] = value;
+    this.dbh[key] = value;
     callback(null, true);
   }
 

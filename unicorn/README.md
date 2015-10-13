@@ -93,8 +93,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
 
 #### Guidelines
 
-* Python coding guidelines @TODO
-* C++ coding guidelines @TODO
+* Python Styleguide: @TODO
 
 
 ### Frontend
@@ -104,13 +103,13 @@ on streams of data, predicting future values, and detecting pattern anomalies.
 > See: `package.json`
 
 * Languages:
-  * Javascript
-    * [ECMAScript 5.1](https://es5.github.io/) (>= IE9)
-    * [ECMAScript 6](https://babeljs.io/docs/learn-es2015/) (aka ES2015) via
-      [Babel](https://babeljs.io/)
-    * Some experimental [ECMAScript 7](https://babeljs.io/docs/usage/experimental/)
-      features via [Babel](https://babeljs.io/)
-    * Flow Control for A/Synchronous code: [js-csp](https://github.com/ubolonton/js-csp),
+  * [ECMAScript 6](https://babeljs.io/docs/learn-es2015/) (Modern Javascript)
+    * via [Babel](https://babeljs.io/)
+    * Also a few [ECMAScript 7](https://babeljs.io/docs/usage/experimental/)
+      features.
+    * Some [ECMAScript 5.1](https://es5.github.io/), the Web compile target.
+    * Flow Control for A/Synchronous code:
+      [js-csp](https://github.com/ubolonton/js-csp),
       [Learn More!](http://jlongster.com/Taming-the-Asynchronous-Beast-with-CSP-in-JavaScript)
     * Facebook [Flow](http://flowtype.org/) JS Typing
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
@@ -125,7 +124,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Logging w/structured JSON: [bunyan](https://github.com/trentm/node-bunyan)
     * Database on filesystem: [LevelUp](https://github.com/Level/levelup)
       interface to [LevelDB](https://github.com/google/leveldb), with
-      [mdeadown](https://www.npmjs.com/package/medeadown) backend
+      [leveldown](https://github.com/Level/leveldown) backend
   * User Interface / Browser:
     * Architecture: [Fluxible](http://fluxible.io/)
       ([Flux](https://facebook.github.io/flux/docs/overview.html#content)
@@ -139,7 +138,6 @@ on streams of data, predicting future values, and detecting pattern anomalies.
   * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)
 * Tooling:
   * Streaming task runner: [Gulp](https://github.com/gulpjs/gulp)
-  * JS transpiling (ES6, JSX, etc): [Babel](https://github.com/babel/babel)
   * Linting: [eslint](http://eslint.org/)
   * JS auto-formatting (like `gofmt`):
     [esformatter](https://github.com/millermedeiros/esformatter)
@@ -176,13 +174,9 @@ loop run, and GUI loop continuation:
 
 #### Guidelines
 
-* [ES5 Styleguide](https://github.com/felixge/node-style-guide)
-* ES6 styleguide @TODO
-  * **Exception:** OK to occasionally have non-all-caps `const`, i.e. class
-    constructors, immutable data structures, etc.
-* Flow Typing styleguide @TODO
-* HTML @TODO
-* CSS @TODO
+* ECMAScript Styleguide: `npm run lint`, Rules: `.eslintrc`
+* HTML5 @TODO
+* CSS3/SASS @TODO
 
 
 ## Setup
@@ -253,18 +247,17 @@ NODE_ENV=production npm run web
 
 ### Development Notes
 
+* Lint your code before creating pull requests:
+  * `npm run lint`
 * Make sure to update packages often, especially after pulling an update into
   your branch:
   * `npm run check`
   * `pip list --outdated`
-* Lint your code before creating pull requests:
-  * `npm run lint`
 * Sometimes `node_modules/` directory can become corrupted, try cleaning and
   reinstalling: `npm run clean ; npm run check`
 * Awesome Node.js Links: https://github.com/sindresorhus/awesome-nodejs
 * Remember this is cross-platform! We need to support all main operating
-systems.
-  * Windows: No environment variables, etc...
+  systems. For Windows, No environment variables, etc.
 
 
 ## Test
@@ -349,7 +342,7 @@ WARNING: In progress and subject to change.
 
 ## Debug
 
-NEED `npm run blah` examples here! @TODO
+NEED `npm run blah` examples here @TODO
 
 ### Backend
 
@@ -379,8 +372,8 @@ NEED `npm run blah` examples here! @TODO
 
 ## @TODO
 
-* Spread global config around! `nconf` work.
-* New Electron/Node4 doesn't need babel bundle anymore!?.
+* Spread global config around! `nconf` work
+* New Electron/Node4 doesn't need babel bundle anymore?
 * Brev Electron integration test skeleton
 * Add in Flow type checking
 * i18n l10n setup (es6 template strings? react intl? es6/7 solution?)

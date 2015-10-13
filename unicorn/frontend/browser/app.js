@@ -46,6 +46,8 @@ import DatabaseClient from './lib/Unicorn/DatabaseClient';
 import FileClient from './lib/Unicorn/FileClient';
 import ModelClient from './lib/Unicorn/ModelClient';
 
+import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
+
 // setup
 
 const config = new ConfigClient();
@@ -57,7 +59,7 @@ const log = bunyan.createLogger({
       write(rec) {
         let name = bunyan.nameFromLevel[rec.level];
         let method = (name === 'debug') ? 'log' : name;
-        console[method]('[%s]: %s', name, rec.msg);
+        console[method]('[%s]: %s', name, rec.msg); // eslint-disable-line
       }
     },
     type: 'raw'
@@ -68,9 +70,6 @@ let databaseClient = new DatabaseClient();
 let fileClient = new FileClient();
 let modelClient = new ModelClient();
 
-let app;
-let context;
-
 
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
@@ -79,77 +78,9 @@ let context;
  * Main browser web code Application GUI entry point.
  */
 
-// UnicornPlugin plugin exposing unicorn clients from contexts
-// See https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md
-let UnicornPlugin = {
-  name: 'Unicorn',
-  plugContext: function (options, context, app) {
-    let configClient = options.configClient;
-    let loggerClient = options.loggerClient;
-    let databaseClient = options.databaseClient;
-    let fileClient = options.fileClient;
-    let modelClient = options.modelClient;
-    return {
-      plugActionContext: function (actionContext, context, app) {
-        actionContext.getConfigClient = function () {
-          return configClient;
-        };
-        actionContext.getLoggerClient = function () {
-          return loggerClient;
-        };
-        actionContext.getDatabaseClient = function () {
-          return databaseClient;
-        };
-        actionContext.getFileClient = function () {
-          return fileClient;
-        };
-        actionContext.getModelClient = function () {
-          return modelClient;
-        };
-      },
-      plugComponentContext: function (componentContext, context, app) {
-        componentContext.getConfigClient = function () {
-          return configClient;
-        };
-        componentContext.getLoggerClient = function () {
-          return loggerClient;
-        };
-        componentContext.getDatabaseClient = function () {
-          return databaseClient;
-        };
-        componentContext.getFileClient = function () {
-          return fileClient;
-        };
-        componentContext.getModelClient = function () {
-          return modelClient;
-        };
-      },
-      plugStoreContext: function (storeContext, context, app) {
-        storeContext.getConfigClient = function () {
-          return configClient;
-        };
-        storeContext.getLoggerClient = function () {
-          return loggerClient;
-        };
-        storeContext.getDatabaseClient = function () {
-          return databaseClient;
-        };
-        storeContext.getFileClient = function () {
-          return fileClient;
-        };
-        storeContext.getModelClient = function () {
-          return modelClient;
-        };
-      }
-    };
-  } // plugContext
-}; // UnicornPlugin
-
-
-// APP BROWSER GUI
-
 document.addEventListener('DOMContentLoaded', () => {
-  csp.go(function* () {
+  // csp.go(function* () {
+    let app, context;
 
     if (!(document && ('body' in document))) {
       throw new Error('React cannot find a DOM document.body to render to');
@@ -195,5 +126,5 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error('Unable to start Application:', error);
       });
 
-  }); // csp.go()
+  // }); // csp.go()
 }); // DOMContentLoaded

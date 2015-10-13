@@ -38,24 +38,24 @@ export default class ModelClientIPC {
 
   createModel(modelId, params) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      'modelId': modelId,
-      'command': 'create',
-      'params': JSON.stringify(params)
+      modelId: modelId,
+      command: 'create',
+      params: JSON.stringify(params)
     });
   }
 
   removeModel(modelId) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      'modelId': modelId,
-      'command': 'remove'
+      modelId: modelId,
+      command: 'remove'
     });
   }
 
   sendData(modelId, data) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      'modelId': modelId,
-      'command': 'sendData',
-      'params': JSON.stringify(data)
+      modelId: modelId,
+      command: 'sendData',
+      params: JSON.stringify(data)
     });
   }
 
@@ -67,14 +67,13 @@ export default class ModelClientIPC {
         let {error, ipcevent} = payload;
         setTimeout(() => this._handleIPCError(error, ipcevent));
       } else {
-        console.error('Unknown command:' + command, payload);
+        throw new Error(`Unknown command: ${command} ${payload}`);
       }
     }
   }
 
   _handleIPCError(error, ipcevent) {
-    let command;
-    let modelId;
+    let command, modelId;
 
     if (ipcevent) {
       if ('command' in ipcevent) {
@@ -85,7 +84,7 @@ export default class ModelClientIPC {
       }
     }
 
-    this._context.executeAction(ModelErrorAction, { command, modelId, error });
+    this._context.executeAction(ModelErrorAction, {command, modelId, error});
   }
 
   _handleModelData(modelId, payload) {
@@ -95,7 +94,7 @@ export default class ModelClientIPC {
         return JSON.parse(row);
       }
     });
-    this._context.executeAction(ReceiveDataAction, { modelId, data });
+    this._context.executeAction(ReceiveDataAction, {modelId, data});
   }
 
 }

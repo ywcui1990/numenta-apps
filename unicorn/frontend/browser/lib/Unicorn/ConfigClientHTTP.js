@@ -30,8 +30,8 @@ export default class ConfigClientHTTP {
    */
   constructor() {
     this.config = {
-      'env': 'http',
-      'target': 'http'
+      env: 'http',
+      target: 'http'
     };
   }
 
