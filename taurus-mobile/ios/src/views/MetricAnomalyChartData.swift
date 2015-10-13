@@ -133,15 +133,13 @@
             }
 
             newRawData[idx] = Double(value)
-            
-            if (  newRawData[idx] != 0){
-                print ( DataUtils.dateFromTimestamp(timestamp))
-            }
+         
             let hour = DataUtils.floorTo60Minutes(timestamp)
             let score = aggregated[hour]
             if (score == nil || score < anomaly) {
                 aggregated[hour] = anomaly
             }
+            
 
             return nil
         }
@@ -306,7 +304,7 @@
                 // Copy over values for time period
                 for (var i : Int64 = 0; i < intervalsPerBar; i++){
                     let index = Int((bars-1) * intervalsPerBar + i  )
-                    let srcIndex  = endIndex - (intervalsPerBar - i - 1)
+                    let srcIndex  = endIndex - (intervalsPerBar - i )
                     results[ index ] = allRawData![ Int(srcIndex) ]
 
                     
