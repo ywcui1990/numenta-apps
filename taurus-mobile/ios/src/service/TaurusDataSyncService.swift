@@ -67,7 +67,7 @@ public class TaurusDataSyncService: DataSyncService{
             )
             
             
-            var components = NSCalendar.currentCalendar().components (units, fromDate: newDate!)
+            let components = NSCalendar.currentCalendar().components (units, fromDate: newDate!)
             components.minute = 15
             components.second = 0
            
