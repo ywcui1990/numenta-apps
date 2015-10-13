@@ -29,9 +29,9 @@ export default class FileStore extends BaseStore {
   static storeName = 'FileStore';
 
   static handlers = {
-    'UPLOADED_FILE_SUCCESS': '_handleAddFile',
-    'LIST_FILES_SUCCESS': '_handleListFiles',
-    'LIST_METRICS_SUCCESS': '_handleListMetrics'
+    UPLOADED_FILE_SUCCESS: '_handleAddFile',
+    LIST_FILES_SUCCESS: '_handleListFiles',
+    LIST_METRICS_SUCCESS: '_handleListMetrics'
   };
 
   constructor(dispatcher) {
@@ -45,10 +45,10 @@ export default class FileStore extends BaseStore {
 
   _handleListFiles(files) {
     if (files) {
-      files.forEach((f => {
-        f.metrics = [];
-        this._files.set(f.filename, f);
-      }));
+      files.forEach((file) => {
+        file.metrics = [];
+        this._files.set(file.filename, file);
+      });
       this.emitChange();
     }
   }

@@ -25,8 +25,8 @@ export default class ModelDataStore extends BaseStore {
 
   static storeName = 'ModelDataStore';
   static handlers = {
-    'RECEIVE_DATA_SUCCESS': '_handReceiveData',
-    'DELETE_MODEL_SUCCESS': '_handleDeleteModel'
+    RECEIVE_DATA_SUCCESS: '_handReceiveData',
+    DELETE_MODEL_SUCCESS: '_handleDeleteModel'
   };
 
   constructor(dispatcher) {
@@ -49,7 +49,7 @@ export default class ModelDataStore extends BaseStore {
       let model = this._models.get(payload.modelId);
       if (model) {
         // Append payload data to existing model
-        Array.prototype.push.apply(model.data, payload.data);
+        Reflect.apply(Array.prototype.push, model.data, payload.data);
         // Record last time this model was modified
         model.modified = new Date();
       } else {

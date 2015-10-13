@@ -1,22 +1,20 @@
-/* -----------------------------------------------------------------------------
- * Copyright © 2015, Numenta, Inc. Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
- * following terms and conditions apply:
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero Public License version 3 as published by
- * the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for
- * more details.
- *
- * You should have received a copy of the GNU Affero Public License along with
- * this program. If not, see http://www.gnu.org/licenses.
- *
- * http://numenta.org/licenses/
- * -------------------------------------------------------------------------- */
+// Copyright © 2015, Numenta, Inc. Unless you have purchased from
+// Numenta, Inc. a separate commercial license for this software code, the
+// following terms and conditions apply:
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Affero Public License version 3 as published by
+// the Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for
+// more details.
+//
+// You should have received a copy of the GNU Affero Public License along with
+// this program. If not, see http://www.gnu.org/licenses.
+//
+// http://numenta.org/licenses/
 
 
 // externals
@@ -28,7 +26,7 @@ import jsondown from 'jsondown';      // DatabaseBackend
 // import medeadown from 'medeadown'; // DatabaseBackend
 import path from 'path';
 import sublevel from 'level-sublevel';
-import { Validator } from 'jsonschema';
+import {Validator} from 'jsonschema';
 
 // internals
 
@@ -53,16 +51,16 @@ const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
  * @returns {object} this
  * @this DatabaseServer
  */
-var DatabaseServer = function() {
+function DatabaseServer() {
   this.validator = new Validator();
   // this.validator.addSchema(AddressSchema, '/Address');
 
-  this.db = sublevel(levelup(DB_FILE_PATH, {
+  this.dbh = sublevel(levelup(DB_FILE_PATH, {
     db: jsondown,     // DatabaseBackend
     // db: medeadown, // DatabaseBackend
     valueEncoding: 'json'
   }));
-};
+}
 
 
 // GETTERS
@@ -70,17 +68,17 @@ var DatabaseServer = function() {
 /**
  * Get a single File
  */
-DatabaseServer.prototype.getFile = function(uid, callback) {
-  let table = this.db.sublevel('file');
+DatabaseServer.prototype.getFile = function (uid, callback) {
+  const table = this.dbh.sublevel('file');
   table.get(uid, callback);
 };
 
 /**
  * Get all/queried Files
  */
-DatabaseServer.prototype.getFiles = function(query, callback) {
+DatabaseServer.prototype.getFiles = function (query, callback) {
+  const table = levelQuery(this.dbh.sublevel('file'));
   let results = [];
-  let table = levelQuery(this.db.sublevel('file'));
   table.query.use(jsonQuery());
   table.query(query)
     .on('stats', () => {})
@@ -101,17 +99,17 @@ DatabaseServer.prototype.getFiles = function(query, callback) {
 /**
  * Get a single Metric
  */
-DatabaseServer.prototype.getMetric = function(uid, callback) {
-  let table = this.db.sublevel('metric');
+DatabaseServer.prototype.getMetric = function (uid, callback) {
+  const table = this.dbh.sublevel('metric');
   table.get(uid, callback);
 };
 
 /**
  * Get all/queried Metrics
  */
-DatabaseServer.prototype.getMetrics = function(query, callback) {
+DatabaseServer.prototype.getMetrics = function (query, callback) {
+  const table = levelQuery(this.dbh.sublevel('metric'));
   let results = [];
-  let table = levelQuery(this.db.sublevel('metric'));
   table.query.use(jsonQuery());
   table.ensureIndex('file_uid');
   table.query(query)
@@ -140,9 +138,9 @@ DatabaseServer.prototype.getMetrics = function(query, callback) {
  * @public
  * @this DatabaseServer
  */
-DatabaseServer.prototype.getMetricDatas = function(query, callback) {
+DatabaseServer.prototype.getMetricDatas = function (query, callback) {
+  const table = levelQuery(this.dbh.sublevel('metricData'));
   let results = [];
-  let table = levelQuery(this.db.sublevel('metricData'));
   table.query.use(jsonQuery());
   table.ensureIndex('metric_uid');
   table.query(query)
@@ -159,11 +157,11 @@ DatabaseServer.prototype.getMetricDatas = function(query, callback) {
       }
 
       // sort by rowid
-      results.sort((a, b) => {
-        if (a.rowid > b.rowid) {
+      results.sort((prev, next) => {
+        if (prev.rowid > next.rowid) {
           return 1;
         }
-        if (a.rowid < b.rowid) {
+        if (prev.rowid < next.rowid) {
           return -1;
         }
         return 0;
@@ -180,9 +178,9 @@ DatabaseServer.prototype.getMetricDatas = function(query, callback) {
 /**
  * Put a single File to DB
  */
-DatabaseServer.prototype.putFile = function(file, callback) {
-  let table = this.db.sublevel('file');
-  let validation = this.validator.validate(file, FileSchema);
+DatabaseServer.prototype.putFile = function (file, callback) {
+  const table = this.dbh.sublevel('file');
+  const validation = this.validator.validate(file, FileSchema);
 
   if (validation.errors.length) {
     callback(validation.errors, null);
@@ -202,12 +200,12 @@ DatabaseServer.prototype.putFile = function(file, callback) {
  * @this DatabaseServer
  */
 DatabaseServer.prototype.putFiles = function (files, callback) {
+  const table = this.dbh.sublevel('file');
   let ops = [];
-  let table = this.db.sublevel('file');
 
   // validate
   files.forEach((file) => {
-    let validation = this.validator.validate(file, FileSchema);
+    const validation = this.validator.validate(file, FileSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
@@ -230,9 +228,9 @@ DatabaseServer.prototype.putFiles = function (files, callback) {
 /**
  * Put a single Metric to DB
  */
-DatabaseServer.prototype.putMetric = function(metric, callback) {
-  let table = this.db.sublevel('metric');
-  let validation = this.validator.validate(metric, MetricSchema);
+DatabaseServer.prototype.putMetric = function (metric, callback) {
+  const table = this.dbh.sublevel('metric');
+  const validation = this.validator.validate(metric, MetricSchema);
 
   if (validation.errors.length) {
     callback(validation.errors, null);
@@ -245,13 +243,13 @@ DatabaseServer.prototype.putMetric = function(metric, callback) {
 /**
  * Put multiple Metrics into DB
  */
-DatabaseServer.prototype.putMetrics = function(metrics, callback) {
+DatabaseServer.prototype.putMetrics = function (metrics, callback) {
+  const table = this.dbh.sublevel('metric');
   let ops = [];
-  let table = this.db.sublevel('metric');
 
   // validate
   metrics.forEach((metric) => {
-    let validation = this.validator.validate(metric, MetricSchema);
+    const validation = this.validator.validate (metric, MetricSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
@@ -274,13 +272,13 @@ DatabaseServer.prototype.putMetrics = function(metrics, callback) {
 /**
  * Put a single MetricData record to DB
  */
-DatabaseServer.prototype.putMetricData = function(metricData, callback) {
-  let table = this.db.sublevel('metricData');
-  let validation = this.validator.validate(metricData, MetricDataSchema);
+DatabaseServer.prototype.putMetricData = function (metricData, callback) {
+  const table = this.dbh.sublevel('metricData');
+  const validation = this.validator.validate(metricData, MetricDataSchema);
 
   if (typeof metricDatas === 'string') {
     // JSONify here to get around Electron IPC remote() memory leaks
-    metricDatas = JSON.parse(metricDatas);
+    metricData = JSON.parse(metricData);
   }
 
   if (validation.errors.length) {
@@ -294,9 +292,9 @@ DatabaseServer.prototype.putMetricData = function(metricData, callback) {
 /**
  * Put multiple MetricData records into DB
  */
-DatabaseServer.prototype.putMetricDatas = function(metricDatas, callback) {
+DatabaseServer.prototype.putMetricDatas = function (metricDatas, callback) {
+  const table = this.dbh.sublevel('metricData');
   let ops = [];
-  let table = this.db.sublevel('metricData');
 
   if (typeof metricDatas === 'string') {
     // JSONify here to get around Electron IPC remote() memory leaks
@@ -305,7 +303,7 @@ DatabaseServer.prototype.putMetricDatas = function(metricDatas, callback) {
 
   // validate
   metricDatas.forEach((metricData) => {
-    let validation = this.validator.validate(metricData, MetricDataSchema);
+    const validation = this.validator.validate(metricData, MetricDataSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
@@ -325,37 +323,6 @@ DatabaseServer.prototype.putMetricDatas = function(metricDatas, callback) {
   table.batch(ops, callback);
 };
 
-/**
- * Put a single Model to DB
- */
-DatabaseServer.prototype.putModel = function(model, callback) {
-  let table = this.db.sublevel('model');
-  let validation = this.validator.validate(model, ModelSchema);
-
-  if (validation.errors.length) {
-    callback(validation.errors, null);
-    return;
-  }
-
-  table.put(model.uid, model, callback);
-};
-
-/**
- * Put a single ModelData record to DB
- */
-DatabaseServer.prototype.putModelData = function(modelData, callback) {
-  let table = this.db.sublevel('modelData');
-  let validation = this.validator.validate(modelData, ModelDataSchema);
-
-  if (validation.errors.length) {
-    callback(validation.errors, null);
-    return;
-  }
-
-  table.put(modelData.model_uid, modelData, callback);
-};
-
 
 // EXPORTS
-
 module.exports = DatabaseServer;

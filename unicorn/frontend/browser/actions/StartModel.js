@@ -208,7 +208,7 @@ function streamData(actionContext, modelId) {
 
     }); // csp.go
   }); // Promise
-};
+}
 
 
 // MAIN

@@ -38,8 +38,8 @@ const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
  * @class
  * @module
  */
-var FileServer = function () {
-};
+function FileServer() {
+}
 
 
 /**
@@ -51,9 +51,10 @@ var FileServer = function () {
 FileServer.prototype.getContents = function (filename, callback) {
   filesystem.readFile(filename, function (error, data) {
     if (error) {
-      return callback(error, null);
+      callback(error, null);
+      return;
     }
-    return callback(null, data);
+    callback(null, data);
   });
 };
 
@@ -66,7 +67,8 @@ FileServer.prototype.getSampleFiles = function (callback) {
   filesystem.readdir(SAMPLES_FILE_PATH, function (error, data) {
     var files;
     if (error) {
-      return callback(error, null);
+      callback(error, null);
+      return;
     }
     files = data.map((item) => {
       var filename = path.resolve(SAMPLES_FILE_PATH, item);
@@ -78,7 +80,7 @@ FileServer.prototype.getSampleFiles = function (callback) {
       };
     });
 
-    return callback(null, files);
+    callback(null, files);
   });
 };
 
@@ -99,10 +101,11 @@ FileServer.prototype.getUploadedFiles = function (file, callback) {
   this.getFields(formattedFile.filename, {}, (error, fields) => {
     if (error) {
       // @TODO throw?
-      return callback(error);
+      callback(error);
+      return;
     }
     formattedFile.metrics = fields;
-    return callback(error, formattedFile);
+    callback(error, formattedFile);
   });
 };
 
@@ -152,16 +155,12 @@ FileServer.prototype.getFields = function (filename, options, callback) {
         }
         stream.unpipe();
         stream.destroy();
-        return callback(null, fields);
+        callback(null, fields);
+        return;
       }
     })
-    .once('error', function (error) {
-      // @TODO throw?
-      return callback(error);
-    })
-    .once('end', function () {
-      return callback();
-    });
+    .once('error', callback)
+    .once('end', callback);
 };
 
 /**
@@ -213,24 +212,19 @@ FileServer.prototype.getData = function (filename, options, callback) {
     .on('data', function (data) {
       if (limit > 0) {
         callback(null, data);
+        return;
       }
       if (limit === 0) {
         stream.unpipe();
         stream.destroy();
-        return callback();
+        callback();
+        return;
       }
       limit -= 1;
     })
-    .once('error', function (error) {
-      // @TODO throw?
-      return callback(error);
-    })
-    .once('close', function () {
-      return callback();
-    })
-    .once('end', function () {
-      return callback();
-    });
+    .once('error', callback)
+    .once('close', callback)
+    .once('end', callback);
 };
 
 /**
@@ -275,7 +269,8 @@ FileServer.prototype.getStatistics = function (filename, options, callback) {
   options.objectMode = true;
   this.getData(filename, options, function (error, data) {
     if (error) {
-      return callback(error);
+      callback(error);
+      return;
     } else if (data) {
       // Update stats on every record
       for (field in data) {
@@ -301,7 +296,8 @@ FileServer.prototype.getStatistics = function (filename, options, callback) {
       }
     } else {
       // Finished reading data
-      return callback(null, stats);
+      callback(null, stats);
+      return;
     }
   });
 };
