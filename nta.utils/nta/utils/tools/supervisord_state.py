@@ -116,7 +116,7 @@ def waitForRunningStateMain():
 
 def waitForAllToStop(timeout=60,
                      sleep=1,
-                     stoppedStates=set(["STOPPED", "FATAL", "ERROR"])):
+                     stoppedStates=frozenset(["STOPPED", "FATAL", "ERROR"])):
   """ Console script entry point: Waits for all processes to be in one of the
   "stopped" states
   """
@@ -127,8 +127,8 @@ def waitForAllToStop(timeout=60,
   parser.add_argument("--supervisorApiUrl",
                       required=True,
                       help="Supervisor API (e.g. http://127.0.0.1:9001)")
-  parser.add_argument("--timeout", default=timeout)
-  parser.add_argument("--sleep", default=sleep)
+  parser.add_argument("--timeout", type=int, default=timeout)
+  parser.add_argument("--sleep", type=int, default=sleep)
 
   args = parser.parse_args()
 
@@ -161,6 +161,6 @@ def waitForAllToStop(timeout=60,
 
     print >> sys.stderr, ("Sleeping for {} second{}..."
                           .format(args.sleep, "s" if args.sleep != 1 else ""))
-    time.sleep(sleep)
+    time.sleep(args.sleep)
     processes = getAllProcessInfo()
 

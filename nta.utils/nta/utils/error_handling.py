@@ -128,8 +128,9 @@ def retry(timeoutSec, initialRetryDelaySec, maxRetryDelaySec,
   timeoutSec:           How many seconds from time of initial call to stop
                         retrying (floating point); 0 = no retries
   initialRetryDelaySec: Number of seconds to wait for first retry.
-                        Subsequent retries will be at the lesser of twice
-                        this amount or maxRetryDelaySec (floating point)
+                        Subsequent retries will occur at geometrically
+                        doubling intervals up to a maximum interval of
+                        maxRetryDelaySec (floating point)
   maxRetryDelaySec:     Maximum amount of seconds to wait between retries
                         (floating point)
   retryExceptions:      A tuple (must be a tuple) of exception classes that,
