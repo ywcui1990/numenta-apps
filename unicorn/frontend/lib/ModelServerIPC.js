@@ -22,6 +22,7 @@
 
 import ipc from 'ipc';
 import { ModelServer } from './ModelServer';
+import UserError from './UserError';
 
 export const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 
@@ -88,16 +89,17 @@ export default class ModelServerIPC {
       } else if (command === 'sendData') {
         this._onSendData(modelId, payload.params) || {};
       } else {
-        throw new Error('Unknown model command "' + command + '"');
+        throw new UserError('Unknown model command "' + command + '"');
       }
     } catch (error) {
       if (this._webContents) {
         // Forward error to browser
         this._webContents.send(
           MODEL_SERVER_IPC_CHANNEL,
-          modelId,
-          'error',
-          { error, ipcevent: payload }
+          modelId, 'error', {
+            'error': error,
+            'ipcevent': payload
+          }
         );
       }
     }
@@ -114,8 +116,14 @@ export default class ModelServerIPC {
       }
       // forward event to BrowserWindow
       if (this._webContents) {
-        this._webContents.send(MODEL_SERVER_IPC_CHANNEL,
-                              modelId, command, payload);
+        if (command === 'error') {
+          this._webContents.send(MODEL_SERVER_IPC_CHANNEL, modelId, 'error', {
+            'error': new UserError(payload)
+          });
+        } else {
+          this._webContents.send(MODEL_SERVER_IPC_CHANNEL, modelId, command,
+                                payload);
+        }
       }
     });
   }
