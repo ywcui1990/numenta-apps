@@ -110,6 +110,11 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
          timeSlider?.addGestureRecognizer(panRec)
          timeSlider?.showBottom = false
          timeSlider?.transparentBackground = true
+        
+         timeSlider?.openColor = UIColor.clearColor().CGColor
+
+        timeSlider?.closedColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 0.5).CGColor
+
         // on iOS 8+ need to make sure table background is clear
         
         instanceTable.backgroundColor = UIColor.clearColor()
