@@ -40,7 +40,6 @@ import tweepy
 
 from nta.utils import amqp
 from nta.utils import date_time_utils
-from nta.utils.error_handling import abortProgramOnAnyException
 from nta.utils.error_handling import logExceptions
 from nta.utils.message_bus_connector import MessageBusConnector
 from nta.utils.message_bus_connector import MessageProperties
@@ -52,6 +51,7 @@ from taurus.metric_collectors import logging_support
 from taurus.metric_collectors import metric_utils
 from taurus.metric_collectors.metric_utils import getMetricsConfiguration
 from taurus.metric_collectors.text_utils import sanitize4ByteUnicode
+from taurus.metric_collectors.twitterdirect import purge_old_tweets
 
 
 
@@ -71,7 +71,6 @@ DEFAULT_ACCESS_TOKEN_SECRET = os.environ.get(
 
 # Our tracker key in the emitted_sample_tracker table
 _EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY = "twitter-tweets-volume"
-
 
 
 # Initialize logging
@@ -371,7 +370,7 @@ class TwitterStreamListener(tweepy.StreamListener):
                      "process has gone away without shutting us down first")
       sys.exit(1)
 
-    if not self._storageThread.is_alive():
+    if not self._storageThread.isAlive():
       g_log.critical("Exiting streaming process, because our storage thread "
                      "has stopped")
       sys.exit(1)
@@ -961,7 +960,7 @@ class TweetForwarder(object):
 
 
   @classmethod
-  @abortProgramOnAnyException(exitCode=1, logger=g_log)
+  @logExceptions(g_log)
   def runInThread(cls):
     """ The thread target function; instantiates and runs MetricDataForwarder
 
@@ -1095,10 +1094,12 @@ class TweetForwarder(object):
       tweetsSchema,
       samplesSchema.c.msg_uid == tweetsSchema.c.uid)
 
-    sel = sql.select(fields
-      ).select_from(join
-      ).where(samplesSchema.c.seq >= minSeq
-      ).order_by(samplesSchema.c.seq.asc())
+    sel = (
+      sql.select(fields)
+      .select_from(join)
+      .where(samplesSchema.c.seq >= minSeq)
+      .order_by(samplesSchema.c.seq.asc())
+    )
 
     if metrics is not None:
       sel = sel.where(schema.twitterTweetSamples.c.metric.in_(metrics))
@@ -1168,7 +1169,7 @@ class MetricDataForwarder(object):
 
 
   @classmethod
-  @abortProgramOnAnyException(exitCode=1, logger=g_log)
+  @logExceptions(g_log)
   def runInThread(cls, metricSpecs, aggSec):
     """ The thread target function; instantiates and runs MetricDataForwarder
 
@@ -1336,15 +1337,39 @@ class MetricDataForwarder(object):
       that have no tweets in the given aggregation period will be absent from
       the result.
     """
-    sel = sql.select(
-        [schema.twitterTweetSamples.c.metric, sql.func.count()]
-      ).where(schema.twitterTweetSamples.c.agg_ts == aggDatetime
-      ).group_by(schema.twitterTweetSamples.c.metric)
+    sel = (
+      sql.select([schema.twitterTweetSamples.c.metric, sql.func.count()])
+      .where(schema.twitterTweetSamples.c.agg_ts == aggDatetime)
+      .group_by(schema.twitterTweetSamples.c.metric)
+    )
 
     if metrics is not None:
       sel = sel.where(schema.twitterTweetSamples.c.metric.in_(metrics))
 
     return self._sqlEngine.execute(sel).fetchall()
+
+
+
+class _TweetGarbageCollector(object):
+  """Garbage collector for old tweets in the twitter_tweets table"""
+
+  # Tweets oder than this many days will be deleted from twitter_tweets table
+  # periodically
+  _GC_THRESHOLD_DAYS = 90
+
+  # How many seconds to sleep between garbage collection cycles
+  _PAUSE_INTERVAL_SEC = 3600
+
+  @classmethod
+  @logExceptions(g_log)
+  def run(cls):
+    """Run the garbage collector loop"""
+
+    while True:
+      purge_old_tweets.purgeOldTweets(
+        thresholdDays=cls._GC_THRESHOLD_DAYS)
+
+      time.sleep(cls._PAUSE_INTERVAL_SEC)
 
 
 
@@ -1369,77 +1394,77 @@ def _parseArgs():
   parser = OptionParser(helpString)
 
   parser.add_option(
-      "--partitions",
-      action="store",
-      type="int",
-      dest="numPartitions",
-      default=1,
-      help=("The list of companies will be partitioned into this many parts. "
-            "Each partition will be serviced by an individual stream listener. "
-            "At this time, it appears that Twitter allows MAX of TWO listeners "
-            "PER ACCOUNT. NOTE: if you start seeing 'ERROR: 420' in the log, "
-            "it's a sure sign that there are too many streamers on the same "
-            "account. [default: %default]"))
+    "--partitions",
+    action="store",
+    type="int",
+    dest="numPartitions",
+    default=1,
+    help=("The list of companies will be partitioned into this many parts. "
+          "Each partition will be serviced by an individual stream listener. "
+          "At this time, it appears that Twitter allows MAX of TWO listeners "
+          "PER ACCOUNT. NOTE: if you start seeing 'ERROR: 420' in the log, "
+          "it's a sure sign that there are too many streamers on the same "
+          "account. [default: %default]"))
 
   parser.add_option(
-      "--period",
-      action="store",
-      type="int",
-      dest="aggPeriod",
-      default=300,
-      help="Volume aggregation period in seconds [default: %default]")
+    "--period",
+    action="store",
+    type="int",
+    dest="aggPeriod",
+    default=300,
+    help="Volume aggregation period in seconds [default: %default]")
 
   parser.add_option(
-      "--ckey",
-      action="store",
-      type="string",
-      dest="consumerKey",
-      default=DEFAULT_CONSUMER_KEY,
-      help=("Twitter consumer key; overrides environment variable "
-            "TAURUS_TWITTER_CONSUMER_KEY [default: %default]"))
+    "--ckey",
+    action="store",
+    type="string",
+    dest="consumerKey",
+    default=DEFAULT_CONSUMER_KEY,
+    help=("Twitter consumer key; overrides environment variable "
+          "TAURUS_TWITTER_CONSUMER_KEY [default: %default]"))
 
   parser.add_option(
-      "--csecret",
-      action="store",
-      type="string",
-      dest="consumerSecret",
-      default=DEFAULT_CONSUMER_SECRET,
-      help=("Twitter consumer secret; overrides environment variable "
-            "TAURUS_TWITTER_CONSUMER_SECRET [default: %default]"))
+    "--csecret",
+    action="store",
+    type="string",
+    dest="consumerSecret",
+    default=DEFAULT_CONSUMER_SECRET,
+    help=("Twitter consumer secret; overrides environment variable "
+          "TAURUS_TWITTER_CONSUMER_SECRET [default: %default]"))
 
   parser.add_option(
-      "--atoken",
-      action="store",
-      type="string",
-      dest="accessToken",
-      default=DEFAULT_ACCESS_TOKEN,
-      help=("Twitter access token; overrides environment variable "
-            "TAURUS_TWITTER_ACCESS_TOKEN [default: %default]"))
+    "--atoken",
+    action="store",
+    type="string",
+    dest="accessToken",
+    default=DEFAULT_ACCESS_TOKEN,
+    help=("Twitter access token; overrides environment variable "
+          "TAURUS_TWITTER_ACCESS_TOKEN [default: %default]"))
 
   parser.add_option(
-      "--atokensecret",
-      action="store",
-      type="string",
-      dest="accessTokenSecret",
-      default=DEFAULT_ACCESS_TOKEN_SECRET,
-      help=("Twitter access token secret; overrides environment variable "
-            "TAURUS_TWITTER_ACCESS_TOKEN_SECRET [default: %default]"))
+    "--atokensecret",
+    action="store",
+    type="string",
+    dest="accessTokenSecret",
+    default=DEFAULT_ACCESS_TOKEN_SECRET,
+    help=("Twitter access token secret; overrides environment variable "
+          "TAURUS_TWITTER_ACCESS_TOKEN_SECRET [default: %default]"))
 
   parser.add_option(
-      "--forward-non-metric",
-      action="store_true",
-      default=False,
-      dest="forwardNonMetric",
-      help=("Forward non-metric data; applies only in active op-mode "
-            "[default: %default]"))
+    "--forward-non-metric",
+    action="store_true",
+    default=False,
+    dest="forwardNonMetric",
+    help=("Forward non-metric data; applies only in active op-mode "
+          "[default: %default]"))
 
   parser.add_option(
-      "--echodata",
-      action="store_true",
-      default=False,
-      dest="echoData",
-      help=("Echo processed Twitter messages to stdout for debugging "
-            "[default: %default]"))
+    "--echodata",
+    action="store_true",
+    default=False,
+    dest="echoData",
+    help=("Echo processed Twitter messages to stdout for debugging "
+          "[default: %default]"))
 
   options, remainingArgs = parser.parse_args()
   if remainingArgs:
@@ -1458,6 +1483,7 @@ def _parseArgs():
     accessTokenSecret=options.accessTokenSecret,
     forwardNonMetric=options.forwardNonMetric,
     echoData=options.echoData)
+
 
 
 def _partition(l, numParts):
@@ -1495,7 +1521,7 @@ def _runStreamWorker(task):
 
 
 
-@abortProgramOnAnyException(exitCode=1, logger=g_log)
+@logExceptions(g_log)
 def _runPoolThread(pool, tasks):
   # Stream data
   g_log.info("Submitting numTasks=%d to multiprocessing pool", len(tasks))
@@ -1573,6 +1599,13 @@ def main():
       poolRunnerThread.start()
       g_log.info("Started Pool Runner thread")
 
+      # Start Tweet Garbage Collector
+      tweetGarbageCollectorThread = threading.Thread(
+        target=_TweetGarbageCollector.run)
+      tweetGarbageCollectorThread.setDaemon(True)
+      tweetGarbageCollectorThread.start()
+      g_log.info("Started TweetGarbageCollector thread")
+
       # Start forwarders
       metricDataForwarderThread = None
       tweetForwarderThread = None
@@ -1598,16 +1631,19 @@ def main():
       while True:
         # Passing a timeout value allows the join call to be interrupted by
         # SIGINT, which results in KeyboardInterrupt exception.
-        poolRunnerThread.join(60)
-        assert poolRunnerThread.is_alive()
+        poolRunnerThread.join(10)
+        assert poolRunnerThread.isAlive()
+
+        tweetGarbageCollectorThread.join(10)
+        assert tweetGarbageCollectorThread.isAlive()
 
         if metricDataForwarderThread is not None:
-          metricDataForwarderThread.join(60)
-          assert metricDataForwarderThread.is_alive()
+          metricDataForwarderThread.join(10)
+          assert metricDataForwarderThread.isAlive()
 
         if tweetForwarderThread is not None:
-          tweetForwarderThread.join(60)
-          assert tweetForwarderThread.is_alive()
+          tweetForwarderThread.join(10)
+          assert tweetForwarderThread.isAlive()
     finally:
       # Terminate worker pool. There is no point in trying to close it because
       # our tasks never complete

@@ -118,22 +118,6 @@ def _parseArgs():
       dest="newSymbol",
       help="New ticker symbol to be used")
 
-  parser.add_option(
-      "-t", "--twitteronly",
-      action="store_false",
-      dest="stocks",
-      default=True,
-      help="Only migrate twitter metric data"
-  )
-
-  parser.add_option(
-      "-x", "--stocksonly",
-      action="store_false",
-      dest="twitter",
-      default=True,
-      help="Only migrate xignite stock metric data"
-  )
-
 
   options, remainingArgs = parser.parse_args()
   if remainingArgs:
@@ -144,27 +128,17 @@ def _parseArgs():
   if options.newSymbol is None:
     parser.error("Required \"--newsymbol\" option was not specified")
 
-
-  if (not options.twitter) and (not options.stocks):
-    parser.error("Flags specifying a single type of metric to migrate can "
-                 "only be used exclusively. Forwarding all metrics is already "
-                 "the default behavior of this tool.")
-
   optionsTuple = namedtuple("optionsTuple", "htmServer "
                                             "apikey "
                                             "aggPeriod "
                                             "oldSymbol "
-                                            "newSymbol "
-                                            "twitter "
-                                            "stocks")
+                                            "newSymbol ")
 
   return optionsTuple(htmServer=options.htmServer,
                       apikey=options.apikey,
                       aggPeriod=options.aggPeriod,
                       oldSymbol=options.oldSymbol.upper(),
-                      newSymbol=options.newSymbol.upper(),
-                      twitter=options.twitter,
-                      stocks=options.stocks)
+                      newSymbol=options.newSymbol.upper())
 
 
 
@@ -282,9 +256,10 @@ def _resymbolStockMetrics(oldSymbol, newSymbol):
 
   with sqlEngine.begin() as conn:
     # NOTE: the foreign key cascade-on-update relationship between
-    # emitted_stock_price/emitted_stock_volume tables and the
-    # xignite_security_bars table causes the symbol to be automatically updated
-    # in the xignite_security_* tables
+    # emitted_stock_price, emitted_stock_volume, xignite_security_bars, and the
+    # xignite_security tables causes the symbol to be automatically updated or
+    # the corresponding rows to be deleted in the former tables when the symbol
+    # in xignite_security table is updated or deleted.
 
     # Delete emitted stock price rows for old symbol
     conn.execute(
@@ -301,12 +276,6 @@ def _resymbolStockMetrics(oldSymbol, newSymbol):
     )
 
     # Re-symbol xignite security row associated with the old symbol
-    #
-    # TODO TAUR-1327: when we rename this symbol in the xignite_security table,
-    # we leave other columns of the affected xignite_security row likely
-    # inconsitent with the new symbol, which is bad. Once TAUR-1327 is complete,
-    # this problem will go away along with this operation on xignite_security
-    # table.
     #
     # NOTE: we use IGNORE to ignore integrity errors (most likely duplicate),
     # because stock agent might insert a security row for the new symbol before
@@ -325,14 +294,6 @@ def _resymbolStockMetrics(oldSymbol, newSymbol):
       .where(schema.xigniteSecurity.c.symbol == oldSymbol)
     )
 
-    # Update stock bars
-    # NOTE: This becomes necessary once TAUR-1327 is implemented
-    conn.execute(
-      schema.xigniteSecurityBars  # pylint: disable=E1120
-      .update()
-      .where(schema.xigniteSecurityBars.c.symbol == oldSymbol)
-      .values(symbol=newSymbol))
-
   # Forward stock metric data samples to Taurus Engine
   g_log.info("Forwarding new stock metric data samples for symbol=%s to Taurus "
              "engine...", newSymbol)
@@ -343,29 +304,6 @@ def _resymbolStockMetrics(oldSymbol, newSymbol):
       symbol=newSymbol,
       engine=sqlEngine
   )
-
-
-def _deleteSymbolMetricsFromEngine(host, apiKey, symbol):
-  """Delete metrics corresponding to the given stock symbol from Taurus Engine
-
-  :param host: API server's hostname or IP address
-  :param apiKey: API server's API Key
-  :param symbol: Stock symbol
-  """
-  g_log.info("Unmonitoring and deleting existing metrics linked to stock "
-             "symbol=%s", symbol)
-
-  # Get matching metrics
-  allMetrics = metric_utils.getAllCustomMetrics(host=host, apiKey=apiKey)
-
-  metricsToDelete = tuple(obj["name"]
-                          for obj in allMetrics
-                          if ".{symbol}.".format(symbol=symbol) in obj["name"])
-
-  g_log.info("Deleteing metrics=%s", metricsToDelete)
-  for metricName in metricsToDelete:
-    g_log.info("Deleting metric=%s", metricName)
-    metric_utils.deleteMetric(host, apiKey, metricName)
 
 
 
@@ -392,39 +330,28 @@ def main():
                "configuration")
     assert options.newSymbol in allSymbols
 
-    if options.twitter and not options.stocks:
-      g_log.info("Migrating ONLY twitter data from old-symbol=%s "
-                 "to new-symbol=%s",
-                 options.oldSymbol, options.newSymbol)
-    elif options.stocks and not options.twitter:
-      g_log.info("Migrating ONLY xignite stock data from old-symbol=%s "
-                 "to new-symbol=%s",
-                 options.oldSymbol, options.newSymbol)
-    else:
-      g_log.info("Migrating BOTH twitter and xignite stock data from "
-                 "old-symbol=%s to new-symbol=%s",
-                 options.oldSymbol, options.newSymbol)
+    g_log.info("Migrating BOTH twitter and xignite stock data from "
+               "old-symbol=%s to new-symbol=%s",
+               options.oldSymbol, options.newSymbol)
 
     # Rename the metrics in collectorsdb and forward new metric samples to HTM
     # Engine
     g_log.info("Modifying old metrics with new symbol")
 
-    if options.twitter:
-      _resymbolTweetVolumeMetric(oldSymbol=options.oldSymbol,
-                                 newSymbol=options.newSymbol,
-                                 aggPeriod=options.aggPeriod)
+    _resymbolTweetVolumeMetric(oldSymbol=options.oldSymbol,
+                               newSymbol=options.newSymbol,
+                               aggPeriod=options.aggPeriod)
 
-    if options.stocks:
-      _resymbolStockMetrics(oldSymbol=options.oldSymbol,
-                            newSymbol=options.newSymbol)
+    _resymbolStockMetrics(oldSymbol=options.oldSymbol,
+                          newSymbol=options.newSymbol)
 
 
     # Delete metrics linked to old stock symbol from Taurus Engine
-    _deleteSymbolMetricsFromEngine(host=options.htmServer,
-                                   apiKey=options.apikey,
-                                   symbol=options.oldSymbol)
-
-
+    metric_utils.CompanyDeleter.deleteCompanies(
+      tickerSymbols=[options.oldSymbol],
+      engineServer=options.htmServer,
+      engineApiKey=options.apikey,
+      warnAboutDestructiveAction=False)
   except SystemExit as e:
     if e.code != 0:
       g_log.exception("Failed!")

@@ -20,12 +20,16 @@
 # ----------------------------------------------------------------------
 
 import contextlib
-from collections import namedtuple
 from datetime import datetime, timedelta
 import json
 import logging
 import os
+import Queue
+import random
+import signal
+import threading
 import time
+import uuid
 
 import requests
 import sqlalchemy as sql
@@ -74,6 +78,12 @@ class MetricDeleteRequestError(Exception):
 
 
 
+class MetricNotFound(Exception):
+  """Specified metric was not found"""
+  pass
+
+
+
 class GetModelsRequestError(Exception):
   """ Generic exception for non-specific error while getting all models
   """
@@ -87,12 +97,50 @@ class RetriesExceededError(Exception):
 
 
 
+class UserAbortedOperation(Exception):
+  """When prompted with a warning about this destructive action, the user
+  aborted this operation.
+  """
+  pass
+
+
+
+class WarningPromptTimeout(Exception):
+  """The warning prompt about the destructive action timed out"""
+  pass
+
+
+
+class FlusherMetricNotFound(Exception):
+  """Inidicates that the the wait for Taurus Engine metric data path flusher
+  metric timed out.
+  """
+  pass
+
+
+
 g_log = logging.getLogger("metric_collectors.metric_utils")
 
 
 
 # Retry decorator for specific `requests` errors
-def _retry_on_requests_errors(timeoutSec=10, pauseSec=0.2):
+def _retryOnRequestsErrors(timeoutSec=10, pauseSec=0.2):
+
+  def retryFilter(exc, _args, _kwargs):
+    if isinstance(exc, requests.exceptions.HTTPError):
+      # Retry on:
+      # 500 Internal Server Error
+      # 502 Server Error: Bad Gateway
+      # 503 Service Unavailable
+      # 504 Gateway Timeout
+      if (exc.response is not None and
+          exc.response.status_code in [500, 502, 503, 504]):
+        return True
+      else:
+        return False
+
+    return True
+
   return retry(
     timeoutSec=timeoutSec,
     initialRetryDelaySec=pauseSec,
@@ -100,7 +148,10 @@ def _retry_on_requests_errors(timeoutSec=10, pauseSec=0.2):
     retryExceptions=(
       # requests retries on DNS errors, but not on connection errors
       requests.exceptions.ConnectionError,
+      requests.exceptions.HTTPError,
+      requests.exceptions.Timeout,
     ),
+    retryFilter=retryFilter,
     logger=g_log)
 
 
@@ -116,6 +167,20 @@ def getMetricsConfiguration():
   metricsConfPath = os.path.join(metric_collectors.CONF_DIR, "metrics.json")
   with open(metricsConfPath) as fileObj:
     return json.load(fileObj)
+
+
+
+def getMetricNamesFromConfig(metricsConfig):
+  """Return all metric names from the given metrics configuration
+
+  :param dict metricsConfig: metrics configuration as returned by
+    `getMetricsConfiguration()`
+
+  :returns: all metric names from the given metricsConfig
+  :rtype: sequence
+  """
+  return tuple(key for resource in metricsConfig.itervalues()
+               for key in resource["metrics"].iterkeys())
 
 
 
@@ -149,11 +214,15 @@ def getMetricSymbolsForProvider(provider):
 
 def createHtmModel(host, apiKey, modelParams):
   """ Create a model for a metric;
+
   :param host: API server's hostname or IP address
   :param apiKey: API server's API Key
   :param modelParams: model parameters dict per _models POST API
 
-  :returns: dictionary result of the _models POST request on success;
+  :returns: model info dictionary from the result of the _models POST request on
+    success;
+  :rtype: dict
+
   :raises: ModelQuotaExceededError if quota limit was exceeded
   :raises: ModelMonitorRequestError for non-specific error in request
   :raises: RetriesExceededError if retries were exceeded
@@ -170,7 +239,7 @@ def createHtmModel(host, apiKey, modelParams):
         verify=False)
 
       if response.status_code == 201:
-        return json.loads(response.text)
+        return json.loads(response.text)[0]
 
       # TODO: this check for "Server limit exceeded" is temporary for MER-1366
       if (response.status_code == 500 and
@@ -198,16 +267,20 @@ def createCustomHtmModel(host,
                          userInfo,
                          modelParams):
   """ Create a model for a metric;
+
   :param host: API server's hostname or IP address
   :param apiKey: API server's API Key
   :param metricName: Name of the metric
   :param resourceName: Name of the resource with which the metric is associated
   :param userInfo: A dict containing custom user info to be included in
     metricSpec
-  :param modelParams: A dict containing custom model params be included in
+  :param modelParams: A dict containing custom model params to be included in
     modelSpec
 
-  :returns: dictionary result of the _models POST request on success;
+  :returns: model info dictionary from the result of the _models POST request on
+    success;
+  :rtype: dict
+
   :raises: ModelQuotaExceededError if quota limit was exceeded
   :raises: ModelMonitorRequestError for non-specific error in request
   :raises: RetriesExceededError if retries were exceeded
@@ -226,30 +299,63 @@ def createCustomHtmModel(host,
 
 
 
-def createAllModels(host, apiKey):
+def createAllModels(host, apiKey, onlyMetricNames=None):
   """ Create models corresponding to all metrics in the metrics configuration.
 
   NOTE: Has no effect on metrics that have already been promoted to models.
 
-  :param host: API server's hostname or IP address
-  :param apiKey: API server's API Key
+  :param str host: API server's hostname or IP address
+  :param str apiKey: API server's API Key
+  :param onlyMetricNames: None to create models for all configured metrics; an
+    iterable of metric names to limit creation of models only to metrics with
+    those names - the metric names in the iterable MUST be a non-empty subset of
+    the configured metrics.
+  :type onlyMetricNames: None or iterable
 
-  :returns: List of models that were created
+  :returns: List of models that were created; each element is a model info
+    dictionary from the successful result of the _models POST request
   :rtype: list of dicts
 
   :raises: ModelQuotaExceededError if quota limit was exceeded
   :raises: ModelMonitorRequestError for non-specific error in request
   :raises: RetriesExceededError if retries were exceeded
   """
-  metricsConfiguration = getMetricsConfiguration()
+  metricsConfig = getMetricsConfiguration()
+
+  configuredMetricNames = set(getMetricNamesFromConfig(metricsConfig))
+
+  if onlyMetricNames is not None:
+    # Validate onlyMetricNames and convert it to set
+
+    if not len(onlyMetricNames):
+      raise ValueError("onlyMetricNames is empty")
+
+    asSet = set(onlyMetricNames)
+    if len(asSet) != len(onlyMetricNames):
+      raise ValueError("onlyMetricNames contains duplicates")
+
+    onlyMetricNames = asSet
+
+    unknownMetricNames = (onlyMetricNames -
+                          configuredMetricNames)
+    if unknownMetricNames:
+      raise ValueError(
+        "{count} elements in onlyMetricNames are not in metrics configuration: "
+        "{unknown}".format(count=len(unknownMetricNames),
+                           unknown=unknownMetricNames)
+      )
+  else:
+    onlyMetricNames = configuredMetricNames
 
   allModels = []
 
-  totalModels = sum(len(resVal["metrics"])
-                    for resVal in metricsConfiguration.itervalues())
   i = 0
-  for resName, resVal in metricsConfiguration.iteritems():
+  for resName, resVal in metricsConfig.iteritems():
     for metricName, metricVal in resVal["metrics"].iteritems():
+
+      if metricName not in onlyMetricNames:
+        continue
+
       i += 1
 
       userInfo = {
@@ -261,20 +367,18 @@ def createAllModels(host, apiKey):
       modelParams = metricVal.get("modelParams", {})
 
       try:
-        result = createCustomHtmModel(host=host,
-                                      apiKey=apiKey,
-                                      metricName=metricName,
-                                      resourceName=resName,
-                                      userInfo=userInfo,
-                                      modelParams=modelParams)
+        model = createCustomHtmModel(host=host,
+                                     apiKey=apiKey,
+                                     metricName=metricName,
+                                     resourceName=resName,
+                                     userInfo=userInfo,
+                                     modelParams=modelParams)
       except ModelQuotaExceededError as e:
         g_log.error("Model quota exceeded: %r", e)
         raise
 
-      model = result[0]
-
-      g_log.info("Enabled monitoring of metric=%s (%d of %d)",
-                 model["uid"], i, totalModels)
+      g_log.info("Enabled monitoring of metric=%s; uid=%s (%d of %d)",
+                 model["name"], model["uid"], i, len(onlyMetricNames))
 
       allModels.append(model)
 
@@ -314,6 +418,7 @@ def unmonitorMetric(host, apiKey, modelId):
     raise RetriesExceededError("Unmonitor-metric retries exceeded")
 
 
+
 def deleteMetric(host, apiKey, metricName):
   """ Delete a metric
 
@@ -321,8 +426,8 @@ def deleteMetric(host, apiKey, metricName):
   :param apiKey: API server's API Key
   :param metricName: name of the metric to be deleted
 
-  :raises: RetriesExceededError
-  :raises: MetricDeleteRequestError
+  :raises RetriesExceededError:
+  :raises MetricNotFound:
   """
   for _retries in xrange(20):
     try:
@@ -335,19 +440,298 @@ def deleteMetric(host, apiKey, metricName):
         g_log.debug("Deleteted metric=%s", metricName)
         break
 
+      if response.status_code == 404:
+        raise MetricNotFound(response.text)
+
       raise MetricDeleteRequestError(
         "Unable to delete metric=%s: %s (%s)" % (
           metricName, response, response.text))
+    except MetricNotFound as exc:
+      g_log.warning(repr(exc))
+      raise
     except Exception:  # pylint: disable=W0703
       g_log.exception("Assuming transient error while deleting metric=%s",
                       metricName)
       time.sleep(0.2)
   else:
-    raise RetriesExceededError("Unmonitor-metric retries exceeded")
+    raise RetriesExceededError("Unmonitor-metric retries exceeded for {metric}"
+                               .format(metric=metricName))
 
 
 
-@_retry_on_requests_errors()
+def filterCompanyMetricNamesBySymbol(metricNames, tickerSymbol):
+  """Filter company metric names by stock symbol
+
+  :param sequence metricNames: custom metric names
+  :param str tickerSymbol: Stock symbol; only company metric names matching
+    this stock symbol will be returned.
+
+  :returns: sequence of company metric names mathing `tickerSymbol`
+  :rtype: sequence
+  """
+  tickerSymbol = tickerSymbol.upper()
+
+  # Examples company metric names:
+  # TWITTER.TWEET.HANDLE.AET.VOLUME
+  # XIGNITE.TWC.CLOSINGPRICE
+  # XIGNITE.AMZN.VOLUME
+  # XIGNTE.NEWS.AMZN.VOLUME
+  return tuple(
+    name for name in metricNames
+    if all(name.split(".")) and
+    len(name.split(".")) >= 3 and
+    name.split(".")[-2] == tickerSymbol)
+
+
+
+class CompanyDeleter(object):
+  # Max time to wait for flushing of Taurus Engine's metric data path
+  _DATA_PATH_FLUSH_TIMEOUT_SEC = 300
+
+  # Prefix of metric name used for flushing Taurus Engine's metric data path;
+  # see code comments in `CompanyDeleter.deleteCompanies()` for more info.
+  _DATA_PATH_FLUSHER_METRIC_PREFIX = (  # pylint: disable=C0103
+    ".delete_metric_flusher_")
+
+
+  @classmethod
+  def deleteCompanies(cls,
+                      tickerSymbols,
+                      engineServer,
+                      engineApiKey,
+                      warnAboutDestructiveAction=True,
+                      warningTimeout=30):
+    """Delete companies from Taurus Collector and their metrics/models from
+    Taurus Engine.
+
+    :param iterable tickerSymbols: stock ticker symbols of companies to be
+      deleted
+
+    :param str engineServer: dns name of ip addres of Taurus API server
+
+    :param str engineApiKey: API Key of Taurus HTM Engine
+
+    :param bool warnAboutDestructiveAction: whether to warn about destructive
+      action; defaults to True.
+
+    :param float warningTimeout: Timeout for the warning prompt; ignored if
+      warnAboutDestructiveAction is False
+
+    :raises WarningPromptTimeout: if warning prompt timed out
+    :raises UserAbortedOperation: if user chose to abort the operation
+    :raises FlusherMetricNotFound:
+    """
+    tickerSymbols = tuple(symbol.upper() for symbol in tickerSymbols)
+
+    # Check for duplicate symbols
+    repeatedSymbols = set(sym for sym in tickerSymbols
+                          if tickerSymbols.count(sym) > 1)
+    if repeatedSymbols:
+      raise ValueError("{numRepeats} symbol(s) are present more than once in "
+                       "tickerSymbols arg: {repeats}"
+                       .format(numRepeats=len(repeatedSymbols),
+                               repeats=repeatedSymbols))
+
+    # Set will be handier going forward
+    tickerSymbols = set(tickerSymbols)
+
+    if warnAboutDestructiveAction:
+      cls._warnAboutDestructiveAction(timeout=warningTimeout,
+                                      tickerSymbols=tickerSymbols,
+                                      engineServer=engineServer)
+
+    # If any of the the ticker symbols still appear in the collector's metrics
+    # config, abort the operation as a precautionary measure.
+    allSymbols = set(security[0].upper() for security in
+                     getAllMetricSecurities())
+
+    problemSymbols = tickerSymbols.intersection(allSymbols)
+    assert not problemSymbols, (
+      "Can't delete - {numProblem} of the specified companies [{symbols}] are "
+      "in active metrics configuration".format(numProblem=len(problemSymbols),
+                                               symbols=problemSymbols))
+
+    # First, we need to synchronize with Taurus Engine's metric data path.
+    # If any of the data still in the pipeline is for any of the companies being
+    # deleted, then the metrics may be re-created in the Engine after we delete
+    # them. This is an yet unresolved subtlety with custom metrics in htmengine.
+    cls._flushTaurusEngineMetricDataPath(engineServer, engineApiKey)
+
+    # NOTE: We must query custom metrics after flushing the metric data path,
+    # since metrics may get created as a side-effect of processing metric data.
+    allMetricNames = tuple(
+      obj["name"] for obj in
+      getAllCustomMetrics(host=engineServer, apiKey=engineApiKey))
+
+    for symbolNum, symbol in enumerate(tickerSymbols, 1):
+      # Delete corresponding metrics from Taurus Engine
+      metricNamesToDelete = filterCompanyMetricNamesBySymbol(allMetricNames,
+                                                             symbol)
+      if not metricNamesToDelete:
+        g_log.info("No metrics to delete for symbol=%s (%d of %d)", symbol,
+                   symbolNum, len(tickerSymbols))
+        continue
+
+      g_log.info("Deleting metrics and models for ticker symbol=%s from Taurus "
+                 "Engine=%s (%d of %d)", symbol, engineServer,
+                 symbolNum, len(tickerSymbols))
+
+      for metricName in metricNamesToDelete:
+        deleteMetric(host=engineServer,
+                     apiKey=engineApiKey,
+                     metricName=metricName)
+        g_log.info("Deleted metric=%s", metricName)
+
+
+      # Delete the symbol from xignite_security table last; this cascades to
+      # delete related rows in other tables via cascading delete relationship;
+      # NOTE: garbage collection from other tables not tied to xiginte_security
+      # symbols presently depends on aging of the rows (e.g., twitter tables).
+      with collectorsdb.engineFactory().begin() as conn:
+        numDeleted = (
+          conn.execute(
+            collectorsdb.schema.xigniteSecurity  # pylint: disable=E1120
+            .delete()
+            .where(collectorsdb.schema.xigniteSecurity.c.symbol == symbol))
+          ).rowcount
+
+        assert 0 <= numDeleted <= 1, (
+          ("Expected to delete 0 or 1 symbol {symbol} row, but deleted {num} "
+           "of them").format(symbol=symbol, num=numDeleted))
+
+        if numDeleted:
+          g_log.info("Deleted row=%s from table=%s", symbol,
+                     collectorsdb.schema.xigniteSecurity)
+        else:
+          g_log.warning(
+            "Couldn't delete security row=%s: not found in table=%s",
+            symbol, collectorsdb.schema.xigniteSecurity)
+
+
+  @classmethod
+  @retry(timeoutSec=_DATA_PATH_FLUSH_TIMEOUT_SEC, initialRetryDelaySec=0.5,
+         maxRetryDelaySec=5, retryExceptions=(FlusherMetricNotFound,))
+  def _waitForFlusherAndGarbageCollect(cls,
+                                       engineServer,
+                                       engineApiKey,
+                                       flusherMetricName):
+    """Wait for the data path flusher metric to be created in Taurus Engine and
+    also garbage-collect flushers from this and prior sessions
+
+    :param str engineServer: dns name of ip addres of Taurus API server
+
+    :param str engineApiKey: API Key of Taurus HTM Engine
+
+    :param str flusherMetricName: the unique name of the flusher metric to wait
+      on.
+
+    :raises FlusherMetricNotFound: if the wait fails
+    """
+    flushers = [obj["name"] for obj in
+                getAllCustomMetrics(engineServer, engineApiKey)
+                if obj["name"].startswith(cls._DATA_PATH_FLUSHER_METRIC_PREFIX)]
+    found = flusherMetricName in flushers
+
+    # Delete flushers, including any from past attempts that failed delete
+    for metric in flushers:
+      g_log.info("Deleting metric data path flusher metric %s", metric)
+      deleteMetric(host=engineServer, apiKey=engineApiKey, metricName=metric)
+
+    if not found:
+      raise FlusherMetricNotFound("Still waiting for data path flusher metric "
+                                  "{metric}".format(metric=flusherMetricName))
+
+
+  @classmethod
+  def _flushTaurusEngineMetricDataPath(cls, engineServer, engineApiKey):
+    """Flush Taurus Engine's metric data path.
+
+    There is no formal mechanism for this in htmengine, so we're going to flush
+    the data path by sending a metric data item for a dummy metric and wait for
+    the dummy metric to be created.
+
+    :param str engineServer: dns name of ip addres of Taurus API server
+
+    :param str engineApiKey: API Key of Taurus HTM Engine
+    """
+    g_log.info("Flushing Taurus Engine metric data path, please wait...")
+
+    flusherMetricName = cls._DATA_PATH_FLUSHER_METRIC_PREFIX + uuid.uuid1().hex
+
+    with metricDataBatchWrite(g_log) as putSample:
+      putSample(flusherMetricName, 99999, int(time.time()))
+
+    cls._waitForFlusherAndGarbageCollect(engineServer=engineServer,
+                                         engineApiKey=engineApiKey,
+                                         flusherMetricName=flusherMetricName)
+
+
+  @classmethod
+  def _warnAboutDestructiveAction(cls, timeout, tickerSymbols, engineServer):
+    """Prompt user about continuing with the destructive action
+
+    :param float timeout: Timeout for the warning prompt
+    :param iterable tickerSymbols: stock ticker symbols of companies to be
+      deleted
+    :param str engineServer: dns name of ip addres of Taurus API server
+
+    :raises WarningPromptTimeout: if warning prompt timed out
+    :raises UserAbortedOperation: if user chose to abort the operation
+    """
+
+    expectedAnswer = "Yes-{randomNum}".format(randomNum=random.randint(1, 30),)
+
+    if len(tickerSymbols) <= 5:
+      tickersInPrompt = "[{tickers}]".format(tickers=", ".join(tickerSymbols))
+    else:
+      tickersInPrompt = "[{tickers}, ... and {more} more]".format(
+        tickers=tickerSymbols[:5],
+        more=len(tickerSymbols)-5)
+
+    promptText = (
+      "Attention!  You are about to delete {total} companies {tickers} from "
+      "Taurus Collector and their metrics/models from Taurus Engine {engine}\n"
+      "\n"
+      "To back out immediately without making any changes, feel free to type "
+      "anything but \"{expectedAnswer}\" in the prompt below, and press "
+      "return. (auto-abort in {timeout} seconds)\n"
+      "\n"
+      "Are you sure you want to continue? "
+      .format(total=len(tickerSymbols),
+              tickers=tickersInPrompt,
+              engine=engineServer,
+              expectedAnswer=expectedAnswer,
+              timeout=timeout))
+
+    timerExpiredQ = Queue.Queue()
+
+    def onTimerExpiration():
+      timerExpiredQ.put(1)
+      # NOTE: thread.interrupt_main() doesn't unblock raw_input, so we use
+      # SIGINT instead
+      os.kill(os.getpid(), signal.SIGINT)
+
+
+    timer = threading.Timer(timeout, onTimerExpiration)
+    try:
+      timer.start()
+      if timerExpiredQ.empty():
+        answer = raw_input(promptText)
+    except KeyboardInterrupt:
+      if timerExpiredQ.empty():
+        raise
+    finally:
+      timer.cancel()
+
+    if not timerExpiredQ.empty():
+      raise WarningPromptTimeout("Warning prompt timed out")
+
+    if answer.strip() != expectedAnswer:
+      raise UserAbortedOperation("User aborted operation from warning prompt")
+
+
+
+@_retryOnRequestsErrors()
 def getAllCustomMetrics(host, apiKey):
   """Retrieve all custom metrics
 
@@ -478,10 +862,9 @@ def establishLastEmittedSampleDatetime(key, aggSec):
   lastEmittedTimestamp = (datetime.utcnow().replace(microsecond=0) -
                           timedelta(seconds=aggSec))
   collectorsdb.engineFactory().execute(
-    schema.emittedSampleTracker.insert(
-      ).prefix_with("IGNORE", dialect="mysql"
-      ).values(key=key,
-               sample_ts=lastEmittedTimestamp))
+    schema.emittedSampleTracker.insert()  # pylint: disable=E1120
+    .prefix_with("IGNORE", dialect="mysql")
+    .values(key=key, sample_ts=lastEmittedTimestamp))
 
   # Query again after saving to account for mysql's loss of accuracy
   return queryLastEmittedSampleDatetime(key)
@@ -512,7 +895,7 @@ def updateLastEmittedSampleDatetime(key, sampleDatetime):
   :param datetime sampleDatetime: UTC datetime of last successfully-emitted
     sample batch
   """
-  update = schema.emittedSampleTracker.update(
+  update = schema.emittedSampleTracker.update(  # pylint: disable=E1120
     ).values(
       sample_ts=sampleDatetime
     ).where(
@@ -546,7 +929,7 @@ def updateLastEmittedNonMetricSequence(key, seq):
   :param str key: caller's key in schema.emittedNonMetricTracker
   :param int seq: sequence of last successfully-emitted non-metric
   """
-  update = schema.emittedNonMetricTracker.update(
+  update = schema.emittedNonMetricTracker.update(  # pylint: disable=E1120
     ).values(
       last_seq=seq
     ).where(
@@ -562,7 +945,8 @@ def updateLastEmittedNonMetricSequence(key, seq):
   if result.rowcount == 0:
     # The row didn't exist, so create it
     collectorsdb.engineFactory().execute(
-      schema.emittedNonMetricTracker.insert().values(key=key, last_seq=seq))
+      schema.emittedNonMetricTracker.insert()  # pylint: disable=E1120
+      .values(key=key, last_seq=seq))
 
 
 
@@ -628,7 +1012,7 @@ def metricDataBatchWrite(log):
 
   Usage example:
 
-    with metricDataBatchWrite() as putSample:
+    with metricDataBatchWrite(logger) as putSample:
       putSample(metricName1, value1, epochTimestamp1)
       putSample(metricName2, value2, epochTimestamp2)
       . . .

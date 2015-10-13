@@ -19,40 +19,32 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Repository object utilities for tests."""
+"""Test utilities for collectorsdb"""
 
 import functools
 import uuid
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
-from htm.it.app import config, repository
-
-ENGINE = repository.getUnaffiliatedEngine()
-
-
-
-def getAllDatabaseNames():
-  """ Returns `tuple()` of available database names, result of `SHOW DATABASES`
-  SQL query.
-  """
-  with ENGINE.connect() as connection:
-    databaseNames = tuple(x[0] for x in
-                          connection.execute("SHOW DATABASES").fetchall())
-    return databaseNames
+from taurus.metric_collectors import collectorsdb
+from taurus.metric_collectors.collectorsdb import CollectorsDbConfig
 
 
 
 class ManagedTempRepository(object):
-  """ Context manager that on entry patches the respository database name with
-  a unique temp name and creates the repository; then deletes the repository on
-  exit.
+  """Context manager and function decorator that on entry patches the
+  respository database name with a unique temp name and creates a temp
+  repository; then drops the repository database on exit.
 
   This effectively redirects repository object transactions to the
   temporary database while in scope of ManagedTempRepository.
 
-  It may be used as a context manager or as a function decorator (sorry, but
-  no class decorator capability at this time)
+  NOTE: this affects repository access in the currently-executing process and
+  its descendant processes; it has no impact on processes started externally or
+  processes started without inherititing the environment variables of the
+  current process.
+
+  Sorry, but there is no class decorator capability provided at this time.
 
   Context Manager Example::
 
@@ -68,8 +60,8 @@ class ManagedTempRepository(object):
         <do test logic>
 
   """
-  REPO_CONFIG_NAME = config.CONFIG_NAME
-  REPO_BASE_CONFIG_DIR = config.baseConfigDir
+  REPO_CONFIG_NAME = CollectorsDbConfig.CONFIG_NAME
+  REPO_BASE_CONFIG_DIR = CollectorsDbConfig.CONFIG_DIR
   REPO_SECTION_NAME = "repository"
   REPO_DATABASE_ATTR_NAME = "db"
 
@@ -86,8 +78,14 @@ class ManagedTempRepository(object):
     """
     self._kw = kw
 
-    self.tempDatabaseName = "%s_%s_%s" % (self.getDatabaseNameFromConfig(),
-                                          clientLabel, uuid.uuid1().hex)
+    self._unaffiliatedEngine = collectorsdb.getUnaffiliatedEngine()
+
+    dbNameFromConfig = CollectorsDbConfig().get(self.REPO_SECTION_NAME,
+                                                self.REPO_DATABASE_ATTR_NAME)
+    self.tempDatabaseName = "{original}_{label}_{uid}".format(
+      original=dbNameFromConfig,
+      label=clientLabel,
+      uid=uuid.uuid1().hex)
 
     # Create a Config patch to override the Repository database name
     self._configPatch = ConfigAttributePatch(
@@ -97,13 +95,7 @@ class ManagedTempRepository(object):
                self.tempDatabaseName),))
     self._configPatchApplied = False
 
-    self._attemptedToCreateRepository = False
-
-
-  @classmethod
-  def getDatabaseNameFromConfig(cls):
-    return config.get(cls.REPO_SECTION_NAME,
-                      cls.REPO_DATABASE_ATTR_NAME)
+    self._attemptedToCreateDatabase = False
 
 
   def __enter__(self):
@@ -135,24 +127,25 @@ class ManagedTempRepository(object):
   def start(self):
     # Removes possible left over cached engine
     # (needed if non-patched engine is run prior)
-    repository.engineFactory(reset=True)
+    collectorsdb.resetEngineSingleton()
 
     # Override the Repository database name
     try:
       self._configPatch.start()
       self._configPatchApplied = True
 
-      # Verity that the database doesn't exist yet
-      assert self.tempDatabaseName not in getAllDatabaseNames(), (
-        "Temp repo db=%s already existed" % (self.tempDatabaseName,))
-
       # Now create the temporary repository database
-      self._attemptedToCreateRepository = True
-      repository.reset()
+      self._attemptedToCreateDatabase = True
+      collectorsdb.reset(suppressPromptAndObliterateDatabase=True)
 
       # Verify that the temporary repository database got created
-      assert self.tempDatabaseName in getAllDatabaseNames(), (
-        "Temp repo db=%s not found" % (self.tempDatabaseName,))
+      numDbFound = self._unaffiliatedEngine.execute(
+        "SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE "
+        "`SCHEMA_NAME` = '{db}'".format(db=self.tempDatabaseName)).scalar()
+      assert numDbFound == 1, (
+        "Temp repo db={db} not found (numFound={numFound})".format(
+          db=self.tempDatabaseName,
+          numFound=numDbFound))
     except:
       # Attempt to clean up
       self.stop()
@@ -162,16 +155,16 @@ class ManagedTempRepository(object):
 
   def stop(self):
     try:
-      if self._attemptedToCreateRepository:
-        self._attemptedToCreateRepository = False
-        # Delete the temporary repository database, if any
-        with ENGINE.connect() as connection:
-          connection.execute(
-            "DROP DATABASE IF EXISTS %s" % (self.tempDatabaseName,))
+      if self._attemptedToCreateDatabase:
+        self._attemptedToCreateDatabase = False
+        # Drop the temporary repository database, if any
+        self._unaffiliatedEngine.execute(
+          "DROP DATABASE IF EXISTS {db}".format(db=self.tempDatabaseName))
     finally:
       if self._configPatchApplied:
         self._configPatch.stop()
-      try:
-        del repository.engineFactory.engine
-      except AttributeError:
-        pass
+
+      collectorsdb.resetEngineSingleton()
+
+      # Dispose of the unaffiliated engine's connection pool
+      self._unaffiliatedEngine.dispose()
