@@ -44,7 +44,17 @@ import FileSchema from '../database/schema/File.json';
 import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
 
-const DB_FILE_PATH = path.join('frontend', 'database', 'data');
+let location;
+try {
+  // This module is only available inside 'Electron' main process
+  // See https://github.com/atom/electron/blob/master/docs/api/app.md
+  const app = require('app');
+  location = path.join(app.getPath('userData'), 'database');
+} catch (e) {
+  // Falls back to local directory
+  location = path.join('frontend', 'database', 'data');
+}
+const DB_FILE_PATH = location;
 
 
 // MAIN
