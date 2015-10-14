@@ -19,8 +19,10 @@
 
 
 import ipc from 'ipc';
+
 import ModelErrorAction from '../../actions/ModelError';
 import ReceiveDataAction from '../../actions/ReceiveData';
+import StopModelAction from '../../actions/StopModel';
 
 const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 
@@ -65,7 +67,9 @@ export default class ModelClientIPC {
         setTimeout(() => this._handleModelData(modelId, payload));
       } else if (command === 'error') {
         let {error, ipcevent} = payload;
-        setTimeout(() => this._handleIPCError(error, ipcevent));
+        setTimeout(() => this._handleIPCError(modelId, error, ipcevent));
+      } else if (command === 'close') {
+        setTimeout(() => this._handleCloseModel(modelId ,payload));
       } else {
         throw new Error(`Unknown command: ${command} ${payload}`);
       }
@@ -85,6 +89,18 @@ export default class ModelClientIPC {
     }
 
     this._context.executeAction(ModelErrorAction, {command, modelId, error});
+  }
+
+  _handleCloseModel(modelId, error) {
+    if (error !== 0) {
+      this._context.executeAction(ModelErrorAction, {
+        'modelId': modelId,
+        'command': 'close',
+        'error': 'Error closing model ' + error
+      });
+    } else {
+      this._context.executeAction(StopModelAction, modelId);
+    }
   }
 
   _handleModelData(modelId, payload) {

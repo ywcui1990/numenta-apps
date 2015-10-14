@@ -19,8 +19,9 @@
  * -------------------------------------------------------------------------- */
 
 
-import {ModelServer, MaximumConcurrencyError} from '../../../frontend/lib/ModelServer';
-
+import {
+  ModelServer, MaximumConcurrencyError
+} from '../../../frontend/lib/ModelServer';
 const assert = require('assert');
 
 const STATS = '{"min": 0, "max": 10}';
@@ -38,7 +39,7 @@ describe('ModelServer', () => {
   afterEach(() => {
     try {
       server.removeModel(MODEL_ID);
-    } catch(ignore) {/* It may be closed by the test itself */}
+    } catch (ignore) {/* It may be closed by the test itself */}
   });
 
   describe('#getModels()', () => {
@@ -62,6 +63,7 @@ describe('ModelServer', () => {
         assert(type !== 'error', data);
         if (type === 'data') {
           assert.equal(data, EXPECTED_RESULTS);
+          server.removeAllListeners(MODEL_ID);
           done();
         }
       });
@@ -73,6 +75,7 @@ describe('ModelServer', () => {
         if (type === 'close') {
           return;
         } else if (type === 'error') {
+          server.removeAllListeners(MODEL_ID);
           done();
         } else {
           assert.fail(type, 'error', 'Expecting "error" got "' + type

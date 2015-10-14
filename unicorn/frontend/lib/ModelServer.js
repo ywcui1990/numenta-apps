@@ -130,7 +130,7 @@ export class ModelServer extends EventEmitter {
 
     child.once('close', (code) => {
       this._models.delete(modelId);
-      // this.emit(modelId, 'close', code);
+      this.emit(modelId, 'close', code);
     });
 
     this._models.set(modelId, {modelId, stats, child});

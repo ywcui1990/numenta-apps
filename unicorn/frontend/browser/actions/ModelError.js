@@ -38,5 +38,10 @@ export default (actionContext, payload) => {
       modelId: modelId,
       error: error
     });
+  } else {
+    return actionContext.dispatch(ACTIONS.UNKNOWN_MODEL_FAILURE, {
+      'modelId': modelId,
+      'error': error
+    });
   }
 };
