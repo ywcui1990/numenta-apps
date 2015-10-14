@@ -271,7 +271,7 @@ open frontend/docs/index.html
   * `npm run lint`
 * Manual access to LevelDB file database from
   [Lev](https://github.com/hij1nx/lev) command-line tool (Mac OS/X):
-  * `\`npm bin\`/lev $HOME/Library/Application\ Support/unicorn/database/`
+  * ```npm bin`/lev $HOME/Library/Application\ Support/unicorn/database/``
 * Make sure to update packages often, especially after pulling an update into
   your branch:
   * `npm run check`
@@ -382,6 +382,9 @@ NEED `npm run blah` examples here @TODO
 
 * [Electron debugging switches](https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
 * [Chrome switches supported in Electron](http://electron.atom.io/docs/v0.31.0/api/chrome-command-line-switches/)
+* Manual access to LevelDB file database from
+  [Lev](https://github.com/hij1nx/lev) command-line tool (Mac OS/X):
+  * ```npm bin`/lev $HOME/Library/Application\ Support/unicorn/database/``
 
 ### Frontend + Browser
 
