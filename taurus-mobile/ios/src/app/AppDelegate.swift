@@ -27,11 +27,15 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    let syncQueue = dispatch_queue_create("com.numenta.Sync", nil)
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         TaurusApplication.setup()
+        
+        
+        
+        
         
         // Launch sync service
         let
@@ -46,10 +50,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         TaurusApplication.client = syncService.client as? TaurusClient
         
         
-        let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
-        dispatch_async(dispatch_get_global_queue(priority, 0)) {
-
-            syncService.synchronizeWithServer()
+        
+        dispatch_async(syncQueue) {
+            UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+         //   syncService.synchronizeWithServer()
+            UIApplication.sharedApplication().networkActivityIndicatorVisible = false
         }
         
         
@@ -90,9 +95,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     
     func application(application: UIApplication, performFetchWithCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
-        
-        let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
-        dispatch_async(dispatch_get_global_queue(priority, 0)) {
+       
+        dispatch_async(syncQueue) {
             let syncService = TaurusDataSyncService(client: TaurusApplication.client!)
             syncService.synchronizeWithServer()
             completionHandler(.NewData)
