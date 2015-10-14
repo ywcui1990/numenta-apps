@@ -269,7 +269,7 @@ open frontend/docs/index.html
 
 * Lint your code before creating pull requests:
   * `npm run lint`
-* Manual access to LevelDB file database from 
+* Manual access to LevelDB file database from
   [Lev](https://github.com/hij1nx/lev) command-line tool (Mac OS/X):
   * `\`npm bin\`/lev $HOME/Library/Application\ Support/unicorn/database/`
 * Make sure to update packages often, especially after pulling an update into
