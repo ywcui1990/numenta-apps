@@ -70,16 +70,27 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
         var from =  to-DataUtils.SECONDS_IN_DAY*1000
         var oldestTimeStamp = to
         
+        
+        let dateFormatter : NSDateFormatter  = NSDateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+        
         sqlHelper.dbQueue.inDatabase() {
             db in
 
         //lastTimestamp = 0
-       
+        let whereClause:String? =  "timestamp >= ? AND timestamp <= ?"
+        let columns = ["instance_id", "timestamp", "anomaly_score"/*, "aggregation"*/, "metric_mask"]
+            
         for ( var i = 0; i < TaurusApplication.getNumberofDaysToSync(); i++){
-            let whereClause:String? = nil // "timestamp >= ? AND timestamp <= ?"
-            let columns = ["instance_id", "timestamp", "anomaly_score"/*, "aggregation"*/, "metric_mask"]
+           
+            
+           
+            
+            
+            
             let cursor = self.sqlHelper.query(db, tableName: InstanceData.TABLE_NAME, columns: columns,
-            whereClause: whereClause, whereArgs: [NSNumber(longLong:from), NSNumber(longLong:to)], sortBy: nil)
+            whereClause: whereClause, whereArgs: [NSNumber(longLong: from), NSNumber(longLong: to)], sortBy: nil)
         
      
             if (cursor == nil){
@@ -91,15 +102,12 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
             let anomalyColumn = cursor.columnIndexForName("anomaly_score")
             let metricMaskColumn = cursor.columnIndexForName("metric_mask")
             while cursor.next(){
-            //    let object = dataFactory.createInstanceData(cursor)
-                
-              //  let taurusInstance =  object as! TaurusInstanceData
-                
+       
                 let instanceId = cursor.stringForColumnIndex(instaceIdColumn)
-                let  timestamp = cursor.longLongIntForColumnIndex(timestampColumn)
+                let timestamp = cursor.longLongIntForColumnIndex(timestampColumn)
                 let anomalyScore = Float(cursor.doubleForColumnIndex(anomalyColumn))
 
-           //     print ( DataUtils.dateFromTimestamp((timestamp)))
+           //   print ( DataUtils.dateFromTimestamp((timestamp)))
                 var metricMask = MetricType()
                 metricMask.rawValue = Int(cursor.intForColumnIndex(metricMaskColumn))
 
@@ -112,10 +120,7 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
                 
                 cacheEntry!.data[timestamp] =  anomalyValue
                 
-                
-             //   let ts = NSDate(timeIntervalSince1970: Double(object.timestamp)/1000.0)
-             //   print (ts)
-               // var value = getInstanceCacheValues (instanceData.instanceId)
+            
                 if (timestamp > self.lastTimestamp){
                     self.lastTimestamp = timestamp
                 }
@@ -123,7 +128,6 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
                 if (timestamp<oldestTimeStamp){
                     oldestTimeStamp = timestamp
                 }
-     
             }
             // Get previous day
             from -= DataUtils.SECONDS_IN_DAY*1000

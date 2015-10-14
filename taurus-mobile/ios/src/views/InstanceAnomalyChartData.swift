@@ -107,7 +107,7 @@ class InstanceAnomalyChartData : AnomalyChartData {
         }
         
         for (key, value) in anomalies!{
-                scores.append((key,Double(value.anomaly)))
+            scores.append((key,Double(value.anomaly)))
         }
         
         // FIXME check if it would be easier to keep list sorted

@@ -433,8 +433,10 @@ class  CoreDatabaseImpl : CoreDatabase {
         - returns:   String: server name
     */
     func getServerName(instanceId: String!) -> String!{
-       
-        getAllInstances()
+        if (instanceToName.isEmpty) {
+            loadMetricCache()
+        }
+
         let name = instanceToName[instanceId]
         
         if  name != nil
