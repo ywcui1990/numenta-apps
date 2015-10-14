@@ -24,7 +24,7 @@
 import logging
 
 from boto.exception import (AWSConnectionError, BotoServerError)
-from nupic.support import decorators
+from nta.utils.error_handling import retry
 
 
 class OpsWorksClientErrorCodes(object):
@@ -112,11 +112,11 @@ def retryOnOpsworksTransientError(logger=logging.root,
 
     return True
 
-  return decorators.retry(
+  return retry(
     timeoutSec=timeoutSec,
     initialRetryDelaySec=INITIAL_RETRY_BACKOFF_SEC,
     maxRetryDelaySec=MAX_RETRY_BACKOFF_SEC,
     retryExceptions=RETRY_EXCEPTIONS,
     retryFilter=retryFilter,
-    getLoggerCallback=lambda: logger,
+    logger=logger,
     clientLabel="retryOnOpsWorksTransientError")
