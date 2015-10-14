@@ -20,7 +20,6 @@
 
 'use strict';
 
-
 /**
  * Unicorn: FileServer - Respond to a FileClient over IPC, sharing our access to
  *  the Node/io.js layer of filesystem, so client can CRUD files.
@@ -37,7 +36,6 @@ import Utils from './Utils';
 // internals
 // @TODO move path to config
 const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
-
 
 // MAIN
 
@@ -56,9 +54,6 @@ var FileServer = function() {
  */
 FileServer.prototype.getContents = function(filename, callback) {
   fs.readFile(filename, function(error, data) {
-    if (error) {
-      console.error(filename + ':' + error);
-    }
     callback(error, data);
   });
 };
@@ -102,7 +97,6 @@ FileServer.prototype.getUploadedFiles = function(file, callback) {
 
   this.getFields(formattedFile.filename, {}, (error, fields) => {
     if (error) {
-      console.log('Error loading metrics for file:', formattedFile, error);
       callback(error);
     } else {
       formattedFile.metrics = fields;
@@ -165,7 +159,6 @@ FileServer.prototype.getFields = function(filename, options, callback) {
       }
     })
     .once('error', function(error) {
-      console.error('Error loading fields: ', error, filename);
       callback(error);
     })
     .once('end', function() {
@@ -230,7 +223,6 @@ FileServer.prototype.getData = function(filename, options, callback) {
       limit -= 1;
     })
     .once('error', function(error) {
-      console.error('Error loading file: ', filename, error);
       callback(error);
     })
     .once('close', function() {
@@ -259,14 +251,21 @@ FileServer.prototype.getData = function(filename, options, callback) {
  *                       limit: Number.MAX_SAFE_INTEGER
  *                      }
  *                    </code>
- * @param  {Function} callback: This callback will be called with the results in
- *                              the following format:
+ * @param  {Function} callback: This callback will be called with the results
+ *                              in the following format:
  *                              <code>function(error, stats)</code>
  *                              stats = {
- *                              	fieldName : {
- *                              		min: '0',
- *                              		max: '10'
- *                              	}, ...
+ *                              	count: '100',
+ *                              	fields: {
+ *                              		fieldName : {
+ *                              		  min: '0',
+ *                              		  max: '10',
+ *                              		  sum: '500',
+ *                              		  mean: '5',
+ *                              		  variance: '4',
+ *                              		  stdev: '2'
+ *                              	  }, ...
+ *                              	}
  *                              }
  */
 FileServer.prototype.getStatistics = function(filename, options, callback) {
@@ -276,33 +275,58 @@ FileServer.prototype.getStatistics = function(filename, options, callback) {
     options = {};
   }
 
-  let stats = {};
+  let stats = {
+    count: 0,
+    fields: {}
+  };
+  let fields = stats.fields;
   options.objectMode = true;
   this.getData(filename, options, function(error, data) {
     if (error) {
       callback(error);
     } else if (data) {
       // Update stats on every record
-      for (let field in data) {
-        let val = new Number(data[field]);
+      stats.count++;
+      for (let name in data) {
+        let val = new Number(data[name]);
         if (isNaN(val)) {
           continue;
         } else {
           val = val.valueOf();
         }
-        if (!(field in stats)) {
-          stats[field] = {
+        if (!(name in fields)) {
+          fields[name] = {
             min: Number.MAX_VALUE,
-            max: Number.MIN_VALUE
+            max: Number.MIN_VALUE,
+            sum: 0.0,
+            mean: val,
+            variance: 0.0,
+            stdev: 0.0
           };
         }
-        let min = stats[field].min;
-        let max = stats[field].max;
-        stats[field].min = val < min ? val : min;
-        stats[field].max = val > max ? val : max;
+        let min = fields[name].min;
+        let max = fields[name].max;
+        fields[name].min = val < min ? val : min;
+        fields[name].max = val > max ? val : max;
+        fields[name].sum += val;
+
+        // Compute variance based on online algorithm from
+        // D. Knuth, The Art of Computer Programming, Vol 2, 3rd ed, p.232
+        if (stats.count > 1) {
+          let oldMean = fields[name].mean;
+          let newMean = oldMean + (val - oldMean) / stats.count;
+          fields[name].mean = newMean;
+          fields[name].variance += (val - oldMean) * (val - newMean);
+        }
       }
     } else {
       // Finished reading data
+      for (let name in fields) {
+        if (stats.count > 1) {
+          fields[name].variance = fields[name].variance / (stats.count - 1);
+          fields[name].stdev = Math.sqrt(fields[name].variance);
+        }
+      }
       callback(null, stats);
     }
   });

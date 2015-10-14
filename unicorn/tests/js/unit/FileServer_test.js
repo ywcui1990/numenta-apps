@@ -45,7 +45,7 @@ const EXPECTED_DATA = [
   {timestamp: '2015-08-26T19:48:31+17:00', metric: '22'},
   {timestamp: '2015-08-26T19:49:31+17:00', metric: '21'},
   {timestamp: '2015-08-26T19:50:31+17:00', metric: '16'},
-  {timestamp: '2015-08-26T19:51:31+17:00', metric: '19'},
+  {timestamp: '2015-08-26T19:51:31+17:00', metric: '19'}
 ];
 
 // Expected fields
@@ -65,6 +65,11 @@ const EXPECTED_FIELDS_VALUE_TESTS = ['name', 'type'];
 // Expected statistics for the whole file
 const EXPECTED_MIN = 16;
 const EXPECTED_MAX = 22;
+const EXPECTED_SUM = 116;
+const EXPECTED_MEAN = 19.333333333333332;
+const EXPECTED_COUNT = 6;
+const EXPECTED_VARIANCE = 5.866666666666665 ;
+const EXPECTED_STDEV = 2.422120283277993 ;
 
 // Expected statistics for the first 2 lines
 const EXPECTED_MIN_PARTIAL = 17;
@@ -164,8 +169,19 @@ describe('FileServer', () => {
     it('Get statistics for the whole file', (done) => {
       server.getStatistics(FILENAME, (error, data) => {
         assert.ifError(error);
-        assert.equal(data['metric'].min, EXPECTED_MIN);
-        assert.equal(data['metric'].max, EXPECTED_MAX);
+        assert.equal(data.count, EXPECTED_COUNT, 'Got different "Count"');
+        assert.equal(data.fields['metric'].min, EXPECTED_MIN,
+                                                'Got different "Min"');
+        assert.equal(data.fields['metric'].max, EXPECTED_MAX,
+                                                'Got different "Max"');
+        assert.equal(data.fields['metric'].sum, EXPECTED_SUM,
+                                                'Got different "Sum"');
+        assert.equal(data.fields['metric'].mean, EXPECTED_MEAN,
+                                          'Got different "Mean"');
+        assert.equal(data.fields['metric'].variance, EXPECTED_VARIANCE,
+                                              'Got different "Variance"');
+        assert.equal(data.fields['metric'].stdev, EXPECTED_STDEV,
+                                          'Got different "Standard Deviation"');
         done();
       });
     });
@@ -173,8 +189,8 @@ describe('FileServer', () => {
     it('Get statistics for some records of the file', (done) => {
       server.getStatistics(FILENAME, {limit: 2}, (error, data) => {
         assert.ifError(error);
-        assert.equal(data['metric'].min, EXPECTED_MIN_PARTIAL);
-        assert.equal(data['metric'].max, EXPECTED_MAX_PARTIAL);
+        assert.equal(data.fields['metric'].min, EXPECTED_MIN_PARTIAL);
+        assert.equal(data.fields['metric'].max, EXPECTED_MAX_PARTIAL);
         done();
       });
     });
