@@ -489,6 +489,7 @@
 				TargetAttributes = {
 					23AB22F41BA75F170091A5E6 = {
 						CreatedOnToolsVersion = 7.0;
+						DevelopmentTeam = 2589Z673MU;
 					};
 					23AB23081BA75F170091A5E6 = {
 						CreatedOnToolsVersion = 7.0;
@@ -781,9 +782,10 @@
 			baseConfigurationReference = F04A1F33885B832737DD0D75 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Taurus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.numenta.Taurus;
+				PRODUCT_BUNDLE_IDENTIFIER = com.numenta.taurusmobile;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -793,9 +795,10 @@
 			baseConfigurationReference = CC722459B06198A44AE0D9BF /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Taurus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.numenta.Taurus;
+				PRODUCT_BUNDLE_IDENTIFIER = com.numenta.taurusmobile;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
