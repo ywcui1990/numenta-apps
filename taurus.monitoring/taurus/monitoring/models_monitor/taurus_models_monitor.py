@@ -37,15 +37,10 @@ from taurus.engine import logging_support
 from taurus.monitoring import monitorsdb
 from taurus.monitoring.monitorsdb import CONF_DIR
 from taurus.monitoring.monitorsdb import schema
+from taurus.monitoring.taurus_monitor_utils import Flags
 
 
 
-_FLAG_OPERATIONAL_ERROR = "SQL Alchemy Operational Error"
-_FLAG_REQUESTS_EXCEPTION = "Requests Exception"
-_FLAG_HTTP_STATUS_CODE = "HTTP Status Code Issue"
-_FLAG_RESPONSE_JSON = "Response JSON Error"
-_FLAG_DATABASE_ISSUE = "sqlalchemy.exc.OperationalError"
-_DB_ERROR_FLAG_FILE = "dbErrorFlagFile.csv"
 _MONITOR_NAME = __file__.split("/")[-1]
 
 
@@ -237,31 +232,31 @@ def _connectAndCheckModels(modelsUrl, apiKey, requestTimeout, emailParams):
     g_logger.debug("Connecting to Taurus models")
     response = requests.get(modelsUrl, auth=(apiKey, ""),
                             timeout=requestTimeout, verify=False)
-    _removeIssueFlag(_FLAG_REQUESTS_EXCEPTION)
+    _removeIssueFlag(Flags.REQUESTS_EXCEPTION)
   except requests.exceptions.RequestException:
     g_logger.exception("RequestException calling: %s with apiKey %s and "
                        "timeout: %s", modelsUrl, apiKey, requestTimeout)
     issue = traceback.format_exc() + "\n"
-    _reportIssue(_FLAG_REQUESTS_EXCEPTION, modelsUrl, issue, emailParams)
+    _reportIssue(Flags.REQUESTS_EXCEPTION, modelsUrl, issue, emailParams)
     return
 
   statusCode = response.status_code
   if statusCode is 200:
-    _removeIssueFlag(_FLAG_HTTP_STATUS_CODE)
+    _removeIssueFlag(Flags.HTTP_STATUS_CODE)
   else:
     g_logger.error("Received abnormal HTTP status code: %s", statusCode)
     issue = _getIssueString("Received abnormal HTTP status code", statusCode)
-    _reportIssue(_FLAG_HTTP_STATUS_CODE, modelsUrl, issue, emailParams)
+    _reportIssue(Flags.HTTP_STATUS_CODE, modelsUrl, issue, emailParams)
     return
 
   try:
     responseJson = response.json()
-    _removeIssueFlag(_FLAG_RESPONSE_JSON)
+    _removeIssueFlag(Flags.RESPONSE_JSON)
   except ValueError:
     g_logger.error("ValueError encountered loading JSON. Response text: %s",
                    response.text)
     issue = "ValueError encountered loading JSON."
-    _reportIssue(_FLAG_RESPONSE_JSON, modelsUrl, issue, emailParams)
+    _reportIssue(Flags.RESPONSE_JSON, modelsUrl, issue, emailParams)
     return
 
   _checkModelsStatus(responseJson, modelsUrl, emailParams)
