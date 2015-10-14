@@ -63,7 +63,7 @@ def containsErrorFlag(table, uid):
 
 
 @monitorsdb.retryOnTransientErrors
-def addErrorFlag(table, uid, name):
+def addErrorFlag(table, uid, name=None):
   """
   Adds issue to table.
 
@@ -74,6 +74,7 @@ def addErrorFlag(table, uid, name):
   :param name: name of issue
   :type name: string
   """
+  name = name if name is not None else uid
   ins = table.insert().prefix_with("IGNORE", dialect="mysql").values(
     uid=uid,
     name=name,

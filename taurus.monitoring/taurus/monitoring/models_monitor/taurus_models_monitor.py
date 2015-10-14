@@ -37,7 +37,12 @@ from taurus.engine import logging_support
 from taurus.monitoring import monitorsdb
 from taurus.monitoring.monitorsdb import CONF_DIR
 from taurus.monitoring.monitorsdb import schema
-from taurus.monitoring.taurus_monitor_utils import Flags
+from taurus.monitoring.taurus_monitor_utils import (
+  addErrorFlag,
+  containsErrorFlag,
+  Flags,
+  removeErrorFlag
+)
 
 
 
@@ -61,61 +66,6 @@ def _getIssueString(name, details):
 
 
 
-@monitorsdb.retryOnTransientErrors
-def _containsIssueFlag(uid):
-  """
-  Checks whether issue(s) with specified uid is(are) present in
-  monitor_error_flags table.
-
-  :param uid: a unique issue id
-  :type uid: string
-  :returns: True is there exist any row(s) in the table having specified uid,
-            False otherwise
-  :rtype: Boolean
-  """
-  table = schema.modelsMonitorErrorFlags
-  sel = table.select().where(table.c.uid == uid)
-  issues = monitorsdb.engineFactory().execute(sel).fetchall()
-  return len(issues) > 0
-
-
-
-@monitorsdb.retryOnTransientErrors
-def _addIssueFlag(uid, name):
-  """
-  Adds issue to monitor_error_flags table.
-
-  :param uid: a unique issue id
-  :type uid: string
-  :param name: name of issue
-  :type name: string
-  """
-  table = schema.modelsMonitorErrorFlags
-  ins = table.insert().prefix_with("IGNORE", dialect="mysql").values(
-      uid=uid,
-      name=name,
-      should_report=False)
-  monitorsdb.engineFactory().execute(ins)
-  g_logger.debug("Added new issue flag for %s", name)
-
-
-
-@monitorsdb.retryOnTransientErrors
-def _removeIssueFlag(uid):
-  """
-  Removes issue from monitor_error_flags table.
-
-  :param uid: a unique issue id
-  :type uid: string
-  """
-  table = schema.modelsMonitorErrorFlags
-  cmd = table.delete().where(table.c.uid == uid)
-  result = monitorsdb.engineFactory().execute(cmd)
-  if result.rowcount > 0:
-    g_logger.debug("Cleared issue flag with uid: %s", uid)
-
-
-
 def _reportIssue(uid, url, issueMessage, emailParams):
   """
   Reports an issue if no database flag is present.
@@ -123,8 +73,8 @@ def _reportIssue(uid, url, issueMessage, emailParams):
   :param url: request URL
   :param issueMessage: Issue details
   """
-  if not _containsIssueFlag(uid):
-    _addIssueFlag(uid, uid)
+  if not containsErrorFlag(schema.modelsMonitorErrorFlags, uid):
+    addErrorFlag(schema.modelsMonitorErrorFlags, uid)
     error_reporting.sendMonitorErrorEmail(monitorName=_MONITOR_NAME,
                                           resourceName=url,
                                           message=issueMessage,
@@ -200,11 +150,11 @@ def _checkModelsStatus(modelsJson, url, emailParams):
   for model in modelsJson:
     uid = model["uid"]
     if model["status"] == MetricStatus.ERROR:
-      if not _containsIssueFlag(uid):
-        _addIssueFlag(uid, uid)
+      if not containsErrorFlag(schema.modelsMonitorErrorFlags, uid):
+        addErrorFlag(schema.modelsMonitorErrorFlags, uid)
         modelsInError += str(model) + "\n\n"
     else:
-      _removeIssueFlag(uid)
+      removeErrorFlag(schema.modelsMonitorErrorFlags, uid)
 
   if modelsInError != "":
     g_logger.info("Found models entering error status")
@@ -232,7 +182,7 @@ def _connectAndCheckModels(modelsUrl, apiKey, requestTimeout, emailParams):
     g_logger.debug("Connecting to Taurus models")
     response = requests.get(modelsUrl, auth=(apiKey, ""),
                             timeout=requestTimeout, verify=False)
-    _removeIssueFlag(Flags.REQUESTS_EXCEPTION)
+    removeErrorFlag(schema.modelsMonitorErrorFlags, Flags.REQUESTS_EXCEPTION)
   except requests.exceptions.RequestException:
     g_logger.exception("RequestException calling: %s with apiKey %s and "
                        "timeout: %s", modelsUrl, apiKey, requestTimeout)
@@ -242,7 +192,7 @@ def _connectAndCheckModels(modelsUrl, apiKey, requestTimeout, emailParams):
 
   statusCode = response.status_code
   if statusCode is 200:
-    _removeIssueFlag(Flags.HTTP_STATUS_CODE)
+    removeErrorFlag(schema.modelsMonitorErrorFlags, Flags.HTTP_STATUS_CODE)
   else:
     g_logger.error("Received abnormal HTTP status code: %s", statusCode)
     issue = _getIssueString("Received abnormal HTTP status code", statusCode)
@@ -251,7 +201,7 @@ def _connectAndCheckModels(modelsUrl, apiKey, requestTimeout, emailParams):
 
   try:
     responseJson = response.json()
-    _removeIssueFlag(Flags.RESPONSE_JSON)
+    removeErrorFlag(schema.modelsMonitorErrorFlags, Flags.RESPONSE_JSON)
   except ValueError:
     g_logger.error("ValueError encountered loading JSON. Response text: %s",
                    response.text)
