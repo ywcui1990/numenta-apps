@@ -90,12 +90,26 @@ public class TaurusDataSyncService: DataSyncService{
         from = max (from, oldestTimestamp)
         
         let fromDate = DataUtils.dateFromTimestamp( from )
+        
+        var results = [InstanceData]()
         getClient().getAllInstanceData(  fromDate,  to: nowDate,  ascending : false, callback:{
-            (instance: InstanceData) in
-
-                // FIXME Batch these up and do the database work on a different thread?
-                db.addInstanceDataBatch( [instance] )
+            (instance: InstanceData?) in
+            
+            if (instance == nil ){
+                if (results.count > 0){
+                     db.addInstanceDataBatch( results )
+                }
+                
                 return nil
+            }
+            results.append (instance!)
+            
+            if (results.count > 50 ){
+                db.addInstanceDataBatch( results )
+                results.removeAll()
+            }
+            
+            return nil
             }
             
         )

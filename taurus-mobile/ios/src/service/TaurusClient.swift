@@ -228,9 +228,7 @@ public class TaurusClient : GrokClient {
                 let results = taskResult as! AWSDynamoDBQueryOutput
                 
                 let myResults  = results.items
-               // let dateFormatter = NSDateFormatter()
-               // dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH"
-                
+            
                 for item  in myResults{
                     //    print( item )
                     let tweetId = (item["tweet_uid"] as! AWSDynamoDBAttributeValue).S
@@ -241,10 +239,13 @@ public class TaurusClient : GrokClient {
                     let aggregated = DataUtils.parseHTMDate((item["agg_ts"]as! AWSDynamoDBAttributeValue).S)
                     let created = DataUtils.parseHTMDate((item["created_at"]as! AWSDynamoDBAttributeValue).S)
                     
-                    let retweet = item["retweet_count"]
+                    let retweet = item["retweet_count"] as? AWSDynamoDBAttributeValue
                     var retweetCount : Int32 = 0
                     
-                 
+                    if (retweet != nil && retweet!.N != nil){
+                        retweetCount = Int32 (retweet!.N)!
+                    }
+        
                     let tweet = TaurusApplication.dataFactory.createTweet( tweetId!, aggregated: aggregated!, created: created!, userId: userId!, userName: userName!, text: text!, retweetCount: retweetCount)
                     
                     
@@ -341,10 +342,9 @@ public class TaurusClient : GrokClient {
                     let value = Float((item["metric_value"] as! AWSDynamoDBAttributeValue).N)!
                     let anonomaly_score = Float((item["anomaly_score"] as! AWSDynamoDBAttributeValue).N)!
                     
-        if ( anonomaly_score == 0 || anonomaly_score.isNaN){
-         //   print (anonomaly_score)
-                    }
-                    let dateSeconds = Int64(date!.timeIntervalSince1970*1000)
+    
+                    let dateSeconds = DataUtils.timestampFromDate(date!)
+                       
                     
                     
                     callback  ( metricId: modelId,  timestamp: dateSeconds,  value: value,  anomaly: anonomaly_score)
@@ -369,7 +369,7 @@ public class TaurusClient : GrokClient {
         - parameter  callback: called for each instance data
     */
     func getAllInstanceDataForDate( date : NSDate,  fromHour: Int,  toHour : Int,
-        ascending : Bool,callback : (InstanceData)->Void?){
+        ascending : Bool,callback : (InstanceData?)->Void?){
             
             
          //   print (date)
@@ -475,6 +475,8 @@ public class TaurusClient : GrokClient {
                 }
                 task.waitUntilFinished()
             } while !done
+            
+             callback (nil)
     }
     
     
@@ -484,7 +486,7 @@ public class TaurusClient : GrokClient {
         - parameter ascending : sort order
         - parameter callbab: will be called for each InstanceData
     */
-    func  getAllInstanceData( from : NSDate,  to: NSDate,  ascending : Bool, callback:(InstanceData)->Void? ) {
+    func  getAllInstanceData( from : NSDate,  to: NSDate,  ascending : Bool, callback:(InstanceData?)->Void? ) {
         let calendar =  NSCalendar(identifier:NSCalendarIdentifierGregorian)!
         calendar.timeZone = NSTimeZone(abbreviation: "UTC")!
     

@@ -83,11 +83,6 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
         let columns = ["instance_id", "timestamp", "anomaly_score"/*, "aggregation"*/, "metric_mask"]
             
         for ( var i = 0; i < TaurusApplication.getNumberofDaysToSync(); i++){
-           
-            
-           
-            
-            
             
             let cursor = self.sqlHelper.query(db, tableName: InstanceData.TABLE_NAME, columns: columns,
             whereClause: whereClause, whereArgs: [NSNumber(longLong: from), NSNumber(longLong: to)], sortBy: nil)

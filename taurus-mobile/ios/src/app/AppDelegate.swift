@@ -33,10 +33,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         TaurusApplication.setup()
         
-        
-        
-        
-        
         // Launch sync service
         let
         credentialsProvider = AWSCognitoCredentialsProvider(
@@ -53,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         dispatch_async(syncQueue) {
             UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-         //   syncService.synchronizeWithServer()
+            syncService.synchronizeWithServer()
             UIApplication.sharedApplication().networkActivityIndicatorVisible = false
         }
         
