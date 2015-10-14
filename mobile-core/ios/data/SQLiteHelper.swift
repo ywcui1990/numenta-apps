@@ -58,7 +58,7 @@ public class SQLiteHelper {
    public init(name: String){
         let dirPaths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory,.UserDomainMask, true)
         let docsDir = dirPaths[0]
-        let databasePath = docsDir + name
+        let databasePath = docsDir + "/"+name
 
         let checkValidation = NSFileManager.defaultManager()
         let  exists = checkValidation.fileExistsAtPath(databasePath)
