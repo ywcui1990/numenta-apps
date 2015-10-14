@@ -43,7 +43,7 @@ export default (actionContext, files) => {
     let payload = [];
 
     log.debug('load existing metrics from db, from previous runs');
-    databaseClient.getMetrics({}, (error, metrics) => {
+    databaseClient.queryMetric({}, (error, metrics) => {
       if (error) {
         actionContext.dispatch(
           ACTIONS.LIST_METRICS_FAILURE,
@@ -87,7 +87,7 @@ export default (actionContext, files) => {
               if (fileCount >= files.length) {
 
                 log.debug('got files from fs, saving to db for next runs');
-                databaseClient.putMetrics(fieldsList, (error) => {
+                databaseClient.putMetricBatch(fieldsList, (error) => {
                   if (error) {
                     actionContext.dispatch(
                       ACTIONS.LIST_METRICS_FAILURE,

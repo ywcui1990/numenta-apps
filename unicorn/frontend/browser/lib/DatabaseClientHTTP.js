@@ -53,7 +53,7 @@ export default class DatabaseClientHTTP {
   putMetric() {
   }
 
-  getMetrics() {
+  queryMetric() {
   }
 
 }

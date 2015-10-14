@@ -104,7 +104,7 @@ function getMetricDataFromDatabase(options) {
   let channel = csp.chan();
   let databaseClient = actionContext.getDatabaseClient();
 
-  databaseClient.getMetricDatas(
+  databaseClient.queryMetricData(
     { 'metric_uid': Utils.generateModelId(model.filename, model.metric) },
     (error, results) => {
       if (error) {
@@ -195,7 +195,7 @@ function streamData(actionContext, modelId) {
           log.debug('End of data - Save to DB for future runs.');
           // JSONized here to get around Electron IPC remote() memory leaks
           rows = JSON.stringify(rows);
-          databaseClient.putMetricDatas(rows, (error) => {
+          databaseClient.putMetricDataBatch(rows, (error) => {
             if (error) {
               reject(error);
             } else {

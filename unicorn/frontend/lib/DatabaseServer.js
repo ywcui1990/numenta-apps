@@ -92,7 +92,7 @@ DatabaseServer.prototype.getFile = function(uid, callback) {
 /**
  * Get all/queried Files
  */
-DatabaseServer.prototype.getFiles = function(query, callback) {
+DatabaseServer.prototype.queryFile = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('file'));
   table.query.use(jsonQuery());
@@ -123,7 +123,7 @@ DatabaseServer.prototype.getMetric = function(uid, callback) {
 /**
  * Get all/queried Metrics
  */
-DatabaseServer.prototype.getMetrics = function(query, callback) {
+DatabaseServer.prototype.queryMetric = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('metric'));
   table.query.use(jsonQuery());
@@ -145,7 +145,7 @@ DatabaseServer.prototype.getMetrics = function(query, callback) {
 };
 
 /**
- * Get all/queried MetricDatas records
+ * Get all/queried MetricData records
  * @callback
  * @method
  * @param {object} query - DB Query filter object (jsonquery-engine),
@@ -154,7 +154,7 @@ DatabaseServer.prototype.getMetrics = function(query, callback) {
  * @public
  * @this DatabaseServer
  */
-DatabaseServer.prototype.getMetricDatas = function(query, callback) {
+DatabaseServer.prototype.queryMetricData = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('metricData'));
   table.query.use(jsonQuery());
@@ -222,7 +222,7 @@ DatabaseServer.prototype.putFile = function(file, callback) {
  * @public
  * @this DatabaseServer
  */
-DatabaseServer.prototype.putFiles = function (files, callback) {
+DatabaseServer.prototype.putFileBatch = function (files, callback) {
   let ops = [];
   let table = this.db.sublevel('file');
 
@@ -266,7 +266,7 @@ DatabaseServer.prototype.putMetric = function(metric, callback) {
 /**
  * Put multiple Metrics into DB
  */
-DatabaseServer.prototype.putMetrics = function(metrics, callback) {
+DatabaseServer.prototype.putMetricBatch = function(metrics, callback) {
   let ops = [];
   let table = this.db.sublevel('metric');
 
@@ -315,7 +315,7 @@ DatabaseServer.prototype.putMetricData = function(metricData, callback) {
 /**
  * Put multiple MetricData records into DB
  */
-DatabaseServer.prototype.putMetricDatas = function(metricDatas, callback) {
+DatabaseServer.prototype.putMetricDataBatch = function(metricDatas, callback) {
   let ops = [];
   let table = this.db.sublevel('metricData');
 
