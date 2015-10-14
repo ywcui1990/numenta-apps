@@ -40,9 +40,11 @@ const StoreDecorator = (context) => ({
 @connectToStores([ModelDataStore], StoreDecorator)
 export default class ModelData extends React.Component {
 
-  static propTypes = {
-    modelId: React.PropTypes.string.isRequired
-  };
+  static get propTypes () {
+    return {
+      modelId: React.PropTypes.string.isRequired
+    };
+  }
 
   constructor(props, context) {
     super(props, context);

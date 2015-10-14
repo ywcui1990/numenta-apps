@@ -25,12 +25,12 @@
 export default class FileClientHTTP {
 
   /**
-   *
+   * @constructor
    */
   constructor() {}
 
   /**
-   *
+   * @param {Function} callback - Async callback function(error, results) after
    */
   getFile(callback) {
     // callback(error, null);
@@ -38,7 +38,7 @@ export default class FileClientHTTP {
   }
 
   /**
-   *
+   * @param {Function} callback - Async callback function(error, results) after
    */
   getFiles(callback) {
     // callback(error, null);

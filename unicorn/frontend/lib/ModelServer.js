@@ -32,7 +32,7 @@ const MODEL_RUNNER_PATH = path.join(
 
 
 /**
- * Thrown when attempting to create more models than allowed by the system
+ * Thrown when attempting to create more models than allowed by the system.
  */
 export class MaximumConcurrencyError extends UserError {
   constructor() {
@@ -41,7 +41,7 @@ export class MaximumConcurrencyError extends UserError {
 }
 
 /**
- * Thrown when attempting to create a model with the same ID as a previous model
+ * Thrown when attempting to create a model with the same ID as a prev model.
  */
 export class DuplicateIDError extends UserError {
   constructor() {
@@ -50,7 +50,7 @@ export class DuplicateIDError extends UserError {
 }
 
 /**
- * Thrown when attempting to perform an operation on an unknown model
+ * Thrown when attempting to perform an operation on an unknown model.
  */
 export class ModelNotFoundError extends UserError {
   constructor() {
@@ -75,8 +75,8 @@ export class ModelServer extends EventEmitter {
   }
 
   /**
-   * Calculate max model concurrency
-   * @returns {Number} - Maximum concurrency for this system
+   * Calculate max model concurrency.
+   * @returns {number} - Maximum concurrency for this system
    */
   _calculateMaxConcurrency() {
     // Adapted from htmengine/model_swapper/model_scheduler_service.py
@@ -86,18 +86,17 @@ export class ModelServer extends EventEmitter {
   }
 
   /**
-   * Returns the number of slots available to run new models
-   * @returns {Number} - Maximum available slots avilable on this system
+   * Returns the number of slots available to run new models.
+   * @returns {number} - Maximum available slots avilable on this system
    */
   availableSlots() {
     return this._maxConcurrency - this._models.size;
   }
 
   /**
-   * Creates new HTM model
-   * @param  {String} modelId - Unique identifier for the model
+   * Creates new HTM model.
+   * @param  {string} modelId - Unique identifier for the model
    * @param  {Object} stats - HTM Model parameters. See model_runner.py
-   * @returns {Undefined} - undefined
    * @throws MaximumConcurrencyError, DuplicateIDError
    */
   createModel(modelId, stats) {
@@ -138,11 +137,10 @@ export class ModelServer extends EventEmitter {
   }
 
   /**
-   * Sends data to the model
-   * @param {String} modelId - The model to send data
+   * Sends data to the model.
+   * @param {string} modelId - The model to send data
    * @param {Array} inputData - The data values to be sent to the model, usually
    *  in the following format: '[timestamp, value]'
-   * @returns {Undefined} - undefined
    * @throws ModelNotFoundError
    */
   sendData(modelId, inputData) {
@@ -156,7 +154,7 @@ export class ModelServer extends EventEmitter {
   }
 
   /**
-   * Returns a list of active models
+   * Returns a list of active models.
    * @returns {Array} - List of Model IDs with the active models
    */
   getModels() {
@@ -164,9 +162,8 @@ export class ModelServer extends EventEmitter {
   }
 
   /**
-   * Stops and remove the model
-   * @param {String} modelId - The model to stop
-   * @returns {Boolean} - True on success, false otherwise
+   * Stops and remove the model.
+   * @param {string} modelId - The model to stop
    */
   removeModel(modelId) {
     if (!this._models.has(modelId)) {

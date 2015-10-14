@@ -40,8 +40,8 @@ const Defaults = {
 
 /**
  * Unicorn: ConfigServer - Respond to a ConfigClient over IPC, sharing our
- *  access to the Node/io.js-layer config settings.
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
+ *  access to the Node-layer config settings.
+ *  NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
  * @returns {Object} - Configuration data handler object
  */
 function ConfigServer() {

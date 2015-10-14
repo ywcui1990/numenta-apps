@@ -33,8 +33,8 @@ const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
 
 /**
  * Unicorn: FileServer - Respond to a FileClient over IPC, sharing our access to
- *  the Node/io.js layer of filesystem, so client can CRUD files.
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
+ *  the Node layer of filesystem, so client can CRUD files.
+ *  NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
  * @class
  * @module
  */
@@ -43,10 +43,9 @@ function FileServer() {
 
 
 /**
- * Reads the entire contents of a file
- * @param {String} filename - The absolute path of the CSV file to load
- * @param {Function} callback - Async callback: function (error,results) {}
- * @returns {Undefined} - undefined
+ * Reads the entire contents of a file.
+ * @param {string} filename - The absolute path of the CSV file to load
+ * @param {Function} callback - Async callback: function (error, results)
  */
 FileServer.prototype.getContents = function (filename, callback) {
   filesystem.readFile(filename, function (error, data) {
@@ -59,9 +58,8 @@ FileServer.prototype.getContents = function (filename, callback) {
 };
 
 /**
- * Get a list of sample files embedded with the application
- * @param {Function} callback - Async callback: function (error,results) {}
- * @returns {Undefined} - undefined
+ * Get a list of sample files embedded with the application.
+ * @param {Function} callback - Async callback: function (error, results)
  */
 FileServer.prototype.getSampleFiles = function (callback) {
   filesystem.readdir(SAMPLES_FILE_PATH, function (error, data) {
@@ -85,10 +83,9 @@ FileServer.prototype.getSampleFiles = function (callback) {
 };
 
 /**
- * Get a list of uploaded files
+ * Get a list of uploaded files.
  * @param {Object} file - File getting uploaded
- * @param {Function} callback - Async callback: function (error,results) {}
- * @returns {Undefined} - undefined
+ * @param {Function} callback - Async callback: function (error, results)
  */
 FileServer.prototype.getUploadedFiles = function (file, callback) {
   var formattedFile = {
@@ -111,13 +108,12 @@ FileServer.prototype.getUploadedFiles = function (file, callback) {
 
 /**
  * Get all field definitions for the give file guessing data types based on
- *  first record
- * @param {String} filename: The absolute path of the CSV file
- * @param {Object} options: Optional settings. See #getData()
- * @param {Function} callback Called with an array of field definitions in the
+ *  first record.
+ * @param {string} filename - The absolute path of the CSV file
+ * @param {Object} options -  Optional settings. See #getData()
+ * @param {Function} callback - Called with an array of field definitions in the
  *  following format:
  *  <code> { name:'fieldName', type:'number', date:'string' } </code>
- * @returns {Undefined} - undefined
  */
 FileServer.prototype.getFields = function (filename, options, callback) {
   var fields = [];
@@ -165,8 +161,8 @@ FileServer.prototype.getFields = function (filename, options, callback) {
 
 /**
  * Get data from the given CSV file.
- * @param  {String}   filename: The absolute path of the CSV file to load
- * @param  {Object}   options:  Optional settings
+ * @param {string} filename - The absolute path of the CSV file to load
+ * @param {Object} options - Optional settings
  *                    See https://github.com/klaemo/csv-stream#options
  *                    <code>
  *                     {
@@ -186,9 +182,8 @@ FileServer.prototype.getFields = function (filename, options, callback) {
  *                       limit: Number.MAX_SAFE_INTEGER
  *                      }
  *                    </code>
- * @param  {Function} callback: This callback to be called on every record.
+ * @param {Function} callback - This callback to be called on every record.
  *                              <code>function(error, data)</code>
- * @returns {Undefined} - undefined
  */
 FileServer.prototype.getData = function (filename, options, callback) {
   var limit, stream;
@@ -228,8 +223,8 @@ FileServer.prototype.getData = function (filename, options, callback) {
 };
 
 /**
- * @param  {String}   filename: The absolute path of the CSV file
- * @param  {Object}   options:  Optional settings
+ * @param {string} filename - The absolute path of the CSV file
+ * @param {Object} options - Optional settings
  *                    See https://github.com/klaemo/csv-stream#options
  *                    <code>
  *                     {
@@ -245,7 +240,7 @@ FileServer.prototype.getData = function (filename, options, callback) {
  *                       limit: Number.MAX_SAFE_INTEGER
  *                      }
  *                    </code>
- * @param  {Function} callback: This callback will be called with the results in
+ * @param {Function} callback - This callback will be called with the results in
  *                              the following format:
  *                              <code>function(error, stats)</code>
  *                              stats = {
@@ -254,7 +249,6 @@ FileServer.prototype.getData = function (filename, options, callback) {
  *                              		max: '10'
  *                              	}, ...
  *                              }
- * @returns {Undefined} - undefined
  */
 FileServer.prototype.getStatistics = function (filename, options, callback) {
   var field, max, min, val;

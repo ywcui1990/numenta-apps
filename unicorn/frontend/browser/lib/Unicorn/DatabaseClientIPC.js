@@ -24,29 +24,17 @@ import ModelErrorAction from '../actions/ModelError';
 const DATABASE_SERVER_IPC_CHANNEL = 'DATABASE_SERVER_IPC_CHANNEL';
 
 
-/**
- *
- */
 export default class DatabaseClientIPC {
 
-  /**
-   *
-   */
   constructor() {
     this._context = null;
   }
 
-  /**
-   *
-   */
   start(actionContext) {
     this._context = actionContext;
     ipc.on(DATABASE_SERVER_IPC_CHANNEL, this._handleIPCEvent.bind(this));
   }
 
-  /**
-   *
-   */
   getFile(uid, callback) {
     let params = {uid, callback};
     ipc.send(DATABASE_SERVER_IPC_CHANNEL, {
@@ -55,9 +43,6 @@ export default class DatabaseClientIPC {
     });
   }
 
-  /**
-   *
-   */
   getFiles(query, callback) {
     let params = {query, callback};
     ipc.send(DATABASE_SERVER_IPC_CHANNEL, {
@@ -66,9 +51,6 @@ export default class DatabaseClientIPC {
     });
   }
 
-  /**
-   *
-   */
   putFile(file, callback) {
     let params = {file, callback};
     ipc.send(DATABASE_SERVER_IPC_CHANNEL, {
@@ -77,9 +59,6 @@ export default class DatabaseClientIPC {
     });
   }
 
-  /**
-   *
-   */
   putFiles(files, callback) {
     let params = {files, callback};
     ipc.send(DATABASE_SERVER_IPC_CHANNEL, {
@@ -88,9 +67,6 @@ export default class DatabaseClientIPC {
     });
   }
 
-  /**
-   *
-   */
   _handleIPCEvent(command, payload) {
     if (this._context) {
       if (command === 'data') {
@@ -104,17 +80,11 @@ export default class DatabaseClientIPC {
     }
   }
 
-  /**
-   *
-   */
   _handleIPCError(error, ipcevent) {
     let {command} = ipcevent;
     this._context.executeAction(ModelErrorAction, {command, error});
   }
 
-  /**
-   *
-   */
   _handleData(payload) {
     // this._context.executeAction(ReceiveDataAction, {'data': data});
   }

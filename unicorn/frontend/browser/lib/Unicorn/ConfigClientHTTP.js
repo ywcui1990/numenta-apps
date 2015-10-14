@@ -26,7 +26,7 @@
 export default class ConfigClientHTTP {
 
   /**
-   *
+   * @constructor
    */
   constructor() {
     this.config = {
@@ -36,7 +36,9 @@ export default class ConfigClientHTTP {
   }
 
   /**
-   * Synchronous Getter of key from config hash
+   * Synchronous Getter of key from config hash.
+   * @param {string} key - String key to get from config hash
+   * @returns {Object|string} - Object or String of config values
    */
   get(key) {
     return key ? this.config[key] : this.config;

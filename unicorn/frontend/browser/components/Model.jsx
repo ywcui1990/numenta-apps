@@ -47,13 +47,18 @@ const StoreDecorator = () => ({});
 @connectToStores([ModelStore], StoreDecorator)
 export default class Model extends React.Component {
 
-  static contextTypes = {
-    executeAction: React.PropTypes.func,
-    getStore: React.PropTypes.func
-  };
-  static propTypes = {
-    modelId: React.PropTypes.string.isRequired
-  };
+  static get contextTypes () {
+    return {
+      executeAction: React.PropTypes.func,
+      getStore: React.PropTypes.func
+    };
+  }
+
+  static get propTypes () {
+    return {
+      modelId: React.PropTypes.string.isRequired
+    };
+  }
 
   constructor(props, context) {
     super(props, context);

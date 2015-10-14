@@ -53,9 +53,11 @@ const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 @applyMaterialTheme(ThemeDecorator)
 export default class MainComponent extends React.Component {
 
-  static contextTypes = {
-    executeAction: React.PropTypes.func.isRequired
-  };
+  static get contextTypes () {
+    return {
+      executeAction: React.PropTypes.func.isRequired
+    };
+  }
 
   constructor(props, context) {
     super(props, context);

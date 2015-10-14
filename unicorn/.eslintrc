@@ -1,9 +1,12 @@
 ---
-# ESLint Rules: http://eslint.org/docs/rules/
+# ESLint Config
+# http://eslint.org/docs/user-guide/configuring
 
 extends: eslint:recommended
 parser: "babel-eslint"
-plugins: ["react"]
+plugins:
+  - jsdoc
+  - react
 root: true
 
 env:
@@ -39,6 +42,7 @@ ecmaFeatures:
   templateStrings: true
   unicodeCodePointEscapes: true
 
+# http://eslint.org/docs/rules/
 rules:
   accessor-pairs: 2
   array-bracket-spacing: [2, "never"]
@@ -67,6 +71,18 @@ rules:
   id-match: 0
   indent: [2, 2]
   init-declarations: 0
+  jsdoc/check-param-names: 1
+  jsdoc/check-redundant-params: 1
+  jsdoc/check-redundant-returns: 1
+  jsdoc/check-returns-types: 1
+  jsdoc/check-types: 1
+  jsdoc/newline-after-description: 1
+  jsdoc/require-description-complete-sentence: 1
+  jsdoc/require-param: 1
+  jsdoc/require-param-description: 1
+  jsdoc/require-param-types: 1
+  jsdoc/require-returns-description: 1
+  jsdoc/require-returns-types: 1
   jsx-quotes: [2, "prefer-double"]
   linebreak-style: 2
   lines-around-comment: 0
@@ -153,7 +169,6 @@ rules:
   quotes: [2, "single", "avoid-escape"]
   quote-props: [2, "as-needed"]
   radix: 2
-  require-jsdoc: 1
   require-yield: 1
   sort-vars: 1
   space-after-keywords: [2, "always"]
@@ -164,7 +179,6 @@ rules:
   spaced-comment: [2, "always"]
   strict: [2, "global"]
   use-isnan: 2
-  valid-jsdoc: 0 # @TODO enable later when more time to fill out dox
   valid-typeof: 2
   vars-on-top: 2
   wrap-iife: 2

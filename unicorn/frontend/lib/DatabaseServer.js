@@ -41,14 +41,12 @@ const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
 
 
 /**
- * Unicorn: DatabaseServer - Respond to a DatabaseClient over IPC, sharing our
- *  access to a file-based Node/io.js database system, for heavy persistence.
- *
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
- *
+ * Unicorn: DatabaseServer - Respond to a DatabaseClient over IPC.
+ *  For sharing our access to a file-based NodeJS database system.
+ *  Meant for heavy persistence.
+ *  NOTE: Must be ES5 for now, Electron/IPC/remote does not like ES6 classes.
  * @class
  * @module
- * @returns {object} this
  * @this DatabaseServer
  */
 function DatabaseServer() {
@@ -66,7 +64,9 @@ function DatabaseServer() {
 // GETTERS
 
 /**
- * Get a single File
+ * Get a single File.
+ * @param {string} uid - Unique ID of file to get
+ * @param {Function} callback - Async callback function(error, results)
  */
 DatabaseServer.prototype.getFile = function (uid, callback) {
   const table = this.dbh.sublevel('file');
@@ -74,7 +74,9 @@ DatabaseServer.prototype.getFile = function (uid, callback) {
 };
 
 /**
- * Get all/queried Files
+ * Get all/queried Files.
+ * @param {Object} query - JSONquery object to use, empty object for all results
+ * @param {Function} callback - Async callback function(error, results)
  */
 DatabaseServer.prototype.getFiles = function (query, callback) {
   const table = levelQuery(this.dbh.sublevel('file'));
@@ -97,7 +99,9 @@ DatabaseServer.prototype.getFiles = function (query, callback) {
 };
 
 /**
- * Get a single Metric
+ * Get a single Metric.
+ * @param {string} uid - Unique ID of metric to get
+ * @param {Function} callback - Async callback function(error, results)
  */
 DatabaseServer.prototype.getMetric = function (uid, callback) {
   const table = this.dbh.sublevel('metric');
@@ -105,7 +109,9 @@ DatabaseServer.prototype.getMetric = function (uid, callback) {
 };
 
 /**
- * Get all/queried Metrics
+ * Get all/queried Metrics.
+ * @param {Object} query - JSONquery object to use, empty object for all results
+ * @param {Function} callback - Async callback function(error, results)
  */
 DatabaseServer.prototype.getMetrics = function (query, callback) {
   const table = levelQuery(this.dbh.sublevel('metric'));
@@ -129,12 +135,12 @@ DatabaseServer.prototype.getMetrics = function (query, callback) {
 };
 
 /**
- * Get all/queried MetricDatas records
+ * Get all/queried MetricDatas records.
  * @callback
  * @method
- * @param {object} query - DB Query filter object (jsonquery-engine),
+ * @param {Object} query - DB Query filter object (jsonquery-engine),
  *  empty object "{}" for all results.
- * @param {function} [callback] - Async callback: function (error, results) {}
+ * @param {Function} [callback] - Async callback: function (error, results)
  * @public
  * @this DatabaseServer
  */
@@ -176,7 +182,9 @@ DatabaseServer.prototype.getMetricDatas = function (query, callback) {
 // SETTERS
 
 /**
- * Put a single File to DB
+ * Put a single File to DB.
+ * @param {Object} file - Data object of File info to save
+ * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseServer.prototype.putFile = function (file, callback) {
   const table = this.dbh.sublevel('file');
@@ -191,11 +199,11 @@ DatabaseServer.prototype.putFile = function (file, callback) {
 };
 
 /**
- * Put multiple Files into DB
+ * Put multiple Files into DB.
  * @callback
  * @method
- * @param {array} files - List of File objects to insert
- * @param {function} callback - Async result handler: function (error, results)
+ * @param {Array} files - List of File objects to insert
+ * @param {Function} callback - Async result handler: function (error, results)
  * @public
  * @this DatabaseServer
  */
@@ -226,7 +234,9 @@ DatabaseServer.prototype.putFiles = function (files, callback) {
 };
 
 /**
- * Put a single Metric to DB
+ * Put a single Metric to DB.
+ * @param {Object} metric - Data object of Metric info to save
+ * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseServer.prototype.putMetric = function (metric, callback) {
   const table = this.dbh.sublevel('metric');
@@ -241,7 +251,9 @@ DatabaseServer.prototype.putMetric = function (metric, callback) {
 };
 
 /**
- * Put multiple Metrics into DB
+ * Put multiple Metrics into DB.
+ * @param {Array} metrics - Data objects of Metrics info to save
+ * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseServer.prototype.putMetrics = function (metrics, callback) {
   const table = this.dbh.sublevel('metric');
@@ -270,7 +282,9 @@ DatabaseServer.prototype.putMetrics = function (metrics, callback) {
 };
 
 /**
- * Put a single MetricData record to DB
+ * Put a single MetricData record to DB.
+ * @param {Object} metricData - Data object of MetricData info to save
+ * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseServer.prototype.putMetricData = function (metricData, callback) {
   const table = this.dbh.sublevel('metricData');
@@ -290,7 +304,9 @@ DatabaseServer.prototype.putMetricData = function (metricData, callback) {
 };
 
 /**
- * Put multiple MetricData records into DB
+ * Put multiple MetricData records into DB.
+ * @param {Array} metricDatas - List of Data objects of MetricDatas to save
+ * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseServer.prototype.putMetricDatas = function (metricDatas, callback) {
   const table = this.dbh.sublevel('metricData');

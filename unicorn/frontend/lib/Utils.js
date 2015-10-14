@@ -23,7 +23,7 @@ import crypto from 'crypto';
 export default {
 
   /**
-   * Genereate unique hashed UID based on seed string and SHA1
+   * Genereate unique hashed UID based on seed string and SHA1.
    * @param  {string} seed - Seed string to hash
    * @return {string} Unique id
    */

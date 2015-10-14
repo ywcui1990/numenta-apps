@@ -23,17 +23,22 @@ import BaseStore from 'fluxible/addons/BaseStore';
 
 export default class ModelStore extends BaseStore {
 
-  static storeName = 'ModelStore';
-  static handlers = {
-    ADD_MODEL_SUCCESS: '_handleAddModel',
-    DELETE_MODEL_SUCCESS: '_handleDeleteModel',
-    LIST_MODELS_SUCCESS: '_handleListModels',
-    STOP_MODEL_SUCCESS: '_handleStopModel',
-    START_MODEL_SUCCESS: '_handleStartModel',
-    STOP_MODEL_FAILED: '_handleModelFailed',
-    START_MODEL_FAILED: '_handleModelFailed',
-    UNKNOWN_MODEL_FAILURE: '_handleModelFailed'
-  };
+  static get storeName() {
+    return 'ModelStore'
+  }
+
+  static get handlers() {
+    return {
+      ADD_MODEL_SUCCESS: '_handleAddModel',
+      DELETE_MODEL_SUCCESS: '_handleDeleteModel',
+      LIST_MODELS_SUCCESS: '_handleListModels',
+      STOP_MODEL_SUCCESS: '_handleStopModel',
+      START_MODEL_SUCCESS: '_handleStartModel',
+      STOP_MODEL_FAILED: '_handleModelFailed',
+      START_MODEL_FAILED: '_handleModelFailed',
+      UNKNOWN_MODEL_FAILURE: '_handleModelFailed'
+    };
+  }
 
   constructor(dispatcher) {
     super(dispatcher);
@@ -41,15 +46,15 @@ export default class ModelStore extends BaseStore {
   }
 
   /**
-   * Handles adding or replacing a model in the store
+   * Handles adding or replacing a model in the store.
    * @param  {Object} payload The action payload in the following format:
    *             <code>
    *             {
-   *               modelId: {String},   // Required model id
-   *               filename: {String},  // File name
-   *               metric: {String},    // Metric Name
-   *               timestampField: {String},    // Timestamp field Name
-   *               active: {Boolean}    // Whether or not this model is running
+   *               modelId: {string},   // Required model id
+   *               filename: {string},  // File name
+   *               metric: {string},    // Metric Name
+   *               timestampField: {string},    // Timestamp field Name
+   *               active: {boolean}    // Whether or not this model is running
    *             }
    *             </code>
    */
@@ -61,7 +66,7 @@ export default class ModelStore extends BaseStore {
   }
 
   /**
-   * Load model list into the store
+   * Load model list into the store.
    * @param  {Object} payload The action payload in the following format:
    *    <code>
    *    [
@@ -88,8 +93,8 @@ export default class ModelStore extends BaseStore {
   }
 
   /**
-   * Delete model data
-   * @param  {String} modelId Model to delete
+   * Delete model data.
+   * @param {string} modelId - Model to delete
    */
   _handleDeleteModel(modelId) {
     this._models.delete(modelId);
@@ -97,8 +102,8 @@ export default class ModelStore extends BaseStore {
   }
 
   /**
-   * Mark the model as stopped
-   * @param  {[type]} modelId The model to update
+   * Mark the model as stopped.
+   * @param {string} modelId The model to update
    */
   _handleStopModel(modelId) {
     let model = this._models.get(modelId);
@@ -110,8 +115,8 @@ export default class ModelStore extends BaseStore {
   }
 
   /**
-   * Mark the model as active
-   * @param  {[type]} modelId The model to update
+   * Mark the model as active.
+   * @param {string} modelId - The model to update
    */
   _handleStartModel(modelId) {
     let model = this._models.get(modelId);
@@ -133,16 +138,16 @@ export default class ModelStore extends BaseStore {
   }
 
   /**
-   * Get model from store
-   * @param  {String} modelId Model to get
+   * Get model from store.
+   * @param  {string} modelId Model to get
    * @return {Object} The model object in the following format:
    *             <code>
    *             {
-   *               modelId: {String},  // Required model id
-   *               filename: {String}, // File name
-   *               metric: {String}    // Metric Name
-   *               timestampField: {String},    // Timestamp field Name
-   *               active: {Boolean}    // Whether or not this model is running
+   *               modelId: {string},  // Required model id
+   *               filename: {string}, // File name
+   *               metric: {string}    // Metric Name
+   *               timestampField: {string},    // Timestamp field Name
+   *               active: {boolean}    // Whether or not this model is running
    *             }
    *             </code>
    */
@@ -151,7 +156,7 @@ export default class ModelStore extends BaseStore {
   }
 
   /**
-   * Returns a list of all models currently kept in this store
+   * Returns a list of all models currently kept in this store.
    * @return {Array} All models
    *    <code>
    *    [
@@ -171,9 +176,9 @@ export default class ModelStore extends BaseStore {
   }
 
   /**
-   * Whether or not the model is active/running
-   * @param  {String}  modelId The model to check
-   * @return {Boolean}         Returns true if the model is active.
+   * Whether or not the model is active/running.
+   * @param {string} modelId - The model to check
+   * @return {boolean} - Returns true if the model is active.
    */
   isModelActive(modelId) {
     let model = this._models.get(modelId);

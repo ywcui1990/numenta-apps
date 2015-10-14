@@ -45,16 +45,24 @@ const StoreDecorator = (context) => ({
 @connectToStores([ModelStore], StoreDecorator)
 export default class ModelList extends React.Component {
 
-  static contextTypes = {
-    executeAction: React.PropTypes.func,
-    getStore: React.PropTypes.func
-  };
-  static propTypes = {
-    zDepth: React.PropTypes.number
-  };
-  static defaultProps = {
-    zDepth: 1
-  };
+  static get contextTypes() {
+    return {
+      executeAction: React.PropTypes.func,
+      getStore: React.PropTypes.func
+    };
+  }
+
+  static get propTypes() {
+    return {
+      zDepth: React.PropTypes.number
+    };
+  }
+
+  static get defaultProps() {
+    return {
+      zDepth: 1
+    };
+  }
 
   constructor(props, context) {
     super(props, context);

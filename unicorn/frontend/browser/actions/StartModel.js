@@ -36,9 +36,6 @@ import Utils from '../../lib/Utils';
 
 // FUNCTIONS
 
-/**
- *
- */
 function getMetricFromDatabase(options) {
   let {actionContext, model} = options;
   let channel = csp.chan();
@@ -56,9 +53,6 @@ function getMetricFromDatabase(options) {
   return channel;
 }
 
-/**
- *
- */
 function getMetricStatsFromFilesystem(options) {
   let {actionContext, model} = options;
   let channel = csp.chan();
@@ -75,9 +69,6 @@ function getMetricStatsFromFilesystem(options) {
   return channel;
 }
 
-/**
- *
- */
 function putMetricStatsIntoDatabase(options) {
   let {actionContext, metric} = options;
   let channel = csp.chan();
@@ -95,7 +86,10 @@ function putMetricStatsIntoDatabase(options) {
 }
 
 /**
- * Check database for previously saved Metric Data
+ * Check database for previously saved Metric Data.
+ * @param {Object} options - Options hash passed in
+ * @param {Object} options.actionContext - Fluxible action context object
+ * @param {Object} options.model - Model data object
  */
 function getMetricDataFromDatabase(options) {
   let {actionContext, model} = options;
@@ -119,7 +113,9 @@ function getMetricDataFromDatabase(options) {
 }
 
 /**
- * Start streaming data records to the model and emit results
+ * Start streaming data records to the model and emit results.
+ * @param {Object} actionContext - Fluxible action context object
+ * @param {string} modelId - Unique Model ID to stream data for
  */
 function streamData(actionContext, modelId) {
   let databaseClient = actionContext.getDatabaseClient();
@@ -138,7 +134,7 @@ function streamData(actionContext, modelId) {
       let metricData = yield csp.take(getMetricDataFromDatabase(opts));
       if (metricData instanceof Error) {
         reject(metricData);
-        throw new DatabaseGetError(metricData);
+        log.error(new DatabaseGetError(metricData));
         return;
       }
       if (metricData.length > 0) {
@@ -216,7 +212,8 @@ function streamData(actionContext, modelId) {
  *  streamed one record at the time. 'ReceiveData' Action will be fired as
  *  results become available.
  * @param {Object} actionContext - Fluxible action context object
- * @param {String} model - An object with model+data to start
+ * @param {string} model - An object with model+data to start
+ * @returns {Promise} - Promise object to stream data in on, resolves when done
  */
 export default function (actionContext, modelId) {
   let log = actionContext.getLoggerClient();
@@ -283,6 +280,6 @@ export default function (actionContext, modelId) {
       modelClient.createModel(modelId, stats);
       return streamData(actionContext, modelId);
 
-    });
-  });
-}
+    }); // csp.go
+  }); // promise
+} // function

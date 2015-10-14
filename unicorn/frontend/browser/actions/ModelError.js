@@ -25,18 +25,18 @@ export default (actionContext, payload) => {
   let {command, modelId, error} = payload;
   if (command === 'create') {
     return actionContext.dispatch(ACTIONS.START_MODEL_FAILED, {
-      'modelId': modelId,
-      'error': error
+      modelId: modelId,
+      error: error
     });
   } else if (command === 'remove') {
     return actionContext.dispatch(ACTIONS.STOP_MODEL_FAILED, {
-      'modelId': modelId,
-      'error': error
+      modelId: modelId,
+      error: error
     });
   } else if (command === 'sendData') {
     return actionContext.dispatch(ACTIONS.SEND_DATA_FAILED, {
-      'modelId': modelId,
-      'error': error
+      modelId: modelId,
+      error: error
     });
   }
 };

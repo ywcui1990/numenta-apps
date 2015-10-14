@@ -26,13 +26,17 @@ import BaseStore from 'fluxible/addons/BaseStore';
  */
 export default class FileStore extends BaseStore {
 
-  static storeName = 'FileStore';
+  static get storeName() {
+    return 'FileStore';
+  }
 
-  static handlers = {
-    UPLOADED_FILE_SUCCESS: '_handleAddFile',
-    LIST_FILES_SUCCESS: '_handleListFiles',
-    LIST_METRICS_SUCCESS: '_handleListMetrics'
-  };
+  static get handlers() {
+    return {
+      UPLOADED_FILE_SUCCESS: '_handleAddFile',
+      LIST_FILES_SUCCESS: '_handleListFiles',
+      LIST_METRICS_SUCCESS: '_handleListMetrics'
+    }
+  }
 
   constructor(dispatcher) {
     super(dispatcher);

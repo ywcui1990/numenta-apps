@@ -44,16 +44,21 @@ import '../stylesheets/Chart.scss';
  */
 export default class Chart extends React.Component {
 
-  static propTypes = {
-    data: React.PropTypes.array.isRequired,
-    options: React.PropTypes.object,
-    zDepth: React.PropTypes.number,
-  };
-  static defaultProps = {
-    data: [],
-    options: {},
-    zDepth: 1
-  };
+  static get propTypes () {
+    return {
+      data: React.PropTypes.array.isRequired,
+      options: React.PropTypes.object,
+      zDepth: React.PropTypes.number,
+    };
+  }
+
+  static get defaultProps () {
+    return {
+      data: [],
+      options: {},
+      zDepth: 1
+    };
+  }
 
   constructor(props, context) {
     super(props, context);
