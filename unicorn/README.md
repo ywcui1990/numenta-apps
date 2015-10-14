@@ -36,7 +36,8 @@ backend/            # Unicorn ModelRunner and support Python/C++ code here!
   README.md         # Overview for HTM/NuPIC part of project
   requirements.txt  # Python pip package dependencies
   setup.py          # Backend Python project initialization tooling
-  build/            # Backend build working directory and output
+  build/            # Backend build working output
+  dist/             # Packaging and distribution output
   unicorn_backend/  # Unicorn Backend code, Model Runner, etc.
 frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the User
   README.md         # Overview for Frontend+GUI part of project
@@ -50,22 +51,24 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
     actions/        # Fluxible Actions JS
     components/     # React view components JSX
     lib/            # Custom JS libs for inside the browser (engine clients)
+      Fluxible/     # Fluxible lib helper code
+        Plugins/    # Fluxbile plugins
+      MaterialUI/   # Material UI lib helper code
+      Unicorn/      # Unicorn lib helper code = Client libraries
     stores/         # Fluxible Stores JS
+    stylesheets/    # UI SASS/SCSS styling for components
   config/           # JS Config files loaded by nconf
-  database/         # File-based JSON database storage (levelup + mdeadown)
-    bin/            # File Database helper tools
-    data/           # Local JSON file DB log (not in source control)
+  database/         # File-based database storage (levelup + leveldown)
     schema/         # Database defintion schemas in JSON
   docs/             # Target directory for generated frontend documentation
   lib/              # Custom JS libs for outside the browser (engine servers)
   samples/          # Sample .CSV data files to pre-load for user in GUI
-  test/             # Frontend tests run by Mocha: Unit, etc.
-    unit/           # Frontend+GUI Unit tests
 logs/               # Logfile output of all kinds should end up here
 node_modules/       # Where `npm` installs packages to, not in source control
 tests/              # Unicorn project tests
   js/               # Javascript tests
     unit/           # Javascript unit tests
+      fixtures/     # Javascript unit test fixtures
   py/               # Python tests
     integration/    # Python integration tests
 ```
@@ -266,15 +269,19 @@ open frontend/docs/index.html
 
 * Lint your code before creating pull requests:
   * `npm run lint`
+* Manual access to LevelDB file database from 
+  [Lev](https://github.com/hij1nx/lev) command-line tool (Mac OS/X):
+  * `\`npm bin\`/lev $HOME/Library/Application\ Support/unicorn/database/`
 * Make sure to update packages often, especially after pulling an update into
   your branch:
   * `npm run check`
   * `pip list --outdated`
 * Sometimes `node_modules/` directory can become corrupted, try cleaning and
   reinstalling: `npm run clean ; npm run check`
+* Remember, this is cross-platform. We need to support all main operating
+  systems! Windows has no environment variables, etc. Paths should not be
+  defined manually, but use the `path` library helper instead.
 * Awesome Node.js Links: https://github.com/sindresorhus/awesome-nodejs
-* Remember this is cross-platform! We need to support all main operating
-  systems. For Windows, No environment variables, etc.
 
 
 ## Test

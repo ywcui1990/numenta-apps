@@ -19,6 +19,7 @@
 
 // externals
 
+import isElectronRenderer from 'is-electron-renderer';
 import jsonQuery from 'jsonquery-engine';
 import levelQuery from 'level-queryengine';
 import leveldown from 'leveldown';
@@ -33,15 +34,14 @@ import FileSchema from '../database/schema/File.json';
 import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
 
-let location;
-try {
-  // This module is only available inside 'Electron' main process
-  // See https://github.com/atom/electron/blob/master/docs/api/app.md
-  const app = require('app');
-  location = path.join(app.getPath('userData'), 'database');
-} catch (error) {
-  // Falls back to local directory
-  location = path.join('frontend', 'database', 'data');
+let location = path.join('frontend', 'database', 'data');
+if (! isElectronRenderer) {
+  try {
+    // This module is only available inside 'Electron' main process
+    // See https://github.com/atom/electron/blob/master/docs/api/app.md
+    const app = require('app');
+    location = path.join(app.getPath('userData'), 'database');
+  } catch (error) { /* no-op */ }
 }
 const DB_FILE_PATH = location;
 
