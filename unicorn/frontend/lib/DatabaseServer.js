@@ -39,7 +39,7 @@ try {
   // See https://github.com/atom/electron/blob/master/docs/api/app.md
   const app = require('app');
   location = path.join(app.getPath('userData'), 'database');
-} catch (e) {
+} catch (error) {
   // Falls back to local directory
   location = path.join('frontend', 'database', 'data');
 }
@@ -53,7 +53,7 @@ const DB_FILE_PATH = location;
  *  NOTE: Must be ES5 for now, Electron/IPC/remote does not like ES6 classes.
  * @class
  * @module
- * @param {String} [path] - Database location path (optional)
+ * @param {string} [path] - Database location path (optional)
  * @this DatabaseServer
  */
 function DatabaseServer(path) {
@@ -182,12 +182,10 @@ DatabaseServer.prototype.getMetricDatas = function (query, callback) {
               return -1;
             }
             return 0;
-          } else {
-            return prev.metric_uid.localeCompare(next.metric_uid);
           }
-        } else {
-          return prev.uid.localeCompare(next.uid);
+          return prev.metric_uid.localeCompare(next.metric_uid);
         }
+        return prev.uid.localeCompare(next.uid);
       });
 
       callback(null, results);
@@ -360,16 +358,16 @@ DatabaseServer.prototype.putMetricDatas = function (metricDatas, callback) {
  * @param  {Function} callback called when the destroy operation is complete,
  *                             with a possible error argument
  */
-DatabaseServer.prototype.destroy = function(callback) {
+DatabaseServer.prototype.destroy = function (callback) {
   leveldown.destroy(this.levelup.location, callback);
 };
 
 /**
- * closes the underlying LevelDB store
- * @param  {Function} callback receive any error encountered during closing as
- *                             the first argument
+ * Closes the underlying LevelDB store.
+ * @param {Function} callback - Receive any error encountered during closing as
+ *  the first argument.
  */
-DatabaseServer.prototype.close = function(callback) {
+DatabaseServer.prototype.close = function (callback) {
   this.levelup.db.close(callback);
 };
 

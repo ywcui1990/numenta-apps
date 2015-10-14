@@ -94,9 +94,9 @@ export default class ModelClientIPC {
   _handleCloseModel(modelId, error) {
     if (error !== 0) {
       this._context.executeAction(ModelErrorAction, {
-        'modelId': modelId,
-        'command': 'close',
-        'error': 'Error closing model ' + error
+        modelId,
+        command: 'close',
+        error: `Error closing model ${error}`
       });
     } else {
       this._context.executeAction(StopModelAction, modelId);
