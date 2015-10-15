@@ -231,10 +231,12 @@ class ModelLatencyChecker(MonitorDispatcher):
       # 10-minute delay in processing.
       utcnow = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
 
-      stddev = numpy.std(intervals)
-      if stddev == float("nan") or lastSampleTimestamp is None:
+      if not intervals:
         errors.append(_ErrorParams(model["name"], model["uid"], None))
-        continue
+        continue # There are no intervals between samples, indicating there is
+                 # no data at all!  No point in calculating stddev.
+
+      stddev = numpy.nanstd(intervals)
 
       # Fabricate a hypothetical interval representing the amount of time since
       # the most recent valid timestamp
