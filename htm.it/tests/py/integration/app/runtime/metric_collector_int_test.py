@@ -40,7 +40,7 @@ import unittest
 from htm.it.app.quota import Quota
 
 
-from nta.utils.error_handling import retry
+from nupic.support.decorators import retry
 
 from nta.utils.message_bus_connector import MessageBusConnector
 from nta.utils.test_utils import ManagedSubprocessTerminator

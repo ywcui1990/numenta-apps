@@ -27,7 +27,7 @@ import socket
 from boto.exception import (AWSConnectionError, BotoServerError,
                             S3CreateError, S3DataError, S3ResponseError)
 
-from nta.utils.error_handling import retry
+from nupic.support import decorators
 
 DEFAULT_RETRY_TIMEOUT_SEC = 20.0
 
@@ -114,10 +114,8 @@ def retryOnBotoS3TransientError(getLoggerCallback=logging.getLogger,
     S3ResponseError,
   ])
 
-  logger = getLoggerCallback()
-
-  return retry(
+  return decorators.retry(
     timeoutSec=timeoutSec, initialRetryDelaySec=0.1, maxRetryDelaySec=10,
     retryExceptions=retryExceptions, retryFilter=retryFilter,
-    logger=logger,
+    getLoggerCallback=getLoggerCallback,
     clientLabel="retryOnBotoS3TransientError")

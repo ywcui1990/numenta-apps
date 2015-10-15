@@ -26,7 +26,7 @@ import time
 
 import boto.ec2.elb
 from boto.exception import (AWSConnectionError, BotoServerError)
-from nta.utils.error_handling import retry
+from nupic.support import decorators
 
 from htm.it.app import config
 
@@ -103,13 +103,13 @@ def retryOnELBTransientError(logger=logging.root,
 
     return True
 
-  return retry(
+  return decorators.retry(
     timeoutSec=timeoutSec,
     initialRetryDelaySec=INITIAL_RETRY_BACKOFF_SEC,
     maxRetryDelaySec=MAX_RETRY_BACKOFF_SEC,
     retryExceptions=RETRY_EXCEPTIONS,
     retryFilter=retryFilter,
-    logger=logger,
+    getLoggerCallback=lambda: logger,
     clientLabel="retryOnELBTransientError")
 
 

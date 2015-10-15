@@ -159,8 +159,7 @@ class AutoStacksTest(TestCaseBase):
     self._validateAutostackResults(metricID, instanceIDs, "CPUUtilization")
 
 
-  @retry(timeoutSec=75, initialRetryDelaySec=1, 
-        retryExceptions=(AssertionError,))
+  @retry(duration=75, delay=1)
   def _validateAutostackResults(self, metricID, instanceIDs, metricName):
     """Validate that AutoStack data is correct based on the metrics data.
 
