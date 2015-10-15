@@ -246,14 +246,14 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       mkdirp("build/scripts")
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var("LIBDIR")
-        includeDir = sysconfig.get_config_vars("INCLUDEPY")
+        includeDir = sysconfig.get_config_var("INCLUDEPY")
         runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
                        "-DCMAKE_PREFIX_PATH={capnpPrefixPath} "
                        "-DPYTHON_LIBRARY={pythonLibDir}/libpython2.7.so "
                        "-DPYTHON_INCLUDE_DIR={pythonIncludeDir}").format(
                            capnpPrefixPath=capnpTmp,
                            pythonLibDir=libdir,
-                           pythonIncludeDir=includeDir[0]),
+                           pythonIncludeDir=includeDir),
                       env=env, logger=logger)
         runWithOutput("make -j 4", env=env, logger=logger)
         runWithOutput("make install", env=env, logger=logger)
