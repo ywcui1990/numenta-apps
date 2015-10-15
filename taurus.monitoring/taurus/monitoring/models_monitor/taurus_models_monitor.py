@@ -32,9 +32,8 @@ from sqlalchemy.exc import OperationalError
 from htmengine.repository.queries import MetricStatus
 from nta.utils import error_reporting
 from nta.utils.config import Config
-from taurus.engine import logging_support
 
-from taurus.monitoring import monitorsdb
+from taurus.monitoring import logging_support
 from taurus.monitoring.monitorsdb import CONF_DIR
 from taurus.monitoring.monitorsdb import schema
 from taurus.monitoring.taurus_monitor_utils import (

@@ -20,6 +20,7 @@
 # ----------------------------------------------------------------------
 
 from collections import namedtuple
+import logging
 import datetime
 
 import boto.dynamodb2
@@ -29,10 +30,13 @@ import requests
 
 from nta.utils import error_reporting
 
-from taurus.monitoring.monitor_dispatcher import MonitorDispatcher
 from taurus.monitoring import (loadConfig,
                                loadEmailParamsFromConfig,
-                               MonitorOptionParser)
+                               logging_support,
+                               MonitorOptionParser,
+                               TaurusMonitorError)
+from taurus.monitoring.monitor_dispatcher import MonitorDispatcher
+
 
 
 
@@ -48,12 +52,16 @@ FIXED_WINDOW = 14 # Number of days over which to calculate stddev.
 
 
 
+g_logger = logging.getLogger(__name__)
+
+
+
 _ErrorParams = namedtuple("LatencyMonitorErrorParams",
                           "model_name model_uid threshold")
 
 
 
-class LatencyMonitorError(Exception):
+class LatencyMonitorError(TaurusMonitorError):
   pass
 
 
@@ -102,6 +110,11 @@ class ModelLatencyChecker(MonitorDispatcher):
   def __init__(self):
     options = self.parser.parse_options()
 
+    logging_support.LoggingSupport.initLogging(
+      loggingLevel=options.loggingLevel,
+      console=options.loggingConsole,
+      logToFile=True)
+
     self.config = loadConfig(options)
     self.emailParams = loadEmailParamsFromConfig(self.config)
     self.apiKey = self.config.get("S1", "MODELS_MONITOR_TAURUS_API_KEY")
@@ -120,8 +133,18 @@ class ModelLatencyChecker(MonitorDispatcher):
     self.metricDataTable = options.metricDataTable
 
     self.days = options.days
+    self.options = options
+
+    g_logger.info("Initialized {}".format(repr(self)))
 
 
+  def __repr__(self):
+    invocation = " ".join("--{}={}".format(key, value)
+                          for key, value in vars(self.options).items())
+    return "{} {}".format(self.parser.get_prog_name(), invocation)
+
+
+  @MonitorDispatcher.preventDuplicates
   def dispatchNotification(self, checkFn, excType, excValue, excTraceback):
     """  Send notification.
 
@@ -132,101 +155,119 @@ class ModelLatencyChecker(MonitorDispatcher):
 
     Required by MonitorDispatcher abc protocol.
     """
-    error_reporting.sendMonitorErrorEmail(
+    dispatchKwargs = dict(
       monitorName=__name__ + ":" + checkFn.__name__,
       resourceName=repr(self),
       message=self.formatTraceback(excType, excValue, excTraceback),
       subjectPrefix="Model Latency Monitor",
-      params=self.emailParams
-    )
+      params=self.emailParams)
+
+    g_logger.info("Dispatching notification: {}".format(dispatchKwargs))
+
+    error_reporting.sendMonitorErrorEmail(**dispatchKwargs)
+
+
+  def getModels(self):
+    """ Queries models API for full model list
+
+    :returns: list of model dicts
+    """
+    response = requests.get(self.modelsUrl, auth=(self.apiKey, ""),
+                            timeout=60, verify=False)
+
+    if response.status_code != 200:
+      raise LatencyMonitorError("Unable to query Taurus API for active models:"
+                                " Unexpected HTTP response status ({}) from {}"
+                                .format(response.status_code, self.modelsUrl))
+
+    return response.json()
 
 
 
-@ModelLatencyChecker.registerCheck
-def checkAllModelLatency(monitorObj):
-  """ Check all model latencies by querying Taurus API for all models, and then
-  checking DynamoDB for corresponding data.  Models that don't have recent
-  data trigger an error.  Errors are batched up into a single exception
-  reported by MonitorDispatcher.dispatchNotification() protocol
+  @MonitorDispatcher.registerCheck
+  def checkAllModelLatency(self):
+    """ Check all model latencies by querying Taurus API for all models, and
+    then checking DynamoDB for corresponding data.  Models that don't have
+    recent data trigger an error.  Errors are batched up into a single
+    exception reported by MonitorDispatcher.dispatchNotification() protocol
+    """
+    models = self.getModels()
 
-  :param ModelLatencyChecker monitorObj:
-  """
-  response = requests.get(monitorObj.modelsUrl, auth=(monitorObj.apiKey, ""),
-                          timeout=60, verify=False)
+    conn = boto.dynamodb2.connect_to_region(
+      self.awsDynamoDBRegion,
+      aws_access_key_id=self.awsAccessKeyId,
+      aws_secret_access_key=self.awsSecretAccessKey)
 
-  if response.status_code != 200:
-    raise LatencyMonitorError("Unable to query Taurus API for active models: "
-                              "Unexpected HTTP response status ({}) from {}"
-                              .format(response.status_code,
-                                      monitorObj.modelsUrl))
-  conn = boto.dynamodb2.connect_to_region(
-    monitorObj.awsDynamoDBRegion,
-    aws_access_key_id=monitorObj.awsAccessKeyId,
-    aws_secret_access_key=monitorObj.awsSecretAccessKey)
+    metricDataTable = Table(self.metricDataTable, connection=conn)
 
-  metricDataTable = Table(monitorObj.metricDataTable, connection=conn)
+    errors = []
 
-  errors = []
+    for model in models:
+      # Query recent DynamoDB metric data for each model
+      then = str(datetime.datetime.now() -
+                 datetime.timedelta(days=self.days))
+      resultSet = metricDataTable.query_2(uid__eq=model["uid"],
+                                          timestamp__gte=then[:19])
 
-  for model in response.json():
-    # Query recent DynamoDB metric data for each model
-    then = str(datetime.datetime.now() -
-               datetime.timedelta(days=monitorObj.days))
-    resultSet = metricDataTable.query_2(uid__eq=model["uid"],
-                                        timestamp__gte=then[:19])
+      # Track all time intervals between valid (e.g. non-zero) samples
+      intervals = []
 
-    # Track all time intervals between valid (e.g. non-zero) samples
-    intervals = []
+      lastSampleTimestamp = None
+      for sample in resultSet:
 
-    lastSampleTimestamp = None
-    for sample in resultSet:
+        if not sample["metric_value"]:
+          continue
 
-      if not sample["metric_value"]:
-        continue
+        timestamp = datetime.datetime.strptime(sample["timestamp"],
+                                               "%Y-%m-%dT%H:%M:%S")
 
-      timestamp = datetime.datetime.strptime(sample["timestamp"],
-                                             "%Y-%m-%dT%H:%M:%S")
+        if lastSampleTimestamp is None:
+          lastSampleTimestamp = timestamp
+          continue
 
-      if lastSampleTimestamp is None:
+        intervals.append((timestamp - lastSampleTimestamp).total_seconds())
         lastSampleTimestamp = timestamp
+
+      # Calculate current UTC timestamp adjusted to account for acceptable
+      # 10-minute delay in processing.
+      utcnow = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
+
+      stddev = numpy.std(intervals)
+      if stddev == float("nan") or lastSampleTimestamp is None:
+        errors.append(_ErrorParams(model["name"], model["uid"], None))
         continue
 
-      intervals.append((timestamp - lastSampleTimestamp).total_seconds())
-      lastSampleTimestamp = timestamp
+      # Fabricate a hypothetical interval representing the amount of time since
+      # the most recent valid timestamp
+      currentInterval = (utcnow - lastSampleTimestamp).total_seconds()
 
-    # Calculate current UTC timestamp adjusted to account for acceptable
-    # 10-minute delay in processing.
-    utcnow = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
+      # Only consider intervals that are more than N sigma AND above an
+      # arbitrary minimum threshold.  More frequent companies will have a
+      # lower stddev and therefore required a higher, if artifical, threshold
+      # to avoid too many false positives
+      acceptableThreshold = max(self.threshold,
+                                self.sigmaMultiplier * stddev)
 
-    stddev = numpy.std(intervals)
-    if stddev == float("nan") or lastSampleTimestamp is None:
-      errors.append(_ErrorParams(model["name"], model["uid"], None))
-      continue
+      # If the hypothetical interval exceeds the acceptable threshold, then we
+      # have a reasonable expectation that there may be a problem with the
+      # model
+      if currentInterval > acceptableThreshold:
+        errors.append(_ErrorParams(model["name"],
+                                   model["uid"],
+                                   acceptableThreshold))
 
-    # Fabricate a hypothetical interval representing the amount of time since
-    # the most recent valid timestamp
-    currentInterval = (utcnow - lastSampleTimestamp).total_seconds()
+    g_logger.info("Processed statistics for {} model{}, found {} error{}."
+                  .format(len(models),
+                          "s" if len(models) != 1 else "",
+                          len(errors),
+                          "s" if len(errors) != 1 else ""))
 
-    # Only consider intervals that are more than N sigma AND above an arbitrary
-    # minimum threshold.  More frequent companies will have a lower stddev and
-    # therefore required a higher, if artifical, threshold to avoid too many
-    # false positives
-    acceptableThreshold = max(monitorObj.threshold,
-                              monitorObj.sigmaMultiplier * stddev)
-
-    # If the hypothetical interval exceeds the acceptable threshold, then we
-    # have a reasonable expectation that there may be a problem with the model
-    if currentInterval > acceptableThreshold:
-      errors.append(_ErrorParams(model["name"],
-                                 model["uid"],
-                                 acceptableThreshold))
-
-  if errors:
-    msg = ("The following models have exceeded the acceptable threshold for "
-           "time since last timestamp in {} DynamoDB table:\n    {}"
-           .format(metricDataTable.table_name,
-                   "\n    ".join(str(error) for error in errors)))
-    raise LatencyMonitorError(msg)
+    if errors:
+      msg = ("The following models have exceeded the acceptable threshold for "
+             "time since last timestamp in {} DynamoDB table:\n    {}"
+             .format(metricDataTable.table_name,
+                     "\n    ".join(str(error) for error in errors)))
+      raise LatencyMonitorError(msg)
 
 
 
