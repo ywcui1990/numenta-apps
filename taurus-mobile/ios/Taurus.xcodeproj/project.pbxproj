@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		236016D11BCFDCD200AF82FE /* TwitterHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D01BCFDCD200AF82FE /* TwitterHeaderCell.swift */; settings = {ASSET_TAGS = (); }; };
+		236016D31BD00A9500AF82FE /* Appearence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D21BD00A9500AF82FE /* Appearence.swift */; settings = {ASSET_TAGS = (); }; };
 		236989821BA919C200EA4FB5 /* MarketCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236989811BA919C200EA4FB5 /* MarketCalendar.swift */; };
 		236D00471BBC2C4C00782B36 /* TwitterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236D00461BBC2C4C00782B36 /* TwitterViewController.swift */; };
 		237CDC421BAB3C9E00AAF305 /* createdb.sql in Resources */ = {isa = PBXBuildFile; fileRef = 237CDC411BAB3C9E00AAF305 /* createdb.sql */; };
@@ -66,6 +68,7 @@
 		23F58D711BBA287200C7C6B6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 23F58D701BBA287200C7C6B6 /* Images.xcassets */; };
 		23F58D731BBA318700C7C6B6 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F58D721BBA318700C7C6B6 /* MenuController.swift */; };
 		23F58D751BBAC21D00C7C6B6 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F58D741BBAC21D00C7C6B6 /* SettingsController.swift */; };
+		9D6590581D077B613D94B220 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5967E9F3F71FA63EF40469B /* libPods.a */; };
 		DE8C3C6C96A556CE6C2EB24F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5967E9F3F71FA63EF40469B /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -88,6 +91,8 @@
 
 /* Begin PBXFileReference section */
 		2319D5721BA7798100935447 /* Taurus-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Taurus-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
+		236016D01BCFDCD200AF82FE /* TwitterHeaderCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwitterHeaderCell.swift; sourceTree = "<group>"; };
+		236016D21BD00A9500AF82FE /* Appearence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Appearence.swift; sourceTree = "<group>"; };
 		236989811BA919C200EA4FB5 /* MarketCalendar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketCalendar.swift; sourceTree = "<group>"; };
 		236D00461BBC2C4C00782B36 /* TwitterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TwitterViewController.swift; path = src/controllers/TwitterViewController.swift; sourceTree = SOURCE_ROOT; };
 		237CDC411BAB3C9E00AAF305 /* createdb.sql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = createdb.sql; path = Taurus/createdb.sql; sourceTree = "<group>"; };
@@ -172,6 +177,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D6590581D077B613D94B220 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -283,6 +289,7 @@
 			isa = PBXGroup;
 			children = (
 				23AD4F1C1BB37DF70041D650 /* LineChartView.swift */,
+				236016D21BD00A9500AF82FE /* Appearence.swift */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -316,8 +323,8 @@
 			children = (
 				23AD78F91BA778B3003FBEF4 /* AggregationType.swift */,
 				23AD78FA1BA778B3003FBEF4 /* Annotation.swift */,
-				23AD78FB1BA778B3003FBEF4 /* CoreDatabase.swift */,
 				23AD78FC1BA778B3003FBEF4 /* CoreDatabaseImpl.swift */,
+				23AD78FB1BA778B3003FBEF4 /* CoreDatabase.swift */,
 				23AD78FD1BA778B3003FBEF4 /* CoreDataFactory.swift */,
 				23AD78FE1BA778B3003FBEF4 /* CoreDataFactoryImpl.swift */,
 				23AD78FF1BA778B3003FBEF4 /* Instance.swift */,
@@ -360,6 +367,7 @@
 				23CFAC3C1BB4A1E100B4E882 /* MetricCell.swift */,
 				23BF79291BB4C67D0025E996 /* MetricAnomalyChartData.swift */,
 				23D75F1C1BBE10BF00FA870C /* TwitterCell.swift */,
+				236016D01BCFDCD200AF82FE /* TwitterHeaderCell.swift */,
 			);
 			name = views;
 			path = ../src/views;
@@ -446,9 +454,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 23AB23201BA75F170091A5E6 /* Build configuration list for PBXNativeTarget "TaurusTests" */;
 			buildPhases = (
+				CE8D5C584C8C123B83F27B40 /* Check Pods Manifest.lock */,
 				23AB23051BA75F170091A5E6 /* Sources */,
 				23AB23061BA75F170091A5E6 /* Frameworks */,
 				23AB23071BA75F170091A5E6 /* Resources */,
+				E8AC60A316FE00A3C3C10904 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -489,6 +499,12 @@
 				TargetAttributes = {
 					23AB22F41BA75F170091A5E6 = {
 						CreatedOnToolsVersion = 7.0;
+						DevelopmentTeam = LSVUY74P37;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 					23AB23081BA75F170091A5E6 = {
 						CreatedOnToolsVersion = 7.0;
@@ -581,6 +597,36 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
+		CE8D5C584C8C123B83F27B40 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		E8AC60A316FE00A3C3C10904 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -593,6 +639,7 @@
 				23DF8CB01BA9CEB700ECAE98 /* TaurusClient.swift in Sources */,
 				23DF8CB11BA9CEB700ECAE98 /* TaurusClientFactory.swift in Sources */,
 				23AD79141BA778B3003FBEF4 /* MetricData.swift in Sources */,
+				236016D31BD00A9500AF82FE /* Appearence.swift in Sources */,
 				23DF8C971BA9BF3800ECAE98 /* AnomalyChartView.swift in Sources */,
 				23AD79111BA778B3003FBEF4 /* Instance.swift in Sources */,
 				23BF792A1BB4C67D0025E996 /* MetricAnomalyChartData.swift in Sources */,
@@ -606,6 +653,7 @@
 				23AD79101BA778B3003FBEF4 /* CoreDataFactoryImpl.swift in Sources */,
 				23DF8CA51BA9CDE500ECAE98 /* TaurusNotification.swift in Sources */,
 				23AD79191BA778B3003FBEF4 /* GrokClientFactory.swift in Sources */,
+				236016D11BCFDCD200AF82FE /* TwitterHeaderCell.swift in Sources */,
 				238055821BBEE88D0048E214 /* TutorialPageController.swift in Sources */,
 				236989821BA919C200EA4FB5 /* MarketCalendar.swift in Sources */,
 				23AD790E1BA778B3003FBEF4 /* CoreDatabaseImpl.swift in Sources */,
@@ -781,10 +829,13 @@
 			baseConfigurationReference = F04A1F33885B832737DD0D75 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = Taurus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.numenta.Taurus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -793,15 +844,19 @@
 			baseConfigurationReference = CC722459B06198A44AE0D9BF /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = Taurus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.numenta.Taurus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};
 		23AB23211BA75F170091A5E6 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F04A1F33885B832737DD0D75 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				INFOPLIST_FILE = TaurusTests/Info.plist;
@@ -814,6 +869,7 @@
 		};
 		23AB23221BA75F170091A5E6 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = CC722459B06198A44AE0D9BF /* Pods.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				INFOPLIST_FILE = TaurusTests/Info.plist;

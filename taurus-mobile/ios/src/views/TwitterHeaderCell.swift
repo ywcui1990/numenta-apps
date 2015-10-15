@@ -25,13 +25,11 @@
   
   /** Cell for holding one row of instance data
   */
-  class TwitterCell : UITableViewCell {
+  class TwitterHeaderCell : UITableViewCell {
     
-    @IBOutlet weak var label: UILabel!
+    @IBOutlet weak var date: UILabel!
     
-    @IBOutlet weak var retweetTotal : UILabel!
-    @IBOutlet weak var retweetCount : UILabel!
-    @IBOutlet weak var retweetImage : UIImageView!
+    @IBOutlet weak var tweetTotal : UILabel!
     
-
-}
+    
+  }
