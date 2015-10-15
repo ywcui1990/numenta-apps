@@ -245,11 +245,13 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       shutil.rmtree("build", ignore_errors=True)
       mkdirp("build/scripts")
       with changeToWorkingDir("build/scripts"):
-        libdir = sysconfig.get_config_var('LIBDIR')
+        libdir = sysconfig.get_config_var("LIBDIR")
+        includeDir = sysconfig.get_config_vars("INCLUDEPY")
         runWithOutput(("cmake ../.. -DCMAKE_INSTALL_PREFIX=../release "
                        "-DCMAKE_PREFIX_PATH={} "
-                       "-DPYTHON_LIBRARY={}/libpython2.7.so").format(
-                           capnpTmp, libdir),
+                       "-DPYTHON_LIBRARY={}/libpython2.7.so "
+                       "-DPYTHON_INCLUDE_DIR={}").format(
+                           capnpTmp, libdir, includeDir),
                       env=env, logger=logger)
         runWithOutput("make -j 4", env=env, logger=logger)
         runWithOutput("make install", env=env, logger=logger)
