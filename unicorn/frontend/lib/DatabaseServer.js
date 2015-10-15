@@ -33,8 +33,7 @@
 import jsonQuery from 'jsonquery-engine';
 import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
-import jsondown from 'jsondown';      // DatabaseBackend
-// import medeadown from 'medeadown'; // DatabaseBackend
+import leveldown from 'leveldown';
 import path from 'path';
 import sublevel from 'level-sublevel';
 import { Validator } from 'jsonschema';
@@ -45,10 +44,17 @@ import FileSchema from '../database/schema/File.json';
 import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
 
-// jsondown  DatabaseBackend
-const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
-// medeadown DatabaseBackend
-// const DB_FILE_PATH = path.join('frontend', 'database', 'data');
+let location;
+try {
+  // This module is only available inside 'Electron' main process
+  // See https://github.com/atom/electron/blob/master/docs/api/app.md
+  const app = require('app');
+  location = path.join(app.getPath('userData'), 'database');
+} catch (e) {
+  // Falls back to local directory
+  location = path.join('frontend', 'database', 'data');
+}
+const DB_FILE_PATH = location;
 
 
 // MAIN
@@ -57,18 +63,19 @@ const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
  * Unicorn DatabaseServer
  * @class
  * @module
+ * @param  {[string]} path database location (optional)
  * @returns {object} this
  * @this DatabaseServer
  */
-var DatabaseServer = function() {
+var DatabaseServer = function(path) {
   this.validator = new Validator();
   // this.validator.addSchema(AddressSchema, '/Address');
 
-  this.db = sublevel(levelup(DB_FILE_PATH, {
-    db: jsondown,     // DatabaseBackend
-    // db: medeadown, // DatabaseBackend
+  let location = path || DB_FILE_PATH;
+  this.levelup = levelup(location, {
     valueEncoding: 'json'
-  }));
+  });
+  this.db = sublevel(this.levelup);
 };
 
 
@@ -165,19 +172,26 @@ DatabaseServer.prototype.getMetricDatas = function(query, callback) {
         results.push(result);
       }
 
-      // sort by rowid
+      // sort by uid, metric_uid, rowid
       results.sort((a, b) => {
-        if (a.rowid > b.rowid) {
-          return 1;
+        if (a.metric_uid === b.metric_uid) {
+          if (a.uid === b.uid) {
+            if (a.rowid > b.rowid) {
+              return 1;
+            }
+            if (a.rowid < b.rowid) {
+              return -1;
+            }
+            return 0;
+          } else {
+            return a.metric_uid.localeCompare(b.metric_uid);
+          }
+        } else {
+          return a.uid.localeCompare(b.uid);
         }
-        if (a.rowid < b.rowid) {
-          return -1;
-        }
-        return 0;
       });
 
-      // JSONify here to get around Electron IPC remote() memory leaks
-      callback(null, JSON.stringify(results));
+      callback(null, results);
     });
 };
 
@@ -332,6 +346,24 @@ DatabaseServer.prototype.putMetricDatas = function(metricDatas, callback) {
   table.batch(ops, callback);
 };
 
+/**
+ * Completely remove an existing database directory.
+ * @param  {Function} callback called when the destroy operation is complete,
+ *                             with a possible error argument
+ */
+DatabaseServer.prototype.destroy = function(callback) {
+  leveldown.destroy(this.levelup.location, callback);
+};
+
+
+/**
+ * closes the underlying LevelDB store
+ * @param  {Function} callback receive any error encountered during closing as
+ *                             the first argument
+ */
+DatabaseServer.prototype.close = function(callback) {
+  this.levelup.db.close(callback);
+};
 // EXPORTS
 
 module.exports = DatabaseServer;
