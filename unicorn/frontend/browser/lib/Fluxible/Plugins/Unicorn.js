@@ -22,15 +22,16 @@
  * @see https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md
  */
 export default {
+
   name: 'Unicorn',
 
-  plugContext: function (options, context, app) {
+  plugContext(options, context, app) {
     let {
       configClient, loggerClient, databaseClient, fileClient, modelClient
     } = options;
 
     return {
-      plugActionContext: function (actionContext, context, app) {
+      plugActionContext(actionContext, context, app) {
         actionContext.getConfigClient = function () {
           return configClient;
         };
@@ -47,7 +48,7 @@ export default {
           return modelClient;
         };
       },
-      plugComponentContext: function (componentContext, context, app) {
+      plugComponentContext(componentContext, context, app) {
         componentContext.getConfigClient = function () {
           return configClient;
         };
@@ -64,7 +65,7 @@ export default {
           return modelClient;
         };
       },
-      plugStoreContext: function (storeContext, context, app) {
+      plugStoreContext(storeContext, context, app) {
         storeContext.getConfigClient = function () {
           return configClient;
         };
@@ -83,4 +84,5 @@ export default {
       }
     };
   } // plugContext
-}; // UnicornPlugin
+
+} // UnicornPlugin

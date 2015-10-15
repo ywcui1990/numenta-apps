@@ -40,7 +40,7 @@ export default class ModelClientIPC {
 
   createModel(modelId, params) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      modelId: modelId,
+      modelId,
       command: 'create',
       params: JSON.stringify(params)
     });
@@ -48,14 +48,14 @@ export default class ModelClientIPC {
 
   removeModel(modelId) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      modelId: modelId,
+      modelId,
       command: 'remove'
     });
   }
 
   sendData(modelId, data) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      modelId: modelId,
+      modelId,
       command: 'sendData',
       params: JSON.stringify(data)
     });

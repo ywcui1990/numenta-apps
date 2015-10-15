@@ -19,6 +19,10 @@
  * -------------------------------------------------------------------------- */
 
 
+// NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
+/* eslint-disable no-var, object-shorthand, prefer-arrow-callback */
+
+
 // externals
 
 import csv from 'csv-streamify';
@@ -34,7 +38,6 @@ const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
 /**
  * Unicorn: FileServer - Respond to a FileClient over IPC, sharing our access to
  *  the Node layer of filesystem, so client can CRUD files.
- *  NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
  * @class
  * @module
  */

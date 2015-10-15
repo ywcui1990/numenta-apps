@@ -39,7 +39,7 @@ let FileClient;
 if (isElectronRenderer) { // desktop
   let remote;
   try {
-    remote = require('remote');
+    remote = require('remote'); // eslint-disable-line
   } catch (error) { /* Ignore */ }
   FileClient = remote.require('./lib/FileServer'); // pseduo-FileClientIPC
 } else { // web

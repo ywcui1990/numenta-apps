@@ -17,6 +17,9 @@
 // http://numenta.org/licenses/
 
 
+// NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
+
+
 // externals
 
 import isElectronRenderer from 'is-electron-renderer';
@@ -39,7 +42,7 @@ if (! isElectronRenderer) {
   try {
     // This module is only available inside 'Electron' main process
     // See https://github.com/atom/electron/blob/master/docs/api/app.md
-    const app = require('app');
+    const app = require('app'); // eslint-disable-line
     location = path.join(app.getPath('userData'), 'database');
   } catch (error) { /* no-op */ }
 }
@@ -50,7 +53,6 @@ const DB_FILE_PATH = location;
  * Unicorn: DatabaseServer - Respond to a DatabaseClient over IPC.
  *  For sharing our access to a file-based NodeJS database system.
  *  Meant for heavy persistence.
- *  NOTE: Must be ES5 for now, Electron/IPC/remote does not like ES6 classes.
  * @class
  * @module
  * @param {string} [path] - Database location path (optional)

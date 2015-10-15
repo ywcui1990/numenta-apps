@@ -103,6 +103,8 @@ export default class MainComponent extends React.Component {
    * @public
    * @returns {object} Abstracted React/JSX DOM representation to render to HTML
    * @this MainComponent
+   * @todo refactor to better sub-components with individuated styles
+   * @todo check up zIndex and zDepths
    * @TODO Better + ADD fonticon
    * @TODO Tooltip on + ADD icon - "Upload new CSV file" or something
    */
@@ -111,7 +113,7 @@ export default class MainComponent extends React.Component {
       <main style={this._style}>
         <LeftNav />
         <section style={{marginLeft:'256px', padding:'1rem'}}>
-          <FloatingActionButton onClick={this._onClick.bind(this)}>
+          <FloatingActionButton onClick={this._onClick.bind(this)} style={{position:'fixed', top:96, left:224}}>
             <SvgIconContentAdd/>
           </FloatingActionButton>
           <input onChange={this._onFileSelect.bind(this)} ref="fileInput" style={{display:'none'}} type="file" />

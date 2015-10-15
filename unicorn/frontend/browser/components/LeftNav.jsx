@@ -18,13 +18,18 @@
 
 // externals
 
+import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
+import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 // internals
 
 import FileList from '../components/FileList';
 import Logo from '../components/Logo';
+import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
+
+const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 
 
 /**
@@ -35,7 +40,14 @@ import Logo from '../components/Logo';
  * @public
  * @this LeftNav
  */
+@applyMaterialTheme(ThemeDecorator)
 export default class LeftNav extends React.Component {
+
+  static get contextTypes() {
+    return {
+      muiTheme: React.PropTypes.object
+    };
+  }
 
   static get propTypes() {
     return {
@@ -52,13 +64,14 @@ export default class LeftNav extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    let muiTheme = this.context.muiTheme;
     this._style = {
-      backgroundColor: '#fff', // @todo refactor
+      backgroundColor: muiTheme.leftNav.color,
       height: '100%',
       left: 0,
       position: 'fixed',
       top: 0,
-      width: 256 // @todo refactor
+      width: muiTheme.leftNav.width
     };
   }
 

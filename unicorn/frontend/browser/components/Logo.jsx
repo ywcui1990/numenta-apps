@@ -16,7 +16,18 @@
 // http://numenta.org/licenses/
 
 
+// externals
+
+import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
+import Avatar from 'material-ui/lib/avatar';
 import React from 'react';
+import ThemeManager from 'material-ui/lib/styles/theme-manager';
+
+// internals
+
+import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
+
+const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 
 
 /**
@@ -27,17 +38,26 @@ import React from 'react';
  * @public
  * @this Logo
  */
+@applyMaterialTheme(ThemeDecorator)
 export default class Logo extends React.Component {
+
+  static get contextTypes() {
+    return {
+      muiTheme: React.PropTypes.object
+    };
+  }
 
   constructor(props, context) {
     super(props, context);
 
+    let muiTheme = this.context.muiTheme;
     this._style = {
-      backgroundColor: '#29aae2', // @todo refactor
-      color: '#fff', // @todo refactor
-      height: '64px', // @todo refactor
+      backgroundColor: muiTheme.appBar.color,
+      color: muiTheme.appBar.textColor,
+      fontSize: 32,
+      height: muiTheme.appBar.height * 2,
       margin: 0,
-      padding: '1rem', // @todo refactor
+      padding: muiTheme.rawTheme.spacing.desktopGutter,
       width: '100%'
     };
   }
@@ -48,10 +68,16 @@ export default class Logo extends React.Component {
    * @public
    * @returns {object} Abstracted React/JSX DOM representation to render to HTML
    * @this Logo
+   * @todo refactor split into Header->Brand(Avatar)->Company(text) components,
+   *  each w/own style. Space/align logo and Company text a bit.
    */
   render() {
     return (
-      <h1 style={this._style}>Unicorn</h1>
+      <header style={this._style}>
+        <Avatar backgroundColor="#145591" size={65} src="assets/images/unicorn-logo-300.png">
+          Unicorn
+        </Avatar>
+      </header>
     );
   }
 

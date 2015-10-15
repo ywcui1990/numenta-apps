@@ -15,10 +15,19 @@
 //
 // http://numenta.org/licenses/
 
+// externals
 
+import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
 import Dygraph from 'dygraphs';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
+import ThemeManager from 'material-ui/lib/styles/theme-manager';
+
+// internals
+
+import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
+
+const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 
 
 /**
@@ -35,6 +44,7 @@ import React from 'react';
  *  possibly using Reacts's `shouldComponentUpdate()` method to skip React's
  *  state change => render cycle for DyGraphs to not have it's DOM node reset.
  */
+@applyMaterialTheme(ThemeDecorator)
 export default class Chart extends React.Component {
 
   static get propTypes () {
@@ -53,11 +63,18 @@ export default class Chart extends React.Component {
     };
   }
 
+  static get contextTypes() {
+    return {
+      muiTheme: React.PropTypes.object
+    };
+  }
+
   constructor(props, context) {
     super(props, context);
 
+    let muiTheme = this.context.muiTheme;
     this._style = {
-      height: '256px', // @todo refactor
+      height: muiTheme.rawTheme.spacing.desktopKeylineIncrement,
       width: '100%'
     };
 

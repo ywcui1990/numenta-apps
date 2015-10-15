@@ -94,7 +94,7 @@ export default class ModelDataStore extends BaseStore {
    *         </code>
    */
   getData(modelId) {
-    return this._models.get(modelId) || {modelId: modelId, data:[], modified:0};
+    return this._models.get(modelId) || {modelId, data:[], modified:0};
   }
 
 }

@@ -39,7 +39,7 @@ let ConfigClient;
 if (isElectronRenderer) { // desktop
   let remote;
   try {
-    remote = require('remote');
+    remote = require('remote'); // eslint-disable-line
   } catch (error) { /* Ignore */ }
   ConfigClient = remote.require('./lib/ConfigServer'); // pseduo-ConfigClientIPC
 } else { // web
