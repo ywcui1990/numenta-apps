@@ -106,7 +106,6 @@ class SupervisorChecker(MonitorDispatcher):
     )
 
 
-
   @MonitorDispatcher.registerCheck
   def checkSupervisordState(self):
     """ Check that supervisord is running
@@ -120,7 +119,6 @@ class SupervisorChecker(MonitorDispatcher):
     if state.get("statename") != "RUNNING":
       raise SupervisorNotRunning("Supervisor does not appear to be running:"
                                  "{}".format(repr(state)))
-
 
 
   @MonitorDispatcher.registerCheck

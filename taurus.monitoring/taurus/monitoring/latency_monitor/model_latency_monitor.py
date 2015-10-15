@@ -183,7 +183,6 @@ class ModelLatencyChecker(MonitorDispatcher):
     return response.json()
 
 
-
   @MonitorDispatcher.registerCheck
   def checkAllModelLatency(self):
     """ Check all model latencies by querying Taurus API for all models, and

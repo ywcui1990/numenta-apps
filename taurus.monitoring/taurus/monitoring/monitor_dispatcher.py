@@ -105,7 +105,6 @@ class MonitorDispatcher(object):
     return hashlib.sha1(str(excValue)).digest()
 
 
-
   @classmethod
   def clearAllNotificationsInteractiveConsoleScriptEntryPoint(cls):
     """ Interactive utility for manually clearing out all notifications.
@@ -138,7 +137,6 @@ class MonitorDispatcher(object):
     monitorsdb.retryOnTransientErrors(monitorsdb.engineFactory().execute)(cmd)
 
     print "Notifications deleted."
-
 
 
   @classmethod
@@ -190,6 +188,7 @@ class MonitorDispatcher(object):
                     .format(repr((checkFn, excType, excValue))))
 
     return False
+
 
   @classmethod
   def preventDuplicates(cls, dispatchNotification):
