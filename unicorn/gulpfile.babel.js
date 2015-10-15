@@ -20,6 +20,7 @@
 
 import child from 'child_process';
 import gulp from 'gulp';
+import path from 'path';
 import util from 'gulp-util';
 import webpack from 'webpack';
 import webpacker from 'webpack-stream';
@@ -70,7 +71,7 @@ gulp.task('webpack', ()  => {
             loader: 'file-loader'
           },
 
-          // styles
+          // style
           {
             test: /\.css$/,
             loaders: ['style', 'css']
@@ -89,7 +90,8 @@ gulp.task('webpack', ()  => {
         ]
       },
       output: {
-        filename: 'bundle.js'
+        filename: 'bundle.js',
+        publicPath: path.join(__dirname, '/frontend/browser/assets/bundle/')
       },
       plugins: [
         new webpack.IgnorePlugin(/vertx/)  // @TODO remove in fluxible 4.x
@@ -100,7 +102,7 @@ gulp.task('webpack', ()  => {
       target,
       verbose: true
     }))
-    .pipe(gulp.dest('frontend/browser/'));
+    .pipe(gulp.dest('frontend/browser/assets/bundle/'));
 });
 
 
