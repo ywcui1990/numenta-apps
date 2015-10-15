@@ -291,7 +291,8 @@ class ResultQualityTests(test_case_base.TestCaseBase):
     """
     rows = []
 
-    @test_case_base.retry(duration=30)
+    @retry(timeoutSec=30, initialRetryDelaySec=0.5, 
+          retryExceptions=(AssertionError,))
     def getBatch(amqpClient):
       message = amqpClient.getOneMessage(self.resultsQueueName, noAck=False)
 
