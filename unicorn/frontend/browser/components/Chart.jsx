@@ -15,12 +15,14 @@
 //
 // http://numenta.org/licenses/
 
+
 // externals
 
-import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
 import Dygraph from 'dygraphs';
-import Paper from 'material-ui/lib/paper';
 import React from 'react';
+
+import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
+import Paper from 'material-ui/lib/paper';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 // internals
@@ -43,11 +45,13 @@ const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
  *  And, React's `render()` should be overrided with DyGraphs `updateOptions()`,
  *  possibly using Reacts's `shouldComponentUpdate()` method to skip React's
  *  state change => render cycle for DyGraphs to not have it's DOM node reset.
+ * @todo The MaterialUI theme decorator commented out 2 lines below causes
+ *  the Chart to not render?!
  */
-@applyMaterialTheme(ThemeDecorator)
+// @applyMaterialTheme(ThemeDecorator)
 export default class Chart extends React.Component {
 
-  static get propTypes () {
+  static get propTypes() {
     return {
       data: React.PropTypes.array.isRequired,
       options: React.PropTypes.object,
@@ -55,7 +59,7 @@ export default class Chart extends React.Component {
     };
   }
 
-  static get defaultProps () {
+  static get defaultProps() {
     return {
       data: [],
       options: {},
@@ -74,7 +78,7 @@ export default class Chart extends React.Component {
 
     let muiTheme = this.context.muiTheme;
     this._style = {
-      height: muiTheme.rawTheme.spacing.desktopKeylineIncrement,
+      height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 5,
       width: '100%'
     };
 

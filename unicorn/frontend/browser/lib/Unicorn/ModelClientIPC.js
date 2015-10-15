@@ -71,7 +71,7 @@ export default class ModelClientIPC {
       } else if (command === 'close') {
         setTimeout(() => this._handleCloseModel(modelId ,payload));
       } else {
-        throw new Error(`Unknown command: ${command} ${payload}`);
+        console.error(`Unknown command: ${command} ${payload}`); // eslint-ignore-line
       }
     }
   }

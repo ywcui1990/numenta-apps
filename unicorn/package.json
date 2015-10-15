@@ -23,7 +23,7 @@
     "check": "npm install && npm prune && npm outdated -depth 0",
     "clean": "npm run clean:npm && npm run clean:db && npm run clean:docs",
     "clean:db": "rm -f $HOME/Library/Application\\ Support/unicorn/database/*",
-    "clean:docs": "rm -Rf frontend/docs/unicorn/",
+    "clean:docs": "rm -Rf frontend/docs/",
     "clean:npm": "rm -Rf node_modules/",
     "desktop": "UNICORN_TARGET=desktop npm run prepare && npm run electron",
     "desktop:debug": "UNICORN_TARGET=desktop npm run prepare && npm run electron:debug",
