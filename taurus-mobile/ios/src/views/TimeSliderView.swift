@@ -47,7 +47,9 @@ class TimeSliderView: UIView {
     let labelFormatter = NSDateFormatter()
    
     var openColor : CGColorRef = UIColor.whiteColor().CGColor
-    var closedColor : CGColorRef =  UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0).CGColor
+    var closedColor : CGColorRef =  UIColor(red: 192.0/255.0, green: 192.0/255.0, blue: 192.0/255.0, alpha: 80.0/255.0).CGColor
+    
+    let leftMargin = 10.0
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -77,13 +79,13 @@ class TimeSliderView: UIView {
         let interval = aggregation.milliseconds()
         
         var time :Int64 = (Int64(endDate.timeIntervalSince1970*1000)/interval)*interval
-        
-        let barWidth = Double(Double(rect.width)/Double(chartTotalBars))
-        var left = Double(rect.width) - barWidth-0.5
+         let floatWidth = Double(rect.width)
+        let barWidth = (floatWidth -  (leftMargin * 2)) / Double(chartTotalBars)
+        var left = Double(rect.width) - barWidth-0.5 - leftMargin
 
         let top = Double(frame.origin.y)
         let bottom = Double(frame.height)
-        
+        var lastLeft: Double = Double(frame.width) - leftMargin
      //   print (endDate)
         // Draw right to left all of the bars.
         while (bar>0){
@@ -112,8 +114,10 @@ class TimeSliderView: UIView {
                     CGContextSetFillColorWithColor(context, self.closedColor)
                 }
                 
-               
-                let backRect : CGRect = CGRectMake((CGFloat(left)), CGFloat(top), (CGFloat(barWidth+0.5)), CGFloat(bottom))
+                
+                let width :Double = ceil(lastLeft - left)
+                lastLeft  -= width
+                let backRect : CGRect = CGRectMake(floor(CGFloat(lastLeft)), CGFloat(top), floor(CGFloat(width)), CGFloat(bottom))
               //  print (backRect)
                 
                 CGContextSetAllowsAntialiasing (context, false)
@@ -150,6 +154,7 @@ class TimeSliderView: UIView {
             
             }
             
+      //      lastLeft = left
             left -= barWidth
             time -= interval
             bar--
