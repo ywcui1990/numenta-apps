@@ -253,9 +253,9 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
                        "-DPYTHON_INCLUDE_DIR={pythonIncludeDir}").format(
                            capnpPrefixPath=capnpTmp,
                            pythonLibDir=libdir,
-                           pythonIncludeDir=includeDir),
+                           pythonIncludeDir=includeDir[0]),
                       env=env, logger=logger)
-        runWithOutput("VERBOSE=1 make -j 4", env=env, logger=logger)
+        runWithOutput("make -j 4", env=env, logger=logger)
         runWithOutput("make install", env=env, logger=logger)
 
       # need to remove this folder to allow the caching process to work
