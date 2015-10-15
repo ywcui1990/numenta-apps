@@ -47,14 +47,14 @@ const StoreDecorator = () => ({});
 @connectToStores([ModelStore], StoreDecorator)
 export default class Model extends React.Component {
 
-  static get contextTypes () {
+  static get contextTypes() {
     return {
       executeAction: React.PropTypes.func,
       getStore: React.PropTypes.func
     };
   }
 
-  static get propTypes () {
+  static get propTypes() {
     return {
       modelId: React.PropTypes.string.isRequired
     };
@@ -62,6 +62,12 @@ export default class Model extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+
+    this._style = {
+      marginBottom: '1rem',
+      width: '100%'
+    };
+
     let store = this.context.getStore(ModelStore);
     let model = store.getModel(this.props.modelId);
     this.state = Object.assign({}, model);
@@ -77,23 +83,10 @@ export default class Model extends React.Component {
     this.context.executeAction(StopModelAction, this.props.modelId);
   }
 
-  _getStyles() {
-    return {
-      root: {
-        width: '80%',
-        padding: '10px',
-        marginLeft: '256px'
-      }
-    };
-  }
-
   render() {
-    let styles = this._getStyles();
+    let actions, avatar, title, titleColor;
     let model = this.state;
-    let actions;
-    let avatar;
-    let title;
-    let titleColor;
+
     if (model.active) {
       actions = (
         <CardActions  expandable={true}>
@@ -110,8 +103,9 @@ export default class Model extends React.Component {
       title = model.metric;
       titleColor = Colors.darkBlack;
     }
+
     return (
-      <Card initiallyExpanded={true} style={styles.root}>
+      <Card initiallyExpanded={true} style={this._style}>
         <CardHeader showExpandableButton={true}
           subtitle={model.filename}
           avatar={avatar}

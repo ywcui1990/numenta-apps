@@ -56,7 +56,6 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
       MaterialUI/   # Material UI lib helper code
       Unicorn/      # Unicorn lib helper code = Client libraries
     stores/         # Fluxible Stores JS
-    stylesheets/    # UI SASS/SCSS styling for components
   config/           # JS Config files loaded by nconf
   database/         # File-based database storage (levelup + leveldown)
     schema/         # Database defintion schemas in JSON
@@ -117,8 +116,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
       [Learn More!](http://jlongster.com/Taming-the-Asynchronous-Beast-with-CSP-in-JavaScript)
     * Facebook [Flow](http://flowtype.org/) JS Typing
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
-  * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS) with
-    [SASS](http://sass-lang.com) pre-processing
+  * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS)
 * Framework: [Electron](https://github.com/atom/electron)
   * Engines: [Chromium](https://www.chromium.org/Home),
       [Node.js](https://github.com/joyent/node)
@@ -182,7 +180,7 @@ loop run, and GUI loop continuation:
 
 * ECMAScript Styleguide: `npm run lint`, Rules: `.eslintrc`
 * HTML5 @TODO
-* CSS3/SASS @TODO
+* CSS3 @TODO
 
 
 ## Setup

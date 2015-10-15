@@ -90,7 +90,8 @@
     "material-ui": "0.12.3",
     "nconf": "0.8.2",
     "react": "0.13.3",
-    "react-tap-event-plugin": "0.1.7"
+    "react-tap-event-plugin": "0.1.7",
+    "roboto-fontface": "0.4.2"
   },
   "devDependencies": {
     "babel-core": "5.8.23",
@@ -107,6 +108,7 @@
     "eslint": "1.6.0",
     "eslint-plugin-jsdoc": "1.1.0",
     "eslint-plugin-react": "3.5.1",
+    "file-loader": "0.8.4",
     "gulp": "3.9.0",
     "gulp-util": "3.0.6",
     "http-server": "0.8.5",
@@ -114,10 +116,9 @@
     "lev": "3.2.3",
     "mocha": "2.3.3",
     "node-inspector": "0.12.3",
-    "node-sass": "3.3.3",
-    "sass-loader": "3.0.0",
     "source-map-support": "0.3.2",
     "style-loader": "0.12.4",
+    "url-loader": "0.5.6",
     "webpack": "1.12.2",
     "webpack-stream": "2.1.1"
   }

@@ -18,10 +18,11 @@
 
 // externals
 
+import 'roboto-fontface/css/roboto-fontface.css';
+
 import csp from 'js-csp';
 import React from 'react';
 
-import AppBar from 'material-ui/lib/app-bar';
 import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
 import FloatingActionButton from 'material-ui/lib/floating-action-button';
 import MenuItem from 'material-ui/lib/menus/menu-item';
@@ -30,10 +31,7 @@ import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 // internals
 
-import '../stylesheets/Main.scss';
-
 import FileAddAction from '../actions/FileAdd';
-import FileList from '../components/FileList';
 import FileUploadAction from '../actions/FileUpload';
 import LeftNav from '../components/LeftNav';
 import ModelList from '../components/ModelList';
@@ -53,7 +51,7 @@ const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 @applyMaterialTheme(ThemeDecorator)
 export default class MainComponent extends React.Component {
 
-  static get contextTypes () {
+  static get contextTypes() {
     return {
       executeAction: React.PropTypes.func.isRequired
     };
@@ -61,6 +59,7 @@ export default class MainComponent extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+    this._style = {};
   }
 
   /**
@@ -108,22 +107,15 @@ export default class MainComponent extends React.Component {
    * @TODO Tooltip on + ADD icon - "Upload new CSV file" or something
    */
   render() {
-    let style = {zIndex: 4};
     return (
-      <main>
-        <AppBar title="Unicorn" zDepth={4} style={style} />
+      <main style={this._style}>
         <LeftNav />
-        <nav>
-          <ModelList />
-          <FileList />
-        </nav>
-        <section>
-          <h1>Unicorn</h1>
-          <FloatingActionButton onClick={this._onClick.bind(this)} zDepth={6}>
+        <section style={{marginLeft:'256px', padding:'1rem'}}>
+          <FloatingActionButton onClick={this._onClick.bind(this)}>
             <SvgIconContentAdd/>
           </FloatingActionButton>
-          <input onChange={this._onFileSelect.bind(this)} ref="fileInput"
-                 type="file" />
+          <input onChange={this._onFileSelect.bind(this)} ref="fileInput" style={{display:'none'}} type="file" />
+          <ModelList />
         </section>
       </main>
     );

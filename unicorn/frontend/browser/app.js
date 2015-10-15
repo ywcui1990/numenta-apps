@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (config.get('NODE_ENV') !== 'production') {
-    window.React = React; // expose to React dev tools
+    window.React = React; // expose dev tools to browser
   }
 
   tapEventInject(); // @TODO remove when >= React 1.0
@@ -121,6 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
       React.render(contextEl, document.body);
     })
     .catch((error) => {
-      throw new Error('Unable to start Application:', error);
+      console.error('App Startup Error:', error); // eslint-disable-line
     });
 }); // DOMContentLoaded

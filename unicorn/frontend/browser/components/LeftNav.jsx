@@ -18,19 +18,13 @@
 
 // externals
 
+import Paper from 'material-ui/lib/paper';
 import React from 'react';
-
-import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
-import MuiLeftNav from 'material-ui/lib/left-nav';
-import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 // internals
 
-import '../stylesheets/LeftNav.scss';
-
-import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
-
-const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
+import FileList from '../components/FileList';
+import Logo from '../components/Logo';
 
 
 /**
@@ -41,11 +35,31 @@ const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
  * @public
  * @this LeftNav
  */
-@applyMaterialTheme(ThemeDecorator)
 export default class LeftNav extends React.Component {
+
+  static get propTypes() {
+    return {
+      zDepth: React.PropTypes.number
+    };
+  }
+
+  static get defaultProps() {
+    return {
+      zDepth: 1
+    };
+  }
 
   constructor(props, context) {
     super(props, context);
+
+    this._style = {
+      backgroundColor: '#fff', // @todo refactor
+      height: '100%',
+      left: 0,
+      position: 'fixed',
+      top: 0,
+      width: 256 // @todo refactor
+    };
   }
 
   /**
@@ -56,9 +70,11 @@ export default class LeftNav extends React.Component {
    * @this LeftNav
    */
   render() {
-    let menuItems = {};
     return (
-      <MuiLeftNav className="LeftNav" menuItems={menuItems} title="Unicorn" zDepth={16} />
+      <Paper style={this._style} zDepth={this.props.zDepth}>
+        <Logo />
+        <FileList />
+      </Paper>
     );
   }
 

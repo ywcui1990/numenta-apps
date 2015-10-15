@@ -16,16 +16,9 @@
 // http://numenta.org/licenses/
 
 
-// externals
-
 import Dygraph from 'dygraphs';
-import React from 'react';
-
 import Paper from 'material-ui/lib/paper';
-
-// internals
-
-import '../stylesheets/Chart.scss';
+import React from 'react';
 
 
 /**
@@ -62,6 +55,11 @@ export default class Chart extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+
+    this._style = {
+      height: '256px', // @todo refactor
+      width: '100%'
+    };
 
     // DyGraphs chart container
     this._dygraph = null;
@@ -195,7 +193,7 @@ export default class Chart extends React.Component {
 
   render() {
     return (
-      <Paper className="chart" ref="chart" zDepth={this.props.zDepth} />
+      <Paper ref="chart" style={this._style} zDepth={this.props.zDepth} />
     );
   }
 

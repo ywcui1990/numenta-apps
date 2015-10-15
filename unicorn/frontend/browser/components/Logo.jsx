@@ -15,21 +15,44 @@
 //
 // http://numenta.org/licenses/
 
+
+import React from 'react';
+
+
 /**
- * Component SASS Stylesheet: Main
+ * Logo custom View Component
+ * @class
+ * @extends React.Component
+ * @module
+ * @public
+ * @this Logo
  */
-body {
-  background: #eee;
+export default class Logo extends React.Component {
 
-  > main {
-    background: #eee;
+  constructor(props, context) {
+    super(props, context);
 
-    > section {
-      margin-left: 256px;
-
-      > input[type="file"] {
-        display: none;
-      }
-    }
+    this._style = {
+      backgroundColor: '#29aae2', // @todo refactor
+      color: '#fff', // @todo refactor
+      height: '64px', // @todo refactor
+      margin: 0,
+      padding: '1rem', // @todo refactor
+      width: '100%'
+    };
   }
+
+  /**
+   * Render
+   * @method
+   * @public
+   * @returns {object} Abstracted React/JSX DOM representation to render to HTML
+   * @this Logo
+   */
+  render() {
+    return (
+      <h1 style={this._style}>Unicorn</h1>
+    );
+  }
+
 }

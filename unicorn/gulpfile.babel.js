@@ -60,25 +60,31 @@ gulp.task('webpack', ()  => {
       devtool: 'source-map',
       module: {
         loaders: [
-          // styling
+          // fonts
+          {
+            test: /\.woff(2)?$/,
+            loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+          },
+          {
+            test: /\.(ttf|eot|svg)$/,
+            loader: 'file-loader'
+          },
+
+          // styles
           {
             test: /\.css$/,
             loaders: ['style', 'css']
-          },
-          {
-            test: /\.scss$/,
-            loaders: ['style', 'css', 'sass']
           },
 
           // script
           {
             test: /\.(js|jsx)$/,
-            loaders: ['babel?stage=1'],
+            loader: 'babel?stage=1',
             exclude: /node_modules/
           },
           {
             test: /\.json$/,
-            loaders: ['json']
+            loader: 'json'
           }
         ]
       },
@@ -89,7 +95,7 @@ gulp.task('webpack', ()  => {
         new webpack.IgnorePlugin(/vertx/)  // @TODO remove in fluxible 4.x
       ],
       resolve: {
-        extensions: ['', '.css', '.js', '.json', '.jsx', '.scss']
+        extensions: ['', '.css', '.js', '.json', '.jsx']
       },
       target,
       verbose: true

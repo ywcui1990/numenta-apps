@@ -21,16 +21,11 @@
 
 // externals
 
-import React from 'react';
-
-import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
 import connectToStores from 'fluxible-addons-react/connectToStores';
-
 import Checkbox from 'material-ui/lib/checkbox';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
-import Paper from 'material-ui/lib/paper';
-import ThemeManager from 'material-ui/lib/styles/theme-manager';
+import React from 'react';
 
 // internals
 
@@ -38,13 +33,11 @@ import AddModelAction from '../actions/AddModel';
 import DeleteModelAction from '../actions/DeleteModel';
 import FileStore from '../stores/FileStore';
 import ModelStore from '../stores/ModelStore';
-import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
 import Utils from '../../lib/Utils';
 
 const StoreDecorator = (context) => ({
   files: context.getStore(FileStore).getFiles()
 });
-const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 
 
 /**
@@ -54,27 +47,13 @@ const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
  * @public
  * @extends React.Component
  */
-@applyMaterialTheme(ThemeDecorator)
 @connectToStores([FileStore, ModelStore], StoreDecorator)
 export default class FileList extends React.Component {
 
   static get contextTypes() {
     return {
       executeAction: React.PropTypes.func,
-      getStore: React.PropTypes.func,
-      muiTheme: React.PropTypes.object
-    };
-  }
-
-  static get propTypes() {
-    return {
-      zDepth: React.PropTypes.number
-    };
-  }
-
-  static get defaultProps() {
-    return {
-      zDepth: 1
+      getStore: React.PropTypes.func
     };
   }
 
@@ -84,21 +63,6 @@ export default class FileList extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     this.setState(Object.assign({}, this.state, nextProps));
-  }
-
-  _getStyles() {
-    let leftNavStyle = this.context.muiTheme.leftNav;
-    return {
-      root: {
-        position: 'fixed',
-        height: '100%',
-        width: leftNavStyle.width,
-        top: 0,
-        left: 0,
-        zIndex: 10,
-        backgroundColor: leftNavStyle.color
-      }
-    };
   }
 
   _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
@@ -151,16 +115,15 @@ export default class FileList extends React.Component {
   }
 
   render() {
-    let styles = this._getStyles();
     return (
-      <Paper style={styles.root} zDepth={this.props.zDepth}>
+      <nav>
         <List subheader="Sample Data">
           {this._renderFiles('sample')}
         </List>
         <List subheader="Your Data">
           {this._renderFiles('uploaded')}
         </List>
-      </Paper>
+      </nav>
     );
   }
 
