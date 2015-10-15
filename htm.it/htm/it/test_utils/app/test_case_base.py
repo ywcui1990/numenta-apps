@@ -39,11 +39,41 @@ from htm.it.app import repository
 from htm.it.app.repository import schema
 from htmengine.repository.queries import MetricStatus
 
-from nta.utils.error_handling import retry
 
 from htmengine.model_checkpoint_mgr import model_checkpoint_mgr
 
 LOGGER = logging.getLogger(__name__)
+
+
+
+def retry(duration=15, delay=0.5, exceptionTypes=(AssertionError,)):
+  """Decorator for assertion function may take some time to become true.
+
+  This takes the total duration to wait and the delay to wait between attempts
+  at running a function and returns a decorator that will run the function
+  until duration has elapsed or it returns without an AssertionError. If the
+  duration is reached, the most recent error is re-raised.
+  """
+  def retryDecorator(f):
+    @functools.wraps(f)
+    def newFunc(*args, **kwargs):
+      deadline = time.time() + duration
+      et, ei, tb = None, None, None
+      i = 0
+      while time.time() < deadline:
+        i += 1
+        try:
+          firstLine = (f.__doc__ or "").strip().split("\n")[0]
+          LOGGER.info("Attempt %i of %s: %s", i, f.__name__, firstLine)
+          response = f(*args, **kwargs)
+          return response
+        except exceptionTypes:
+          et, ei, tb = sys.exc_info()
+          time.sleep(delay)
+      # If we hit the deadline, re-raise the last error seen
+      raise et, ei, tb
+    return newFunc
+  return retryDecorator
 
 
 
@@ -91,8 +121,7 @@ class TestCaseBase(unittest.TestCase):
         (i, seq1[i], seq2[i]))
 
 
-  @retry(timeoutSec=600, initialRetryDelaySec=5, 
-        retryExceptions=(AssertionError,))
+  @retry(duration=600, delay=5)
   def getModelResults(self, uid, resultCount):
     urlString = "https://localhost/_models/%s/data" % uid
     response = requests.get(urlString,
@@ -104,8 +133,7 @@ class TestCaseBase(unittest.TestCase):
     return data
 
 
-  @retry(timeoutSec=45, initialRetryDelaySec=1, 
-        retryExceptions=(AssertionError,))
+  @retry(duration=45, delay=1)
   def checkModelIsActive(self, uid):
     engine = repository.engineFactory()
     with engine.begin() as conn:
@@ -116,8 +144,7 @@ class TestCaseBase(unittest.TestCase):
     self.assertEqual(metricObj.status, MetricStatus.ACTIVE)
 
 
-  @retry(timeoutSec=30, initialRetryDelaySec=1, 
-        retryExceptions=(AssertionError,))
+  @retry(duration=30, delay=1)
   def checkMetricUnmonitoredById(self, uid):
     engine = repository.engineFactory()
     with engine.begin() as conn:
@@ -133,8 +160,7 @@ class TestCaseBase(unittest.TestCase):
       model_checkpoint_mgr.ModelCheckpointMgr().loadModelDefinition(uid)
 
 
-  @retry(timeoutSec=30, initialRetryDelaySec=0.5, 
-        retryExceptions=(AssertionError,))
+  @retry(duration=30)
   def checkMetricCreated(self, metricName, numRecords=None):
     """Check that the new metrics show up in custom metrics list.
 
@@ -155,8 +181,7 @@ class TestCaseBase(unittest.TestCase):
     return nameToMetric[metricName]["uid"]
 
 
-  @retry(timeoutSec=15, initialRetryDelaySec=0.5, 
-        retryExceptions=(AssertionError,))
+  @retry()
   def checkAutostackCreated(self, uid):
     """Check that the new Autostack shows up in Autostacks list.
 
@@ -168,8 +193,7 @@ class TestCaseBase(unittest.TestCase):
     self.assertIn(uid, uidSet)
 
 
-  @retry(timeoutSec=60, initialRetryDelaySec=0.5, 
-        retryExceptions=(AssertionError,))
+  @retry(duration=60)
   def checkModelDeleted(self, uid):
     """Check that the model has been deleted"""
 
@@ -182,8 +206,7 @@ class TestCaseBase(unittest.TestCase):
       model_checkpoint_mgr.ModelCheckpointMgr().loadModelDefinition(uid)
 
 
-  @retry(timeoutSec=15, initialRetryDelaySec=0.5, 
-        retryExceptions=(AssertionError,))
+  @retry()
   def checkAutostackDeleted(self, uid):
     """Check that the Autostack has been deleted"""
     response = requests.get("https://localhost/_autostacks",
@@ -193,8 +216,7 @@ class TestCaseBase(unittest.TestCase):
                           "Autostack showing up after deletion.")
 
 
-  @retry(timeoutSec=15, initialRetryDelaySec=0.5, 
-        retryExceptions=(AssertionError,))
+  @retry()
   def checkModelResultsDeleted(self, uid):
     """Check that the model results have been deleted"""
     response = requests.get("https://localhost/_models/%s/data" % uid,
@@ -202,8 +224,7 @@ class TestCaseBase(unittest.TestCase):
     self.assertEqual(len(response.json()["data"]), 0)
 
 
-  @retry(timeoutSec=15, initialRetryDelaySec=0.5, 
-        retryExceptions=(AssertionError,))
+  @retry()
   def checkMetricDeleted(self, metricName):
     """Make sure the metric no longer shows up in the custom metric list
     TODO: since this is specific to HTM-IT Custom metrics, rename to
@@ -215,8 +236,7 @@ class TestCaseBase(unittest.TestCase):
                      set(m["name"] for m in response.json()))
 
 
-  @retry(timeoutSec=15, initialRetryDelaySec=0.5, 
-        retryExceptions=(AssertionError,))
+  @retry()
   def checkStats(self, metricName, mn, mx):
     """Check that stats are computed correctly from the database"""
     engine = repository.engineFactory()
@@ -233,8 +253,7 @@ class TestCaseBase(unittest.TestCase):
     self.assertAlmostEqual(stats["max"], mx)
 
 
-  @retry(timeoutSec=15, initialRetryDelaySec=0.5, 
-        retryExceptions=(AssertionError,))
+  @retry()
   def checkEncoderResolution(self, uid, minVal, maxVal):
     """Check that encoder resolution is computed correctly."""
     engine = repository.engineFactory()
@@ -256,8 +275,7 @@ class TestCaseBase(unittest.TestCase):
     self.assertLess(encoderParams["resolution"], upper)
 
 
-  @retry(timeoutSec=100, initialRetryDelaySec=1, 
-        retryExceptions=(AssertionError,))
+  @retry(duration=100, delay=1)
   def checkModelResultsSize(self, uid, size, atLeast=False):
     """Check that the number of results for metric uid matches size.
 
@@ -288,8 +306,7 @@ class TestCaseBase(unittest.TestCase):
       self.assertIsNotNone(result)
 
 
-  @retry(timeoutSec=75, initialRetryDelaySec=1, 
-        retryExceptions=(AssertionError,))
+  @retry(duration=75, delay=1)
   def checkModelResults(self, uid, expectedResults):
     """Check that the results for metric uid match expectedResults.
 

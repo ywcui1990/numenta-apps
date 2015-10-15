@@ -29,7 +29,7 @@ import time
 import boto
 import boto.ec2
 
-from nta.utils.error_handling import retry
+from nupic.support import decorators
 
 from htm.it.app import config
 import htm.it.app.exceptions
@@ -186,13 +186,13 @@ def retryOnEC2TransientError(logger=logging.root,
 
     return True
 
-  return retry(
+  return decorators.retry(
     timeoutSec=timeoutSec,
     initialRetryDelaySec=INITIAL_RETRY_BACKOFF_SEC,
     maxRetryDelaySec=MAX_RETRY_BACKOFF_SEC,
     retryExceptions=RETRY_EXCEPTIONS,
     retryFilter=retryFilter,
-    logger=logger,
+    getLoggerCallback=lambda: logger,
     clientLabel="retryOnEC2TransientError")
 
 
