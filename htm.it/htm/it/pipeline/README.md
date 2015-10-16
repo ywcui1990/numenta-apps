@@ -3,7 +3,7 @@ The pipeline can be run end-to-end via the driver script, or each individual ste
 
 #### Prerequisites
 - Ensure the products repository dir is exported in PRODUCTS variable
-- Run `$PRODUCTS/install-htm-it.sh <INSTALL_DIR> <SCRIPT_DIR>` where `<INSTALL_DIR>` is a valid folder on your `PYTHONPATH` and `<SCRIPT_DIR>` is a valid folder on your `PATH`
+- Run `$PRODUCTS/install-htm-it.sh <PREFIX>` where `<PREFIX>` conforms to the Python prefix scheme described at https://docs.python.org/2/install/#how-installation-works
 - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables must be set
 - Set `HTM_IT_HOME` to `$PRODUCTS/htm-it` to use your existing checkout
 - When running locally, make to sure to set "BUILD_WORKSPACE" to one level above your

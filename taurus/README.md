@@ -24,7 +24,7 @@ First, install `nta.utils`, `htmengine` and `taurus.metric_collectors`.  Then, t
 `install-taurus.sh` is included at the root of the `numenta-apps` repository as a
 convenient alternative:
 
-    ./install-taurus.sh <site-packages in $PYTHONPATH> <somewhere in $PATH>
+    ./install-taurus.sh <PREFIX>
 
 The configuration files for production reside in `conf/`.  It is recommended
 that you copy and rename this directory so that you may make the required

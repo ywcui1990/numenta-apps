@@ -26,11 +26,9 @@ automatically with htm-it.
 
 ::
 
-    ./install-htm-it.sh <site-packages in $PYTHONPATH> <somewhere in $PATH>
+    ./install-htm-it.sh <PREFIX>
 
-The first directory can be any directory on your `PYTHONPATH`. The second directory can be any directory on your `PATH`.
-
-- e.g., `./install-htm-it.sh /opt/numenta/anaconda/lib/python2.7/site-packages/ /opt/numenta/anaconda/bin/`
+- e.g., `./install-htm-it.sh /opt/numenta/anaconda`
 
 
 Config
