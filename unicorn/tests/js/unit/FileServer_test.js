@@ -78,7 +78,8 @@ const EXPECTED_MAX_PARTIAL = 21;
 // Keep this list up to date with file names in "frontend/samples"
 const EXPECTED_SAMPLE_FILES = ['file1.csv', 'gym.csv'];
 
-const FILENAME = path.resolve(__dirname, 'fixtures/file.csv');
+const FILENAME_SMALL = path.resolve(__dirname, 'fixtures/file.csv');
+const FILENAME_LARGE = path.resolve(__dirname, 'fixtures/rec-center-15.csv');
 
 
 describe('FileServer', () => {
@@ -89,7 +90,7 @@ describe('FileServer', () => {
   });
 
   describe('#getSampleFiles()', () => {
-    it('List sample files', (done) => {
+    it('should list sample files', (done) => {
       server.getSampleFiles((error, files) => {
         assert.ifError(error);
         assert.deepEqual(files.map((f) => {
@@ -104,8 +105,8 @@ describe('FileServer', () => {
   });
 
   describe('#getContents', () => {
-    it('Get File Contents', (done) => {
-      server.getContents(FILENAME, (error, data) => {
+    it('should get File Contents', (done) => {
+      server.getContents(FILENAME_SMALL, (error, data) => {
         assert.ifError(error);
         assert.equal(data, EXPECTED_CONTENT, 'Got different file content');
         done();
@@ -114,8 +115,8 @@ describe('FileServer', () => {
   });
 
   describe('#getFields', () => {
-    it('Get fields using default options', (done) => {
-      server.getFields(FILENAME, (error, fields) => {
+    it('should get fields using default options', (done) => {
+      server.getFields(FILENAME_SMALL, (error, fields) => {
         assert.ifError(error);
         fields.forEach((field, index) => {
           // match object keys
@@ -139,9 +140,9 @@ describe('FileServer', () => {
   });
 
   describe('#getData', () => {
-    it('Get data using default options', (done) => {
+    it('should get data using default options', (done) => {
       let i = 0;
-      server.getData(FILENAME, (error, data) => {
+      server.getData(FILENAME_SMALL, (error, data) => {
         assert.ifError(error);
         if (data) {
           let row = JSON.parse(data);
@@ -152,8 +153,8 @@ describe('FileServer', () => {
       });
     });
 
-    it('Get data with limit=1', (done) => {
-      server.getData(FILENAME, {limit: 1}, (error, data) => {
+    it('should get data with limit=1', (done) => {
+      server.getData(FILENAME_SMALL, {limit: 1}, (error, data) => {
         assert.ifError(error);
         if (data) {
           let row = JSON.parse(data);
@@ -163,11 +164,32 @@ describe('FileServer', () => {
         }
       });
     });
+
+    it('should get aggregated data', (done) => {
+      let options = {
+        limit: 1,
+        aggregation: {
+          'timefield': 'timestamp',
+          'valuefield': 'kw_energy_consumption',
+          'function': 'count',
+          'interval': 24 * 60 * 60 * 1000
+        }
+      };
+      server.getData(FILENAME_LARGE, options, (error, data) => {
+        assert.ifError(error);
+        if (data) {
+          let row = JSON.parse(data);
+          assert.equal(row['kw_energy_consumption'], 96);
+        } else {
+          done();
+        }
+      });
+    });
   });
 
   describe('#getStatistics', () => {
-    it('Get statistics for the whole file', (done) => {
-      server.getStatistics(FILENAME, (error, data) => {
+    it('should get statistics for the whole file', (done) => {
+      server.getStatistics(FILENAME_SMALL, (error, data) => {
         assert.ifError(error);
         assert.equal(data.count, EXPECTED_COUNT, 'Got different "Count"');
         assert.equal(data.fields['metric'].min, EXPECTED_MIN,
@@ -186,8 +208,8 @@ describe('FileServer', () => {
       });
     });
 
-    it('Get statistics for some records of the file', (done) => {
-      server.getStatistics(FILENAME, {limit: 2}, (error, data) => {
+    it('should get statistics for some records of the file', (done) => {
+      server.getStatistics(FILENAME_SMALL, {limit: 2}, (error, data) => {
         assert.ifError(error);
         assert.equal(data.fields['metric'].min, EXPECTED_MIN_PARTIAL);
         assert.equal(data.fields['metric'].max, EXPECTED_MAX_PARTIAL);

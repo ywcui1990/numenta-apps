@@ -31,6 +31,7 @@
 import csv from 'csv-streamify';
 import fs from 'fs';
 import path from 'path';
+import TimeAggregator from './TimeAggregator';
 import Utils from './Utils';
 
 // internals
@@ -174,20 +175,34 @@ FileServer.prototype.getFields = function(filename, options, callback) {
  *                    See https://github.com/klaemo/csv-stream#options
  *                    <code>
  *                     {
- *                       delimiter: ',', // comma, semicolon, whatever
- *                       newline: 'n', // newline character
- *                       quote: '"', // what's considered a quote
- *                       empty: '', // empty fields are replaced by this,
+ *                        delimiter: ',', // comma, semicolon, whatever
+ *                        newline: 'n', // newline character
+ *                        quote: '"', // what's considered a quote
+ *                        empty: '', // empty fields are replaced by this,
  *
- *                       // if true, emit array of {Object}s
- *                       // instead of array of strings
- *                       objectMode: false,
+ *                        // if true, emit array of {Object}s
+ *                        // instead of array of strings
+ *                        objectMode: false,
  *
- *                       // if set to true, uses first row as keys ->
- *                       // [ { column1: value1, column2: value2 , ...]}
- *                       columns: true,
- *                       // Max Number of records to process
- *                       limit: Number.MAX_SAFE_INTEGER
+ *                        // if set to true, uses first row as keys ->
+ *                        // [ { column1: value1, column2: value2 , ...]}
+ *                        columns: true,
+ *
+ *                        // Max Number of records to process
+ *                        limit: Number.MAX_SAFE_INTEGER,
+ *
+ *                        // Aggregation settings. See {TimeAggregator}
+ *                        aggregation: {
+ *                       		// Name of the field representing 'time'
+ *                          'timefield' : {String},
+ *                          // Name of the field containing the 'value'
+ *                          'valuefield': {String},
+ *                          // Aggregation function to use:
+ *                          //   'sum', 'count', 'avg', 'min', 'max'
+ *                          'function' : {String},
+ *                          // Time interval in milliseconds
+ *                          'interval' : {number}
+ *                        }
  *                      }
  *                    </code>
  * @param  {Function} callback: This callback to be called on every record.
@@ -209,15 +224,22 @@ FileServer.prototype.getData = function(filename, options, callback) {
   }
 
   let limit = options.limit;
-  let stream = fs.createReadStream(path.resolve(filename));
-  stream.pipe(csv(options))
+  let fileStream = fs.createReadStream(path.resolve(filename));
+  let csvParser = csv(options);
+  let lastStream = csvParser;
+  let aggregator;
+  if ('aggregation' in options) {
+    aggregator = new TimeAggregator(options['aggregation']);
+    lastStream = aggregator;
+  }
+  lastStream
     .on('data', function(data) {
       if (limit > 0) {
         callback(null, data);
       }
       if (limit === 0) {
-        stream.unpipe();
-        stream.destroy();
+        fileStream.unpipe();
+        fileStream.destroy();
         callback();
       }
       limit -= 1;
@@ -231,6 +253,12 @@ FileServer.prototype.getData = function(filename, options, callback) {
     .once('end', function() {
       callback();
     });
+
+  if (aggregator) {
+    fileStream.pipe(csvParser).pipe(aggregator);
+  } else {
+    fileStream.pipe(csvParser);
+  }
 };
 
 /**
