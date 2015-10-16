@@ -325,8 +325,7 @@ pushd "${REPOPATH}"
     "cd /opt/numenta/products &&
      ./taurus/pipeline/scripts/uninstall_nupic.py &&
      ./install-taurus.sh \
-        /opt/numenta/anaconda/lib/python2.7/site-packages \
-        /opt/numenta/anaconda/bin &&
+        /opt/numenta/anaconda &&
      taurus-set-rabbitmq \
         --host=${RABBITMQ_HOST} \
         --user=${RABBITMQ_USER} \
@@ -372,8 +371,7 @@ pushd "${REPOPATH}"
   ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products &&
      ./install-taurus-metric-collectors.sh \
-        /opt/numenta/anaconda/lib/python2.7/site-packages \
-        /opt/numenta/anaconda/bin &&
+        /opt/numenta/anaconda &&
      taurus-set-collectorsdb-login \
         --host=${MYSQL_HOST} \
         --user=${MYSQL_USER} \

@@ -1,11 +1,9 @@
+cx_freeze==4.3.4
 validictory==0.9.1
 
 # NuPIC HTM
-nupic==0.3.0
-
-# Other Numenta projects
-htmengine>=0.0.0
-nta.utils>=0.0.0
+nupic==0.3.4
 
 # required by tests
 mock==1.0.1
+nta.utils>=0.0.0

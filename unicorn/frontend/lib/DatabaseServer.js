@@ -30,47 +30,56 @@
 
 // externals
 
-import jsondown from 'jsondown';
 import jsonQuery from 'jsonquery-engine';
 import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
+import leveldown from 'leveldown';
 import path from 'path';
 import sublevel from 'level-sublevel';
 import { Validator } from 'jsonschema';
-
 
 // internals
 
 import FileSchema from '../database/schema/File.json';
 import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
-import ModelSchema from '../database/schema/Model.json';
-import ModelDataSchema from '../database/schema/ModelData.json';
 
-const DB_FILE_PATH = path.join('frontend', 'database', 'data', 'unicorn.json');
+let location;
+try {
+  // This module is only available inside 'Electron' main process
+  // See https://github.com/atom/electron/blob/master/docs/api/app.md
+  const app = require('app');
+  location = path.join(app.getPath('userData'), 'database');
+} catch (e) {
+  // Falls back to local directory
+  location = path.join('frontend', 'database', 'data');
+}
+const DB_FILE_PATH = location;
 
 
 // MAIN
 
 /**
- *
+ * Unicorn DatabaseServer
+ * @class
+ * @module
+ * @param  {[string]} path database location (optional)
+ * @returns {object} this
+ * @this DatabaseServer
  */
-var DatabaseServer = function() {
+var DatabaseServer = function(path) {
   this.validator = new Validator();
   // this.validator.addSchema(AddressSchema, '/Address');
 
-  this.db = sublevel(levelup(DB_FILE_PATH, {
-    db: jsondown,
+  let location = path || DB_FILE_PATH;
+  this.levelup = levelup(location, {
     valueEncoding: 'json'
-  }));
+  });
+  this.db = sublevel(this.levelup);
 };
 
-/**
- * Get a single DB value
- */
-DatabaseServer.prototype.get = function(key, callback) {
-  this.db.get(key, callback);
-};
+
+// GETTERS
 
 /**
  * Get a single File
@@ -118,7 +127,7 @@ DatabaseServer.prototype.getMetrics = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('metric'));
   table.query.use(jsonQuery());
-  // table.ensureIndex('last_rowid');
+  table.ensureIndex('file_uid');
   table.query(query)
     .on('stats', () => {})
     .on('error', (error) => {
@@ -137,11 +146,19 @@ DatabaseServer.prototype.getMetrics = function(query, callback) {
 
 /**
  * Get all/queried MetricDatas records
+ * @callback
+ * @method
+ * @param {object} query - DB Query filter object (jsonquery-engine),
+ *  empty object "{}" for all results.
+ * @param {function} [callback] - Async callback: function (error, results) {}
+ * @public
+ * @this DatabaseServer
  */
 DatabaseServer.prototype.getMetricDatas = function(query, callback) {
   let results = [];
   let table = levelQuery(this.db.sublevel('metricData'));
   table.query.use(jsonQuery());
+  table.ensureIndex('metric_uid');
   table.query(query)
     .on('stats', () => {})
     .on('error', (error) => {
@@ -154,70 +171,32 @@ DatabaseServer.prototype.getMetricDatas = function(query, callback) {
       if (result) {
         results.push(result);
       }
+
+      // sort by uid, metric_uid, rowid
+      results.sort((a, b) => {
+        if (a.metric_uid === b.metric_uid) {
+          if (a.uid === b.uid) {
+            if (a.rowid > b.rowid) {
+              return 1;
+            }
+            if (a.rowid < b.rowid) {
+              return -1;
+            }
+            return 0;
+          } else {
+            return a.metric_uid.localeCompare(b.metric_uid);
+          }
+        } else {
+          return a.uid.localeCompare(b.uid);
+        }
+      });
+
       callback(null, results);
     });
 };
 
-/**
- * Get a single Model
- */
-DatabaseServer.prototype.getModel = function(uid, callback) {
-  let table = this.db.sublevel('model');
-  table.get(uid, callback);
-};
 
-/**
- * Get all/queried Models
- */
-DatabaseServer.prototype.getModels = function(query, callback) {
-  let results = [];
-  let table = levelQuery(this.db.sublevel('model'));
-  table.query.use(jsonQuery());
-  table.query(query)
-    .on('stats', () => {})
-    .on('error', (error) => {
-      callback(error, null);
-    })
-    .on('data', (result) => {
-      results.push(result);
-    })
-    .on('end', (result) => {
-      if (result) {
-        results.push(result);
-      }
-      callback(null, results);
-    });
-};
-
-/**
- * Get all/queried ModelDatas records
- */
-DatabaseServer.prototype.getModelDatas = function(query, callback) {
-  let results = [];
-  let table = levelQuery(this.db.sublevel('modelData'));
-  table.query.use(jsonQuery());
-  table.query(query)
-    .on('stats', () => {})
-    .on('error', (error) => {
-      callback(error, null);
-    })
-    .on('data', (result) => {
-      results.push(result);
-    })
-    .on('end', (result) => {
-      if (result) {
-        results.push(result);
-      }
-      callback(null, results);
-    });
-};
-
-/**
- * Put a single DB value
- */
-DatabaseServer.prototype.put = function(key, value, callback) {
-  this.db.put(key, value, callback);
-};
+// SETTERS
 
 /**
  * Put a single File to DB
@@ -232,6 +211,41 @@ DatabaseServer.prototype.putFile = function(file, callback) {
   }
 
   table.put(file.uid, file, callback);
+};
+
+/**
+ * Put multiple Files into DB
+ * @callback
+ * @method
+ * @param {array} files - List of File objects to insert
+ * @param {function} callback - Async result handler: function (error, results)
+ * @public
+ * @this DatabaseServer
+ */
+DatabaseServer.prototype.putFiles = function (files, callback) {
+  let ops = [];
+  let table = this.db.sublevel('file');
+
+  // validate
+  files.forEach((file) => {
+    let validation = this.validator.validate(file, FileSchema);
+    if (validation.errors.length) {
+      callback(validation.errors, null);
+      return;
+    }
+  });
+
+  // prepare
+  ops = files.map((file) => {
+    return {
+      type: 'put',
+      key: file.uid,
+      value: file
+    };
+  });
+
+  // execute
+  table.batch(ops, callback);
 };
 
 /**
@@ -250,51 +264,106 @@ DatabaseServer.prototype.putMetric = function(metric, callback) {
 };
 
 /**
+ * Put multiple Metrics into DB
+ */
+DatabaseServer.prototype.putMetrics = function(metrics, callback) {
+  let ops = [];
+  let table = this.db.sublevel('metric');
+
+  // validate
+  metrics.forEach((metric) => {
+    let validation = this.validator.validate(metric, MetricSchema);
+    if (validation.errors.length) {
+      callback(validation.errors, null);
+      return;
+    }
+  });
+
+  // prepare
+  ops = metrics.map((metric) => {
+    return {
+      type: 'put',
+      key: metric.uid,
+      value: metric
+    };
+  });
+
+  // execute
+  table.batch(ops, callback);
+};
+
+/**
  * Put a single MetricData record to DB
  */
 DatabaseServer.prototype.putMetricData = function(metricData, callback) {
   let table = this.db.sublevel('metricData');
   let validation = this.validator.validate(metricData, MetricDataSchema);
 
+  if (typeof metricDatas === 'string') {
+    // JSONify here to get around Electron IPC remote() memory leaks
+    metricData = JSON.parse(metricData);
+  }
+
   if (validation.errors.length) {
     callback(validation.errors, null);
     return;
   }
 
-  table.put(metricData.metric_uid, metricData, callback);
+  table.put(metricData.uid, metricData, callback);
 };
 
 /**
- * Put a single Model to DB
+ * Put multiple MetricData records into DB
  */
-DatabaseServer.prototype.putModel = function(model, callback) {
-  let table = this.db.sublevel('model');
-  let validation = this.validator.validate(model, ModelSchema);
+DatabaseServer.prototype.putMetricDatas = function(metricDatas, callback) {
+  let ops = [];
+  let table = this.db.sublevel('metricData');
 
-  if (validation.errors.length) {
-    callback(validation.errors, null);
-    return;
+  if (typeof metricDatas === 'string') {
+    // JSONify here to get around Electron IPC remote() memory leaks
+    metricDatas = JSON.parse(metricDatas);
   }
 
-  table.put(model.uid, model, callback);
+  // validate
+  metricDatas.forEach((metricData) => {
+    let validation = this.validator.validate(metricData, MetricDataSchema);
+    if (validation.errors.length) {
+      callback(validation.errors, null);
+      return;
+    }
+  });
+
+  // prepare
+  ops = metricDatas.map((metricData) => {
+    return {
+      type: 'put',
+      key: metricData.uid,
+      value: metricData
+    };
+  });
+
+  // execute
+  table.batch(ops, callback);
 };
 
 /**
- * Put a single ModelData record to DB
+ * Completely remove an existing database directory.
+ * @param  {Function} callback called when the destroy operation is complete,
+ *                             with a possible error argument
  */
-DatabaseServer.prototype.putModelData = function(modelData, callback) {
-  let table = this.db.sublevel('modelData');
-  let validation = this.validator.validate(modelData, ModelDataSchema);
-
-  if (validation.errors.length) {
-    callback(validation.errors, null);
-    return;
-  }
-
-  table.put(modelData.model_uid, modelData, callback);
+DatabaseServer.prototype.destroy = function(callback) {
+  leveldown.destroy(this.levelup.location, callback);
 };
 
 
+/**
+ * closes the underlying LevelDB store
+ * @param  {Function} callback receive any error encountered during closing as
+ *                             the first argument
+ */
+DatabaseServer.prototype.close = function(callback) {
+  this.levelup.db.close(callback);
+};
 // EXPORTS
 
 module.exports = DatabaseServer;

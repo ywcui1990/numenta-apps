@@ -20,19 +20,27 @@
 
 'use strict';
 
-import AddModelAction from '../actions/AddModel';
-import DeleteModelAction from '../actions/DeleteModel';
-import connectToStores from 'fluxible-addons-react/connectToStores';
-import ModelStore from '../stores/ModelStore';
-import FileStore from '../stores/FileStore';
+
+// externals
+
 import Material from 'material-ui';
 import React from 'react';
 
-var ModelUtils = require('../lib/ModelUtils');
+// internals
+
+import AddModelAction from '../actions/AddModel';
+import DeleteModelAction from '../actions/DeleteModel';
+import connectToStores from 'fluxible-addons-react/connectToStores';
+import FileStore from '../stores/FileStore';
+import ModelStore from '../stores/ModelStore';
+import Utils from '../../lib/Utils';
 
 const {
   List, ListItem, Checkbox, Paper
 } = Material;
+
+
+// MAIN
 
 @connectToStores([ FileStore, ModelStore ], (context) => ({
   files: context.getStore(FileStore).getFiles()
@@ -88,7 +96,7 @@ export default class FileList extends React.Component {
     if (timestampField) {
       return file.metrics.map(metric => {
         if (metric.type !== 'date') {
-          let modelId = ModelUtils.generateModelId(file.filename, metric.name);
+          let modelId = Utils.generateModelId(file.filename, metric.name);
           let modelStore = this.context.getStore(ModelStore);
           let checked = modelStore.getModel(modelId)
             ? true

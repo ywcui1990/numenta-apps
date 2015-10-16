@@ -18,71 +18,90 @@
 // http://numenta.org/licenses/
 
 'use strict';
+
 import ipc from 'ipc';
+import ModelErrorAction from '../actions/ModelError';
 import ReceiveDataAction from '../actions/ReceiveData';
+import StopModelAction from '../actions/StopModel';
 
 const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
+
 
 export default class ModelClientIPC {
   constructor() {
     this._context = null;
   }
 
-  start(context) {
-    this._context = context;
+  start(actionContext) {
+    this._context = actionContext;
     ipc.on(MODEL_SERVER_IPC_CHANNEL, this._handleIPCEvent.bind(this));
+  }
+
+  createModel(modelId, params) {
+    ipc.send(MODEL_SERVER_IPC_CHANNEL, {
+      'modelId': modelId,
+      'command': 'create',
+      'params': JSON.stringify(params)
+    });
+  }
+
+  removeModel(modelId) {
+    ipc.send(MODEL_SERVER_IPC_CHANNEL, {
+      'modelId': modelId,
+      'command': 'remove'
+    });
+  }
+
+  sendData(modelId, data) {
+    ipc.send(MODEL_SERVER_IPC_CHANNEL, {
+      'modelId': modelId,
+      'command': 'sendData',
+      'params': JSON.stringify(data)
+    });
   }
 
   _handleIPCEvent(modelId, command, payload) {
     if (this._context) {
       if (command === 'data') {
-        this._context.executeAction(ReceiveDataAction, {
-          'modelId': modelId,
-          'data': JSON.parse(payload)
-        });
+        setTimeout(() => this._handleModelData(modelId, payload));
+      } else if (command === 'error') {
+        let {error, ipcevent} = payload;
+        setTimeout(() => this._handleIPCError(modelId, error, ipcevent));
+      } else if (command === 'close') {
+        setTimeout(() => this._handleCloseModel(modelId ,payload));
+      } else {
+        console.error('Unknown command:' + command, payload);
       }
     }
   }
 
-  createModel(modelId, params, callback) {
-    let res = ipc.sendSync(MODEL_SERVER_IPC_CHANNEL, {
-      'modelId': modelId,
-      'command': 'create',
-      'params': JSON.stringify(params)
-    });
-    if ('error' in res) {
-      callback(res['error']);
-    } else {
-      callback(null, {
-        'modelId': modelId
+  _handleIPCError(modelId, error, ipcevent) {
+    let command;
+    if (ipcevent && 'command' in ipcevent) {
+      command = ipcevent.command;
+    }
+    this._context.executeAction(ModelErrorAction, { command, modelId, error });
+  }
+
+  _handleCloseModel(modelId, error) {
+    if (error !== 0) {
+      this._context.executeAction(ModelErrorAction, {
+        'modelId': modelId,
+        'command': 'close',
+        'error': 'Error closing model ' + error
       });
+    } else {
+      this._context.executeAction(StopModelAction, modelId);
     }
   }
 
-  removeModel(modelId, callback) {
-    let res = ipc.sendSync(MODEL_SERVER_IPC_CHANNEL, {
-      'modelId': modelId,
-      'command': 'remove',
+  _handleModelData(modelId, payload) {
+    // Multiple data records are separated by `\n`
+    let data = payload.trim().split('\n').map((row) => {
+      if (row) {
+        return JSON.parse(row);
+      }
     });
-    if ('error' in res) {
-      callback(res['error']);
-    } else {
-      callback(null, {
-        'modelId': modelId
-      });
-    }
-  }
-
-  sendData(modelId, data, callback) {
-    let res = ipc.sendSync(MODEL_SERVER_IPC_CHANNEL, {
-      'modelId': modelId,
-      'command': 'data',
-      'params': JSON.stringify(data)
-    });
-    if ('error' in res) {
-      callback(res['error']);
-    } else {
-      callback(null, data);
-    }
+    this._context.executeAction(ReceiveDataAction, { modelId, data });
   }
 }

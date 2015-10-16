@@ -31,7 +31,7 @@ security-patch-packages:
     - pkgs:
       - bash
 
-# TODO: TAUR-759 Re-enable the openssl kludge after getting the grok pipeline
+# TODO: TAUR-759 Re-enable the openssl kludge after getting the htm-it pipeline
 # unstuck
 #      - openssl
 

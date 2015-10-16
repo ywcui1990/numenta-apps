@@ -49,14 +49,14 @@ class NumentaRPM(object):
       config = tmpConfig
     failmsg = None
     if config.sitePackagesTarball:
-      if config.flavor != "grok":
-        failmsg = "--site-packages is only used for grok packages."
+      if config.flavor != "htm-it":
+        failmsg = "--site-packages is only used for htm-it packages."
     if config.flavor == None:
       failmsg = "You must set a type of rpm to create with --rpm-flavor"
     if config.artifacts == []:
       failmsg = "You must specify artifacts in the fakeroot to package."
-      if config.flavor == "grok":
-        failmsg = failmsg + " Grok rpms should specify opt"
+      if config.flavor == "htm-it":
+        failmsg = failmsg + " HTM-IT rpms should specify opt"
       if config.flavor == "infrastructure":
         failmsg = failmsg + " Infrastructure rpms should specify opt"
       if config.flavor == "saltcellar":
@@ -162,8 +162,8 @@ class NumentaRPM(object):
 
     logger.debug("RPM flavor: %s", config.flavor)
 
-    if flavor == "grok":
-      return self.constructGrokFakeroot()
+    if flavor == "htm-it":
+      return self.constructHTMITFakeroot()
 
     if flavor == "infrastructure":
       return self.constructInfrastructureFakeroot()
@@ -171,13 +171,13 @@ class NumentaRPM(object):
     if flavor == "saltcellar":
       return self.constructSaltcellarFakeroot()
 
-    if flavor == "prebuiltgrok":
-      return self.constructPreBuiltGrokFakeroot()
+    if flavor == "prebuilthtm-it":
+      return self.constructPreBuiltHTMITFakeroot()
 
 
-  def constructPreBuiltGrokFakeroot(self):
+  def constructPreBuiltHTMITFakeroot(self):
     """
-    Construct fakeroot from prebuilt grok
+    Construct fakeroot from prebuilt htm-it
 
     :returns: SHA of the products repo in the fakeroot
     :rtype: tuple
@@ -197,7 +197,7 @@ class NumentaRPM(object):
     # Set extra python path
     self.setPythonPath()
 
-    # Clean Grok Scripts
+    # Clean HTM-IT Scripts
     self.cleanScripts()
 
     # Purge anything not whitelisted
@@ -312,7 +312,7 @@ class NumentaRPM(object):
     logger.debug("SHA in %s is %s", productsDirectory, fakerootSHA)
 
     # Clean everything not whitelisted out of products so we don't conflict
-    # with grok or taurus rpms
+    # with htm-it or taurus rpms
     purgeDirectory(path=productsDirectory,
                    whitelist=["__init__.py",
                               "infrastructure" ],
@@ -333,9 +333,9 @@ class NumentaRPM(object):
     return (iteration, fakerootSHA)
 
 
-  def constructGrokFakeroot(self):
+  def constructHTMITFakeroot(self):
     """
-    Construct a Grok fakeroot directory tree.
+    Construct a HTM-IT fakeroot directory tree.
 
     1. Add any directories specified with --extend-pythonpath to the PYTHONPATH
        we will be using for setup.py, build scripts and the cleanup scripts.
@@ -364,12 +364,12 @@ class NumentaRPM(object):
     fakeroot = self.fakeroot
     logger = self.logger
 
-    logger.info("Preparing Grok fakeroot in %s\n", fakeroot)
+    logger.info("Preparing HTM-IT fakeroot in %s\n", fakeroot)
 
-    actualSHA = self.installProductsIntoGrokFakeroot()
+    actualSHA = self.installProductsIntoHTMITFakeroot()
 
     productsDirectory = self.productsDirectory
-    grokPath = os.path.join(productsDirectory, "grok")
+    htm-itPath = os.path.join(productsDirectory, "htm-it")
     iteration = git.getCommitCount(productsDirectory, logger=logger)
 
     # Extend PYTHONPATH for setup.py, build & cleanup scripts
@@ -379,11 +379,11 @@ class NumentaRPM(object):
     # Set extra python path
     self.setPythonPath()
     environment = self.environment
-    sitePackagesDirectory = "%s/grok/lib/python2.7/site-packages" % \
+    sitePackagesDirectory = "%s/htm-it/lib/python2.7/site-packages" % \
                             productsDirectory
 
     # Install wheels if any have been specified
-    with changeToWorkingDir(grokPath):
+    with changeToWorkingDir(htm-itPath):
       for wheel in config.wheels:
         logger.info("Installing %s", os.path.basename(wheel))
         if not os.path.exists(wheel):
@@ -401,7 +401,7 @@ class NumentaRPM(object):
       pyDirPath = "%s/%s" % (productsDirectory, pyDir)
       logger.debug("Changing to %s", pyDirPath)
       with changeToWorkingDir(pyDirPath):
-        setupCommand = "python setup.py develop --prefix=%s/grok" % \
+        setupCommand = "python setup.py develop --prefix=%s/htm-it" % \
                        productsDirectory
         logger.debug("Running %s", setupCommand)
         runWithOutput(setupCommand, env=environment)
@@ -448,7 +448,7 @@ class NumentaRPM(object):
 
   def cleanScripts(self):
     """
-    Cleans the grok directory before packaging.
+    Cleans the htm-it directory before packaging.
     """
 
     productsDirectory = self.productsDirectory
@@ -490,7 +490,7 @@ class NumentaRPM(object):
     logger.debug("New PYTHONPATH: %s", pythonpath)
 
 
-  def installProductsIntoGrokFakeroot(self):
+  def installProductsIntoHTMITFakeroot(self):
     """
     Clone our git repo into the fakeroot directory tree.
 
@@ -519,7 +519,7 @@ class NumentaRPM(object):
                              "opt",
                              "numenta",
                              "products",
-                             "grok",
+                             "htm-it",
                              "lib",
                              "python2.7")
 
@@ -555,8 +555,8 @@ class NumentaRPM(object):
                       config.sha,
                       fakerootSHA)
 
-    # Force architecture to x86_64 for grok rpms if an arch hasn't been set
-    if config.flavor == "grok":
+    # Force architecture to x86_64 for htm-it rpms if an arch hasn't been set
+    if config.flavor == "htm-it":
       architecture = "x86_64"
 
     architecture = config.architecture

@@ -19,24 +19,73 @@
 
 'use strict';
 
-import FileClient from '../lib/FileClient';
+
+// internals
+
+import {ACTIONS} from '../lib/Constants';
+import {
+  DatabaseGetError, DatabasePutError, FilesystemGetError
+} from '../../lib/UserError';
+import Utils from '../../lib/Utils';
+
+
+// MAIN
+
 /**
  * Get List of files from backend
  */
 export default (actionContext) => {
   return new Promise((resolve, reject) => {
-    let fileClient = new FileClient();
-    fileClient.getSampleFiles((error, files) => {
+
+    let databaseClient = actionContext.getDatabaseClient();
+    let fileClient = actionContext.getFileClient();
+    let log = actionContext.getLoggerClient();
+
+    log.debug('load existing files from db, from previous runs');
+    databaseClient.getFiles({}, (error, files) => {
       if (error) {
-        console.log('Error getting files:', error);
-        actionContext.dispatch('LIST_FILES_FAILURE', {
-          'error': error
-        });
+        actionContext.dispatch(
+          ACTIONS.LIST_FILES_FAILURE,
+          new DatabaseGetError(error)
+        );
         reject(error);
-      } else {
-        actionContext.dispatch('LIST_FILES_SUCCESS', files);
+      } else if (files.length) {
+        log.debug('files in db already, not first run, straight to UI');
+        actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
         resolve(files);
+      } else {
+        log.debug('no files in db, first run, so load them from fs');
+        fileClient.getSampleFiles((error, files) => {
+          if (error) {
+            actionContext.dispatch(
+              ACTIONS.LIST_FILES_FAILURE,
+              new FilesystemGetError(error)
+            );
+            reject(error);
+          } else {
+            log.debug('got file list from fs, saving to db for next runs');
+            files = files.map((file) => {
+              file.uid = Utils.generateId(file.filename);
+              return file;
+            });
+
+            databaseClient.putFiles(files, (error) => {
+              if (error) {
+                actionContext.dispatch(
+                  ACTIONS.LIST_FILES_FAILURE,
+                  new DatabasePutError(error)
+                );
+                reject(error);
+              } else {
+                log.debug('DB now has Files, on to UI.');
+                actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
+                resolve(files);
+              }
+            }); // databaseClient.putFiles()
+          }
+        }); // fileClient.getSampleFiles()
       }
-    });
-  });
+    }); // databaseClient.getFiles()
+
+  }); // Promise
 };

@@ -225,12 +225,13 @@ pushd "${REPOPATH}"
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "cd /opt/numenta/products/taurus &&
      if [ -f taurus-supervisord.pid ]; then
+       supervisorctl --serverurl http://localhost:9001 stop all
+       nta-wait-for-supervisord-processes-stopped --supervisorApiUrl=http://localhost:9001
        supervisorctl --serverurl http://localhost:9001 shutdown
      fi  &&
      if [ -f /var/run/nginx.pid ]; then
        sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s stop;
      fi"
-
 
   # Sync git histories with taurus server for current HEAD
   ${GIT} push --force \
@@ -319,8 +320,7 @@ pushd "${REPOPATH}"
     "cd /opt/numenta/products &&
      ./taurus/pipeline/scripts/uninstall_nupic.py &&
      ./install-taurus.sh \
-        /opt/numenta/anaconda/lib/python2.7/site-packages \
-        /opt/numenta/anaconda/bin &&
+        /opt/numenta/anaconda &&
      taurus-set-rabbitmq \
         --host=${RABBITMQ_HOST} \
         --user=${RABBITMQ_USER} \
@@ -362,8 +362,7 @@ pushd "${REPOPATH}"
   ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products &&
      ./install-taurus-metric-collectors.sh \
-        /opt/numenta/anaconda/lib/python2.7/site-packages \
-        /opt/numenta/anaconda/bin &&
+        /opt/numenta/anaconda &&
      taurus-set-collectorsdb-login \
         --host=${MYSQL_HOST} \
         --user=${MYSQL_USER} \
@@ -379,7 +378,11 @@ pushd "${REPOPATH}"
        supervisorctl --serverurl http://localhost:8001 shutdown
      fi &&
      py.test tests/deployment/resource_accessibility_test.py &&
-     supervisord -c conf/supervisord.conf &&
+     if [ -f supervisord.pid ]; then
+       supervisorctl --serverurl http://localhost:8001 reload
+     else
+       supervisord -c conf/supervisord.conf
+     fi &&
      nta-wait-for-supervisord-running http://localhost:8001 &&
      py.test tests/deployment/health_check_test.py &&
      ${TAURUS_COLLECTOR_UNIT_AND_INTEGRATION_TESTS} &&

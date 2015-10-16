@@ -18,6 +18,7 @@
 // http://numenta.org/licenses/
 
 'use strict';
+import {ACTIONS} from '../lib/Constants';
 
 /**
  * Action used to send data to models
@@ -31,15 +32,6 @@
 export default (actionContext, payload) => {
   let modelClient = actionContext.getModelClient();
   let { modelId, data } = payload;
-  return new Promise((resolve, reject) => {
-    modelClient.sendData(modelId, data , (error) => {
-      if (error) {
-        actionContext.executeAction(StopModelAction, model.modelId);
-        console.error(error);
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
+  actionContext.dispatch(ACTIONS.SEND_DATA_SUCCESS, modelId);
+  modelClient.sendData(modelId, data);
 };

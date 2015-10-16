@@ -27,6 +27,7 @@ processes are started by the Model Scheduler service.
 
 import base64
 import cPickle as pickle
+from datetime import datetime
 import logging
 from optparse import OptionParser
 import select
@@ -86,7 +87,7 @@ class _ModelRunnerError(Exception):
 class ModelRunner(object):
 
   # How many exception traceback tail characters to include in error results
-  _MAX_TRACEBACK_TAIL = 100
+  _MAX_TRACEBACK_TAIL = 400
 
 
   def __init__(self, modelID):
@@ -374,8 +375,9 @@ class ModelRunner(object):
       return ModelCommandResult(
         commandID=command.commandID, method=command.method,
         status=e.errno if isinstance(e, _ModelRunnerError) else htmengineerrno.ERR,
-        errorMessage="%r failed on modelID=%s: %s. (tb: ...%s)" % (
-          command, self._modelID, str(e) or repr(e),
+        errorMessage="%s - %r failed on modelID=%s: %s. (tb: ...%s)" % (
+          datetime.utcnow().isoformat(), command, self._modelID,
+          str(e) or repr(e),
           traceback.format_exc()[-self._MAX_TRACEBACK_TAIL:]))
 
 
@@ -513,8 +515,9 @@ class ModelRunner(object):
       self._logger.exception("%r: Inference failed for row=%r", self, row)
       return ModelInferenceResult(rowID=row.rowID,
         status=e.errno if isinstance(e, _ModelRunnerError) else htmengineerrno.ERR,
-        errorMessage="Inference failed for rowID=%s of modelID=%s (%r): "
-          "(tb: ...%s)" % (row.rowID, self._modelID, e,
+        errorMessage="%s - Inference failed for rowID=%s of modelID=%s (%r): "
+          "(tb: ...%s)" % (datetime.utcnow().isoformat(),
+                           row.rowID, self._modelID, e,
                            traceback.format_exc()[-self._MAX_TRACEBACK_TAIL:]))
 
 

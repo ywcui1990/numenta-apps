@@ -258,8 +258,8 @@ def buildTaggingMapAndStreamFilterParams(metricSpecs, authHandler):
 
   # Generate stream filter parameters
   streamFilterParams = dict(
-    track=[("@" + screen) for screen in screenNameToMetricsMap] +
-      [("$" + ticker) for ticker in symbolToMetricMap],
+    track=([("@" + screen) for screen in screenNameToMetricsMap] +
+           [("$" + ticker) for ticker in symbolToMetricMap]),
     follow=userIdToMetricsMap.keys(),
     stall_warnings=True
   )
@@ -472,28 +472,32 @@ class TweetStorer(object):
 
   class _CurrentStreamStats(_StreamingStatsBase):
     def __init__(self):
-      super(TweetStorer._CurrentStreamStats, self).__init__()
+      super(TweetStorer._CurrentStreamStats,  # pylint: disable=W0212
+            self).__init__()
 
       # Starting datetime of the current stream
       self.startingDatetime = None
 
     def __str__(self):
       return "%s; started=%s" % (
-        super(TweetStorer._CurrentStreamStats, self).__str__(),
+        super(TweetStorer._CurrentStreamStats,  # pylint: disable=W0212
+              self).__str__(),
         (self.startingDatetime.replace(microsecond=0).isoformat()
          if self.startingDatetime else None),)
 
 
   class _RuntimeStreamingStats(_StreamingStatsBase):
     def __init__(self):
-      super(TweetStorer._RuntimeStreamingStats, self).__init__()
+      super(TweetStorer._RuntimeStreamingStats,  # pylint: disable=W0212
+            self).__init__()
 
       # 1-based number of the current stream
       self.streamNumber = None
 
     def __str__(self):
       return "%s; streamNumber=%s" % (
-        super(TweetStorer._RuntimeStreamingStats, self).__str__(),
+        super(TweetStorer._RuntimeStreamingStats,  # pylint: disable=W0212
+              self).__str__(),
         self.streamNumber,)
 
 
@@ -537,7 +541,7 @@ class TweetStorer(object):
                       aggSec=aggSec,
                       msgQ=msgQ,
                       echoData=echoData)
-    tweetStorer._run()
+    tweetStorer._run()  # pylint: disable=W0212
 
 
   def _run(self):
@@ -571,28 +575,25 @@ class TweetStorer(object):
       tweets = deletes = None
       try:
         tweets, deletes = self._reapMessages(messages)
-      except Exception:
+      except Exception:  # pylint: disable=W0703
         g_log.exception("_reapMessages failed")
-        pass
 
       # Save (re)tweets
       if tweets:
         try:
           self._saveTweets(messages=tweets, aggRefDatetime=aggRefDatetime)
-        except Exception:
+        except Exception:  # pylint: disable=W0703
           g_log.exception("Failed to save numTweets=%d", len(tweets))
-          pass
 
       # Save deletion requests
       if deletes:
         try:
           self._saveTweetDeletionRequests(messages=deletes)
-        except Exception:
+        except Exception:  # pylint: disable=W0703
           g_log.exception("Failed to save deletion numRequests=%d",
                           len(deletes))
           for msg in deletes:
             g_log.error("Failed to save deletion msg=%s", msg)
-          pass
 
       # Echo messages to stdout if requested
       if self._echoData:
@@ -875,7 +876,7 @@ class TweetStorer(object):
       try:
         tweet, references = self._createTweetAndReferenceRows(msg,
                                                               aggRefDatetime)
-      except Exception:
+      except Exception:  # pylint: disable=W0703
         g_log.exception("Failed to reap tweet=%s", msg)
       else:
         tweetRows.append(tweet)
@@ -968,7 +969,7 @@ class TweetForwarder(object):
     :param int aggSec: metric aggregation period in seconds
     """
     g_log.info("%s thread is running", cls.__name__)
-    cls()._run()
+    cls()._run()  # pylint: disable=W0212
 
 
   def _run(self):
@@ -1175,7 +1176,7 @@ class MetricDataForwarder(object):
     :param int aggSec: metric aggregation period in seconds
     """
     g_log.info("%s thread is running", cls.__name__)
-    cls(metricSpecs, aggSec)._run()
+    cls(metricSpecs, aggSec)._run()  # pylint: disable=W0212
 
 
   def _run(self):
@@ -1307,7 +1308,7 @@ class MetricDataForwarder(object):
         self.aggregateAndForward(
           aggStartDatetime=aggStartDatetime,
           stopDatetime=aggStartDatetime + periodTimedelta)
-      except Exception:
+      except Exception:  # pylint: disable=W0703
         return lastEmittedAggTime
 
       # Update db with last successfully-emitted datetime
@@ -1362,7 +1363,7 @@ def _parseArgs():
   helpString = (
     "%prog [options]"
     "This fetches twitter messages directly from twitter and sends message "
-    "volume to grok server as custom metrics. Metric configuration is in "
+    "volume to htm-it server as custom metrics. Metric configuration is in "
     "conf/metrics.json.")
 
   parser = OptionParser(helpString)
@@ -1524,56 +1525,44 @@ def main():
 
       raise
 
+    numPartitions = options["numPartitions"]
+
     opMode = config.get("twitter_direct_agent", "opmode")
 
     g_log.info("Starting TwitterStreamListener(s) with options=%r", options)
 
-    metricSpecs = loadMetricSpecs()
-
-    # Start forwarders
-    metricDataForwarderThread = None
-    tweetForwarderThread = None
-    if opMode == config.OP_MODE_ACTIVE:
-      # Start Metric Data Forwarder
-      metricDataForwarderThread = threading.Thread(
-        target=MetricDataForwarder.runInThread,
-        kwargs=dict(metricSpecs=metricSpecs,
-                    aggSec=options["aggPeriod"]))
-      metricDataForwarderThread.setDaemon(True)
-      metricDataForwarderThread.start()
-      g_log.info("Started MetricDataForwarder thread")
-
-      # Start Tweet Forwarder
-      if options["forwardNonMetric"]:
-        tweetForwarderThread = threading.Thread(
-          target=TweetForwarder.runInThread)
-        tweetForwarderThread.setDaemon(True)
-        tweetForwarderThread.start()
-        g_log.info("Started TweetForwarder thread")
-
-
-    numPartitions = options["numPartitions"]
-    metricPartitions = _partition(metricSpecs, numPartitions)
-
-    assert len(metricPartitions) == numPartitions, (
-      len(metricPartitions), numPartitions)
-    assert len(metricSpecs) == sum(len(part) for part in metricPartitions)
-
-    # Create a process pool with number of processes equal to the number of
-    # partitions
-    taskOptions = dict(options.iteritems())
-    taskOptions.pop("numPartitions")
-    taskOptions.pop("forwardNonMetric")
-
-    tasks = [
-      dict(
-        [["metricSpecs", part]] + taskOptions.items())
-      for part in metricPartitions
-    ]
-
-    g_log.info("Creating multiprocessing pool with numWorkers=%d", len(tasks))
-    workerPool = multiprocessing.Pool(processes=len(tasks))
+    # NOTE: we must fork the process pool before running any other code
+    # in the main process that may invoke collectorsdb.engineFactory(),
+    # because the collectorsdb engine factory implementation is not fork-safe.
+    # The processes must be forked *before* the engine instance is allocated
+    # by the engine factory singleton.
+    g_log.info("Creating multiprocessing pool with numWorkers=%d",
+               numPartitions)
+    workerPool = multiprocessing.Pool(processes=numPartitions)
     try:
+
+      metricSpecs = loadMetricSpecs()
+
+      metricPartitions = _partition(metricSpecs, numPartitions)
+
+      assert len(metricPartitions) == numPartitions, (
+        len(metricPartitions), numPartitions)
+      assert len(metricSpecs) == sum(len(part) for part in metricPartitions)
+
+      # Create a process pool with number of processes equal to the number of
+      # partitions
+      taskOptions = dict(options.iteritems())
+      taskOptions.pop("numPartitions")
+      taskOptions.pop("forwardNonMetric")
+
+      tasks = [
+        dict(
+          [["metricSpecs", part]] + taskOptions.items())
+        for part in metricPartitions
+      ]
+
+      # Start tweet streamers
+      #
       # NOTE: we run workerPool.imap_unordered from a thread because the Pool
       # is otherwise somehow interfering with the processing of SIGINT and our
       # process just hangs when supervisord tries to shut it down.
@@ -1584,7 +1573,28 @@ def main():
       poolRunnerThread.start()
       g_log.info("Started Pool Runner thread")
 
-      # Wait for it to exit, which it never should
+      # Start forwarders
+      metricDataForwarderThread = None
+      tweetForwarderThread = None
+      if opMode == config.OP_MODE_ACTIVE:
+        # Start Metric Data Forwarder
+        metricDataForwarderThread = threading.Thread(
+          target=MetricDataForwarder.runInThread,
+          kwargs=dict(metricSpecs=metricSpecs,
+                      aggSec=options["aggPeriod"]))
+        metricDataForwarderThread.setDaemon(True)
+        metricDataForwarderThread.start()
+        g_log.info("Started MetricDataForwarder thread")
+
+        # Start Tweet Forwarder
+        if options["forwardNonMetric"]:
+          tweetForwarderThread = threading.Thread(
+            target=TweetForwarder.runInThread)
+          tweetForwarderThread.setDaemon(True)
+          tweetForwarderThread.start()
+          g_log.info("Started TweetForwarder thread")
+
+      # Wait for the pooled tasks to complete, which they never should
       while True:
         # Passing a timeout value allows the join call to be interrupted by
         # SIGINT, which results in KeyboardInterrupt exception.
@@ -1607,7 +1617,6 @@ def main():
   except KeyboardInterrupt:
     # Log with exception info to help debug deadlocks
     g_log.info("Observed KeyboardInterrupt", exc_info=True)
-    pass
   except:
     g_log.exception("Failed")
     raise

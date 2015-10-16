@@ -32,6 +32,7 @@
 import csv from 'csv-streamify';
 import fs from 'fs';
 import path from 'path';
+import Utils from './Utils';
 
 // internals
 // @TODO move path to config
@@ -41,10 +42,10 @@ const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
 // MAIN
 
 /**
- *
+ * @class
+ * @module
  */
 var FileServer = function() {
-
 };
 
 
@@ -54,11 +55,11 @@ var FileServer = function() {
  * @param  {String}   filename: The absolute path of the CSV file to load
  */
 FileServer.prototype.getContents = function(filename, callback) {
-  fs.readFile(filename, function(err, data) {
-    if (err) {
-      console.error(filename + ':' + err);
+  fs.readFile(filename, function(error, data) {
+    if (error) {
+      console.error(filename + ':' + error);
     }
-    callback(err, data);
+    callback(error, data);
   });
 };
 
@@ -66,23 +67,23 @@ FileServer.prototype.getContents = function(filename, callback) {
  * Get a list of sample files embedded with the application
  */
 FileServer.prototype.getSampleFiles = function(callback) {
-  fs.readdir(SAMPLES_FILE_PATH, function(err, data) {
-    var files = [];
-    if (data) {
-      for (var i = 0; i < data.length; i++) {
-        var item = data[i];
-        var file = {
-          name: path.basename(item),
-          filename: path.resolve(SAMPLES_FILE_PATH, item),
-          type: 'sample'
-        };
-        files.push(file);
-      }
+  fs.readdir(SAMPLES_FILE_PATH, function(error, data) {
+    if (error) {
+      callback(error, null);
+      return;
     }
-    if (err) {
-      console.error(err);
-    }
-    callback(err, files);
+
+    let files = data.map((item) => {
+      let filename = path.resolve(SAMPLES_FILE_PATH, item);
+      return {
+        uid: Utils.generateId(filename),
+        name: path.basename(item),
+        filename: filename,
+        type: 'sample'
+      };
+    });
+
+    callback(null, files);
   });
 };
 
@@ -146,8 +147,10 @@ FileServer.prototype.getFields = function(filename, options, callback) {
         for (let fieldName in data) {
           let val = data[fieldName];
           let field = {
-            name: fieldName,
-            type: 'string'
+            'uid': Utils.generateModelId(filename, fieldName),
+            'file_uid': Utils.generateId(filename),
+            'name': fieldName,
+            'type': 'string'
           };
           if (Number.isFinite(Number(val))) {
             field.type = 'number';

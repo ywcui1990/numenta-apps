@@ -18,6 +18,7 @@
 // http://numenta.org/licenses/
 
 'use strict';
+import {ACTIONS} from '../lib/Constants';
 import StartModelAction from './StartModel';
 
 /**
@@ -34,9 +35,10 @@ import StartModelAction from './StartModel';
 export default (actionContext, payload) => {
   // TODO: Persist model reference
   let model = Object.assign({
-    active: false
+    active: false,
+    error: null
   }, payload);
-  actionContext.dispatch('ADD_MODEL_SUCCESS', model);
+  actionContext.dispatch(ACTIONS.ADD_MODEL_SUCCESS, model);
   // Start model
   return actionContext.executeAction(StartModelAction, model.modelId);
 };

@@ -45,7 +45,7 @@ if (isElectronRenderer) { // desktop
   let remote;
   try {
     remote = require('remote');
-  } catch (error) {}
+  } catch (error) { /* Ignore */ }
   ConfigClient = remote.require('./lib/ConfigServer'); // pseduo-ConfigClientIPC
 } else { // web
   ConfigClient = ConfigClientHTTP;
