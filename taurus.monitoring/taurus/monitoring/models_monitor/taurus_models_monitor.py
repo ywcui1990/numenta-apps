@@ -44,7 +44,7 @@ from taurus.monitoring.taurus_monitor_utils import (
 )
 
 
-
+_DB_ERROR_FLAG_FILE = "dbErrorFlagFile.csv"
 _MONITOR_NAME = __file__.split("/")[-1]
 
 
