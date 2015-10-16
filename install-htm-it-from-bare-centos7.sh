@@ -27,7 +27,7 @@
 #
 # ----------------------------------------------------------------------
 # This is a convenience script to install HTM-IT onto a bare Centos 7 machine.
-# 
+#
 # It was tested against a Centos 7 instance in AWS on 9 July 2015:
 #   AWS Marketplace: https://aws.amazon.com/marketplace/pp/B00O7WM7QW
 #   AMI ID: ami-c7d092f7 in us-west-2
@@ -70,7 +70,7 @@ cd /opt/numenta/numenta-apps/
 pip install paver==1.2.4 --user
 pip install uwsgi==2.0.4 --user
 pip install agamotto==0.5.1 --user
-./install-htm-it.sh /home/centos/.local/lib/python2.7/site-packages /home/centos/.local/bin
+./install-htm-it.sh /home/centos/.local
 
 # Start MySQL and Rabbit
 sudo service mysqld start

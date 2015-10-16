@@ -86,7 +86,7 @@ configure-private-settings() {
   splat
 
   echo "Write private settings from env vars to private-settings.sh file"
-  
+
   if [ -f /etc/htm.it/private-settings.sh ]; then
     sudo rm -f /etc/htm.it/private-settings.sh
   fi
@@ -180,7 +180,7 @@ install-htm-it() {
   sudo ln -s "${BOOTSCRIPTS_D}/prehtm-it.html" /usr/share/nginx/html/
 
   cd "${PRODUCTS}"
-  ./install-htm-it.sh "${NUMENTA}/lib/python2.7/site-packages" "${NUMENTA}/bin"
+  ./install-htm-it.sh "${NUMENTA}"
 }
 
 bootstrap-htm-it() {
