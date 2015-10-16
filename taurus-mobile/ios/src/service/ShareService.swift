@@ -25,7 +25,7 @@ import MessageUI
 
 /** class for handling social aspects of app
 */
-class ShareService {
+class ShareService  {
     /** provides a UI to share a screen shot of the current view
         - parameter controller: controller to take a screen shot of
     */
@@ -41,17 +41,22 @@ class ShareService {
     /** provides a UI to send an email with a screen shot of the current view
     - parameter controller: controller to take a screen shot of
     */
-    func feedback (controller: UIViewController){
+    func feedback (controller: UIViewController, presenter: MFMailComposeViewControllerDelegate){
         
         // make sure mail is configured.
         if (MFMailComposeViewController.canSendMail() == false){
-            let alert = UIAlertController(title: "Unable to send mail", message: "Please set up a mail account and try again.", preferredStyle: UIAlertControllerStyle.Alert)
+            
+            
+            let alert = UIAlertController(title: "Unable to send mail", message:
+                "Your device could not send e-mail.  Please check e-mail configuration and try again.", preferredStyle: UIAlertControllerStyle.Alert)
             alert.addAction(UIAlertAction(title: "Click", style: UIAlertActionStyle.Default, handler: nil))
             controller.presentViewController(alert, animated: true, completion: nil)
             return
         }
 
         let mailController = MFMailComposeViewController()
+        mailController.mailComposeDelegate = presenter
+        
         mailController.setToRecipients(["support@numenta.com"])
         mailController.setSubject("feedback")
         
@@ -60,7 +65,7 @@ class ShareService {
         let myData = UIImageJPEGRepresentation(screenshot, 0.9);
         mailController.addAttachmentData(myData!, mimeType:"image/jpg" ,fileName:"screenshot.jpg")
 
-         controller.presentViewController(mailController, animated: true, completion: nil)
+        controller.presentViewController(mailController, animated: true, completion: nil)
     }
     
     /** creates a screenshot of the view of the passed in controller
@@ -74,5 +79,7 @@ class ShareService {
 
         return image
     }
+    
+   
     
 }
