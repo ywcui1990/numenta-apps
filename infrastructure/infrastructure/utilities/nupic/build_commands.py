@@ -247,7 +247,7 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var("LIBDIR")
         includeDir = sysconfig.get_config_var("INCLUDEPY")
-        runWithOutput(("cmake ../../src -DCMAKE_INSTALL_PREFIX=../release "
+        runWithOutput(("cmake ../.. -DCMAKE_INSTALL_PREFIX=../release "
                        "-DCMAKE_PREFIX_PATH={capnpPrefixPath} "
                        "-DPYTHON_LIBRARY={pythonLibDir}/libpython2.7.so "
                        "-DPYTHON_INCLUDE_DIR={pythonIncludeDir}").format(
