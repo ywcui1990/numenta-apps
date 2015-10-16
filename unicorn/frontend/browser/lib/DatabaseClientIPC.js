@@ -60,7 +60,7 @@ export default class DatabaseClientIPC {
   /**
    *
    */
-  getFiles(query, callback) {
+  queryFile(query, callback) {
     let params = { query, callback };
     ipc.send(DATABASE_SERVER_IPC_CHANNEL, {
       command: 'getFiles',

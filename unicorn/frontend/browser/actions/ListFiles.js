@@ -42,7 +42,7 @@ export default (actionContext) => {
     let log = actionContext.getLoggerClient();
 
     log.debug('load existing files from db, from previous runs');
-    databaseClient.getFiles({}, (error, files) => {
+    databaseClient.queryFile({}, (error, files) => {
       if (error) {
         actionContext.dispatch(
           ACTIONS.LIST_FILES_FAILURE,
@@ -69,7 +69,7 @@ export default (actionContext) => {
               return file;
             });
 
-            databaseClient.putFiles(files, (error) => {
+            databaseClient.putFileBatch(files, (error) => {
               if (error) {
                 actionContext.dispatch(
                   ACTIONS.LIST_FILES_FAILURE,
@@ -85,7 +85,7 @@ export default (actionContext) => {
           }
         }); // fileClient.getSampleFiles()
       }
-    }); // databaseClient.getFiles()
+    }); // databaseClient.queryFile()
 
   }); // Promise
 };
