@@ -47,6 +47,7 @@ class AnomalyChartView: UIView {
     
     var minPadding : Double = 5.0
 
+    let leftMargin = 10.0
     
     /** init from interfact builder
     */
@@ -99,19 +100,19 @@ class AnomalyChartView: UIView {
         let emptyColor = UIColor.blackColor()
         
         
-        var right =  Double(rect.width)
-        let barWidth = right / Double(TaurusApplication.getTotalBarsOnChart())
+        var right =  Double(rect.width) -  leftMargin
+        let barWidth = (right - leftMargin) / Double(TaurusApplication.getTotalBarsOnChart())
         
         var left = right - barWidth
         var bar : CGRect = CGRect()
         let emptyBarHeight  = 4.0
         
-        bar.size.width = CGFloat(barWidth-1)
+        bar.size.width = CGFloat(barWidth-2)
         bar.origin.y = rect.height
         
         // Draw the data from right to left
         for value in data.lazy.reverse(){
-            if (right<0){
+            if (right < leftMargin+barWidth){
                 break
             }
             
@@ -137,26 +138,26 @@ class AnomalyChartView: UIView {
                 let level = getLevel(DataUtils.logScale(value.1))
              //   print (level)
                 if (level>=9000){
-                    color = UIColor.redColor().CGColor
-                    bar.size.height -= -0.0
-                } else if (level>4000){
-                    color = UIColor.yellowColor().CGColor
-                    bar.size.height += 5.0
-                }else {
-                    color = UIColor.greenColor().CGColor
+                    color = Appearence.redbarColor
                     bar.size.height += 10.0
+                } else if (level>4000){
+                    color = Appearence.yellowbarColor
+                    bar.size.height += 15.0
+                }else {
+                   color = Appearence.greenbarColor 
+                    bar.size.height += 24.0
                 }
                 
                 CGContextSetFillColorWithColor(context, color)
                 
-                bar.origin.x = CGFloat(left)
+                bar.origin.x = CGFloat(left)+1.0
                
                 CGContextAddRect(context, bar)
                 
                 CGContextFillPath(context)
                 CGContextRestoreGState( context)
         }
-         left -= barWidth
+            left -= barWidth
             right -= barWidth
         }
 

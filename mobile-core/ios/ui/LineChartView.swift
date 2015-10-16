@@ -106,10 +106,10 @@ class LineChartView: UIView {
                 let level = abs(value.1 * 10000.0)
                 
                 if (level>=9000){
-                    color = UIColor.redColor().CGColor
+                    color = Appearence.redbarColor
                     bar.size.height -= 10.0
                 } else if (level>4000){
-                    color = UIColor.yellowColor().CGColor
+                    color = Appearence.yellowbarColor
                     bar.size.height -= 5.0
                 }else {
                  //   color = UIColor.greenColor().CGColor

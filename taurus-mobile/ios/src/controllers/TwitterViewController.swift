@@ -23,6 +23,14 @@
 
 import UIKit
 
+
+class TwitterEntry{
+    var tweets: Int32 = 0
+    var data = [Tweet]()
+}
+
+
+
 class TwitterViewController: UIViewController, UITableViewDataSource, UITableViewDelegate  {
     
     @IBOutlet var timeSlider: TimeSliderView?
@@ -36,10 +44,11 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     @IBOutlet weak var menuButton:UIBarButtonItem!
     @IBOutlet weak var condensedToggle: UISwitch?
     
+       
     
-    var twittermap = [ Int64 : [Tweet]]()
+    var twittermap = [ Int64 : TwitterEntry]()
     var twitterIndex = [Int64]()
-
+    
     var showCondensed = false
     
     // Serial queue for loading chart data
@@ -120,6 +129,16 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         self.instanceTable.separatorColor = UIColor.lightGrayColor()
         configureView()
         
+        
+        let dayTimePeriodFormatter = NSDateFormatter()
+        dayTimePeriodFormatter.dateFormat = "EEE M/d"
+        
+        let dateString = dayTimePeriodFormatter.stringFromDate( self.timeSlider!.endDate)
+        
+        self.date?.text = dateString
+
+        
+        
         let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
         dispatch_async(dispatch_get_global_queue(priority, 0)) {
             self.loadTwitterData()
@@ -143,30 +162,48 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     
     /** header title
     */
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String?{
+   /* func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String?{
+       
+        
+        let s = formatter.stringFromDate ( date ) + " tweets: " + String(twitterEntry!.tweets)
+        return s
+    }*/
+    
+    
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let  cell = tableView.dequeueReusableCellWithIdentifier("TwitterHeaderCell")
+        let headerCell = cell as! TwitterHeaderCell
+        
         let ts = twitterIndex [section]
+        
+        
         let date = DataUtils.dateFromTimestamp(ts)
         
-       
+        
+        let twitterEntry = twittermap[ts]
+        
         let formatter = NSDateFormatter()
         formatter.dateFormat = "h:mma"
         
-        let s = formatter.stringFromDate ( date )
-        return s
+        headerCell.date.text = formatter.stringFromDate(date)
+        headerCell.tweetTotal.text = String(twitterEntry!.tweets)
+        return headerCell
+    
     }
+    
     
     /** Datasource delegate to return number of rows in a cell.
     */
     func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int{
         let tsIndex = twitterIndex[section]
-        let items : [Tweet]? = twittermap[tsIndex]
+        let twitterEntry = twittermap[tsIndex]
         
-        if ( items != nil){
-            return items!.count
+        if (twitterEntry==nil){
+            return 0
         }
+        let items : [Tweet] = twitterEntry!.data
         
-        
-        return 0
+        return items.count
     }
     
     
@@ -178,7 +215,10 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         
         let section = indexPath.section
         let tsIndex = twitterIndex[section]
-        let items : [Tweet]? = twittermap[tsIndex]
+        
+        let twitterEntry = twittermap[tsIndex]
+        
+        let items : [Tweet]? = twitterEntry!.data
         let tweet = items![ indexPath.item]
         
         if (showCondensed){
@@ -191,10 +231,22 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             
             }
             cell?.label?.attributedText = attrStr
+            
+            cell?.retweetCount.hidden = true
+            cell?.retweetImage.hidden = true
+            cell?.retweetTotal.hidden = true
+            
+            if (tweet.retweetCount > 1){
+                cell?.retweetCount.hidden = false
+                cell?.retweetCount.text = String (tweet.retweetCount)
+            }else{
+                cell?.retweetCount.hidden = true
+            }
         }else{
         
             let attrs = [NSFontAttributeName : UIFont.boldSystemFontOfSize(14.0)]
-            let attrStr = NSMutableAttributedString(string:"@" + tweet.userName, attributes:attrs)
+            let attrStr = NSMutableAttributedString(string:"@" + tweet.userName , attributes:attrs)
+            
             let bodyAttrs = [NSFontAttributeName : UIFont.systemFontOfSize(14.0)]
                let tweetText = NSMutableAttributedString(string: "\r\n" + tweet.text, attributes:bodyAttrs)
             
@@ -203,6 +255,28 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             
       
             cell?.label?.attributedText = attrStr
+            
+            
+            if (tweet.retweetCount > 1){
+                cell?.retweetCount.hidden = false
+                cell?.retweetCount.text = String (tweet.retweetCount)
+            }else{
+                cell?.retweetCount.hidden = true
+            }
+            
+            if ( tweet.retweetCount>1 || tweet.retweetTotal > 1){
+                cell?.retweetImage.hidden = false
+            } else{
+                 cell?.retweetImage.hidden = true
+            }
+            
+            if (tweet.retweetTotal > 1){
+                cell?.retweetTotal.hidden = false
+                cell?.retweetTotal.text = String (tweet.retweetTotal)
+            }else{
+                cell?.retweetTotal.hidden = true
+            }
+            
         }
         return cell
     }
@@ -217,7 +291,10 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         alertView.addAction(UIAlertAction(title: "Open", style: .Default, handler: { (alertAction) -> Void in
             let section = indexPath.section
             let tsIndex = self.twitterIndex[section]
-            let items : [Tweet]? = self.twittermap[tsIndex]
+            
+            let twitterEntry = self.twittermap[tsIndex]
+            
+            let items : [Tweet]? = twitterEntry!.data
             let tweet = items![ indexPath.item]
             
             let uri = "http://twitter.com/" + tweet.userName + "/status/" + tweet.id
@@ -250,19 +327,60 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             if (tweet != nil){
                 
                 let aggregationTime : Int64 = tweet!.aggregated
-                var items :[Tweet]? = self.twittermap[ aggregationTime]
                 
-                if (items == nil){
-                    self.twittermap[aggregationTime] = [tweet!]
-                }else{
-                    items!.append(tweet!)
-                    self.twittermap[aggregationTime] = items
+                var twitterEntry = self.twittermap[aggregationTime]
+               
+                
+                if (twitterEntry == nil){
+                    twitterEntry =  TwitterEntry()
+                    self.twittermap[aggregationTime] = twitterEntry
                 }
+            
+                if (tweet!.text.hasPrefix("Buy EOG")){
+                    print (tweet!.text)
+                }
+                var dup  = false
+                for existingTweet in twitterEntry!.data {
+                    if existingTweet.cannonicalText == tweet!.cannonicalText {
+                        if (existingTweet.retweetCount == 0){
+                            existingTweet.retweetCount = 1
+                        }
+                        existingTweet.retweetCount += 1
+                        dup = true
+                        break
+                    }
+                }
+                if ( dup == false){
+                    twitterEntry?.data.append(tweet!)
+                }
+                twitterEntry?.tweets += 1
+                
             }
            
             return nil
         }
         
+        for twitterEntry  in self.twittermap.values {
+            twitterEntry.data.sortInPlace{
+                if ( $0.aggregated != $1.aggregated){
+                    return $0.aggregated > $1.aggregated
+                }
+                
+                
+                if ( $0.retweetCount != $1.retweetCount){
+                    return $0.retweetCount > $1.retweetCount
+                }
+                
+                if ( $0.retweetTotal != $1.retweetTotal){
+                    return $0.retweetTotal > $1.retweetTotal
+                }
+                
+               
+                return  $0.id < $1.id
+                
+        }
+        
+        }
         // Update the table to the new data
         dispatch_async(dispatch_get_main_queue()) {
            
@@ -271,6 +389,10 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             self.twitterIndex.sortInPlace {
                 return $0 >  $1
             }
+            
+            // need to sort each bucket
+            
+            
             
             self.instanceTable?.reloadData()
         }
