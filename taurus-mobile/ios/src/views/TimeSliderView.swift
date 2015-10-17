@@ -46,10 +46,10 @@ class TimeSliderView: UIView {
     
     let labelFormatter = NSDateFormatter()
    
-    var openColor : CGColorRef = UIColor.whiteColor().CGColor
+    var openColor : CGColorRef =   UIColor.whiteColor().CGColor
     var closedColor : CGColorRef =  UIColor(red: 192.0/255.0, green: 192.0/255.0, blue: 192.0/255.0, alpha: 80.0/255.0).CGColor
     
-    let leftMargin = 10.0
+    let leftMargin =  Appearence.viewMargin
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -115,9 +115,15 @@ class TimeSliderView: UIView {
                 }
                 
                 
+                
+             
+                
+                
+                
+                
                 let width :Double = ceil(lastLeft - left)
                 lastLeft  -= width
-                let backRect : CGRect = CGRectMake(floor(CGFloat(lastLeft)), CGFloat(top), floor(CGFloat(width)), CGFloat(bottom))
+                let backRect : CGRect = CGRectMake(floor(CGFloat(lastLeft)), CGFloat(top), (CGFloat(width)), CGFloat(bottom))
               //  print (backRect)
                 
                 CGContextSetAllowsAntialiasing (context, false)
