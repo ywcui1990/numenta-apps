@@ -133,7 +133,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             menuButton!.target = self.revealViewController()
             menuButton!.action = "rightRevealToggle:"
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
-            self.self.revealViewController().rightViewRevealWidth = 160
+                self.revealViewController().rightViewRevealWidth = 180
         }
     }
 
@@ -180,6 +180,10 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         }
         
         self.instanceTable.reloadData()
+        
+        
+    //   let service = TaurusNotificationService()
+      //  service.showNotification()
 
     }
     
@@ -196,7 +200,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             return
         }
         let distance = getDistance( Double( translation.x) * -1.0 )
-        
+        sender.setTranslation(CGPointZero, inView: self.view)
       
         let newTime:NSDate? =  timeSlider?.endDate.dateByAddingTimeInterval(distance)
      //   print ((timeSlider?.endDate,newTime))
@@ -514,7 +518,8 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         }
     }
     
-    
+    /** Detect long press on table row and present the add/remove favorite dialog
+    */
     @IBAction func handleLongPress(sender : AnyObject ) {
         if sender.state == UIGestureRecognizerState.Began
         {
