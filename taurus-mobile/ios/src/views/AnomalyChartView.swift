@@ -66,7 +66,7 @@ class AnomalyChartView: UIView {
     */
     override func drawRect(rect: CGRect) {
         self.contentArea = rect
-
+        
         drawValues( rect)
         drawFlags(rect)
         drawLabels (rect)
@@ -112,7 +112,7 @@ class AnomalyChartView: UIView {
         
         // Draw the data from right to left
         for value in data.lazy.reverse(){
-            if (right < leftMargin+barWidth){
+            if (right < barWidth){
                 break
             }
             
@@ -121,31 +121,29 @@ class AnomalyChartView: UIView {
                 // fixme
             }
          else if ( value.1.isNaN){
-            CGContextSaveGState( context)
-            CGContextSetFillColorWithColor(context, emptyColor.CGColor)
+                CGContextSetFillColorWithColor(context, emptyColor.CGColor)
             
                 bar.origin.x = CGFloat(left)
                 bar.size.height  = CGFloat(emptyBarHeight)
-            CGContextAddRect(context, bar)
+                CGContextAddRect(context, bar)
             
-            CGContextFillPath(context)
-            CGContextRestoreGState( context)
+                CGContextFillPath(context)
+           
         }else{
-                CGContextSaveGState( context)
-                var color : CGColor
+                              var color : CGColor
               //  print (value.1)
                  bar.size.height  = -CGFloat(rect.height)
                 let level = getLevel(DataUtils.logScale(value.1))
              //   print (level)
                 if (level>=9000){
                     color = Appearence.redbarColor
-                    bar.size.height += 10.0
+                    bar.size.height += 12.0
                 } else if (level>4000){
                     color = Appearence.yellowbarColor
-                    bar.size.height += 15.0
+                    bar.size.height += 17.0
                 }else {
                    color = Appearence.greenbarColor 
-                    bar.size.height += 24.0
+                    bar.size.height += 26.0
                 }
                 
                 CGContextSetFillColorWithColor(context, color)
@@ -155,12 +153,12 @@ class AnomalyChartView: UIView {
                 CGContextAddRect(context, bar)
                 
                 CGContextFillPath(context)
-                CGContextRestoreGState( context)
+                
         }
             left -= barWidth
             right -= barWidth
         }
-
+        CGContextRestoreGState( context)
     }
     
     // Don't use currently
