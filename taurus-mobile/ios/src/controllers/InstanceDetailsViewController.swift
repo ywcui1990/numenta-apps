@@ -61,17 +61,9 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         if (chartData == nil){
                        return
         }
-        
-        print (chartData?.getEndDate() )
-
-        
+   
         if ( chartData?.getEndDate() != nil && timeSlider != nil){
-          //  timeSlider?.endDate = (chartData?.getEndDate()!)!
-            
-        //    print (timeSlider?.endDate)
-        //    timeSlider?.setNeedsDisplay()
-            
-               updateTimeSlider ( (chartData?.getEndDate()!)!)
+            updateTimeSlider ( (chartData?.getEndDate()!)!)
         }
         
         timeSlider?.disableTouches = false
@@ -111,24 +103,20 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
          timeSlider?.showBottom = false
          timeSlider?.transparentBackground = true
         
-         timeSlider?.openColor = UIColor.clearColor().CGColor
+        timeSlider?.openColor = UIColor.clearColor().CGColor
 
         timeSlider?.closedColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 0.5).CGColor
 
         // on iOS 8+ need to make sure table background is clear
         
         instanceTable.backgroundColor = UIColor.clearColor()
-        
-      //  instanceTable.tableFooterView = UIView(frame:CGRectZero)
-     //   instanceTable.separatorColor = UIColor.clearColor()
-  
+     
         if self.revealViewController() != nil {
             menuButton.target = self.revealViewController()
             menuButton.action = "revealToggle:"
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
             
-            // Uncomment to change the width of menu
-            // self.revealViewController().rearViewRevealWidth = 62
+                self.revealViewController().rearViewRevealWidth = 100
         }
         
          marketHoursSwitch?.on = self.marketHoursOnly
@@ -188,7 +176,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
             return
         }
         let distance = getDistance( Double( translation.x) * -1.0 )
-        
+        sender.setTranslation(CGPointZero, inView: self.view)
       
         let newTime:NSDate? =  timeSlider?.endDate.dateByAddingTimeInterval(distance)
      //   print ((timeSlider?.endDate,newTime))
@@ -329,9 +317,9 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         
     }
     
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
+   /* func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
     {
-    }
+    }*/
     
    
 
@@ -340,10 +328,10 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         - parameter data: Metric chart data to load
     */
     func loadChartData(cell : MetricCell, data: MetricAnomalyChartData){
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+      
 
         dispatch_async(loadQueue) {
-            
+            UIApplication.sharedApplication().networkActivityIndicatorVisible = true
             data.load()
             if (data.rawData != nil){
                 dispatch_async(dispatch_get_main_queue()) {
