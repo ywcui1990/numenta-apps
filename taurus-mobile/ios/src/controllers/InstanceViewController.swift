@@ -28,7 +28,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     @IBOutlet var timeSlider: TimeSliderView?
     @IBOutlet var instanceTable: UITableView!
     @IBOutlet var menuButton:UIBarButtonItem?
-
+    @IBOutlet var dateLabel: UILabel?
     
     var searchController : UISearchController?
     var searchButton : UIBarButtonItem?
@@ -36,7 +36,8 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     var favoriteSegmentControl : UISegmentedControl?
     var searchControllerButton : UIBarButtonItem?
     var logo :UIBarButtonItem?
-    
+    let dayTimePeriodFormatter = NSDateFormatter()
+     var hide = false
     var leftNegativeSpacer : UIBarButtonItem?
      var rightSpacer : UIBarButtonItem?
     //
@@ -135,6 +136,11 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
                 self.revealViewController().rightViewRevealWidth = 180
         }
+        
+       
+        dayTimePeriodFormatter.dateFormat = "EEEE, M/d"
+        dateLabel!.layer.masksToBounds = true
+        self.dateLabel!.hidden  = true
     }
 
     
@@ -224,6 +230,9 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
      //   print ((timeSlider?.endDate,flooredDate))
         timeSlider?.endDate =  flooredDate
         timeSlider?.setNeedsDisplay()
+        
+        self.dateLabel!.text = self.dayTimePeriodFormatter.stringFromDate(flooredDate)
+        self.dateLabel!.hidden  = false
         let visibleCells = self.instanceTable.visibleCells
         for cell in visibleCells{
             let instanceCell = cell as! InstanceCell
@@ -231,6 +240,18 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             instanceCell.data?.load()
             instanceCell.chart.setData(instanceCell.data?.getData())
             instanceCell.setNeedsDisplay()
+        }
+        self.hide  = false
+        if ( sender.state == .Ended){
+            self.hide = true
+            // Pan has ended. Hide label in a couple of seconds
+            let dispatchTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(3 * Double(NSEC_PER_SEC)))
+
+            dispatch_after(dispatchTime, dispatch_get_main_queue(), {
+                if (self.hide){
+                    self.dateLabel!.hidden  = true
+                }
+            })
         }
        }
     
@@ -560,9 +581,6 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             }))
             alertView.addAction(UIAlertAction(title: "No", style: .Cancel, handler: nil))
             presentViewController(alertView, animated: true, completion: nil)
-
-
-            
         }
     }
     

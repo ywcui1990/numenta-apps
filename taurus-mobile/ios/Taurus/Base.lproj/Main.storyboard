@@ -93,9 +93,27 @@
                                     <constraint firstItem="YlD-31-9g5" firstAttribute="leading" secondItem="eW6-wk-JBA" secondAttribute="leading" id="rhZ-go-sa4"/>
                                 </constraints>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Thursday, Oct 16" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0aV-IG-t4H" userLabel="dayLabel">
+                                <rect key="frame" x="279" y="258" width="42" height="21"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.80000000000000004" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="32" id="ALT-LW-gTd"/>
+                                    <constraint firstAttribute="width" constant="200" id="Rhh-CX-apY"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
+                            <constraint firstItem="0aV-IG-t4H" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Ee9-bp-SfS"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="0aV-IG-t4H" secondAttribute="bottom" constant="70" id="Fqa-VW-zax"/>
                             <constraint firstItem="eW6-wk-JBA" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="NTA-la-aUB"/>
                             <constraint firstItem="eW6-wk-JBA" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="SuE-sR-4rY"/>
                             <constraint firstItem="eW6-wk-JBA" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing" id="eu9-u9-fd8"/>
@@ -106,6 +124,7 @@
                     <navigationItem key="navigationItem" id="KTr-yi-p2d"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="dateLabel" destination="0aV-IG-t4H" id="v4g-8B-75L"/>
                         <outlet property="instanceTable" destination="YlD-31-9g5" id="MIV-uG-VkY"/>
                         <outlet property="timeSlider" destination="eW6-wk-JBA" id="JP2-Yh-r6t"/>
                     </connections>
@@ -276,8 +295,8 @@
                                                         <constraint firstItem="saD-0L-y6o" firstAttribute="bottom" secondItem="uPg-NB-TLV" secondAttribute="bottomMargin" id="cMI-CG-85i"/>
                                                         <constraint firstItem="cJm-PW-vP2" firstAttribute="top" secondItem="uPg-NB-TLV" secondAttribute="topMargin" constant="3" id="eLh-Vm-ckb"/>
                                                         <constraint firstItem="saD-0L-y6o" firstAttribute="trailing" secondItem="uPg-NB-TLV" secondAttribute="trailing" id="ig8-ue-FzO"/>
-                                                        <constraint firstItem="hyh-8L-tLm" firstAttribute="leading" secondItem="uPg-NB-TLV" secondAttribute="leadingMargin" constant="5" id="oc4-Zm-aIH"/>
-                                                        <constraint firstItem="hyh-8L-tLm" firstAttribute="top" secondItem="uPg-NB-TLV" secondAttribute="topMargin" id="tLq-nv-iTR"/>
+                                                        <constraint firstItem="hyh-8L-tLm" firstAttribute="leading" secondItem="uPg-NB-TLV" secondAttribute="leading" constant="10" id="oc4-Zm-aIH"/>
+                                                        <constraint firstItem="hyh-8L-tLm" firstAttribute="top" secondItem="uPg-NB-TLV" secondAttribute="top" id="tLq-nv-iTR"/>
                                                         <constraint firstItem="saD-0L-y6o" firstAttribute="leading" secondItem="uPg-NB-TLV" secondAttribute="leading" id="tk2-Kx-rki"/>
                                                     </constraints>
                                                 </tableViewCellContentView>
