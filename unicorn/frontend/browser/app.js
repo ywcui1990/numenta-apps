@@ -27,6 +27,7 @@ import bunyan from 'bunyan';
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
+import remote from 'remote';
 import tapEventInject from 'react-tap-event-plugin';
 
 // internals
@@ -48,6 +49,8 @@ import ModelClient from './lib/Unicorn/ModelClient';
 import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
 
 // setup
+
+const dialog = remote.require('dialog');
 
 const config = new ConfigClient();
 const log = bunyan.createLogger({
@@ -72,18 +75,23 @@ let modelClient = new ModelClient();
 
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
- *  to a user using their own data stream or files.
- *
- * Main browser web code Application GUI entry point.
+ *  to a user using their own data stream or files. Main browser web code
+ *  Application GUI entry point.
  */
-
 document.addEventListener('DOMContentLoaded', () => {
   let app, context;
 
+  // global uncaught exception handler
+  window.onerror = (message, file, line, col, error) => {
+    dialog.showErrorBox('Unknown Error', `Unknown Error: ${message}`);
+  };
+
+  // verify web target
   if (!(document && ('body' in document))) {
-    throw new Error('React cannot find a DOM document.body to render to');
+    dialog.showErrorBox('Document Error', 'No document body found');
   }
 
+  // expose React to dev tools
   if (config.get('NODE_ENV') !== 'production') {
     window.React = React; // expose dev tools to browser
   }
@@ -121,6 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
       React.render(contextEl, document.body);
     })
     .catch((error) => {
-      console.error('App Startup Error:', error); // eslint-disable-line
+      dialog.showErrorBox('Startup Error', `Startup Error: ${error}`);
     });
 }); // DOMContentLoaded

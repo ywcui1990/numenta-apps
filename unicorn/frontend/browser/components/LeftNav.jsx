@@ -18,18 +18,13 @@
 
 // externals
 
-import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
-import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 // internals
 
 import FileList from '../components/FileList';
 import Logo from '../components/Logo';
-import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
-
-const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 
 
 /**
@@ -40,7 +35,6 @@ const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
  * @public
  * @this LeftNav
  */
-@applyMaterialTheme(ThemeDecorator)
 export default class LeftNav extends React.Component {
 
   static get contextTypes() {

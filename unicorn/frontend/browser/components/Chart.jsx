@@ -19,17 +19,8 @@
 // externals
 
 import Dygraph from 'dygraphs';
-import React from 'react';
-
-import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
 import Paper from 'material-ui/lib/paper';
-import ThemeManager from 'material-ui/lib/styles/theme-manager';
-
-// internals
-
-import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
-
-const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
+import React from 'react';
 
 
 /**
@@ -45,10 +36,7 @@ const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
  *  And, React's `render()` should be overrided with DyGraphs `updateOptions()`,
  *  possibly using Reacts's `shouldComponentUpdate()` method to skip React's
  *  state change => render cycle for DyGraphs to not have it's DOM node reset.
- * @todo The MaterialUI theme decorator commented out 2 lines below causes
- *  the Chart to not render?!
  */
-// @applyMaterialTheme(ThemeDecorator)
 export default class Chart extends React.Component {
 
   static get propTypes() {

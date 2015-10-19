@@ -20,9 +20,10 @@
 // externals
 
 import app from 'app';
-import bunyan from 'bunyan';
 import BrowserWindow from 'browser-window';
+import bunyan from 'bunyan';
 import crashReporter from 'crash-reporter';
+import dialog from 'dialog';
 import path from 'path';
 
 // internals
@@ -48,13 +49,11 @@ let modelServer = null;
  * Main Electron code Application entry point, initializes browser app.
  */
 
-// electron crash reporting
 crashReporter.start({
   product_name: config.get('title'),
   company_name: config.get('company')
 });
 
-// app events
 app.on('window-all-closed', () => {
   // OS X apps stay active until the user quits explicitly Cmd + Q
   if (process.platform !== 'darwin') {
@@ -67,19 +66,35 @@ app.on('window-all-closed', () => {
 
 // Electron finished init and ready to create browser window
 app.on('ready', () => {
+  // create browser window
   mainWindow = new BrowserWindow({
     width: 1200,
-    height: 720
+    height: 720,
+    resizable: false
     // @TODO fill out options
     //  https://github.com/atom/electron/blob/master/docs/api/browser-window.md
   });
   mainWindow.loadUrl(`file://${initialPage}`);
+  mainWindow.center();
   mainWindow.openDevTools();
+
+  // browser window events
   mainWindow.on('closed', () => {
     mainWindow = null; // dereference single main window object
   });
+  mainWindow.on('unresponsive', () => {
+    dialog.showErrorBox('Error', 'Application has become unresponsive');
+  });
+
+  // browser window web contents events
+  mainWindow.webContents.on('crashed', () => {
+    dialog.showErrorBox('Error', 'Application crashed');
+  });
+  mainWindow.webContents.on('did-fail-load', () => {
+    dialog.showErrorBox('Error', 'Application failed to load');
+  });
   mainWindow.webContents.on('dom-ready', () => {
-    log.debug('Electron Main/Renderer + Chrome DOM = Ready to rock.');
+    log.info('Electron Main: Renderer DOM is now ready!');
   });
 
   // Handle IPC commuication for the ModelServer

@@ -18,16 +18,8 @@
 
 // externals
 
-import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
 import Avatar from 'material-ui/lib/avatar';
 import React from 'react';
-import ThemeManager from 'material-ui/lib/styles/theme-manager';
-
-// internals
-
-import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
-
-const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 
 
 /**
@@ -38,7 +30,6 @@ const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
  * @public
  * @this Logo
  */
-@applyMaterialTheme(ThemeDecorator)
 export default class Logo extends React.Component {
 
   static get contextTypes() {
