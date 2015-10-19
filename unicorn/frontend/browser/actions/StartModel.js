@@ -96,8 +96,13 @@ function getMetricDataFromDatabase(options) {
   let channel = csp.chan();
   let databaseClient = actionContext.getDatabaseClient();
 
+<<<<<<< HEAD
   databaseClient.getMetricDatas(
     {metric_uid: Utils.generateModelId(model.filename, model.metric)},
+=======
+  databaseClient.queryMetricData(
+    { 'metric_uid': Utils.generateModelId(model.filename, model.metric) },
+>>>>>>> master
     (error, results) => {
       if (error) {
         csp.putAsync(channel, new DatabaseGetError(error));
@@ -187,7 +192,7 @@ function streamData(actionContext, modelId) {
           log.debug('End of data - Save to DB for future runs.');
           // JSONized here to get around Electron IPC remote() memory leaks
           rows = JSON.stringify(rows);
-          databaseClient.putMetricDatas(rows, (error) => {
+          databaseClient.putMetricDataBatch(rows, (error) => {
             if (error) {
               reject(error);
             } else {
@@ -243,14 +248,14 @@ export default function (actionContext, modelId) {
         fileStats = yield csp.take(getMetricStatsFromFilesystem(opts));
         if (
           (fileStats instanceof Error) ||
-          (!(model.metric in fileStats))
+          (!(model.metric in fileStats.fields))
         ) {
           reject(fileStats);
           log.error(fileStats);
           return;
         }
 
-        stats = fileStats[model.metric];
+        stats = fileStats.fields[model.metric];
 
         log.debug('Now save min/max back to DB, never have to ping FS again');
         opts = {
@@ -275,7 +280,7 @@ export default function (actionContext, modelId) {
 
       log.debug('metric min/max retrieved (either from DB or FS), ready!');
       actionContext.dispatch(ACTIONS.START_MODEL_SUCCESS, modelId);
-      modelClient.createModel(modelId, stats);
+      modelClient.createModel(modelId, {'min': stats.min, 'max': stats.max});
       return streamData(actionContext, modelId);
 
     }); // csp.go

@@ -89,15 +89,13 @@ DatabaseServer.prototype.getFile = function (uid, callback) {
  * @param {Object} query - JSONquery object to use, empty object for all results
  * @param {Function} callback - Async callback function(error, results)
  */
-DatabaseServer.prototype.getFiles = function (query, callback) {
-  const table = levelQuery(this.dbh.sublevel('file'));
+DatabaseServer.prototype.queryFile = function (query, callback) {
   let results = [];
+  const table = levelQuery(this.dbh.sublevel('file'));
   table.query.use(jsonQuery());
   table.query(query)
     .on('stats', () => {})
-    .on('error', (error) => {
-      callback(error, null);
-    })
+    .on('error', callback)
     .on('data', (result) => {
       results.push(result);
     })
@@ -124,9 +122,9 @@ DatabaseServer.prototype.getMetric = function (uid, callback) {
  * @param {Object} query - JSONquery object to use, empty object for all results
  * @param {Function} callback - Async callback function(error, results)
  */
-DatabaseServer.prototype.getMetrics = function (query, callback) {
-  const table = levelQuery(this.dbh.sublevel('metric'));
+DatabaseServer.prototype.queryMetric = function (query, callback) {
   let results = [];
+  const table = levelQuery(this.dbh.sublevel('metric'));
   table.query.use(jsonQuery());
   table.ensureIndex('file_uid');
   table.query(query)
@@ -146,7 +144,7 @@ DatabaseServer.prototype.getMetrics = function (query, callback) {
 };
 
 /**
- * Get all/queried MetricDatas records.
+ * Get all/queried MetricData records
  * @callback
  * @method
  * @param {Object} query - DB Query filter object (jsonquery-engine),
@@ -155,9 +153,9 @@ DatabaseServer.prototype.getMetrics = function (query, callback) {
  * @public
  * @this DatabaseServer
  */
-DatabaseServer.prototype.getMetricDatas = function (query, callback) {
-  const table = levelQuery(this.dbh.sublevel('metricData'));
+DatabaseServer.prototype.queryMetricData = function (query, callback) {
   let results = [];
+  const table = levelQuery(this.dbh.sublevel('metricData'));
   table.query.use(jsonQuery());
   table.ensureIndex('metric_uid');
   table.query(query)
@@ -223,9 +221,9 @@ DatabaseServer.prototype.putFile = function (file, callback) {
  * @public
  * @this DatabaseServer
  */
-DatabaseServer.prototype.putFiles = function (files, callback) {
-  const table = this.dbh.sublevel('file');
+DatabaseServer.prototype.putFileBatch = function (files, callback) {
   let ops = [];
+  const table = this.dbh.sublevel('file');
 
   // validate
   files.forEach((file) => {
@@ -271,7 +269,7 @@ DatabaseServer.prototype.putMetric = function (metric, callback) {
  * @param {Array} metrics - Data objects of Metrics info to save
  * @param {Function} callback - Async callback on done: function(error, results)
  */
-DatabaseServer.prototype.putMetrics = function (metrics, callback) {
+DatabaseServer.prototype.putMetricBatch = function(metrics, callback) {
   const table = this.dbh.sublevel('metric');
   let ops = [];
 
@@ -324,7 +322,7 @@ DatabaseServer.prototype.putMetricData = function (metricData, callback) {
  * @param {Array} metricDatas - List of Data objects of MetricDatas to save
  * @param {Function} callback - Async callback on done: function(error, results)
  */
-DatabaseServer.prototype.putMetricDatas = function (metricDatas, callback) {
+DatabaseServer.prototype.putMetricDataBatch = function(metricDatas, callback) {
   const table = this.dbh.sublevel('metricData');
   let ops = [];
 
