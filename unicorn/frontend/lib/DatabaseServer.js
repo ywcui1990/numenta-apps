@@ -144,7 +144,7 @@ DatabaseServer.prototype.queryMetric = function (query, callback) {
 };
 
 /**
- * Get all/queried MetricData records
+ * Get all/queried MetricData records.
  * @callback
  * @method
  * @param {Object} query - DB Query filter object (jsonquery-engine),
@@ -269,7 +269,7 @@ DatabaseServer.prototype.putMetric = function (metric, callback) {
  * @param {Array} metrics - Data objects of Metrics info to save
  * @param {Function} callback - Async callback on done: function(error, results)
  */
-DatabaseServer.prototype.putMetricBatch = function(metrics, callback) {
+DatabaseServer.prototype.putMetricBatch = function (metrics, callback) {
   const table = this.dbh.sublevel('metric');
   let ops = [];
 
@@ -322,7 +322,7 @@ DatabaseServer.prototype.putMetricData = function (metricData, callback) {
  * @param {Array} metricDatas - List of Data objects of MetricDatas to save
  * @param {Function} callback - Async callback on done: function(error, results)
  */
-DatabaseServer.prototype.putMetricDataBatch = function(metricDatas, callback) {
+DatabaseServer.prototype.putMetricDataBatch = function (metricDatas, callback) {
   const table = this.dbh.sublevel('metricData');
   let ops = [];
 

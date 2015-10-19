@@ -16,12 +16,12 @@
 // along with this program.  If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
-var util = require('util');
-var Transform = require('stream').Transform;
+var util = require('util'); // eslint-disable-line no-var
+var Transform = require('stream').Transform; // eslint-disable-line no-var
 
 /**
- * Creates a stream {Transform} class used to aggregate the stream
- * @param  {[type]} options Aggregation settings:
+ * Creates a stream {Transform} class used to aggregate the stream.
+ * @param {type} options - Aggregation settings:
  *                          <code>
  *                          {
  *                          	// Name of the field representing 'time'
@@ -38,19 +38,19 @@ var Transform = require('stream').Transform;
  */
 function TimeAggregator(options) {
   this._options = Object.assign({}, options, {objectMode: true});
-  Transform.call(this, this._options);
+  Transform.call(this, this._options); // eslint-disable-line prefer-reflect
   this._timebucket = 0;
-  this._interval = this._options['interval'] || 60000;
-  this._valuefield = this._options['valuefield'];
-  this._timefield = this._options['timefield'];
-  this._function = this._options['function'] || 'count';
-  this._bucket = {'timestamp': 0, 'value': 0};
+  this._interval = this._options.interval || 60000;
+  this._valuefield = this._options.valuefield;
+  this._timefield = this._options.timefield;
+  this._function = this._options.function || 'count';
+  this._bucket = {timestamp: 0, value: 0};
   this._count = 0;
   this._reset();
 }
 util.inherits(TimeAggregator, Transform);
 
-TimeAggregator.prototype._transform = function(data, encoding, done) {
+TimeAggregator.prototype._transform = function (data, encoding, done) {
   if (this._timefield in data) {
     let timestamp = new Date(data[this._timefield]).getTime();
     if (this._timebucket === 0) {
@@ -63,12 +63,12 @@ TimeAggregator.prototype._transform = function(data, encoding, done) {
   done();
 };
 
-TimeAggregator.prototype._flush = function(done) {
+TimeAggregator.prototype._flush = function (done) {
   this._publish();
   done();
 };
 
-TimeAggregator.prototype._reset = function() {
+TimeAggregator.prototype._reset = function () {
   let value;
   switch (this._function) {
   case 'min':
@@ -87,13 +87,13 @@ TimeAggregator.prototype._reset = function() {
     value = 0;
   }
   this._bucket = {
-    'timestamp': this._timebucket,
-    'value': value
+    timestamp: this._timebucket,
+    value
   };
   this._count = 0;
 };
 
-TimeAggregator.prototype._update = function(data) {
+TimeAggregator.prototype._update = function (data) {
   if (this._valuefield in data) {
     this._count++;
     let value = parseFloat(data[this._valuefield]);
@@ -120,7 +120,7 @@ TimeAggregator.prototype._update = function(data) {
   }
 };
 
-TimeAggregator.prototype._publish = function() {
+TimeAggregator.prototype._publish = function () {
   let data = {};
   if (this._count > 0) {
     data[this._timefield] = this._bucket.timestamp;

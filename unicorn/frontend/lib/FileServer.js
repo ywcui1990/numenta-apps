@@ -50,8 +50,8 @@ function FileServer() {
  * @param {string} filename - The absolute path of the CSV file to load
  * @param {Function} callback - Async callback: function (error, results)
  */
-FileServer.prototype.getContents = function(filename, callback) {
-  fs.readFile(filename, callback);
+FileServer.prototype.getContents = function (filename, callback) {
+  filesystem.readFile(filename, callback);
 };
 
 /**
@@ -194,11 +194,9 @@ FileServer.prototype.getFields = function (filename, options, callback) {
  *                      }
  *                    </code>
  * @param {Function} callback - This callback to be called on every record.
- *                              <code>function(error, data)</code>
+ *                              <code>function (error, data)</code>
  */
 FileServer.prototype.getData = function (filename, options, callback) {
-  var limit, stream;
-
   // "options" is optional
   if (typeof callback == 'undefined' && typeof options == 'function') {
     callback = options;
@@ -213,7 +211,7 @@ FileServer.prototype.getData = function (filename, options, callback) {
   }
 
   let limit = options.limit;
-  let fileStream = fs.createReadStream(path.resolve(filename));
+  let fileStream = filesystem.createReadStream(path.resolve(filename));
   let csvParser = csv(options);
   let lastStream = csvParser;
   let aggregator;
@@ -222,7 +220,7 @@ FileServer.prototype.getData = function (filename, options, callback) {
     lastStream = aggregator;
   }
   lastStream
-    .on('data', function(data) {
+    .on('data', function (data) {
       if (limit > 0) {
         callback(null, data);
         return;
@@ -266,7 +264,7 @@ FileServer.prototype.getData = function (filename, options, callback) {
  *                    </code>
  * @param {Function} callback - This callback will be called with the results in
  *                              the following format:
- *                              <code>function(error, stats)</code>
+ *                              <code>function (error, stats)</code>
  *                              stats = {
  *                              	count: '100',
  *                              	fields: {
@@ -282,9 +280,6 @@ FileServer.prototype.getData = function (filename, options, callback) {
  *                              }
  */
 FileServer.prototype.getStatistics = function (filename, options, callback) {
-  var field, max, min, val;
-  var stats = {};
-
   // "options" is optional
   if (typeof callback == 'undefined' && typeof options == 'function') {
     callback = options;
@@ -306,7 +301,7 @@ FileServer.prototype.getStatistics = function (filename, options, callback) {
       // Update stats on every record
       stats.count++;
       for (let name in data) {
-        let min, max, oldMean, newMean;
+        let max, min, newMean, oldMean;
         let val = new Number(data[name]);
 
         if (isNaN(val)) {
@@ -344,7 +339,7 @@ FileServer.prototype.getStatistics = function (filename, options, callback) {
       // Finished reading data
       for (let name in fields) {
         if (stats.count > 1) {
-          fields[name].variance = fields[name].variance / (stats.count - 1);
+          fields[name].variance /= (stats.count - 1);
           fields[name].stdev = Math.sqrt(fields[name].variance);
         }
       }

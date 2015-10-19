@@ -178,7 +178,7 @@ function streamData(actionContext, modelId) {
           });
           rowId++;
 
-          log.debug('send row to UI');
+          // send new row to UI
           actionContext.executeAction(SendDataAction, {
             modelId: model.modelId,
             data: [(timestamp.getTime() / 1000), value]
@@ -275,7 +275,7 @@ export default function (actionContext, modelId) {
 
       log.debug('metric min/max retrieved (either from DB or FS), ready!');
       actionContext.dispatch(ACTIONS.START_MODEL_SUCCESS, modelId);
-      modelClient.createModel(modelId, {'min': stats.min, 'max': stats.max});
+      modelClient.createModel(modelId, {min: stats.min, max: stats.max});
       return streamData(actionContext, modelId);
 
     }); // csp.go
