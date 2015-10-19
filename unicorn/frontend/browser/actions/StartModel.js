@@ -96,13 +96,8 @@ function getMetricDataFromDatabase(options) {
   let channel = csp.chan();
   let databaseClient = actionContext.getDatabaseClient();
 
-<<<<<<< HEAD
-  databaseClient.getMetricDatas(
-    {metric_uid: Utils.generateModelId(model.filename, model.metric)},
-=======
   databaseClient.queryMetricData(
-    { 'metric_uid': Utils.generateModelId(model.filename, model.metric) },
->>>>>>> master
+    {metric_uid: Utils.generateModelId(model.filename, model.metric)},
     (error, results) => {
       if (error) {
         csp.putAsync(channel, new DatabaseGetError(error));

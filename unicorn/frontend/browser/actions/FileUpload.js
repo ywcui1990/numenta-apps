@@ -101,11 +101,7 @@ function getMetricsFromDB(options) {
   let databaseClient = actionContext.getDatabaseClient();
   let fileId = Utils.generateId(file.path);
 
-<<<<<<< HEAD
-  databaseClient.getMetrics({file_uid: fileId}, (error, results) => {
-=======
-  databaseClient.queryMetric({ 'file_uid': fileId }, (error, results) => {
->>>>>>> master
+  databaseClient.queryMetric({file_uid: fileId}, (error, results) => {
     if (error && (!('notFound' in error))) {
       csp.putAsync(channel, new DatabaseGetError(error));
     } else {
