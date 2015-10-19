@@ -22,21 +22,18 @@
 
 # Install taurus.metric_collectors and its dependencies
 # ARGS:
-# First position arg: installation directory;
-#   e.g., Linux: /opt/numenta/anaconda/lib/python2.7/site-packages/
-#   e.g., Mac OS X: ~/Library/Python/2.7/lib/python/site-packages/
-# Second positional arg: script directory; e.g., /opt/numenta/anaconda/bin/
-#   e.g., Linux: /opt/numenta/anaconda/bin/
-#   e.g., Mac OS X: ~/Library/Python/2.7/bin/ 
+# First position arg: installation prefix;
+#   e.g., Linux: /opt/numenta/anaconda
+#   e.g., Mac OS X: ~/Library/Python/2.7
 
 set -o errexit
 
 function install {
   pushd $1
-  python setup.py develop --install-dir=$2 --script-dir=$3
+  python setup.py develop --prefix=$2
   popd
 }
 
-install nta.utils $1 $2
-install infrastructure $1 $2
-install taurus.metric_collectors $1 $2
+install nta.utils $1
+install infrastructure $1
+install taurus.metric_collectors $1

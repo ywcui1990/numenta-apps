@@ -106,7 +106,7 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], uid => {
         return Object.assign({}, EXPECTED_FILE, {uid});
       });
-      server.putFiles(batch, (error) => {
+      server.putFileBatch(batch, (error) => {
         assert.ifError(error);
         done();
       });
@@ -115,7 +115,7 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], uid => {
         return Object.assign({}, EXPECTED_FILE, {uid});
       });
-      server.putFiles(batch, (error) => {
+      server.putFileBatch(batch, (error) => {
         assert.ifError(error);
         server.getFile(batch[0].uid, (error, actual) => {
           assert.ifError(error);
@@ -128,9 +128,9 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], uid => {
         return Object.assign({}, EXPECTED_FILE, {uid});
       });
-      server.putFiles(batch, (error) => {
+      server.putFileBatch(batch, (error) => {
         assert.ifError(error);
-        server.getFiles({}, (error, actual) => {
+        server.queryFile({}, (error, actual) => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch);
           done();
@@ -158,7 +158,7 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], uid => {
         return Object.assign({}, EXPECTED_METRIC, {uid});
       });
-      server.putMetrics(batch, (error) => {
+      server.putMetricBatch(batch, (error) => {
         assert.ifError(error);
         done();
       });
@@ -167,7 +167,7 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], uid => {
         return Object.assign({}, EXPECTED_METRIC, {uid});
       });
-      server.putMetrics(batch, (error) => {
+      server.putMetricBatch(batch, (error) => {
         assert.ifError(error);
         server.getMetric(batch[0].uid, (error, actual) => {
           assert.ifError(error);
@@ -180,9 +180,9 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], uid => {
         return Object.assign({}, EXPECTED_METRIC, {uid});
       });
-      server.putMetrics(batch, (error) => {
+      server.putMetricBatch(batch, (error) => {
         assert.ifError(error);
-        server.getMetrics({}, (error, actual) => {
+        server.queryMetric({}, (error, actual) => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch);
           done();
@@ -210,7 +210,7 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], uid => {
         return Object.assign({}, EXPECTED_METRIC_DATA, {uid, 'metric_uid':uid});
       });
-      server.putMetricDatas(batch, (error) => {
+      server.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
         done();
       });
@@ -219,9 +219,9 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], uid => {
         return Object.assign({}, EXPECTED_METRIC_DATA, {uid, 'metric_uid':uid});
       });
-      server.putMetricDatas(batch, (error) => {
+      server.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
-        server.getMetricDatas({}, (error, actual) => {
+        server.queryMetricData({}, (error, actual) => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch);
           done();

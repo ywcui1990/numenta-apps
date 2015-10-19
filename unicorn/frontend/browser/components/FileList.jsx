@@ -18,40 +18,44 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
 
 // externals
 
-import Material from 'material-ui';
+import connectToStores from 'fluxible-addons-react/connectToStores';
+import Checkbox from 'material-ui/lib/checkbox';
+import List from 'material-ui/lib/lists/list';
+import ListItem from 'material-ui/lib/lists/list-item';
 import React from 'react';
 
 // internals
 
 import AddModelAction from '../actions/AddModel';
 import DeleteModelAction from '../actions/DeleteModel';
-import connectToStores from 'fluxible-addons-react/connectToStores';
 import FileStore from '../stores/FileStore';
 import ModelStore from '../stores/ModelStore';
 import Utils from '../../lib/Utils';
 
-const {
-  List, ListItem, Checkbox, Paper
-} = Material;
-
-
-// MAIN
-
-@connectToStores([ FileStore, ModelStore ], (context) => ({
+const StoreDecorator = (context) => ({
   files: context.getStore(FileStore).getFiles()
-}))
+});
+
+
+/**
+ * @module
+ * @exports
+ * @class
+ * @public
+ * @extends React.Component
+ */
+@connectToStores([FileStore, ModelStore], StoreDecorator)
 export default class FileList extends React.Component {
 
-  static contextTypes = {
-    executeAction: React.PropTypes.func,
-    getStore: React.PropTypes.func,
-    muiTheme: React.PropTypes.object,
-  };
+  static get contextTypes() {
+    return {
+      executeAction: React.PropTypes.func,
+      getStore: React.PropTypes.func
+    };
+  }
 
   constructor(props, context) {
     super(props, context);
@@ -59,21 +63,6 @@ export default class FileList extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     this.setState(Object.assign({}, this.state, nextProps));
-  }
-
-  _getStyles() {
-    let leftNavStyle = this.context.muiTheme.component.leftNav;
-    return {
-      root: {
-        position: 'fixed',
-        height: '100%',
-        width: leftNavStyle.width,
-        top: 0,
-        left: 0,
-        zIndex: 10,
-        backgroundColor: leftNavStyle.color,
-      }
-    };
   }
 
   _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
@@ -98,16 +87,14 @@ export default class FileList extends React.Component {
         if (metric.type !== 'date') {
           let modelId = Utils.generateModelId(file.filename, metric.name);
           let modelStore = this.context.getStore(ModelStore);
-          let checked = modelStore.getModel(modelId)
-            ? true
-            : false;
+          let checked = modelStore.getModel(modelId) ? true : false;
           return (
             <ListItem key={modelId}
               leftCheckbox={<Checkbox name={modelId}
               checked={checked}
               onCheck={this._onMetricCheck.bind(this, modelId, file.filename,
                 timestampField.name, metric.name)}/>}
-              primaryText={metric.name}/>
+              primaryText={metric.name} />
           );
         }
       });
@@ -128,16 +115,16 @@ export default class FileList extends React.Component {
   }
 
   render() {
-    let styles = this._getStyles();
     return (
-      <Paper style={styles.root} zDepth={2}>
-        <List subheader='Sample Data'>
+      <nav>
+        <List subheader="Sample Data">
           {this._renderFiles('sample')}
         </List>
-        <List subheader='Your Data'>
+        <List subheader="Your Data">
           {this._renderFiles('uploaded')}
         </List>
-      </Paper>
+      </nav>
     );
   }
-};
+
+}

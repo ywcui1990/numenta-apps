@@ -17,20 +17,18 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
-
 import crypto from 'crypto';
 
 
 export default {
 
   /**
-   * Genereate unique hashed UID based on seed string and SHA1
+   * Genereate unique hashed UID based on seed string and SHA1.
    * @param  {string} seed - Seed string to hash
    * @return {string} Unique id
    */
-  generateId (seed) {
-    let hash = crypto.createHash('sha1');
+  generateId(seed) {
+    const hash = crypto.createHash('sha1');
     return hash.update(seed).digest('hex');
   },
 
@@ -41,8 +39,8 @@ export default {
    * @param  {string} metric - Metric name
    * @return {string} Unique id
    */
-  generateModelId (filename, metric) {
-    return this.generateId(filename + '#' + metric);
+  generateModelId(filename, metric) {
+    return this.generateId(`${filename}#${metric}`);
   },
 
   /**
@@ -53,8 +51,8 @@ export default {
    * @param  {string} timestamp - Unique Record row timestamp string
    * @return {string} Unique id
    */
-  generateDataId (filename, metric, timestamp) {
-    return this.generateId(filename + '#' + metric + '#' + timestamp);
+  generateDataId(filename, metric, timestamp) {
+    return this.generateId(`${filename}#${metric}#${timestamp}`);
   }
 
 };

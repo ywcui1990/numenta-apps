@@ -24,12 +24,12 @@ set -o errexit
 
 function install {
   pushd $1
-  python setup.py develop --install-dir=$2 --script-dir=$3
+  python setup.py develop --prefix=$2
   popd
 }
 
-install nta.utils $1 $2
-install htmengine $1 $2
-install infrastructure $1 $2
-./install-taurus-metric-collectors.sh $1 $2
-install taurus $1 $2
+install nta.utils $1
+install htmengine $1
+install infrastructure $1
+./install-taurus-metric-collectors.sh $1
+install taurus $1
