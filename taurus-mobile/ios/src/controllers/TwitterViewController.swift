@@ -31,7 +31,7 @@ class TwitterEntry{
 
 
 
-class TwitterViewController: UIViewController, UITableViewDataSource, UITableViewDelegate  {
+class TwitterViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate  {
     
     @IBOutlet var timeSlider: TimeSliderView?
     @IBOutlet weak var instanceTable: UITableView!
@@ -52,7 +52,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     var showCondensed = false
     
     // Serial queue for loading chart data
-    let loadQueue = dispatch_queue_create("com.numenta.TwitterController", nil)
+   // let loadQueue = dispatch_queue_create("com.numenta.TwitterController", nil)
     
     var  metricChartData : MetricAnomalyChartData?
     
@@ -95,6 +95,11 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         name?.text = chartData?.name
         
         if (metricChartData != nil && metricChartData?.rawData != nil ){
+            
+            metricChartData!.collapsed = false
+            metricChartData!.refreshData()
+
+            
             metricChartView?.data  = metricChartData!.rawData!
             metricChartView?.anomalies = metricChartData!.data!
             metricChartView?.updateData()
@@ -139,7 +144,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
 
         
         
-        let priority = DISPATCH_QUEUE_PRIORITY_DEFAULT
+        let priority = QOS_CLASS_USER_INITIATED
         dispatch_async(dispatch_get_global_queue(priority, 0)) {
             self.loadTwitterData()
         }
@@ -220,6 +225,8 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         
         let items : [Tweet]? = twitterEntry!.data
         let tweet = items![ indexPath.item]
+        
+        cell?.timestamp = tsIndex
         
         if (showCondensed){
             let attrs = [NSFontAttributeName : UIFont.boldSystemFontOfSize(14.0)]
@@ -320,10 +327,14 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         let client = TaurusApplication.connectToTaurus()
         let metric = metricChartData?.metric
         
-        let start = metricChartData!.getStartTimestamp()
+        
         let endTime = metricChartData!.getEndDate()// + DataUtils.MILLIS_PER_HOUR;
         
-        client?.getTweets( (metric?.getName())!, from: start, to: endTime! ){ (tweet: Tweet?)in
+        let start = DataUtils.timestampFromDate(endTime!) - DataUtils.MILLIS_PER_HOUR * Int64(TaurusApplication.getTotalBarsOnChart())
+        
+        let startDate = DataUtils.dateFromTimestamp(start)
+        
+        client?.getTweets( (metric?.getName())!, from: startDate, to: endTime! ){ (tweet: Tweet?)in
             if (tweet != nil){
                 
                 let aggregationTime : Int64 = tweet!.aggregated
@@ -336,9 +347,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
                     self.twittermap[aggregationTime] = twitterEntry
                 }
             
-                if (tweet!.text.hasPrefix("Buy EOG")){
-                    print (tweet!.text)
-                }
+              
                 var dup  = false
                 for existingTweet in twitterEntry!.data {
                     if existingTweet.cannonicalText == tweet!.cannonicalText {
@@ -403,20 +412,55 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         - parameter index:
     */
     func selection( index : Int)->Void{
-        let timeStamp = Int64(index) * DataUtils.METRIC_DATA_INTERVAL + DataUtils.timestampFromDate( metricChartData!.getStartTimestamp() )
+       
+        let numIndexes =  Int64(metricChartData!.rawData!.count)
+        let timeStamp = metricChartData!.endDate -  ( numIndexes-index) * DataUtils.METRIC_DATA_INTERVAL
+        if (twitterIndex.count <= 0){
+            return
+        }
         
-    
         var section = 0
         for val in twitterIndex {
             if ( val < timeStamp)
             {
                 break
             }
+            
             section++
             
         }
+        
+        
+        if (section >= twitterIndex.count){
+            section = twitterIndex.count - 1
+        }
+        
+     
         let index = NSIndexPath(forRow: 0, inSection: section)
+        
         self.instanceTable?.selectRowAtIndexPath(index, animated: false, scrollPosition: UITableViewScrollPosition.Top)
+
+    }
+    
+    /** When the view is scrolled, update the metric chart selection
+    */
+     func scrollViewDidScroll(scrollView: UIScrollView){
+        let visibleCells = self.instanceTable.visibleCells
+        
+        var time : Int64 = 0
+        for cell in visibleCells{
+            let twitterCell = cell as! TwitterCell
+            
+            
+            if ( twitterCell.timestamp > time){
+                time = twitterCell.timestamp
+            }
+            
+        }
+      
+        let index  = Int64(metricChartView!.data.count) - ((metricChartData?.endDate)! - time)/DataUtils.METRIC_DATA_INTERVAL
+        
+        self.metricChartView.selectIndex( index)
 
     }
 

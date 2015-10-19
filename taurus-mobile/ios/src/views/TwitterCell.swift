@@ -33,5 +33,7 @@
     @IBOutlet weak var retweetCount : UILabel!
     @IBOutlet weak var retweetImage : UIImageView!
     
+    var timestamp: Int64 = 0
+    
 
 }
