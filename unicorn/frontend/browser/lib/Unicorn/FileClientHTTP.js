@@ -16,7 +16,35 @@
 //
 // http://numenta.org/licenses/
 
-// This file must be ES5!
 
-require('babel/register');  // Sends us into ES6 transpiler
-require('./main.js');       // Load ES6 App
+/**
+ * Unicorn: FileClientHTTP - HTTP Adapter (one of many) for FileClient (talks to
+ *  a FileServer) to access the Node/io.js layer of filesystem, so we can
+ *  CRUD files.
+ */
+export default class FileClientHTTP {
+
+  /**
+   * @constructor
+   */
+  constructor() {}
+
+  /**
+   * @param {Function} callback - Async callback function(error, results) after
+   */
+  getFile(callback) {
+    // callback(error, null);
+    callback(null, {file: ['data and such']});
+  }
+
+  /**
+   * @param {Function} callback - Async callback function(error, results) after
+   */
+  getFiles(callback) {
+    // callback(error, null);
+    callback(null, {
+      files: ['uno.csv', 'dos.csv']
+    });
+  }
+
+}

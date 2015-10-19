@@ -17,35 +17,52 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
+
+// externals
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
-import ModelStore from '../stores/ModelStore';
-import Material from 'material-ui';
-import Model from '../components/Model';
+import Paper from 'material-ui/lib/paper';
 import React from 'react';
 
-const {
-  Paper
-} = Material;
+// internals
 
+import Model from '../components/Model';
+import ModelStore from '../stores/ModelStore';
 
-@connectToStores([ModelStore], (context) => ({
+const StoreDecorator = (context) => ({
   models: context.getStore(ModelStore).getModels()
-}))
+});
+
+
+/**
+ * @module
+ * @class
+ * @public
+ * @exports
+ * @extends React.Component
+ * @this ModelList
+ */
+@connectToStores([ModelStore], StoreDecorator)
 export default class ModelList extends React.Component {
 
-  static propTypes = {
-    zDepth: React.PropTypes.number
-  };
-  static defaultProps = {
-    zDepth: 1
-  };
-  static contextTypes = {
-    executeAction: React.PropTypes.func,
-    getStore: React.PropTypes.func,
-    muiTheme: React.PropTypes.object,
-  };
+  static get contextTypes() {
+    return {
+      executeAction: React.PropTypes.func,
+      getStore: React.PropTypes.func
+    };
+  }
+
+  static get propTypes() {
+    return {
+      zDepth: React.PropTypes.number
+    };
+  }
+
+  static get defaultProps() {
+    return {
+      zDepth: 1
+    };
+  }
 
   constructor(props, context) {
     super(props, context);
@@ -75,4 +92,5 @@ export default class ModelList extends React.Component {
       </Paper>
     );
   }
-};
+
+}

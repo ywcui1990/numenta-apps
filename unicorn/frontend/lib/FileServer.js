@@ -18,59 +18,55 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
 
-/**
- * Unicorn: FileServer - Respond to a FileClient over IPC, sharing our access to
- *  the Node/io.js layer of filesystem, so client can CRUD files.
- *
- * Must be ES5 for now, Electron's `remote` doesn't seem to like ES6 Classes!
- */
+// NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
+/* eslint-disable no-var, object-shorthand, prefer-arrow-callback */
 
 // externals
+
 import csv from 'csv-streamify';
-import fs from 'fs';
+import filesystem from 'fs';
 import path from 'path';
 import TimeAggregator from './TimeAggregator';
 import Utils from './Utils';
 
 // internals
-// @TODO move path to config
+
 const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
 
-// MAIN
 
 /**
+ * Unicorn: FileServer - Respond to a FileClient over IPC, sharing our access to
+ *  the Node layer of filesystem, so client can CRUD files.
  * @class
  * @module
  */
-var FileServer = function() {
-};
+function FileServer() {
+}
 
 
 /**
- * Reads the entire contents of a file
- *
- * @param  {String}   filename: The absolute path of the CSV file to load
+ * Reads the entire contents of a file.
+ * @param {string} filename - The absolute path of the CSV file to load
+ * @param {Function} callback - Async callback: function (error, results)
  */
-FileServer.prototype.getContents = function(filename, callback) {
-  fs.readFile(filename, function(error, data) {
-    callback(error, data);
-  });
+FileServer.prototype.getContents = function (filename, callback) {
+  filesystem.readFile(filename, callback);
 };
 
 /**
- * Get a list of sample files embedded with the application
+ * Get a list of sample files embedded with the application.
+ * @param {Function} callback - Async callback: function (error, results)
  */
-FileServer.prototype.getSampleFiles = function(callback) {
-  fs.readdir(SAMPLES_FILE_PATH, function(error, data) {
+FileServer.prototype.getSampleFiles = function (callback) {
+  filesystem.readdir(SAMPLES_FILE_PATH, function (error, data) {
+    var files;
     if (error) {
       callback(error, null);
       return;
     }
-
-    let files = data.map((item) => {
-      let filename = path.resolve(SAMPLES_FILE_PATH, item);
+    files = data.map((item) => {
+      var filename = path.resolve(SAMPLES_FILE_PATH, item);
       return {
         uid: Utils.generateId(filename),
         name: path.basename(item),
@@ -83,12 +79,12 @@ FileServer.prototype.getSampleFiles = function(callback) {
   });
 };
 
-
 /**
- * Get a list of uploaded files
+ * Get a list of uploaded files.
+ * @param {Object} file - File getting uploaded
+ * @param {Function} callback - Async callback: function (error, results)
  */
-FileServer.prototype.getUploadedFiles = function(file, callback) {
-
+FileServer.prototype.getUploadedFiles = function (file, callback) {
   var formattedFile = {
     name: file.name,
     filename: file.path,
@@ -98,33 +94,30 @@ FileServer.prototype.getUploadedFiles = function(file, callback) {
 
   this.getFields(formattedFile.filename, {}, (error, fields) => {
     if (error) {
+
       callback(error);
-    } else {
-      formattedFile.metrics = fields;
-      callback(error, formattedFile);
+      return;
     }
+    formattedFile.metrics = fields;
+    callback(error, formattedFile);
   });
 };
 
 /**
  * Get all field definitions for the give file guessing data types based on
- * first record
- *
- * @param  {String}   filename: The absolute path of the CSV file
- * @param  {Object}   options:  Optional settings. See #getData()
- * @param  {Function} callback Called with an array of field definitions in the
- *                             following format:
- *                             <code>
- *                             {
- *                             	name: 'fieldName',
- *                             	type: 'number', 'date', 'string'],
- *                             }
- *                             </code>
+ *  first record.
+ * @param {string} filename - The absolute path of the CSV file
+ * @param {Object} options -  Optional settings. See #getData()
+ * @param {Function} callback - Called with an array of field definitions in the
+ *  following format:
+ *  <code> { name:'fieldName', type:'number', date:'string' } </code>
  */
-FileServer.prototype.getFields = function(filename, options, callback) {
+FileServer.prototype.getFields = function (filename, options, callback) {
+  var fields = [];
+  var fieldName, stream;
 
   // "options" is optional
-  if (callback === undefined && typeof options == 'function') {
+  if (typeof callback == 'undefined' && typeof options == 'function') {
     callback = options;
     options = {};
   }
@@ -132,20 +125,19 @@ FileServer.prototype.getFields = function(filename, options, callback) {
   if (!('columns' in options)) {
     options.columns = true;
   }
-  options.objectMode = true;
 
-  let stream = fs.createReadStream(path.resolve(filename));
+  options.objectMode = true;
+  stream = filesystem.createReadStream(path.resolve(filename));
   stream.pipe(csv(options))
-    .once('data', function(data) {
+    .once('data', function (data) {
       if (data) {
-        let fields = [];
-        for (let fieldName in data) {
-          let val = data[fieldName];
-          let field = {
-            'uid': Utils.generateModelId(filename, fieldName),
-            'file_uid': Utils.generateId(filename),
-            'name': fieldName,
-            'type': 'string'
+        for (fieldName in data) {
+          const val = data[fieldName];
+          const field = {
+            uid: Utils.generateModelId(filename, fieldName),
+            file_uid: Utils.generateId(filename),
+            name: fieldName,
+            type: 'string'
           };
           if (Number.isFinite(Number(val))) {
             field.type = 'number';
@@ -154,24 +146,20 @@ FileServer.prototype.getFields = function(filename, options, callback) {
           }
           fields.push(field);
         }
-        callback(null, fields);
         stream.unpipe();
         stream.destroy();
+        callback(null, fields);
+        return;
       }
     })
-    .once('error', function(error) {
-      callback(error);
-    })
-    .once('end', function() {
-      callback();
-    });
+    .once('error', callback)
+    .once('end', callback);
 };
 
 /**
  * Get data from the given CSV file.
- *
- * @param  {String}   filename: The absolute path of the CSV file to load
- * @param  {Object}   options:  Optional settings
+ * @param {string} filename - The absolute path of the CSV file to load
+ * @param {Object} options - Optional settings
  *                    See https://github.com/klaemo/csv-stream#options
  *                    <code>
  *                     {
@@ -205,13 +193,12 @@ FileServer.prototype.getFields = function(filename, options, callback) {
  *                        }
  *                      }
  *                    </code>
- * @param  {Function} callback: This callback to be called on every record.
- *                              <code>function(error, data)</code>
+ * @param {Function} callback - This callback to be called on every record.
+ *                              <code>function (error, data)</code>
  */
-FileServer.prototype.getData = function(filename, options, callback) {
-
+FileServer.prototype.getData = function (filename, options, callback) {
   // "options" is optional
-  if (callback === undefined && typeof options == 'function') {
+  if (typeof callback == 'undefined' && typeof options == 'function') {
     callback = options;
     options = {};
   }
@@ -224,7 +211,7 @@ FileServer.prototype.getData = function(filename, options, callback) {
   }
 
   let limit = options.limit;
-  let fileStream = fs.createReadStream(path.resolve(filename));
+  let fileStream = filesystem.createReadStream(path.resolve(filename));
   let csvParser = csv(options);
   let lastStream = csvParser;
   let aggregator;
@@ -233,26 +220,22 @@ FileServer.prototype.getData = function(filename, options, callback) {
     lastStream = aggregator;
   }
   lastStream
-    .on('data', function(data) {
+    .on('data', function (data) {
       if (limit > 0) {
         callback(null, data);
+        return;
       }
       if (limit === 0) {
         fileStream.unpipe();
         fileStream.destroy();
         callback();
+        return;
       }
       limit -= 1;
     })
-    .once('error', function(error) {
-      callback(error);
-    })
-    .once('close', function() {
-      callback();
-    })
-    .once('end', function() {
-      callback();
-    });
+    .once('error', callback)
+    .once('close', callback)
+    .once('end', callback);
 
   if (aggregator) {
     fileStream.pipe(csvParser).pipe(aggregator);
@@ -262,8 +245,8 @@ FileServer.prototype.getData = function(filename, options, callback) {
 };
 
 /**
- * @param  {String}   filename: The absolute path of the CSV file
- * @param  {Object}   options:  Optional settings
+ * @param {string} filename - The absolute path of the CSV file
+ * @param {Object} options - Optional settings
  *                    See https://github.com/klaemo/csv-stream#options
  *                    <code>
  *                     {
@@ -279,9 +262,9 @@ FileServer.prototype.getData = function(filename, options, callback) {
  *                       limit: Number.MAX_SAFE_INTEGER
  *                      }
  *                    </code>
- * @param  {Function} callback: This callback will be called with the results
- *                              in the following format:
- *                              <code>function(error, stats)</code>
+ * @param {Function} callback - This callback will be called with the results in
+ *                              the following format:
+ *                              <code>function (error, stats)</code>
  *                              stats = {
  *                              	count: '100',
  *                              	fields: {
@@ -296,9 +279,9 @@ FileServer.prototype.getData = function(filename, options, callback) {
  *                              	}
  *                              }
  */
-FileServer.prototype.getStatistics = function(filename, options, callback) {
+FileServer.prototype.getStatistics = function (filename, options, callback) {
   // "options" is optional
-  if (callback === undefined && typeof options == 'function') {
+  if (typeof callback == 'undefined' && typeof options == 'function') {
     callback = options;
     options = {};
   }
@@ -308,15 +291,19 @@ FileServer.prototype.getStatistics = function(filename, options, callback) {
     fields: {}
   };
   let fields = stats.fields;
+
   options.objectMode = true;
-  this.getData(filename, options, function(error, data) {
+  this.getData(filename, options, function (error, data) {
     if (error) {
       callback(error);
+      return;
     } else if (data) {
       // Update stats on every record
       stats.count++;
       for (let name in data) {
+        let max, min, newMean, oldMean;
         let val = new Number(data[name]);
+
         if (isNaN(val)) {
           continue;
         } else {
@@ -332,8 +319,9 @@ FileServer.prototype.getStatistics = function(filename, options, callback) {
             stdev: 0.0
           };
         }
-        let min = fields[name].min;
-        let max = fields[name].max;
+
+        min = fields[name].min;
+        max = fields[name].max;
         fields[name].min = val < min ? val : min;
         fields[name].max = val > max ? val : max;
         fields[name].sum += val;
@@ -341,8 +329,8 @@ FileServer.prototype.getStatistics = function(filename, options, callback) {
         // Compute variance based on online algorithm from
         // D. Knuth, The Art of Computer Programming, Vol 2, 3rd ed, p.232
         if (stats.count > 1) {
-          let oldMean = fields[name].mean;
-          let newMean = oldMean + (val - oldMean) / stats.count;
+          oldMean = fields[name].mean;
+          newMean = oldMean + (val - oldMean) / stats.count;
           fields[name].mean = newMean;
           fields[name].variance += (val - oldMean) * (val - newMean);
         }
@@ -351,15 +339,16 @@ FileServer.prototype.getStatistics = function(filename, options, callback) {
       // Finished reading data
       for (let name in fields) {
         if (stats.count > 1) {
-          fields[name].variance = fields[name].variance / (stats.count - 1);
+          fields[name].variance /= (stats.count - 1);
           fields[name].stdev = Math.sqrt(fields[name].variance);
         }
       }
       callback(null, stats);
+      return;
     }
   });
 };
 
-// EXPORTS
 
+// EXPORTS
 module.exports = FileServer;

@@ -17,39 +17,57 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
+
+// externals
+
+import React from 'react';
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
-import Material from 'material-ui';
-import React from 'react';
-import StopModelAction from '../actions/StopModel';
+
+import Avatar from 'material-ui/lib/avatar';
+import Card from 'material-ui/lib/card/card';
+import CardActions from 'material-ui/lib/card/card-actions';
+import CardHeader from 'material-ui/lib/card/card-header';
+import CardText from 'material-ui/lib/card/card-text';
+import Colors from 'material-ui/lib/styles/colors';
+import FlatButton from 'material-ui/lib/flat-button';
+
+// internals
+
 import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
+import StopModelAction from '../actions/StopModel';
 
-const {
-  Card, CardHeader, CardText, CardActions, FlatButton, Avatar, Styles
-} = Material;
-const {Colors} = Styles;
+const StoreDecorator = () => ({});
 
-@connectToStores([ModelStore], () => ({
-}))
+
+/**
+ *
+ */
+@connectToStores([ModelStore], StoreDecorator)
 export default class Model extends React.Component {
 
-  static propTypes = {
-    zDepth: React.PropTypes.number,
-    modelId: React.PropTypes.string.isRequired
-  };
-  static defaultProps = {
-    zDepth: 1
-  };
-  static contextTypes = {
-    executeAction: React.PropTypes.func,
-    getStore: React.PropTypes.func,
-    muiTheme: React.PropTypes.object
-  };
+  static get contextTypes() {
+    return {
+      executeAction: React.PropTypes.func,
+      getStore: React.PropTypes.func
+    };
+  }
+
+  static get propTypes() {
+    return {
+      modelId: React.PropTypes.string.isRequired
+    };
+  }
 
   constructor(props, context) {
     super(props, context);
+
+    this._style = {
+      marginBottom: '1rem',
+      width: '100%'
+    };
+
     let store = this.context.getStore(ModelStore);
     let model = store.getModel(this.props.modelId);
     this.state = Object.assign({}, model);
@@ -65,23 +83,10 @@ export default class Model extends React.Component {
     this.context.executeAction(StopModelAction, this.props.modelId);
   }
 
-  _getStyles() {
-    return {
-      root: {
-        width: '80%',
-        padding: '10px',
-        marginLeft: '256px'
-      }
-    };
-  }
-
   render() {
-    let styles = this._getStyles();
+    let actions, avatar, title, titleColor;
     let model = this.state;
-    let actions;
-    let avatar;
-    let title;
-    let titleColor;
+
     if (model.active) {
       actions = (
         <CardActions  expandable={true}>
@@ -98,8 +103,9 @@ export default class Model extends React.Component {
       title = model.metric;
       titleColor = Colors.darkBlack;
     }
+
     return (
-      <Card initiallyExpanded={true} style={styles.root}>
+      <Card initiallyExpanded={true} style={this._style}>
         <CardHeader showExpandableButton={true}
           subtitle={model.filename}
           avatar={avatar}
@@ -112,4 +118,5 @@ export default class Model extends React.Component {
       </Card>
     );
   }
-};
+
+}

@@ -18,40 +18,36 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
 
 /**
- * Unicorn: ConfigClient - Talk to a ConfigServer over IPC or HTTP, gaining
- *  access to the Node/io.js-layer configuration settings. Connects via HTTP or
- *  IPC adapter. ConfigClientIPC adpater is currently a pseudo-library, using
- *  the magic of Electron's `remote` module.
+ * Unicorn: DatabaseClientHTTP - HTTP Adapter (one of many) for DatabaseClient
+ *  (talks to a DatabaseServer) to access the Node/io.js flat file
+ *  database layer for heavy persistence.
  */
+export default class DatabaseClientHTTP {
 
-// externals
+  constructor() {
+    this.dbh = {};
+  }
 
-import isElectronRenderer from 'is-electron-renderer';
+  get(key, callback) {
+    let results = key ? this.dbh[key] : this.dbh;
+    callback(null, results);
+  }
 
-// internals
+  put(key, value, callback) {
+    if (!key || !value) {
+      callback(new Error('missing key or value on db put'), false);
+      return;
+    }
+    this.dbh[key] = value;
+    callback(null, true);
+  }
 
-import ConfigClientHTTP from './ConfigClientHTTP';
+  putMetric() {
+  }
 
-let ConfigClient;
+  queryMetric() {
+  }
 
-
-// MAIN
-
-if (isElectronRenderer) { // desktop
-  let remote;
-  try {
-    remote = require('remote');
-  } catch (error) { /* Ignore */ }
-  ConfigClient = remote.require('./lib/ConfigServer'); // pseduo-ConfigClientIPC
-} else { // web
-  ConfigClient = ConfigClientHTTP;
 }
-
-
-// EXPORT
-
-export default ConfigClient;

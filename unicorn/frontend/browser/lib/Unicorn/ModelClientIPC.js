@@ -17,17 +17,18 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
 
 import ipc from 'ipc';
-import ModelErrorAction from '../actions/ModelError';
-import ReceiveDataAction from '../actions/ReceiveData';
-import StopModelAction from '../actions/StopModel';
+
+import ModelErrorAction from '../../actions/ModelError';
+import ReceiveDataAction from '../../actions/ReceiveData';
+import StopModelAction from '../../actions/StopModel';
 
 const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 
 
 export default class ModelClientIPC {
+
   constructor() {
     this._context = null;
   }
@@ -39,24 +40,24 @@ export default class ModelClientIPC {
 
   createModel(modelId, params) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      'modelId': modelId,
-      'command': 'create',
-      'params': JSON.stringify(params)
+      modelId,
+      command: 'create',
+      params: JSON.stringify(params)
     });
   }
 
   removeModel(modelId) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      'modelId': modelId,
-      'command': 'remove'
+      modelId,
+      command: 'remove'
     });
   }
 
   sendData(modelId, data) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      'modelId': modelId,
-      'command': 'sendData',
-      'params': JSON.stringify(data)
+      modelId,
+      command: 'sendData',
+      params: JSON.stringify(data)
     });
   }
 
@@ -70,25 +71,32 @@ export default class ModelClientIPC {
       } else if (command === 'close') {
         setTimeout(() => this._handleCloseModel(modelId ,payload));
       } else {
-        console.error('Unknown command:' + command, payload);
+        console.error(`Unknown command: ${command} ${payload}`); // eslint-ignore-line
       }
     }
   }
 
-  _handleIPCError(modelId, error, ipcevent) {
-    let command;
-    if (ipcevent && 'command' in ipcevent) {
-      command = ipcevent.command;
+  _handleIPCError(error, ipcevent) {
+    let command, modelId;
+
+    if (ipcevent) {
+      if ('command' in ipcevent) {
+        command = ipcevent.command;
+      }
+      if ('modelId' in ipcevent) {
+        modelId = ipcevent.modelId;
+      }
     }
-    this._context.executeAction(ModelErrorAction, { command, modelId, error });
+
+    this._context.executeAction(ModelErrorAction, {command, modelId, error});
   }
 
   _handleCloseModel(modelId, error) {
     if (error !== 0) {
       this._context.executeAction(ModelErrorAction, {
-        'modelId': modelId,
-        'command': 'close',
-        'error': 'Error closing model ' + error
+        modelId,
+        command: 'close',
+        error: `Error closing model ${error}`
       });
     } else {
       this._context.executeAction(StopModelAction, modelId);
@@ -102,6 +110,7 @@ export default class ModelClientIPC {
         return JSON.parse(row);
       }
     });
-    this._context.executeAction(ReceiveDataAction, { modelId, data });
+    this._context.executeAction(ReceiveDataAction, {modelId, data});
   }
+
 }

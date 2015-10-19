@@ -18,13 +18,11 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
 
 /**
  * Fluxible Action: Add (user adding new file)
- * @param {object} actionContext
- * @param {object} [payload]
+ * @param {Object} actionContext
+ * @param {Object} [payload]
  */
 module.exports = (actionContext, payload) => {
   let dispatcher;

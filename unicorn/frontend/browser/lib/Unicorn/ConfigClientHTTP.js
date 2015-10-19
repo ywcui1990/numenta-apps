@@ -18,42 +18,30 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
 
 /**
- * Unicorn: DatabaseClientHTTP - HTTP Adapter (one of many) for DatabaseClient
- *  (talks to a DatabaseServer) to access the Node/io.js flat file
- *  database layer for heavy persistence.
+ * Unicorn: ConfigClientHTTP - HTTP Adapter (one of many) for ConfigClient
+ *  (talks to a ConfigServer) to access the Node/io.js-layer config settings.
  */
+export default class ConfigClientHTTP {
 
-
-// MAIN
-
-export default class DatabaseClientHTTP {
-
+  /**
+   * @constructor
+   */
   constructor() {
-    this.db = {};
+    this.config = {
+      env: 'http',
+      target: 'http'
+    };
   }
 
-  get(key, callback) {
-    let results = key ? this.db[key] : this.db;
-    callback(null, results);
-  }
-
-  put(key, value, callback) {
-    if (!key || !value) {
-      callback(new Error('missing key or value on db put'), false);
-      return;
-    }
-    this.db[key] = value;
-    callback(null, true);
-  }
-
-  putMetric() {
-  }
-
-  queryMetric() {
+  /**
+   * Synchronous Getter of key from config hash.
+   * @param {string} key - String key to get from config hash
+   * @returns {Object|string} - Object or String of config values
+   */
+  get(key) {
+    return key ? this.config[key] : this.config;
   }
 
 }

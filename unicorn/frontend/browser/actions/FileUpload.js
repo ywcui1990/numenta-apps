@@ -17,8 +17,6 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
-
 
 // externals
 
@@ -36,12 +34,12 @@ import Utils from '../../lib/Utils';
 // FUNCTIONS
 
 /**
- * CSP channel wrapper around method to Get File Upload via File Client
+ * CSP channel wrapper around method to Get File Upload via File Client.
  * @function
- * @param {object} options - Options passed as properties to this method
- * @param {object} options.actionContext - Fluxible ActionContext
- * @param {object} options.file - File info to use to lookup from FS
- * @return {object} - CSP Channel async=>sync `yield csp.take(chan)`
+ * @param {Object} options - Options passed as properties to this method
+ * @param {Object} options.actionContext - Fluxible ActionContext
+ * @param {Object} options.file - File info to use to lookup from FS
+ * @return {Object} - CSP Channel async=>sync `yield csp.take(chan)`
  * @throws {FilesystemGetError}
  */
 function getFileFromUpload(options) {
@@ -62,12 +60,12 @@ function getFileFromUpload(options) {
 }
 
 /**
- * CSP channel wrapper around method to Get File via DB Client
+ * CSP channel wrapper around method to Get File via DB Client.
  * @function
- * @param {object} options - Options passed as properties to this method
- * @param {object} options.actionContext - Fluxible ActionContext
- * @param {object} options.file - File info to use to lookup from DB
- * @return {object} - CSP Channel async=>sync `yield csp.take(chan)`
+ * @param {Object} options - Options passed as properties to this method
+ * @param {Object} options.actionContext - Fluxible ActionContext
+ * @param {Object} options.file - File info to use to lookup from DB
+ * @return {Object} - CSP Channel async=>sync `yield csp.take(chan)`
  * @throws {DatabaseGetError}
  */
 function getFileFromDB(options) {
@@ -89,12 +87,12 @@ function getFileFromDB(options) {
 }
 
 /**
- * CSP channel wrapper around method to Get Metrics via DB Client
+ * CSP channel wrapper around method to Get Metrics via DB Client.
  * @function
- * @param {object} options - Options passed as properties to this method
- * @param {object} options.actionContext - Fluxible ActionContext
- * @param {object} options.file - File info to use to lookup from DB
- * @return {object} - CSP Channel async=>sync `yield csp.take(chan)`
+ * @param {Object} options - Options passed as properties to this method
+ * @param {Object} options.actionContext - Fluxible ActionContext
+ * @param {Object} options.file - File info to use to lookup from DB
+ * @return {Object} - CSP Channel async=>sync `yield csp.take(chan)`
  * @throws {DatabaseGetError}
  */
 function getMetricsFromDB(options) {
@@ -103,7 +101,7 @@ function getMetricsFromDB(options) {
   let databaseClient = actionContext.getDatabaseClient();
   let fileId = Utils.generateId(file.path);
 
-  databaseClient.queryMetric({ 'file_uid': fileId }, (error, results) => {
+  databaseClient.queryMetric({file_uid: fileId}, (error, results) => {
     if (error && (!('notFound' in error))) {
       csp.putAsync(channel, new DatabaseGetError(error));
     } else {
@@ -116,12 +114,12 @@ function getMetricsFromDB(options) {
 }
 
 /**
- * CSP channel wrapper around method to Put File via DB Client
+ * CSP channel wrapper around method to Put File via DB Client.
  * @function
- * @param {object} options - Options passed as properties to this method
- * @param {object} options.actionContext - Fluxible ActionContext
- * @param {object} options.file - File data to put into DB
- * @return {object} - CSP Channel async=>sync `yield csp.take(chan)`
+ * @param {Object} options - Options passed as properties to this method
+ * @param {Object} options.actionContext - Fluxible ActionContext
+ * @param {Object} options.file - File data to put into DB
+ * @return {Object} - CSP Channel async=>sync `yield csp.take(chan)`
  * @throws {DatabasePutError}
  */
 function putFileIntoDB(options) {
@@ -148,12 +146,12 @@ function putFileIntoDB(options) {
 }
 
 /**
- * CSP channel wrapper around method to Put Metrics via DB Client
+ * CSP channel wrapper around method to Put Metrics via DB Client.
  * @function
- * @param {object} options - Options passed as properties to this method
- * @param {object} options.actionContext - Fluxible ActionContext
- * @param {object} options.file - File data to put into DB
- * @return {object} - CSP Channel async=>sync `yield csp.take(chan)`
+ * @param {Object} options - Options passed as properties to this method
+ * @param {Object} options.actionContext - Fluxible ActionContext
+ * @param {Object} options.file - File data to put into DB
+ * @return {Object} - CSP Channel async=>sync `yield csp.take(chan)`
  * @throws {DatabasePutError}
  */
 function putMetricsIntoDB(options) {
@@ -163,7 +161,7 @@ function putMetricsIntoDB(options) {
   let payload = file.metrics.map((metric) => {
     return {
       uid: Utils.generateModelId(file.filename, metric.name),
-      'file_uid': Utils.generateId(file.filename),
+      file_uid: Utils.generateId(file.filename),
       name: metric.name,
       type: metric.type
     };
@@ -189,13 +187,9 @@ function putMetricsIntoDB(options) {
  */
 export default (actionContext, file) => {
   return csp.go(function* () {
-
-    let fileFormatted;
-    let fileHandle;
-    let fileMetrics;
+    let fileFormatted, fileHandle, fileMetrics, result;
     let log = actionContext.getLoggerClient();
     let opts = {actionContext, file};
-    let result;
 
     log.debug('see if uploaded file is already in DB');
     fileHandle = yield csp.take(getFileFromDB(opts));
@@ -260,6 +254,5 @@ export default (actionContext, file) => {
     log.debug('on to UI');
     actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, fileFormatted);
     return fileFormatted;
-
   }); // csp.go
 }; // export

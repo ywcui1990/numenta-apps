@@ -18,38 +18,41 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
 
 /**
- * Unicorn: FileClientHTTP - HTTP Adapter (one of many) for FileClient (talks to
- *  a FileServer) to access the Node/io.js layer of filesystem, so we can
- *  CRUD files.
+ * Unicorn: ModelClientHTTP - HTTP Adapter (one of many) for ModelClient (talks
+ *  to a ModelServer) to access the backend Py + NuPIC + Model process runner.
  */
-
-// MAIN
-
-export default class FileClientHTTP {
+export default class ModelClientHTTP {
 
   /**
    *
    */
-  constructor() {}
-
-  /**
-   *
-   */
-  getFile(callback) {
-    // callback(error, null);
-    callback(null, { file: ['data and such'] });
+  constructor() {
   }
 
   /**
    *
    */
-  getFiles(callback) {
-    // callback(error, null);
-    callback(null, {
-      files: ['uno.csv', 'dos.csv']
-    });
+  addModel() {
   }
+
+  /**
+   *
+   */
+  getModel() {
+  }
+
+  /**
+   *
+   */
+  getModels() {
+  }
+
+  /**
+   *
+   */
+  removeModels() {
+  }
+
 }
