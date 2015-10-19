@@ -269,7 +269,7 @@ public class TaurusClient : GrokClient {
         - parameter ascending: sort order
         - parameter  callback: will be called for each metric value
     */
-    func getMetricsValues (modelId: String, from:NSDate, to: NSDate, ascending: Bool, callback : ( metricId: String,  timestamp: Int64,  value: Float,  anomaly: Float)->Void? ) {
+    func getMetricsValues (modelId: String, from:NSDate, to: NSDate, ascending: Bool, callback : ( metricId: String,  timestamp: Int64,  value: Float,  anomaly: Float)->Bool ) {
        
         //Do I need a Cache?
         var keyConditions : [String: AWSDynamoDBCondition] = [: ]
@@ -347,8 +347,13 @@ public class TaurusClient : GrokClient {
                        
                     
                     
-                    callback  ( metricId: modelId,  timestamp: dateSeconds,  value: value,  anomaly: anonomaly_score)
+                   let shouldCancel =  callback  ( metricId: modelId,  timestamp: dateSeconds,  value: value,  anomaly: anonomaly_score)
                     
+                    if (shouldCancel){
+                        done = true
+                        break
+                    }
+        
                 }
                 query.exclusiveStartKey =  results.lastEvaluatedKey
                 if (results.lastEvaluatedKey == nil){
@@ -404,15 +409,14 @@ public class TaurusClient : GrokClient {
             if (fromHour == toHour){
                 timeCondition.comparisonOperator = AWSDynamoDBComparisonOperator.EQ
                 timeCondition.attributeValueList = [fromAttr]
-                         }else{
+            }else{
                 
-            timeCondition.comparisonOperator = AWSDynamoDBComparisonOperator.Between
+                timeCondition.comparisonOperator = AWSDynamoDBComparisonOperator.Between
                 timeCondition.attributeValueList = [fromAttr, toAttr]
             }
         
-        //    keyConditions["hour"] = timeCondition
+            keyConditions["hour"] = timeCondition
 
-            
             query.attributesToGet=["instance_id", "date_hour", "anomaly_score"]
             query.keyConditions = keyConditions
             query.scanIndexForward = ascending
@@ -442,9 +446,9 @@ public class TaurusClient : GrokClient {
                         let date_hour = item["date_hour"] as! AWSDynamoDBAttributeValue
                         let instance_id = (item["instance_id"] as! AWSDynamoDBAttributeValue).S
                         let anonomaly_score = (item["anomaly_score"] as! AWSDynamoDBAttributeValue).M
-                        
+                    //    print (date_hour)
                         let date = dateFormatter.dateFromString( date_hour.S)!
-                        
+                   //     print (date)
                         var metricMask = MetricType()
                         
                     /*    print (instance_id)
@@ -508,6 +512,8 @@ public class TaurusClient : GrokClient {
             }
             
             for var i = 0; i<=totalDays ; i++ {
+                
+             //   print (date)
                 getAllInstanceDataForDate(date, fromHour:0, toHour: 23, ascending: ascending, callback : callback)
                 
                 // FIXME verify this handles end of year wrapping properly

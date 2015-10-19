@@ -38,7 +38,7 @@
         var allAnomalies : [(Int64, Double )] = [(Int64, Double )]()
         var anomalies : [(Int64, Double )] = [(Int64, Double )]()
     
-    
+        var cancelLoad = false
     
         var BAR_INTERVAL = TaurusApplication.getAggregation().milliseconds()
     
@@ -98,13 +98,18 @@
         self.endDate = DataUtils.timestampFromDate (endDate)
     }
     
+    
     func load()->Bool{
+        
+        if (self.cancelLoad){
+            return false
+        }
         
         let client : TaurusClient  = TaurusApplication.connectToTaurus()!
         if (client.isOnline() == false){
             return false
         }
-        let numOfDays = TaurusApplication.getNumberOfDaysToSync()
+        let numOfDays :Int64 =   TaurusApplication.getNumberOfDaysToSync()
         let size = numOfDays * DataUtils.MILLIS_PER_DAY / DataUtils.METRIC_DATA_INTERVAL
         var newRawData = [Double](count: Int(size), repeatedValue: Double.NaN)
       //  var allAnomalies = [(Int64, Float)]()
@@ -116,8 +121,8 @@
         let fromTime = lastTimestamp - numOfDays * DataUtils.MILLIS_PER_DAY
         let from = DataUtils.dateFromTimestamp(fromTime)
         
-        print (to)
-        print (from)
+    //    print (to)
+     //   print (from)
         
         client.getMetricsValues (getId(),  from: from, to: to,ascending: true ){( metricId: String,  timestamp: Int64,  value: Float,  anomaly: Float) in
             
@@ -127,11 +132,11 @@
                 idx = newRawData.count - 1;
             }
             
-            if (idx<0){
-                print (DataUtils.dateFromTimestamp(timestamp) )
-                return nil
+         /*   if ( true /* value.isNaN == false && value > 0 */){
+                print (DataUtils.dateFromTimestamp(timestamp).description + " " + String(value) + " " + String(idx) )
+              
             }
-
+     */
             newRawData[idx] = Double(value)
          
             let hour = DataUtils.floorTo60Minutes(timestamp)
@@ -141,7 +146,7 @@
             }
             
 
-            return nil
+            return self.cancelLoad
         }
         
         
@@ -163,21 +168,8 @@
         self.allAnomalies = newAnomalies
         
         refreshData()
-        
-        /*
-        // Populate anomaly array for all scrollable period
-        for (long time = from; time < to; time += MILLIS_PER_HOUR) {
-            _allAnomalies.add(new Pair<Long, Float>(time, aggregated.get(time)));
-        }
-        
-        // Refresh data
-       // refreshData()
-        
-        
-        */
-        
-        return false
-        }
+        return true
+    }
     
 
     func getStartTimestamp()->NSDate{
@@ -194,31 +186,34 @@
         if (self.endDate == 0){
             self.endDate = self.lastTimestamp
         }
-        
+      /*  print ("ComputeDAtaforcurrent")
         print (self.getEndDate())
         print (self.getStartTimestamp())
+         print (DataUtils.dateFromTimestamp(self.lastTimestamp))
+        */
         
-        var end: Int = allRawData!.count
         let bars = TaurusApplication.getTotalBarsOnChart()
         var size = (Int64(bars) * BAR_INTERVAL / DataUtils.METRIC_DATA_INTERVAL)
         
-        end = max(Int64(self.allRawData!.count) - (self.lastTimestamp - self.endDate) / DataUtils.METRIC_DATA_INTERVAL , 0)
+
         
-        var start: Int = end - Int(size)
+        var start = Int64(self.allRawData!.count) - (self.lastTimestamp - self.endDate) / DataUtils.METRIC_DATA_INTERVAL - size - 1
+        
         if (start < 0){
             start = 0
         }
+        var end = Int(start + size)
         
-        let slice = allRawData![Range<Int>(start: start, end: end)]
+        let slice = allRawData![Range<Int>(start: Int(start), end: end)]
         
         self.rawData = Array(slice)
         
         // Anomalies
         size = Int64( allAnomalies.count)
-        start = max(size - (lastTimestamp - endDate) / BAR_INTERVAL - bars, 0)
-        end =  min ( start+bars, Int(size))
+        start = max(size - (lastTimestamp - endDate) / BAR_INTERVAL - bars+1, 0)
+        end =  Int ( min ( start+bars, size))
 
-        let anomalySlice = self.allAnomalies[Range<Int>(start: start, end: end)]
+        let anomalySlice = self.allAnomalies[Range<Int>(start: Int( start), end: end)]
         self.anomalies = Array(anomalySlice)
     }
     
@@ -278,7 +273,7 @@
         
         var time :Int64 = (endDate/interval)*interval
         let intervalsPerBar = size/bars
-        print (endDate)
+        //print (endDate)
         
          var results = [Double](count: Int(size), repeatedValue: Double.NaN)
         
@@ -311,7 +306,7 @@
                 }
                 
                 // copy over anomalies
-                collapsedAnomalies[bars-1] = ( (bars-1)*intervalsPerBar , self.allAnomalies[barIndex].1 )
+                collapsedAnomalies[bars-1] = ( (bars-1) * intervalsPerBar , self.allAnomalies[barIndex].1 )
                 
             }else{
                 
@@ -354,8 +349,10 @@
     }
 
     
-    
-    
+    func stopLoading(){
+        self.cancelLoad = true
+    }
+
     
   
   }
