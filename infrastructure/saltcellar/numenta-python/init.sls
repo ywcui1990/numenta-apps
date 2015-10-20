@@ -31,10 +31,9 @@ include:
   - nta-nucleus
 
 anaconda-python:
-  pkg:
-    - installed
-    - pkgs:
-      - gs-anaconda
+  pkg.installed:
+    - name: gs-anaconda
+    - version: 2.7.10-20151013.20.45.31
     - require:
       - pkg: compiler-toolchain
     - watch_in:

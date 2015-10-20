@@ -17,16 +17,22 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
 
 import BaseStore from 'fluxible/addons/BaseStore';
 
+
 export default class ModelDataStore extends BaseStore {
-  static storeName = 'ModelDataStore';
-  static handlers = {
-    'RECEIVE_DATA_SUCCESS': '_handReceiveData',
-    'DELETE_MODEL_SUCCESS': '_handleDeleteModel'
-  };
+
+  static get storeName() {
+    return 'ModelDataStore';
+  }
+
+  static get handlers() {
+    return {
+      RECEIVE_DATA_SUCCESS: '_handReceiveData',
+      DELETE_MODEL_SUCCESS: '_handleDeleteModel'
+    };
+  }
 
   constructor(dispatcher) {
     super(dispatcher);
@@ -34,7 +40,7 @@ export default class ModelDataStore extends BaseStore {
   }
 
   /**
-   * Received new data for a specific model
+   * Received new data for a specific model.
    * @param  {Object} payload The action payload in the following format:
    *                          <code>
    *                          {
@@ -48,7 +54,7 @@ export default class ModelDataStore extends BaseStore {
       let model = this._models.get(payload.modelId);
       if (model) {
         // Append payload data to existing model
-        Array.prototype.push.apply(model.data, payload.data);
+        Reflect.apply(Array.prototype.push, model.data, payload.data);
         // Record last time this model was modified
         model.modified = new Date();
       } else {
@@ -65,8 +71,8 @@ export default class ModelDataStore extends BaseStore {
   }
 
   /**
-   * Delete model data
-   * @param  {String} modelId Model to delete
+   * Delete model data.
+   * @param {string} modelId - Model to delete
    */
   _handleDeleteModel(modelId) {
     this._models.delete(modelId);
@@ -74,8 +80,8 @@ export default class ModelDataStore extends BaseStore {
   }
 
   /**
-   * Get data for the given model
-   * @param  {String} modelId  Model to get data from
+   * Get data for the given model.
+   * @param  {string} modelId  Model to get data from
    * @return {Array}           Model data in the following format:
    *         <code>
    *         [
@@ -88,6 +94,7 @@ export default class ModelDataStore extends BaseStore {
    *         </code>
    */
   getData(modelId) {
-    return this._models.get(modelId) || {modelId: modelId, data:[], modified:0};
+    return this._models.get(modelId) || {modelId, data:[], modified:0};
   }
+
 }

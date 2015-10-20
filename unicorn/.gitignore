@@ -1,12 +1,10 @@
-*.log
 *.egg
 *.egg-info
-bundle.js
-bundle.js.map
+*.log
 build/
 dist/
-frontend/database/data/*.json
-frontend/database/data/*medea*
-logs/*.log
+frontend/browser/assets/bundle/
+frontend/docs/
+logs/
 node_modules/
 Unicorn-darwin-x64/

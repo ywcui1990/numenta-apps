@@ -30,6 +30,7 @@ from mock import patch, call, Mock
 
 from nta.utils import error_handling
 from nta.utils.logging_support_raw import LoggingSupport
+from nta.utils.test_utils import time_test_utils
 
 
 
@@ -47,28 +48,6 @@ def setUpModule():
 class RetryDecoratorTest(unittest.TestCase):
   """Unit tests specific to retry decorator."""
 
-
-  def mockSleepTime(self, mockTime, mockSleep):
-    """Configures mocks for time.time and time.sleep such that every call
-    to time.sleep(x) increments the return value of time.time() by x.
-    
-    mockTime:     time.time mock
-    mockSleep:    time.sleep mock
-    """
-
-    class _TimeContainer(object):
-      accumulatedTime = 0
-
-    def testTime():
-      return _TimeContainer.accumulatedTime
-
-    def testSleep(duration):
-      _TimeContainer.accumulatedTime += duration
-
-    mockTime.side_effect = testTime
-    mockSleep.side_effect = testSleep
-
-
   @patch("time.sleep", autospec=True)
   @patch("time.time", autospec=True)
   def testRetryNoTimeForRetries(self, mockTime, mockSleep):
@@ -76,7 +55,7 @@ class RetryDecoratorTest(unittest.TestCase):
     with no retries, and raises an exception on failure.
     """
 
-    self.mockSleepTime(mockTime, mockSleep)
+    time_test_utils.configureTimeAndSleepMocks(mockTime, mockSleep)
 
     _retry = error_handling.retry(
       timeoutSec=0, initialRetryDelaySec=0.2,
@@ -97,7 +76,7 @@ class RetryDecoratorTest(unittest.TestCase):
   def testRetryWaitsInitialRetryDelaySec(self, mockTime, mockSleep):
     """Test that delay times are correct."""
 
-    self.mockSleepTime(mockTime, mockSleep)
+    time_test_utils.configureTimeAndSleepMocks(mockTime, mockSleep)
 
     _retry = error_handling.retry(
       timeoutSec=30, initialRetryDelaySec=2,
@@ -121,7 +100,7 @@ class RetryDecoratorTest(unittest.TestCase):
     """Test that retry is triggered if raised exception is in
     retryExceptions."""
 
-    self.mockSleepTime(mockTime, mockSleep)
+    time_test_utils.configureTimeAndSleepMocks(mockTime, mockSleep)
 
     _retry = error_handling.retry(
       timeoutSec=1, initialRetryDelaySec=1,
@@ -143,7 +122,7 @@ class RetryDecoratorTest(unittest.TestCase):
     """ Test that retry is not triggered if raised exeception is not in
     retryExceptions """
 
-    self.mockSleepTime(mockTime, mockSleep)
+    time_test_utils.configureTimeAndSleepMocks(mockTime, mockSleep)
 
     class TestExceptionA(Exception):
       pass
@@ -171,7 +150,7 @@ class RetryDecoratorTest(unittest.TestCase):
     """Test that if retryFilter is specified and exception is in
     retryExceptions, retries iff retryFilter returns true."""
 
-    self.mockSleepTime(mockTime, mockSleep)
+    time_test_utils.configureTimeAndSleepMocks(mockTime, mockSleep)
 
     # Test with retryFilter returning True
 
@@ -214,7 +193,7 @@ class RetryDecoratorTest(unittest.TestCase):
     """Test that docorated function receives only expected args and
     that it returns the expected value on success."""
 
-    self.mockSleepTime(mockTime, mockSleep)
+    time_test_utils.configureTimeAndSleepMocks(mockTime, mockSleep)
 
     _retry = error_handling.retry(
       timeoutSec=30, initialRetryDelaySec=2,
@@ -234,7 +213,7 @@ class RetryDecoratorTest(unittest.TestCase):
   def testNoRetryIfCallSucceeds(self, mockTime, mockSleep):
     """If the initial call succeeds, test that no retries are performed."""
 
-    self.mockSleepTime(mockTime, mockSleep)
+    time_test_utils.configureTimeAndSleepMocks(mockTime, mockSleep)
 
     _retry = error_handling.retry(
       timeoutSec=30, initialRetryDelaySec=2,
@@ -253,7 +232,7 @@ class RetryDecoratorTest(unittest.TestCase):
     """If initial attempts fail but subsequent attempt succeeds, ensure that
     expected number of retries is performed and expected value is returned."""
 
-    self.mockSleepTime(mockTime, mockSleep)
+    time_test_utils.configureTimeAndSleepMocks(mockTime, mockSleep)
 
     _retry = error_handling.retry(
       timeoutSec=30, initialRetryDelaySec=2,
@@ -266,7 +245,7 @@ class RetryDecoratorTest(unittest.TestCase):
         321
       ],
       __name__="testFunction", autospec=True)
-    
+
     returnValue = _retry(testFunction)()
 
     self.assertEqual(returnValue, 321)

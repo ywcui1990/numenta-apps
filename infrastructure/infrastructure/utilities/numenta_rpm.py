@@ -369,7 +369,7 @@ class NumentaRPM(object):
     actualSHA = self.installProductsIntoHTMITFakeroot()
 
     productsDirectory = self.productsDirectory
-    htm-itPath = os.path.join(productsDirectory, "htm-it")
+    htmItPath = os.path.join(productsDirectory, "htm.it")
     iteration = git.getCommitCount(productsDirectory, logger=logger)
 
     # Extend PYTHONPATH for setup.py, build & cleanup scripts
@@ -383,7 +383,7 @@ class NumentaRPM(object):
                             productsDirectory
 
     # Install wheels if any have been specified
-    with changeToWorkingDir(htm-itPath):
+    with changeToWorkingDir(htmItPath):
       for wheel in config.wheels:
         logger.info("Installing %s", os.path.basename(wheel))
         if not os.path.exists(wheel):
