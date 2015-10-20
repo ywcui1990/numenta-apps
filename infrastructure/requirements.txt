@@ -1,4 +1,4 @@
 boto==2.38.0
 fabric==1.9.0
 grokcli
-PyYAML==3.10
+PyYAML==3.11
