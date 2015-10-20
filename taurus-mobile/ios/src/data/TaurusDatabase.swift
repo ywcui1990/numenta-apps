@@ -131,8 +131,8 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
         }
   
         self.firstTimestamp = oldestTimeStamp
-       // print (DataUtils.dateFromTimestamp(self.firstTimestamp))
-       // print (DataUtils.dateFromTimestamp(self.lastTimestamp))
+        print (DataUtils.dateFromTimestamp(self.firstTimestamp))
+        print (DataUtils.dateFromTimestamp(self.lastTimestamp))
 
         NSNotificationCenter.defaultCenter().postNotificationName(TaurusDatabase.INSTANCEDATALOADED, object: self)
     }

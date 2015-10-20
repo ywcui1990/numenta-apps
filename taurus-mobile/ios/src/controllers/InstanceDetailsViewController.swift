@@ -110,10 +110,18 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         // on iOS 8+ need to make sure table background is clear
         
         instanceTable.backgroundColor = UIColor.clearColor()
+   
+        let menuIcon = UIImage(named: "menu")
+        let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self.revealViewController(), action: "rightRevealToggle:")
+        self.menuButton = b2
      
+        b2.tintColor = UIColor.whiteColor()
+   
+        self.navigationItem.rightBarButtonItems = [ menuButton!]
+        
         if self.revealViewController() != nil {
-            menuButton.target = self.revealViewController()
-            menuButton.action = "revealToggle:"
+         //   menuButton.target = self.revealViewController()
+           // menuButton.action = "revealToggle:"
             self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
             
                 self.revealViewController().rearViewRevealWidth = 100
@@ -122,6 +130,9 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
          marketHoursSwitch?.on = self.marketHoursOnly
         
          configureView()
+        
+        dispatch_set_target_queue(loadQueue, dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0))
+        
       
     }
 

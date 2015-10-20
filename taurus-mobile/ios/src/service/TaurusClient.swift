@@ -377,7 +377,9 @@ public class TaurusClient : GrokClient {
         ascending : Bool,callback : (InstanceData?)->Void?){
             
             
-         //   print (date)
+            print (date)
+            print ( fromHour)
+            print (toHour)
             let query = AWSDynamoDBQueryInput()
             query.tableName = TaurusClient.INSTANCE_DATA_HOURLY_TABLE
             var keyConditions : [String: AWSDynamoDBCondition] = [: ]
@@ -415,7 +417,7 @@ public class TaurusClient : GrokClient {
                 timeCondition.attributeValueList = [fromAttr, toAttr]
             }
         
-            keyConditions["hour"] = timeCondition
+         //   keyConditions["hour"] = timeCondition
 
             query.attributesToGet=["instance_id", "date_hour", "anomaly_score"]
             query.keyConditions = keyConditions
@@ -448,13 +450,13 @@ public class TaurusClient : GrokClient {
                         let anonomaly_score = (item["anomaly_score"] as! AWSDynamoDBAttributeValue).M
                     //    print (date_hour)
                         let date = dateFormatter.dateFromString( date_hour.S)!
-                   //     print (date)
+                 //       print (date)
                         var metricMask = MetricType()
                         
-                    /*    print (instance_id)
+                   /*    print (instance_id)
                         print (date)
-                        print (anonomaly_score)*/
-                        
+                        print (anonomaly_score)
+                     */
                         for (key, anomalyValue) in anonomaly_score {
                             let score :Double = Double ( anomalyValue.N)!
                             let scaledScore = DataUtils.logScale(abs(score))
@@ -497,6 +499,9 @@ public class TaurusClient : GrokClient {
         let fromDay = calendar.ordinalityOfUnit(.Day, inUnit: .Year, forDate: from)
         let toDay = calendar.ordinalityOfUnit(.Day, inUnit: .Year, forDate: to)
 
+        print ("Get all days")
+        print (from)
+        print (to)
         // Check if "from" date and "to" date falls on the same day
         if (fromDay == toDay) {
              getAllInstanceDataForDate(from, fromHour: calendar.component(NSCalendarUnit.Hour, fromDate: from), toHour: calendar.component(NSCalendarUnit.Hour, fromDate: to), ascending: ascending, callback : callback)
