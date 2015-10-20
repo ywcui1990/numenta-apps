@@ -27,20 +27,22 @@ const assert = require('assert');
 
 const FILENAME = path.resolve(__dirname, 'fixtures/rec-center-15.csv');
 
+/* eslint-disable max-nested-callbacks */
+
 describe('TimeAggregator', () => {
   let stream;
-  let parser;
-  beforeEach( () => {
+  let parser = null;
+  beforeEach(() => {
     stream = fs.createReadStream(FILENAME);
     parser = csv({objectMode:true, columns:true});
   });
 
   describe('Time internals', () => {
     let options = {
-      'timefield': 'timestamp',
-      'valuefield': 'kw_energy_consumption',
-      'function': 'count',
-      'interval': 1000
+      timefield: 'timestamp',
+      valuefield: 'kw_energy_consumption',
+      function: 'count',
+      interval: 1000
     };
 
     it('should group by 1 hour', (done) => {
@@ -78,10 +80,10 @@ describe('TimeAggregator', () => {
 
   describe('Aggregation Functions', () => {
     let options = {
-      'timefield': 'timestamp',
-      'valuefield': 'kw_energy_consumption',
-      'function': 'count',
-      'interval': 24 * 60 * 60 * 1000
+      timefield: 'timestamp',
+      valuefield: 'kw_energy_consumption',
+      function: 'count',
+      interval: 24 * 60 * 60 * 1000
     };
     it('should calculate the min', (done) => {
       options.function = 'min';

@@ -33,7 +33,7 @@
     "electron:debug": "electron --debug=5858 .",
     "electron:packager": "electron-packager . Unicorn --arch=x64 --icon=frontend/assets/icons/unicorn.icns --ignore=.git --ignore=node_modules/electron-* --overwrite --platform=darwin --prune --version=0.33.3",
     "esfmt": "esformatter --diff 'frontend/**/*.js'",
-    "lint": "eslint frontend/",
+    "lint": "eslint --ext=js --ext=jsx frontend/ tests/js/",
     "prepare": "npm run lint && npm run prepare:webpack",
     "prepare:python": "python backend/unicorn_backend/freeze_model_runner.py",
     "prepare:webpack": "gulp webpack",
