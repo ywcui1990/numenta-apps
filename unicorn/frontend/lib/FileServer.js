@@ -223,13 +223,11 @@ FileServer.prototype.getData = function (filename, options, callback) {
     .on('data', function (data) {
       if (limit > 0) {
         callback(null, data);
-        return;
       }
       if (limit === 0) {
         fileStream.unpipe();
         fileStream.destroy();
         callback();
-        return;
       }
       limit -= 1;
     })
