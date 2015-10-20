@@ -1,0 +1,185 @@
+#!/usr/bin/env python
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Affero Public License for more details.
+#
+# You should have received a copy of the GNU Affero Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
+"""
+Infrastructure-pypipeline script
+
+Creates a wheel file for a python module and uploads to Numenta's pypi server
+"""
+
+import argparse
+import os
+
+from fabric.api import settings, run
+from fabric.operations import put
+
+from infrastructure.utilities import exceptions
+from infrastructure.utilities.cli import runWithOutput
+from infrastructure.utilities import git
+from infrastructure.utilities.path import changeToWorkingDir
+from infrastructure.utilities.diagnostics import (initPipelineLogger,
+                                                  LOG_LEVELS)
+
+
+
+def parseCLIArgs():
+  """
+  Parse the command line arguments
+
+  :returns: The Parsed arguments from the command line
+  :rtype: argparse.Namespace
+  """
+  # Set up our defaults from the environment
+  workspaceD = os.environ.get("WORKSPACE", ".")
+  appsPath = "numenta-apps"
+
+  fork=os.environ.get("FORK", "git@github.com:Numenta/numenta-apps.git")
+  commitish=os.environ.get("COMMITISH", "master")
+
+  pypiServer=os.environ.get(PYPI_SERVER, "https://pypi.numenta.com/pypi")
+
+  parser = argparse.ArgumentParser(description=("Build and upload "
+                                                "infrastructure module to "
+                                                "numenta's pypi server"))
+  parser.add_argument("--apps-path",
+                      dest="appsPath",
+                      type=str,
+                      default=appsPath,
+                      help="path to git repo directory")
+
+  parser.add_argument("--commitish",
+                      dest="commitish",
+                      type=str,
+                      default=commitish,
+                      help="What commitish to build from. Default to tip "
+                           "of master")
+
+  parser.add_argument("--dry-run",
+                      dest="dryRun",
+                      default=True,
+                      help="Only build the wheel, don't upload it")
+
+  parser.add_argument("--fork",
+                      dest="fork",
+                      type=str,
+                      default=fork,
+                      help="What fork to build from. Default to %s" % fork)
+
+  parser.add_argument("--log-level",
+                      dest="logLevel",
+                      type=str,
+                      default="info",
+                      choices=LOG_LEVELS,
+                      help="Set the logging level. Default to INFO")
+
+  parser.add_argument("--pypi-server",
+                      dest="pypiServer",
+                      type=str,
+                      default=pypiServer,
+                      help="What pypi server to upload to. Default "
+                           "to %s " % pypiServer)
+
+  parser.add_argument("--workspace",
+                      dest="workspace",
+                      type=str,
+                      default=workspaceD,
+                      help="Path to workspace directory.")
+
+  return parser.parse_args()
+
+
+def setupWorkspace(workspace, appsPath, fork, commitish, logger):
+  """
+  Creates/updates the git repo in workspace.
+
+  :param str workspace: path to workspace directory
+  :param str appsPath: path to the git repository
+  :param str fork: Which fork to check out
+  :param str commitish: What commit/branch to check out
+  :param logger: An initialized logger
+  """
+  if os.path.exists(appsPath):
+    logger.debug("Updating git repository in %s", appsPath)
+    with changeToWorkingDir(appsPath):
+      logger.debug("Cleaning git repository...")
+      runWithOutput(command=("git", "clean", "-fd"), logger=logger)
+  else:
+    with changeToWorkingDir(workspace):
+      logger.debug("Cloning git repository...")
+      git.clone(logger=logger,
+                gitURL=fork,
+                directory=appsPath)
+
+  with changeToWorkingDir(appsPath):
+    logger.debug("Setting origin remote to %s", fork)
+    git.setRemoteURL(remote="origin",
+                     url=fork,
+                     path=appsPath,
+                     logger=logger)
+    logger.debug("Cleaning git repository...")
+    runWithOutput(command=("git", "pull"), logger=logger)
+
+  logger.debug("Checking out %s in %s", commitish, appsPath)
+  git.checkout(logger=logger, pathspec=commitish)
+
+
+def buildAndUpload(logger, moduleDir, pypiServer, dryrun=False):
+  """
+  Builds and uploads the a python module to our pypi server
+
+  :param logger: An initialized logger
+  :param str moduleDir: path to directory containing setup.py
+  :param str pypiServer: which pypi server to upload to.
+  :param bool dryrun: Whether to upload to our pypi server
+  """
+
+  setupPath = os.path.join(moduleDir, "setup.py")
+  assert os.path.isfile(setupPath), "Could not find %s" % setupPath
+
+  uploadArgs = ["python", "setup.py", "sdist", "bdist_wheel", "bdist"]
+  if not dryrun:
+    uploadArgs = uploadArgs + ["upload", "-r", pypiServer]
+  with changeToWorkingDir(moduleDir):
+    logger.info("Building in %s", moduleDir)
+    logger.debug("Running: %s", " ".join(uploadArgs))
+    runWithOutput(uploadArgs)
+
+
+def main(config):
+  """
+  Main function for the pipeline. Executes all sub-tasks.
+
+  :param args: Parsed command line arguments
+  :raises ValueError:
+  """
+  logger = initPipelineLogger("infrastructure-pypipeline",
+                              logLevel=config.logLevel)
+  appsPath = os.path.join(config.workspace, "numenta-apps")
+
+  setupWorkspace(logger=logger,
+                 appsPath=appsPath,
+                 fork=config.fork,
+                 commitish=config.commitish)
+
+
+if __name__ == "__main__":
+  main(parseCLIArgs())
