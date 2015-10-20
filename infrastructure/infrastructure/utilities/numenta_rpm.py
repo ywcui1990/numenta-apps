@@ -369,7 +369,7 @@ class NumentaRPM(object):
     actualSHA = self.installProductsIntoHTMITFakeroot()
 
     productsDirectory = self.productsDirectory
-    htmItPath = os.path.join(productsDirectory, "htm-it")
+    htmItPath = os.path.join(productsDirectory, "htm.it")
     iteration = git.getCommitCount(productsDirectory, logger=logger)
 
     # Extend PYTHONPATH for setup.py, build & cleanup scripts
