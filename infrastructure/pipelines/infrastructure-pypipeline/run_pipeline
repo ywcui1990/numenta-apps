@@ -29,10 +29,6 @@ Creates a wheel file for a python module and uploads to Numenta's pypi server
 import argparse
 import os
 
-from fabric.api import settings, run
-from fabric.operations import put
-
-from infrastructure.utilities import exceptions
 from infrastructure.utilities.cli import runWithOutput
 from infrastructure.utilities import git
 from infrastructure.utilities.path import changeToWorkingDir
@@ -55,7 +51,7 @@ def parseCLIArgs():
   fork=os.environ.get("FORK", "git@github.com:Numenta/numenta-apps.git")
   commitish=os.environ.get("COMMITISH", "master")
 
-  pypiServer=os.environ.get(PYPI_SERVER, "https://pypi.numenta.com/pypi")
+  pypiServer=os.environ.get("PYPI_SERVER", "https://pypi.numenta.com/pypi")
 
   parser = argparse.ArgumentParser(description=("Build and upload "
                                                 "infrastructure module to "
@@ -176,6 +172,7 @@ def main(config):
   appsPath = os.path.join(config.workspace, "numenta-apps")
 
   setupWorkspace(logger=logger,
+                 workspace=config.workspace,
                  appsPath=appsPath,
                  fork=config.fork,
                  commitish=config.commitish)
