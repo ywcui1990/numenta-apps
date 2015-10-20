@@ -147,7 +147,7 @@ install-htm-it() {
   pushd "${PRODUCTS}"
     echo "Running install-htm-it.sh"
 
-    ./install-htm-it.sh "${NUMENTA}/anaconda/lib/python2.7/site-packages" "${NUMENTA}/anaconda/bin"
+    ./install-htm-it.sh "${NUMENTA}/anaconda"
     if [ $? != 0 ]; then
       echo "Failed to install HTM-IT"
       exit 1

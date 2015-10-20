@@ -17,21 +17,22 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
+
 import {ACTIONS} from '../lib/Constants';
+
 
 /**
  * Action used to send data to models
  *
- * @param  {[type]} actionContext [description]
- * @param  {Object} payload {
+ * @param {Object} actionContext - Fluxible action context object
+ * @param {Object} payload - {
  *                          	modelId: 'id',
  *                            data: [timestamp, value]
  *                          }
  */
 export default (actionContext, payload) => {
   let modelClient = actionContext.getModelClient();
-  let { modelId, data } = payload;
+  let {modelId, data} = payload;
   actionContext.dispatch(ACTIONS.SEND_DATA_SUCCESS, modelId);
   modelClient.sendData(modelId, data);
 };

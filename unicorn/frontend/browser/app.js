@@ -18,46 +18,39 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
-
-/**
- * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
- *  to a user using their own data stream or files.
- *
- * Main browser web code Application GUI entry point.
- */
 
 // externals
 
 import 'babel/polyfill'; // es6/7 polyfill Array.from()
 
 import bunyan from 'bunyan';
-import csp from 'js-csp';
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
+import remote from 'remote';
 import tapEventInject from 'react-tap-event-plugin';
 
 // internals
 
-// Fluxible.Actions
 import ListFilesAction from './actions/ListFiles';
 import ListMetricsAction from './actions/ListMetrics';
 
-// Fluxible.Stores
 import FileStore from './stores/FileStore';
 import ModelStore from './stores/ModelStore';
 import ModelDataStore from './stores/ModelDataStore';
 
-// Fluxible.Components (React)
 import MainComponent from './components/Main';
 
-// Unicorn Client Libraries
-import ConfigClient from './lib/ConfigClient';
-import DatabaseClient from './lib/DatabaseClient';
-import FileClient from './lib/FileClient';
-import ModelClient from './lib/ModelClient';
+import ConfigClient from './lib/Unicorn/ConfigClient';
+import DatabaseClient from './lib/Unicorn/DatabaseClient';
+import FileClient from './lib/Unicorn/FileClient';
+import ModelClient from './lib/Unicorn/ModelClient';
+
+import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
+
+// setup
+
+const dialog = remote.require('dialog');
 
 const config = new ConfigClient();
 const log = bunyan.createLogger({
@@ -68,7 +61,7 @@ const log = bunyan.createLogger({
       write(rec) {
         let name = bunyan.nameFromLevel[rec.level];
         let method = (name === 'debug') ? 'log' : name;
-        console[method]('[%s]: %s', name, rec.msg);
+        console[method]('[%s]: %s', name, rec.msg); // eslint-disable-line
       }
     },
     type: 'raw'
@@ -79,129 +72,63 @@ let databaseClient = new DatabaseClient();
 let fileClient = new FileClient();
 let modelClient = new ModelClient();
 
-let app;
-let context;
 
-
-// MAIN
-
-
-// UnicornPlugin plugin exposing unicorn clients from contexts
-// See https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md
-
-let UnicornPlugin = {
-  name: 'Unicorn',
-  plugContext: function (options, context, app) {
-    let configClient = options.configClient;
-    let loggerClient = options.loggerClient;
-    let databaseClient = options.databaseClient;
-    let fileClient = options.fileClient;
-    let modelClient = options.modelClient;
-    return {
-      plugActionContext: function (actionContext, context, app) {
-        actionContext.getConfigClient = function () {
-          return configClient;
-        };
-        actionContext.getLoggerClient = function () {
-          return loggerClient;
-        };
-        actionContext.getDatabaseClient = function () {
-          return databaseClient;
-        };
-        actionContext.getFileClient = function () {
-          return fileClient;
-        };
-        actionContext.getModelClient = function () {
-          return modelClient;
-        };
-      },
-      plugComponentContext: function (componentContext, context, app) {
-        componentContext.getConfigClient = function () {
-          return configClient;
-        };
-        componentContext.getLoggerClient = function () {
-          return loggerClient;
-        };
-        componentContext.getDatabaseClient = function () {
-          return databaseClient;
-        };
-        componentContext.getFileClient = function () {
-          return fileClient;
-        };
-        componentContext.getModelClient = function () {
-          return modelClient;
-        };
-      },
-      plugStoreContext: function (storeContext, context, app) {
-        storeContext.getConfigClient = function () {
-          return configClient;
-        };
-        storeContext.getLoggerClient = function () {
-          return loggerClient;
-        };
-        storeContext.getDatabaseClient = function () {
-          return databaseClient;
-        };
-        storeContext.getFileClient = function () {
-          return fileClient;
-        };
-        storeContext.getModelClient = function () {
-          return modelClient;
-        };
-      }
-    };
-  } // plugContext
-}; // UnicornPlugin
-
-
-// GUI APP
-
+/**
+ * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
+ *  to a user using their own data stream or files. Main browser web code
+ *  Application GUI entry point.
+ */
 document.addEventListener('DOMContentLoaded', () => {
-  csp.go(function* () {
+  let app, context;
 
-    if (!(document && ('body' in document))) {
-      throw new Error('React cannot find a DOM document.body to render to');
-    }
+  // global uncaught exception handler
+  window.onerror = (message, file, line, col, error) => {
+    dialog.showErrorBox('Unknown Error', `Unknown Error: ${message}`);
+  };
 
-    if (config.get('NODE_ENV') !== 'production') {
-      window.React = React; // expose to React dev tools
-    }
+  // verify web target
+  if (!(document && ('body' in document))) {
+    dialog.showErrorBox('Document Error', 'No document body found');
+  }
 
-    tapEventInject(); // @TODO remove when >= React 1.0
+  // expose React to dev tools
+  if (config.get('NODE_ENV') !== 'production') {
+    window.React = React; // expose dev tools to browser
+  }
 
-    // init GUI flux/ible app
-    app = new Fluxible({
-      component: MainComponent,
-      stores: [FileStore, ModelStore, ModelDataStore]
+  tapEventInject(); // @TODO remove when >= React 1.0
+
+  // init GUI flux/ible app
+  app = new Fluxible({
+    component: MainComponent,
+    stores: [FileStore, ModelStore, ModelDataStore]
+  });
+
+  // Plug Unicorn plugin giving access to Unicorn clients
+  app.plug(UnicornPlugin);
+
+  // add context to app
+  context = app.createContext({
+    configClient: config,
+    loggerClient: log,
+    databaseClient,
+    fileClient,
+    modelClient
+  });
+
+  // Start listening for model events
+  modelClient.start(context.getActionContext());
+
+  // fire initial app action to load all files
+  context.executeAction(ListFilesAction, {})
+    .then((files) => {
+      return context.executeAction(ListMetricsAction, files);
+    })
+    .then(() => {
+      let contextEl = FluxibleReact.createElementWithContext(context);
+      React.render(contextEl, document.body);
+    })
+    .catch((error) => {
+      dialog.showErrorBox('Startup Error', `Startup Error: ${error}`);
     });
-
-    // Plug Unicorn plugin giving access to Unicorn clients
-    app.plug(UnicornPlugin);
-
-    // add context to app
-    context = app.createContext({
-      configClient: config,
-      loggerClient: log,
-      databaseClient,
-      fileClient,
-      modelClient
-    });
-
-    // Start listening for model events
-    modelClient.start(context.getActionContext());
-
-    // fire initial app action to load all files
-    context.executeAction(ListFilesAction, {})
-      .then((files) => {
-        return context.executeAction(ListMetricsAction, files);
-      })
-      .then(() => {
-        let contextEl = FluxibleReact.createElementWithContext(context);
-        React.render(contextEl, document.body);
-      })
-      .catch((error) => {
-        throw new Error('Unable to start Application:', error);
-      });
-
-  }); // csp.go()
 }); // DOMContentLoaded

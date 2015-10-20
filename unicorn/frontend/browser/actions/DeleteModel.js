@@ -17,8 +17,9 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
+
 import {ACTIONS} from '../lib/Constants';
+
 
 /**
  * Delete model

@@ -24,8 +24,8 @@ set -o errexit
 
 function install {
   pushd $1
-  python setup.py develop --install-dir=$2 --script-dir=$3
+  python setup.py develop --prefix=$2
   popd
 }
 
-install infrastructure $1 $2
+install infrastructure $1

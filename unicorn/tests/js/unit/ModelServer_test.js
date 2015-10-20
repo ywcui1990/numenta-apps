@@ -18,15 +18,17 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
 
-import { ModelServer, MaximumConcurrencyError } from '../../../frontend/lib/ModelServer';
+import {
+  ModelServer, MaximumConcurrencyError
+} from '../../../frontend/lib/ModelServer';
 const assert = require('assert');
 
 const STATS = '{"min": 0, "max": 10}';
 const MODEL_ID = '1';
 const INPUT_DATA = [1438649711, 835.93679];
 const EXPECTED_RESULTS = '[0, 0.0301029996658834]\n'; // Log scaled
+
 
 describe('ModelServer', () => {
   let server = new ModelServer();
@@ -37,7 +39,7 @@ describe('ModelServer', () => {
   afterEach(() => {
     try {
       server.removeModel(MODEL_ID);
-    } catch(ignore) {/* It may be closed by the test itself */}
+    } catch (ignore) {/* It may be closed by the test itself */}
   });
 
   describe('#getModels()', () => {
@@ -55,12 +57,15 @@ describe('ModelServer', () => {
     });
   });
 
-  describe('Model Events', () => {
+  describe('Model Events', function () {
+    this.timeout(5000);
+
     it('Read data from model', (done) => {
       server.on(MODEL_ID, (type, data) => {
         assert(type !== 'error', data);
         if (type === 'data') {
           assert.equal(data, EXPECTED_RESULTS);
+          server.removeAllListeners(MODEL_ID);
           done();
         }
       });
@@ -72,6 +77,7 @@ describe('ModelServer', () => {
         if (type === 'close') {
           return;
         } else if (type === 'error') {
+          server.removeAllListeners(MODEL_ID);
           done();
         } else {
           assert.fail(type, 'error', 'Expecting "error" got "' + type

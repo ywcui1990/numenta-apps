@@ -17,9 +17,10 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
+
 import {ACTIONS} from '../lib/Constants';
 import StartModelAction from './StartModel';
+
 
 /**
  * Add new model
@@ -31,9 +32,9 @@ import StartModelAction from './StartModel';
  *                            metric: 'metric'
  *                          }
  * @return {Promise}
+ * @todo Persist model reference
  */
 export default (actionContext, payload) => {
-  // TODO: Persist model reference
   let model = Object.assign({
     active: false,
     error: null

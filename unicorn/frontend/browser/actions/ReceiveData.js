@@ -17,8 +17,10 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
+
 import {ACTIONS} from '../lib/Constants';
+
+
 /**
  * Receive model data
  * @param  {Object} payload The action payload in the following format:

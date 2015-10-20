@@ -17,21 +17,34 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
+
+// externals
+
+import React from 'react';
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
-import React from 'react';
-import ModelDataStore from '../stores/ModelDataStore';
-import Chart from '../components/Chart';
 
-@connectToStores([ModelDataStore], (context) => ({
+// internals
+
+import Chart from '../components/Chart';
+import ModelDataStore from '../stores/ModelDataStore';
+
+const StoreDecorator = (context) => ({
   modelDataStore: context.getStore(ModelDataStore)
-}))
+});
+
+
+/**
+ *
+ */
+@connectToStores([ModelDataStore], StoreDecorator)
 export default class ModelData extends React.Component {
 
-  static propTypes = {
-    modelId: React.PropTypes.string.isRequired
-  };
+  static get propTypes () {
+    return {
+      modelId: React.PropTypes.string.isRequired
+    };
+  }
 
   constructor(props, context) {
     super(props, context);
@@ -51,4 +64,5 @@ export default class ModelData extends React.Component {
       );
     }
   }
-};
+
+}

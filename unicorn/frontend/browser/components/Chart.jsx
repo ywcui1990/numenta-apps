@@ -1,61 +1,74 @@
-// Numenta Platform for Intelligent Computing (NuPIC)
-// Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+// Copyright © 2015, Numenta, Inc.  Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero Public License version 3 as
-// published by the Free Software Foundation.
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the Free
+// Software Foundation.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU Affero Public License for more details.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
 //
-// You should have received a copy of the GNU Affero Public License
-// along with this program.  If not, see http://www.gnu.org/licenses.
+// You should have received a copy of the GNU Affero Public License along with
+// this program.  If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
 
-'use strict';
 
+// externals
 
 import Dygraph from 'dygraphs';
-import Material from 'material-ui';
+import Paper from 'material-ui/lib/paper';
 import React from 'react';
 
-const {
-  Paper
-} = Material;
-
-
-// MAIN
 
 /**
  * Chart Widget.
- * Wraps http://dygraphs.com/ as a React Component
+ *  Wraps http://dygraphs.com/ as a React Component.
+ * @class
+ * @exports
+ * @extends React.Component
+ * @module
+ * @public
+ * @this Chart
+ * @todo The local variables (this._chart*) should be refactored to React state.
+ *  And, React's `render()` should be overrided with DyGraphs `updateOptions()`,
+ *  possibly using Reacts's `shouldComponentUpdate()` method to skip React's
+ *  state change => render cycle for DyGraphs to not have it's DOM node reset.
  */
 export default class Chart extends React.Component {
 
-  static propTypes = {
-    data: React.PropTypes.array.isRequired,
-    options: React.PropTypes.object,
-    zDepth: React.PropTypes.number,
-  };
+  static get propTypes() {
+    return {
+      data: React.PropTypes.array.isRequired,
+      options: React.PropTypes.object,
+      zDepth: React.PropTypes.number,
+    };
+  }
 
-  static defaultProps = {
-    zDepth: 1,
-    data: [],
-    options: {}
-  };
+  static get defaultProps() {
+    return {
+      data: [],
+      options: {},
+      zDepth: 1
+    };
+  }
 
-  static contextTypes = {
-    muiTheme: React.PropTypes.object,
-  };
-
+  static get contextTypes() {
+    return {
+      muiTheme: React.PropTypes.object
+    };
+  }
 
   constructor(props, context) {
     super(props, context);
+
+    let muiTheme = this.context.muiTheme;
+    this._style = {
+      height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 5,
+      width: '100%'
+    };
 
     // DyGraphs chart container
     this._dygraph = null;
@@ -96,23 +109,6 @@ export default class Chart extends React.Component {
     } else if (this.props.data.length) {
       this._chartInitalize();
     }
-  }
-
-  render() {
-    let styles = this._getStyles();
-    return (
-      <Paper zDepth={this.props.zDepth} style={styles.root} ref="chart" />
-    );
-  }
-
-
-  _getStyles() {
-    return {
-      root: {
-        width: '100%',
-        height: '300px',
-      },
-    };
   }
 
   /**
@@ -187,7 +183,7 @@ export default class Chart extends React.Component {
    * DyGrpahs Chart RangeSelector mouseup callback function
    */
   _rangeMouseUpCallback(event) {
-    let [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
+    let [graphXmin, graphXmax] = this._dygraph.xAxisExtremes();
     let graphXrange = graphXmax - graphXmin;
     let graphXdiff = graphXmax - this._chartRange[1];
 
@@ -204,4 +200,10 @@ export default class Chart extends React.Component {
     return (xDiff < (xRange * 0.1));  // near right edge ~10%
   }
 
-};
+  render() {
+    return (
+      <Paper ref="chart" style={this._style} zDepth={this.props.zDepth} />
+    );
+  }
+
+}
