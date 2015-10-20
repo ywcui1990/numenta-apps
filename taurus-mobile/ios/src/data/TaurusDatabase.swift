@@ -44,7 +44,7 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
             
             let property = note.object as! Bool
                 if (property == false){
-                    dispatch_async(dispatch_get_global_queue( QOS_CLASS_USER_INITIATED, 0)) {
+                    dispatch_async(dispatch_get_global_queue( QOS_CLASS_USER_INTERACTIVE, 0)) {
                         
                         self.loadAllInstanceData()
                     }
@@ -53,7 +53,7 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
             })
         // Load instance data
         // FIXME Do we want to be lazy about this? Loading the 6 or 7 rows when required is probably a heck of a lot faster
-        dispatch_async(dispatch_get_global_queue( QOS_CLASS_USER_INITIATED, 0)) {
+        dispatch_async(dispatch_get_global_queue( QOS_CLASS_USER_INTERACTIVE, 0)) {
 
             self.loadAllInstanceData()
        }
@@ -63,11 +63,11 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
         FIXME Do we want to be lazy about this? Loading the 6 or 7 rows when required is probably a heck of a lot faster
     */
     func loadAllInstanceData(){
-        var to:Int64 = Int64(NSDate().timeIntervalSince1970*1000)
-        var from =  to-DataUtils.SECONDS_IN_DAY*1000
+        var to:Int64 = DataUtils.timestampFromDate( NSDate())
+        var from =  to - DataUtils.MILLIS_PER_DAY
         var oldestTimeStamp = to
         
-        
+        //print (DataUtils.dateFromTimestamp(to))
         let dateFormatter : NSDateFormatter  = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
@@ -79,7 +79,7 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
         let whereClause:String? =  "timestamp >= ? AND timestamp <= ?"
         let columns = ["instance_id", "timestamp", "anomaly_score"/*, "aggregation"*/, "metric_mask"]
             
-        for ( var i = 0; i < TaurusApplication.getNumberofDaysToSync(); i++){
+            for ( var i :Int64 = 0; i < GrokApplication.getNumberOfDaysToSync(); i++){
             
             let cursor = self.sqlHelper.query(db, tableName: InstanceData.TABLE_NAME, columns: columns,
             whereClause: whereClause, whereArgs: [NSNumber(longLong: from), NSNumber(longLong: to)], sortBy: nil)
@@ -128,7 +128,9 @@ class TaurusDatabase: CoreDatabaseImpl,TaurusDBProtocol {
         }
   
         self.firstTimestamp = oldestTimeStamp
-        
+        print (DataUtils.dateFromTimestamp(self.firstTimestamp))
+        print (DataUtils.dateFromTimestamp(self.lastTimestamp))
+
         NSNotificationCenter.defaultCenter().postNotificationName(TaurusDatabase.INSTANCEDATALOADED, object: self)
     }
     
