@@ -260,6 +260,7 @@ pushd "${REPOPATH}"
     export PYTHONPATH=/opt/numenta/anaconda/lib/python2.7/site-packages:\$PYTHONPATH
     export APPLICATION_CONFIG_PATH=/opt/numenta/products/taurus.metric_collectors/conf
     export TAURUS_HTM_SERVER=${TAURUS_SERVER_HOST_PRIVATE}
+    export TAURUS_API_KEY=${TAURUS_API_KEY}
     export XIGNITE_API_TOKEN=${XIGNITE_API_TOKEN}
     export TAURUS_TWITTER_ACCESS_TOKEN=${TAURUS_TWITTER_ACCESS_TOKEN}
     export TAURUS_TWITTER_ACCESS_TOKEN_SECRET=${TAURUS_TWITTER_ACCESS_TOKEN_SECRET}

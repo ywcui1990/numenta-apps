@@ -22,6 +22,7 @@
 
 """Perform database migration."""
 
+import logging
 import optparse
 import os
 import sys
@@ -29,6 +30,8 @@ import sys
 import alembic
 import alembic.config
 import pkg_resources
+
+from taurus.metric_collectors import logging_support
 
 
 def migrate(version="head", offline=False):
@@ -46,6 +49,12 @@ def migrate(version="head", offline=False):
 
 
 if __name__ == "__main__":
+  logging_support.LoggingSupport.initTool()
+
+  # Enable sqlalchemy engine logging at INFO level for more granular progress
+  # report during migration.
+  logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+
   parser = optparse.OptionParser()
   parser.add_option("--version", default="head")
   parser.add_option(

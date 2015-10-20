@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-requirements = map(str.strip, open("requirements.txt").readlines())
+requirements = [line.strip() for line in open("requirements.txt")]
 
 name = "taurus.metric_collectors"
 
@@ -12,6 +12,8 @@ setup(
   install_requires = requirements,
   entry_points = {
     "console_scripts": [
+      ("taurus-collectors-metric-maintenance-agent = "
+       "%s.common_services.metric_maintenance_agent:main" % name),
       "taurus-xignite-agent = %s.xignite.xignite_stock_agent:main" % name,
       ("taurus-xignite-security-news-agent = "
        "%s.xignite.xignite_security_news_agent:main" % name),

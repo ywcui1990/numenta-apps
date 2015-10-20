@@ -42,6 +42,7 @@ class ConfigAttributePatch(object):
 
       with ConfigAttributePatch(
           htm.it.app.config.CONFIG_NAME,
+          htm.it.app.config.CONFIG_DIR,
           (("aws", "aws_access_key_id",
             os.environ["AWS_ACCESS_KEY_ID"]),
            ("aws", "aws_secret_access_key",
@@ -54,6 +55,7 @@ class ConfigAttributePatch(object):
 
       @ConfigAttributePatch(
         htm.it.app.config.CONFIG_NAME,
+        htm.it.app.config.CONFIG_DIR,
         (("aws", "aws_access_key_id", os.environ["AWS_ACCESS_KEY_ID"]),
          ("aws", "aws_secret_access_key", os.environ["AWS_SECRET_ACCESS_KEY"])))
       def testSomething(self):
@@ -65,6 +67,7 @@ class ConfigAttributePatch(object):
 
       @ConfigAttributePatch(
         htm.it.app.config.CONFIG_NAME,
+        htm.it.app.config.CONFIG_DIR,
         (("aws", "aws_access_key_id", os.environ["AWS_ACCESS_KEY_ID"]),
          ("aws", "aws_secret_access_key", os.environ["AWS_SECRET_ACCESS_KEY"])))
       class MyTestCase(unittest.TestCase):
