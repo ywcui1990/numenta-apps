@@ -187,6 +187,11 @@ loop run, and GUI loop continuation:
 
 ## Setup
 
+IMPORTANT: These setup instructions are only about if you care about running 
+the full app with all its components (Electron app with packaged model 
+runner). If you care about the backend only - for example - then change to 
+`unicorn/backend` and follow the README instructions there.
+
 Example of setting up development environment on Mac OS/X:
 
 ```shell
