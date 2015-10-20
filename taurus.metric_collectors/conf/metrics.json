@@ -3739,7 +3739,7 @@
     "stockExchange": "NYSE", 
     "symbol": "KMI"
   }, 
-  "Kraft Heiz Company": {
+  "Kraft Heinz Company": {
     "metrics": {
       "TWITTER.TWEET.HANDLE.KHC.VOLUME": {
         "metricType": "TwitterVolume", 

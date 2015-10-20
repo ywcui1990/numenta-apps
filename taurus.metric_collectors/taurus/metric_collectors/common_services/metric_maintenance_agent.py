@@ -25,10 +25,17 @@ configuration and the models as well as the buffered data in metric collectors
 repository. It also promotes unmonitored metrics that have reached a certain
 metric data quantity threshold to models.
 
-Upon start-up: The script checks its mode and exists with 0 return code if the
-service is configured for stand-by mode.
+This service relies explicitly on these environment variables:
+  TAURUS_HTM_SERVER
+  TAURUS_API_KEY
 
-In active mode, the service first checks for consistency between metrics
+NOTE: the functionality is influenced by the service's opmode (see below), which
+is configured via `taurus-collectors-set-opmode`.
+
+Upon start-up: The script checks its opmode and exits with 0 return code if the
+service is configured for hot-standby mode.
+
+In active opmode, the service first checks for consistency between metrics
 configuration and the stock symbols in the xignite_security table. It then
 proceeds to delete metrics/models and xignite_security rows for companies whose
 stock symbol is no longer in metrics config.
@@ -40,7 +47,7 @@ models.
 
 import logging
 import __main__
-from optparse import OptionParser
+import argparse
 import os
 import sys
 import time
@@ -49,6 +56,7 @@ import sqlalchemy as sql
 
 from taurus import metric_collectors
 from taurus.metric_collectors import collectorsdb
+from taurus.metric_collectors import delete_companies
 from taurus.metric_collectors import metric_utils
 from taurus.metric_collectors import logging_support
 from taurus.metric_collectors.collectorsdb import schema
@@ -69,6 +77,12 @@ _TAURUS_HTM_SERVER = os.environ["TAURUS_HTM_SERVER"]
 _TAURUS_API_KEY = os.environ["TAURUS_API_KEY"]
 
 
+# Values of htmengine.repository.queries.MetricStatus.UNMONITORED, etc.
+# NOTE: taurus.metric_collectors presently has no dependency on htmengine, which
+# would necessitate nupic, etc.
+_METRIC_STATUS_UNMONITORED = 0
+_METRIC_STATUS_ACTIVE = 1
+
 
 # Initialize logging
 g_log = logging.getLogger(__name__)
@@ -76,34 +90,31 @@ g_log = logging.getLogger(__name__)
 
 
 def _parseArgs(args):
-  """ Parse command-line args
+  """ Parse command-line.
+
+  NOTE: there are presently no custom args for this service, so this handles
+  the boilerplate `--help`, `-h`, and makes sure that nothing unexpected was
+  passed in.
 
   :param list args: the equivalent of sys.argv[1:]
 
   """
+  parser = argparse.ArgumentParser(description=__main__.__doc__)
 
-  helpString = (
-    "%prog\n\n"
-    "{doc}".format(doc=__main__.__doc__))
-
-  parser = OptionParser(helpString)
-
-  _, remainingArgs = parser.parse_args(args=args)
-  if remainingArgs:
-    parser.error("Unexpected positional args: %r" % (remainingArgs,))
+  parser.parse_args(args=args)
 
 
 
 @collectorsdb.retryOnTransientErrors
 def _queryCachedCompanySymbols():
-  """# Get the cached security symbols from the xignite_security table
+  """Get the cached security symbols from the xignite_security table
 
-  :returns: A set of stock symbols from the xignite_security table
-  :rtype: set
+  :returns: A sequence of stock symbols from the xignite_security table
+  :rtype: sequence
   """
   engine = collectorsdb.engineFactory()
 
-  return set(
+  return tuple(
     row.symbol for row in
     engine.execute(sql.select([schema.xigniteSecurity.c.symbol])).fetchall())
 
@@ -116,12 +127,10 @@ def _purgeDeprecatedCompanies():
   activeCompanySymbols = set(security[0] for security in
                              metric_utils.getAllMetricSecurities())
 
-  cachedCompanySymbols = _queryCachedCompanySymbols()
-
-  deprecatedSymbols = cachedCompanySymbols - activeCompanySymbols
+  deprecatedSymbols = set(_queryCachedCompanySymbols()) - activeCompanySymbols
 
   if deprecatedSymbols:
-    metric_utils.CompanyDeleter.deleteCompanies(
+    delete_companies.deleteCompanies(
       tickerSymbols=deprecatedSymbols,
       engineServer=_TAURUS_HTM_SERVER,
       engineApiKey=_TAURUS_API_KEY,
@@ -131,7 +140,7 @@ def _purgeDeprecatedCompanies():
 
 
 
-def _determineMetricsReadyForPromotion(metricsConfig, allCustomMetrics):
+def _filterMetricsReadyForPromotion(metricsConfig, allCustomMetrics):
   """Determine which metrics need to be promoted to models.
 
   The qualified metrics meet the following criteria:
@@ -144,11 +153,11 @@ def _determineMetricsReadyForPromotion(metricsConfig, allCustomMetrics):
     instances and metrics for all data collectors; as returned by
     `metric_utils.getMetricsConfiguration()`
 
-  :param iterable allCustomMetrics: Custom metric info dicts from
+  :param sequence allCustomMetrics: Custom metric info dicts from
     Taurus Engine as returned by `metric_utils.getAllCustomMetrics()`
 
   :returns: Names of of metrics that need to be promoted to models
-  :rtype: iterable
+  :rtype: sequence
   """
   configuredMetricNames = set(
     metric_utils.getMetricNamesFromConfig(metricsConfig))
@@ -157,7 +166,8 @@ def _determineMetricsReadyForPromotion(metricsConfig, allCustomMetrics):
   # configuration and are ready for promoting to models
   return tuple(
     obj["name"] for obj in allCustomMetrics
-    if obj["status"] == 0 and obj["name"] in configuredMetricNames and
+    if obj["status"] == _METRIC_STATUS_UNMONITORED and
+    obj["name"] in configuredMetricNames and
     obj["last_rowid"] >= _NUM_METRIC_DATA_ROWS_THRESHOLD)
 
 
@@ -171,14 +181,14 @@ def _promoteReadyMetricsToModels():
   # promoting to models
   metricsConfig = metric_utils.getMetricsConfiguration()
 
-  readyMetricNames = _determineMetricsReadyForPromotion(
+  readyMetricNames = _filterMetricsReadyForPromotion(
     metricsConfig=metricsConfig,
     allCustomMetrics=metric_utils.getAllCustomMetrics(
       _TAURUS_HTM_SERVER,
       _TAURUS_API_KEY))
 
   if not readyMetricNames:
-    g_log.info("There are no metrics that are ready for promotion at this time")
+    g_log.debug("There are no metrics that are ready for promotion at this time")
     return
 
   # Promote them to models
@@ -204,7 +214,7 @@ def main():
 
       raise
 
-    opMode = metric_collectors.config.get("company_maintenance_agent", "opmode")
+    opMode = metric_collectors.config.get("metric_maintenance_agent", "opmode")
     if opMode != metric_collectors.config.OP_MODE_ACTIVE:
       g_log.info("Exiting normally due to start in non-active opmode=%s",
                  opMode)

@@ -22,7 +22,7 @@
 
 """
 unit tests for
-taurus.metric_collectors.common_services.company_maintenance_agent
+taurus.metric_collectors.common_services.metric_maintenance_agent
 """
 
 # Disable warning "access to protected member"
@@ -38,13 +38,13 @@ import unittest
 from nta.utils.test_utils import config_test_utils
 
 from taurus import metric_collectors
-import taurus.metric_collectors.common_services.company_maintenance_agent as \
+import taurus.metric_collectors.common_services.metric_maintenance_agent as \
        agent
-from taurus.metric_collectors import metric_utils
+from taurus.metric_collectors import delete_companies
 
 
 
-class CompanyMaintenanceAgentTestCase(unittest.TestCase):
+class MetricMaintenanceAgentTestCase(unittest.TestCase):
 
 
   def testParseArgs(self):
@@ -72,13 +72,13 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
     self.assertEqual(assertContext.exception.code, 2)
 
 
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          ".time.sleep", autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._promoteReadyMetricsToModels", autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._purgeDeprecatedCompanies", autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._parseArgs", autospec=True)
   def testMainSkipsAndReturns0InHotStandbyMode(self,
                                                _parseArgsMock,
@@ -90,7 +90,7 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
       configName=metric_collectors.config.CONFIG_NAME,
       baseConfigDir=metric_collectors.config.CONFIG_DIR,
       values=[
-        ("company_maintenance_agent", "opmode",
+        ("metric_maintenance_agent", "opmode",
          metric_collectors.config.OP_MODE_HOT_STANDBY)
       ])
 
@@ -105,13 +105,13 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
     self.assertEqual(promoteReadyMetricsToModelsMock.call_count, 0)
 
 
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          ".time.sleep", autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._promoteReadyMetricsToModels", autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._purgeDeprecatedCompanies", autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._parseArgs", autospec=True)
   def testMainInActiveMode(self,
                            _parseArgsMock,
@@ -123,7 +123,7 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
       configName=metric_collectors.config.CONFIG_NAME,
       baseConfigDir=metric_collectors.config.CONFIG_DIR,
       values=[
-        ("company_maintenance_agent", "opmode",
+        ("metric_maintenance_agent", "opmode",
          metric_collectors.config.OP_MODE_ACTIVE)
       ])
 
@@ -141,13 +141,13 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
     self.assertEqual(timeSleepMock.call_count, 2)
 
 
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          ".time.sleep", autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._promoteReadyMetricsToModels", autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._purgeDeprecatedCompanies", autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._parseArgs", autospec=True)
   def testMainHandlesKeyboardInterruptReturns0(self,
                                                _parseArgsMock,
@@ -159,7 +159,7 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
       configName=metric_collectors.config.CONFIG_NAME,
       baseConfigDir=metric_collectors.config.CONFIG_DIR,
       values=[
-        ("company_maintenance_agent", "opmode",
+        ("metric_maintenance_agent", "opmode",
          metric_collectors.config.OP_MODE_ACTIVE)
       ])
 
@@ -174,7 +174,7 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
     self.assertEqual(timeSleepMock.call_count, 1)
 
 
-  def testDetermineMetricsReadyForPromotion(self):
+  def testFilterMetricsReadyForPromotion(self):
 
     # Emulate result of metric_utils.getMetricsConfiguration()
     metricsConfig = {
@@ -202,38 +202,38 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
     allCustomMetrics = [
       dict(
         name="READY1.MMM.SUFFIX",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD
       ),
       dict(
         name="READY2.MMM.SUFFIX",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD + 1
       ),
       dict(
         name="READY1.ACE.SUFFIX",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD * 2
       ),
 
       dict(
         name="NOTREADY1.MMM.ALREADY_MONITORED",
-        status=1,
+        status=agent._METRIC_STATUS_ACTIVE,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD + 1
       ),
       dict(
         name="NOTREADY2.MMM.NOT_ENOUGH_DATA",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD - 1
       ),
       dict(
         name="NOTREADY2.ACE.NOT_IN_METRICS_CONFIG",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD + 1
       )
     ]
 
-    readyMetricNames = agent._determineMetricsReadyForPromotion(
+    readyMetricNames = agent._filterMetricsReadyForPromotion(
       metricsConfig=metricsConfig,
       allCustomMetrics=allCustomMetrics)
 
@@ -246,7 +246,7 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
     self.assertItemsEqual(expected, readyMetricNames)
 
 
-  def testDetermineMetricsReadyForPromotionWithNoneReady(self):
+  def testFilterMetricsReadyForPromotionWithNoneReady(self):
 
     # Emulate result of metric_utils.getMetricsConfiguration()
     metricsConfig = {
@@ -265,22 +265,22 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
     allCustomMetrics = [
       dict(
         name="NOTREADY1.MMM.ALREADY_MONITORED",
-        status=1,
+        status=agent._METRIC_STATUS_ACTIVE,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD + 1
       ),
       dict(
         name="NOTREADY2.MMM.NOT_ENOUGH_DATA",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD - 1
       ),
       dict(
         name="NOTREADY2.ACE.NOT_IN_METRICS_CONFIG",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD + 1
       )
     ]
 
-    readyMetricNames = agent._determineMetricsReadyForPromotion(
+    readyMetricNames = agent._filterMetricsReadyForPromotion(
       metricsConfig=metricsConfig,
       allCustomMetrics=allCustomMetrics)
 
@@ -328,33 +328,33 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
     allCustomMetrics = [
       dict(
         name="READY1.MMM.SUFFIX",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD
       ),
       dict(
         name="READY2.MMM.SUFFIX",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD + 1
       ),
       dict(
         name="READY1.ACE.SUFFIX",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD * 2
       ),
 
       dict(
         name="NOTREADY1.MMM.ALREADY_MONITORED",
-        status=1,
+        status=agent._METRIC_STATUS_ACTIVE,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD + 1
       ),
       dict(
         name="NOTREADY2.MMM.NOT_ENOUGH_DATA",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD - 1
       ),
       dict(
         name="NOTREADY2.ACE.NOT_IN_METRICS_CONFIG",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD + 1
       )
     ]
@@ -407,17 +407,17 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
     allCustomMetrics = [
       dict(
         name="NOTREADY1.MMM.ALREADY_MONITORED",
-        status=1,
+        status=agent._METRIC_STATUS_ACTIVE,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD + 1
       ),
       dict(
         name="NOTREADY2.MMM.NOT_ENOUGH_DATA",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD - 1
       ),
       dict(
         name="NOTREADY2.ACE.NOT_IN_METRICS_CONFIG",
-        status=0,
+        status=agent._METRIC_STATUS_UNMONITORED,
         last_rowid=agent._NUM_METRIC_DATA_ROWS_THRESHOLD + 1
       )
     ]
@@ -431,7 +431,7 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
     self.assertEqual(createAllModelsMock.call_count, 0)
 
 
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          ".collectorsdb.engineFactory", autospec=True)
   def testQueryCachedCompanySymbols(self, engineFactoryMock):
     rows = [
@@ -443,10 +443,10 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
 
     symbols = agent._queryCachedCompanySymbols()
 
-    self.assertItemsEqual(set(["foo", "bar"]), symbols)
+    self.assertItemsEqual(["foo", "bar"], symbols)
 
 
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          ".collectorsdb.engineFactory", autospec=True)
   def testQueryCachedCompanySymbolsWithNothingCached(self, engineFactoryMock):
     engineFactoryMock.return_value.execute.return_value.fetchall.return_value \
@@ -454,16 +454,16 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
 
     symbols = agent._queryCachedCompanySymbols()
 
-    self.assertEqual(set(), symbols)
+    self.assertSequenceEqual([], symbols)
 
 
   @patch("taurus.metric_collectors.metric_utils.getAllMetricSecurities",
          autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._queryCachedCompanySymbols", autospec=True)
-  @patch("taurus.metric_collectors.metric_utils.CompanyDeleter"
-         ".deleteCompanies",
-         spec_set=metric_utils.CompanyDeleter.deleteCompanies)
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
+         ".delete_companies.deleteCompanies",
+         spec_set=delete_companies.deleteCompanies)
   def testPurgeDeprecatedCompanies(self,  # pylint: disable=R0201
                                    deleteCompaniesMock,
                                    queryCachedCompanySymbolsMock,
@@ -489,11 +489,11 @@ class CompanyMaintenanceAgentTestCase(unittest.TestCase):
 
   @patch("taurus.metric_collectors.metric_utils.getAllMetricSecurities",
          autospec=True)
-  @patch("taurus.metric_collectors.common_services.company_maintenance_agent"
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
          "._queryCachedCompanySymbols", autospec=True)
-  @patch("taurus.metric_collectors.metric_utils.CompanyDeleter"
-         ".deleteCompanies",
-         spec_set=metric_utils.CompanyDeleter.deleteCompanies)
+  @patch("taurus.metric_collectors.common_services.metric_maintenance_agent"
+         ".delete_companies.deleteCompanies",
+         spec_set=delete_companies.deleteCompanies)
   def testPurgeDeprecatedCompaniesWithNoneDeprecated(
       self,
       deleteCompaniesMock,

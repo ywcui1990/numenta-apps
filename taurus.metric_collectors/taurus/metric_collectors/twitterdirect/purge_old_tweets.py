@@ -74,7 +74,7 @@ def _parseArgs():
 def purgeOldTweets(thresholdDays):
   """Purge old tweets from twitter_tweets table
 
-  :param int thresholdDays: tweets oder than this many days will be deleted
+  :param int thresholdDays: tweets older than this many days will be deleted
   """
 
   g_log.info("Purging records from table=%s older than numDays=%s",

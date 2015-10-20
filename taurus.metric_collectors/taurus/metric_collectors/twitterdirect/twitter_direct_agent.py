@@ -1353,7 +1353,7 @@ class MetricDataForwarder(object):
 class _TweetGarbageCollector(object):
   """Garbage collector for old tweets in the twitter_tweets table"""
 
-  # Tweets oder than this many days will be deleted from twitter_tweets table
+  # Tweets older than this many days will be deleted from twitter_tweets table
   # periodically
   _GC_THRESHOLD_DAYS = 90
 

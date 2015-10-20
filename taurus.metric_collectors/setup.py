@@ -12,8 +12,8 @@ setup(
   install_requires = requirements,
   entry_points = {
     "console_scripts": [
-      ("taurus-company-maintenance-agent = "
-       "%s.common_services.company_maintenance_agent:main" % name),
+      ("taurus-collectors-metric-maintenance-agent = "
+       "%s.common_services.metric_maintenance_agent:main" % name),
       "taurus-xignite-agent = %s.xignite.xignite_stock_agent:main" % name,
       ("taurus-xignite-security-news-agent = "
        "%s.xignite.xignite_security_news_agent:main" % name),

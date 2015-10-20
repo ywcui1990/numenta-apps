@@ -24,12 +24,7 @@ from datetime import datetime, timedelta
 import json
 import logging
 import os
-import Queue
-import random
-import signal
-import threading
 import time
-import uuid
 
 import requests
 import sqlalchemy as sql
@@ -93,28 +88,6 @@ class GetModelsRequestError(Exception):
 
 class RetriesExceededError(Exception):
   """ Exceeded max retries without a single successful execution """
-  pass
-
-
-
-class UserAbortedOperation(Exception):
-  """When prompted with a warning about this destructive action, the user
-  aborted this operation.
-  """
-  pass
-
-
-
-class WarningPromptTimeout(Exception):
-  """The warning prompt about the destructive action timed out"""
-  pass
-
-
-
-class FlusherMetricNotFound(Exception):
-  """Inidicates that the the wait for Taurus Engine metric data path flusher
-  metric timed out.
-  """
   pass
 
 
@@ -327,12 +300,10 @@ def createAllModels(host, apiKey, onlyMetricNames=None):
   if onlyMetricNames is not None:
     # Validate onlyMetricNames and convert it to set
 
-    if not len(onlyMetricNames):
+    if not onlyMetricNames:
       raise ValueError("onlyMetricNames is empty")
 
     asSet = set(onlyMetricNames)
-    if len(asSet) != len(onlyMetricNames):
-      raise ValueError("onlyMetricNames contains duplicates")
 
     onlyMetricNames = asSet
 
@@ -466,268 +437,21 @@ def filterCompanyMetricNamesBySymbol(metricNames, tickerSymbol):
   :param str tickerSymbol: Stock symbol; only company metric names matching
     this stock symbol will be returned.
 
-  :returns: sequence of company metric names mathing `tickerSymbol`
+  :returns: sequence of company metric names matching `tickerSymbol`
   :rtype: sequence
   """
   tickerSymbol = tickerSymbol.upper()
 
-  # Examples company metric names:
+  # Example company metric names:
   # TWITTER.TWEET.HANDLE.AET.VOLUME
   # XIGNITE.TWC.CLOSINGPRICE
   # XIGNITE.AMZN.VOLUME
-  # XIGNTE.NEWS.AMZN.VOLUME
+  # XIGNITE.NEWS.AMZN.VOLUME
   return tuple(
     name for name in metricNames
     if all(name.split(".")) and
     len(name.split(".")) >= 3 and
     name.split(".")[-2] == tickerSymbol)
-
-
-
-class CompanyDeleter(object):
-  # Max time to wait for flushing of Taurus Engine's metric data path
-  _DATA_PATH_FLUSH_TIMEOUT_SEC = 300
-
-  # Prefix of metric name used for flushing Taurus Engine's metric data path;
-  # see code comments in `CompanyDeleter.deleteCompanies()` for more info.
-  _DATA_PATH_FLUSHER_METRIC_PREFIX = (  # pylint: disable=C0103
-    ".delete_metric_flusher_")
-
-
-  @classmethod
-  def deleteCompanies(cls,
-                      tickerSymbols,
-                      engineServer,
-                      engineApiKey,
-                      warnAboutDestructiveAction=True,
-                      warningTimeout=30):
-    """Delete companies from Taurus Collector and their metrics/models from
-    Taurus Engine.
-
-    :param iterable tickerSymbols: stock ticker symbols of companies to be
-      deleted
-
-    :param str engineServer: dns name of ip addres of Taurus API server
-
-    :param str engineApiKey: API Key of Taurus HTM Engine
-
-    :param bool warnAboutDestructiveAction: whether to warn about destructive
-      action; defaults to True.
-
-    :param float warningTimeout: Timeout for the warning prompt; ignored if
-      warnAboutDestructiveAction is False
-
-    :raises WarningPromptTimeout: if warning prompt timed out
-    :raises UserAbortedOperation: if user chose to abort the operation
-    :raises FlusherMetricNotFound:
-    """
-    tickerSymbols = tuple(symbol.upper() for symbol in tickerSymbols)
-
-    # Check for duplicate symbols
-    repeatedSymbols = set(sym for sym in tickerSymbols
-                          if tickerSymbols.count(sym) > 1)
-    if repeatedSymbols:
-      raise ValueError("{numRepeats} symbol(s) are present more than once in "
-                       "tickerSymbols arg: {repeats}"
-                       .format(numRepeats=len(repeatedSymbols),
-                               repeats=repeatedSymbols))
-
-    # Set will be handier going forward
-    tickerSymbols = set(tickerSymbols)
-
-    if warnAboutDestructiveAction:
-      cls._warnAboutDestructiveAction(timeout=warningTimeout,
-                                      tickerSymbols=tickerSymbols,
-                                      engineServer=engineServer)
-
-    # If any of the the ticker symbols still appear in the collector's metrics
-    # config, abort the operation as a precautionary measure.
-    allSymbols = set(security[0].upper() for security in
-                     getAllMetricSecurities())
-
-    problemSymbols = tickerSymbols.intersection(allSymbols)
-    assert not problemSymbols, (
-      "Can't delete - {numProblem} of the specified companies [{symbols}] are "
-      "in active metrics configuration".format(numProblem=len(problemSymbols),
-                                               symbols=problemSymbols))
-
-    # First, we need to synchronize with Taurus Engine's metric data path.
-    # If any of the data still in the pipeline is for any of the companies being
-    # deleted, then the metrics may be re-created in the Engine after we delete
-    # them. This is an yet unresolved subtlety with custom metrics in htmengine.
-    cls._flushTaurusEngineMetricDataPath(engineServer, engineApiKey)
-
-    # NOTE: We must query custom metrics after flushing the metric data path,
-    # since metrics may get created as a side-effect of processing metric data.
-    allMetricNames = tuple(
-      obj["name"] for obj in
-      getAllCustomMetrics(host=engineServer, apiKey=engineApiKey))
-
-    for symbolNum, symbol in enumerate(tickerSymbols, 1):
-      # Delete corresponding metrics from Taurus Engine
-      metricNamesToDelete = filterCompanyMetricNamesBySymbol(allMetricNames,
-                                                             symbol)
-      if not metricNamesToDelete:
-        g_log.info("No metrics to delete for symbol=%s (%d of %d)", symbol,
-                   symbolNum, len(tickerSymbols))
-        continue
-
-      g_log.info("Deleting metrics and models for ticker symbol=%s from Taurus "
-                 "Engine=%s (%d of %d)", symbol, engineServer,
-                 symbolNum, len(tickerSymbols))
-
-      for metricName in metricNamesToDelete:
-        deleteMetric(host=engineServer,
-                     apiKey=engineApiKey,
-                     metricName=metricName)
-        g_log.info("Deleted metric=%s", metricName)
-
-
-      # Delete the symbol from xignite_security table last; this cascades to
-      # delete related rows in other tables via cascading delete relationship;
-      # NOTE: garbage collection from other tables not tied to xiginte_security
-      # symbols presently depends on aging of the rows (e.g., twitter tables).
-      with collectorsdb.engineFactory().begin() as conn:
-        numDeleted = (
-          conn.execute(
-            collectorsdb.schema.xigniteSecurity  # pylint: disable=E1120
-            .delete()
-            .where(collectorsdb.schema.xigniteSecurity.c.symbol == symbol))
-          ).rowcount
-
-        assert 0 <= numDeleted <= 1, (
-          ("Expected to delete 0 or 1 symbol {symbol} row, but deleted {num} "
-           "of them").format(symbol=symbol, num=numDeleted))
-
-        if numDeleted:
-          g_log.info("Deleted row=%s from table=%s", symbol,
-                     collectorsdb.schema.xigniteSecurity)
-        else:
-          g_log.warning(
-            "Couldn't delete security row=%s: not found in table=%s",
-            symbol, collectorsdb.schema.xigniteSecurity)
-
-
-  @classmethod
-  @retry(timeoutSec=_DATA_PATH_FLUSH_TIMEOUT_SEC, initialRetryDelaySec=0.5,
-         maxRetryDelaySec=5, retryExceptions=(FlusherMetricNotFound,))
-  def _waitForFlusherAndGarbageCollect(cls,
-                                       engineServer,
-                                       engineApiKey,
-                                       flusherMetricName):
-    """Wait for the data path flusher metric to be created in Taurus Engine and
-    also garbage-collect flushers from this and prior sessions
-
-    :param str engineServer: dns name of ip addres of Taurus API server
-
-    :param str engineApiKey: API Key of Taurus HTM Engine
-
-    :param str flusherMetricName: the unique name of the flusher metric to wait
-      on.
-
-    :raises FlusherMetricNotFound: if the wait fails
-    """
-    flushers = [obj["name"] for obj in
-                getAllCustomMetrics(engineServer, engineApiKey)
-                if obj["name"].startswith(cls._DATA_PATH_FLUSHER_METRIC_PREFIX)]
-    found = flusherMetricName in flushers
-
-    # Delete flushers, including any from past attempts that failed delete
-    for metric in flushers:
-      g_log.info("Deleting metric data path flusher metric %s", metric)
-      deleteMetric(host=engineServer, apiKey=engineApiKey, metricName=metric)
-
-    if not found:
-      raise FlusherMetricNotFound("Still waiting for data path flusher metric "
-                                  "{metric}".format(metric=flusherMetricName))
-
-
-  @classmethod
-  def _flushTaurusEngineMetricDataPath(cls, engineServer, engineApiKey):
-    """Flush Taurus Engine's metric data path.
-
-    There is no formal mechanism for this in htmengine, so we're going to flush
-    the data path by sending a metric data item for a dummy metric and wait for
-    the dummy metric to be created.
-
-    :param str engineServer: dns name of ip addres of Taurus API server
-
-    :param str engineApiKey: API Key of Taurus HTM Engine
-    """
-    g_log.info("Flushing Taurus Engine metric data path, please wait...")
-
-    flusherMetricName = cls._DATA_PATH_FLUSHER_METRIC_PREFIX + uuid.uuid1().hex
-
-    with metricDataBatchWrite(g_log) as putSample:
-      putSample(flusherMetricName, 99999, int(time.time()))
-
-    cls._waitForFlusherAndGarbageCollect(engineServer=engineServer,
-                                         engineApiKey=engineApiKey,
-                                         flusherMetricName=flusherMetricName)
-
-
-  @classmethod
-  def _warnAboutDestructiveAction(cls, timeout, tickerSymbols, engineServer):
-    """Prompt user about continuing with the destructive action
-
-    :param float timeout: Timeout for the warning prompt
-    :param iterable tickerSymbols: stock ticker symbols of companies to be
-      deleted
-    :param str engineServer: dns name of ip addres of Taurus API server
-
-    :raises WarningPromptTimeout: if warning prompt timed out
-    :raises UserAbortedOperation: if user chose to abort the operation
-    """
-
-    expectedAnswer = "Yes-{randomNum}".format(randomNum=random.randint(1, 30),)
-
-    if len(tickerSymbols) <= 5:
-      tickersInPrompt = "[{tickers}]".format(tickers=", ".join(tickerSymbols))
-    else:
-      tickersInPrompt = "[{tickers}, ... and {more} more]".format(
-        tickers=tickerSymbols[:5],
-        more=len(tickerSymbols)-5)
-
-    promptText = (
-      "Attention!  You are about to delete {total} companies {tickers} from "
-      "Taurus Collector and their metrics/models from Taurus Engine {engine}\n"
-      "\n"
-      "To back out immediately without making any changes, feel free to type "
-      "anything but \"{expectedAnswer}\" in the prompt below, and press "
-      "return. (auto-abort in {timeout} seconds)\n"
-      "\n"
-      "Are you sure you want to continue? "
-      .format(total=len(tickerSymbols),
-              tickers=tickersInPrompt,
-              engine=engineServer,
-              expectedAnswer=expectedAnswer,
-              timeout=timeout))
-
-    timerExpiredQ = Queue.Queue()
-
-    def onTimerExpiration():
-      timerExpiredQ.put(1)
-      # NOTE: thread.interrupt_main() doesn't unblock raw_input, so we use
-      # SIGINT instead
-      os.kill(os.getpid(), signal.SIGINT)
-
-
-    timer = threading.Timer(timeout, onTimerExpiration)
-    try:
-      timer.start()
-      if timerExpiredQ.empty():
-        answer = raw_input(promptText)
-    except KeyboardInterrupt:
-      if timerExpiredQ.empty():
-        raise
-    finally:
-      timer.cancel()
-
-    if not timerExpiredQ.empty():
-      raise WarningPromptTimeout("Warning prompt timed out")
-
-    if answer.strip() != expectedAnswer:
-      raise UserAbortedOperation("User aborted operation from warning prompt")
 
 
 

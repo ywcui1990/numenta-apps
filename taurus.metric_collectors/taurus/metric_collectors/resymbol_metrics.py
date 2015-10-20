@@ -36,10 +36,11 @@ import os
 from sqlalchemy import sql
 
 from taurus.metric_collectors import (
-    collectorsdb,
-    config,
-    logging_support,
-    metric_utils)
+  collectorsdb,
+  config,
+  delete_companies,
+  logging_support,
+  metric_utils)
 from taurus.metric_collectors.collectorsdb import schema
 from taurus.metric_collectors import gen_metrics_config
 from taurus.metric_collectors.twitterdirect import migrate_tweets_to_dynamodb
@@ -48,7 +49,7 @@ from taurus.metric_collectors.twitterdirect import twitter_direct_agent
 from taurus.metric_collectors.xignite import xignite_stock_agent
 
 from taurus.metric_collectors.twitterdirect.twitter_direct_agent import (
-    _EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY
+  _EMITTED_TWEET_VOLUME_SAMPLE_TRACKER_KEY
 )
 
 
@@ -73,50 +74,50 @@ def _parseArgs():
     migrate_tweets - boolean specifying whether to keep historical twitter data
   """
   helpString = (
-      "%%prog [options]"
-      "Tool to rename a metric's symbol and migrate the historical data to the "
-      "new metric.")
+    "%%prog [options]"
+    "Tool to rename a metric's symbol and migrate the historical data to the "
+    "new metric.")
 
   parser = OptionParser(helpString)
 
   parser.add_option(
-      "--server",
-      action="store",
-      type="string",
-      dest="htmServer",
-      default=DEFAULT_HTM_SERVER,
-      help="Hostname or IP address of server running HTM Engine API to create "
-      "models [default: %default]")
+    "--server",
+    action="store",
+    type="string",
+    dest="htmServer",
+    default=DEFAULT_HTM_SERVER,
+    help="Hostname or IP address of server running HTM Engine API to create "
+    "models [default: %default]")
 
   parser.add_option(
-      "--apikey",
-      action="store",
-      type="string",
-      dest="apikey",
-      default="taurus",
-      help="API Key of HTM Engine to create models [default: %default]")
+    "--apikey",
+    action="store",
+    type="string",
+    dest="apikey",
+    default="taurus",
+    help="API Key of HTM Engine to create models [default: %default]")
 
   parser.add_option(
-      "--period",
-      action="store",
-      type="int",
-      dest="aggPeriod",
-      default=300,
-      help="Volume aggregation period in seconds [default: %default]")
+    "--period",
+    action="store",
+    type="int",
+    dest="aggPeriod",
+    default=300,
+    help="Volume aggregation period in seconds [default: %default]")
 
   parser.add_option(
-      "--oldsymbol",
-      action="store",
-      type="string",
-      dest="oldSymbol",
-      help="Original ticker symbol currently used by metric_collector")
+    "--oldsymbol",
+    action="store",
+    type="string",
+    dest="oldSymbol",
+    help="Original ticker symbol currently used by metric_collector")
 
   parser.add_option(
-      "--newsymbol",
-      action="store",
-      type="string",
-      dest="newSymbol",
-      help="New ticker symbol to be used")
+    "--newsymbol",
+    action="store",
+    type="string",
+    dest="newSymbol",
+    help="New ticker symbol to be used")
 
 
   options, remainingArgs = parser.parse_args()
@@ -210,7 +211,7 @@ def _resymbolTweetVolumeMetric(oldSymbol, newSymbol, aggPeriod):
 
   aggStartDatetime = sqlEngine.execute(
     sql.select([schema.twitterTweetSamples.c.agg_ts],
-      order_by=schema.twitterTweetSamples.c.agg_ts.asc())
+               order_by=schema.twitterTweetSamples.c.agg_ts.asc())
     .where(schema.twitterTweetSamples.c.metric == newMetricName)
     .where(schema.twitterTweetSamples.c.agg_ts > timestampScanLowerBound)
     .limit(1)).scalar()
@@ -231,9 +232,9 @@ def _resymbolTweetVolumeMetric(oldSymbol, newSymbol, aggPeriod):
     aggSec=aggPeriod)
 
   metricDataForwarder.aggregateAndForward(
-      aggStartDatetime=aggStartDatetime,
-      stopDatetime=lastEmittedAggTime + timedelta(seconds=aggPeriod),
-      metrics=[newMetricName])
+    aggStartDatetime=aggStartDatetime,
+    stopDatetime=lastEmittedAggTime + timedelta(seconds=aggPeriod),
+    metrics=[newMetricName])
 
 
   # Forward tweet media to dynamodb
@@ -301,8 +302,8 @@ def _resymbolStockMetrics(oldSymbol, newSymbol):
     metricSpecs=[spec for spec
                  in xignite_stock_agent.loadMetricSpecs()
                  if spec.symbol == newSymbol],
-      symbol=newSymbol,
-      engine=sqlEngine
+    symbol=newSymbol,
+    engine=sqlEngine
   )
 
 
@@ -347,7 +348,7 @@ def main():
 
 
     # Delete metrics linked to old stock symbol from Taurus Engine
-    metric_utils.CompanyDeleter.deleteCompanies(
+    delete_companies.deleteCompanies(
       tickerSymbols=[options.oldSymbol],
       engineServer=options.htmServer,
       engineApiKey=options.apikey,
