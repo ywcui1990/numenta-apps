@@ -31,7 +31,7 @@
     "docs": "esdoc -c frontend/config/ESDoc.json",
     "electron": "electron .",
     "electron:debug": "electron --debug=5858 .",
-    "electron:packager": "electron-packager . Unicorn --arch=x64 --icon=frontend/assets/icons/unicorn.icns --ignore=.git --ignore=node_modules/electron-* --overwrite --platform=darwin --prune --version=0.33.3",
+    "electron:packager": "electron-packager . Unicorn --arch=x64 --icon=frontend/assets/icons/unicorn.icns --ignore=.git --ignore=node_modules/electron-* --overwrite --platform=darwin --prune --version=0.33.3 --sign=$UNICORN_CERT_DEV_APPLE",
     "esfmt": "esformatter --diff 'frontend/**/*.js'",
     "lint": "eslint frontend/",
     "prepare": "npm run lint && npm run prepare:webpack",
