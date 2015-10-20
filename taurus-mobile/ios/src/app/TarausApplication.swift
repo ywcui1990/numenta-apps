@@ -49,10 +49,7 @@ class TaurusApplication : GrokApplication{
     static func getTotalBarsOnChart()->Int{
         return 24
     }
-    
-    static func getNumberofDaysToSync()->Int{
-        return 7
-    }
+   
     
     static func connectToTaurus()->TaurusClient?{
         return client
@@ -74,7 +71,7 @@ class TaurusApplication : GrokApplication{
         if (favorites == nil ){
             return false
         }
-        let dict : [String:Int] = favorites! as! [String : Int]
+        let dict : [String:NSNumber] = favorites! as! [String : NSNumber]
         return dict[instance] != nil
     }
     
@@ -86,7 +83,7 @@ class TaurusApplication : GrokApplication{
         if (favorites == nil ){
             return []
         }
-        let dict : [String:Int] = favorites! as! [String : Int]
+        let dict : [String:NSNumber] = favorites! as! [String : NSNumber]
         return Array(dict.keys)
     }
     
@@ -100,9 +97,9 @@ class TaurusApplication : GrokApplication{
         var favorites = NSUserDefaults.standardUserDefaults().objectForKey("favorites")
         
         if (favorites == nil){
-            favorites = [String : Int]()
+            favorites = [String : NSNumber]()
         }
-        var dict : [String:Int] = favorites! as! [String : Int]
+        var dict : [String: NSNumber] = favorites! as! [String : NSNumber]
         dict[instance] = 0
         NSUserDefaults.standardUserDefaults().setObject(dict, forKey: "favorites")
         
@@ -115,10 +112,38 @@ class TaurusApplication : GrokApplication{
     */
     static func removeInstanceToFavorites(instance: String) {
         let favorites = NSUserDefaults.standardUserDefaults().objectForKey("favorites")
-        var dict : [String:Int] = favorites! as! [String : Int]
+        var dict : [String:NSNumber] = favorites! as! [String : NSNumber]
         dict.removeValueForKey(instance)
         NSUserDefaults.standardUserDefaults().setObject(dict, forKey: "favorites")
         
+    }
+    
+    static func getLastNotificationTime(instance : String)->Int64{
+        
+        let favorites = NSUserDefaults.standardUserDefaults().objectForKey("favorites")
+        if (favorites == nil ){
+            return 0
+        }
+        let dict : [String:NSNumber] = favorites! as! [String : NSNumber]
+        
+        let data = dict[instance]
+        
+        if (data != nil){
+            return data!.longLongValue
+        }
+        return 0
+    }
+    
+    static func setLastNotificationTime(instance : String, time: Int64){
+        var favorites = NSUserDefaults.standardUserDefaults().objectForKey("favorites")
+        if (favorites == nil ){
+            favorites = [String : NSNumber]()
+        }
+        var dict : [String:NSNumber] = favorites! as! [String : NSNumber]
+        
+        dict[instance] = NSNumber(longLong: time)
+        NSUserDefaults.standardUserDefaults().setObject(dict, forKey: "favorites")
+
     }
     
 }

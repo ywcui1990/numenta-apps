@@ -17,4 +17,8 @@ class Appearence{
     
      static var greenbarColor : CGColor = UIColor(red: 16.0/255.0, green: 131.0/255.0, blue: 0.0, alpha: 1.0).CGColor
     
+    static var lineChartColor : CGColor = UIColor(red: 42.0/255.0, green: 153.0/255.0, blue: 206.0/255.0, alpha: 1.0).CGColor
+    
+    static var viewMargin = 10.0
+    
 }

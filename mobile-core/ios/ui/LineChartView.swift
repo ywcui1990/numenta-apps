@@ -12,7 +12,7 @@ class LineChartView: UIView {
     var pointWidth = Double( 2.0 )
     var contentArea : CGRect = CGRect()
     var barWidth : Double = 0.0
-    var barMarginLeft = 0.0
+    var barMarginLeft = Appearence.viewMargin
     
     var wholeNumbers = true
     var maxValue : Double = 0.0
@@ -27,6 +27,7 @@ class LineChartView: UIView {
     
     // Callback for when the chart is touched. The int is the index to the closest data element
     var selectionCallback :( (Int)->Void)?
+    
     
     required init?(coder aDecoder: NSCoder) {
         
@@ -46,13 +47,16 @@ class LineChartView: UIView {
         self.contentArea = rect
         
         if (data.count > 0){
-            pointWidth =  Double(rect.width)/Double(data.count)
-            barWidth = Double (rect.width) / Double(TaurusApplication.getTotalBarsOnChart())
+            let contentWidth = Double (rect.width) - 2 * Appearence.viewMargin
+            pointWidth =  Double(contentWidth)/Double(data.count)
+            barWidth = Double (contentWidth) / Double(TaurusApplication.getTotalBarsOnChart())
             
         }
         drawAnomalies(rect)
         drawMarker(rect)
         drawValues( rect)
+        
+     
     //    drawAxes (rect)
         drawYLabels (rect)
 
@@ -112,16 +116,11 @@ class LineChartView: UIView {
                     color = Appearence.yellowbarColor
                     bar.size.height -= 5.0
                 }else {
-                 //   color = UIColor.greenColor().CGColor
-                   // bar.size.height += 0.0
-                    continue
+               //    color = UIColor.greenColor().CGColor
+                 //   bar.size.height -= 4.0
+                   continue
                 }
-                
-                
-              
-
-                
-                
+       
                 CGContextSaveGState( context)
                 CGContextSetFillColorWithColor(context, color)
                 CGContextAddRect(context, bar)
@@ -154,9 +153,9 @@ class LineChartView: UIView {
         
         var points = [Double]()
         CGContextSetLineWidth(context, 2.0)
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let components: [CGFloat] = [0.0, 0.0, 1.0, 1.0]
-        let color = CGColorCreate(colorSpace, components)
+      //  let colorSpace = CGColorSpaceCreateDeviceRGB()
+      //  let components: [CGFloat] = [0.0, 0.0, 1.0, 1.0]
+        let color = Appearence.lineChartColor
         
         
         
@@ -169,7 +168,7 @@ class LineChartView: UIView {
             return
         }
         
-         points.append( Double(contentArea.origin.x) )
+         points.append( Double(contentArea.origin.x) + Appearence.viewMargin )
          points.append( (convertToPixel(self.data[0])))
          points.append(  points[0]+pointWidth/2.0)
          points.append(  (convertToPixel(self.data[0])))
@@ -184,7 +183,7 @@ class LineChartView: UIView {
 
             
         
-            x2 =  Double(contentArea.origin.x) +    pointWidth / 2.0 + Double(i) * pointWidth
+            x2 =  Double(contentArea.origin.x) + Appearence.viewMargin +    pointWidth / 2.0 + Double(i) * pointWidth
             y2 = convertToPixel(self.data[i])
             
             if (data[i].isNaN){
@@ -210,7 +209,7 @@ class LineChartView: UIView {
             points.append(y1)
             points.append(x2)
             points.append(y2)
-        
+           // print (x2)
             CGContextMoveToPoint(context, CGFloat(x1 ), CGFloat(y1))
            //  CGContextMoveToPoint(context, CGFloat(x2 ), CGFloat(rect.height))
                CGContextAddLineToPoint(context, CGFloat( x2 ),  CGFloat( y2))
@@ -238,7 +237,7 @@ class LineChartView: UIView {
         CGContextAddLineToPoint(context, rect.origin.x+rect.width, rect.height)
         
         CGContextStrokePath(context)
-         CGContextRestoreGState( context)
+        CGContextRestoreGState( context)
     }
     
     func drawYLabels (rect: CGRect){
@@ -250,16 +249,17 @@ class LineChartView: UIView {
             let context = UIGraphicsGetCurrentContext()
             
             let fieldColor: UIColor = UIColor.whiteColor()
-            let fontName = "HelveticaNeue-Bold"
-            let font = UIFont(name: fontName, size: 16.0)
+           
+            let font = UIFont.boldSystemFontOfSize(16.0)
+
             
             CGContextSaveGState( context)
             
-            let size = self.emptyTextString?.sizeWithAttributes([NSFontAttributeName : font!,  NSForegroundColorAttributeName: fieldColor])
+            let size = self.emptyTextString?.sizeWithAttributes([NSFontAttributeName : font,  NSForegroundColorAttributeName: fieldColor])
             let x = rect.width/2 - size!.width/2
             let top =  rect.height/2 - size!.height/2
             self.emptyTextString?.drawAtPoint(CGPointMake(x, top),
-                withAttributes: [NSFontAttributeName : font!,  NSForegroundColorAttributeName: fieldColor])
+                withAttributes: [NSFontAttributeName : font,  NSForegroundColorAttributeName: fieldColor])
             
         
         
@@ -269,8 +269,8 @@ class LineChartView: UIView {
         let context = UIGraphicsGetCurrentContext()
         
         let fieldColor: UIColor = UIColor.whiteColor()
-        let fontName = "HelveticaNeue-Bold"
-        let font = UIFont(name: fontName, size: 12.0)
+       // let fontName = "System-Bold"
+        let font: UIFont = UIFont.boldSystemFontOfSize(12.0)
         
         CGContextSaveGState( context)
         var s: String = "1.0"
@@ -284,10 +284,10 @@ class LineChartView: UIView {
             
             s = DataUtils.formatDouble ( y, numDecimals: decimals)!
             
-            let labelTop = convertToPixel(y) - Double( font!.lineHeight )
+            let labelTop = convertToPixel(y) - Double( font.lineHeight )
             
-            s.drawAtPoint(CGPointMake(CGFloat(5), CGFloat( labelTop)),
-                withAttributes: [NSFontAttributeName : font!,  NSForegroundColorAttributeName: fieldColor])
+            s.drawAtPoint(CGPointMake(CGFloat( self.barMarginLeft), CGFloat( labelTop)),
+                withAttributes: [NSFontAttributeName : font,  NSForegroundColorAttributeName: fieldColor])
             
         }
         
@@ -312,9 +312,7 @@ class LineChartView: UIView {
         return Double( Double(contentArea.height) - Double(contentArea.height ) * (value - self.minValue) / (self.maxValue - self.minValue))
     }
     
-  
-    
-    
+
     func updateData(){
         self.isEmpty = true
         for value in self.data {
@@ -333,14 +331,12 @@ class LineChartView: UIView {
         minValue = Double.infinity
         for val in data{
             if (val.isNaN == false ){
-           
-            if val > maxValue{
-                maxValue = val
-            }
-            if val  < minValue{
-                minValue = val
-            }
-                
+                if val > maxValue{
+                    maxValue = val
+                }
+                if val  < minValue{
+                    minValue = val
+                }
             }
         }
         
@@ -365,7 +361,7 @@ class LineChartView: UIView {
                 if (x != markerX){
                     markerX = Double(x)
                     
-                    let selection = Int ( markerX / self.pointWidth)
+                    let selection = Int ( (markerX) / self.pointWidth)
                     
                     selectionCallback! (selection)
                     self.setNeedsDisplay()
@@ -373,5 +369,10 @@ class LineChartView: UIView {
             }
         }
         super.touchesBegan(touches, withEvent:event)
+    }
+    
+    func selectIndex ( index : Int64){
+        markerX = Double(index) * self.pointWidth + Double(barMarginLeft)
+        self.setNeedsDisplay()
     }
 }
