@@ -58,7 +58,6 @@ describe('ModelServer', () => {
   });
 
   describe('Model Events', function () {
-    this.timeout(5000);
 
     it('Read data from model', (done) => {
       server.on(MODEL_ID, (type, data) => {
