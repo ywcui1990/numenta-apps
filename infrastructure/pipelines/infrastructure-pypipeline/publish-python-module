@@ -115,7 +115,11 @@ def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
   :param str fork: Which fork to check out
   :param str commitish: What commit/branch to check out
   :param logger: An initialized logger
+
+  :raises AssertionError: If our parameters have invalid values
   """
+  assert isinstance(workspace, basestring), (
+    "workspace is %r instead of string" % workspace)
   assert os.path.isdir(workspace), ("workspace %s is not a directory" %
                                     workspace)
   assert isinstance(repoDirectory, basestring), (
@@ -156,6 +160,8 @@ def buildAndUploadModule(logger, moduleDirectory,
   :param str moduleDirectory: path to directory containing setup.py
   :param str pypiServer: which pypi server to upload to.
   :param bool dryrun: Whether to upload to our pypi server
+
+  :raises AssertionError: If our parameters have invalid values
   """
   assert logger, "You must supply an initialized logger object"
   assert isinstance(moduleDirectory, basestring), (
