@@ -29,6 +29,7 @@ const MODEL_ID = '1';
 const INPUT_DATA = [1438649711, 835.93679];
 const EXPECTED_RESULTS = '[0, 0.0301029996658834]\n'; // Log scaled
 
+/* eslint-disable max-nested-callbacks */
 
 describe('ModelServer', () => {
   let server = new ModelServer();
@@ -45,7 +46,7 @@ describe('ModelServer', () => {
   describe('#getModels()', () => {
     it('Check model exists', (done) => {
       let models = server.getModels();
-      assert(models.find(id => id === MODEL_ID), 'Model not found');
+      assert(models.find((id) => (id) === MODEL_ID), 'Model not found');
       done();
     });
   });
@@ -57,7 +58,7 @@ describe('ModelServer', () => {
     });
   });
 
-  describe('Model Events', function () {
+  describe('Model Events', () => {
 
     it('Read data from model', (done) => {
       server.on(MODEL_ID, (type, data) => {
@@ -79,8 +80,7 @@ describe('ModelServer', () => {
           server.removeAllListeners(MODEL_ID);
           done();
         } else {
-          assert.fail(type, 'error', 'Expecting "error" got "' + type
-                          + ': ' + data + '"');
+          assert.fail(type, 'error', `Expecting "error" got "${type} : ${data}"`); // eslint-disable-line
         }
       });
       server.sendData(MODEL_ID, [0xbadbeef]);

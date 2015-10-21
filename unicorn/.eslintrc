@@ -1,4 +1,5 @@
 ---
+root: true
 # ESLint Config
 # http://eslint.org/docs/user-guide/configuring
 
@@ -7,7 +8,6 @@ parser: "babel-eslint"
 plugins:
   - jsdoc
   - react
-root: true
 
 env:
   browser: true
@@ -67,7 +67,6 @@ rules:
   global-require: 1
   guard-for-in: 0
   handle-callback-err: 2
-  id-length: [2, {"min":3, "properties":"never"}]
   id-match: 0
   indent: [2, 2]
   init-declarations: 0

@@ -49,12 +49,12 @@ const EXPECTED_DATA = [
 // Expected fields
 const EXPECTED_FIELDS = [{
   uid: 'TEST_UID_TS',
-  'file_uid': 'TEST_FILE_UID_TS',
+  file_uid: 'TEST_FILE_UID_TS',
   name: 'timestamp',
   type: 'date'
 }, {
   uid: 'TEST_UID_METRIC',
-  'file_uid': 'TEST_FILE_UID_METRIC',
+  file_uid: 'TEST_FILE_UID_METRIC',
   name: 'metric',
   type: 'number'
 }];
@@ -79,11 +79,11 @@ const EXPECTED_SAMPLE_FILES = ['file1.csv', 'gym.csv'];
 const FILENAME_SMALL = path.resolve(__dirname, 'fixtures/file.csv');
 const FILENAME_LARGE = path.resolve(__dirname, 'fixtures/rec-center-15.csv');
 
-
+/* eslint-disable max-nested-callbacks */
 describe('FileServer', () => {
   let server;
 
-  beforeEach(function () {
+  beforeEach(() => {
     server = new FileServer();
   });
 
@@ -167,10 +167,10 @@ describe('FileServer', () => {
       let options = {
         limit: 1,
         aggregation: {
-          'timefield': 'timestamp',
-          'valuefield': 'kw_energy_consumption',
-          'function': 'count',
-          'interval': 24 * 60 * 60 * 1000
+          timefield: 'timestamp',
+          valuefield: 'kw_energy_consumption',
+          function: 'count',
+          interval: 24 * 60 * 60 * 1000
         }
       };
       server.getData(FILENAME_LARGE, options, (error, data) => {

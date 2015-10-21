@@ -17,41 +17,39 @@
 //
 // http://numenta.org/licenses/
 
-'use strict';
-
 import DatabaseServer from '../../../frontend/lib/DatabaseServer';
 import FileSchema from '../../../frontend/database/schema/File.json';
 import MetricSchema from '../../../frontend/database/schema/Metric.json';
-import MetricDataSchema from '../../../frontend/database/schema/MetricData.json';
+import MetricDataSchema from '../../../frontend/database/schema/MetricData.json'; // eslint-disable-line
 import path from 'path';
 import os from 'os';
 
 const assert = require('assert');
 
 const EXPECTED_FILE = {
-  'uid': 'id.1',
-  'name': 'file.1',
-  'filename': '/tmp/file.1',
-  'type': 'uploaded'
+  uid: 'id.1',
+  name: 'file.1',
+  filename: '/tmp/file.1',
+  type: 'uploaded'
 };
 const EXPECTED_METRIC = {
-  'uid': 'id.1',
-  'file_uid': 'file.id.1',
-  'model_uid': 'model.id.1',
-  'name': 'file.1',
-  'type': 'date',
-  'min': 0,
-  'max': 100
+  uid: 'id.1',
+  file_uid: 'file.id.1',
+  model_uid: 'model.id.1',
+  name: 'file.1',
+  type: 'date',
+  min: 0,
+  max: 100
 };
 const EXPECTED_METRIC_DATA = {
-  'uid': 'id.1',
-  'metric_uid': 'metric.id.1',
-  'rowid': 1,
-  'timestamp': '2015-01-01 00:00:00Z',
-  'metric_value': 1,
-  'display_value': 1,
-  'anomaly_score': 1,
-  'anomaly_likelihood': 1
+  uid: 'id.1',
+  metric_uid: 'metric.id.1',
+  rowid: 1,
+  timestamp: '2015-01-01 00:00:00Z',
+  metric_value: 1,
+  display_value: 1,
+  anomaly_score: 1,
+  anomaly_likelihood: 1
 };
 
 
@@ -81,12 +79,13 @@ describe('DatabaseServer', () => {
     });
 
     it('should validate "MetricData"', (done) => {
-      let results = server.validator.validate(EXPECTED_METRIC_DATA, MetricDataSchema);
+      let results = server.validator.validate(EXPECTED_METRIC_DATA, MetricDataSchema); // eslint-disable-line
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
   });
 
+  /* eslint-disable max-nested-callbacks */
   describe('File Table', () => {
     it('should add a single file to the database', (done) => {
       server.putFile(EXPECTED_FILE, (error) => {
@@ -96,14 +95,14 @@ describe('DatabaseServer', () => {
     });
     it('should not add invalid file to the database', (done) => {
       let invalid = Object.assign({}, EXPECTED_FILE);
-      delete invalid.uid;
+      delete invalid.uid; // eslint-disable-line
       server.putFile(invalid, (error) => {
         assert.ifError(!error);
         done();
       });
     });
     it('should add multiple files to the database', (done) => {
-      let batch = Array.from(['id.1', 'id.2'], uid => {
+      let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_FILE, {uid});
       });
       server.putFileBatch(batch, (error) => {
@@ -112,7 +111,7 @@ describe('DatabaseServer', () => {
       });
     });
     it('should load a single file from the database', (done) => {
-      let batch = Array.from(['id.1', 'id.2'], uid => {
+      let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_FILE, {uid});
       });
       server.putFileBatch(batch, (error) => {
@@ -125,7 +124,7 @@ describe('DatabaseServer', () => {
       });
     });
     it('should load multiple files from the database', (done) => {
-      let batch = Array.from(['id.1', 'id.2'], uid => {
+      let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_FILE, {uid});
       });
       server.putFileBatch(batch, (error) => {
@@ -148,14 +147,14 @@ describe('DatabaseServer', () => {
     });
     it('should not add invalid metric to the database', (done) => {
       let invalid = Object.assign({}, EXPECTED_METRIC);
-      delete invalid.uid;
+      delete invalid.uid; // eslint-disable-line
       server.putMetric(invalid, (error) => {
         assert.ifError(!error);
         done();
       });
     });
     it('should add multiple metrics to the database', (done) => {
-      let batch = Array.from(['id.1', 'id.2'], uid => {
+      let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_METRIC, {uid});
       });
       server.putMetricBatch(batch, (error) => {
@@ -164,7 +163,7 @@ describe('DatabaseServer', () => {
       });
     });
     it('should load a single metric from the database', (done) => {
-      let batch = Array.from(['id.1', 'id.2'], uid => {
+      let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_METRIC, {uid});
       });
       server.putMetricBatch(batch, (error) => {
@@ -177,7 +176,7 @@ describe('DatabaseServer', () => {
       });
     });
     it('should load multiple metrics from the database', (done) => {
-      let batch = Array.from(['id.1', 'id.2'], uid => {
+      let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_METRIC, {uid});
       });
       server.putMetricBatch(batch, (error) => {
@@ -200,15 +199,15 @@ describe('DatabaseServer', () => {
     });
     it('should not add invalid MetricData record to the database', (done) => {
       let invalid = Object.assign({}, EXPECTED_METRIC_DATA);
-      delete invalid.uid;
+      delete invalid.uid; // eslint-disable-line
       server.putMetricData(invalid, (error) => {
         assert.ifError(!error);
         done();
       });
     });
     it('should add multiple MetricData records to the database', (done) => {
-      let batch = Array.from(['id.1', 'id.2'], uid => {
-        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, 'metric_uid':uid});
+      let batch = Array.from(['id.1', 'id.2'], (uid) => {
+        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, metric_uid: uid});
       });
       server.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
@@ -216,8 +215,8 @@ describe('DatabaseServer', () => {
       });
     });
     it('should load multiple MetricData records from the database', (done) => {
-      let batch = Array.from(['id.1', 'id.2'], uid => {
-        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, 'metric_uid':uid});
+      let batch = Array.from(['id.1', 'id.2'], (uid) => {
+        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, metric_uid: uid});
       });
       server.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
