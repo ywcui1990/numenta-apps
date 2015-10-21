@@ -185,8 +185,7 @@ def buildAndUploadModule(logger, moduleDirectory,
 
   with changeToWorkingDir(moduleDirectory):
     logger.info("Building in %s", moduleDirectory)
-    logger.debug("Running: %s", " ".join(buildArgs))
-    runWithOutput(buildArgs)
+    runWithOutput(command=buildArgs, logger=logger)
 
 
 def main(config):
