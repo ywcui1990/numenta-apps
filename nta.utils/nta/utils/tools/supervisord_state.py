@@ -30,6 +30,7 @@ import xmlrpclib
 from nta.utils.supervisor_utils import SupervisorClient
 
 
+
 def getSupervisordState(supervisorApiUrl):
   """Get the state of SupervisorD
 
@@ -113,6 +114,37 @@ def waitForRunningStateMain():
       args.supervisorApiUrl,))
 
 
+def waitForStoppedStateMain():
+  """Console script entry point: waits for supervisord to stop;
+  sets non-zero exit code on timeout or other non-recoverable error; prints
+  error messages to STDERR.
+  """
+
+  parser = ArgumentParser(
+    description=("Wait for supervisord to stop."))
+
+  parser.add_argument(
+    "supervisorApiUrl",
+    help="URL of supervisord API; e.g., http://localhost:9001")
+
+  args = parser.parse_args()
+
+  maxWaitCycles = 6
+  for i in xrange(1, maxWaitCycles + 2):
+    try:
+      getSupervisordState(args.supervisorApiUrl)
+    except (socket.error, xmlrpclib.Fault):
+      # API is no longer available at specified supervisorApiUrl.  It is safe
+      # to assume that IF the supervisordApiUrl is correct, that supervisor is
+      # not running.  In which case, break out of loop and return.
+      break
+
+    if i <= maxWaitCycles:
+      print >> sys.stderr, "Waiting for supervisord to stop..."
+      time.sleep(5)
+  else:
+    sys.exit("Timed out waiting for supervisord to stop")
+
 
 def waitForAllToStop():
   """ Console script entry point: Waits for all processes to be in one of the
@@ -164,4 +196,3 @@ def waitForAllToStop():
                           .format(args.sleep, "s" if args.sleep != 1 else ""))
     time.sleep(args.sleep)
     processes = getAllProcessInfo()
-

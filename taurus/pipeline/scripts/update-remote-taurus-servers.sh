@@ -375,15 +375,10 @@ pushd "${REPOPATH}"
      cd /opt/numenta/products/taurus.metric_collectors/taurus/metric_collectors/collectorsdb &&
      python migrate.py &&
      cd /opt/numenta/products/taurus.metric_collectors &&
-     if [ -f supervisord.pid ]; then
-       supervisorctl --serverurl http://localhost:8001 shutdown
-     fi &&
+     supervisorctl --serverurl http://localhost:8001 shutdown &&
+     nta-wait-for-supervisord-stopped http://localhost:8001 &&
      py.test tests/deployment/resource_accessibility_test.py &&
-     if [ -f supervisord.pid ]; then
-       supervisorctl --serverurl http://localhost:8001 reload
-     else
-       supervisord -c conf/supervisord.conf
-     fi &&
+     supervisord -c conf/supervisord.conf &&
      nta-wait-for-supervisord-running http://localhost:8001 &&
      py.test tests/deployment/health_check_test.py &&
      ${TAURUS_COLLECTOR_UNIT_AND_INTEGRATION_TESTS} &&
