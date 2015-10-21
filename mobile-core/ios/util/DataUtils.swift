@@ -65,6 +65,13 @@ public class DataUtils{
         return (time / DataUtils.MILLIS_PER_HOUR) * DataUtils.MILLIS_PER_HOUR;
 
     }
+    
+    /** round timestamp to nearest 24 hour period
+        - parameter time:
+    */
+    static func floorToDay( time: Int64)->Int64{
+         return (time / (24*DataUtils.MILLIS_PER_HOUR)) * (24*DataUtils.MILLIS_PER_HOUR)
+    }
 
     
     
