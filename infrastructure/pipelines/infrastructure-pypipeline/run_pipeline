@@ -23,7 +23,7 @@
 """
 Infrastructure-pypipeline script
 
-Creates a wheel file for a python module and uploads to Numenta's pypi server
+Creates a wheel file for a python module and uploads to a pypi server
 """
 
 import argparse
@@ -37,30 +37,28 @@ from infrastructure.utilities.diagnostics import (initPipelineLogger,
 
 
 
-def parseCLIArgs():
+def _parseCLIArgs():
   """
   Parse the command line arguments
 
-  :returns: The Parsed arguments from the command line
+  :returns: Parsed command line arguments
   :rtype: argparse.Namespace
   """
   # Set up our defaults from the environment
   workspaceD = os.environ.get("WORKSPACE", ".")
-  appsPath = "numenta-apps"
-
+  repoDirectory = "numenta-apps"
   fork=os.environ.get("FORK", "git@github.com:Numenta/numenta-apps.git")
   commitish=os.environ.get("COMMITISH", "master")
-
-  pypiServer=os.environ.get("PYPI_SERVER", "https://pypi.numenta.com/pypi")
+  pypiServer=os.environ.get("PYPI_SERVER", "numenta-pypi")
 
   parser = argparse.ArgumentParser(description=("Build and upload "
                                                 "infrastructure module to "
                                                 "numenta's pypi server"))
-  parser.add_argument("--apps-path",
-                      dest="appsPath",
+  parser.add_argument("--repo-directory",
+                      dest="repoDirectory",
                       type=str,
-                      default=appsPath,
-                      help="path to git repo directory")
+                      default=repoDirectory,
+                      help="path to git repo directory in workspace directory")
 
   parser.add_argument("--commitish",
                       dest="commitish",
@@ -69,10 +67,10 @@ def parseCLIArgs():
                       help="What commitish to build from. Default to tip "
                            "of master")
 
-  parser.add_argument("--dry-run",
-                      dest="dryRun",
-                      default=True,
-                      help="Only build the wheel, don't upload it")
+  parser.add_argument("--force-upload",
+                      dest="forceUpload",
+                      action="store_true",
+                      help="Upload the wheel even if not being run by Jenkins")
 
   parser.add_argument("--fork",
                       dest="fork",
@@ -86,6 +84,11 @@ def parseCLIArgs():
                       default="info",
                       choices=LOG_LEVELS,
                       help="Set the logging level. Default to INFO")
+
+  parser.add_argument("--module-directory",
+                      dest="moduleDirectory",
+                      type=str,
+                      help="What subdirectory of the repo to publish")
 
   parser.add_argument("--pypi-server",
                       dest="pypiServer",
@@ -103,61 +106,69 @@ def parseCLIArgs():
   return parser.parse_args()
 
 
-def setupWorkspace(workspace, appsPath, fork, commitish, logger):
+def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
   """
   Creates/updates the git repo in workspace.
 
   :param str workspace: path to workspace directory
-  :param str appsPath: path to the git repository
+  :param str repoDirectory: directory name of the git repository
   :param str fork: Which fork to check out
   :param str commitish: What commit/branch to check out
   :param logger: An initialized logger
   """
-  if os.path.exists(appsPath):
-    logger.debug("Updating git repository in %s", appsPath)
-    with changeToWorkingDir(appsPath):
+  assert os.path.isdir(workspace), ("workspace %s is not a directory" %
+                                    workspace)
+  fullRepoPath = os.path.join(workspace, repoDirectory)
+  if os.path.exists(fullRepoPath):
+    logger.info("Updating git repository in %s", repoDirectory)
+    with changeToWorkingDir(fullRepoPath):
       logger.debug("Cleaning git repository...")
       runWithOutput(command=("git", "clean", "-fd"), logger=logger)
   else:
+    logger.debug("Cloning git repository...")
     with changeToWorkingDir(workspace):
-      logger.debug("Cloning git repository...")
       git.clone(logger=logger,
                 gitURL=fork,
-                directory=appsPath)
+                directory=repoDirectory)
 
-  with changeToWorkingDir(appsPath):
+
+  with changeToWorkingDir(fullRepoPath):
     logger.debug("Setting origin remote to %s", fork)
-    git.setRemoteURL(remote="origin",
-                     url=fork,
-                     path=appsPath,
-                     logger=logger)
-    logger.debug("Cleaning git repository...")
+    runWithOutput(logger=logger,
+                  command=("git", "remote", "set-url", "origin", fork))
+    logger.info("Cleaning git repository...")
     runWithOutput(command=("git", "pull"), logger=logger)
 
-  logger.debug("Checking out %s in %s", commitish, appsPath)
-  git.checkout(logger=logger, pathspec=commitish)
+    logger.info("Checking out %s in %s", commitish, repoDirectory)
+    git.checkout(logger=logger, pathspec=commitish)
 
 
-def buildAndUpload(logger, moduleDir, pypiServer, dryrun=False):
+def buildAndUploadModule(logger, moduleDirectory,
+                         pypiServer, forceUpload=False):
   """
   Builds and uploads the a python module to our pypi server
 
   :param logger: An initialized logger
-  :param str moduleDir: path to directory containing setup.py
+  :param str moduleDirectory: path to directory containing setup.py
   :param str pypiServer: which pypi server to upload to.
   :param bool dryrun: Whether to upload to our pypi server
   """
+  setupPath = os.path.join(moduleDirectory, "setup.py")
+  assert os.path.isfile(setupPath), "Could not find setup.py at %s" % setupPath
 
-  setupPath = os.path.join(moduleDir, "setup.py")
-  assert os.path.isfile(setupPath), "Could not find %s" % setupPath
+  buildArgs = ["python", "setup.py",
+               "sdist", "bdist_wheel", "bdist", "bdist_egg"]
 
-  uploadArgs = ["python", "setup.py", "sdist", "bdist_wheel", "bdist"]
-  if not dryrun:
-    uploadArgs = uploadArgs + ["upload", "-r", pypiServer]
-  with changeToWorkingDir(moduleDir):
-    logger.info("Building in %s", moduleDir)
-    logger.debug("Running: %s", " ".join(uploadArgs))
-    runWithOutput(uploadArgs)
+  # Only upload if building on jenkins unless --force-upload in CLI arguments
+  if ("JENKINS_HOME" in os.environ) or forceUpload:
+    buildArgs = buildArgs + ["upload", "-r", pypiServer]
+  else:
+    logger.debug("Not being run by jenkins, skipping pypi upload")
+
+  with changeToWorkingDir(moduleDirectory):
+    logger.info("Building in %s", moduleDirectory)
+    logger.debug("Running: %s", " ".join(buildArgs))
+    runWithOutput(buildArgs)
 
 
 def main(config):
@@ -169,14 +180,20 @@ def main(config):
   """
   logger = initPipelineLogger("infrastructure-pypipeline",
                               logLevel=config.logLevel)
-  appsPath = os.path.join(config.workspace, "numenta-apps")
+  fullRepoPath = os.path.join(config.workspace, config.repoDirectory)
+  moduleDirectory = os.path.join(fullRepoPath, config.moduleDirectory)
 
   setupWorkspace(logger=logger,
                  workspace=config.workspace,
-                 appsPath=appsPath,
+                 repoDirectory=config.repoDirectory,
                  fork=config.fork,
                  commitish=config.commitish)
 
+  buildAndUploadModule(logger=logger,
+                       moduleDirectory=moduleDirectory,
+                       pypiServer=config.pypiServer,
+                       forceUpload=config.forceUpload)
+
 
 if __name__ == "__main__":
-  main(parseCLIArgs())
+  main(_parseCLIArgs())
