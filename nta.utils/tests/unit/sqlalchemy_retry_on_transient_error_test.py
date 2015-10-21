@@ -36,6 +36,7 @@ import sqlalchemy.exc
 from nta.utils.logging_support_raw import LoggingSupport
 from nta.utils.sqlalchemy_utils import _ALL_RETRIABLE_ERROR_CODES
 from nta.utils.sqlalchemy_utils import retryOnTransientErrors
+from nta.utils.test_utils import time_test_utils
 
 
 
@@ -53,38 +54,46 @@ class TestTransientErrorHandling(unittest.TestCase):
 
   def _runTransientErrorRetryTest(self, numErrors):
 
-    for errorCode in _ALL_RETRIABLE_ERROR_CODES:
-      clientSideEffects = [sqlalchemy.exc.OperationalError(
-                            orig=MySQLdb.OperationalError(errorCode),
-                            statement="err", params=None)] \
-                            * numErrors + [DEFAULT]
-      serverSideEffects = [sqlalchemy.exc.InternalError(
-                            orig=MySQLdb.InternalError(errorCode),
-                            statement="err", params=None)] \
-                            * numErrors + [DEFAULT]
+    with patch("time.sleep", autospec=True) as sleepMock, \
+         patch("time.time", autospec=True) as timeMock:
 
-      if 3000 > errorCode >= 2000:
-        # The error is client side. Return one operationalError, then pass
-        with patch.object(Engine,
-                          "execute",
-                          spec_set=Engine.execute,
-                          side_effect=clientSideEffects) \
-            as mockExecute:
-          retryOnTransientErrors(mockExecute)(Mock())
-          self.assertEqual(mockExecute.call_count, numErrors + 1)
+      time_test_utils.configureTimeAndSleepMocks(timeMock, sleepMock)
 
-      elif errorCode >= 1000:
-        # The error is server side. Return one internalError, then pass
-        with patch.object(Engine,
-                          "execute",
-                          spec_set=Engine.execute,
-                          side_effect=serverSideEffects) \
-            as mockExecute:
-          retryOnTransientErrors(mockExecute)(Mock())
-          self.assertEqual(mockExecute.call_count, numErrors + 1)
+      for errorCode in _ALL_RETRIABLE_ERROR_CODES:
+        clientSideEffects = [
+          sqlalchemy.exc.OperationalError(
+            orig=MySQLdb.OperationalError(errorCode),
+            statement="err", params=None)
+        ] * numErrors + [DEFAULT]
 
-      else:
-        self.fail("Error code is neither client nor server: %s" % errorCode)
+        serverSideEffects = [
+          sqlalchemy.exc.InternalError(
+            orig=MySQLdb.InternalError(errorCode),
+            statement="err", params=None)
+        ] * numErrors + [DEFAULT]
+
+        if 3000 > errorCode >= 2000:
+          # The error is client side. Return one operationalError, then pass
+          with patch.object(Engine,
+                            "execute",
+                            spec_set=Engine.execute,
+                            side_effect=clientSideEffects) \
+              as mockExecute:
+            retryOnTransientErrors(mockExecute)(Mock())
+            self.assertEqual(mockExecute.call_count, numErrors + 1)
+
+        elif errorCode >= 1000:
+          # The error is server side. Return one internalError, then pass
+          with patch.object(Engine,
+                            "execute",
+                            spec_set=Engine.execute,
+                            side_effect=serverSideEffects) \
+              as mockExecute:
+            retryOnTransientErrors(mockExecute)(Mock())
+            self.assertEqual(mockExecute.call_count, numErrors + 1)
+
+        else:
+          self.fail("Error code is neither client nor server: %s" % errorCode)
 
 
   def testTransientSingleErrorRetry(self):

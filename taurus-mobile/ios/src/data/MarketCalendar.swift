@@ -28,6 +28,7 @@ public class MarketCalendar {
     public func isOpen (date : NSDate)->Bool {
         let calendar = NSCalendar.currentCalendar()
         
+        
         // check day of week
         let dayOfWeek = calendar.components( (NSCalendarUnit.NSWeekdayCalendarUnit), fromDate: date)
         
@@ -37,7 +38,7 @@ public class MarketCalendar {
         
         let comp = calendar.components((NSCalendarUnit.NSHourCalendarUnit), fromDate: date)
         let hour = comp.hour
-        if (hour>=9 && hour<=16)
+        if (hour>=9 && hour<16)
         {
             return true
         }

@@ -2,17 +2,14 @@ Release Notes:
 
 Known issues
 Instance View:
-- Favorites doesn't work
 
 Instance Details
--Metric charts off by 1 hour
--line background
+-Metric charts off 
+-Slow to load
 
 Twitter view
 -Slow to load
--Layout needs some tweaking
--metric chart off by 1 hour
--need to implement retweet stuff
+-metric chart off 
 -crash if try to load view before metrics finish loading
 
 Notifications
@@ -24,6 +21,13 @@ Share
 Feedback
 -Doesn't work
 
-- Background sync doesn't work
+Market DAta
+- Need support or holidays
+
 
 Some performance issues
+
+Menu sometimes doesn’t expand enough
+
+UI Cleanup:
+I have to go through and make sure I have all the colors and sizes rights.

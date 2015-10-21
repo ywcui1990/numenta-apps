@@ -21,9 +21,8 @@
 # ----------------------------------------------------------------------
 
 """
-Service the current tweet deletion requests that are recorded in the
-twitter_deletion table and exit. This script is intended to be called
-periodically via crontab or equivalent.
+This service processes the tweet deletion requests that are recorded in
+the twitter_deletion table and exit.
 
 Our twitter_direct_agent service saves tweet deletion requests that are
 delivered via our twitter stream. These deletion requests need to be processed

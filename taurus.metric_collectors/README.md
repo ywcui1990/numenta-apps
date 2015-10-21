@@ -107,6 +107,8 @@ taurus.metric_collector application modules:
 where metric data samples as well as non-metric data (e.g., tweets) are
 forwarded
 
+`TAURUS_API_KEY`: API Key of the corresponding Taurus server
+
 `TAURUS_METRIC_COLLECTORS_LOG_DIR`: Path of the directory where logs are to be
 stored; defaults to <numenta-apps/taurus.metric_collectors/logs/>
 
