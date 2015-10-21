@@ -334,42 +334,109 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         
         let startDate = DataUtils.dateFromTimestamp(start)
         
-        client?.getTweets( (metric?.getName())!, from: startDate, to: endTime! ){ (tweet: Tweet?)in
-            if (tweet != nil){
-                
-                let aggregationTime : Int64 = tweet!.aggregated
-                
-                var twitterEntry = self.twittermap[aggregationTime]
-               
-                
-                if (twitterEntry == nil){
-                    twitterEntry =  TwitterEntry()
-                    self.twittermap[aggregationTime] = twitterEntry
-                }
-            
-              
-                var dup  = false
-                for existingTweet in twitterEntry!.data {
-                    if existingTweet.cannonicalText == tweet!.cannonicalText {
-                        if (existingTweet.retweetCount == 0){
-                            existingTweet.retweetCount = 1
-                        }
-                        existingTweet.retweetCount += 1
-                        dup = true
-                        break
-                    }
-                }
-                if ( dup == false){
-                    twitterEntry?.data.append(tweet!)
-                }
-                twitterEntry?.tweets += 1
-                
-            }
-           
-            return nil
-        }
+        var lastTime :Int64 = 0
+        var lastEntry : TwitterEntry?
         
-        for twitterEntry  in self.twittermap.values {
+        var loadIntervals = [(startDate, endTime!)]
+        
+        //
+        let values = metricChartData?.rawData
+        var timeOffset : Int64  = 0
+        var count = 0
+        var numOfEntries = 25 // start small to be responsive
+        var intervalEnd = endTime!
+        
+        if (values != nil ){
+            loadIntervals.removeAll()
+            
+            for val in values! {
+                count += Int(val)
+                timeOffset += DataUtils.METRIC_DATA_INTERVAL
+                if (count > numOfEntries){
+                    let intervalStart = DataUtils.dateFromTimestamp ( DataUtils.timestampFromDate(intervalEnd) - timeOffset )
+                    loadIntervals.append ( (intervalStart, intervalEnd) )
+                    intervalEnd = intervalStart
+                    // Load more entries to reduce networking overhead
+                    numOfEntries  = 250
+                    count = 0
+                    timeOffset = 0
+                }
+            }
+            
+            loadIntervals.append ( (startDate, intervalEnd)   )
+        }
+    
+        for entry in loadIntervals {
+            client?.getTweets( (metric?.getName())!, from: entry.0, to: entry.1 ){ (tweet: Tweet?)in
+                if (tweet != nil){
+                 
+                    let aggregationTime : Int64 = tweet!.aggregated
+                    
+                    
+                    if (aggregationTime != lastTime){
+                        if (lastEntry != nil){
+                             self.sortTwitterEntry(lastEntry!)
+                            self.twittermap[lastTime] = lastEntry
+                            
+                        }
+                       
+                        lastEntry = TwitterEntry()
+                        lastTime = aggregationTime
+                    }
+                    let twitterEntry = lastEntry
+                    var dup  = false
+                    for existingTweet in twitterEntry!.data {
+                        if existingTweet.cannonicalText == tweet!.cannonicalText {
+                            if (existingTweet.retweetCount == 0){
+                                existingTweet.retweetCount = 1
+                            }
+                            existingTweet.retweetCount += 1
+                            dup = true
+                            break
+                        }
+                    }
+                    if ( dup == false){
+                        twitterEntry?.data.append(tweet!)
+                    }
+                    twitterEntry?.tweets += 1
+                    
+                }
+               
+                return nil
+            }
+            
+            if (lastEntry != nil){
+                sortTwitterEntry(lastEntry!)
+                self.twittermap[lastTime] = lastEntry
+            }
+            updateList()
+        }
+    }
+    
+    
+    func sortTwitterEntry( twitterEntry: TwitterEntry){
+        twitterEntry.data.sortInPlace{
+            if ( $0.aggregated != $1.aggregated){
+                return $0.aggregated > $1.aggregated
+            }
+            
+            
+            if ( $0.retweetCount != $1.retweetCount){
+                return $0.retweetCount > $1.retweetCount
+            }
+            
+            if ( $0.retweetTotal != $1.retweetTotal){
+                return $0.retweetTotal > $1.retweetTotal
+            }
+            
+            
+            return  $0.id < $1.id
+            
+        }
+    }
+    func updateList(){
+        
+      /*  for twitterEntry  in self.twittermap.values {
             twitterEntry.data.sortInPlace{
                 if ( $0.aggregated != $1.aggregated){
                     return $0.aggregated > $1.aggregated
@@ -384,15 +451,17 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
                     return $0.retweetTotal > $1.retweetTotal
                 }
                 
-               
+                
                 return  $0.id < $1.id
                 
-        }
+            }
+            
+        }*/
         
-        }
+        
         // Update the table to the new data
         dispatch_async(dispatch_get_main_queue()) {
-           
+            
             self.twitterIndex = Array(self.twittermap.keys)
             
             self.twitterIndex.sortInPlace {
@@ -405,7 +474,8 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             
             self.instanceTable?.reloadData()
         }
-
+        
+        
     }
     
     /** Scroll table to match the selection
