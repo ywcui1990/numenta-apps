@@ -141,11 +141,8 @@ def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
 
 
   with changeToWorkingDir(fullRepoPath):
-    logger.debug("Setting origin remote to %s", fork)
-    runWithOutput(logger=logger,
-                  command=("git", "remote", "set-url", "origin", fork))
-    logger.info("Doing git pull in repository...")
-    runWithOutput(command=("git", "pull"), logger=logger)
+    logger.debug("Pulling from %s", fork)
+    runWithOutput(command=("git", "pull", fork), logger=logger)
 
     logger.info("Checking out %s in %s", commitish, repoDirectory)
     git.checkout(logger=logger, pathspec=commitish)
@@ -176,7 +173,7 @@ def buildAndUploadModule(logger, moduleDirectory,
                "sdist", "bdist_wheel", "bdist", "bdist_egg"]
 
   # Only upload if building on jenkins unless --force-upload in CLI arguments
-  if ("JENKINS_HOME" in os.environ) or forceUpload:
+  if forceUpload or "JENKINS_HOME" in os.environ:
     buildArgs.extend(["upload", "-r", pypiServer])
   else:
     logger.debug("Not being run by jenkins, skipping pypi upload")
