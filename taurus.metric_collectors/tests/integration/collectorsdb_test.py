@@ -22,7 +22,7 @@
 
 import multiprocessing
 from subprocess import Popen, PIPE
-import unittest2 as unittest
+import unittest
 
 import sqlalchemy
 import sqlalchemy.exc
@@ -63,7 +63,8 @@ def startProxy(host, port, listenPort):
     listener = Popen(["nc", "-lk", "0.0.0.0", str(listenPort)],
                      stdin=PIPE, stdout=PIPE)
     destination = Popen(["nc", host, str(port)],
-                     stdin=listener.stdout, stdout=listener.stdin)
+                        stdin=listener.stdout,
+                        stdout=listener.stdin)
 
     killed = False
     while True:
@@ -85,6 +86,8 @@ def startProxy(host, port, listenPort):
 
 
 class CollectorsdbTestCase(unittest.TestCase):
+
+
   def tearDown(self):
     # Return collectorsdb engine singleton to a pristine state.  If running
     # tests in non-boxed mode, for example, to collect coverage statistics,
@@ -109,6 +112,8 @@ class CollectorsdbTestCase(unittest.TestCase):
 
 
 class TestTransientErrorHandling(unittest.TestCase):
+
+
   def tearDown(self):
     # Return collectorsdb engine singleton to a pristine state.  If running
     # tests in non-boxed mode, for example, to collect coverage statistics,
@@ -134,11 +139,10 @@ class TestTransientErrorHandling(unittest.TestCase):
     self.addCleanup(proxy.send, "kill")
 
     # Patch collectorsdb config with local proxy
-    with ConfigAttributePatch(
-          config.CONFIG_NAME,
-          config.baseConfigDir,
-          (("repository", "host", "127.0.0.1"),
-           ("repository", "port", "6033"))):
+    with ConfigAttributePatch(config.CONFIG_NAME,
+                              config.baseConfigDir,
+                              (("repository", "host", "127.0.0.1"),
+                               ("repository", "port", "6033"))):
 
       # Force refresh of engine singleton
       collectorsdb.resetEngineSingleton()
@@ -149,7 +153,7 @@ class TestTransientErrorHandling(unittest.TestCase):
       self.assertEqual(res.scalar(), 1)
 
       @collectorsdb.retryOnTransientErrors
-      def _killProxyTryRestartProxyAndTryAgain(n=[]):
+      def _killProxyTryRestartProxyAndTryAgain(n=[]):  # pylint: disable=W0102
         if not n:
           # Kill the proxy on first attempt
           proxy.send("kill")

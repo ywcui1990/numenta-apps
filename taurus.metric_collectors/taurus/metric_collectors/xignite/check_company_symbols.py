@@ -21,10 +21,8 @@
 # ----------------------------------------------------------------------
 
 """
-This script sends email notifications to report invalid company security
+This service sends email notifications to report invalid company security
 symbols, if they haven't already been reported.
-
-This script is intended to be called periodically via crontab or equivalent.
 """
 
 import json

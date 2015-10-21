@@ -21,13 +21,11 @@
 # ----------------------------------------------------------------------
 
 """
-Script to check if twitter screen names are still valid.
+Service that checks if twitter screen names are still valid.
 Email notifications are sent for unmapped screen names.
 Each time a screen name is reported successfully, we add it to a table keeping
 track of unmapped screen names that were already reported -- to avoid duplicate
 emails reporting the same unmapped screen name.
-
-This script is intended to be called periodically via crontab or equivalent.
 """
 
 import logging

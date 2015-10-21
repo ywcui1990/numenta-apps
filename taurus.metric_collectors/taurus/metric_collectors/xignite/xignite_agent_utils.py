@@ -48,7 +48,7 @@ def insertSecurity(engine, xigniteSecurity):
              name=xigniteSecurity["Name"],
              market=xigniteSecurity["Market"],
              mic=xigniteSecurity["MarketIdentificationCode"],
-             most_liquid_exg=(xigniteSecurity["MostLiquidExchange"]),
+             most_liquid_exg=xigniteSecurity["MostLiquidExchange"],
              industry=xigniteSecurity["CategoryOrIndustry"])
 
   engine.execute(secIns)

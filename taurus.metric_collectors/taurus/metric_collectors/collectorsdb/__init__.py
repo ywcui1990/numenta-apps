@@ -19,6 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import logging
 import multiprocessing
 import optparse
 import random
@@ -31,9 +32,12 @@ import sqlalchemy
 from nta.utils import sqlalchemy_utils
 from nta.utils.config import Config
 
-from taurus.metric_collectors import CONF_DIR
+import taurus.metric_collectors
 from taurus.metric_collectors.collectorsdb import schema
 from taurus.metric_collectors.collectorsdb.migrate import migrate
+from taurus.metric_collectors import logging_support
+
+
 
 # Retry decorator for mysql transient errors
 retryOnTransientErrors = sqlalchemy_utils.retryOnTransientErrors
@@ -56,10 +60,12 @@ class CollectorsDbConfig(Config):
 
   CONFIG_NAME = "collectors-sqldb.conf"
 
+  CONFIG_DIR = taurus.metric_collectors.CONF_DIR
+
 
   def __init__(self, mode=Config.MODE_LOGICAL):
     super(CollectorsDbConfig, self).__init__(self.CONFIG_NAME,
-                                             CONF_DIR,
+                                             self.CONFIG_DIR,
                                              mode=mode)
 
 
@@ -148,12 +154,29 @@ def resetEngineSingleton():
 
 
 
+def getUnaffiliatedEngine():
+  """
+  :returns: sqlalchemy Engine that's unaffiliated with any database
+  :rtype: sqlalchemy.engine.Engine
+  """
+  dsn = "mysql://%(user)s:%(password)s@%(host)s:%(port)s" % _getRepoParams()
+  return sqlalchemy.create_engine(dsn)
+
+
+
 def resetCollectorsdbMain():
   """ Setuptools console script entry point for resetting collectorsdb (
   taurus_collectors database).
   :returns: 0 if reset was completed successfully; 1 if user doesn't confirm the
     request
   """
+  logging_support.LoggingSupport.initTool()
+
+  # Enable sqlalchemy engine logging at INFO level for more granular progress
+  # report during migration.
+  logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+
+
   repoParams = _getRepoParams()
 
   helpString = (
@@ -228,8 +251,7 @@ def reset(offline=False, **kwargs):
     "CREATE DATABASE %(database)s;" % {"database": repoParams["db"]})
   statements = [s.strip() for s in resetDatabaseSQL.split(";") if s.strip()]
 
-  dsn = "mysql://%(user)s:%(password)s@%(host)s:%(port)s" % repoParams
-  e = sqlalchemy.create_engine(dsn)
+  e = getUnaffiliatedEngine()
   try:
     for s in statements:
       e.execute(s)

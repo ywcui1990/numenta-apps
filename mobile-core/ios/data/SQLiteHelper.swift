@@ -29,7 +29,7 @@ public class SQLiteHelper {
     var dateFormater: NSDateFormatter
     
     //Constant for conflict
-    static let REPLACE = " OR REPLACE "
+    static let REPLACE = " REPLACE "
     
     /**  Delete the specified rows in table
     - parameter    whereClause : where clause with ? for subbed parameters
@@ -141,13 +141,17 @@ public class SQLiteHelper {
    */
     func prepareInsertStatement(tableName: String , columns: [String], status: String)->String
     {
-        var sqlStatement : String = "INSERT INTO " + tableName
+        var sqlStatement : String = "INSERT"
+        if (!status.isEmpty ){
+            sqlStatement += "  OR " + status
+        }
+        sqlStatement += " INTO " + tableName
         let columnStr = "(" +  columns.joinWithSeparator(", ") + ")"
         
         let values = " VALUES (:" + columns.joinWithSeparator(", :") + ")"
         
         sqlStatement += columnStr + values
-        sqlStatement+" ON CONFLICT " + status
+     //   sqlStatement+" ON CONFLICT " + status
         return sqlStatement
     }
     

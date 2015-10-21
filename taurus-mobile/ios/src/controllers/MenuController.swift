@@ -22,14 +22,17 @@
 
 
 import UIKit
+import MessageUI
 /** Sliding side navigation/command menu
 */
 
-class MenuController: UITableViewController {
+class MenuController: UITableViewController, MFMailComposeViewControllerDelegate {
 
     let ABOUT = 5
     let TUTORIAL = 4
     let SETTINGS = 3
+    let FEEDBACK = 1
+    let SHARE = 2
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,6 +63,16 @@ class MenuController: UITableViewController {
             self.showSettings(tableView)
         }
         
+        if (indexPath.item == FEEDBACK){
+            self.feedback()
+        }
+        
+        
+        if (indexPath.item == SHARE){
+            self.share()
+        }
+        
+        
     }
     
     func show ( name : String){
@@ -75,6 +88,25 @@ class MenuController: UITableViewController {
     @IBAction func showSettings( sender: UIView ){
         self.revealViewController().rightRevealToggle(self)
         self.revealViewController().frontViewController.performSegueWithIdentifier ("showSettings", sender: nil)
+    }
+    
+    @IBAction func share( ){
+         self.revealViewController().rightRevealToggle(self)
+        let shareService = ShareService()
+        shareService.share(self.revealViewController().frontViewController)
+    }
+    
+    @IBAction func feedback(){
+         self.revealViewController().rightRevealToggle(self)
+        let shareService = ShareService()
+        shareService.feedback(self.revealViewController().frontViewController, presenter : self)
+    }
+    
+    /** mail delegate
+    */
+    func mailComposeController(controller: MFMailComposeViewController!, didFinishWithResult result: MFMailComposeResult, error: NSError!) {
+        
+        controller.dismissViewControllerAnimated(true, completion: nil)
     }
 
     
