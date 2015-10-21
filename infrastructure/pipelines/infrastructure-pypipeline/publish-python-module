@@ -21,9 +21,10 @@
 # ----------------------------------------------------------------------
 
 """
-Infrastructure-pypipeline script
+publish-python-module script
 
-Creates a wheel file for a python module and uploads to a pypi server
+Checks out a git repository, then creates a wheel file for a python module
+in the repository and uploads it to a pypi server
 """
 
 import argparse
@@ -52,7 +53,7 @@ def _parseCLIArgs():
   pypiServer=os.environ.get("PYPI_SERVER", "numenta-pypi")
 
   parser = argparse.ArgumentParser(description=("Build and upload "
-                                                "infrastructure module to "
+                                                "python modules to "
                                                 "numenta's pypi server"))
   parser.add_argument("--repo-directory",
                       dest="repoDirectory",
