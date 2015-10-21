@@ -530,7 +530,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             if let indexPath = self.instanceTable.indexPathForSelectedRow {
                 let controller = segue.destinationViewController as! InstanceDetailsViewController
                 
-                let data = tableData[indexPath.section]
+                let data = tableData[ getSectionIndex(indexPath.section)]
                 
                 if (data != nil ){
                     controller.chartData = data![ indexPath.item]
