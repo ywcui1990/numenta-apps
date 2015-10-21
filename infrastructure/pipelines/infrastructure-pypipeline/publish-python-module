@@ -30,12 +30,12 @@ in the repository and uploads it to a pypi server
 import argparse
 import os
 
-from infrastructure.utilities.cli import runWithOutput
 from infrastructure.utilities import git
-from infrastructure.utilities.jenkins import getWorkspace
-from infrastructure.utilities.path import changeToWorkingDir
+from infrastructure.utilities.cli import runWithOutput
 from infrastructure.utilities.diagnostics import (initPipelineLogger,
                                                   LOG_LEVELS)
+from infrastructure.utilities.jenkins import getWorkspace
+from infrastructure.utilities.path import changeToWorkingDir
 
 
 
@@ -145,7 +145,7 @@ def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
 
   with changeToWorkingDir(fullRepoPath):
     logger.debug("Pulling from %s", fork)
-    runWithOutput(command=("git", "pull", fork), logger=logger)
+    git.pull(logger=logger, arguments=[fork])
 
     logger.info("Checking out %s in %s", commitish, repoDirectory)
     git.checkout(logger=logger, pathspec=commitish)
