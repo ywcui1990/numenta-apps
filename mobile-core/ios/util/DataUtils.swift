@@ -99,10 +99,10 @@ public class DataUtils{
     
     
     static func parseHTMDate (date : String)->NSDate? {
-        let dateFormatter = NSDateFormatter()
+     /*   let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-         dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
-        return  dateFormatter.dateFromString(date)
+         dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)*/
+        return  parseGrokDate(date)
     }
     
     
