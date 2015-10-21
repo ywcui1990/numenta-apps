@@ -32,6 +32,7 @@ import os
 
 from infrastructure.utilities.cli import runWithOutput
 from infrastructure.utilities import git
+from infrastructure.utilities.jenkins import getWorkspace
 from infrastructure.utilities.path import changeToWorkingDir
 from infrastructure.utilities.diagnostics import (initPipelineLogger,
                                                   LOG_LEVELS)
@@ -46,7 +47,6 @@ def _parseCLIArgs():
   :rtype: argparse.Namespace
   """
   # Set up our defaults from the environment
-  workspaceD = os.environ.get("WORKSPACE", ".")
   repoDirectory = "numenta-apps"
   fork = os.environ.get("FORK", "git@github.com:Numenta/numenta-apps.git")
   commitish = os.environ.get("COMMITISH", "master")
@@ -101,8 +101,7 @@ def _parseCLIArgs():
   parser.add_argument("--workspace",
                       dest="workspace",
                       type=str,
-                      default=workspaceD,
-                      help="Path to workspace directory.")
+                      help="Path to workspace directory. Default = $WORKSPACE")
 
   return parser.parse_args()
 
@@ -193,6 +192,8 @@ def main(config):
   """
   logger = initPipelineLogger("infrastructure-pypipeline",
                               logLevel=config.logLevel)
+  if config.workspace is None:
+    config.workspace = getWorkspace(logger=logger)
   fullRepoPath = os.path.join(config.workspace, config.repoDirectory)
   moduleDirectory = os.path.join(fullRepoPath, config.moduleDirectory)
 
