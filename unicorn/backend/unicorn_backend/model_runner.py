@@ -120,7 +120,7 @@ def _parseArgs():
                       type=str,
                       dest="modelId",
                       required=True,
-                      help="Required: Model id string")
+                      help="REQUIRED: Model id string")
 
   parser.add_argument("--stats",
                       type=str,
@@ -159,8 +159,8 @@ def _parseArgs():
   stats = json.loads(options.stats)
 
   # Parse replacement json values into native objects
-  replaceParams = [(path_, json.loads(replacement))
-                   for path_, replacement in options.replaceParams]
+  replaceParams = [(path, json.loads(replacement))
+                   for path, replacement in options.replaceParams]
 
   # Path to stats schema file is different depending on whether or not the
   # script is frozen. See http://stackoverflow.com/a/2632297
