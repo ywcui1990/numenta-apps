@@ -130,10 +130,10 @@ def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
   if os.path.exists(fullRepoPath):
     logger.info("Updating git repository in %s", repoDirectory)
     with changeToWorkingDir(fullRepoPath):
-      logger.debug("Cleaning git repository...")
-      runWithOutput(command=("git", "clean", "-fd"), logger=logger)
+      logger.info("Cleaning git repository...")
+      git.clean(path=fullRepoPath, arguments="-fd", logger=logger)
   else:
-    logger.debug("Cloning git repository...")
+    logger.debug("Cloning new git repository from %s...", fork)
     with changeToWorkingDir(workspace):
       git.clone(logger=logger,
                 gitURL=fork,
@@ -144,7 +144,7 @@ def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
     logger.debug("Setting origin remote to %s", fork)
     runWithOutput(logger=logger,
                   command=("git", "remote", "set-url", "origin", fork))
-    logger.info("Cleaning git repository...")
+    logger.info("Doing git pull in repository...")
     runWithOutput(command=("git", "pull"), logger=logger)
 
     logger.info("Checking out %s in %s", commitish, repoDirectory)
