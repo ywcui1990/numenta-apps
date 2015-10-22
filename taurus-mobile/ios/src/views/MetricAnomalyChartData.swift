@@ -42,9 +42,22 @@
     
         var BAR_INTERVAL = TaurusApplication.getAggregation().milliseconds()
     
+    
     init (metric: Metric, endDate : Int64){
         self.metric = metric
         self.endDate    = endDate
+    }
+    
+    func shallowCopy()->MetricAnomalyChartData{
+        var dup = MetricAnomalyChartData(metric: self.metric, endDate: self.endDate)
+        dup.lastTimestamp = self.lastTimestamp
+        dup.data = self.data
+        dup.rawData = self.rawData
+        dup.allRawData = self.allRawData
+        dup.collapsed = self.collapsed
+        dup.allAnomalies = self.allAnomalies
+        dup.anomalies = self.anomalies
+        return dup
     }
     
     func getId()->String{
@@ -131,6 +144,8 @@
             if (idx >=  Int(newRawData.count)) {
                 idx = newRawData.count - 1;
             }
+            
+            print (idx)
             
          /*   if ( true /* value.isNaN == false && value > 0 */){
                 print (DataUtils.dateFromTimestamp(timestamp).description + " " + String(value) + " " + String(idx) )

@@ -51,6 +51,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     
     var showCondensed = false
     
+    var cancelLoad = false
     // Serial queue for loading chart data
    // let loadQueue = dispatch_queue_create("com.numenta.TwitterController", nil)
     
@@ -64,6 +65,8 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             self.configureView()
         }
     }
+    
+    var metricChartDataLoading = false
     
     
     /** handle the UISwitch for condensed tweets
@@ -94,15 +97,44 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         ticker?.text = chartData?.ticker
         name?.text = chartData?.name
         
-        if (metricChartData != nil && metricChartData?.rawData != nil ){
+        if (metricChartData != nil  ){
             
-            metricChartData!.collapsed = false
-            metricChartData!.refreshData()
+            if ( metricChartData?.rawData == nil){
+                if (metricChartDataLoading == false){
+                    metricChartDataLoading = true
+                     let priority = QOS_CLASS_USER_INITIATED
+                    
+                    dispatch_async(dispatch_get_global_queue(priority, 0)) {
+                       
+                        self.metricChartData!.load()
+                        self.metricChartData!.collapsed = false
+                        self.metricChartData!.refreshData()
 
-            
-            metricChartView?.data  = metricChartData!.rawData!
-            metricChartView?.anomalies = metricChartData!.data!
-            metricChartView?.updateData()
+                        if (self.metricChartData!.rawData != nil){
+                            dispatch_async(dispatch_get_main_queue()) {
+                                
+                              
+                                self.metricChartView?.data  = self.metricChartData!.rawData!
+                                self.metricChartView?.anomalies = self.metricChartData!.data!
+                                self.metricChartView?.updateData()
+                                
+                               
+                                dispatch_async(dispatch_get_global_queue(priority, 0)) {
+                                    self.loadTwitterData()
+                                }
+                            }
+                        }
+                    }
+                }
+            }else{
+                metricChartData!.collapsed = false
+                metricChartData!.refreshData()
+
+                
+                metricChartView?.data  = metricChartData!.rawData!
+                metricChartView?.anomalies = metricChartData!.data!
+                metricChartView?.updateData()
+            }
         }
     }
     
@@ -324,6 +356,8 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         fixme - do the more optimal load
     */
     func loadTwitterData(){
+        
+          UIApplication.sharedApplication().networkActivityIndicatorVisible = true
         let client = TaurusApplication.connectToTaurus()
         let metric = metricChartData?.metric
         
@@ -350,7 +384,9 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             loadIntervals.removeAll()
             
             for val in values! {
-                count += Int(val)
+                if (val.isNaN == false){
+                    count += Int(val)
+                }
                 timeOffset += DataUtils.METRIC_DATA_INTERVAL
                 if (count > numOfEntries){
                     let intervalStart = DataUtils.dateFromTimestamp ( DataUtils.timestampFromDate(intervalEnd) - timeOffset )
@@ -367,9 +403,14 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         }
     
         for entry in loadIntervals {
+            if (self.cancelLoad){
+                UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+                return
+            }
+
+            
             client?.getTweets( (metric?.getName())!, from: entry.0, to: entry.1 ){ (tweet: Tweet?)in
                 if (tweet != nil){
-                 
                     let aggregationTime : Int64 = tweet!.aggregated
                     
                     
@@ -411,6 +452,8 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             }
             updateList()
         }
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+
     }
     
     
@@ -532,6 +575,15 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         
         self.metricChartView.selectIndex( index)
 
+    }
+    
+    /**
+    tell any pending chart to stop loading if the view is going away
+    */
+    override func viewWillDisappear(animated:Bool){
+        self.cancelLoad = true
+        super.viewWillDisappear (animated)
+        
     }
 
 }

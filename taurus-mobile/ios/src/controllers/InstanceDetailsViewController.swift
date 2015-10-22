@@ -374,7 +374,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
             if let indexPath = self.instanceTable.indexPathForSelectedRow {
                 let controller = segue.destinationViewController as! TwitterViewController
                 
-                controller.metricChartData = self.metricChartData[indexPath.row]
+                controller.metricChartData = self.metricChartData[indexPath.row].shallowCopy()
                 controller.chartData = self.chartData
             }
         }
