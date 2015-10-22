@@ -37,22 +37,28 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
 
     // Serial queue for loading chart data
     let loadQueue = dispatch_queue_create("com.numenta.InstanceDetailsController", nil)
-  //  var cellSet = Set<MetricCell>()
-    
-    var  metricChartData  = [MetricAnomalyChartData]()
+     var  metricChartData  = [MetricAnomalyChartData]()
     
     //
     var _aggregation: AggregationType = TaurusApplication.getAggregation()
     var marketHoursOnly = false
-    
-  //  var tableData = [InstanceAnomalyChartData]()
-   
-    
-    var chartData: InstanceAnomalyChartData? {
+     var chartData: InstanceAnomalyChartData? {
         didSet {
             // Update the view.
             self.configureView()
         }
+    }
+    
+    
+    /**
+        tell any pending chart to stop loading if the view is going away
+    */
+    override func viewWillDisappear(animated:Bool){
+        for chartData in metricChartData {
+            chartData.stopLoading()
+        }
+        super.viewWillDisappear (animated)
+        
     }
     
     /** bind data to view
