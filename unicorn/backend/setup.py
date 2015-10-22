@@ -1,3 +1,4 @@
+from pkg_resources import resource_filename
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import os
@@ -30,8 +31,7 @@ with open("requirements.txt", "r") as reqfile:
 
 
 class PyTest(TestCommand):
-  testsLocation = os.path.abspath(os.path.join(os.path.basename(__file__),
-                                               "..", "..", "tests", "py"))
+  testsLocation = resource_filename("unicorn_backend.tests", "")
   user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
 
 
