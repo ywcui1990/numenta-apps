@@ -469,7 +469,6 @@ def pull(logger, arguments=None):
       gitCommand.extend(arguments)
     if isinstance(arguments, basestring):
       arguments.extend(str.split(arguments))
-  logger.debug("* Running %s", gitCommand)
   return executeCommand(command=gitCommand, logger=logger)
 
 
