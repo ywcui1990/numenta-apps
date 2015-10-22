@@ -28,7 +28,7 @@ import sys
 
 
 def _scriptIsFrozen():
-  """ Returns True if all of the modules are built-in to the interpreter by 
+  """ Returns True if all of the modules are built-in to the interpreter by
   cxFreeze, for example.
   """
   return hasattr(sys, "frozen")
@@ -118,7 +118,6 @@ def _parseArgs():
     dest="stats",
     help=("Required: see unicorn_backend/stats_schema.json"))
 
-
   options, positionalArgs = parser.parse_args()
 
   if len(positionalArgs) != 0:
@@ -130,9 +129,12 @@ def _parseArgs():
   if not options.stats:
     parser.error("Missing or empty --stats option value")
 
-  stats = json.loads(options.stats)
+  try:
+    stats = json.loads(options.stats)
+  except ValueError:
+    parser.error("Invalid JSON value for --stats")
 
-  # Path to stats schema file is different depending on whether or not the 
+  # Path to stats schema file is different depending on whether or not the
   # script is frozen. See http://stackoverflow.com/a/2632297
   if _scriptIsFrozen():
     modelRunnerDir = os.path.dirname(os.path.realpath(sys.executable))
@@ -140,13 +142,12 @@ def _parseArgs():
     modelRunnerDir = os.path.dirname(os.path.realpath(__file__))
 
   try:
-    # Assume that stats_schema.json is in the same dir as this script. 
+    # Assume that stats_schema.json is in the same dir as this script.
     statsSchemaFile = os.path.join(modelRunnerDir, "stats_schema.json")
     with open(statsSchemaFile, "rb") as statsSchema:
       validictory.validate(stats, json.load(statsSchema))
   except validictory.ValidationError as ex:
     parser.error("--stats option value failed schema validation: %r" % (ex,))
-
 
   return _Options(modelId=options.modelId, stats=stats)
 
@@ -199,7 +200,6 @@ class _ModelRunner(object):
       minVal=stats["min"],
       maxVal=stats["max"],
       minResolution=stats.get("minResolution"))
-
     model = ModelFactory.create(modelConfig=swarmParams["modelConfig"])
     model.enableLearning()
     model.enableInference(swarmParams["inferenceArgs"])
