@@ -144,10 +144,7 @@
             if (idx >=  Int(newRawData.count)) {
                 idx = newRawData.count - 1;
             }
-            
-            print (idx)
-            
-         /*   if ( true /* value.isNaN == false && value > 0 */){
+            /*   if ( true /* value.isNaN == false && value > 0 */){
                 print (DataUtils.dateFromTimestamp(timestamp).description + " " + String(value) + " " + String(idx) )
               
             }
