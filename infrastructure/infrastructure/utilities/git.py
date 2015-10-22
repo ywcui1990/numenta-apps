@@ -444,9 +444,16 @@ def fetch(repository, refspec, logger):
   return executeCommand(command=command, logger=logger)
 
 
-def pull(arguments, logger):
+def pull(logger, arguments=None):
   """
-  Do a git pull.
+  Do a git pull, with optional parameters.
+
+  Example usage:
+
+    pull(arguments=["origin", "next"])
+    pull(arguments=["origin", "next", "--ff-only"])
+    pull(arguments=["git@github.com:username/repo.git", "next"])
+
   :param str arguments: Any extra arguments you want to pass to git pull
   :param logger: An initialized logger object
   """
