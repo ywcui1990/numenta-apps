@@ -55,8 +55,7 @@ def executeCommand(command, env=None, logger=None):
     if env is None:
       env = os.environ
     if logger is not None:
-      if "STIFLE_ENVIRONMENT_CONSOLE_SPAM" not in os.environ:
-        diagnostics.printEnv(env, logger)
+      diagnostics.printEnv(env, logger)
       logger.debug("**********> %s", command)
     if isinstance(command, basestring):
       command = command.strip().split(" ")
