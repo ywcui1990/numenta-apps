@@ -29,7 +29,6 @@ with open("requirements.txt", "r") as reqfile:
 
 
 
-
 class PyTest(TestCommand):
   testsLocation = os.path.abspath(os.path.join(os.path.basename(__file__),
                                                "..", "..", "tests", "py"))
