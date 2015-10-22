@@ -153,8 +153,13 @@ def _parseArgs():
                         "are allowed, should you need to replace multiple "
                         "params."))
 
-
   options = parser.parse_args()
+
+  if not options.modelId:
+    parser.error("Missing or empty --modelId option value")
+
+  if not options.stats:
+    parser.error("Missing or empty --stats option value")
 
   stats = json.loads(options.stats)
 
