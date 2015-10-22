@@ -32,12 +32,12 @@ with open("requirements.txt", "r") as reqfile:
 class PyTest(TestCommand):
   testsLocation = os.path.abspath(os.path.join(os.path.basename(__file__),
                                                "..", "..", "tests", "py"))
-  userOptions = [("pytest-args=", "a", "Arguments to pass to py.test")]
+  user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
 
 
   def initialize_options(self):
     TestCommand.initialize_options(self)
-    self.pytestArgs = [self.testsLocation] # pylint: disable=W0201
+    self.pytest_args = [] # pylint: disable=W0201
 
 
   def finalize_options(self):
@@ -45,11 +45,15 @@ class PyTest(TestCommand):
     self.test_args = []
     self.test_suite = True
 
-
   def run_tests(self):
     #import here, cause outside the eggs aren't loaded
     import pytest
-    errno = pytest.main(self.pytestArgs)
+    cwd = os.getcwd()
+    try:
+      os.chdir(self.testsLocation)
+      errno = pytest.main(self.pytest_args)
+    finally:
+      os.chdir(cwd)
     sys.exit(errno)
 
 
