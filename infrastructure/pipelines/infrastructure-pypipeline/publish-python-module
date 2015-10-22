@@ -136,7 +136,7 @@ def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
       logger.info("Cleaning git repository...")
       git.clean(path=fullRepoPath, arguments="-fd", logger=logger)
   else:
-    logger.debug("Cloning new git repository from %s...", fork)
+    logger.info("Cloning new git repository from %s...", fork)
     with changeToWorkingDir(workspace):
       git.clone(logger=logger,
                 gitURL=fork,
@@ -144,7 +144,7 @@ def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
 
 
   with changeToWorkingDir(fullRepoPath):
-    logger.debug("Pulling from %s", fork)
+    logger.info("Pulling from %s", fork)
     git.pull(logger=logger, arguments=[fork])
 
     logger.info("Checking out %s in %s", commitish, repoDirectory)
@@ -181,7 +181,7 @@ def buildAndUploadModule(logger, moduleDirectory,
   if forceUpload or "JENKINS_HOME" in os.environ:
     buildArgs.extend(["upload", "-r", pypiServer])
   else:
-    logger.debug("Not being run by jenkins, skipping pypi upload")
+    logger.info("Not being run by jenkins, skipping pypi upload")
 
   with changeToWorkingDir(moduleDirectory):
     logger.info("Building in %s", moduleDirectory)
