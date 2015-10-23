@@ -108,11 +108,7 @@ class MonitorOptionParser(OptionParser):
     self.add_option("--loggingLevel",
                     help=("Specify logging level: DEBUG, INFO, WARNING, ERROR,"
                           " or CRITICAL"),
-                    default="WARNING")
-    self.add_option("--loggingConsole",
-                    help="Specify logging output console: stderror or stdout",
-                    default="stderr")
-
+                    default="INFO")
 
 
   def parse_options(self, *args, **kwargs):

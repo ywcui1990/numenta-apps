@@ -38,7 +38,7 @@ appropriate strings for HOST, USER and PASSWORD:
     >>> taurus-set-monitorsdb-login --host=HOST --user=USER --password=PASSWORD
 ```
 
-### Setup monitor config
+### Set up monitor config
 
 Use the following template to specify core monitoring configuration
 directives.  Save the result somewhere, say `conf/monitoring.conf`:
@@ -66,7 +66,6 @@ cron jobs:
 taurus-server-supervisor-monitor \
   --monitorConfPath=<absolute path to monitoring conf file> \
   --loggingLevel=INFO \
-  --loggingConsole=stderr \
   --serverUrl=<URL to taurus server supervisor api e.g. http://127.0.0.1:9001>
 ```
 
@@ -75,7 +74,6 @@ taurus-server-supervisor-monitor \
 taurus-collector-supervisor-monitor \
   --monitorConfPath=<absolute path to monitoring conf file> \
   --loggingLevel=INFO \
-  --loggingConsole=stderr \
   --serverUrl=<URL to taurus collector supervisor api e.g. http://127.0.0.1:8001>
 ```
 
@@ -84,10 +82,9 @@ taurus-collector-supervisor-monitor \
 taurus-model-latency-monitor \
   --monitorConfPath=<absolute path to monitoring conf file> \
   --metricDataTable=<metric data dynamodb table name. e.g. taurus.metric_data.production> \
-  --loggingLevel=INFO \
-  --loggingConsole=stderr
+  --loggingLevel=INFO
 ```
 
-Additionally, should need to manually clear out all notifications, there is a
-helper utility, `taurus-clear-monitor-notifications`, that will prompt the user
-to delete all notifications.
+Additionally, should you need to manually clear out all notifications, there
+is a helper utility, `taurus-clear-monitor-notifications`, that will prompt
+the user to delete all notifications.

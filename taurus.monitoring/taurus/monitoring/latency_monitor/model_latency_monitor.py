@@ -112,7 +112,6 @@ class ModelLatencyChecker(MonitorDispatcher):
 
     logging_support.LoggingSupport.initLogging(
       loggingLevel=options.loggingLevel,
-      console=options.loggingConsole,
       logToFile=True)
 
     self.config = loadConfig(options)
@@ -135,7 +134,7 @@ class ModelLatencyChecker(MonitorDispatcher):
     self.days = options.days
     self.options = options
 
-    g_logger.info("Initialized {}".format(repr(self)))
+    g_logger.info("Initialized %r", repr(self))
 
 
   def __repr__(self):
@@ -162,7 +161,7 @@ class ModelLatencyChecker(MonitorDispatcher):
       subjectPrefix="Model Latency Monitor",
       params=self.emailParams)
 
-    g_logger.info("Dispatching notification: {}".format(dispatchKwargs))
+    g_logger.info("Dispatching notification: %r", dispatchKwargs)
 
     error_reporting.sendMonitorErrorEmail(**dispatchKwargs)
 
@@ -257,11 +256,11 @@ class ModelLatencyChecker(MonitorDispatcher):
                                    model["uid"],
                                    acceptableThreshold))
 
-    g_logger.info("Processed statistics for {} model{}, found {} error{}."
-                  .format(len(models),
-                          "s" if len(models) != 1 else "",
-                          len(errors),
-                          "s" if len(errors) != 1 else ""))
+    g_logger.info("Processed statistics for %d model%s, found %d error%s.",
+                  len(models),
+                  "s" if len(models) != 1 else "",
+                  len(errors),
+                  "s" if len(errors) != 1 else "")
 
     if errors:
       msg = ("The following models have exceeded the acceptable threshold for "
