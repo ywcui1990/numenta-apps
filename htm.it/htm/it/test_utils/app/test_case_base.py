@@ -39,11 +39,11 @@ from htm.it.app import repository
 from htm.it.app.repository import schema
 from htmengine.repository.queries import MetricStatus
 
+from nta.utils import error_handling
 
 from htmengine.model_checkpoint_mgr import model_checkpoint_mgr
 
 LOGGER = logging.getLogger(__name__)
-
 
 
 def retry(duration=15, delay=0.5, exceptionTypes=(AssertionError,)):
@@ -54,26 +54,29 @@ def retry(duration=15, delay=0.5, exceptionTypes=(AssertionError,)):
   until duration has elapsed or it returns without an AssertionError. If the
   duration is reached, the most recent error is re-raised.
   """
-  def retryDecorator(f):
-    @functools.wraps(f)
-    def newFunc(*args, **kwargs):
-      deadline = time.time() + duration
-      et, ei, tb = None, None, None
-      i = 0
-      while time.time() < deadline:
-        i += 1
-        try:
-          firstLine = (f.__doc__ or "").strip().split("\n")[0]
-          LOGGER.info("Attempt %i of %s: %s", i, f.__name__, firstLine)
-          response = f(*args, **kwargs)
-          return response
-        except exceptionTypes:
-          et, ei, tb = sys.exc_info()
-          time.sleep(delay)
-      # If we hit the deadline, re-raise the last error seen
-      raise et, ei, tb
-    return newFunc
-  return retryDecorator
+  def retryDecoratorWrapper(f):
+
+    class CounterContainer(object):
+      i = 1
+
+    # retryFilter used only to implement custom logging
+    def retryFilter(e, args, kwargs):
+      firstLine = (f.__doc__ or "").strip().split("\n")[0]
+      LOGGER.info("Attempt %i of %s: %s", 
+                  CounterContainer.i, f.__name__, firstLine)
+      CounterContainer.i += 1
+      return True
+
+    retryDecorator = error_handling.retry(
+      timeoutSec=duration,
+      initialRetryDelaySec=delay,
+      maxRetryDelaySec=delay,
+      retryExceptions=exceptionTypes,
+      retryFilter=retryFilter
+    )
+
+    return retryDecorator(f)
+  return retryDecoratorWrapper
 
 
 
