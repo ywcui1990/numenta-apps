@@ -20,9 +20,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Compatibility test of the unicorn_backend.model_runner module"""
+"""
+Compatibility test of the unicorn_backend.model_runner module
 
-import csv
+To add data for tests, convert data from NAB using
+unicorn/scripts/convert_data.py and place in the DATA_DIR.
+"""
+
 from datetime import datetime
 import json
 import logging
@@ -79,42 +83,20 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
 
   @staticmethod
-  def _loadData(name):
-    path = os.path.join(DATA_DIR, name)
+  def _load(path):
     data = []
 
     with open(path, 'r') as infile:
-      reader = csv.reader(infile)
-      reader.next()
-
-      for row in reader:
-        timestamp = datetime.strptime(row[0], '%Y-%m-%d %H:%M:%S')
-        timestamp = int(time.mktime(timestamp.timetuple()))
-        value = float(row[1])
-        data.append([timestamp, value])
+      for line in infile:
+        data.append(json.loads(line))
 
     return data
 
 
-  @staticmethod
-  def _loadResults(name):
-    path = os.path.join(RESULTS_DIR, name)
-    results = []
-
-    with open(path, 'r') as infile:
-      reader = csv.reader(infile)
-      reader.next()
-
-      for row in reader:
-        anomalyScore = float(row[2])
-        results.append(anomalyScore)
-
-    return results
-
-
   def testAmbientTemperatureSystemFailure(self):
-    data = self._loadData('ambient_temperature_system_failure.csv')
-    results = self._loadResults('numenta_ambient_temperature_system_failure.csv')
+    name = 'ambient_temperature_system_failure.json'
+    data = self._load(os.path.join(DATA_DIR, name))
+    results = self._load(os.path.join(RESULTS_DIR, name))
 
     modelId = uuid.uuid1().hex
     stats = {"min": 57, "max": 87}
@@ -130,13 +112,13 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
         rowIndex, anomalyLikelihood = json.loads(outputRecord)
 
         self.assertEqual(rowIndex, i)
-        self.assertAlmostEqual(anomalyLikelihood, results[i],
+        self.assertAlmostEqual(anomalyLikelihood, results[i][1],
           msg=("Row: {0}\t"
                "Timestamp: {1}\t"
                "Value: {2}\t"
                "Expected anomaly score: {3}\t"
                "Result anomaly score: {4}").format(
-                 i, rec[0], rec[1], results[i], anomalyLikelihood))
+                 i, rec[0], rec[1], results[i][1], anomalyLikelihood))
 
 
       # Close the subprocess's stdin and wait for it to terminate
