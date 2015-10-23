@@ -82,7 +82,7 @@ def getStateMain():
 def waitForRunningStateMain():
   """Console script entry point: waits for supervisord to enter RUNNING state;
   sets non-zero exit code on timeout or other non-recoverable error; prints
-  status and error messages to STDERR.
+  status to STDOUT and error messages to STDERR.
   """
 
   parser = ArgumentParser(
@@ -107,7 +107,7 @@ def waitForRunningStateMain():
       break
 
     if i <= maxWaitCycles:
-      print >> sys.stderr, "Waiting for supervisord to enter RUNNING state..."
+      print "Waiting for supervisord to enter RUNNING state..."
       time.sleep(5)
   else:
     sys.exit("Timed out waiting for supervisord RUNNING state from %s" % (
@@ -140,7 +140,7 @@ def waitForStoppedStateMain():
       break
 
     if i <= maxWaitCycles:
-      print >> sys.stderr, "Waiting for supervisord to stop..."
+      print "Waiting for supervisord to stop..."
       time.sleep(5)
   else:
     sys.exit("Timed out waiting for supervisord to stop")
@@ -192,7 +192,7 @@ def waitForAllToStop():
                                      p.get("state"))
                              for p in processes))
 
-    print >> sys.stderr, ("Sleeping for {} second{}..."
-                          .format(args.sleep, "s" if args.sleep != 1 else ""))
+    print ("Sleeping for {} second{}..."
+           .format(args.sleep, "s" if args.sleep != 1 else ""))
     time.sleep(args.sleep)
     processes = getAllProcessInfo()
