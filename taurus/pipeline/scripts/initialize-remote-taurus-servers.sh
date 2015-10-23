@@ -371,9 +371,8 @@ pushd "${REPOPATH}"
      python migrate.py &&
      cd /opt/numenta/products/taurus.metric_collectors &&
      taurus-collectors-set-opmode hot_standby &&
-     if [ -f supervisord.pid ]; then
-       supervisorctl --serverurl http://localhost:8001 shutdown
-     fi &&
+     supervisorctl --serverurl http://localhost:8001 shutdown &&
+     nta-wait-for-supervisord-stopped http://localhost:8001 &&
      py.test tests/deployment/resource_accessibility_test.py &&
      supervisord -c conf/supervisord.conf &&
      nta-wait-for-supervisord-running http://localhost:8001 &&
