@@ -111,14 +111,12 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
         self.assertEqual(rowIndex, i)
         self.assertAlmostEqual(anomalyLikelihood, results[i][1],
-          msg=("Name: {0}\t"
-                "Row: {1}\t"
-               "Timestamp: {2}\t"
-               "Value: {3}\t"
-               "Expected anomaly score: {4}\t"
-               "Result anomaly score: {5}").format(
-                 name, i, rec[0], rec[1], results[i][1], anomalyLikelihood))
-
+          msg=("Row: {0}\t"
+               "Timestamp: {1}\t"
+               "Value: {2}\t"
+               "Expected anomaly score: {3}\t"
+               "Result anomaly score: {4}").format(
+                 i, rec[0], rec[1], results[i][1], anomalyLikelihood))
 
       # Close the subprocess's stdin and wait for it to terminate
       mrProcess.stdin.close()
