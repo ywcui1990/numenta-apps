@@ -44,8 +44,8 @@ from nta.utils import test_utils
 
 
 _LOGGER = logging.getLogger("unicorn_model_runner_test")
-DATA_DIR = "data"
-RESULTS_DIR = "results"
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
 
 
 
