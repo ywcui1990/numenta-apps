@@ -93,13 +93,11 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
     return data
 
 
-  def testAmbientTemperatureSystemFailure(self):
-    name = 'ambient_temperature_system_failure.json'
+  def _testModelRunner(self, name, stats):
     data = self._load(os.path.join(DATA_DIR, name))
     results = self._load(os.path.join(RESULTS_DIR, name))
 
     modelId = uuid.uuid1().hex
-    stats = {"min": 57, "max": 87}
 
     with self._startModelRunnerSubprocess(modelId, stats) as mrProcess:
       for i, rec in enumerate(data):
@@ -113,12 +111,13 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
         self.assertEqual(rowIndex, i)
         self.assertAlmostEqual(anomalyLikelihood, results[i][1],
-          msg=("Row: {0}\t"
-               "Timestamp: {1}\t"
-               "Value: {2}\t"
-               "Expected anomaly score: {3}\t"
-               "Result anomaly score: {4}").format(
-                 i, rec[0], rec[1], results[i][1], anomalyLikelihood))
+          msg=("Name: {0}\t"
+                "Row: {1}\t"
+               "Timestamp: {2}\t"
+               "Value: {3}\t"
+               "Expected anomaly score: {4}\t"
+               "Result anomaly score: {5}").format(
+                 name, i, rec[0], rec[1], results[i][1], anomalyLikelihood))
 
 
       # Close the subprocess's stdin and wait for it to terminate
@@ -131,6 +130,18 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
       self.assertEqual(stderrData, "")
 
       self.assertEqual(mrProcess.returncode, 0)
+
+
+  def testAmbientTemperatureSystemFailure(self):
+    name = 'ambient_temperature_system_failure.json'
+    stats = {"min": 57, "max": 87}
+    self._testModelRunner(name, stats)
+
+
+  def testNYCTaxi(self):
+    name = 'nyc_taxi.json'
+    stats = {"min": 8, "max": 39197}
+    self._testModelRunner(name, stats)
 
 
 
