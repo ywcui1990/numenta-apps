@@ -107,7 +107,6 @@
     "esdoc-es7-plugin": "0.0.2",
     "esformatter": "0.7.3",
     "eslint": "1.7.2",
-    "eslint-plugin-jsdoc": "1.1.0",
     "eslint-plugin-react": "3.6.3",
     "file-loader": "0.8.4",
     "gulp": "3.9.0",
