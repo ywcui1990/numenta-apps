@@ -288,8 +288,8 @@ def main(args):
     if (set(["taurus", "taurus.metric_collectors", "htmengine", "nta.utils"]) &
         rootFolders):
       invokeTaurusBuild(args.gitRemote, branch, currentSha)
-    if (set(["htm.it", "htmengine", "grok-mobile", "mobile-core", "nta.utils"]) &
-        rootFolders):
+    if (set(["htm.it", "htmengine", "grok-mobile", "mobile-core",
+             "nta.utils"]) & rootFolders):
       invokeHtmItMobileBuild(args.gitRemote, branch, currentSha)
     if set(["taurus", "taurus.metric_collectors", "nta.utils", "htmengine",
             "taurus-mobile", "mobile-core"]) & rootFolders:
@@ -308,7 +308,6 @@ def main(args):
     g_logger.exception("Could not find the Jenkins job specified; aborting")
     raise
   except:
-    #TODO add better error handling
     g_logger.exception("Script execution failed")
     raise
 

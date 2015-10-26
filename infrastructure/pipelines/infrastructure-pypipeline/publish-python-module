@@ -124,7 +124,8 @@ def setupWorkspace(workspace, repoDirectory, remote, commitish, logger):
                                     workspace)
   assert isinstance(repoDirectory, basestring), (
     "repoDirectory is %r instead of string" % repoDirectory)
-  assert isinstance(remote, basestring), ("remote is %r instead of string" % remote)
+  assert isinstance(remote, basestring), ("remote is %r instead of string" %
+                                          remote)
   assert isinstance(commitish, basestring), (
     "commitish is %r instead of string" % commitish)
   assert logger, "You must supply an initialized logger object"
