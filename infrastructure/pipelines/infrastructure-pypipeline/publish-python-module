@@ -48,7 +48,7 @@ def _parseCLIArgs():
   """
   # Set up our defaults from the environment
   repoDirectory = "numenta-apps"
-  fork = os.environ.get("FORK", "git@github.com:Numenta/numenta-apps.git")
+  remote = os.environ.get("FORK", "git@github.com:Numenta/numenta-apps.git")
   commitish = os.environ.get("COMMITISH", "master")
   pypiServer = os.environ.get("PYPI_SERVER", "numenta-pypi")
 
@@ -73,11 +73,11 @@ def _parseCLIArgs():
                       action="store_true",
                       help="Upload the wheel even if not being run by Jenkins")
 
-  parser.add_argument("--fork",
-                      dest="fork",
+  parser.add_argument("--remote",
+                      dest="remote",
                       type=str,
-                      default=fork,
-                      help="What fork to build from. Default to %s" % fork)
+                      default=remote,
+                      help="What remote to build from. Default to %s" % remote)
 
   parser.add_argument("--log-level",
                       dest="logLevel",
@@ -106,13 +106,13 @@ def _parseCLIArgs():
   return parser.parse_args()
 
 
-def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
+def setupWorkspace(workspace, repoDirectory, remote, commitish, logger):
   """
   Creates/updates the git repo in workspace.
 
   :param str workspace: path to workspace directory
   :param str repoDirectory: directory name of the git repository
-  :param str fork: Which fork to check out
+  :param str remote: Which remote to check out
   :param str commitish: What commit/branch to check out
   :param logger: An initialized logger
 
@@ -124,7 +124,8 @@ def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
                                     workspace)
   assert isinstance(repoDirectory, basestring), (
     "repoDirectory is %r instead of string" % repoDirectory)
-  assert isinstance(fork, basestring), ("fork is %r instead of string" % fork)
+  assert isinstance(remote, basestring), ("remote is %r instead of string" %
+                                          remote)
   assert isinstance(commitish, basestring), (
     "commitish is %r instead of string" % commitish)
   assert logger, "You must supply an initialized logger object"
@@ -136,16 +137,16 @@ def setupWorkspace(workspace, repoDirectory, fork, commitish, logger):
       logger.info("Cleaning git repository...")
       git.clean(path=fullRepoPath, arguments="-fd", logger=logger)
   else:
-    logger.info("Cloning new git repository from %s...", fork)
+    logger.info("Cloning new git repository from %s...", remote)
     with changeToWorkingDir(workspace):
       git.clone(logger=logger,
-                gitURL=fork,
+                gitURL=remote,
                 directory=repoDirectory)
 
 
   with changeToWorkingDir(fullRepoPath):
-    logger.info("Pulling from %s", fork)
-    git.pull(logger=logger, arguments=[fork])
+    logger.info("Pulling from %s", remote)
+    git.pull(logger=logger, arguments=[remote])
 
     logger.info("Checking out %s in %s", commitish, repoDirectory)
     git.checkout(logger=logger, pathspec=commitish)
@@ -205,7 +206,7 @@ def main(config):
   setupWorkspace(logger=logger,
                  workspace=config.workspace,
                  repoDirectory=config.repoDirectory,
-                 fork=config.fork,
+                 remote=config.remote,
                  commitish=config.commitish)
 
   buildAndUploadModule(logger=logger,

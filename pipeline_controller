@@ -88,11 +88,7 @@ def invokeBuild(jobName, buildParams):
 
 def invokeHtmItBuild(gitRemote, branch, buildSha):
   """
-    TODO: Define params, flesh out implementation details, and uncomment the
-    actual `invokeBuild` command
-
-    This function will be used to invoke the Jenkins job related to HTM-IT builds
-    as appropriate.
+    This function invokes the Jenkins job related to HTM-IT builds.
 
     :param gitRemote: The remote to be used when accessing git (e.g.:
       git@github.com:Numenta/numenta-apps.git)
@@ -148,11 +144,7 @@ def invokeTaurusBuild(gitRemote, branch, buildSha):
 
 def invokeTaurusMobileBuild(gitRemote, branch, buildSha):
   """
-    TODO: Define params, flesh out implementation details, and uncomment the
-    actual `invokeBuild` command
-
-    This function will be used to invoke the Jenkins job related to
-    Taurus-Mobile builds as appropriate.
+    This function invokes the Jenkins job related to Taurus-Mobile builds.
 
     :param gitRemote: The remote to be used when accessing git (e.g.:
       git@github.com:Numenta/numenta-apps.git)
@@ -166,6 +158,22 @@ def invokeTaurusMobileBuild(gitRemote, branch, buildSha):
             "COMMIT_SHA": buildSha}
   invokeBuild("taurus-mobile-product-pipeline", params)
   g_logger.info("Invoking Taurus Mobile Build")
+
+
+def invokeInfrastructureBuild(gitRemote, commitish):
+  """
+    This function will be used to invoke the Jenkins job related to
+    Infrastructure builds as appropriate.
+
+    :param gitRemote: The remote to be used when accessing git (e.g.:
+      git@github.com:Numenta/numenta-apps.git)
+
+    :param commitish: The commit-ish to set the git repo to before building.
+  """
+  params = {"GIT_REMOTE": gitRemote,
+            "COMMITISH": commitish}
+  invokeBuild("infrastructure-python-pipeline", params)
+  g_logger.info("Invoking Infrastructure Build")
 
 
 def invokeRpmBuild(gitRemote, branch, buildSha):
@@ -280,12 +288,14 @@ def main(args):
     if (set(["taurus", "taurus.metric_collectors", "htmengine", "nta.utils"]) &
         rootFolders):
       invokeTaurusBuild(args.gitRemote, branch, currentSha)
-    if (set(["htm.it", "htmengine", "grok-mobile", "mobile-core", "nta.utils"]) &
-        rootFolders):
+    if (set(["htm.it", "htmengine", "grok-mobile", "mobile-core",
+             "nta.utils"]) & rootFolders):
       invokeHtmItMobileBuild(args.gitRemote, branch, currentSha)
     if set(["taurus", "taurus.metric_collectors", "nta.utils", "htmengine",
             "taurus-mobile", "mobile-core"]) & rootFolders:
       invokeTaurusMobileBuild(args.gitRemote, branch, currentSha)
+    if set(["infrastructure"]) & rootFolders:
+      invokeInfrastructureBuild(args.gitRemote, currentSha)
 
     if (set(["infrastructure/utilities", "infrastructure/saltcellar"]) &
         rootFolders):
@@ -298,7 +308,6 @@ def main(args):
     g_logger.exception("Could not find the Jenkins job specified; aborting")
     raise
   except:
-    #TODO add better error handling
     g_logger.exception("Script execution failed")
     raise
 
