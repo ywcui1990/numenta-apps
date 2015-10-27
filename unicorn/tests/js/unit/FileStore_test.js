@@ -58,8 +58,8 @@ describe('FileStore', () => {
     store = new FileStore();
   });
 
-  it('#_handleAddFile', (done) => {
-    store._handleAddFile(EXPECTED_SINGLE_FILE[0]);
+  it('#_handleSetFile', (done) => {
+    store._handleSetFile(EXPECTED_SINGLE_FILE[0]);
     assert.deepEqual(store.getFiles(), EXPECTED_SINGLE_FILE);
     done();
   });
