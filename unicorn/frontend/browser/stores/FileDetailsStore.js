@@ -27,7 +27,8 @@ export default class FileDetailsStore extends BaseStore {
   static get handlers() {
     return {
       SHOW_FILE_DETAILS: '_showFileDetails',
-      HIDE_FILE_DETAILS: '_hideFileDetails'
+      HIDE_FILE_DETAILS: '_hideFileDetails',
+      UPLOADED_FILE_SUCCESS: '_handleFileUpload'
     }
   }
   constructor(dispatcher) {
@@ -50,14 +51,31 @@ export default class FileDetailsStore extends BaseStore {
     return this._filename && this._visible;
   }
 
+  /**
+   * Handle  {ShowFileDetails} action
+   * @param  {string} filename The file name to show
+   */
   _showFileDetails(filename) {
     this._filename = filename;
     this._visible = true;
     this.emitChange();
   }
+  /**
+   * Handle {HideFileDetails} actions
+   */
   _hideFileDetails() {
     this._visible = false;
     this._filename = null;
+    this.emitChange();
+  }
+
+  /**
+   * Handle new {FileUpload} action
+   * @param  {File} file Newly uploaded file
+   */
+  _handleFileUpload(file) {
+    this._visible = true;
+    this._filename = file.filename;
     this.emitChange();
   }
 }
