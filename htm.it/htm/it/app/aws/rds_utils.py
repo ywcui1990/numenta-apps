@@ -26,7 +26,7 @@ import time
 
 import boto.ec2
 from boto.exception import (AWSConnectionError, BotoServerError)
-from nupic.support import decorators
+from nta.utils import error_handling
 
 from htm.it.app import config
 
@@ -107,13 +107,13 @@ def retryOnRDSTransientError(logger=logging.root,
 
     return True
 
-  return decorators.retry(
+  return error_handling.retry(
     timeoutSec=timeoutSec,
     initialRetryDelaySec=INITIAL_RETRY_BACKOFF_SEC,
     maxRetryDelaySec=MAX_RETRY_BACKOFF_SEC,
     retryExceptions=RETRY_EXCEPTIONS,
     retryFilter=retryFilter,
-    getLoggerCallback=lambda: logger,
+    logger=logger,
     clientLabel="retryOnCloudWatchTransientError")
 
 

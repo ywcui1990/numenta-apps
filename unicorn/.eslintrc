@@ -6,8 +6,9 @@ root: true
 extends: eslint:recommended
 parser: "babel-eslint"
 plugins:
-  - jsdoc
-  - react
+- react
+# Disable 'jsdoc' plugin for now
+#  - jsdoc
 
 env:
   browser: true
@@ -70,18 +71,19 @@ rules:
   id-match: 0
   indent: [2, 2]
   init-declarations: 0
-  jsdoc/check-param-names: 1
-  jsdoc/check-redundant-params: 1
-  jsdoc/check-redundant-returns: 1
-  jsdoc/check-returns-types: 1
-  jsdoc/check-types: 1
-  jsdoc/newline-after-description: 1
-  jsdoc/require-description-complete-sentence: 1
-  jsdoc/require-param: 1
-  jsdoc/require-param-description: 1
-  jsdoc/require-param-types: 1
-  jsdoc/require-returns-description: 1
-  jsdoc/require-returns-types: 1
+# Disable 'jsdoc' plugin for now
+#  jsdoc/check-param-names: 1
+#  jsdoc/check-redundant-params: 1
+#  jsdoc/check-redundant-returns: 1
+#  jsdoc/check-returns-types: 1
+#  jsdoc/check-types: 1
+#  jsdoc/newline-after-description: 1
+#  jsdoc/require-description-complete-sentence: 1
+#  jsdoc/require-param: 1
+#  jsdoc/require-param-description: 1
+#  jsdoc/require-param-types: 1
+#  jsdoc/require-returns-description: 1
+#  jsdoc/require-returns-types: 1
   jsx-quotes: [2, "prefer-double"]
   linebreak-style: 2
   lines-around-comment: 0
@@ -179,6 +181,7 @@ rules:
   strict: [2, "global"]
   use-isnan: 2
   valid-typeof: 2
+  valid-jsdoc: [1, {"requireReturn": false, "requireReturnDescription": false}] 
   vars-on-top: 2
   wrap-iife: 2
   wrap-regex: 0

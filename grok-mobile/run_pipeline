@@ -132,9 +132,6 @@ def runTests(publicDnsName, apiKey, buildDir, reportsDir, artifactsDir, logger):
                  "connectedCheck",
                  "--debug")
       runWithOutput(command=command, env=os.environ, logger=logger)
-    # copy test results to the artifacts folder
-    os.makedirs(os.path.join(artifactsDir, "reports"))
-    copy_tree(reportsDir, os.path.join(artifactsDir, "reports"))
     with changeToWorkingDir(buildDir):
       os.makedirs(os.path.join(artifactsDir, "apk"))
       copy_tree("apk", os.path.join(artifactsDir, "apk"))
@@ -144,6 +141,10 @@ def runTests(publicDnsName, apiKey, buildDir, reportsDir, artifactsDir, logger):
   except Exception:
     logger.exception("Unknown error occured in runTests")
     raise
+  finally:
+    # copy test results to the artifacts folder
+    os.makedirs(os.path.join(artifactsDir, "reports"))
+    copy_tree(reportsDir, os.path.join(artifactsDir, "reports"))
 
 
 def runFunctionalTests(server, apiKey, logger, deviceName, version):
