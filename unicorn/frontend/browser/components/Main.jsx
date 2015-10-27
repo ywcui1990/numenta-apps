@@ -32,6 +32,7 @@ import ThemeManager from 'material-ui/lib/styles/theme-manager';
 import FileAddAction from '../actions/FileAdd';
 import FileUploadAction from '../actions/FileUpload';
 import FileList from '../components/FileList';
+import FileDetails from '../components/FileDetails';
 import LeftNav from '../components/LeftNav';
 import ModelList from '../components/ModelList';
 import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
@@ -127,8 +128,8 @@ export default class MainComponent extends React.Component {
         </section>
         <input onChange={this._onFileSelect.bind(this)} ref="fileInput"
           style={{display:'none'}} type="file" />
+        <FileDetails/>
       </main>
     );
   }
-
 }

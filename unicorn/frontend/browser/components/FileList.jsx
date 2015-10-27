@@ -19,29 +19,25 @@
  * -------------------------------------------------------------------------- */
 
 
-// externals
-
 import connectToStores from 'fluxible-addons-react/connectToStores';
-import Checkbox from 'material-ui/lib/checkbox';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
+import Material from 'material-ui';
+import MoreIcon from 'material-ui/lib/svg-icons/navigation/more-vert';
 import React from 'react';
 
-// internals
-
 import AddModelAction from '../actions/AddModel';
+import ShowFileDetailsAction from '../actions/ShowFileDetails';
 import DeleteModelAction from '../actions/DeleteModel';
 import FileStore from '../stores/FileStore';
 import ModelStore from '../stores/ModelStore';
 import Utils from '../../lib/Utils';
 
 
+const {
+  List, ListItem, Checkbox, IconButton, IconMenu, MenuItem
+} = Material;
+
 /**
- * @module
- * @exports
- * @class
- * @public
- * @extends React.Component
+ * Component used to display a list of files
  */
 @connectToStores([FileStore, ModelStore], (context) => ({
   files: context.getStore(FileStore).getFiles()
@@ -57,10 +53,7 @@ export default class FileList extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.setState(Object.assign({}, this.state, nextProps));
+    this.state = Object.assign({}, props);
   }
 
   _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
@@ -96,11 +89,28 @@ export default class FileList extends React.Component {
     }
   }
 
+  _handleFileContextMenu(filename, ev, action) {
+    if (action === 'detail') {
+      this.context.executeAction(ShowFileDetailsAction, filename);
+    }
+  }
+
   _renderFiles(filetype) {
     return this.props.files.map((file) => {
       if (file.type === filetype) {
+        let filename = file.filename;
+        let contextMenu = (
+          <IconMenu
+            onChange={this._handleFileContextMenu.bind(this, filename)}
+            iconButtonElement={<IconButton><MoreIcon/></IconButton>}>
+            <MenuItem index={1} value="delete">Delete</MenuItem>
+            <MenuItem index={2} value="detail">Details</MenuItem>
+          </IconMenu>
+        );
+
         return (
           <ListItem initiallyOpen={true}
+            rightIconButton={contextMenu}
             key={file.name}
             nestedItems={this._renderMetrics(file)}
             primaryText={file.name}/>
@@ -121,5 +131,4 @@ export default class FileList extends React.Component {
       </nav>
     );
   }
-
 }
