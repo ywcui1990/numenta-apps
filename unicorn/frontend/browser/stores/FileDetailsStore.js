@@ -48,7 +48,7 @@ export default class FileDetailsStore extends BaseStore {
    * @return {Boolean} Whether or not the Details page should be visible
    */
   isVisible() {
-    return this._filename && this._visible;
+    return this._filename !== null && this._visible;
   }
 
   /**
