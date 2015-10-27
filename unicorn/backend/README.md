@@ -8,11 +8,33 @@ See: `requirements.txt`
 
 
 ## Example usage
+
 To generate mock data and feed it to the model runner, run:
+
 ```
- python unicorn_backend/mock_data_generator.py | python unicorn_backend/model_runner.py --model "1" --stats '{"max": 10, "min": 0}'
+python unicorn_backend/mock_data_generator.py | \
+python unicorn_backend/model_runner.py \
+  --model "1" \
+  --stats '{"max": 10, "min": 0}'
 ```
 
-This will output the model output to stdout. 
+This will output the model output to stdout.
 
-Note that simply running `python unicorn_backend/mock_data_generator.py` will just generate the data input. When you pipe the two scripts together (`mock_data_generator.py` to `model_runner.py`) this will feed the data input to the model runner via stdout and in turn, it outputs the model results to stdout.
+Optionally, you may override the parameters in the model by way of the
+`--replaceParam` CLI argument.  For example:
+
+```
+python unicorn_backend/model_runner.py \
+  --model "1" \
+  --stats '{"max": 10, "min": 0}' \
+  --replaceParam modelConfig/modelParams/spParams/spVerbosity 1
+```
+
+See `python unicorn_backend/model_runner.py --help` for full details on
+command line options.
+
+Note that simply running `python unicorn_backend/mock_data_generator.py` will
+just generate the data input. When you pipe the two scripts together
+(`mock_data_generator.py` to `model_runner.py`) this will feed the data input
+to the model runner via stdout and in turn, it outputs the model results to
+stdout.
