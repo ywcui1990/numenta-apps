@@ -97,6 +97,32 @@ def isReleaseVersion(nupicBranch, nupicSha):
 
 
 
+def isVersionGreaterOrEqual(testVersion, comparisonVersion):
+  """
+    Compares the testVersion to the comparisonVersion.  If the testVersion is
+    greater than or equal to the comparisonVersion, return True.  Otherwise,
+    return False
+
+    :param str testVersion: NuPIC version number to test (e.g.: 0.3.4)
+    :param str comparisonVersion: NuPIC version number to compare to
+
+    :returns: True if testVersion >= comparisonVersion
+    :rtype: bool
+  """
+  testMajor, testMinor, testDot = testVersion.split(".")
+  compMajor, compMinor, compDot = comparisonVersion.split(".")
+
+  if testMajor > compMajor:
+    return True
+  elif testMajor == compMajor and testMinor > compMinor:
+    return True
+  elif testMajor == compMajor and testMinor == compMinor and testDot >= compDot:
+    return True
+  else:
+    return False
+
+
+
 def replaceInFile(fromValue, toValue, filePath):
   """
     Replaces old text with new text in a specified file.
@@ -218,7 +244,7 @@ def buildCapnp(env, logger):
 
 
 
-def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
+def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace, nupicVersion):
   """
     Builds nupic.core
 
@@ -226,6 +252,7 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
     :param str nupicCoreSha: The SHA which will be built.
     :param logger: An initialized logger
     :param str buildWorkspace: /path/to/buildWorkspace
+    :param str nupicVersion: which version of NuPIC we're building (e.g. 0.3.4)
 
     :raises infrastructure.utilities.exceptions.NupicBuildFailed:
       This exception is raised if build fails.
@@ -237,6 +264,11 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
 
       capnpTmp = buildCapnp(env, logger)
 
+      if isVersionGreaterOrEqual(nupicVersion, "0.3.5"):
+        srcDir = "../.."
+      else:
+        srcDir = "../../src"
+
       # install pre-reqs into  the build workspace for isolation
       runWithOutput(command=("pip install -r bindings/py/requirements.txt "
                              "--install-option=--prefix=%s "
@@ -247,10 +279,11 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace):
       with changeToWorkingDir("build/scripts"):
         libdir = sysconfig.get_config_var("LIBDIR")
         includeDir = sysconfig.get_config_var("INCLUDEPY")
-        runWithOutput(("cmake ../.. -DCMAKE_INSTALL_PREFIX=../release "
+        runWithOutput(("cmake {srcDir} -DCMAKE_INSTALL_PREFIX=../release "
                        "-DCMAKE_PREFIX_PATH={capnpPrefixPath} "
                        "-DPYTHON_LIBRARY={pythonLibDir}/libpython2.7.so "
                        "-DPYTHON_INCLUDE_DIR={pythonIncludeDir}").format(
+                           srcDir=srcDir,
                            capnpPrefixPath=capnpTmp,
                            pythonLibDir=libdir,
                            pythonIncludeDir=includeDir),
@@ -448,13 +481,16 @@ def executeBuildProcess(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
   # If this is a release version, then update __init__.py with the right
   # version number. This will ensure the proper version number is tagged in
   # the wheel file
-  if isReleaseVersion(nupicBranch, nupicSha):
-    with changeToWorkingDir(os.path.join(buildWorkspace, "nupic")):
-      with open(VERSION_FILE, "r") as f:
-        devVersion = f.read().strip()
+  with changeToWorkingDir(os.path.join(buildWorkspace, "nupic")):
+    with open(VERSION_FILE, "r") as f:
+      devVersion = f.read().strip()
+    if isReleaseVersion(nupicBranch, nupicSha):
+      nupicVersion = nupicSha
       for targetFile in [VERSION_FILE, DOXYFILE]:
         logger.debug("\tUpdating %s...", targetFile)
         replaceInFile(devVersion, nupicSha, targetFile)
+    else:
+      nupicVersion = devVersion[:5]
 
   nupicCoreRemote, nupicCoreSha = getNuPICCoreDetails(env=env,
                                                 nupicCoreRemote=nupicCoreRemote,
@@ -472,7 +508,8 @@ def executeBuildProcess(env, buildWorkspace, nupicRemote, nupicBranch, nupicSha,
     logger.debug("Building nupic.core at: %s", nupicCoreDir)
 
   addNupicCoreToEnv(env, nupicCoreDir)
-  buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace)
+
+  buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace, nupicVersion)
 
   buildNuPIC(env, logger, buildWorkspace)
 

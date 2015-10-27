@@ -23,14 +23,10 @@
 
 import functools
 import uuid
-from mock import patch
 
 from nta.utils.test_utils.config_test_utils import ConfigAttributePatch
 
 from htm.it.app import config, repository
-
-# Disable warning: Access to a protected member
-# pylint: disable=W0212
 
 ENGINE = repository.getUnaffiliatedEngine()
 
@@ -171,7 +167,7 @@ class ManagedTempRepository(object):
         # Delete the temporary repository database, if any
         with ENGINE.connect() as connection:
           connection.execute(
-              "DROP DATABASE IF EXISTS %s" % (self.tempDatabaseName,))
+            "DROP DATABASE IF EXISTS %s" % (self.tempDatabaseName,))
     finally:
       if self._configPatchApplied:
         self._configPatch.stop()

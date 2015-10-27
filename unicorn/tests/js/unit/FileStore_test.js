@@ -45,7 +45,7 @@ const EXPECTED_MULTIPLE_FILES = [{
 
 const EXPECTED_METRICS = [
   {name: 'timestamp', type: 'date'},
-  {name: 'metric', type: 'number'},
+  {name: 'metric', type: 'number'}
 ];
 
 
@@ -54,7 +54,7 @@ const EXPECTED_METRICS = [
 describe('FileStore', () => {
   let store;
 
-  beforeEach(function () {
+  beforeEach(() => {
     store = new FileStore();
   });
 
@@ -71,16 +71,15 @@ describe('FileStore', () => {
   });
 
   it('#_handleListMetrics', (done) => {
-    let filename;
-    let files;
     let payloads = [];
     store._handleListFiles(EXPECTED_MULTIPLE_FILES);
-    filename = EXPECTED_MULTIPLE_FILES[0].filename;
-    payloads.push({filename: filename, metrics: EXPECTED_METRICS});
+    let filename = EXPECTED_MULTIPLE_FILES[0].filename;
+    payloads.push({
+      filename, metrics: EXPECTED_METRICS
+    });
     store._handleListMetrics(payloads);
-    files = store.getFiles();
+    let files = store.getFiles();
     assert.deepEqual(files[0].metrics, EXPECTED_METRICS);
     done();
   });
-
 });

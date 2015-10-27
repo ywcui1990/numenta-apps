@@ -75,12 +75,17 @@ public class DataUtils{
         return log(1.0000000001 - value) / LOG_1_MINUS_0_9999999999
     }
     
+    static var grokFormater : NSDateFormatter?
+    
     static func parseGrokDate (date : String)->NSDate? {
-        let dateFormatter = NSDateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+        
+        if (grokFormater == nil){
+            grokFormater = NSDateFormatter()
+            grokFormater!.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            grokFormater!.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+        }
        
-        let dateObj = dateFormatter.dateFromString(date)
+        let dateObj = grokFormater!.dateFromString(date)
 
         return   dateObj
     }

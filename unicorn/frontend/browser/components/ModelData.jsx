@@ -29,18 +29,16 @@ import connectToStores from 'fluxible-addons-react/connectToStores';
 import Chart from '../components/Chart';
 import ModelDataStore from '../stores/ModelDataStore';
 
-const StoreDecorator = (context) => ({
-  modelDataStore: context.getStore(ModelDataStore)
-});
-
 
 /**
  *
  */
-@connectToStores([ModelDataStore], StoreDecorator)
+@connectToStores([ModelDataStore], (context) => ({
+  modelDataStore: context.getStore(ModelDataStore)
+}))
 export default class ModelData extends React.Component {
 
-  static get propTypes () {
+  static get propTypes() {
     return {
       modelId: React.PropTypes.string.isRequired
     };

@@ -35,10 +35,6 @@ import FileStore from '../stores/FileStore';
 import ModelStore from '../stores/ModelStore';
 import Utils from '../../lib/Utils';
 
-const StoreDecorator = (context) => ({
-  files: context.getStore(FileStore).getFiles()
-});
-
 
 /**
  * @module
@@ -47,7 +43,9 @@ const StoreDecorator = (context) => ({
  * @public
  * @extends React.Component
  */
-@connectToStores([FileStore, ModelStore], StoreDecorator)
+@connectToStores([FileStore, ModelStore], (context) => ({
+  files: context.getStore(FileStore).getFiles()
+}))
 export default class FileList extends React.Component {
 
   static get contextTypes() {
@@ -68,10 +66,7 @@ export default class FileList extends React.Component {
   _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
     if (checked) {
       this.context.executeAction(AddModelAction, {
-        modelId: modelId,
-        filename: filename,
-        metric: metric,
-        timestampField: timestampField
+        modelId, filename, metric, timestampField
       });
     } else {
       this.context.executeAction(DeleteModelAction, modelId);
@@ -83,11 +78,11 @@ export default class FileList extends React.Component {
       return metric.type === 'date';
     });
     if (timestampField) {
-      return file.metrics.map(metric => {
+      return file.metrics.map((metric) => {
         if (metric.type !== 'date') {
           let modelId = Utils.generateModelId(file.filename, metric.name);
           let modelStore = this.context.getStore(ModelStore);
-          let checked = modelStore.getModel(modelId) ? true : false;
+          let checked = modelStore.getModel(modelId) ? true : false; // eslint-disable-line
           return (
             <ListItem key={modelId}
               leftCheckbox={<Checkbox name={modelId}
@@ -102,7 +97,7 @@ export default class FileList extends React.Component {
   }
 
   _renderFiles(filetype) {
-    return this.props.files.map(file => {
+    return this.props.files.map((file) => {
       if (file.type === filetype) {
         return (
           <ListItem initiallyOpen={true}

@@ -28,7 +28,7 @@ import sys
 
 
 def _scriptIsFrozen():
-  """ Returns True if all of the modules are built-in to the interpreter by 
+  """ Returns True if all of the modules are built-in to the interpreter by
   cxFreeze, for example.
   """
   return hasattr(sys, "frozen")
@@ -44,7 +44,7 @@ if _scriptIsFrozen():
 from datetime import datetime
 import json
 import logging
-from optparse import OptionParser
+from argparse import ArgumentParser
 import traceback
 
 import validictory
@@ -63,6 +63,12 @@ g_log = logging.getLogger(__name__)
 
 
 
+_REPLACE_PATH_SEPARATOR = "/" # Path separator between components in
+                              # replacement parameters.
+                              # e.g. modelConfig/modelParams/clParams
+
+
+
 class _CommandLineArgError(Exception):
   """ Error parsing command-line options """
   pass
@@ -73,17 +79,26 @@ class _Options(object):
   """Options returned by _parseArgs"""
 
 
-  __slots__ = ("modelId", "stats",)
+  __slots__ = ("modelId", "stats", "replaceParams")
 
 
-  def __init__(self, modelId, stats):
+  def __init__(self, modelId, stats, replaceParams):
     """
     :param str modelId: model identifier
     :param dict stats: Metric data stats per stats_schema.json in the
       unicorn_backend package
+    :param sequence replaceParams: Parameter replacement PATH REPLACEMENT pairs
     """
     self.modelId = modelId
     self.stats = stats
+    self.replaceParams = replaceParams
+
+
+  @property
+  def __dict__(self): # pylint: disable=C0103
+    """ Required for **vars() usage
+    """
+    return {slot:getattr(self, slot) for slot in self.__slots__}
 
 
 
@@ -93,36 +108,52 @@ def _parseArgs():
   :rtype: _Options object
   :raises _CommandLineArgError: on command-line arg error
   """
-  class MyOptionParser(OptionParser):
+  class SilentArgumentParser(ArgumentParser):
     def error(self, msg):
       """Override `error()` to prevent unstructured output to stderr"""
       raise _CommandLineArgError(msg)
 
-  helpString = (
-    "%prog [options]\n\n"
-    "Start Unicorn ModelRunner that runs a single model.")
+  parser = SilentArgumentParser(description=("Start Unicorn ModelRunner that "
+                                             "runs a single model."))
 
-  parser = MyOptionParser(helpString)
+  parser.add_argument("--model",
+                      type=str,
+                      dest="modelId",
+                      required=True,
+                      help="REQUIRED: Model id string")
 
-  parser.add_option(
-    "--model",
-    action="store",
-    type="string",
-    dest="modelId",
-    help="Required: Model id string")
+  parser.add_argument("--stats",
+                      type=str,
+                      required=True,
+                      help="REQUIRED: See unicorn_backend/stats_schema.json")
 
-  parser.add_option(
-    "--stats",
-    action="store",
-    type="string",
-    dest="stats",
-    help=("Required: see unicorn_backend/stats_schema.json"))
+  parser.add_argument("--replaceParam",
+                      nargs=2,
+                      dest="replaceParams", # Note: Difference in name
+                                            # accounts for the fact that
+                                            # multiple --replaceParam arguments
+                                            # are aggregated into a single
+                                            # list.
+                      action="append",
+                      metavar=("PATH", "REPLACEMENT"),
+                      default=[],
+                      help=(
+                        "You may override the default model param by "
+                        "specifying a PATH and REPLACEMENT value where PATH "
+                        "is a `/`-delimited string composed of keys in the "
+                        "swarm params dict returned by `nupic.frameworks.opf"
+                        ".common_models.cluster_params"
+                        ".getScalarMetricWithTimeOfDayAnomalyParams(), and "
+                        "REPLACEMENT is any JSON value.  For example, to set"
+                        " verbosity in the spatial pooler, pass "
+                        "`--replaceParam "
+                        "modelConfig/modelParams/spParams/spVerbosity 1`."
+                        "\n\n"
+                        "Multiple `--replaceParam PATH REPLACEMENT` args "
+                        "are allowed, should you need to replace multiple "
+                        "params."))
 
-
-  options, positionalArgs = parser.parse_args()
-
-  if len(positionalArgs) != 0:
-    parser.error("Command accepts no positional args")
+  options = parser.parse_args()
 
   if not options.modelId:
     parser.error("Missing or empty --modelId option value")
@@ -132,7 +163,11 @@ def _parseArgs():
 
   stats = json.loads(options.stats)
 
-  # Path to stats schema file is different depending on whether or not the 
+  # Parse replacement json values into native objects
+  replaceParams = [(path, json.loads(replacement))
+                   for path, replacement in options.replaceParams]
+
+  # Path to stats schema file is different depending on whether or not the
   # script is frozen. See http://stackoverflow.com/a/2632297
   if _scriptIsFrozen():
     modelRunnerDir = os.path.dirname(os.path.realpath(sys.executable))
@@ -140,7 +175,7 @@ def _parseArgs():
     modelRunnerDir = os.path.dirname(os.path.realpath(__file__))
 
   try:
-    # Assume that stats_schema.json is in the same dir as this script. 
+    # Assume that stats_schema.json is in the same dir as this script.
     statsSchemaFile = os.path.join(modelRunnerDir, "stats_schema.json")
     with open(statsSchemaFile, "rb") as statsSchema:
       validictory.validate(stats, json.load(statsSchema))
@@ -148,7 +183,30 @@ def _parseArgs():
     parser.error("--stats option value failed schema validation: %r" % (ex,))
 
 
-  return _Options(modelId=options.modelId, stats=stats)
+  return _Options(modelId=options.modelId,
+                  stats=stats,
+                  replaceParams=replaceParams)
+
+
+
+def _recurseDictAndReplace(targetDict, path, replacementValue):
+  """ Recurse dict and replace value at matching key.  Changes are applied
+  in-place in mutable dict.
+
+  :param dict targetDict: Target dictionary in which to apply replacement
+  :param list path: List of keys comprising the path from root of dict to
+    target key; i.e. given targetDict={"a": {"b": {"c": ...}}}, path value of
+    ["a", "b", "c"] is equivalent to targetDict["a"]["b"]["c"].
+  :param object replacementValue: Replacement value.
+  :returns: None;  targetDict is mutated!
+  """
+  if len(path) == 1:
+    targetDict[path[0]] = replacementValue
+    return
+
+  for key in targetDict.keys():
+    if key == path[0]:
+      _recurseDictAndReplace(targetDict[key], path[1:], replacementValue)
 
 
 
@@ -167,11 +225,12 @@ class _ModelRunner(object):
   )
 
 
-  def __init__(self, modelId, stats):
+  def __init__(self, modelId, stats, replaceParams):
     """
     :param str modelId: model identifier
     :param dict stats: Metric data stats per stats_schema.json in the
       unicorn_backend package.
+    :param sequence replaceParams: Parameter replacement PATH REPLACEMENT pairs
     """
     self._modelId = modelId
 
@@ -180,17 +239,18 @@ class _ModelRunner(object):
     self._modelRecordEncoder = record_stream.ModelRecordEncoder(
       fields=self._INPUT_RECORD_SCHEMA)
 
-    self._model = self._createModel(stats=stats)
+    self._model = self._createModel(stats=stats, replaceParams=replaceParams)
 
     self._anomalyLikelihood = AnomalyLikelihood()
 
 
   @classmethod
-  def _createModel(cls, stats):
+  def _createModel(cls, stats, replaceParams):
     """Instantiate and configure an OPF model
 
     :param dict stats: Metric data stats per stats_schema.json in the
       unicorn_backend package.
+    :param sequence replaceParams: Parameter replacement PATH REPLACEMENT pairs
     :returns: OPF Model instance
     """
     # Generate swarm params
@@ -199,6 +259,11 @@ class _ModelRunner(object):
       minVal=stats["min"],
       maxVal=stats["max"],
       minResolution=stats.get("minResolution"))
+
+    for path, replacement in replaceParams:
+      _recurseDictAndReplace(swarmParams,
+                             path.split(_REPLACE_PATH_SEPARATOR),
+                             replacement)
 
     model = ModelFactory.create(modelConfig=swarmParams["modelConfig"])
     model.enableLearning()
@@ -282,9 +347,7 @@ def main():
   g_log.addHandler(logging.NullHandler())
   try:
 
-    options = _parseArgs()
-
-    _ModelRunner(modelId=options.modelId, stats=options.stats).run()
+    _ModelRunner(**vars(_parseArgs())).run()
 
   except Exception as ex:  # pylint: disable=W0703
     g_log.exception("ModelRunner failed")

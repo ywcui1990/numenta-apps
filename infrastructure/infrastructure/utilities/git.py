@@ -426,7 +426,6 @@ def revParse(commitish, logger, **kwargs):
   return executeCommand(command=command, logger=logger)
 
 
-
 def fetch(repository, refspec, logger):
   """
   Download objects and refs from another repository
@@ -444,6 +443,33 @@ def fetch(repository, refspec, logger):
   command = ("git", "fetch", repository, refspec)
   return executeCommand(command=command, logger=logger)
 
+
+def pull(logger, arguments=None):
+  """
+  Do a git pull, with optional parameters.
+
+  Example usage:
+
+    pull(arguments=["origin", "next"])
+    pull(arguments=["origin", "next", "--ff-only"])
+    pull(arguments=["git@github.com:username/repo.git", "next"])
+
+  :param str arguments: Any extra arguments you want to pass to git pull
+  :param logger: An initialized logger object
+  """
+  if arguments:
+    assert (isinstance(arguments, basestring) or
+            isinstance(arguments, tuple) or
+            isinstance(arguments, list)), (
+              "arguments must be a string or list, but is %r" % arguments)
+  assert logger
+  gitCommand = ["git", "pull"]
+  if arguments:
+    if isinstance(arguments, list) or isinstance(arguments, tuple):
+      gitCommand.extend(arguments)
+    if isinstance(arguments, basestring):
+      arguments.extend(str.split(arguments))
+  return executeCommand(command=gitCommand, logger=logger)
 
 
 def showRef(refList, logger, **kwargs):

@@ -187,6 +187,11 @@ loop run, and GUI loop continuation:
 
 ## Setup
 
+IMPORTANT: These setup instructions are only about if you care about running 
+the full app with all its components (Electron app with packaged model 
+runner). If you care about the backend only - for example - then change to 
+`unicorn/backend` and follow the README instructions there.
+
 Example of setting up development environment on Mac OS/X:
 
 ```shell
@@ -346,13 +351,13 @@ TODO
 
 ### Signing
 
-WARNING: In progress and subject to change.
+* You need a certificate type of “Developer ID Application” from Apple. This certificate usually has a common name in the form of `Developer ID Application: YourCompany, Inc. (ABCDEFGHIJK)`.
+* Set the environment variable `UNICORN_CERT_DEV_APPLE` and sign the app:
+```
+export UNICORN_CERT_DEV_APPLE="Developer ID Application: Numenta, Inc. (ABCDEFGHIJK)"
+```
+* Now when you package Unicorn with `npm run electron:packager`, the app will be signed.
 
-* Current workaround to sign the electron app: if you have the certificate
-  `Developer ID Application: Numenta, Inc. (2589Z673MU)` you can add
-  `--sign='Developer ID Application: Numenta, Inc. (2589Z673MU)'` at the end
-  the `electron-packager` command of the `build` script in `package.json`.
-  This will build and sign the app.
 
 * Useful blog post about signing Electron apps:
   http://jbavari.github.io/blog/2015/08/14/codesigning-electron-applications

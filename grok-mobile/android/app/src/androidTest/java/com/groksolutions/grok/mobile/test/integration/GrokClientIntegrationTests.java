@@ -326,6 +326,12 @@ public class GrokClientIntegrationTests extends ApplicationTestCase<HTMITApplica
     }
 
     @LargeTest
+    @Suppress
+    /*
+    FIXME: This test tries to find a given instance based on the obsolete naming structure.
+    Given that the product is being maintained externally and still works, ignore this test
+    for the time being.
+    */
     public final void testGetInstances() throws HTMException, IOException, JSONException {
         List<Instance> list = _client.getInstances();
         assertNotNull(list);
