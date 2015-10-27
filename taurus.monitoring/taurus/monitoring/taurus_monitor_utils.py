@@ -20,6 +20,8 @@
 # ----------------------------------------------------------------------
 import logging
 
+from enum import Enum
+
 from taurus.monitoring import monitorsdb
 from taurus.monitoring.monitorsdb import schema
 from collections import namedtuple
@@ -29,17 +31,14 @@ g_logger = logging.getLogger("taurus_monitor_utils")
 
 
 
-_flags = dict(
+class Flags(Enum):
   OPERATIONAL_ERROR = "SQL Alchemy Operational Error",
   REQUESTS_EXCEPTION = "Requests Exception",
   HTTP_STATUS_CODE = "HTTP Status Code Issue",
   RESPONSE_JSON = "Response JSON Error",
   DATABASE_ISSUE = "sqlalchemy.exc.OperationalError",
   ERROR_FLAG_FILE = "dbErrorFlagFile.csv"
-)
 
-# Public, immutable enumeration of private _flags
-Flags = namedtuple("Flags", _flags.keys())._make(_flags.values())
 
 
 @monitorsdb.retryOnTransientErrors

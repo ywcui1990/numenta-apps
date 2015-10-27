@@ -45,16 +45,17 @@ g_logger = logging.getLogger(__name__)
 
 
 
-NOTIFICATION_RETENTION_PERIOD = 7 # Number of days to retain notifications,
-                                  # during which duplicates are not sent.
-                                  # Duplicate problems that are not resolved
-                                  # within the retention period will continue
-                                  # to result in notifications no more frequent
-                                  # than the retention period.
+# Number of days to retain notifications, during which duplicates are not
+# sent.  Duplicate problems that are not resolved within the retention period
+# will continue to result in notifications no more frequent than the retention
+# period.
+
+NOTIFICATION_RETENTION_PERIOD = 7
 
 
 
-#pylint: disable=R0921
+# Disable `Abstract class not referenced (abstract-class-not-used)` warnings
+# pylint: disable=R0921
 class MonitorDispatcher(object):
   __metaclass__ = ABCMeta
 
@@ -132,7 +133,9 @@ class MonitorDispatcher(object):
     if answer.strip() != expectedAnswer:
       print "Aborting - Wise choice, my friend. Bye."
 
-    #pylint: disable=E1120
+    # Disable `No value passed for parameter 'dml' in function call
+    # (no-value-for-parameter)` warnings
+    # pylint: disable=E1120
     cmd = cls._dispatchTable.delete()
     monitorsdb.retryOnTransientErrors(monitorsdb.engineFactory().execute)(cmd)
 
@@ -148,7 +151,10 @@ class MonitorDispatcher(object):
     """
     cutoffDate = (datetime.utcnow() -
                   timedelta(days=NOTIFICATION_RETENTION_PERIOD))
-    #pylint: disable=E1120
+
+    # Disable `No value passed for parameter 'dml' in function call
+    # (no-value-for-parameter)` warnings
+    # pylint: disable=E1120
     cmd = (cls._dispatchTable
               .delete()
               .where(cls._dispatchTable.c.timestamp < cutoffDate))
@@ -156,6 +162,7 @@ class MonitorDispatcher(object):
 
 
   @classmethod
+  @monitorsdb.retryOnTransientErrors
   def recordNotification(cls, conn, checkFn, excType, excValue):
     """ Record notification, uniquely identified by the name of the function,
     the exception type, and a hash digest of the exception value that triggered
@@ -172,7 +179,10 @@ class MonitorDispatcher(object):
       if IntegrityError raised due to pre-existing duplicate.
     """
     excValueDigest = cls.hashExceptionValue(excValue)
-    #pylint: disable=E1120
+
+    # Disable `No value passed for parameter 'dml' in function call
+    # (no-value-for-parameter)` warnings
+    # pylint: disable=E1120
     ins = (cls._dispatchTable
               .insert()
               .values(checkFn=checkFn.__name__,
@@ -184,8 +194,8 @@ class MonitorDispatcher(object):
       conn.execute(ins)
       return True
     except IntegrityError:
-      g_logger.info("Duplicate notification quietly ignored -- {}"
-                    .format(repr((checkFn, excType, excValue))))
+      g_logger.info("Duplicate notification quietly ignored -- %r",
+                    tuple([checkFn, excType, excValue]))
 
     return False
 
@@ -223,9 +233,12 @@ class MonitorDispatcher(object):
     """ Run all previously-registered checks and send an email upon failure
     """
     for check in self._checks:
+      # Disable `Catching too general exception Exception (broad-except)`
+      # warning
+      # pylint: disable=W0703
       try:
         check(self)
-      except Exception: #pylint: disable=W0703
+      except Exception:
         self.dispatchNotification(check,
                                   sys.exc_type,
                                   sys.exc_value,

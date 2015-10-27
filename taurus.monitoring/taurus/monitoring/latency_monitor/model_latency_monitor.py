@@ -111,8 +111,7 @@ class ModelLatencyChecker(MonitorDispatcher):
     options = self.parser.parse_options()
 
     logging_support.LoggingSupport.initLogging(
-      loggingLevel=options.loggingLevel,
-      logToFile=True)
+      loggingLevel=options.loggingLevel)
 
     self.config = loadConfig(options)
     self.emailParams = loadEmailParamsFromConfig(self.config)
@@ -176,8 +175,11 @@ class ModelLatencyChecker(MonitorDispatcher):
 
     if response.status_code != 200:
       raise LatencyMonitorError("Unable to query Taurus API for active models:"
-                                " Unexpected HTTP response status ({}) from {}"
-                                .format(response.status_code, self.modelsUrl))
+                                " Unexpected HTTP response status (%d) from "
+                                "%s -- %s",
+                                response.status_code,
+                                self.modelsUrl,
+                                response.text)
 
     return response.json()
 
@@ -202,10 +204,11 @@ class ModelLatencyChecker(MonitorDispatcher):
 
     for model in models:
       # Query recent DynamoDB metric data for each model
-      then = str(datetime.datetime.now() -
-                 datetime.timedelta(days=self.days))
+      now = datetime.datetime.now()
+      then = str(now - datetime.timedelta(days=self.days,
+                                          microseconds=now.microsecond))
       resultSet = metricDataTable.query_2(uid__eq=model["uid"],
-                                          timestamp__gte=then[:19])
+                                          timestamp__gte=then)
 
       # Track all time intervals between valid (e.g. non-zero) samples
       intervals = []

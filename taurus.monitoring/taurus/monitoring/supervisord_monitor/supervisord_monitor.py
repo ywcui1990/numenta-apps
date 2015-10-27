@@ -66,8 +66,7 @@ class SupervisorChecker(MonitorDispatcher):
     options = self.parser.parse_options()
 
     logging_support.LoggingSupport.initLogging(
-      loggingLevel=options.loggingLevel,
-      logToFile=True)
+      loggingLevel=options.loggingLevel)
 
     self.server = SupervisorClient(options.serverUrl)
     self.subjectPrefix = options.subjectPrefix
