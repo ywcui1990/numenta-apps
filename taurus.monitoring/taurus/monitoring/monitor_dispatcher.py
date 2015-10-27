@@ -61,6 +61,14 @@ class MonitorDispatcher(object):
 
   _checks = []
 
+
+  # If you make any changes to the schema definition below, you must call
+  # `alembic revision --autogenerate` in monitorsdb/migrations/ to generate
+  # an alembic migration.  It will generate a file with a name that matches
+  # the pattern `XXX_<random hash>_<comment>.py` in
+  # monitorsdb/migrations/versions/.  Rename the file such that XXX is replaced
+  # by a number (left-padded with 0) the follows the current highest prefix in
+  # that directory.  Finally, add the generated and renamed file to git.
   _dispatchTable = Table("monitor_dispatcher",
                          metadata,
                          Column("checkFn",

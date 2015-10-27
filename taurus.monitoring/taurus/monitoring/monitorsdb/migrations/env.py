@@ -29,6 +29,13 @@ from logging.config import fileConfig
 
 from taurus.monitoring import monitorsdb
 
+# Import additional modules in which the schema is modified so that those
+# changes are accounted for during autogenerate operations
+
+# Disable `Unused import taurus (unused-import)` pylint warning
+# pylint: disable=W0611
+
+import taurus.monitoring.monitor_dispatcher
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
