@@ -31,6 +31,7 @@ import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 import FileAddAction from '../actions/FileAdd';
 import FileUploadAction from '../actions/FileUpload';
+import FileList from '../components/FileList';
 import LeftNav from '../components/LeftNav';
 import ModelList from '../components/ModelList';
 import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
@@ -109,14 +110,18 @@ export default class MainComponent extends React.Component {
   render() {
     return (
       <main style={this._style}>
-        <LeftNav />
-        <section style={{marginLeft:'256px', padding:'1rem'}}>
-          <FloatingActionButton onClick={this._onClick.bind(this)} style={{position:'fixed', top:96, left:224}}>
+        <LeftNav>
+          <FloatingActionButton onClick={this._onClick.bind(this)}
+            style={{position:'fixed', top:96, left:224}}>
             <SvgIconContentAdd/>
           </FloatingActionButton>
-          <input onChange={this._onFileSelect.bind(this)} ref="fileInput" style={{display:'none'}} type="file" />
+          <FileList/>
+        </LeftNav>
+        <section style={{marginLeft:'256px', padding:'1rem'}}>
           <ModelList />
         </section>
+        <input onChange={this._onFileSelect.bind(this)} ref="fileInput"
+          style={{display:'none'}} type="file" />
       </main>
     );
   }
