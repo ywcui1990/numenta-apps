@@ -13,6 +13,7 @@ setup(
   entry_points = {
     "console_scripts": [
       "taurus-reset-monitorsdb = %s.monitorsdb:resetMonitorsdbMain" % name,
+      "taurus-print-monitorsdb-schema = %s.monitorsdb:printSchemaAndQuit" % name,
       ("taurus-set-monitorsdb-login = "
        "%s.monitorsdb.set_monitorsdb_login:main" % name),
       ("taurus-models-monitor = "

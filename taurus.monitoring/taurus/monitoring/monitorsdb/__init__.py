@@ -157,6 +157,15 @@ def resetMonitorsdbMain():
 
 
 
+def printSchemaAndQuit():
+  """ Print monitorsdb schema and quit.
+
+  See setup.py for use with taurus-print-monitorsdb-schema
+  """
+  reset(offline=True, suppressPromptAndObliterateDatabase=True)
+
+
+
 def reset(offline=False, **kwargs):
   """ Reset the monitors database; upon successful completion, the
   necessary tables are created, but the tables are not populated.
