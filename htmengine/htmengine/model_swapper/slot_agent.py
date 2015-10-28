@@ -25,6 +25,7 @@ execution slot within a Model Scheduler service instance.
 """
 
 import errno
+import logging
 import os
 import Queue
 import signal
@@ -349,8 +350,9 @@ class SlotAgent(object):
           "%r: {TAG:SWAP.SA.MODEL.STOP.PENDING} modelState=%r",
           self, modelState)
         modelState.modelExitStatus = modelState.modelRunner.stopGracefully()
-        self._logger.info("%r: {TAG:SWAP.SA.MODEL.STOP.DONE} modelState=%r",
-                          self, modelState)
+        self._logger.log(
+          logging.INFO if modelState.modelExitStatus == 0 else logging.ERROR,
+          "%r: {TAG:SWAP.SA.MODEL.STOP.DONE} modelState=%r", self, modelState)
         if doCallback:
           modelState.modelFinishedCallback(modelState.modelExitStatus)
 
