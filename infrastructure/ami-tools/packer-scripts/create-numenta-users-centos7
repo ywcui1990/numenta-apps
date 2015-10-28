@@ -24,6 +24,7 @@
 # we want them to have the same UIDs and GIDs so transferring files is sane.
 
 create_numenta_users(){
+  sudo groupadd -g 200 engineering
   sudo groupadd -g 500 ec2-user
   sudo useradd -u 500 -g 500 ec2-user
   sudo groupadd -g 502 www-data
