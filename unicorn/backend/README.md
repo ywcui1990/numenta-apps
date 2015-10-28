@@ -41,4 +41,32 @@ stdout.
 
 ## Tests
 
-Run unit and integration tests w/ `python setup.py test`
+- Run unit AND integration tests
+
+  ```
+  python setup.py test
+  ```
+
+- Run unit tests only
+
+  ```
+  python setup.py test -a unit
+  ```
+
+- Run integration tests only
+
+  ```
+  python setup.py test -a integration
+  ```
+
+- Run a specific test
+
+  ```
+  python setup.py test -a "-k <matching term>"
+  ```
+
+- Help on additional functionality
+
+  ```
+  python setup.py test -a "--help"
+  ```
