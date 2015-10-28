@@ -3,7 +3,7 @@
     "uid": "f90057f34e53425194f90794e289fee4",
     "created": "2014-07-28 21:03:56",
     "timestamp": "2014-07-25 07:55:00",
-    "server": "us-west-2/AWS/ELB/docs-elb", 
+    "server": "us-west-2/AWS/ELB/htmit-docs-elb",
     "user": "Demo User",
     "device": "demo.device",
     "message": "My Demo Message",
