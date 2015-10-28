@@ -35,9 +35,11 @@
     - mode: 0755
 
 # Ensure ntp is running - synced time is essential
+{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
 ntpd:
   service.running:
     - enable: true
+{% endif %}
 
 # Ensure syslog running
 rsyslog:

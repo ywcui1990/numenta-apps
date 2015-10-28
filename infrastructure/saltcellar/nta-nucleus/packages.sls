@@ -32,7 +32,9 @@ core-packages:
       - logrotate
       - nta-git
       - ntp
+{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
       - pbzip2
+{% endif %}
       - pigz
       - tmpwatch
       - unzip
