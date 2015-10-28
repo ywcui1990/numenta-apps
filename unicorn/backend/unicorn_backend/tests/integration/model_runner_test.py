@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
@@ -209,8 +208,3 @@ class ModelRunnerTestCase(unittest.TestCase):
       self.assertEqual(stderrData, "")
 
       self.assertEqual(mrProcess.returncode, 0)
-
-
-
-if __name__ == "__main__":
-  unittest.main()

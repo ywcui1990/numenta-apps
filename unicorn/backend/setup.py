@@ -1,8 +1,15 @@
+from pkg_resources import resource_filename
 from setuptools import setup, find_packages
+from setuptools.command.test import test as TestCommand
+import os
+import sys
+
 
 
 installRequires = []
 dependencyLinks = []
+
+
 
 with open("requirements.txt", "r") as reqfile:
   for line in reqfile:
@@ -23,11 +30,41 @@ with open("requirements.txt", "r") as reqfile:
 
 
 
+class PyTest(TestCommand):
+  testsLocation = resource_filename("unicorn_backend.tests", "")
+  user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
+
+
+  def initialize_options(self):
+    TestCommand.initialize_options(self)
+    self.pytest_args = [] # pylint: disable=W0201
+
+
+  def finalize_options(self):
+    TestCommand.finalize_options(self)
+    self.test_args = []
+    self.test_suite = True
+
+  def run_tests(self):
+    #import here, cause outside the eggs aren't loaded
+    import pytest
+    cwd = os.getcwd()
+    try:
+      os.chdir(self.testsLocation)
+      errno = pytest.main(self.pytest_args)
+    finally:
+      os.chdir(cwd)
+    sys.exit(errno)
+
+
+
 setup(
   name = "unicorn_backend",
   description = "Unicorn backend",
   packages = find_packages(),
   include_package_data=True,
   install_requires = installRequires,
-  dependency_links = dependencyLinks
+  dependency_links = dependencyLinks,
+  tests_require=["mock==1.0.1", "nta.utils>=0.0.0"],
+  cmdclass = {"test": PyTest},
 )

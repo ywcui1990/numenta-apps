@@ -38,3 +38,35 @@ just generate the data input. When you pipe the two scripts together
 (`mock_data_generator.py` to `model_runner.py`) this will feed the data input
 to the model runner via stdout and in turn, it outputs the model results to
 stdout.
+
+## Tests
+
+- Run unit AND integration tests
+
+  ```
+  python setup.py test
+  ```
+
+- Run unit tests only
+
+  ```
+  python setup.py test -a unit
+  ```
+
+- Run integration tests only
+
+  ```
+  python setup.py test -a integration
+  ```
+
+- Run a specific test
+
+  ```
+  python setup.py test -a "-k <matching term>"
+  ```
+
+- Help on additional functionality
+
+  ```
+  python setup.py test -a "--help"
+  ```
