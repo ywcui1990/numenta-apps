@@ -1,3 +1,4 @@
+#!/bin/bash
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
@@ -18,44 +19,16 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-# Formula: nta-nucleus
-#
-# Install the standard set of base files, packages and services for a
-# numenta server.
+# Install devtools
 
-# Add users/groups before files & directories so we can safely chown to them
-ec2-user:
-  user.present:
-    - uid: 500
-    - gid: 500
-    - home: /home/ec2-user
-    - shell: /bin/bash
-  group.present:
-    - gid: 500
-    - members:
-      - ec2-user
+echo "Installing developer tools..."
 
-wheel:
-  group.present:
-    - gid: 10
-    - members:
-      - ec2-user
+sudo yum makecache
 
-# Load the support formulas we need, and the various nta-nucleus.* formulas
-include:
-  - nta-yum
-  - aws-support
-{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
-  - numenta-python
-  - agamotto
-{% endif %}
-  - motd
-  - logrotate
-  - sudoers-setup
-  - nta-nucleus.packages
-  - nta-nucleus.files
-  - nta-nucleus.services
-  - nta-nucleus.security
-  - nta-nucleus.settings
-  - nta-nucleus.test-support
-  - dotfiles
+sudo yum install -y gcc \
+  gcc-c++ \
+  python-pip \
+  python-devel \
+  glibc \
+  libxml2-devel \
+  libxslt-devel

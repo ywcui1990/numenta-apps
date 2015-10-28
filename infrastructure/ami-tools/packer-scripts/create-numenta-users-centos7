@@ -1,3 +1,4 @@
+#!/bin/bash
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
@@ -18,44 +19,17 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-# Formula: nta-nucleus
-#
-# Install the standard set of base files, packages and services for a
-# numenta server.
 
-# Add users/groups before files & directories so we can safely chown to them
-ec2-user:
-  user.present:
-    - uid: 500
-    - gid: 500
-    - home: /home/ec2-user
-    - shell: /bin/bash
-  group.present:
-    - gid: 500
-    - members:
-      - ec2-user
+# Create the users we care about here. We want to create them on all AMIS, and
+# we want them to have the same UIDs and GIDs so transferring files is sane.
 
-wheel:
-  group.present:
-    - gid: 10
-    - members:
-      - ec2-user
+create_numenta_users(){
+  sudo groupadd -g 500 ec2-user
+  sudo useradd -u 500 -g 500 ec2-user
+  sudo groupadd -g 502 www-data
+  sudo useradd -u 502 -g 502 -m www-data
+}
 
-# Load the support formulas we need, and the various nta-nucleus.* formulas
-include:
-  - nta-yum
-  - aws-support
-{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
-  - numenta-python
-  - agamotto
-{% endif %}
-  - motd
-  - logrotate
-  - sudoers-setup
-  - nta-nucleus.packages
-  - nta-nucleus.files
-  - nta-nucleus.services
-  - nta-nucleus.security
-  - nta-nucleus.settings
-  - nta-nucleus.test-support
-  - dotfiles
+create_numenta_users
+id www-data
+id ec2-user

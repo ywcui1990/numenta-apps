@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 # Formula: devtools
 #
-{% if grains['os_family'] == 'RedHat' %}
+{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
 # Install developer tools repository and updated developer tools for CentOS
 
 # Install devtool repo - v2
