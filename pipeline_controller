@@ -100,7 +100,7 @@ def invokeHtmItBuild(gitRemote, branch, buildSha):
   params = {"GIT_REMOTE": gitRemote,
             "BRANCH": branch,
             "COMMIT_SHA": buildSha}
-  invokeBuild("grok-product-pipeline", params)
+  invokeBuild("htm-it-product-pipeline", params)
   g_logger.info("Invoking HTM-IT Build")
 
 
@@ -120,7 +120,7 @@ def invokeHtmItMobileBuild(gitRemote, branch, buildSha):
             "BRANCH": branch,
             "COMMIT_SHA": buildSha,
             "PIPELINE": "product-master-build"}
-  invokeBuild("grok-mobile-product-pipeline", params)
+  invokeBuild("htm-it-mobile-product-pipeline", params)
 
 
 def invokeTaurusBuild(gitRemote, branch, buildSha):
@@ -288,9 +288,9 @@ def main(args):
     if (set(["taurus", "taurus.metric_collectors", "htmengine", "nta.utils"]) &
         rootFolders):
       invokeTaurusBuild(args.gitRemote, branch, currentSha)
-    # Only run the grok-mobile pipeline if it has been updated itself. Otherwise
+    # Only run the htm-it-mobile pipeline if it has been updated itself. Otherwise
     # rely on the HTM-IT pipeline to kick off this build on success.
-    if (set(["grok-mobile", "mobile-core", "nta.utils"]) & rootFolders):
+    if (set(["htm-it-mobile", "mobile-core", "nta.utils"]) & rootFolders):
       invokeHtmItMobileBuild(args.gitRemote, branch, currentSha)
     if set(["taurus", "taurus.metric_collectors", "nta.utils", "htmengine",
             "taurus-mobile", "mobile-core"]) & rootFolders:
