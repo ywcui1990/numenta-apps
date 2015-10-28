@@ -26,6 +26,5 @@ def upgrade():
 
 
 def downgrade():
-  op.drop_index('timestamp_index', table_name='monitor_dispatcher')
-  op.drop_table('monitor_dispatcher')
+  raise NotImplementedError("Rollback is not supported.")
 
