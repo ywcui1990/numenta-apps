@@ -48,7 +48,7 @@ zap-centos-nonessentials() {
   echo
   echo
 
-  yum groupremove -y \
+  sudo yum groupremove -y \
     'Assamese Support [as]' \
     'Desktop Debugging and Performance Tools' \
     'Legacy X Window System compatibility' \
@@ -71,7 +71,7 @@ zap-centos-nonessentials() {
   echo "Purging unnecessary packages..."
   echo
   echo
-  yum remove -y \
+  sudo yum remove -y \
     bison \
     cdparanoia \
     cdparanoia-libs \

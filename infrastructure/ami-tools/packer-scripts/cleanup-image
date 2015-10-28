@@ -34,47 +34,47 @@ echo "Cleaning instance for AMI bake"
 if [ ! -z "${DEBUG}" ]; then
   echo "**********"
   echo "Yum repositories:"
-  yum repolist
+  sudo yum repolist
 fi
 
 if [ -d /var/lib/rabbitmq/mnesia ]; then
   # Rabbit is installed. Purge the rabbit files
   echo "**********"
   echo "Purging rabbitmq mnesia files"
-  service rabbitmq-server stop
-  rm -rfv /var/lib/rabbitmq/mnesia/rabbit*
+  sudo service rabbitmq-server stop
+  sudo rm -rfv /var/lib/rabbitmq/mnesia/rabbit*
 fi
 
 # Zap user shell histories
 
 # Bash
-find /home -name .bash_history -exec rm -fv '{}' ';'
+sudo find /home -name .bash_history -exec rm -fv '{}' ';'
 
 # ZSH
-find /home -name .zsh_history -exec rm -fv '{}' ';'
+sudo find /home -name .zsh_history -exec rm -fv '{}' ';'
 
 # And for root
-rm -f ~root/.zsh_history ~root/.bash_history
+sudo rm -f ~root/.zsh_history ~root/.bash_history
 
 # The yum caches will almost instantly be stale once the AMI is baked.
 # Better to have the first yum operation on an instance started from this
 # AMI force it to download current yum information.
 echo "**********"
 echo "Purging yum caches"
-yum clean all
+sudo yum clean all
 
 echo
 echo "**********"
 echo "Purging /tmp..."
-rm -fr /tmp/*
+sudo rm -fr /tmp/*
 
 echo
 echo "**********"
 echo "Purging salt minion key data..."
-rm -fr /etc/salt/pki/minion/*
+sudo rm -fr /etc/salt/pki/minion/*
 
 echo "Clearing salt configuration flag"
-rm -f "${saltConfigured}"
+sudo rm -f "${saltConfigured}"
 
 echo
 echo "Confirming AMI root volume size..."
@@ -95,7 +95,7 @@ for logf in /var/log/cron \
             /var/log/yum.log
 do
   logline "Resetting ${logf}"
-  cat /dev/null > "${logf}"
+  sudo sh -c 'cat /dev/null > "${logf}"'
 done
 
-find / -name '*.rpmnew' -print
+sudo find / -name '*.rpmnew' -print

@@ -1,4 +1,3 @@
-#!/bin/bash
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
@@ -6,35 +5,21 @@
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero Public License version 3 as
+# it under the terms of the GNU General Public License version 3 as
 # published by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Affero Public License for more details.
+# See the GNU General Public License for more details.
 #
-# You should have received a copy of the GNU Affero Public License
+# You should have received a copy of the GNU General Public License
 # along with this program.  If not, see http://www.gnu.org/licenses.
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 #
-# This script cleans up an Infrastrcture AMI candidate
-
-saltConfigured=/etc/numenta/salt_configured
-
-echo
-echo "Infrastructure AMI cleanups"
-
-sudo service salt-minion stop
-
-echo "**********"
-echo "Purging salt minion id..."
-sudo rm -fr /etc/salt/minion_id
-
-echo "Clearing salt configuration flag"
-sudo rm -f "${saltConfigured}"
-
-echo "Purging salt-solo formulas"
-sudo rm -fr /srv/salt/*
+# The updated developer tools are in /opt/rh/devtoolset-2/root/usr/bin
+# We prepend to $PATH so the updated tools have preference over any stale
+# stuff in standard system locations like /usr/bin, /usr/sbin, etc.
+export PATH="/opt/rh/devtoolset-2/root/usr/bin:${PATH}"
