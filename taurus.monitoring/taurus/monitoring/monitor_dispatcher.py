@@ -145,13 +145,17 @@ class MonitorDispatcher(object):
     # (no-value-for-parameter)` warnings
     # pylint: disable=E1120
     cmd = cls._dispatchTable.delete()
-    monitorsdb.retryOnTransientErrors(monitorsdb.engineFactory().execute)(cmd)
+
+    @monitorsdb.retryOnTransientErrors
+    def _executeWithRetries():
+      monitorsdb.engineFactory().execute(cmd)
+
+    _executeWithRetries()
 
     print "Notifications deleted."
 
 
   @classmethod
-  @monitorsdb.retryOnTransientErrors
   def cleanupOldNotifications(cls):
     """ Delete all notifications older than a date determined by subtracting
     the number of days held in the value of the NOTIFICATION_RETENTION_PERIOD
@@ -166,11 +170,15 @@ class MonitorDispatcher(object):
     cmd = (cls._dispatchTable
               .delete()
               .where(cls._dispatchTable.c.timestamp < cutoffDate))
-    monitorsdb.engineFactory().execute(cmd)
+
+    @monitorsdb.retryOnTransientErrors
+    def _executeWithRetries():
+      monitorsdb.engineFactory().execute(cmd)
+
+    _executeWithRetries()
 
 
   @classmethod
-  @monitorsdb.retryOnTransientErrors
   def recordNotification(cls, conn, checkFn, excType, excValue):
     """ Record notification, uniquely identified by the name of the function,
     the exception type, and a hash digest of the exception value that triggered
@@ -198,6 +206,7 @@ class MonitorDispatcher(object):
                       excValueDigest=excValueDigest,
                       timestamp=datetime.utcnow(),
                       excValue=excValue))
+
     try:
       conn.execute(ins)
       return True
@@ -225,14 +234,18 @@ class MonitorDispatcher(object):
       """
       cls.cleanupOldNotifications()
 
-      with monitorsdb.engineFactory().begin() as conn:
-        """ Wrap dispatchNotification() in a transaction, in case there is an
-        error that prevents the notification being dispatched.  In such a case
-        we DO NOT want to save the notification so that it may be re-attempted
-        later
-        """
-        if cls.recordNotification(conn, checkFn, excType, excValue):
-          dispatchNotification(self, checkFn, excType, excValue, excTraceback)
+      @monitorsdb.retryOnTransientErrors
+      def _dispatchNotificationWithTransactionAwareRetries():
+        with monitorsdb.engineFactory().begin() as conn:
+          """ Wrap dispatchNotification() in a transaction, in case there is an
+          error that prevents the notification being dispatched.  In such a case
+          we DO NOT want to save the notification so that it may be re-attempted
+          later
+          """
+          if cls.recordNotification(conn, checkFn, excType, excValue):
+            dispatchNotification(self, checkFn, excType, excValue, excTraceback)
+
+      _dispatchNotificationWithTransactionAwareRetries()
 
     return wrappedDispatchNotification
 
