@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.annotations.Parameters;
 
-import com.numenta.htmit.mobile.test.TestUtilities;
+import com.numenta.htmit.mobile.test.behavior.TestUtilities;
 
 import java.net.URL;
 import java.util.List;
