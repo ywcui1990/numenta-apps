@@ -109,6 +109,50 @@ class SlotAgentTestCase(unittest.TestCase):
   @patch.object(
     slot_agent, "ModelRunnerProxy", autospec=True,
     stopGracefully=Mock(spec_set=slot_agent.ModelRunnerProxy.stopGracefully))
+  def testModelRunnerFails(self, modelRunnerProxyClassMock):
+
+    modelFinishedQ = Queue.Queue()
+
+    def modelFinishedCallback(modelID, exitStatus):
+      modelFinishedQ.put((modelID, exitStatus))
+
+    # Configure ModelRunnerProxy instance mock
+    modelRunnerProxyMock = modelRunnerProxyClassMock.return_value
+    modelRunnerProxyMock.stopGracefully.side_effect = lambda: 99
+
+    def modelRunnerProxyConstructorMock(modelID, onTermination, logger):
+      onTermination()
+      return modelRunnerProxyMock
+
+    modelRunnerProxyClassMock.side_effect = modelRunnerProxyConstructorMock
+
+    # Execute
+    sa = slot_agent.SlotAgent(slotID=1)
+
+    modelID = "abc"
+    sa.startModel(
+      modelID=modelID,
+      modelFinishedCallback=partial(modelFinishedCallback, modelID))
+
+    self.assertEqual((modelID, 99), modelFinishedQ.get(timeout=5))
+    sa.releaseSlot()
+
+    t = threading.Thread(target=sa.close)
+    t.setDaemon(True)
+    t.start()
+    t.join(timeout=5)
+    self.assertFalse(t.isAlive())
+
+    # Verify ModelRunnerProxy constructor calls
+    self.assertEqual(modelRunnerProxyClassMock.call_count, 1)
+
+    # Very modelRunnerProxyMock.stopGracefully calls
+    self.assertEqual(modelRunnerProxyMock.stopGracefully.call_count, 1)
+
+
+  @patch.object(
+    slot_agent, "ModelRunnerProxy", autospec=True,
+    stopGracefully=Mock(spec_set=slot_agent.ModelRunnerProxy.stopGracefully))
   def testStartModelAndCloseSlotAgent(self, modelRunnerProxyClassMock):
     modelFinishedQ = Queue.Queue()
 
