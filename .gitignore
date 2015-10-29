@@ -31,6 +31,7 @@ tests/py/unit/engine/utils/logs
 tests/results
 */*.egg-info/
 *.*.un~
+infrastructure/ami-tools/products.sha
 
 ### From htm-it-mobile ###
 # Mac OS X

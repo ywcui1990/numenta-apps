@@ -349,8 +349,14 @@ class SlotAgent(object):
           "%r: {TAG:SWAP.SA.MODEL.STOP.PENDING} modelState=%r",
           self, modelState)
         modelState.modelExitStatus = modelState.modelRunner.stopGracefully()
-        self._logger.info("%r: {TAG:SWAP.SA.MODEL.STOP.DONE} modelState=%r",
-                          self, modelState)
+
+        if modelState.modelExitStatus == 0:
+          self._logger.info("%r: {TAG:SWAP.SA.MODEL.STOP.DONE} modelState=%r",
+                            self, modelState)
+        else:
+          self._logger.error("%r: {TAG:SWAP.SA.MODEL.STOP.DONE} modelState=%r",
+                             self, modelState)
+
         if doCallback:
           modelState.modelFinishedCallback(modelState.modelExitStatus)
 
@@ -423,6 +429,6 @@ class _CurrentModelState(object):
   def __repr__(self):
     return ("%s<modelID=%s, stopPend=%s, stopReq=%s, modelFailed=%s, "
             "exitStatus=%s, modelRunner=%r>") % (
-      self.__class__.__name__, self.modelID, self.stopModelPending,
-      self.stopModelRequested, self.modelFailed, self.modelExitStatus,
-      self.modelRunner)
+              self.__class__.__name__, self.modelID, self.stopModelPending,
+              self.stopModelRequested, self.modelFailed, self.modelExitStatus,
+              self.modelRunner)

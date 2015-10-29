@@ -223,6 +223,12 @@ def main(jsonArgs=None):
                  filePath=artifactAmiIdPath,
                  s3Folder="stable_ami",
                  logger=g_logger)
+      g_logger.debug("Uploading %s to S3 which contains the generated AMI: %s",
+                     os.path.basename(amiIDPath), amiID)
+      uploadToS3(config=g_config,
+                 filePath=amiIDPath,
+                 s3Folder="stable_ami",
+                 logger=g_logger)
 
   except TestsFailed:
     g_logger.error("There was a failure executing the HTM-IT integration tests")

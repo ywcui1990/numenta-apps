@@ -45,8 +45,10 @@ wheel:
 include:
   - nta-yum
   - aws-support
+{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
   - numenta-python
   - agamotto
+{% endif %}
   - motd
   - logrotate
   - sudoers-setup

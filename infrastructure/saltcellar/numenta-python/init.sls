@@ -26,6 +26,8 @@
 # Numenta style requires we lock to specific versions so we don't get
 # burned again by mystery bugs when new module versions come out.
 
+{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
+
 include:
   - devtools
   - nta-nucleus
@@ -104,3 +106,5 @@ enforce-anaconda-permissions:
       - group: ec2-user
       - pkg: anaconda-python
       - user: ec2-user
+
+{% endif %}
