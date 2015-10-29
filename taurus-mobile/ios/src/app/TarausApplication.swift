@@ -36,10 +36,7 @@ class TaurusApplication : GrokApplication{
         return GrokApplication.database as! TaurusDatabase
     }
     
-    static func getYellowBarFloor()->Double{
-        return 0.4
-    }
-    
+       
     static func setup(){
         dataFactory = TaurusDataFactory()
         database = TaurusDatabase( dataFactory : dataFactory)

@@ -459,19 +459,20 @@ public class TaurusClient : GrokClient {
                         print (date)
                         print (anonomaly_score)
                      */
+                        let dateSeconds =  DataUtils.timestampFromDate(date)
+                        
+
                         for (key, anomalyValue) in anonomaly_score {
                             let score :Double = Double ( anomalyValue.N)!
                             let scaledScore = DataUtils.logScale(abs(score))
                          //   print ("score : %s", scaledScore)
                             
-                            if (scaledScore >= TaurusApplication.getYellowBarFloor()){
+                            if (Float(scaledScore) >= TaurusApplication.yellowBarFloor){
                                 metricMask.insert(MetricType.enumForKey(key as! String))
                             }
                             anomalyScore = max(score, anomalyScore)
                         }
-                        
-                        let dateSeconds = Int64(date.timeIntervalSince1970*1000)
-                        
+                      
                         let instanceData = TaurusApplication.dataFactory.createInstanceData(instance_id, aggregation: AggregationType.Day, timestamp: dateSeconds, anomalyScore: Float(anomalyScore), metricMask: metricMask)
                         callback (instanceData)
                     }

@@ -82,7 +82,7 @@ protocol AnomalyChartData {
     * Return the overall rank for the data represented by this class.
     * Usually the rank is calculated as the sum of all anomaly score values
     */
-    func getRank()->Double
+    func getRank()->Float
 
     
     

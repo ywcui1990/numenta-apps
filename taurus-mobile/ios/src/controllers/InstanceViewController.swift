@@ -422,6 +422,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
                 
                 let instanceChartData = InstanceAnomalyChartData(instanceId: instance, aggregation: self._aggregation)
                 
+                instanceChartData.setEndDate( DataUtils.dateFromTimestamp(TaurusApplication.getDatabase().getLastTimestamp() ))
                 instanceChartData.load()
                 
                 let metrics = instanceChartData.anomalousMetrics
@@ -447,21 +448,9 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             for var i = 0; i<4; i++ {
                var data =  listData[i]
                 data!.sortInPlace {
-                    /*   if ($0 == $1)
-                    {
-                    return 0
-                    }
-                    
-                    if ( $0 == nil)
-                    {return 1}
-                    
-                    if ($1 == nil){
-                    return -1
-                    }
-                    */
-                    
                     if ($0.getRank() > $1.getRank()){
-                        true            }
+                       return true
+                    }
                     
                     if ($0.getRank() < $1.getRank()){
                         return  false            }
@@ -476,7 +465,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
                     return false
                     
                 }
-                listData[i] = data
+                               listData[i] = data
             }
 
             // Update UI with new data

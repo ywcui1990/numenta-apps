@@ -81,7 +81,7 @@ public class TaurusDataSyncService: DataSyncService{
         let oldestTimestamp = DataUtils.floorTo60Minutes (  now - TaurusApplication.getNumberOfDaysToSync() * DataUtils.MILLIS_PER_DAY )
         
         // Check if we need to catch up and download old data
-        if ( db.firstTimestamp > oldestTimestamp){
+        if ( db.firstTimestamp - DataUtils.MILLIS_PER_HOUR > oldestTimestamp){
             from = oldestTimestamp
         }
         
