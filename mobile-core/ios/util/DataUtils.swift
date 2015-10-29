@@ -115,12 +115,16 @@ public class DataUtils{
     
     
     static func calculateSortRank( value: Double)->Double{
+        if (value == 0){
+            return 0
+        }
+        
         let active : Bool  = value > 0;
         var calculated : Double = DataUtils.logScale(abs(value));
-        if (calculated >= GrokApplication.redBarFloor) {
+        if (Float(calculated) >= GrokApplication.redBarFloor) {
             // Red
             calculated += RED_SORT_FLOOR;
-        } else if (calculated >= GrokApplication.yellowBarFloor) {
+        } else if (Float(calculated) >= GrokApplication.yellowBarFloor) {
             // Yellow
             calculated += YELLOW_SORT_FLOOR;
         } else {
