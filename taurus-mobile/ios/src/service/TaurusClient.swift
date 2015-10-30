@@ -275,7 +275,7 @@ public class TaurusClient : GrokClient {
         var keyConditions : [String: AWSDynamoDBCondition] = [: ]
         let dateFormatter : NSDateFormatter  = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+        dateFormatter.timeZone = NSTimeZone(name : "UTC")
 
         
         // Set up the UID condition
@@ -442,7 +442,7 @@ public class TaurusClient : GrokClient {
                  
                     let dateFormatter = NSDateFormatter()
                     dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH"
-                    dateFormatter.timeZone =   NSTimeZone(forSecondsFromGMT: 0)
+                    dateFormatter.timeZone =  NSTimeZone(name : "UTC")
 
                     
                     for item  in myResults{

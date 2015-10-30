@@ -89,7 +89,7 @@ public class DataUtils{
         if (grokFormater == nil){
             grokFormater = NSDateFormatter()
             grokFormater!.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-            grokFormater!.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+            grokFormater!.timeZone = NSTimeZone(name : "UTC")
         }
        
         let dateObj = grokFormater!.dateFromString(date)
@@ -108,9 +108,10 @@ public class DataUtils{
     
     
     static func floorTo5Mins (date : NSDate)->NSDate{
-        let secondsInitial = date.timeIntervalSince1970
-        let secondsFloored = (floor(secondsInitial/300.0))*300.0
-            return NSDate(timeIntervalSince1970: Double(secondsFloored))
+        let secondsInitial = DataUtils.timestampFromDate(date)
+        let secondsFloored = (secondsInitial/DataUtils.METRIC_DATA_INTERVAL) *  DataUtils.METRIC_DATA_INTERVAL
+
+            return DataUtils.dateFromTimestamp(secondsFloored)
     }
     
     

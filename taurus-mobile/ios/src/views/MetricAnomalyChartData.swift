@@ -42,14 +42,14 @@
     
         var BAR_INTERVAL = TaurusApplication.getAggregation().milliseconds()
     
-    
+        var lastDateLoaded: Int64 = 0
     init (metric: Metric, endDate : Int64){
         self.metric = metric
         self.endDate    = endDate
     }
     
     func shallowCopy()->MetricAnomalyChartData{
-        var dup = MetricAnomalyChartData(metric: self.metric, endDate: self.endDate)
+        let dup = MetricAnomalyChartData(metric: self.metric, endDate: self.endDate)
         dup.lastTimestamp = self.lastTimestamp
         dup.data = self.data
         dup.rawData = self.rawData
@@ -130,12 +130,12 @@
         
         
         lastTimestamp = TaurusApplication.getDatabase().getLastTimestamp()
-        let to = DataUtils.dateFromTimestamp(lastTimestamp)
-        let fromTime = lastTimestamp - numOfDays * DataUtils.MILLIS_PER_DAY
+        let to = DataUtils.dateFromTimestamp(lastTimestamp + DataUtils.MILLIS_PER_HOUR )
+
+        let fromTime = lastTimestamp + DataUtils.MILLIS_PER_HOUR - numOfDays * DataUtils.MILLIS_PER_DAY
         let from = DataUtils.dateFromTimestamp(fromTime)
         
-    //    print (to)
-     //   print (from)
+        let startProfile = DataUtils.timestampFromDate( NSDate())
         
         client.getMetricsValues (getId(),  from: from, to: to,ascending: true ){( metricId: String,  timestamp: Int64,  value: Float,  anomaly: Float) in
             
@@ -144,11 +144,8 @@
             if (idx >=  Int(newRawData.count)) {
                 idx = newRawData.count - 1;
             }
-            /*   if ( true /* value.isNaN == false && value > 0 */){
-                print (DataUtils.dateFromTimestamp(timestamp).description + " " + String(value) + " " + String(idx) )
-              
-            }
-     */
+            
+     
             newRawData[idx] = Double(value)
          
             let hour = DataUtils.floorTo60Minutes(timestamp)
@@ -160,6 +157,7 @@
 
             return self.cancelLoad
         }
+       
         
         
         var newAnomalies = [(Int64, Double)]()
@@ -179,6 +177,10 @@
         self.rawData = newRawData
         self.allAnomalies = newAnomalies
         
+        
+        let endProfile =  DataUtils.timestampFromDate( NSDate())
+        
+        Log.line ("time: " + String(endProfile-startProfile))
         refreshData()
         return true
     }
@@ -198,19 +200,12 @@
         if (self.endDate == 0){
             self.endDate = self.lastTimestamp
         }
-      /*  print ("ComputeDAtaforcurrent")
-        print (self.getEndDate())
-        print (self.getStartTimestamp())
-         print (DataUtils.dateFromTimestamp(self.lastTimestamp))
-        */
         
         let bars = TaurusApplication.getTotalBarsOnChart()
         var size = (Int64(bars) * BAR_INTERVAL / DataUtils.METRIC_DATA_INTERVAL)
         
-
-        
+       
         var start = Int64(self.allRawData!.count) - (self.lastTimestamp - self.endDate) / DataUtils.METRIC_DATA_INTERVAL - size - 1
-        
         if (start < 0){
             start = 0
         }
@@ -242,7 +237,7 @@
         return nil
     }
     
-    func getRank()->Double{
+    func getRank()->Float{
         return 0
     }
     

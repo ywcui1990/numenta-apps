@@ -272,7 +272,7 @@
                                             <constraint firstItem="OJi-6G-ZS5" firstAttribute="trailing" secondItem="zZc-y1-gFf" secondAttribute="trailing" constant="-5" id="v1d-aX-Hvn"/>
                                         </constraints>
                                     </view>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelectionDuringEditing="YES" rowHeight="90" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="lsn-O0-ZHJ">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelectionDuringEditing="YES" rowHeight="110" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="lsn-O0-ZHJ">
                                         <rect key="frame" x="0.0" y="34" width="600" height="380"/>
                                         <animations/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -280,10 +280,10 @@
                                         <color key="sectionIndexBackgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <prototypes>
                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" indentationWidth="10" reuseIdentifier="metricCell" id="jsl-09-AbJ" customClass="MetricCell" customModule="Taurus">
-                                                <rect key="frame" x="0.0" y="28" width="600" height="90"/>
+                                                <rect key="frame" x="0.0" y="28" width="600" height="110"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="jsl-09-AbJ" id="uPg-NB-TLV">
-                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="89.5"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="109.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="saD-0L-y6o" customClass="LineChartView" customModule="Taurus" customModuleProvider="target">
@@ -291,8 +291,7 @@
                                                             <animations/>
                                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="70" id="NDZ-WE-TCS"/>
-                                                                <constraint firstAttribute="height" constant="70" id="cs3-CA-qF3"/>
+                                                                <constraint firstAttribute="height" constant="80" id="cs3-CA-qF3"/>
                                                             </constraints>
                                                         </view>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text=" " lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hyh-8L-tLm">
