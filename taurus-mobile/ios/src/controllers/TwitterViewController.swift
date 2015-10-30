@@ -48,6 +48,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     
     var showCondensed = false
     
+    var cancelLoad = false
     // Serial queue for loading chart data
    // let loadQueue = dispatch_queue_create("com.numenta.TwitterController", nil)
     
@@ -61,6 +62,8 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             self.configureView()
         }
     }
+    
+    var metricChartDataLoading = false
     
     
     /** handle the UISwitch for condensed tweets
@@ -91,15 +94,44 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         ticker?.text = chartData?.ticker
         name?.text = chartData?.name
         
-        if (metricChartData != nil && metricChartData?.rawData != nil ){
+        if (metricChartData != nil  ){
             
-            metricChartData!.collapsed = false
-            metricChartData!.refreshData()
+            if ( metricChartData?.rawData == nil){
+                if (metricChartDataLoading == false){
+                    metricChartDataLoading = true
+                     let priority = QOS_CLASS_USER_INITIATED
+                    
+                    dispatch_async(dispatch_get_global_queue(priority, 0)) {
+                       
+                        self.metricChartData!.load()
+                        self.metricChartData!.collapsed = false
+                        self.metricChartData!.refreshData()
 
-            
-            metricChartView?.data  = metricChartData!.rawData!
-            metricChartView?.anomalies = metricChartData!.data!
-            metricChartView?.updateData()
+                        if (self.metricChartData!.rawData != nil){
+                            dispatch_async(dispatch_get_main_queue()) {
+                                
+                              
+                                self.metricChartView?.data  = self.metricChartData!.rawData!
+                                self.metricChartView?.anomalies = self.metricChartData!.data!
+                                self.metricChartView?.updateData()
+                                
+                               
+                                dispatch_async(dispatch_get_global_queue(priority, 0)) {
+                                    self.loadTwitterData()
+                                }
+                            }
+                        }
+                    }
+                }
+            }else{
+                metricChartData!.collapsed = false
+                metricChartData!.refreshData()
+
+                
+                metricChartView?.data  = metricChartData!.rawData!
+                metricChartView?.anomalies = metricChartData!.data!
+                metricChartView?.updateData()
+            }
         }
     }
     
@@ -321,6 +353,8 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         fixme - do the more optimal load
     */
     func loadTwitterData(){
+        
+          UIApplication.sharedApplication().networkActivityIndicatorVisible = true
         let client = TaurusApplication.connectToTaurus()
         let metric = metricChartData?.metric
         
@@ -331,42 +365,118 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         
         let startDate = DataUtils.dateFromTimestamp(start)
         
-        client?.getTweets( (metric?.getName())!, from: startDate, to: endTime! ){ (tweet: Tweet?)in
-            if (tweet != nil){
-                
-                let aggregationTime : Int64 = tweet!.aggregated
-                
-                var twitterEntry = self.twittermap[aggregationTime]
-               
-                
-                if (twitterEntry == nil){
-                    twitterEntry =  TwitterEntry()
-                    self.twittermap[aggregationTime] = twitterEntry
-                }
-            
-              
-                var dup  = false
-                for existingTweet in twitterEntry!.data {
-                    if existingTweet.cannonicalText == tweet!.cannonicalText {
-                        if (existingTweet.retweetCount == 0){
-                            existingTweet.retweetCount = 1
-                        }
-                        existingTweet.retweetCount += 1
-                        dup = true
-                        break
-                    }
-                }
-                if ( dup == false){
-                    twitterEntry?.data.append(tweet!)
-                }
-                twitterEntry?.tweets += 1
-                
-            }
-           
-            return nil
-        }
+        var lastTime :Int64 = 0
+        var lastEntry : TwitterEntry?
         
-        for twitterEntry  in self.twittermap.values {
+        var loadIntervals = [(startDate, endTime!)]
+        
+        //
+        let values = metricChartData?.rawData
+        var timeOffset : Int64  = 0
+        var count = 0
+        var numOfEntries = 25 // start small to be responsive
+        var intervalEnd = endTime!
+        
+        if (values != nil ){
+            loadIntervals.removeAll()
+            
+            for val in values! {
+                if (val.isNaN == false){
+                    count += Int(val)
+                }
+                timeOffset += DataUtils.METRIC_DATA_INTERVAL
+                if (count > numOfEntries){
+                    let intervalStart = DataUtils.dateFromTimestamp ( DataUtils.timestampFromDate(intervalEnd) - timeOffset )
+                    loadIntervals.append ( (intervalStart, intervalEnd) )
+                    intervalEnd = intervalStart
+                    // Load more entries to reduce networking overhead
+                    numOfEntries  = 250
+                    count = 0
+                    timeOffset = 0
+                }
+            }
+            
+            loadIntervals.append ( (startDate, intervalEnd)   )
+        }
+    
+        for entry in loadIntervals {
+            if (self.cancelLoad){
+                UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+                return
+            }
+
+            
+            client?.getTweets( (metric?.getName())!, from: entry.0, to: entry.1 ){ (tweet: Tweet?)in
+                if (tweet != nil){
+                    let aggregationTime : Int64 = tweet!.aggregated
+                    
+                    
+                    if (aggregationTime != lastTime){
+                        if (lastEntry != nil){
+                             self.sortTwitterEntry(lastEntry!)
+                            self.twittermap[lastTime] = lastEntry
+                            
+                        }
+                       
+                        lastEntry = TwitterEntry()
+                        lastTime = aggregationTime
+                    }
+                    let twitterEntry = lastEntry
+                    var dup  = false
+                    for existingTweet in twitterEntry!.data {
+                        if existingTweet.cannonicalText == tweet!.cannonicalText {
+                            if (existingTweet.retweetCount == 0){
+                                existingTweet.retweetCount = 1
+                            }
+                            existingTweet.retweetCount += 1
+                            dup = true
+                            break
+                        }
+                    }
+                    if ( dup == false){
+                        twitterEntry?.data.append(tweet!)
+                    }
+                    twitterEntry?.tweets += 1
+                    
+                }
+               
+                return nil
+            }
+            
+            if (lastEntry != nil){
+                sortTwitterEntry(lastEntry!)
+                self.twittermap[lastTime] = lastEntry
+            }
+            updateList()
+        }
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+
+    }
+    
+    
+    func sortTwitterEntry( twitterEntry: TwitterEntry){
+        twitterEntry.data.sortInPlace{
+            if ( $0.aggregated != $1.aggregated){
+                return $0.aggregated > $1.aggregated
+            }
+            
+            
+            if ( $0.retweetCount != $1.retweetCount){
+                return $0.retweetCount > $1.retweetCount
+            }
+            
+            if ( $0.retweetTotal != $1.retweetTotal){
+                return $0.retweetTotal > $1.retweetTotal
+            }
+            
+            
+            return  $0.id < $1.id
+            
+        }
+    }
+    func updateList(){
+        
+      /*  for twitterEntry  in self.twittermap.values {
             twitterEntry.data.sortInPlace{
                 if ( $0.aggregated != $1.aggregated){
                     return $0.aggregated > $1.aggregated
@@ -381,15 +491,17 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
                     return $0.retweetTotal > $1.retweetTotal
                 }
                 
-               
+                
                 return  $0.id < $1.id
                 
-        }
+            }
+            
+        }*/
         
-        }
+        
         // Update the table to the new data
         dispatch_async(dispatch_get_main_queue()) {
-           
+            
             self.twitterIndex = Array(self.twittermap.keys)
             
             self.twitterIndex.sortInPlace {
@@ -402,7 +514,8 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             
             self.instanceTable?.reloadData()
         }
-
+        
+        
     }
     
     /** Scroll table to match the selection
@@ -459,6 +572,15 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         
         self.metricChartView.selectIndex( index)
 
+    }
+    
+    /**
+    tell any pending chart to stop loading if the view is going away
+    */
+    override func viewWillDisappear(animated:Bool){
+        self.cancelLoad = true
+        super.viewWillDisappear (animated)
+        
     }
 
 }

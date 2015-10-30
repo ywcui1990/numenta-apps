@@ -25,8 +25,8 @@ import Foundation
 class GrokApplication{
     static var database :CoreDatabase?
     
-    static var redBarFloor : Double = 0.5
-    static var yellowBarFloor : Double = 0.4
+    static var redBarFloor : Float = 0.9
+    static var yellowBarFloor : Float = 0.4
     
     static func getNumberOfDaysToSync()->Int64 {
         return 14

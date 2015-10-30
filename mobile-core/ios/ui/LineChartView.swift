@@ -7,7 +7,7 @@ class LineChartView: UIView {
     var axisLabels = [String]()
     var anomalies = [(Int64, Double)]()
     var data : [Double] = []
-    var numYLabels: Int32 = 4
+    var numYLabels: Int32 = 3
     var axisInterval : Double = 0.0
     var pointWidth = Double( 2.0 )
     var contentArea : CGRect = CGRect()
@@ -279,12 +279,13 @@ class LineChartView: UIView {
         if ( axisInterval<1 && axisInterval > 0 ){
             decimals = Int(ceil (-log10(axisInterval)))
         }
+        
         for (var i :Int32 = 0; i <= self.numYLabels; i++){
             let y = self.minValue+self.axisInterval*Double(i)
             
             s = DataUtils.formatDouble ( y, numDecimals: decimals)!
             
-            let labelTop = convertToPixel(y) - Double( font.lineHeight )
+            let labelTop = convertToPixel(y) - Double( font.lineHeight)
             
             s.drawAtPoint(CGPointMake(CGFloat( self.barMarginLeft), CGFloat( labelTop)),
                 withAttributes: [NSFontAttributeName : font,  NSForegroundColorAttributeName: fieldColor])
@@ -309,7 +310,8 @@ class LineChartView: UIView {
             return Double(contentArea.maxY) - self.paddingBottom
         }
 
-        return Double( Double(contentArea.height) - Double(contentArea.height ) * (value - self.minValue) / (self.maxValue - self.minValue))
+        let viewHeight = contentArea.height
+        return Double( Double(viewHeight) - Double(viewHeight - 15 ) * (value - self.minValue) / (self.maxValue - self.minValue))
     }
     
 
