@@ -313,7 +313,7 @@
                 }
                 
                 // copy over anomalies
-                collapsedAnomalies[bars-1] = ( (bars-1) * intervalsPerBar , self.allAnomalies[barIndex].1 )
+                collapsedAnomalies[bars-1] = ( (bars-1) * intervalsPerBar , DataUtils.logScale( self.allAnomalies[barIndex].1 ))
                 
             }else{
                 
