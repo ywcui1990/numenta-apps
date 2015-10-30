@@ -88,6 +88,7 @@ FileServer.prototype.getSampleFiles = function (callback) {
  */
 FileServer.prototype.getUploadedFiles = function (file, callback) {
   var formattedFile = {
+    uid: Utils.generateId(file.path),
     name: file.name,
     filename: file.path,
     type: 'uploaded',
@@ -96,7 +97,6 @@ FileServer.prototype.getUploadedFiles = function (file, callback) {
 
   this.getFields(formattedFile.filename, {}, (error, fields) => {
     if (error) {
-
       callback(error);
       return;
     }

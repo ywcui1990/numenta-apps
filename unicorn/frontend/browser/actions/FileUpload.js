@@ -211,6 +211,7 @@ export default (actionContext, file) => {
         return fileMetrics;
       }
       fileFormatted = {
+        uid: Utils.generateId(file.path),
         name: file.name,
         filename: file.path,
         type: 'uploaded',

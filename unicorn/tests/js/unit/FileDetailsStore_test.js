@@ -36,18 +36,21 @@ describe('FileDetailsStore', () => {
     store._showFileDetails('expected');
     assert.equal('expected', store.getFileName());
     assert.equal(true, store.isVisible());
+    assert.equal(false, store.isNewFile());
     done();
   });
   it('#_hideFileDetails', (done) => {
     store._hideFileDetails();
     assert.equal(null, store.getFileName());
     assert.equal(false, store.isVisible());
+    assert.equal(false, store.isNewFile());
     done();
   });
   it('#_handleFileUpload', (done) => {
     store._handleFileUpload(EXPECTED_SINGLE_FILE);
     assert.equal(EXPECTED_SINGLE_FILE.filename, store.getFileName());
     assert.equal(true, store.isVisible());
+    assert.equal(true, store.isNewFile());
     done();
   });
 });

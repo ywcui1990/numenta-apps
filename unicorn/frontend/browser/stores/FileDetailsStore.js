@@ -35,6 +35,7 @@ export default class FileDetailsStore extends BaseStore {
     super(dispatcher);
     this._filename = null;
     this._visible = false;
+    this._newFile = false;
   }
 
   /**
@@ -52,12 +53,20 @@ export default class FileDetailsStore extends BaseStore {
   }
 
   /**
+   * @return {Boolean} Whether or not showing a new file
+   */
+  isNewFile() {
+    return this._filename !== null && this._newFile;
+  }
+
+  /**
    * Handle  {ShowFileDetails} action
    * @param  {string} filename The file name to show
    */
   _showFileDetails(filename) {
     this._filename = filename;
     this._visible = true;
+    this._newFile = false;
     this.emitChange();
   }
   /**
@@ -65,6 +74,7 @@ export default class FileDetailsStore extends BaseStore {
    */
   _hideFileDetails() {
     this._visible = false;
+    this._newFile = false;
     this._filename = null;
     this.emitChange();
   }
@@ -75,6 +85,7 @@ export default class FileDetailsStore extends BaseStore {
    */
   _handleFileUpload(file) {
     this._visible = true;
+    this._newFile = true;
     this._filename = file.filename;
     this.emitChange();
   }

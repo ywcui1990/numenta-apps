@@ -17,18 +17,15 @@
 //
 // http://numenta.org/licenses/
 
-import React from 'react';
-import FileStore from '../stores/FileStore';
-import ModelStore from '../stores/ModelStore';
-import FileDetailsStore from '../stores/FileDetailsStore';
-import Material from 'material-ui';
-import Utils from '../../lib/Utils';
-import FileUpdateAction from '../actions/FileUpdate';
-import DeleteModelAction from '../actions/DeleteModel';
-import HideFileDetailsAction from '../actions/HideFileDetails';
-import AddModelAction from '../actions/AddModel';
-import connectToStores from 'fluxible-addons-react/connectToStores';
 import fs from 'fs';
+import React from 'react';
+import Material from 'material-ui';
+import connectToStores from 'fluxible-addons-react/connectToStores';
+import FileStore from '../stores/FileStore';
+import FileDetailsStore from '../stores/FileDetailsStore';
+import FileDetailsSaveAction from '../actions/FileDetailsSave';
+import HideFileDetailsAction from '../actions/HideFileDetails';
+import Utils from '../../lib/Utils';
 
 const {
   Dialog, TextField, List, ListItem, Checkbox,
@@ -36,11 +33,12 @@ const {
 } = Material;
 
 /**
- * Show file details page. The file must be available from the {FileStore}
+ * Show file details page. The file must be available from the {@link FileStore}
  */
  @connectToStores([FileDetailsStore], (context) => ({
    filename: context.getStore(FileDetailsStore).getFileName(),
-   visible: context.getStore(FileDetailsStore).isVisible()
+   visible: context.getStore(FileDetailsStore).isVisible(),
+   newFile: context.getStore(FileDetailsStore).isNewFile()
  }))
 export default class FileDetails extends React.Component {
 
@@ -53,11 +51,11 @@ export default class FileDetails extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {file: null, fileSize: 0, data:[], models:[]};
+    this.state = {file: null, fileSize: 0, data:[], metrics:[]};
   }
 
   componentWillReceiveProps(nextProps) {
-    let models = [];
+    let metrics = new Map();
     let data = [];
     let file;
     let fileSize = 0;
@@ -67,15 +65,14 @@ export default class FileDetails extends React.Component {
       let fileStore = this.context.getStore(FileStore);
       file = fileStore.getFile(nextProps.filename);
 
-      // Initialize models
+      // Initialize metrics
       if (file) {
-        let modelStore = this.context.getStore(ModelStore);
-        models = new Map(file.metrics.map((metric) => {
-          let modelId = Utils.generateModelId(file.filename, metric.name);
-          let checked = this.state.models && modelStore.getModel(modelId)
-                          ? metric.type !== 'date' : false; // eslint-disable-line
-          return [modelId, checked];
-        }));
+        file.metrics.forEach((metric) => {
+          if (metric.type !== 'date') {
+            let modelId = Utils.generateModelId(file.filename, metric.name);
+            metrics.set(modelId, null);
+          }
+        });
 
         // Load first 20 records
         let fileClient = this.context.getFileClient();
@@ -92,7 +89,7 @@ export default class FileDetails extends React.Component {
     }
 
     // Initialize State
-    this.setState({file, fileSize, data, models});
+    this.setState({file, fileSize, data, metrics});
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -102,10 +99,12 @@ export default class FileDetails extends React.Component {
       this.refs.dialog.dismiss();
     }
   }
+
   shouldComponentUpdate(nextProps, nextState) {
     // Only update if visible
     return nextProps.visible;
   }
+
   render() {
     let body, title;
     if (this.state.file) {
@@ -138,11 +137,7 @@ export default class FileDetails extends React.Component {
             value={file.description}
             onChange={this._handleFileInputChange.bind(this)}/>
 
-          <TextField ref="timestampFormat"
-            name="timestampFormat"
-            floatingLabelText="Timestamp Format"
-            value={file.timestampFormat}
-            onChange={this._handleFileInputChange.bind(this)}/>
+          {this._renderTimestampFormat()}
 
           <TextField ref="fileSize"
             name="fileSize"
@@ -150,9 +145,7 @@ export default class FileDetails extends React.Component {
             floatingLabelText="File Size (bytes)"
             value={fileSize}/>
 
-          <List subheader="Create Models" height="50px">
-            {this._renderMetrics()}
-          </List>
+          {this._renderMetrics()}
         </div>
 
         <div style={styles.data}>
@@ -166,7 +159,7 @@ export default class FileDetails extends React.Component {
     let styles = this._getStyles();
 
     let data = this.state.data;
-    if (data) {
+    if (data.length > 0) {
       let columnHeader = Object.keys(data[0]).map((name) => {
         return (<TableHeaderColumn>{name}</TableHeaderColumn>);
       });
@@ -198,26 +191,45 @@ export default class FileDetails extends React.Component {
   }
 
   _renderMetrics() {
-    let {file, models} = this.state;
-    let metrics = file.metrics;
-    let timestampField = metrics.find((metric) => {
-      return metric.type === 'date';
-    });
-    if (timestampField) {
-      return metrics.map((metric) => {
-        if (metric.type !== 'date') {
-          let modelId = Utils.generateModelId(file.filename, metric.name);
-          let checked = models.get(modelId) ? true : false; // eslint-disable-line
-          return (
-            <ListItem key={modelId}
-              leftCheckbox={<Checkbox name={modelId}
-              checked={checked}
-              onCheck={this._onMetricCheck.bind(this, modelId, file.filename,
-                timestampField.name, metric.name)}/>}
-              primaryText={metric.name} />
-          );
-        }
+    if (this.props.newFile) {
+      let {file, metrics} = this.state;
+      let timestampField = file.metrics.find((metric) => {
+        return metric.type === 'date';
       });
+      if (timestampField) {
+        let items = file.metrics.map((metric) => {
+          if (metric.type !== 'date') {
+            let modelId = Utils.generateModelId(file.filename, metric.name);
+            let checked = metrics.get(modelId) ? true : false; // eslint-disable-line
+            return (
+              <ListItem key={modelId}
+                leftCheckbox={<Checkbox name={modelId}
+                checked={checked}
+                onCheck={this._onMetricCheck.bind(this, modelId, file.filename,
+                  timestampField.name, metric.name)}/>}
+                primaryText={metric.name} />
+            );
+          }
+        });
+        return (
+          <List subheader="Create Models" height="50px">
+            {items}
+          </List>
+        );
+      }
+    }
+  }
+
+  _renderTimestampFormat() {
+    if (this.props.newFile) {
+      let file = this.state.file;
+      return (
+        <TextField ref="timestampFormat"
+          name="timestampFormat"
+          floatingLabelText="Timestamp Format"
+          value={file.timestampFormat}
+          onChange={this._handleFileInputChange.bind(this)}/>
+      );
     }
   }
 
@@ -260,23 +272,10 @@ export default class FileDetails extends React.Component {
   }
 
   _onSave() {
-    let state = this.state;
-    // Update File
-    if (state.file) {
-      this.context.executeAction(FileUpdateAction, state.file);
-    }
-    // Update models
-    let modelStore = this.context.getStore(ModelStore);
-    for (let [modelId, modelParams] of state.models) {
-      if (modelStore.getModel(modelId)) {
-        if (!modelParams) {
-          // Delete model
-          this.context.executeAction(DeleteModelAction, modelId);
-        }
-      } else if (modelParams) {
-        // Create models
-        this.context.executeAction(AddModelAction, modelParams);
-      }
+    let {file, metrics} = this.state;
+    if (file) {
+      // Update File
+      this.context.executeAction(FileDetailsSaveAction, {file, metrics});
     }
     this.refs.dialog.dismiss();
   }
@@ -284,11 +283,11 @@ export default class FileDetails extends React.Component {
   _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
     let state = this.state;
     if (checked) {
-      state.models.set(modelId, {
+      state.metrics.set(modelId, {
         modelId, filename, metric, timestampField
       });
     } else {
-      state.models.delete(modelId);
+      state.metrics.delete(modelId);
     }
     this.setState(state);
   }
