@@ -30,6 +30,7 @@ import xmlrpclib
 from nta.utils.supervisor_utils import SupervisorClient
 
 
+
 def getSupervisordState(supervisorApiUrl):
   """Get the state of SupervisorD
 
@@ -81,7 +82,7 @@ def getStateMain():
 def waitForRunningStateMain():
   """Console script entry point: waits for supervisord to enter RUNNING state;
   sets non-zero exit code on timeout or other non-recoverable error; prints
-  status and error messages to STDERR.
+  status to STDOUT and error messages to STDERR.
   """
 
   parser = ArgumentParser(
@@ -106,12 +107,43 @@ def waitForRunningStateMain():
       break
 
     if i <= maxWaitCycles:
-      print >> sys.stderr, "Waiting for supervisord to enter RUNNING state..."
+      print "Waiting for supervisord to enter RUNNING state..."
       time.sleep(5)
   else:
     sys.exit("Timed out waiting for supervisord RUNNING state from %s" % (
       args.supervisorApiUrl,))
 
+
+def waitForStoppedStateMain():
+  """Console script entry point: waits for supervisord to stop;
+  sets non-zero exit code on timeout or other non-recoverable error; prints
+  error messages to STDERR.
+  """
+
+  parser = ArgumentParser(
+    description=("Wait for supervisord to stop."))
+
+  parser.add_argument(
+    "supervisorApiUrl",
+    help="URL of supervisord API; e.g., http://localhost:9001")
+
+  args = parser.parse_args()
+
+  maxWaitCycles = 6
+  for i in xrange(1, maxWaitCycles + 2):
+    try:
+      getSupervisordState(args.supervisorApiUrl)
+    except (socket.error, xmlrpclib.Fault):
+      # API is no longer available at specified supervisorApiUrl.  It is safe
+      # to assume that IF the supervisordApiUrl is correct, that supervisor is
+      # not running.  In which case, break out of loop and return.
+      break
+
+    if i <= maxWaitCycles:
+      print "Waiting for supervisord to stop..."
+      time.sleep(5)
+  else:
+    sys.exit("Timed out waiting for supervisord to stop")
 
 
 def waitForAllToStop():
@@ -160,8 +192,7 @@ def waitForAllToStop():
                                      p.get("state"))
                              for p in processes))
 
-    print >> sys.stderr, ("Sleeping for {} second{}..."
-                          .format(args.sleep, "s" if args.sleep != 1 else ""))
+    print ("Sleeping for {} second{}..."
+           .format(args.sleep, "s" if args.sleep != 1 else ""))
     time.sleep(args.sleep)
     processes = getAllProcessInfo()
-

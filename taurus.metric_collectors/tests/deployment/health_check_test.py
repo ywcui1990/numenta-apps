@@ -66,6 +66,13 @@ class TaurusMetricCollectorsHealthCheckTestCase(unittest.TestCase):
 
 
   @_RETRY_SERVICE_RUNNING_CHECK
+  def testMetricMaintenanceAgentIsRunning(self):
+    # NOTE: This service exits when configured for hot-standby mode
+    self.assertIn(self._getServiceStateName("metric_maintenance_agent"),
+                  ["RUNNING", "EXITED"])
+
+
+  @_RETRY_SERVICE_RUNNING_CHECK
   def testXigniteStockAgentIsRunning(self):
     self.assertEqual(self._getServiceStateName("xignite_stock_agent"),
                      "RUNNING")

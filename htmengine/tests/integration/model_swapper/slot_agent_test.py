@@ -93,7 +93,7 @@ class ModelRunnerProxyTestCase(unittest.TestCase):
 
 
   @patch.object(slot_agent.ModelRunnerProxy, "_MAX_WAIT_FOR_GRACEFUL_STOP_SEC",
-                new=5)
+                new=7)
   def testStartMultipleModelRunnersAndStopThem(self):
     # Starts several ModelRunners and stops them gracefully
     # to confirm that they can all stop without conflicting with each other:
@@ -126,7 +126,10 @@ class ModelRunnerProxyTestCase(unittest.TestCase):
             onTermination=lambda: None,
             logger=_LOGGER))
 
-      returnCodes = [runner.stopGracefully() for runner in runners]
+      returnCodes = []
+      for runner in runners:
+        _LOGGER.info("Stopping model runner %r", runner)
+        returnCodes.append(runner.stopGracefully())
 
     self.assertEqual(returnCodes, [0] * len(runners))
 

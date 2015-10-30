@@ -50,6 +50,7 @@ _STOCK_EXCHANGES = ("NYSE", "NASDAQ")
 gLog = logging.getLogger("gen_metrics_config")
 
 
+
 def getTweetVolumeMetricName(stockSymbol):
   """ Generate Tweet Volume metric name, given the stock symbol
 
@@ -58,11 +59,21 @@ def getTweetVolumeMetricName(stockSymbol):
   return "TWITTER.TWEET.HANDLE.%s.VOLUME" % (stockSymbol.upper(),)
 
 
+
+def getXigniteStockVolumeMetricName(stockSymbol):
+  """ Generate xignite stock volume metric name, given the stock symbol
+
+  :param str stockSymbol: stock symbol
+  """
+  return "XIGNITE.%s.VOLUME" % (stockSymbol.upper(),)
+
+
+
 def _addXigniteStockVolumeMetric(metricsDict, stockSymbol):
   """ Add an xignite stock volume metric to the given metrics dict for the given
   stock symbol
   """
-  metricName = "XIGNITE.%s.VOLUME" % (stockSymbol.upper(),)
+  metricName = getXigniteStockVolumeMetricName(stockSymbol)
   metricsDict[metricName] = {
     "provider": "xignite",
     "metricType": "StockVolume",

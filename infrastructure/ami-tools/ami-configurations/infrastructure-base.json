@@ -42,7 +42,7 @@
     },
     {
       "destination": "/tmp/devtools-pathaddition.sh",
-      "source": "repos/devtools-pathaddition.sh",
+      "source": "files/devtools-pathaddition.sh",
       "type": "file"
     },
     {

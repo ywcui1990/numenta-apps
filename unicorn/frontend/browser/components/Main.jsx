@@ -20,12 +20,10 @@
 
 import 'roboto-fontface/css/roboto-fontface.css';
 
-import csp from 'js-csp';
 import React from 'react';
 
 import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
 import FloatingActionButton from 'material-ui/lib/floating-action-button';
-import MenuItem from 'material-ui/lib/menus/menu-item';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 

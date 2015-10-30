@@ -38,13 +38,11 @@ import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
 import StopModelAction from '../actions/StopModel';
 
-const StoreDecorator = () => ({});
-
 
 /**
  *
  */
-@connectToStores([ModelStore], StoreDecorator)
+@connectToStores([ModelStore], () => ({}))
 export default class Model extends React.Component {
 
   static get contextTypes() {
@@ -96,7 +94,7 @@ export default class Model extends React.Component {
     }
     if (model.error) {
       avatar = (<Avatar backgroundColor={Colors.red500}>E</Avatar>);
-      title = model.metric + ': ' + model.error.message;
+      title = `${model.metric} : ${model.error.message}`;
       titleColor = Colors.red500;
     } else {
       avatar = (<Avatar backgroundColor={Colors.green500}></Avatar>);

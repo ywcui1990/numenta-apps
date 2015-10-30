@@ -29,10 +29,6 @@ import React from 'react';
 import Model from '../components/Model';
 import ModelStore from '../stores/ModelStore';
 
-const StoreDecorator = (context) => ({
-  models: context.getStore(ModelStore).getModels()
-});
-
 
 /**
  * @module
@@ -42,7 +38,9 @@ const StoreDecorator = (context) => ({
  * @extends React.Component
  * @this ModelList
  */
-@connectToStores([ModelStore], StoreDecorator)
+@connectToStores([ModelStore], (context) => ({
+  models: context.getStore(ModelStore).getModels()
+}))
 export default class ModelList extends React.Component {
 
   static get contextTypes() {
@@ -77,7 +75,7 @@ export default class ModelList extends React.Component {
   }
 
   _renderModels() {
-    return this.props.models.map(model => {
+    return this.props.models.map((model) => {
       return (
         <Model key={model.modelId} modelId={model.modelId} />
       );

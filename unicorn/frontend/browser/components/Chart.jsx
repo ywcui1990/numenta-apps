@@ -43,7 +43,7 @@ export default class Chart extends React.Component {
     return {
       data: React.PropTypes.array.isRequired,
       options: React.PropTypes.object,
-      zDepth: React.PropTypes.number,
+      zDepth: React.PropTypes.number
     };
   }
 
@@ -136,11 +136,11 @@ export default class Chart extends React.Component {
    */
   _chartUpdate() {
     let options = {};
-    let graphXmin, graphXmax;
+    let graphXmax;
 
-    if(this._chartScrollLock && !this._chartBusy) {
+    if (this._chartScrollLock && !this._chartBusy) {
       // if range scroll is locked, we're far right, so stay far right on chart
-      [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
+      graphXmax = this._dygraph.xAxisExtremes()[1];
       this._chartRange = [(graphXmax - this._chartRangeWidth), graphXmax];
     }
 
@@ -164,7 +164,7 @@ export default class Chart extends React.Component {
    */
   _chartZoomCallback(rangeXmin, rangeXmax, yRanges) {
     // chart range finder, far-right scroll lock
-    let [ graphXmin, graphXmax ] = this._dygraph.xAxisExtremes();
+    let [graphXmin, graphXmax] = this._dygraph.xAxisExtremes();
     let graphXrange = graphXmax - graphXmin;
     let graphXdiff = graphXmax - rangeXmax;
 

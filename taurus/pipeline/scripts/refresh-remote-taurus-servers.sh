@@ -265,6 +265,7 @@ pushd "${REPOPATH}"
     export PYTHONPATH=/opt/numenta/anaconda/lib/python2.7/site-packages:\$PYTHONPATH
     export APPLICATION_CONFIG_PATH=/opt/numenta/products/taurus.metric_collectors/conf
     export TAURUS_HTM_SERVER=${TAURUS_SERVER_HOST_PRIVATE}
+    export TAURUS_API_KEY=${TAURUS_API_KEY}
     export XIGNITE_API_TOKEN=${XIGNITE_API_TOKEN}
     export TAURUS_TWITTER_ACCESS_TOKEN=${TAURUS_TWITTER_ACCESS_TOKEN}
     export TAURUS_TWITTER_ACCESS_TOKEN_SECRET=${TAURUS_TWITTER_ACCESS_TOKEN_SECRET}
@@ -385,9 +386,8 @@ pushd "${REPOPATH}"
      cd /opt/numenta/products/taurus.metric_collectors/taurus/metric_collectors/collectorsdb &&
      python migrate.py &&
      cd /opt/numenta/products/taurus.metric_collectors &&
-     if [ -f supervisord.pid ]; then
-       supervisorctl --serverurl http://localhost:8001 shutdown
-     fi &&
+     supervisorctl --serverurl http://localhost:8001 shutdown &&
+     nta-wait-for-supervisord-stopped http://localhost:8001 &&
      py.test tests/deployment/resource_accessibility_test.py &&
      supervisord -c conf/supervisord.conf &&
      nta-wait-for-supervisord-running http://localhost:8001 &&

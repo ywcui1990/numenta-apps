@@ -27,5 +27,5 @@
 current_state_output=$(grep 'state_output: mixed' /etc/salt/minion)
 if [ -z "${current_state_output}" ]; then
   echo "Setting salt output state to mixed"
-  echo "state_output: mixed" >> /etc/salt/minion
+  sudo sh -c 'echo "state_output: mixed" >> /etc/salt/minion'
 fi
