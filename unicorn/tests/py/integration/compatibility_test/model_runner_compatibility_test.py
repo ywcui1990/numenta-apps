@@ -27,15 +27,12 @@ To add data for tests, convert data from NAB using
 unicorn/scripts/convert_data.py and place in the DATA_DIR.
 """
 
-from datetime import datetime
 import json
 import logging
 import os
 import subprocess
 import sys
-import time
 import unittest
-import uuid
 
 
 from nta.utils.logging_support_raw import LoggingSupport
@@ -97,7 +94,7 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
     data = self._load(os.path.join(DATA_DIR, name))
     results = self._load(os.path.join(RESULTS_DIR, name))
 
-    modelId = uuid.uuid1().hex
+    modelId = "test"
 
     with self._startModelRunnerSubprocess(modelId, stats) as mrProcess:
       for i, rec in enumerate(data):
@@ -110,7 +107,9 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
         rowIndex, anomalyLikelihood = json.loads(outputRecord)
 
         self.assertEqual(rowIndex, i)
-        self.assertAlmostEqual(anomalyLikelihood, results[i][1],
+        self.assertAlmostEqual(
+          anomalyLikelihood,
+          results[i][1],
           msg=("Row: {0}\t"
                "Timestamp: {1}\t"
                "Value: {2}\t"
