@@ -11,6 +11,9 @@
     "name": {
       "type": "string"
     },
+    "filename": {
+      "type": "string"
+    },
     "description": {
       "type": "string",
       "description": "File description"
