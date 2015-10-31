@@ -80,10 +80,12 @@ class TimeSliderView: UIView {
         let barWidth = (floatWidth -  (leftMargin * 2)) / Double(chartTotalBars)
         var left = Double(rect.width) - barWidth-0.5 - leftMargin
 
+        let startLeft = left
         let top = Double(frame.origin.y)
         let bottom = Double(frame.height)
         var lastLeft: Double = Double(frame.width) - leftMargin
      //   print (endDate)
+        let context = UIGraphicsGetCurrentContext()
         // Draw right to left all of the bars.
         while (bar>0){
           /*  if (transparentBackground){
@@ -96,10 +98,12 @@ class TimeSliderView: UIView {
                     }
                 }
             }*/
+            
+            
             let open = TaurusApplication.marketCalendar.isOpen(time + DataUtils.METRIC_DATA_INTERVAL)
             
             if (showBackground){
-                let context = UIGraphicsGetCurrentContext()
+               
                 
                 CGContextSaveGState( context)
                 
@@ -163,6 +167,11 @@ class TimeSliderView: UIView {
             bar--
             
         }
+        // Draw Seperator line
+         CGContextSetStrokeColorWithColor(context, UIColor.lightGrayColor().CGColor)
+        CGContextMoveToPoint(context, CGFloat(10.0), CGFloat(20.0))
+        CGContextAddLineToPoint(context, CGFloat(rect.width-10.0),  CGFloat(20.0))
+         CGContextStrokePath(context)
     }
     
 

@@ -65,6 +65,13 @@ public class DataUtils{
         return (time / DataUtils.MILLIS_PER_HOUR) * DataUtils.MILLIS_PER_HOUR;
 
     }
+    
+    /** round timestamp to nearest 24 hour period
+        - parameter time:
+    */
+    static func floorToDay( time: Int64)->Int64{
+         return (time / (24*DataUtils.MILLIS_PER_HOUR)) * (24*DataUtils.MILLIS_PER_HOUR)
+    }
 
     
     
@@ -82,7 +89,7 @@ public class DataUtils{
         if (grokFormater == nil){
             grokFormater = NSDateFormatter()
             grokFormater!.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-            grokFormater!.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+            grokFormater!.timeZone = NSTimeZone(name : "UTC")
         }
        
         let dateObj = grokFormater!.dateFromString(date)
@@ -92,28 +99,33 @@ public class DataUtils{
     
     
     static func parseHTMDate (date : String)->NSDate? {
-        let dateFormatter = NSDateFormatter()
+     /*   let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-         dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
-        return  dateFormatter.dateFromString(date)
+         dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)*/
+        return  parseGrokDate(date)
     }
     
     
     
     static func floorTo5Mins (date : NSDate)->NSDate{
-        let secondsInitial = date.timeIntervalSince1970
-        let secondsFloored = (floor(secondsInitial/300.0))*300.0
-            return NSDate(timeIntervalSince1970: Double(secondsFloored))
+        let secondsInitial = DataUtils.timestampFromDate(date)
+        let secondsFloored = (secondsInitial/DataUtils.METRIC_DATA_INTERVAL) *  DataUtils.METRIC_DATA_INTERVAL
+
+            return DataUtils.dateFromTimestamp(secondsFloored)
     }
     
     
     static func calculateSortRank( value: Double)->Double{
+        if (value == 0){
+            return 0
+        }
+        
         let active : Bool  = value > 0;
         var calculated : Double = DataUtils.logScale(abs(value));
-        if (calculated >= GrokApplication.redBarFloor) {
+        if (Float(calculated) >= GrokApplication.redBarFloor) {
             // Red
             calculated += RED_SORT_FLOOR;
-        } else if (calculated >= GrokApplication.yellowBarFloor) {
+        } else if (Float(calculated) >= GrokApplication.yellowBarFloor) {
             // Yellow
             calculated += YELLOW_SORT_FLOOR;
         } else {

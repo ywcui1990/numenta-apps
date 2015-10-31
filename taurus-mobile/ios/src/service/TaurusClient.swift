@@ -272,7 +272,7 @@ public class TaurusClient : GrokClient {
         var keyConditions : [String: AWSDynamoDBCondition] = [: ]
         let dateFormatter : NSDateFormatter  = NSDateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        dateFormatter.timeZone = NSTimeZone(forSecondsFromGMT: 0)
+        dateFormatter.timeZone = NSTimeZone(name : "UTC")
 
         
         // Set up the UID condition
@@ -374,14 +374,15 @@ public class TaurusClient : GrokClient {
         ascending : Bool,callback : (InstanceData?)->Void?){
             
             
-            print (date)
-            print ( fromHour)
-            print (toHour)
+       //     print (date)
+       //     print ( fromHour)
+        //    print (toHour)
             let query = AWSDynamoDBQueryInput()
             query.tableName = TaurusClient.INSTANCE_DATA_HOURLY_TABLE
             var keyConditions : [String: AWSDynamoDBCondition] = [: ]
             
             let dateFormatter : NSDateFormatter  = NSDateFormatter()
+            dateFormatter.timeZone = NSTimeZone(abbreviation: "UTC")!
             dateFormatter.dateFormat = "yyyy-MM-dd"
             
             let dateStr  = dateFormatter.stringFromDate( date )
@@ -391,6 +392,7 @@ public class TaurusClient : GrokClient {
             let dateAttr = AWSDynamoDBAttributeValue()
             dateAttr.S = dateStr
             
+           // print ("syncing " + dateAttr.S)
             dateCondition.attributeValueList = [dateAttr]
             keyConditions["date"] = dateCondition
             
@@ -437,7 +439,7 @@ public class TaurusClient : GrokClient {
                  
                     let dateFormatter = NSDateFormatter()
                     dateFormatter.dateFormat = "yyyy'-'MM'-'dd'T'HH"
-                    dateFormatter.timeZone =   NSTimeZone(forSecondsFromGMT: 0)
+                    dateFormatter.timeZone =  NSTimeZone(name : "UTC")
 
                     
                     for item  in myResults{
@@ -447,26 +449,27 @@ public class TaurusClient : GrokClient {
                         let anonomaly_score = (item["anomaly_score"] as! AWSDynamoDBAttributeValue).M
                     //    print (date_hour)
                         let date = dateFormatter.dateFromString( date_hour.S)!
-                 //       print (date)
+                     //   print ( "instanceData" + date.description)
                         var metricMask = MetricType()
                         
                    /*    print (instance_id)
                         print (date)
                         print (anonomaly_score)
                      */
+                        let dateSeconds =  DataUtils.timestampFromDate(date)
+                        
+
                         for (key, anomalyValue) in anonomaly_score {
                             let score :Double = Double ( anomalyValue.N)!
                             let scaledScore = DataUtils.logScale(abs(score))
                          //   print ("score : %s", scaledScore)
                             
-                            if (scaledScore >= TaurusApplication.getYellowBarFloor()){
+                            if (Float(scaledScore) >= TaurusApplication.yellowBarFloor){
                                 metricMask.insert(MetricType.enumForKey(key as! String))
                             }
                             anomalyScore = max(score, anomalyScore)
                         }
-                        
-                        let dateSeconds = Int64(date.timeIntervalSince1970*1000)
-                        
+                      
                         let instanceData = TaurusApplication.dataFactory.createInstanceData(instance_id, aggregation: AggregationType.Day, timestamp: dateSeconds, anomalyScore: Float(anomalyScore), metricMask: metricMask)
                         callback (instanceData)
                     }
@@ -496,9 +499,11 @@ public class TaurusClient : GrokClient {
         let fromDay = calendar.ordinalityOfUnit(.Day, inUnit: .Year, forDate: from)
         let toDay = calendar.ordinalityOfUnit(.Day, inUnit: .Year, forDate: to)
 
-        print ("Get all days")
-        print (from)
-        print (to)
+        /*print ("Get all days")
+        print ("getAllInstance from:" + from.description)
+        print ("getAllInstance to:" + to.description)
+*/
+       
         // Check if "from" date and "to" date falls on the same day
         if (fromDay == toDay) {
              getAllInstanceDataForDate(from, fromHour: calendar.component(NSCalendarUnit.Hour, fromDate: from), toHour: calendar.component(NSCalendarUnit.Hour, fromDate: to), ascending: ascending, callback : callback)
