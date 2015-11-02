@@ -311,6 +311,8 @@ class ModelLatencyCheckerTest(unittest.TestCase):
   # Prevent ModelLatencyChecker from actually being instantiated
   @patch("taurus.monitoring.latency_monitor.model_latency_monitor"
          ".ModelLatencyChecker", autospec=True)
+  # Disable "method could be a function" pylint warning
+  # pylint: disable=R0201
   def testMain(self, modelLatencyCheckerMock):
     main()
     modelLatencyCheckerMock.assert_called_once_with()
@@ -357,7 +359,7 @@ class ModelLatencyCheckerUtil(ModelLatencyChecker):
     for model in ModelLatencyCheckerTest.models:
       resultSet = self.getMetricData(metricUid=model["uid"])
 
-      # Cache only a sumset of the data used in the monitor and test
+      # Cache only a subset of the data used in the monitor and test
       metricData = [
         {"timestamp": sample["timestamp"],
           "metric_value": sample["metric_value"]
