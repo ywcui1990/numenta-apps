@@ -65,6 +65,9 @@ class SupervisorChecker(MonitorDispatcher):
   def __init__(self):
     options = self.parser.parse_options()
 
+    if not options.serverUrl:
+      self.parser.error("You must specify a --serverUrl argument.")
+
     logging_support.LoggingSupport.initLogging(
       loggingLevel=options.loggingLevel)
 
@@ -117,6 +120,7 @@ class SupervisorChecker(MonitorDispatcher):
     if state.get("statename") != "RUNNING":
       raise SupervisorNotRunning("Supervisor does not appear to be running:"
                                  "{}".format(repr(state)))
+
 
 
   @MonitorDispatcher.registerCheck

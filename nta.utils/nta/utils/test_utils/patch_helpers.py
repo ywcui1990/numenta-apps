@@ -1,0 +1,62 @@
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Affero Public License for more details.
+#
+# You should have received a copy of the GNU Affero Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+import datetime
+from mock import Mock, patch
+
+
+
+def patchCLIArgs(programName, *cliArgs):
+  """ Patch decorator helper for patching `sys.argv`, useful for mocking CLI
+  arguments.
+
+  Usage::
+
+    @patch_helpers.patchCLIArgs("taurus-model-latency-monitor",
+                                "--monitorConfPath",
+                                os.path.join(_CONF_DIR, "test.conf"),
+                                "--metricDataTable",
+                                "taurus.metric_data.test")
+
+  :param str programName: Program name; i.e. first component in `sys.argv`
+  :param sequence *cliArgs: Remaining command line arguments.
+  :returns: Decorated function in which `sys.argv` contains the arguments
+  """
+  def wrap(fn):
+    return patch("sys.argv", [programName] + list(cliArgs))(fn)
+  return wrap
+
+
+def patchUTCNow(utcnow):
+  """ Patch decorator helper for patching `datetime.datetime` to some fixed
+  value for `utcnow()`.
+
+  Usage::
+
+    @patch_helpers.patchUTCNow(datetime.datetime(2015, 11, 1, 22, 41, 0, 0))
+
+  :param datetime.datetime utcnow: Timestamp value to which `utcnow()` will be
+    fixed in context of patched function
+  """
+  def wrap(fn):
+    return patch("datetime.datetime",
+                 Mock(wraps=datetime.datetime,
+                      utcnow=Mock(return_value=utcnow)))(fn)
+  return wrap

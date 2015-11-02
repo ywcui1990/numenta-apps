@@ -54,12 +54,27 @@ NOTIFICATION_RETENTION_PERIOD = 7
 
 
 
+class _SubclassMetaClassWatcher(ABCMeta):
+  def __new__(cls, name, bases, attr):
+    """ Ensure that subclasses do not carry over previous checks.
+
+    If you import multiple modules in which MonitorDispatcher is subclassed,
+    all checks are saved in the global MonitorDispatcher class.
+    """
+    subclass = ABCMeta.__new__(cls, name, bases, attr)
+    subclass.checks = [
+      check for check in subclass.checks if check.func_name in attr
+    ]
+    return subclass
+
+
+
 # Disable `Abstract class not referenced (abstract-class-not-used)` warnings
 # pylint: disable=R0921
 class MonitorDispatcher(object):
-  __metaclass__ = ABCMeta
+  __metaclass__ = _SubclassMetaClassWatcher
 
-  _checks = []
+  checks = []
 
 
   # If you make any changes to the schema definition below, you must call
@@ -89,6 +104,7 @@ class MonitorDispatcher(object):
                                 Text()),
                          Index("timestamp_index",
                                "timestamp"))
+
 
 
   @abstractmethod
@@ -238,9 +254,9 @@ class MonitorDispatcher(object):
       def _dispatchNotificationWithTransactionAwareRetries():
         with monitorsdb.engineFactory().begin() as conn:
           """ Wrap dispatchNotification() in a transaction, in case there is an
-          error that prevents the notification being dispatched.  In such a case
-          we DO NOT want to save the notification so that it may be re-attempted
-          later
+          error that prevents the notification being dispatched.  In such a
+          case we DO NOT want to save the notification so that it may be
+          re-attempted later
           """
           if cls.recordNotification(conn, checkFn, excType, excValue):
             dispatchNotification(self, checkFn, excType, excValue, excTraceback)
@@ -253,7 +269,7 @@ class MonitorDispatcher(object):
   def checkAll(self):
     """ Run all previously-registered checks and send an email upon failure
     """
-    for check in self._checks:
+    for check in self.checks:
       # Disable `Catching too general exception Exception (broad-except)`
       # warning
       # pylint: disable=W0703
@@ -284,4 +300,4 @@ class MonitorDispatcher(object):
     check.  Function must accept a ServerProxy instance as its first
     argument.
     """
-    cls._checks.append(fn)
+    cls.checks.append(fn)

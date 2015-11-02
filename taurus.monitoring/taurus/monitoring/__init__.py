@@ -122,7 +122,6 @@ class MonitorOptionParser(OptionParser):
     (options, args) = OptionParser.parse_args(self, *args, **kwargs)
 
     if args:
-      self.parser.error("Unexpected positional arguments: {}"
-                        .format(repr(args)))
+      self.error("Unexpected positional arguments: {}".format(repr(args)))
 
     return options

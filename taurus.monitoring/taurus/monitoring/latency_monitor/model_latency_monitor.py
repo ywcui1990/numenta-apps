@@ -39,7 +39,6 @@ from taurus.monitoring.monitor_dispatcher import MonitorDispatcher
 
 
 
-
 MIN_THRESHOLD = 3600 # Required minimum number of seconds to pass since last
                      # known timestamp before a model may be _considered_ as
                      # not having recent data
@@ -113,6 +112,12 @@ class ModelLatencyChecker(MonitorDispatcher):
     logging_support.LoggingSupport.initLogging(
       loggingLevel=options.loggingLevel)
 
+    if not options.monitorConfPath:
+      self.parser.error("You must specify a --monitorConfPath argument.")
+
+    if not options.metricDataTable:
+      self.parser.error("You must specify a --metricDataTable argument.")
+
     self.config = loadConfig(options)
     self.emailParams = loadEmailParamsFromConfig(self.config)
     self.apiKey = self.config.get("S1", "MODELS_MONITOR_TAURUS_API_KEY")
@@ -126,10 +131,7 @@ class ModelLatencyChecker(MonitorDispatcher):
     self.threshold = options.threshold
     self.sigmaMultiplier = options.sigmaMultiplier
 
-    if not options.metricDataTable:
-      self.parser.error("You must specify a --metricDataTable argument.")
     self.metricDataTable = options.metricDataTable
-
     self.days = options.days
     self.options = options
 
@@ -161,7 +163,6 @@ class ModelLatencyChecker(MonitorDispatcher):
       params=self.emailParams)
 
     g_logger.info("Dispatching notification: %r", dispatchKwargs)
-
     error_reporting.sendMonitorErrorEmail(**dispatchKwargs)
 
 
@@ -175,13 +176,43 @@ class ModelLatencyChecker(MonitorDispatcher):
 
     if response.status_code != 200:
       raise LatencyMonitorError("Unable to query Taurus API for active models:"
-                                " Unexpected HTTP response status (%d) from "
-                                "%s -- %s",
-                                response.status_code,
-                                self.modelsUrl,
-                                response.text)
+                                " Unexpected HTTP response status ({}) from "
+                                "{} -- {}".format(response.status_code,
+                                                  self.modelsUrl,
+                                                  response.text))
 
     return response.json()
+
+
+  def _connectDynamoDB(self):
+    """ Connect to DynamoDB with boto and return connection object
+
+    :returns: boto DynamoDB connection (see boto.dynamodb2.connect_to_region())
+    """
+    return boto.dynamodb2.connect_to_region(
+      self.awsDynamoDBRegion,
+      aws_access_key_id=self.awsAccessKeyId,
+      aws_secret_access_key=self.awsSecretAccessKey)
+
+
+  def getMetricData(self, metricUid):
+    """ Retrieve and return metric data from dynamodb
+
+    :param str metricUid: Metric uid
+    :param str timestamp: Timestamp representing the lower bounds for metric
+      data samples to retrieve
+    :returns: DynamoDB ResultSet (see
+      http://boto.readthedocs.org/en/latest/dynamodb2_tut.html#the-resultset)
+    """
+    # Query recent DynamoDB metric data for each model
+    now = datetime.datetime.utcnow()
+
+    then = str(now - datetime.timedelta(days=self.days,
+                                        microseconds=now.microsecond))
+
+    conn = self._connectDynamoDB()
+    metricDataTable = Table(self.metricDataTable, connection=conn)
+    return metricDataTable.query_2(uid__eq=metricUid, timestamp__gte=then)
 
 
   @MonitorDispatcher.registerCheck
@@ -191,25 +222,13 @@ class ModelLatencyChecker(MonitorDispatcher):
     recent data trigger an error.  Errors are batched up into a single
     exception reported by MonitorDispatcher.dispatchNotification() protocol
     """
+
     models = self.getModels()
-
-    conn = boto.dynamodb2.connect_to_region(
-      self.awsDynamoDBRegion,
-      aws_access_key_id=self.awsAccessKeyId,
-      aws_secret_access_key=self.awsSecretAccessKey)
-
-    metricDataTable = Table(self.metricDataTable, connection=conn)
 
     errors = []
 
     for model in models:
-      # Query recent DynamoDB metric data for each model
-      now = datetime.datetime.now()
-      then = str(now - datetime.timedelta(days=self.days,
-                                          microseconds=now.microsecond))
-      resultSet = metricDataTable.query_2(uid__eq=model["uid"],
-                                          timestamp__gte=then)
-
+      resultSet = self.getMetricData(metricUid=model["uid"])
       # Track all time intervals between valid (e.g. non-zero) samples
       intervals = []
 
@@ -232,6 +251,7 @@ class ModelLatencyChecker(MonitorDispatcher):
       # Calculate current UTC timestamp adjusted to account for acceptable
       # 10-minute delay in processing.
       utcnow = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
+
 
       if not intervals:
         errors.append(_ErrorParams(model["name"], model["uid"], None))
@@ -268,9 +288,10 @@ class ModelLatencyChecker(MonitorDispatcher):
     if errors:
       msg = ("The following models have exceeded the acceptable threshold for "
              "time since last timestamp in {} DynamoDB table:\n    {}"
-             .format(metricDataTable.table_name,
+             .format(self.metricDataTable,
                      "\n    ".join(str(error) for error in errors)))
       raise LatencyMonitorError(msg)
+
 
 
 
@@ -280,4 +301,6 @@ def main():
 
 
 if __name__ == "__main__":
-  main()
+  raise NotImplementedError("This module is not intended to be run directly.  "
+                            "See setup.py for `taurus-model-latency-monitor` "
+                            "console script entry point definition.")
