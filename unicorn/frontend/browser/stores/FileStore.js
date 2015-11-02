@@ -32,7 +32,8 @@ export default class FileStore extends BaseStore {
 
   static get handlers() {
     return {
-      UPLOADED_FILE_SUCCESS: '_handleAddFile',
+      UPDATE_FILE_SUCCESS: '_handleSetFile',
+      UPLOADED_FILE_SUCCESS: '_handleSetFile',
       LIST_FILES_SUCCESS: '_handleListFiles',
       LIST_METRICS_SUCCESS: '_handleListMetrics'
     }
@@ -47,6 +48,16 @@ export default class FileStore extends BaseStore {
     return Array.from(this._files.values());
   }
 
+
+  /**
+   * Get file from store
+   *
+   * @param  {string} filename File Name
+   * @return {FileStore.File} The file object.
+   */
+  getFile(filename) {
+    return this._files.get(filename);
+  }
   _handleListFiles(files) {
     if (files) {
       files.forEach((file) => {
@@ -57,7 +68,7 @@ export default class FileStore extends BaseStore {
     }
   }
 
-  _handleAddFile(file) {
+  _handleSetFile(file) {
     this._files.set(file.filename, file);
     this.emitChange();
   }
@@ -78,4 +89,25 @@ export default class FileStore extends BaseStore {
     }
   }
 
+  /**
+   * Metric type stored in the {@link FileStore.File}
+   * @see ../database/schema/Metric.json
+   *
+   * @typedef {Object} FileStore.Metric
+   * @property {string} uid: Metric ID
+   * @property {string} file_uid: File ID
+   * @property {string} name: Metric Name
+   * @property {string} type: Metric type ('string' | 'number' | 'date')
+   */
+
+   /**
+    * Metric type stored in the {@link FileStore}
+    * @see ../database/schema/File.json
+    *
+    * @typedef {Object} FileStore.File
+    * @property {string} name Short File Name
+    * @property {string} filename Full file path
+    * @property {string} type File type ('upoaded' | 'sample')
+    * @property {FileStore.Metric[]} metrics
+    */
 }

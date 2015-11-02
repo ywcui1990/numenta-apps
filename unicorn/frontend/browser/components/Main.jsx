@@ -21,8 +21,8 @@
 import 'roboto-fontface/css/roboto-fontface.css';
 
 import React from 'react';
-
-import applyMaterialTheme from 'material-ui/lib/styles/theme-decorator';
+import provideContext from 'fluxible-addons-react/provideContext';
+import ThemeDecorator from 'material-ui/lib/styles/theme-decorator';
 import FloatingActionButton from 'material-ui/lib/floating-action-button';
 import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
@@ -31,11 +31,11 @@ import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 import FileAddAction from '../actions/FileAdd';
 import FileUploadAction from '../actions/FileUpload';
+import FileList from '../components/FileList';
+import FileDetails from '../components/FileDetails';
 import LeftNav from '../components/LeftNav';
 import ModelList from '../components/ModelList';
 import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
-
-const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
 
 
 /**
@@ -46,7 +46,14 @@ const ThemeDecorator = ThemeManager.getMuiTheme(UnicornTheme);
  * @public
  * @this MainComponent
  */
-@applyMaterialTheme(ThemeDecorator)
+@provideContext({
+  getConfigClient: React.PropTypes.func,
+  getLoggerClient: React.PropTypes.func,
+  getDatabaseClient: React.PropTypes.func,
+  getFileClient: React.PropTypes.func,
+  getModelClient: React.PropTypes.func
+})
+@ThemeDecorator(ThemeManager.getMuiTheme(UnicornTheme))
 export default class MainComponent extends React.Component {
 
   static get contextTypes() {
@@ -109,16 +116,20 @@ export default class MainComponent extends React.Component {
   render() {
     return (
       <main style={this._style}>
-        <LeftNav />
-        <section style={{marginLeft:'256px', padding:'1rem'}}>
-          <FloatingActionButton onClick={this._onClick.bind(this)} style={{position:'fixed', top:96, left:224}}>
+        <LeftNav>
+          <FloatingActionButton onClick={this._onClick.bind(this)}
+            style={{position:'fixed', top:96, left:224}}>
             <SvgIconContentAdd/>
           </FloatingActionButton>
-          <input onChange={this._onFileSelect.bind(this)} ref="fileInput" style={{display:'none'}} type="file" />
+          <FileList/>
+        </LeftNav>
+        <section style={{marginLeft:'256px', padding:'1rem'}}>
           <ModelList />
         </section>
+        <input onChange={this._onFileSelect.bind(this)} ref="fileInput"
+          style={{display:'none'}} type="file" />
+        <FileDetails/>
       </main>
     );
   }
-
 }

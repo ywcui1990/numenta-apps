@@ -150,6 +150,7 @@ export default class ModelStore extends BaseStore {
    *               active: {boolean}    // Whether or not this model is running
    *             }
    *             </code>
+   *             or undefined if the model can't be found
    */
   getModel(modelId) {
     return this._models.get(modelId);

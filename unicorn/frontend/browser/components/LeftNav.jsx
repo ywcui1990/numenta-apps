@@ -23,7 +23,6 @@ import React from 'react';
 
 // internals
 
-import FileList from '../components/FileList';
 import Logo from '../components/Logo';
 
 
@@ -80,7 +79,7 @@ export default class LeftNav extends React.Component {
     return (
       <Paper style={this._style} zDepth={this.props.zDepth}>
         <Logo />
-        <FileList />
+        {this.props.children}
       </Paper>
     );
   }
