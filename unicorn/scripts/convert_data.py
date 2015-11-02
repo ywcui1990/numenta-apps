@@ -18,12 +18,14 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+"""
+This script converts CSV data formatted for the OPF into data formatted for
+streaming to the Unicorn model runner.
+"""
 import argparse
 import csv
 from datetime import datetime
 import json
-import os
-import sys
 import time
 
 
@@ -50,7 +52,8 @@ if __name__ == "__main__":
   parser.add_argument('data', metavar='/path/to/data.csv', type=str)
   parser.add_argument('output', metavar='/path/to/output.json', type=str)
   parser.add_argument('-n', '--num_header_rows', type=int, default=3)
-  parser.add_argument('-t', '--timestamp_format', type=str, default='%Y-%m-%d %H:%M:%S')
+  parser.add_argument('-t', '--timestamp_format', type=str,
+                      default='%Y-%m-%d %H:%M:%S')
 
   args = parser.parse_args()
 
