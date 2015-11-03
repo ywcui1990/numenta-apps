@@ -31,7 +31,6 @@ with open("requirements.txt", "r") as reqfile:
 
 
 class PyTest(TestCommand):
-  testsLocation = resource_filename("unicorn_backend.tests", "")
   user_options = [("pytest-args=", "a", "Arguments to pass to py.test")]
 
 
@@ -48,6 +47,7 @@ class PyTest(TestCommand):
   def run_tests(self):
     #import here, cause outside the eggs aren't loaded
     import pytest
+    testsLocation = resource_filename("unicorn_backend.tests", "")
     cwd = os.getcwd()
     try:
       os.chdir(self.testsLocation)
