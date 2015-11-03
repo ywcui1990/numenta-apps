@@ -25,7 +25,7 @@
 include:
   - mysql.repositories
 
-{% if grains['os_family'] == 'RedHat' %}
+{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
 
 install-mysql-client:
   pkg.latest:

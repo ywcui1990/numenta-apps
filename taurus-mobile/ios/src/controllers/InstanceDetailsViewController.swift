@@ -34,22 +34,28 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
 
     // Serial queue for loading chart data
     let loadQueue = dispatch_queue_create("com.numenta.InstanceDetailsController", nil)
-  //  var cellSet = Set<MetricCell>()
-    
-    var  metricChartData  = [MetricAnomalyChartData]()
+     var  metricChartData  = [MetricAnomalyChartData]()
     
     //
     var _aggregation: AggregationType = TaurusApplication.getAggregation()
     var marketHoursOnly = false
-    
-  //  var tableData = [InstanceAnomalyChartData]()
-   
-    
-    var chartData: InstanceAnomalyChartData? {
+     var chartData: InstanceAnomalyChartData? {
         didSet {
             // Update the view.
             self.configureView()
         }
+    }
+    
+    
+    /**
+        tell any pending chart to stop loading if the view is going away
+    */
+    override func viewWillDisappear(animated:Bool){
+        for chartData in metricChartData {
+            chartData.stopLoading()
+        }
+        super.viewWillDisappear (animated)
+        
     }
     
     /** bind data to view
@@ -102,7 +108,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         
         timeSlider?.openColor = UIColor.clearColor().CGColor
 
-        timeSlider?.closedColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 0.5).CGColor
+        timeSlider?.closedColor = UIColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 0.25).CGColor
 
         // on iOS 8+ need to make sure table background is clear
         
@@ -190,17 +196,16 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
      //   print ((timeSlider?.endDate,newTime))
         
         var flooredDate = DataUtils.floorTo5Mins (newTime!)
-        let endDateInd = Int64(flooredDate.timeIntervalSince1970 * 1000)
-        
-        let maxDate = DataUtils.floorTo5minutes(TaurusApplication.getDatabase().getLastTimestamp());
+        let endDateInd = DataUtils.timestampFromDate(flooredDate)
+        let maxDate = DataUtils.floorTo5minutes(TaurusApplication.getDatabase().getLastTimestamp())
         let minDate = maxDate - (Int64(TaurusApplication.getNumberOfDaysToSync() - 1)) * DataUtils.MILLIS_PER_DAY;
         // Check max date and no date
         if (endDateInd > maxDate) {
-            flooredDate =   DataUtils.floorTo5Mins(NSDate(timeIntervalSince1970: Double(maxDate)/1000.0 ))
+            flooredDate =  DataUtils.dateFromTimestamp(  maxDate )
         }
-        // Check min date
+            // Check min date
         if (endDateInd < minDate) {
-            flooredDate =  NSDate(timeIntervalSince1970: Double(minDate)/1000.0 )
+            flooredDate =  DataUtils.dateFromTimestamp(  minDate )
         }
         
         updateTimeSlider (flooredDate)
@@ -365,7 +370,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
             if let indexPath = self.instanceTable.indexPathForSelectedRow {
                 let controller = segue.destinationViewController as! TwitterViewController
                 
-                controller.metricChartData = self.metricChartData[indexPath.row]
+                controller.metricChartData = self.metricChartData[indexPath.row].shallowCopy()
                 controller.chartData = self.chartData
             }
         }

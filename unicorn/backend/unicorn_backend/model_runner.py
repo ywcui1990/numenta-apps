@@ -161,7 +161,10 @@ def _parseArgs():
   if not options.stats:
     parser.error("Missing or empty --stats option value")
 
-  stats = json.loads(options.stats)
+  try:
+    stats = json.loads(options.stats)
+  except ValueError:
+    parser.error("Invalid JSON value for --stats")
 
   # Parse replacement json values into native objects
   replaceParams = [(path, json.loads(replacement))

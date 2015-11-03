@@ -69,6 +69,8 @@ FileServer.prototype.getSampleFiles = function (callback) {
       var filename = path.resolve(SAMPLES_FILE_PATH, item);
       return {
         uid: Utils.generateId(filename),
+        description: `Sample File: ${path.basename(item)}`,
+        timestampFormat: 'YYYY-MM-DDTHH:mm:ss.sss',
         name: path.basename(item),
         filename: filename,
         type: 'sample'
@@ -86,6 +88,7 @@ FileServer.prototype.getSampleFiles = function (callback) {
  */
 FileServer.prototype.getUploadedFiles = function (file, callback) {
   var formattedFile = {
+    uid: Utils.generateId(file.path),
     name: file.name,
     filename: file.path,
     type: 'uploaded',
@@ -94,7 +97,6 @@ FileServer.prototype.getUploadedFiles = function (file, callback) {
 
   this.getFields(formattedFile.filename, {}, (error, fields) => {
     if (error) {
-
       callback(error);
       return;
     }

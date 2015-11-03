@@ -454,6 +454,8 @@ public class MetricAnomalyChartData implements AnomalyChartData, Serializable {
                                     if (idx >= _allRawData.length) {
                                         idx = _allRawData.length - 1;
                                     }
+
+                                    Log.e("value","index: "+idx + "valvue: " + value +" timestamp: "+ timestamp);
                                     _allRawData[idx] = value;
                                     // Aggregate anomalies hourly using the max anomaly
                                     long hour = DataUtils.floorTo60minutes(timestamp);

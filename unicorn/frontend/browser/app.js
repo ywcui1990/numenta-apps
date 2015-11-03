@@ -36,6 +36,7 @@ import ListFilesAction from './actions/ListFiles';
 import ListMetricsAction from './actions/ListMetrics';
 
 import FileStore from './stores/FileStore';
+import FileDetailsStore from './stores/FileDetailsStore';
 import ModelStore from './stores/ModelStore';
 import ModelDataStore from './stores/ModelDataStore';
 
@@ -101,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // init GUI flux/ible app
   app = new Fluxible({
     component: MainComponent,
-    stores: [FileStore, ModelStore, ModelDataStore]
+    stores: [FileStore, ModelStore, ModelDataStore, FileDetailsStore]
   });
 
   // Plug Unicorn plugin giving access to Unicorn clients

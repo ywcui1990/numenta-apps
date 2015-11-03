@@ -20,6 +20,8 @@
 # ----------------------------------------------------------------------
 # Formula: agamotto
 
+{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
+
 include:
   - numenta-python
 
@@ -42,3 +44,5 @@ agamotto:
       - pkg: anaconda-python
     - watch_in:
       - cmd: enforce-anaconda-permissions
+
+{% endif %}

@@ -27,14 +27,14 @@ saltConfigured=/etc/numenta/salt_configured
 echo
 echo "Infrastructure AMI cleanups"
 
-service salt-minion stop
+sudo service salt-minion stop
 
 echo "**********"
 echo "Purging salt minion id..."
-rm -fr /etc/salt/minion_id
+sudo rm -fr /etc/salt/minion_id
 
 echo "Clearing salt configuration flag"
-rm -f "${saltConfigured}"
+sudo rm -f "${saltConfigured}"
 
 echo "Purging salt-solo formulas"
-rm -fr /srv/salt/*
+sudo rm -fr /srv/salt/*

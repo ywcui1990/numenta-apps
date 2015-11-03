@@ -27,7 +27,7 @@ class InstanceAnomalyChartData : AnomalyChartData {
     var ticker : String? = nil
     var instanceId : String
     var data : [(Int64, Double)]?
-    var rank: Double = 0
+    var rank: Float = 0
     var aggregation : AggregationType
     var name : String = ""
     var endDate : Int64 = 0
@@ -108,18 +108,28 @@ class InstanceAnomalyChartData : AnomalyChartData {
             scores.append((key,Double(value.anomaly)))
         }
         
+        
+        
         // FIXME check if it would be easier to keep list sorted
         scores.sortInPlace {
             return $0.0 < $1.0
         }
         
+        if (ticker == "JNJ"){
+            for score in scores{
+                print(score)
+            }
+        }
        
         
      
-        
+       
         // Check if anything changed
-        self.data = scores
+        // fixmeabs(
         changed = true
+        
+        self.data = scores
+       
 
         // Rank data based on the last bars if changed
        if (timestamp != lastDBTimestamp || changed)
@@ -129,19 +139,19 @@ class InstanceAnomalyChartData : AnomalyChartData {
         
             rank = 0
             anomalousMetrics.rawValue = 0
-            for (ts, value) in anomalies!{
-                    rank += DataUtils.calculateSortRank (Double(value.anomaly))
+            for (_abs, value) in anomalies!{
+                    rank += Float(DataUtils.calculateSortRank ((Double(abs(value.anomaly)))))
                     anomalousMetrics.insert( value.metricMask)
                 
             }
         
             if ( anomalousMetrics.rawValue != 0){
                 if ( anomalousMetrics.contains( MetricType.StockPrice) || anomalousMetrics.contains( MetricType.StockVolume) ){
-                    rank += DataUtils.RED_SORT_FLOOR*10000.0
+                    rank += Float(DataUtils.RED_SORT_FLOOR*1000.0)
                 }
                 
                 if ( anomalousMetrics.contains( MetricType.TwitterVolume) ){
-                    rank += DataUtils.RED_SORT_FLOOR*1000.0
+                    rank += Float(DataUtils.RED_SORT_FLOOR)*100.0
                 }
         
 
@@ -218,7 +228,7 @@ class InstanceAnomalyChartData : AnomalyChartData {
     * Return the overall rank for the data represented by this class.
     * Usually the rank is calculated as the sum of all anomaly score values
     */
-    func getRank()->Double{
+    func getRank()->Float{
         return rank
     }
 

@@ -31,7 +31,7 @@ acta-diurna:
     - user: root
     - group: wheel
     - mode: 0755
-{% if grains['os_family'] == 'RedHat' %}
+{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
     - require:
       - file: python-27-symlink
       - sls: numenta-python
@@ -115,7 +115,7 @@ cleanup-motd-cronjob-symlink:
     - name: rm -f /etc/cron.daily/update-motd
     - unless: test -L /etc/cron.daily/update-motd
 
-{% if grains['os_family'] == 'RedHat' %}
+{% if grains['os_family'] == 'RedHat' and grains['osmajorrelease'][0] == '6' %}
 
 motd-cronjob:
 # Install the actual cronjob

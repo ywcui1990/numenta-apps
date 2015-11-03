@@ -5,6 +5,9 @@
   "excludes": [
     "bundle\\.js$"
   ],
+  "includes": [
+    "\\.(js|jsx)$"
+  ],
   "lint": true,
   "plugins": [
     { "name": "esdoc-es7-plugin" }

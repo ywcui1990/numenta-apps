@@ -22,34 +22,143 @@
 */
 public class MarketCalendar {
 
+    static let JANUARY = 1
+    static let FEBRUARY = 2
+    static let MARCH = 3
+    static let APRIL = 4
+    static let MAY = 5
+    static let JUNE = 6
+    static let JULY = 7
+    static let AUGUST = 8
+    static let SEPTEMBER = 9
+    static let OCTOBER = 10
+    static let NOVEMBER = 11
+    static let DECEMBER = 12
+
     var workweek = [ false,true, true, true, true, true, false]
-    /** FIXME right now just assume the market is open 9-4
+    
+    var holidays  = [Int64: Int64]() // first number is floored to lowest 24 hours. The next is closing time
+    
+     init(){
+        createHolidays()
+    }
+    /** determine if the market is open
     */
     public func isOpen (date : NSDate)->Bool {
         let calendar = NSCalendar.currentCalendar()
+        calendar.timeZone = NSTimeZone(name: "US/Eastern")!
+
         
         
         // check day of week
-        let dayOfWeek = calendar.components( (NSCalendarUnit.NSWeekdayCalendarUnit), fromDate: date)
+        let dayOfWeek = calendar.components( (NSCalendarUnit.Weekday), fromDate: date)
         
         if ( workweek[ dayOfWeek.weekday - 1 ]==false){
             return false
         }
         
-        let comp = calendar.components((NSCalendarUnit.NSHourCalendarUnit), fromDate: date)
+        let comp = calendar.components((NSCalendarUnit.Hour), fromDate: date)
         let hour = comp.hour
         if (hour>=9 && hour<16)
         {
+            let timestamp = DataUtils.timestampFromDate(date)
+            let flooredTime = DataUtils.floorToDay(timestamp)
+            
+            let holidayDatestamp = holidays[flooredTime]
+            
+            if ( holidayDatestamp != nil){
+                if ( timestamp > holidayDatestamp){
+                    return false
+                }
+                
+            }
             return true
         }
         
+       
         return false
     }
     
     public func isOpen (date : Int64)->Bool {
-        let time = NSDate(timeIntervalSince1970: Double(date)/1000.0)
+        let time = DataUtils.dateFromTimestamp(date)
         return isOpen(time)
     }
+    
+    /**
+        Add in all the holidays
+    */
+    public func createHolidays(){
+        // New Years Day
+        addHoliday(2015, month: MarketCalendar.JANUARY, day: 1, closingHour:0)
+        addHoliday(2016, month: MarketCalendar.JANUARY, day: 1, closingHour:0)
+        
+        
+        // Martin Luther King, Jr. Day
+        addHoliday(2015, month: MarketCalendar.JANUARY, day: 19, closingHour:0)
+        addHoliday(2016, month: MarketCalendar.JANUARY, day: 18, closingHour:0)
+        
+        // President's Day
+        addHoliday(2015, month: MarketCalendar.FEBRUARY, day: 16, closingHour:0)
+        addHoliday(2016, month: MarketCalendar.FEBRUARY, day: 15, closingHour:0)
+        
+        
+        // Good Friday
+        addHoliday(2015, month: MarketCalendar.APRIL, day: 3, closingHour:0)
+        addHoliday(2016, month: MarketCalendar.MARCH, day: 25, closingHour:0)
+       
+        
+        // Memorial Day
+        addHoliday(2015, month: MarketCalendar.MAY, day: 25, closingHour:0)
+        addHoliday(2016, month: MarketCalendar.MAY, day: 30, closingHour:0)
+       
+        
+        // Independence Day
+        addHoliday(2015, month: MarketCalendar.JULY, day: 3, closingHour:0)
+        addHoliday(2016, month: MarketCalendar.JULY,day:  4, closingHour:0)
+        
+        
+        // Labor Day
+        addHoliday(2015, month: MarketCalendar.SEPTEMBER, day: 7, closingHour:0)
+        addHoliday(2016, month: MarketCalendar.SEPTEMBER, day: 5, closingHour:0)
+       
+        
+        // Thanksgiving Day
+        addHoliday(2015,month: MarketCalendar.NOVEMBER, day: 26, closingHour:0)
+      
+        addHoliday(2015, month: MarketCalendar.NOVEMBER, day: 27, closingHour:13)
+        addHoliday(2016, month: MarketCalendar.NOVEMBER, day: 24,closingHour: 0)
+        addHoliday(2016, month: MarketCalendar.NOVEMBER, day: 25, closingHour:13)
+        
+        // Christmas
+        addHoliday(2015, month: MarketCalendar.DECEMBER, day: 24, closingHour:13)
+        addHoliday(2015,month: MarketCalendar.DECEMBER, day: 25, closingHour:0)
+        addHoliday(2016, month: MarketCalendar.DECEMBER, day: 26, closingHour: 0)
+       
+    }
+    
+    /** Add holiday to holiday dictionary
+        - parameter year:
+        - parameter month:
+        - parameter day:
+        - parameter closingHour:
+    */
+    func addHoliday( year: Int, month: Int, day:Int, closingHour: Int){
+        let calendar =  NSCalendar.currentCalendar()
+        
+        let comps = NSDateComponents()
+        comps.year = year
+        comps.month = month
+        comps.day = day
+        comps.hour = closingHour
+        comps.timeZone = NSTimeZone(name: "US/Eastern")
+        
+        let holidayDate = calendar.dateFromComponents(comps)
+        let holidayTimestamp = DataUtils.timestampFromDate(holidayDate!)
+        holidays [ DataUtils.floorToDay(holidayTimestamp)] = holidayTimestamp
+        
+    }
+    
+    
     
 
 }

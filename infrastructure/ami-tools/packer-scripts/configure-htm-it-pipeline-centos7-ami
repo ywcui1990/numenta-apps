@@ -55,7 +55,7 @@ install-prerequisites-and-update-repos() {
   sudo rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
   sudo yum -y install python-pip python-devel libxml2-devel libxslt-devel
 
-  # Install MySQL and Rabbit
+  # Install MySQL, Nginx and Rabbit
   sudo rpm -Uvh http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
   sudo yum install mysql-server mysql mariadb-devel nginx git -y
   curl -O https://www.rabbitmq.com/releases/rabbitmq-server/v3.5.4/rabbitmq-server-3.5.4-1.noarch.rpm
