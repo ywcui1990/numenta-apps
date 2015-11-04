@@ -24,7 +24,9 @@ Unittest of taurus/monitoring/monitor_dispatcher.py
 """
 import unittest
 
-from mock import Mock
+from mock import MagicMock, Mock, patch
+
+import sqlalchemy
 
 from taurus.monitoring.monitor_dispatcher import MonitorDispatcher
 
@@ -96,3 +98,66 @@ class MonitorDispatcherTest(unittest.TestCase):
     self.assertIs(excType, Exception)
     self.assertIsInstance(excValue, Exception)
     self.assertEqual(excValue.message, "myCheckFailed")
+
+
+  @patch("taurus.monitoring.monitor_dispatcher.monitorsdb.engineFactory",
+         autospec=True)
+  def testPreventDuplicatesPreventsDuplicates(self, engineFactoryMock):
+
+    cleanupOldNotificationsConnMock = Mock()
+    recordNotificationConnMock = Mock(begin=Mock(return_value=MagicMock()))
+
+    contextualConn = (
+      recordNotificationConnMock.begin.return_value.__enter__.return_value
+    )
+
+    contextualConn.execute.side_effect = iter([
+      # First Insert Succeeds.
+      Mock(),
+      # Second Insert raises an IntegrityError exception
+      sqlalchemy.exc.IntegrityError("statement", "params", "orig")
+    ])
+
+    # We're going to call MyMonitor().checkAll() twice below, so duplicate the
+    # mocks
+    engineFactoryMock.side_effect = iter(2*[
+      cleanupOldNotificationsConnMock,
+      recordNotificationConnMock
+    ])
+
+    dispatchNotificationMock = Mock()
+
+    exceptionToRaiseInMyCheck = Exception("myCheckFailed")
+
+    class MyMonitor(MonitorDispatcher):
+
+      @MonitorDispatcher.preventDuplicates
+      def dispatchNotification(self, checkFn, excType, excValue, excTraceback):
+        dispatchNotificationMock(excType, excValue)
+
+      @MonitorDispatcher.registerCheck
+      def myCheck(self):
+        raise exceptionToRaiseInMyCheck
+
+    MyMonitor().checkAll()
+
+    # Assert that MyMonitor().checkAll() attempted to delete something,
+    # presumably to clean up old notifications
+    self.assertTrue(cleanupOldNotificationsConnMock.execute.called)
+    (deleteObj,), _ = cleanupOldNotificationsConnMock.execute.call_args_list[0]
+    self.assertIsInstance(deleteObj, sqlalchemy.sql.dml.Delete)
+
+    # Assert that MyMonitor().checkAll() attempted to insert something
+    self.assertTrue(contextualConn.execute.called)
+    (insertObj,), _ = contextualConn.execute.call_args_list[0]
+    self.assertIsInstance(insertObj, sqlalchemy.sql.dml.Insert)
+
+    # Call it again to force a duplicate exception
+    MyMonitor().checkAll()
+
+    # Assert the dispatchNotification was called once, and only once as a
+    # result of the IntegrityError
+    dispatchNotificationMock.assert_called_once_with(
+      Exception,
+      exceptionToRaiseInMyCheck
+    )

@@ -124,7 +124,7 @@ class MonitorDispatcher(object):
 
 
   @staticmethod
-  def hashExceptionValue(excValue):
+  def _hashExceptionValue(excValue):
     """
     :param exception excValue:
     :returns: Hash digest (currently sha1)
@@ -174,7 +174,7 @@ class MonitorDispatcher(object):
 
 
   @classmethod
-  def cleanupOldNotifications(cls):
+  def _cleanupOldNotifications(cls):
     """ Delete all notifications older than a date determined by subtracting
     the number of days held in the value of the NOTIFICATION_RETENTION_PERIOD
     module-level variable from the current UTC timestamp.
@@ -197,7 +197,7 @@ class MonitorDispatcher(object):
 
 
   @classmethod
-  def recordNotification(cls, conn, checkFn, excType, excValue):
+  def _recordNotification(cls, conn, checkFn, excType, excValue):
     """ Record notification, uniquely identified by the name of the function,
     the exception type, and a hash digest of the exception value that triggered
     the notification.  Duplicate notifications will be silently ignored.
@@ -212,7 +212,7 @@ class MonitorDispatcher(object):
     :returns: Boolean result.  True if notification succesfully recorded, False
       if IntegrityError raised due to pre-existing duplicate.
     """
-    excValueDigest = cls.hashExceptionValue(excValue)
+    excValueDigest = cls._hashExceptionValue(excValue)
 
     # Disable `No value passed for parameter 'dml' in function call
     # (no-value-for-parameter)` warnings
@@ -250,7 +250,7 @@ class MonitorDispatcher(object):
       """
       See dispatchNotification() for signature and docstring.
       """
-      cls.cleanupOldNotifications()
+      cls._cleanupOldNotifications()
 
       @monitorsdb.retryOnTransientErrors
       def _dispatchNotificationWithTransactionAwareRetries():
@@ -260,7 +260,7 @@ class MonitorDispatcher(object):
           case we DO NOT want to save the notification so that it may be
           re-attempted later
           """
-          if cls.recordNotification(conn, checkFn, excType, excValue):
+          if cls._recordNotification(conn, checkFn, excType, excValue):
             dispatchNotification(self, checkFn, excType, excValue, excTraceback)
 
       _dispatchNotificationWithTransactionAwareRetries()

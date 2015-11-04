@@ -28,7 +28,6 @@ import pickle
 import unittest
 import os
 
-#from nta.utils.config import Config
 from nta.utils.test_utils import patch_helpers
 
 from taurus.monitoring.latency_monitor.model_latency_monitor import (
