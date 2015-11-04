@@ -21,6 +21,7 @@
 import Dygraph from 'dygraphs';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
+import ReactDOM from 'react-dom';
 
 
 /**
@@ -119,7 +120,7 @@ export default class Chart extends React.Component {
       clickCallback: this._chartClickCallback.bind(this),
       zoomCallback: this._chartZoomCallback.bind(this)
     };
-    let el = React.findDOMNode(this.refs.chart);
+    let el = ReactDOM.findDOMNode(this.refs.chart);
     let selector;
 
     Object.assign(options, this.props.options);

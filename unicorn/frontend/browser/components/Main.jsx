@@ -74,9 +74,8 @@ export default class MainComponent extends React.Component {
     this.context.executeAction(FileAddAction, {});
 
     /* open file upload window */
-    let fileInput = React.findDOMNode(this.refs.fileInput);
-    fileInput.value = null;
-    fileInput.click();
+    this.refs.fileInput.value = null;
+    this.refs.fileInput.click();
   }
 
   _onFileSelect(e) {

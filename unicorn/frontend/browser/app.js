@@ -27,6 +27,7 @@ import bunyan from 'bunyan';
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import remote from 'remote';
 import tapEventInject from 'react-tap-event-plugin';
 
@@ -127,7 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(() => {
       let contextEl = FluxibleReact.createElementWithContext(context);
-      React.render(contextEl, document.body);
+      let container = document.getElementById('main');
+      ReactDOM.render(contextEl, container);
     })
     .catch((error) => {
       dialog.showErrorBox('Startup Error', `Startup Error: ${error}`);
