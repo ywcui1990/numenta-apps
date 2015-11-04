@@ -62,9 +62,11 @@ class _SubclassMetaClassWatcher(ABCMeta):
     all checks are saved in the global MonitorDispatcher class.
     """
     subclass = ABCMeta.__new__(cls, name, bases, attr)
+
     subclass.checks = [
-      check for check in subclass.checks if check.func_name in attr
+      check for check in subclass.checks if check in attr.values()
     ]
+
     return subclass
 
 
@@ -297,7 +299,8 @@ class MonitorDispatcher(object):
   @classmethod
   def registerCheck(cls, fn):
     """ Function decorator to register an externally defined function as a
-    check.  Function must accept a ServerProxy instance as its first
-    argument.
+    check.  Function must be an instance method of a MonitorDispatcher subclass
+    and accept no additional arguments.
     """
     cls.checks.append(fn)
+    return fn

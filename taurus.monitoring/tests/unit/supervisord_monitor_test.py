@@ -60,7 +60,8 @@ class SupervisorCheckerTest(unittest.TestCase):
          ".SupervisorChecker.dispatchNotification")
   # Disable pylint warning re: unused dispatchNotificationMock argument
   # pylint: disable=W0613
-  def testCheckAll(self, dispatchNotificationMock, supervisorClientMock):
+  def testCheckAllSendsNotification(self, dispatchNotificationMock,
+                                    supervisorClientMock):
     runningState = {"statename": "RUNNING"}
     getStateMock = Mock(return_value=runningState)
     getAllProcessInfoMock = Mock(return_value=[runningState])

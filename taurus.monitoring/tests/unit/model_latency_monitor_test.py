@@ -152,8 +152,8 @@ class ModelLatencyCheckerTest(unittest.TestCase):
          ".ModelLatencyChecker.dispatchNotification")
   # Disable pylint warning re: unused botoDynamoDB2Mock argument
   # pylint: disable=W0613
-  def testCheckAll(self, dispatchNotificationMock, tableMock,
-                   botoDynamoDB2Mock, requestsGetMock):
+  def testCheckAllSendsNotification(self, dispatchNotificationMock, tableMock,
+                                    botoDynamoDB2Mock, requestsGetMock):
 
     # Mock API to return pre-defined models in lieu of making an API call to
     # a live taurus models HTTP endpoint
