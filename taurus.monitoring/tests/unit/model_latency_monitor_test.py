@@ -74,13 +74,10 @@ class ModelLatencyCheckerTest(unittest.TestCase):
          autospec=True)
   # Fix datetime.datetime.utcnow() to known time relative to cached metric data
   @patch_helpers.patchUTCNow(datetime.datetime(2015, 11, 1, 22, 41, 0, 0))
-  # Prevent notifications from being dispatched
-  @patch("taurus.monitoring.latency_monitor.model_latency_monitor"
-         ".ModelLatencyChecker.dispatchNotification")
   # Disable pylint warning re: unused botoDynamoDB2Mock argument
   # pylint: disable=W0613
-  def testCheckAllSendsNotification(self, dispatchNotificationMock, tableMock,
-                                    botoDynamoDB2Mock, requestsGetMock):
+  def testCheckAllSendsNotification(self, tableMock, botoDynamoDB2Mock,
+      requestsGetMock):
 
     # Mock API to return pre-defined models in lieu of making an API call to
     # a live taurus models HTTP endpoint
@@ -96,16 +93,11 @@ class ModelLatencyCheckerTest(unittest.TestCase):
 
     tableMock.return_value = Mock(query_2=Mock(side_effect=query2SideEffect))
 
-    # Run all checks normally
-    ModelLatencyChecker().checkAll()
+    with self.assertRaises(LatencyMonitorError) as exc:
+      ModelLatencyChecker().checkAllModelLatency()
 
-    self.assertEqual(dispatchNotificationMock.call_count, 1)
-
-    (_, excType, excValue, _), _ = dispatchNotificationMock.call_args_list[0]
-    self.assertIs(excType, LatencyMonitorError)
-    self.assertIsInstance(excValue, LatencyMonitorError)
     self.assertEqual(
-      excValue.message,
+      exc.exception.message,
       "The following models have exceeded the acceptable threshold for time si"
       "nce last timestamp in taurus.metric_data.test DynamoDB table:\n    Late"
       "ncyMonitorErrorParams(model_name=u'XIGNITE.TRI.VOLUME', model_uid=u'002"
@@ -123,30 +115,22 @@ class ModelLatencyCheckerTest(unittest.TestCase):
                               "taurus.metric_data.test")
   # Prevent Taurus HTTP API calls
   @patch("requests.get", autospec=True)
-  # Prevent notifications from being dispatched
-  @patch("taurus.monitoring.latency_monitor.model_latency_monitor"
-         ".ModelLatencyChecker.dispatchNotification")
   # Disable pylint warning re: unused botoDynamoDB2Mock argument
   # pylint: disable=W0613
-  def testCheckAllGracefullyHandlesAPIFailure(self, dispatchNotificationMock,
-                                              requestsGetMock):
+  def testCheckAllModelLatencyGracefullyHandlesAPIFailure(self,
+      requestsGetMock):
 
     # Mock API to return 500 status in lieu of making an API call to a live
     # taurus models HTTP endpoint
     requestsGetMock.return_value = Mock(status_code=500)
 
-    # Run all checks normally
-    ModelLatencyChecker().checkAll()
+    with self.assertRaises(LatencyMonitorError) as exc:
+      ModelLatencyChecker().checkAllModelLatency()
 
-    self.assertEqual(dispatchNotificationMock.call_count, 1)
-
-    (_, excType, excValue, _), _ = dispatchNotificationMock.call_args_list[0]
-    self.assertIs(excType, LatencyMonitorError)
-    self.assertIsInstance(excValue, LatencyMonitorError)
     self.assertIn(
       ("Unable to query Taurus API for active models: Unexpected HTTP response"
        " status (500) from taurusModelsUrl"),
-      excValue.message)
+      exc.exception.message)
 
 
   # Mock command line arguments, specifying test config file and bogus
@@ -164,14 +148,10 @@ class ModelLatencyCheckerTest(unittest.TestCase):
          autospec=True)
   # Fix datetime.datetime.utcnow() to known time relative to cached metric data
   @patch_helpers.patchUTCNow(datetime.datetime(2015, 11, 1, 22, 41, 0, 0))
-  # Prevent notifications from being dispatched
-  @patch("taurus.monitoring.latency_monitor.model_latency_monitor"
-         ".ModelLatencyChecker.dispatchNotification")
   # Disable pylint warning re: unused botoDynamoDB2Mock argument
   # pylint: disable=W0613
-  def testCheckAllGracefullyHandlesNoMetricData(self, dispatchNotificationMock,
-                                                tableMock, botoDynamoDB2Mock,
-                                                requestsGetMock):
+  def testCheckAllModelLatencyGracefullyHandlesNoMetricData(self, tableMock,
+      botoDynamoDB2Mock, requestsGetMock):
 
     # Mock API to return pre-defined models in lieu of making an API call to
     # a live taurus models HTTP endpoint
@@ -187,16 +167,11 @@ class ModelLatencyCheckerTest(unittest.TestCase):
 
     tableMock.return_value = Mock(query_2=Mock(side_effect=query2SideEffect))
 
-    # Run all checks normally
-    ModelLatencyChecker().checkAll()
+    with self.assertRaises(LatencyMonitorError) as exc:
+      ModelLatencyChecker().checkAllModelLatency()
 
-    self.assertEqual(dispatchNotificationMock.call_count, 1)
-
-    (_, excType, excValue, _), _ = dispatchNotificationMock.call_args_list[0]
-    self.assertIs(excType, LatencyMonitorError)
-    self.assertIsInstance(excValue, LatencyMonitorError)
     self.assertEqual(
-      excValue.message,
+      exc.exception.message,
       "The following models have exceeded the acceptable threshold for time si"
       "nce last timestamp in taurus.metric_data.test DynamoDB table:\n    Late"
       "ncyMonitorErrorParams(model_name=u'TWITTER.TWEET.HANDLE.SPG.VOLUME', mo"
@@ -218,7 +193,7 @@ class ModelLatencyCheckerTest(unittest.TestCase):
     # result in a parser error, and consequently a sys.exit(), as indicated by
     # the SystemExit exception
     with self.assertRaises(SystemExit):
-      ModelLatencyChecker().checkAll()
+      ModelLatencyChecker().checkAllModelLatency()
 
 
   # Mock command line arguments, omitting config file and specifying bogus
@@ -232,7 +207,7 @@ class ModelLatencyCheckerTest(unittest.TestCase):
     # result in a parser error, and consequently a sys.exit(), as indicated by
     # the SystemExit exception
     with self.assertRaises(SystemExit):
-      ModelLatencyChecker().checkAll()
+      ModelLatencyChecker().checkAllModelLatency()
 
 
   # Prevent ModelLatencyChecker from actually being instantiated

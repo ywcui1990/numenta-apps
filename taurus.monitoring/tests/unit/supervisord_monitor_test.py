@@ -30,7 +30,10 @@ import os
 from nta.utils.test_utils import patch_helpers
 
 from taurus.monitoring.supervisord_monitor.supervisord_monitor import (
-  SupervisorChecker
+  SupervisorChecker,
+  SupervisorMonitorError,
+  SupervisorNotRunning,
+  SupervisorProcessInFatalState
 )
 from taurus.monitoring.supervisord_monitor import (
   taurus_collector_supervisord_monitor,
@@ -55,29 +58,43 @@ class SupervisorCheckerTest(unittest.TestCase):
                               "http://127.0.0.1:9001")
   @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
          ".SupervisorClient", autospec=True)
-  # Prevent notifications from being dispatched
-  @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
-         ".SupervisorChecker.dispatchNotification")
   # Disable pylint warning re: unused dispatchNotificationMock argument
   # pylint: disable=W0613
-  def testCheckAllSendsNotification(self, dispatchNotificationMock,
-                                    supervisorClientMock):
+  def testCheckSupervisordState(self, supervisorClientMock):
     runningState = {"statename": "RUNNING"}
     getStateMock = Mock(return_value=runningState)
+
+    supervisorClientMock.return_value = Mock(
+      supervisor=Mock(
+        getState=getStateMock))
+
+    SupervisorChecker().checkSupervisordState()
+
+    getStateMock.assert_any_call()
+
+
+  # Mock command line arguments, specifying test config file and ommitting
+  # serverUrl
+  @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
+                              "--monitorConfPath",
+                              _TEST_CONF_FILEPATH,
+                              "--serverUrl",
+                              "http://127.0.0.1:9001")
+  @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
+         ".SupervisorClient", autospec=True)
+  # Disable pylint warning re: unused dispatchNotificationMock argument
+  # pylint: disable=W0613
+  def testCheckSupervisorProcesses(self, supervisorClientMock):
+    runningState = {"statename": "RUNNING"}
     getAllProcessInfoMock = Mock(return_value=[runningState])
 
     supervisorClientMock.return_value = Mock(
       supervisor=Mock(
-        getState=getStateMock,
         getAllProcessInfo=getAllProcessInfoMock))
 
-    SupervisorChecker().checkAll()
+    SupervisorChecker().checkSupervisorProcesses()
 
-    getStateMock.assert_any_call()
     getAllProcessInfoMock.assert_any_call()
-    self.assertFalse(dispatchNotificationMock.called,
-                     "An error would have been reported when all states are "
-                     "'RUNNING'")
 
 
   # Mock command line arguments, specifying test config file and ommitting
@@ -89,28 +106,21 @@ class SupervisorCheckerTest(unittest.TestCase):
                               "http://127.0.0.1:9001")
   @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
          ".SupervisorClient", autospec=True)
-  # Prevent notifications from being dispatched
-  @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
-         ".SupervisorChecker.dispatchNotification")
   # Disable pylint warning re: unused dispatchNotificationMock argument
   # pylint: disable=W0613
-  def testCheckAllNotifiesOnSupervisorClientFailure(self,
-                                                    dispatchNotificationMock,
-                                                    supervisorClientMock):
+  def testCheckSupervisordStateRaisesExceptionOnSupervisorClientFailure(self,
+      supervisorClientMock):
     noneState = None
     getStateMock = Mock(return_value=noneState)
-    getAllProcessInfoMock = Mock(return_value=[noneState])
 
     supervisorClientMock.return_value = Mock(
       supervisor=Mock(
-        getState=getStateMock,
-        getAllProcessInfo=getAllProcessInfoMock))
+        getState=getStateMock))
 
-    SupervisorChecker().checkAll()
+    with self.assertRaises(SupervisorMonitorError):
+      SupervisorChecker().checkSupervisordState()
 
     getStateMock.assert_any_call()
-    getAllProcessInfoMock.assert_any_call()
-    self.assertEqual(dispatchNotificationMock.call_count, 2)
 
 
   # Mock command line arguments, specifying test config file and ommitting
@@ -122,29 +132,47 @@ class SupervisorCheckerTest(unittest.TestCase):
                               "http://127.0.0.1:9001")
   @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
          ".SupervisorClient", autospec=True)
-  # Prevent notifications from being dispatched
-  @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
-         ".SupervisorChecker.dispatchNotification")
   # Disable pylint warning re: unused dispatchNotificationMock argument
   # pylint: disable=W0613
-  def testCheckAllNotifiesOnSupervisorNotInRunningState(
-      self,
-      dispatchNotificationMock,
+  def testCheckSupervisorProcessesRaisesExceptionOnSupervisorClientFailure(
+      self, supervisorClientMock):
+    noneState = None
+    getAllProcessInfoMock = Mock(return_value=noneState)
+
+    supervisorClientMock.return_value = Mock(
+      supervisor=Mock(
+        getAllProcessInfo=getAllProcessInfoMock))
+
+    with self.assertRaises(SupervisorMonitorError):
+      SupervisorChecker().checkSupervisorProcesses()
+
+    getAllProcessInfoMock.assert_any_call()
+
+
+  # Mock command line arguments, specifying test config file and ommitting
+  # serverUrl
+  @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
+                              "--monitorConfPath",
+                              _TEST_CONF_FILEPATH,
+                              "--serverUrl",
+                              "http://127.0.0.1:9001")
+  @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
+         ".SupervisorClient", autospec=True)
+  # Disable pylint warning re: unused dispatchNotificationMock argument
+  # pylint: disable=W0613
+  def testCheckSupervisordRaisesExceptionOnSupervisorNotInRunningState(self,
       supervisorClientMock):
 
     getStateMock = Mock(return_value={"statename": "FATAL"})
-    getAllProcessInfoMock = Mock(return_value=[None])
 
     supervisorClientMock.return_value = Mock(
       supervisor=Mock(
-        getState=getStateMock,
-        getAllProcessInfo=getAllProcessInfoMock))
+        getState=getStateMock))
 
-    SupervisorChecker().checkAll()
+    with self.assertRaises(SupervisorNotRunning):
+      SupervisorChecker().checkSupervisordState()
 
     getStateMock.assert_any_call()
-    getAllProcessInfoMock.assert_any_call()
-    self.assertEqual(dispatchNotificationMock.call_count, 2)
 
 
   # Mock command line arguments, specifying test config file and ommitting
@@ -156,59 +184,26 @@ class SupervisorCheckerTest(unittest.TestCase):
                               "http://127.0.0.1:9001")
   @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
          ".SupervisorClient", autospec=True)
-  # Prevent notifications from being dispatched
-  @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
-         ".SupervisorChecker.dispatchNotification")
   # Disable pylint warning re: unused dispatchNotificationMock argument
   # pylint: disable=W0613
-  def testCheckAllNotifiesOnGetAllProcessInfoFailure(self,
-                                                     dispatchNotificationMock,
-                                                     supervisorClientMock):
-    getStateMock = Mock(return_value={"statename": "RUNNING"})
-    getAllProcessInfoMock = Mock(return_value=[None])
+  def testCheckSupervisorProcessesRaisesExceptionOnFatalProcess(self,
+      supervisorClientMock):
+
+    getAllProcessInfoMock = Mock(return_value=[{
+      "statename": "FATAL",
+      "group": "process-group",
+      "name": "process-name",
+      "description": "process-description"}])
 
     supervisorClientMock.return_value = Mock(
       supervisor=Mock(
-        getState=getStateMock,
-        getAllProcessInfo=getAllProcessInfoMock))
+        getAllProcessInfo=getAllProcessInfoMock,
+        tailProcessLog=Mock(return_value="Some arbitrary log value")))
 
-    SupervisorChecker().checkAll()
+    with self.assertRaises(SupervisorProcessInFatalState):
+      SupervisorChecker().checkSupervisorProcesses()
 
-    getStateMock.assert_any_call()
     getAllProcessInfoMock.assert_any_call()
-    self.assertEqual(dispatchNotificationMock.call_count, 1)
-
-
-  # Mock command line arguments, specifying test config file and ommitting
-  # serverUrl
-  @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
-                              "--monitorConfPath",
-                              _TEST_CONF_FILEPATH,
-                              "--serverUrl",
-                              "http://127.0.0.1:9001")
-  @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
-         ".SupervisorClient", autospec=True)
-  # Prevent notifications from being dispatched
-  @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
-         ".SupervisorChecker.dispatchNotification")
-  # Disable pylint warning re: unused dispatchNotificationMock argument
-  # pylint: disable=W0613
-  def testCheckAllNotifiesOnFatalProcess(self, dispatchNotificationMock,
-                                         supervisorClientMock):
-
-    getStateMock = Mock(return_value={"statename": "RUNNING"})
-    getAllProcessInfoMock = Mock(return_value=[{"statename": "FATAL"}])
-
-    supervisorClientMock.return_value = Mock(
-      supervisor=Mock(
-        getState=getStateMock,
-        getAllProcessInfo=getAllProcessInfoMock))
-
-    SupervisorChecker().checkAll()
-
-    getStateMock.assert_any_call()
-    getAllProcessInfoMock.assert_any_call()
-    self.assertEqual(dispatchNotificationMock.call_count, 1)
 
 
   # Mock command line arguments, specifying test config file and ommitting
@@ -216,18 +211,15 @@ class SupervisorCheckerTest(unittest.TestCase):
   @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
                               "--monitorConfPath",
                               _TEST_CONF_FILEPATH)
-  # Prevent notifications from being dispatched
-  @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
-         ".SupervisorChecker.dispatchNotification")
   # Disable pylint warning re: unused dispatchNotificationMock argument
   # pylint: disable=W0613
-  def testMissingServerUrlArgRaisesParserError(self, dispatchNotificationMock):
+  def testMissingServerUrlArgRaisesParserError(self):
 
     # Assert that not specifying a required --serverUrl option will result in
     # a parser error, and consequently a sys.exit(), as indicated by the
     # SystemExit exception
     with self.assertRaises(SystemExit):
-      SupervisorChecker().checkAll()
+      SupervisorChecker()
 
 
   @staticmethod
