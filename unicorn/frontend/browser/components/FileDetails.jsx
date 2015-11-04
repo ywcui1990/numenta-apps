@@ -160,17 +160,17 @@ export default class FileDetails extends React.Component {
 
     let data = this.state.data;
     if (data.length > 0) {
-      let columnHeader = Object.keys(data[0]).map((name) => {
-        return (<TableHeaderColumn>{name}</TableHeaderColumn>);
+      let columnHeader = Object.keys(data[0]).map((name, idx) => {
+        return (<TableHeaderColumn key={idx}>{name}</TableHeaderColumn>);
       });
 
       let tableRows = [];
-      data.map((row) => {
+      data.map((row, rowIdx) => {
         let columns = [];
-        Object.values(row).map((value) => {
-          columns.push(<TableRowColumn>{value}</TableRowColumn>);
+        Object.values(row).map((value, colIdx) => {
+          columns.push(<TableRowColumn key={colIdx}>{value}</TableRowColumn>);
         });
-        tableRows.push(<TableRow>{columns}</TableRow>);
+        tableRows.push(<TableRow key={rowIdx}>{columns}</TableRow>);
       });
 
       return (
@@ -238,16 +238,16 @@ export default class FileDetails extends React.Component {
       container: {
         display: 'flex',
         flex: '1 100%',
-        'flex-direction': 'row'
+        flexDirection: 'row'
       },
       fields: {
         display: 'flex',
-        'flex-direction': 'column',
+        flexDirection: 'column',
         flexShrink: 0
       },
       data: {
         display: 'flex',
-        'flex-direction': 'column',
+        flexDirection: 'column',
         flexGrow: 1,
         margin: 'auto',
         marginLeft: 15,
