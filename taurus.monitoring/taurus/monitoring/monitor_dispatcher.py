@@ -27,17 +27,10 @@ import random
 import sys
 import traceback
 
-from sqlalchemy import (BINARY,
-                        String,
-                        Text,
-                        Column,
-                        Index,
-                        DATETIME,
-                        Table)
 from sqlalchemy.exc import IntegrityError
 
 from taurus.monitoring import monitorsdb
-from taurus.monitoring.monitorsdb.schema import metadata
+from taurus.monitoring.monitorsdb.schema import monitorDispatcherTable
 
 
 
@@ -77,35 +70,6 @@ class MonitorDispatcher(object):
   __metaclass__ = _SubclassMetaClassWatcher
 
   checks = []
-
-
-  # If you make any changes to the schema definition below, you must call
-  # `alembic revision --autogenerate` in monitorsdb/migrations/ to generate
-  # an alembic migration.  It will generate a file with a name that matches
-  # the pattern `XXX_<random hash>_<comment>.py` in
-  # monitorsdb/migrations/versions/.  Rename the file such that XXX is replaced
-  # by a number (left-padded with 0) the follows the current highest prefix in
-  # that directory.  Finally, add the generated and renamed file to git.
-  _dispatchTable = Table("monitor_dispatcher",
-                         metadata,
-                         Column("checkFn",
-                                String(length=80),
-                                nullable=False,
-                                primary_key=True),
-                         Column("excType",
-                                String(length=80),
-                                nullable=False,
-                                primary_key=True),
-                         Column("excValueDigest",
-                                BINARY(length=20),
-                                primary_key=True),
-                         Column("timestamp",
-                                DATETIME,
-                                nullable=False),
-                         Column("excValue",
-                                Text()),
-                         Index("timestamp_index",
-                               "timestamp"))
 
 
 
@@ -164,7 +128,8 @@ class MonitorDispatcher(object):
     # Disable `No value passed for parameter 'dml' in function call
     # (no-value-for-parameter)` warnings
     # pylint: disable=E1120
-    cmd = cls._dispatchTable.delete()
+
+    cmd = monitorDispatcherTable.delete()
 
     @monitorsdb.retryOnTransientErrors
     def _executeWithRetries():
@@ -187,9 +152,9 @@ class MonitorDispatcher(object):
     # Disable `No value passed for parameter 'dml' in function call
     # (no-value-for-parameter)` warnings
     # pylint: disable=E1120
-    cmd = (cls._dispatchTable
-              .delete()
-              .where(cls._dispatchTable.c.timestamp < cutoffDate))
+    cmd = (monitorDispatcherTable
+           .delete()
+           .where(monitorDispatcherTable.c.timestamp < cutoffDate))
 
     @monitorsdb.retryOnTransientErrors
     def _executeWithRetries():
@@ -219,13 +184,13 @@ class MonitorDispatcher(object):
     # Disable `No value passed for parameter 'dml' in function call
     # (no-value-for-parameter)` warnings
     # pylint: disable=E1120
-    ins = (cls._dispatchTable
-              .insert()
-              .values(checkFn=checkFn.__name__,
-                      excType=excType.__name__,
-                      excValueDigest=excValueDigest,
-                      timestamp=datetime.utcnow(),
-                      excValue=excValue))
+    ins = (monitorDispatcherTable
+           .insert()
+           .values(checkFn=checkFn.__name__,
+                   excType=excType.__name__,
+                   excValueDigest=excValueDigest,
+                   timestamp=datetime.utcnow(),
+                   excValue=excValue))
 
     try:
       conn.execute(ins)
