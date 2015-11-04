@@ -22,6 +22,8 @@
 """
 Unittest of taurus/monitoring/monitor_dispatcher.py
 """
+import random
+import sys
 import unittest
 
 from mock import MagicMock, Mock, patch
@@ -161,3 +163,42 @@ class MonitorDispatcherTest(unittest.TestCase):
       Exception,
       exceptionToRaiseInMyCheck
     )
+
+
+  def testFormatTraceback(self):
+    try:
+      raise Exception("Bogus exception")
+    except Exception: # pylint: disable=W0703
+      formattedTraceback = MonitorDispatcher.formatTraceback(sys.exc_type,
+                                                             sys.exc_value,
+                                                             sys.exc_traceback)
+    self.assertIsInstance(formattedTraceback, str)
+    self.assertTrue(
+      formattedTraceback.startswith("Traceback (most recent call last):"))
+    self.assertTrue(
+      formattedTraceback.endswith("Exception: Bogus exception\n"))
+
+
+  # Note: In patching raw_input(), you will NOT be able to use pdb!
+  @patch("__builtin__.raw_input", Mock(side_effect=["No", "Yes-42"]))
+  @patch("random.randint",  Mock(return_value=42, spec=random.randint))
+  @patch("taurus.monitoring.monitor_dispatcher.monitorsdb.engineFactory",
+         autospec=True)
+  def testClearAllNotificationsInteractiveConsoleScriptEntryPoint(self,
+      engineFactoryMock):
+
+    # In first attempt, user passes "No", in which case ensure that the
+    # database is not touched
+    (MonitorDispatcher
+     .clearAllNotificationsInteractiveConsoleScriptEntryPoint)()
+
+    self.assertFalse(engineFactoryMock.return_value.execute.called)
+
+    # In second attempt, user passes "Yes-42", in which case ensure that
+    # an attempt is made to delete
+    (MonitorDispatcher
+     .clearAllNotificationsInteractiveConsoleScriptEntryPoint)()
+
+    self.assertTrue(engineFactoryMock.return_value.execute.called)
+    (deleteObj,), _ = engineFactoryMock.return_value.execute.call_args_list[0]
+    self.assertIsInstance(deleteObj, sqlalchemy.sql.dml.Delete)

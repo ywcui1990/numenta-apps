@@ -140,6 +140,7 @@ class MonitorDispatcher(object):
     User will be prompted with a stern warning to delete notifications, and
     required to enter "Yes-" followed by a random integer.
     """
+
     engine = monitorsdb.engineFactory()
     expectedAnswer = "Yes-%s" % (random.randint(1, 30),)
 
@@ -158,6 +159,7 @@ class MonitorDispatcher(object):
 
     if answer.strip() != expectedAnswer:
       print "Aborting - Wise choice, my friend. Bye."
+      return
 
     # Disable `No value passed for parameter 'dml' in function call
     # (no-value-for-parameter)` warnings
