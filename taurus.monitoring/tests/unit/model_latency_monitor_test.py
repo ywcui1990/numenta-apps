@@ -40,96 +40,24 @@ from taurus.monitoring.latency_monitor.model_latency_monitor import (
 _CONF_DIR = os.path.dirname(os.path.abspath(__file__))
 _TEST_CONF_FILEPATH = os.path.join(_CONF_DIR, "test.conf")
 
-# Absolute path to directory in which pickled metric data files may be found
+# See data/model_latency_monitor_metric_data_util.py for additional details
 _DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
+_LOCALS = {}
+execfile(os.path.join(_DATA_DIR, "models.py"), {}, _LOCALS)
+MODELS = _LOCALS["MODELS"]
 
-
-def getPickledMetricDataFilename(modelName, dataDir=_DATA_DIR):
-  """ Get absolute path to filename containing pickled metric data
-
-  :param str modelName:
-  :returns: Absolute path to filename containing pickled metric data
-  :rtype: str
-  """
-  return os.path.join(dataDir, modelName + "-data.pickle")
+# See data/model_latency_monitor_metric_data_util.py for additional details
+# re: generating new data
+METRIC_DATA_BY_ID = {
+  model["uid"]: pickle.load(
+    open(os.path.join(_DATA_DIR, model["name"] + "-data.pickle"), "r"))
+  for model in MODELS
+}
 
 
 
 class ModelLatencyCheckerTest(unittest.TestCase):
-  models = (
-    [{u"datasource": u"custom",
-      u"description": u"Custom metric TWITTER.TWEET.HANDLE.SPG.VOLUME",
-      u"display_name": u"Simon Property Group",
-      u"last_rowid": 94858,
-      u"last_timestamp": None,
-      u"location": u"",
-      u"message": None,
-      u"name": u"TWITTER.TWEET.HANDLE.SPG.VOLUME",
-      u"parameters": {u"datasource": u"custom",
-                      u"metricSpec": {
-                        u"metric": u"TWITTER.TWEET.HANDLE.SPG.VOLUME",
-                        u"resource": u"Simon Property Group",
-                        u"userInfo": {u"metricType": u"TwitterVolume",
-                                      u"metricTypeName": u"Twitter Volume",
-                                      u"symbol": u"SPG"}},
-                      u"modelParams": {u"minResolution": 0.6}},
-      u"poll_interval": 300,
-      u"server": u"Simon Property Group",
-      u"status": 1,
-      u"tag_name": None,
-      u"uid": u"0021c2d17c0a4eb4965b6cb315c1d2e9"},
-     {u"datasource": u"custom",
-      u"description": u"Custom metric XIGNITE.TRI.VOLUME",
-      u"display_name": u"Thomson Reuters",
-      u"last_rowid": 19191,
-      u"last_timestamp": None,
-      u"location": u"",
-      u"message": None,
-      u"name": u"XIGNITE.TRI.VOLUME",
-      u"parameters": {u"datasource": u"custom",
-                      u"metricSpec": {u"metric": u"XIGNITE.TRI.VOLUME",
-                                      u"resource": u"Thomson Reuters",
-                                      u"userInfo": {
-                                        u"metricType": u"StockVolume",
-                                        u"metricTypeName": u"Stock Volume",
-                                        u"symbol": u"TRI"}},
-                      u"modelParams": {u"minResolution": 0.2}},
-      u"poll_interval": 300,
-      u"server": u"Thomson Reuters",
-      u"status": 1,
-      u"tag_name": None,
-      u"uid": u"00261089e61b4af1a1e4b3d0c06aa84a"},
-     {u"datasource": u"custom",
-      u"description": u"Custom metric XIGNITE.BK.CLOSINGPRICE",
-      u"display_name": u"Bank of New York Mellon",
-      u"last_rowid": 19190,
-      u"last_timestamp": None,
-      u"location": u"",
-      u"message": None,
-      u"name": u"XIGNITE.BK.CLOSINGPRICE",
-      u"parameters": {u"datasource": u"custom",
-                      u"metricSpec": {u"metric": u"XIGNITE.BK.CLOSINGPRICE",
-                                      u"resource": u"Bank of New York Mellon",
-                                      u"userInfo": {
-                                        u"metricType": u"StockPrice",
-                                        u"metricTypeName": u"Stock Price",
-                                        u"symbol": u"BK"}},
-                      u"modelParams": {u"minResolution": 0.2}},
-      u"poll_interval": 300,
-      u"server": u"Bank of New York Mellon",
-      u"status": 1,
-      u"tag_name": None,
-      u"uid": u"018662cc75b14860b72319d92883c896"}]
-  )
-
-  metricDataById = {
-    model["uid"]: pickle.load(
-      open(getPickledMetricDataFilename(model["name"]), "r"))
-    for model in models
-  }
-
-
 
   # Mock command line arguments, specifying test config file and bogus
   # metric data table name
@@ -157,14 +85,14 @@ class ModelLatencyCheckerTest(unittest.TestCase):
     # Mock API to return pre-defined models in lieu of making an API call to
     # a live taurus models HTTP endpoint
     requestsGetMock.return_value = Mock(status_code=200,
-                                        json=Mock(return_value=self.models))
+                                        json=Mock(return_value=MODELS))
 
     # Mock boto dynamodb queries by returning locally cached metric data.
     # See data/*-data.pickle
     # Disable pylint warning about unused, and improperly named arguments
     # pylint: disable=W0613,C0103
     def query2SideEffect(uid__eq, timestamp__gte):
-      return self.metricDataById[uid__eq]
+      return METRIC_DATA_BY_ID[uid__eq]
 
     tableMock.return_value = Mock(query_2=Mock(side_effect=query2SideEffect))
 
@@ -248,7 +176,7 @@ class ModelLatencyCheckerTest(unittest.TestCase):
     # Mock API to return pre-defined models in lieu of making an API call to
     # a live taurus models HTTP endpoint
     requestsGetMock.return_value = Mock(status_code=200,
-                                        json=Mock(return_value=self.models))
+                                        json=Mock(return_value=MODELS))
 
     # Mock boto dynamodb queries by returning locally cached metric data.
     # See data/*-data.pickle
@@ -316,61 +244,3 @@ class ModelLatencyCheckerTest(unittest.TestCase):
     main()
     modelLatencyCheckerMock.assert_called_once_with()
     modelLatencyCheckerMock.return_value.checkAll.assert_called_once_with()
-
-
-
-class ModelLatencyCheckerUtil(ModelLatencyChecker):
-  """ Utility helper class for generating new metric data samples from a live
-  taurus configuration.
-
-  Usage::
-
-     ModelLatencyCheckerUtil().run()
-
-  This class subclasses ModelLatencyChecker and augments the command line
-  parser to accept additional options specific to the process of caching
-  metric data samples.  For example:
-
-    python tests/unit/model_latency_monitor_test.py \
-      --generateMetricDataSamples \
-      --monitorConfPath <path to moniting configuration file> \
-      --metricDataTable <taurus metric data dynamodb table name>
-
-  """
-  def __init__(self):
-    self.parser.add_option("--generateMetricDataSamples",
-                                        action="store_true",
-                                        default=False)
-    self.parser.add_option("--destinationDir",
-                                        type="str",
-                                        default=_DATA_DIR)
-    super(ModelLatencyCheckerUtil, self).__init__()
-
-
-  def run(self):
-    if self.options.generateMetricDataSamples:
-      self.generateMetricDataSamples()
-    else:
-      self.parser.error("Unknown operation.  See --help for details")
-
-
-  def generateMetricDataSamples(self):
-    for model in ModelLatencyCheckerTest.models:
-      resultSet = self.getMetricData(metricUid=model["uid"])
-
-      # Cache only a subset of the data used in the monitor and test
-      metricData = [
-        {"timestamp": sample["timestamp"],
-          "metric_value": sample["metric_value"]
-        } for sample in resultSet
-      ]
-
-      filename = getPickledMetricDataFilename(model["name"],
-                                              self.options.destinationDir)
-      with open(filename, "w") as outp:
-        pickle.dump(metricData, outp)
-
-
-
-if __name__ == "__main__":
-  util = ModelLatencyCheckerUtil().run()
