@@ -250,8 +250,3 @@ class SupervisorCheckerTest(unittest.TestCase):
     taurus_server_supervisord_monitor.main()
     supervisorCheckerMock.assert_called_once_with()
     supervisorCheckerMock.return_value.checkAll.assert_called_once_with()
-
-
-
-if __name__ == "__main__":
-  raise NotImplementedError("Test not meant to be run directly.")
