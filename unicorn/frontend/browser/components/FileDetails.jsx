@@ -17,15 +17,18 @@
 //
 // http://numenta.org/licenses/
 
-import fs from 'fs';
-import React from 'react';
-import Material from 'material-ui';
 import connectToStores from 'fluxible-addons-react/connectToStores';
+import fs from 'fs';
+import Material from 'material-ui';
+import moment from 'moment';
+import React from 'react';
+
 import FileStore from '../stores/FileStore';
 import FileDetailsStore from '../stores/FileDetailsStore';
 import FileDetailsSaveAction from '../actions/FileDetailsSave';
 import HideFileDetailsAction from '../actions/HideFileDetails';
 import Utils from '../../lib/Utils';
+import {TIMESTAMP_FORMATS} from '../lib/Constants';
 
 const {
   Dialog, TextField, List, ListItem, Checkbox,
@@ -51,13 +54,18 @@ export default class FileDetails extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {file: null, fileSize: 0, data:[], metrics:[]};
+    this.state = {
+      file: null,
+      fileSize: 0,
+      data: [],
+      metrics: new Map()
+    };
   }
 
   componentWillReceiveProps(nextProps) {
+    let file, timestampField;
     let metrics = new Map();
     let data = [];
-    let file;
     let fileSize = 0;
 
     if (nextProps.visible && nextProps.filename) {
@@ -71,6 +79,8 @@ export default class FileDetails extends React.Component {
           if (metric.type !== 'date') {
             let modelId = Utils.generateModelId(file.filename, metric.name);
             metrics.set(modelId, null);
+          } else {
+            timestampField = metric.name;
           }
         });
 
@@ -80,6 +90,12 @@ export default class FileDetails extends React.Component {
         fileClient.getData(file.filename, options, (error, buffer) => {
           if (buffer) {
             data.push(JSON.parse(buffer));
+            // Guess timestamp format based the first row
+            if (timestampField && data.length === 1) {
+              file.timestampFormat = TIMESTAMP_FORMATS.find((format) => {
+                return moment(data[0][timestampField], format, true).isValid();
+              });
+            }
           }
         });
         // File size in bytes
@@ -137,8 +153,6 @@ export default class FileDetails extends React.Component {
             floatingLabelText="Description"
             value={file.description}
             onChange={this._handleFileInputChange.bind(this)}/>
-
-          {this._renderTimestampFormat()}
 
           <TextField ref="fileSize"
             name="fileSize"
@@ -220,19 +234,6 @@ export default class FileDetails extends React.Component {
           </List>
         );
       }
-    }
-  }
-
-  _renderTimestampFormat() {
-    if (this.props.newFile) {
-      let file = this.state.file;
-      return (
-        <TextField ref="timestampFormat"
-          name="timestampFormat"
-          floatingLabelText="Timestamp Format"
-          value={file.timestampFormat}
-          onChange={this._handleFileInputChange.bind(this)}/>
-      );
     }
   }
 

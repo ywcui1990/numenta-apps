@@ -53,3 +53,77 @@ export const ACTIONS = Object.freeze({
 
   UNKNOWN_MODEL_FAILURE: 'UNKNOWN_MODEL_FAILURE'
 });
+
+/**
+ * Supported timestamp formats
+ * @type {Array}
+ */
+export const TIMESTAMP_FORMATS = [
+  // ISO 8601
+  'YYYY-MM-DDTHH:mm:ss.SSSZ',
+  'YYYY-MM-DDTHH:mm:ss.SSS',
+  'YYYY-MM-DDTHH:mm:ss.SSZ',
+  'YYYY-MM-DDTHH:mm:ss.SS',
+  'YYYY-MM-DDTHH:mm:ss.SZ',
+  'YYYY-MM-DDTHH:mm:ss.S',
+  'YYYY-MM-DDTHH:mm:ssZ',
+  'YYYY-MM-DDTHH:mm:ss',
+  'YYYY-MM-DDTHH:mmZ',
+  'YYYY-MM-DDTHH:mm',
+
+  // ISO 8601 no 'T'
+  'YYYY-MM-DD HH:mm:ss.SSSZ',
+  'YYYY-MM-DD HH:mm:ss.SSS',
+  'YYYY-MM-DD HH:mm:ss.SSZ',
+  'YYYY-MM-DD HH:mm:ss.SS',
+  'YYYY-MM-DD HH:mm:ss.SZ',
+  'YYYY-MM-DD HH:mm:ss.S',
+  'YYYY-MM-DD HH:mm:ssZ',
+  'YYYY-MM-DD HH:mm:ss',
+  'YYYY-MM-DD HH:mmZ',
+  'YYYY-MM-DD HH:mm',
+  'YYYY-MM-DD',
+
+  // US Date, 12h AM/PM time
+  'MM-DD-YYYY hh:mm:ss.SSS A',
+  'MM-DD-YYYY HH:mm:ss.SS A',
+  'MM-DD-YYYY HH:mm:ss.S A',
+  'MM-DD-YYYY hh:mm:ss A',
+  'MM-DD-YYYY hh:mm A',
+
+  // US Date, 24h time
+  'MM-DD-YYYY HH:mm:ss.SSS',
+  'MM-DD-YYYY HH:mm:ss.SS',
+  'MM-DD-YYYY HH:mm:ss.S',
+  'MM-DD-YYYY HH:mm:ss',
+  'MM-DD-YYYY HH:mm',
+
+  // US Date
+  'MM-DD-YYYY',
+  'MM-DD-YY',
+
+  // EU Date and time
+  'DD-MM-YYYY HH:mm:ss.SSS',
+  'DD-MM-YYYY HH:mm:ss.SS',
+  'DD-MM-YYYY HH:mm:ss.S',
+  'DD-MM-YYYY HH:mm:ss',
+  'DD-MM-YYYY HH:mm',
+
+  // EU Date
+  'DD-MM-YYYY',
+  'DD-MM-YY',
+
+  // US 12h AM/PM time
+  'hh:mm:ss.SSS A',
+  'hh:mm:ss.SS A',
+  'hh:mm:ss.S A',
+  'hh:mm:ss A',
+  'hh:mm A',
+
+  // EU 24h
+  'HH:mm:ss.SSS',
+  'HH:mm:ss.SS',
+  'HH:mm:ss.S',
+  'HH:mm:ss',
+  'HH:mm'
+];

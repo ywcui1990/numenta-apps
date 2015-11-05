@@ -89,6 +89,7 @@
     "leveldown": "1.4.1",
     "levelup": "1.2.1",
     "material-ui": "0.13.1",
+    "moment": "2.10.6",
     "nconf": "0.8.2",
     "react": "0.14.2",
     "react-addons-create-fragment": "0.14.2",
