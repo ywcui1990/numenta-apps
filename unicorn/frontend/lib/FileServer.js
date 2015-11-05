@@ -100,8 +100,12 @@ FileServer.prototype.getUploadedFiles = function (file, callback) {
       callback(error);
       return;
     }
-    formattedFile.metrics = fields;
-    callback(error, formattedFile);
+    if (fields) {
+      formattedFile.metrics = fields;
+      callback(null, formattedFile);
+      return;
+    }
+    callback(`Failed to parse file ${formattedFile.filename}`);
   });
 };
 
