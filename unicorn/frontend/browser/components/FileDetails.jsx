@@ -132,7 +132,8 @@ export default class FileDetails extends React.Component {
 
           <TextField ref="description"
             name="description"
-            multiLine={true} rows={2}
+            multiLine={true}
+            rowsMax={2}
             floatingLabelText="Description"
             value={file.description}
             onChange={this._handleFileInputChange.bind(this)}/>
@@ -142,6 +143,8 @@ export default class FileDetails extends React.Component {
           <TextField ref="fileSize"
             name="fileSize"
             readOnly={true}
+            tabIndex={-1}
+            underlineFocusStyle={{display:'none'}}
             floatingLabelText="File Size (bytes)"
             value={fileSize}/>
 
