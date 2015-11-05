@@ -46,7 +46,11 @@ def patchCLIArgs(programName, *cliArgs):
 
 def patchUTCNow(utcnow):
   """ Patch decorator helper for patching `datetime.datetime` to some fixed
-  value for `utcnow()`.
+  value for `utcnow()`.  Python builtin types, including datetime.datetime,
+  which is partially implemented in C, are immutable and cannot be patched
+  directly.  This decorator provides a simple, straight-forward decorator that
+  works around the immutability problem, allowing you to affix the value
+  returned by `datetime.datetime.utcnow()`.
 
   Usage::
 
