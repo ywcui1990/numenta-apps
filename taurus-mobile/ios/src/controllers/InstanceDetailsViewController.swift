@@ -126,11 +126,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         self.navigationItem.rightBarButtonItems = [ menuButton!]
         
         if self.revealViewController() != nil {
-         //   menuButton.target = self.revealViewController()
-           // menuButton.action = "revealToggle:"
-            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
-            
-                self.revealViewController().rearViewRevealWidth = 100
+               self.revealViewController().rearViewRevealWidth = 100
         }
         
          marketHoursSwitch?.on = self.marketHoursOnly
@@ -138,8 +134,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
          configureView()
         
         dispatch_set_target_queue(loadQueue, dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0))
-        
-      
+
     }
 
     

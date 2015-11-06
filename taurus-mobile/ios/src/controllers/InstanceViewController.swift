@@ -99,9 +99,10 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         // Show header icon
         
-        let icon = UIImage(named: "grok_header")
+        let icon = UIImage(named: "ic_grok_logo")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal)
+
         
-        
+       // icon?.renderingMode = UIImageRenderingModeAlwaysOriginal
         logo = UIBarButtonItem (image: icon,  style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
         
         // Shit it to the left to free up some space
@@ -133,7 +134,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
        if self.revealViewController() != nil {
             menuButton!.target = self.revealViewController()
             menuButton!.action = "rightRevealToggle:"
-            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
+          //  self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
                 self.revealViewController().rightViewRevealWidth = 180
         }
         
@@ -323,13 +324,13 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         return cell!
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+/*    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
     }
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
     {
         
-    }
+    }*/
     
     /** gets the index into the table data
         - parameter section : table section
