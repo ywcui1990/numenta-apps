@@ -345,7 +345,7 @@ pushd "${REPOPATH}"
         --port=${DYNAMODB_PORT} \
         --table-suffix=${DYNAMODB_TABLE_SUFFIX} &&
      taurus-set-api-key \
-        --apikey=%{TAURUS_API_KEY} &&
+        --apikey=${TAURUS_API_KEY} &&
      cd /opt/numenta/products/taurus/taurus/engine/repository &&
      python migrate.py &&
      cd /opt/numenta/products/taurus &&
