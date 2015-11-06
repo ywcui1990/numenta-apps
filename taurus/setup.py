@@ -18,6 +18,7 @@ setup(
       "taurus-create-db = %s.engine.repository:reset" % name,
       ("taurus-set-dynamodb = "
        "%s.engine.runtime.dynamodb.set_dynamodb_credentials:main") % name,
+      "taurus-set-api-key = %s.engine.set_api_key:main" % name,
       "taurus-set-rabbitmq = %s.engine.set_rabbitmq_login:main" % name,
       "taurus-set-sql-login = %s.engine.repository.set_sql_login:main" % name
     ]
