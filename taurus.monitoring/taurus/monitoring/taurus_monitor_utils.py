@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 import logging
 
-from enum import Enum
+import enum
 
 from taurus.monitoring import monitorsdb
 
@@ -30,7 +30,8 @@ g_logger = logging.getLogger("taurus_monitor_utils")
 
 
 
-class Flags(Enum):
+@enum.unique
+class Flags(enum.Enum):
   OPERATIONAL_ERROR = "SQL Alchemy Operational Error",
   REQUESTS_EXCEPTION = "Requests Exception",
   HTTP_STATUS_CODE = "HTTP Status Code Issue",
