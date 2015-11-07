@@ -23,8 +23,7 @@ import logging
 from enum import Enum
 
 from taurus.monitoring import monitorsdb
-from taurus.monitoring.monitorsdb import schema
-from collections import namedtuple
+
 
 
 g_logger = logging.getLogger("taurus_monitor_utils")

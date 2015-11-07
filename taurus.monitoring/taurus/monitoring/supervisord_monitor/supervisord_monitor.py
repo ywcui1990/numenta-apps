@@ -139,13 +139,15 @@ class SupervisorChecker(MonitorDispatcher):
         logTail = self.server.supervisor.tailProcessLog(
           process["group"] + ":" + process["name"], -2048, 2048)
 
-        errMessage = ("{group}:{name} is in a FATAL state: {description}"
-                      .format(group=process.get("group"),
-                              name=process.get("name"),
-                              description=process.get("description"))) + (
-                      "\n\nLast 2048 bytes of log:" +
-                      "\n\n=======================\n\n" +
-                      logTail[0] +
-                      "\n\n=======================\n")
+        errMessage = (
+          "{group}:{name} is in a FATAL state: {description}"
+          "\n\nLast 2048 bytes of log:"
+          "\n\n=======================\n\n"
+          "{logTail}"
+          "\n\n=======================\n").format(
+            group=process.get("group"),
+            name=process.get("name"),
+            description=process.get("description"),
+            logTail=logTail[0])
 
         raise SupervisorProcessInFatalState(errMessage)
