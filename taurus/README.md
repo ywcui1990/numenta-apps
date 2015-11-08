@@ -60,6 +60,11 @@ console scripts (where available) for setting configuration overrides.  This
 will ensure that proper validation is applied, eliminate potential syntax
 errors or typos, and supports an automated workflow.
 
+- `taurus-set-api-key` to set Taurus REST API Key.
+    ```
+    taurus-set-api-key --apikey API_KEY
+    ```
+
 - `taurus-set-rabbitmq` to set Taurus rabbitmq connection and authentication.
     ```
     taurus-set-rabbitmq --host=HOST --user=USER --password=PASSWORD
