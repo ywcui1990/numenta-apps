@@ -435,6 +435,7 @@
                         <segue destination="Yf9-d6-5Sb" kind="show" identifier="showAbout" id="uXf-vM-SIJ"/>
                         <segue destination="Z07-U4-q5A" kind="show" identifier="showSettings" id="ixK-K9-Kso"/>
                         <segue destination="znq-Po-Kno" kind="show" identifier="showTutorial" id="Z31-lT-4nx"/>
+                        <segue destination="znq-Po-Kno" kind="show" identifier="startTutorial" animates="NO" id="Wib-a5-2YZ"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="qxH-TH-VkD" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1114,4 +1115,7 @@ Stocks</string>
         <image name="news" width="22" height="22"/>
         <image name="photo" width="22" height="22"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="Wib-a5-2YZ"/>
+    </inferredMetricsTieBreakers>
 </document>

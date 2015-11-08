@@ -142,6 +142,15 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         dayTimePeriodFormatter.dateFormat = "EEEE, M/d"
         dateLabel!.layer.masksToBounds = true
         self.dateLabel!.hidden  = true
+        
+        
+        
+        let firstRun = NSUserDefaults.standardUserDefaults().boolForKey("firstRun")
+        if (firstRun != true){
+            self.revealViewController().frontViewController.performSegueWithIdentifier ("startTutorial", sender: nil)
+            NSUserDefaults.standardUserDefaults().setBool(true, forKey: "firstRun")
+        }
+        
     }
 
     
