@@ -57,8 +57,5 @@ def patchUTCNow(utcnow):
   :param datetime.datetime utcnow: Timestamp value to which `utcnow()` will be
     fixed in context of patched function
   """
-  def wrap(fn):
-    return patch("datetime.datetime",
-                 Mock(wraps=datetime.datetime,
-                      utcnow=Mock(return_value=utcnow)))(fn)
-  return wrap
+  return patch("datetime.datetime", Mock(wraps=datetime.datetime,
+                                         utcnow=Mock(return_value=utcnow)))
