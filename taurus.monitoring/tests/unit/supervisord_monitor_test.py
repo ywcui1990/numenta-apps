@@ -49,8 +49,7 @@ _TEST_CONF_FILEPATH = os.path.join(_CONF_DIR, "test.conf")
 
 class SupervisorCheckerTest(unittest.TestCase):
 
-  # Mock command line arguments, specifying test config file and ommitting
-  # serverUrl
+  # Mock command line arguments, specifying test config file and serverUrl
   @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
                               "--monitorConfPath",
                               _TEST_CONF_FILEPATH,
@@ -73,8 +72,7 @@ class SupervisorCheckerTest(unittest.TestCase):
     getStateMock.assert_any_call()
 
 
-  # Mock command line arguments, specifying test config file and ommitting
-  # serverUrl
+  # Mock command line arguments, specifying test config file and serverUrl
   @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
                               "--monitorConfPath",
                               _TEST_CONF_FILEPATH,
@@ -97,8 +95,7 @@ class SupervisorCheckerTest(unittest.TestCase):
     getAllProcessInfoMock.assert_any_call()
 
 
-  # Mock command line arguments, specifying test config file and ommitting
-  # serverUrl
+  # Mock command line arguments, specifying test config file and serverUrl
   @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
                               "--monitorConfPath",
                               _TEST_CONF_FILEPATH,
@@ -123,8 +120,7 @@ class SupervisorCheckerTest(unittest.TestCase):
     getStateMock.assert_any_call()
 
 
-  # Mock command line arguments, specifying test config file and ommitting
-  # serverUrl
+  # Mock command line arguments, specifying test config file and serverUrl
   @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
                               "--monitorConfPath",
                               _TEST_CONF_FILEPATH,
@@ -149,8 +145,7 @@ class SupervisorCheckerTest(unittest.TestCase):
     getAllProcessInfoMock.assert_any_call()
 
 
-  # Mock command line arguments, specifying test config file and ommitting
-  # serverUrl
+  # Mock command line arguments, specifying test config file serverUrl
   @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
                               "--monitorConfPath",
                               _TEST_CONF_FILEPATH,
@@ -175,8 +170,7 @@ class SupervisorCheckerTest(unittest.TestCase):
     getStateMock.assert_any_call()
 
 
-  # Mock command line arguments, specifying test config file and ommitting
-  # serverUrl
+  # Mock command line arguments, specifying test config file and serverUrl
   @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
                               "--monitorConfPath",
                               _TEST_CONF_FILEPATH,
@@ -242,3 +236,29 @@ class SupervisorCheckerTest(unittest.TestCase):
     taurus_server_supervisord_monitor.main()
     supervisorCheckerMock.assert_called_once_with()
     supervisorCheckerMock.return_value.checkAll.assert_called_once_with()
+
+
+  # Mock command line arguments, specifying test config file and serverUrl
+  @patch_helpers.patchCLIArgs("taurus-server-supervisor-monitor",
+                              "--monitorConfPath",
+                              _TEST_CONF_FILEPATH,
+                              "--serverUrl",
+                              "http://127.0.0.1:9001")
+  @patch("taurus.monitoring.supervisord_monitor.supervisord_monitor"
+         ".SupervisorClient", autospec=True)
+  # Disable pylint warning re: unused dispatchNotificationMock argument
+  # pylint: disable=W0613
+  def testRegisterCheckRegisteredBothChecksAndNothingElse(self,
+      supervisorClientMock):
+    supervisorChecker = SupervisorChecker()
+    self.assertEqual(len(supervisorChecker.checks), 2)
+    self.assertSetEqual(set(fn.func_name for fn in supervisorChecker.checks),
+                        set(["checkSupervisordState",
+                             "checkSupervisorProcesses"]))
+
+
+
+if __name__ == "__main__":
+  # TODO: Remove (or retain) this pending resolution of
+  # "PROPOSAL: setup.py test runner"
+  unittest.main()

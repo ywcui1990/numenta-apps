@@ -202,3 +202,10 @@ class MonitorDispatcherTest(unittest.TestCase):
     self.assertTrue(engineFactoryMock.return_value.execute.called)
     (deleteObj,), _ = engineFactoryMock.return_value.execute.call_args_list[0]
     self.assertIsInstance(deleteObj, sqlalchemy.sql.dml.Delete)
+
+
+
+if __name__ == "__main__":
+  # TODO: Remove (or retain) this pending resolution of
+  # "PROPOSAL: setup.py test runner"
+  unittest.main()

@@ -39,9 +39,7 @@ def patchCLIArgs(programName, *cliArgs):
   :param sequence *cliArgs: Remaining command line arguments.
   :returns: Decorated function in which `sys.argv` contains the arguments
   """
-  def wrap(fn):
-    return patch("sys.argv", [programName] + list(cliArgs))(fn)
-  return wrap
+  return patch("sys.argv", [programName] + list(cliArgs))
 
 
 def patchUTCNow(utcnow):

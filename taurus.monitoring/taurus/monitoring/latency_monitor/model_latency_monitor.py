@@ -24,11 +24,12 @@ import logging
 import datetime
 
 import boto.dynamodb2
+from boto.dynamodb2.exceptions import ProvisionedThroughputExceededException
 from boto.dynamodb2.table import Table
 import numpy
 import requests
 
-from nta.utils import error_reporting
+from nta.utils import error_handling, error_reporting
 
 from taurus.monitoring import (loadConfig,
                                loadEmailParamsFromConfig,
@@ -57,6 +58,15 @@ g_logger = logging.getLogger(__name__)
 
 _ErrorParams = namedtuple("LatencyMonitorErrorParams",
                           "model_name model_uid threshold")
+
+
+
+# Decorator for retrying dynamodb operations that failed due to transient error
+_RETRY_ON_TRANSIENT_DYNAMODB_ERROR = error_handling.retry(
+  timeoutSec=10, initialRetryDelaySec=0.5, maxRetryDelaySec=2,
+  retryExceptions=(ProvisionedThroughputExceededException,),
+  logger=g_logger
+)
 
 
 
@@ -212,7 +222,9 @@ class ModelLatencyChecker(MonitorDispatcher):
 
     conn = self._connectDynamoDB()
     metricDataTable = Table(self.metricDataTable, connection=conn)
-    return metricDataTable.query_2(uid__eq=metricUid, timestamp__gte=then)
+
+    return _RETRY_ON_TRANSIENT_DYNAMODB_ERROR(metricDataTable.query_2)(
+      uid__eq=metricUid, timestamp__gte=then)
 
 
   @MonitorDispatcher.registerCheck

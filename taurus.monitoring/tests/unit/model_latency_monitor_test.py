@@ -91,7 +91,10 @@ class ModelLatencyCheckerTest(unittest.TestCase):
     def query2SideEffect(uid__eq, timestamp__gte):
       return METRIC_DATA_BY_ID[uid__eq]
 
-    tableMock.return_value = Mock(query_2=Mock(side_effect=query2SideEffect))
+    tableMock.return_value = (
+      Mock(query_2=Mock(side_effect=query2SideEffect,
+                        __name__=str(id(query2SideEffect))))
+    )
 
     with self.assertRaises(LatencyMonitorError) as exc:
       ModelLatencyChecker().checkAllModelLatency()
@@ -165,7 +168,10 @@ class ModelLatencyCheckerTest(unittest.TestCase):
     def query2SideEffect(uid__eq, timestamp__gte):
       return []
 
-    tableMock.return_value = Mock(query_2=Mock(side_effect=query2SideEffect))
+    tableMock.return_value = (
+      Mock(query_2=Mock(side_effect=query2SideEffect,
+                        __name__=str(id(query2SideEffect))))
+    )
 
     with self.assertRaises(LatencyMonitorError) as exc:
       ModelLatencyChecker().checkAllModelLatency()
@@ -219,3 +225,24 @@ class ModelLatencyCheckerTest(unittest.TestCase):
     main()
     modelLatencyCheckerMock.assert_called_once_with()
     modelLatencyCheckerMock.return_value.checkAll.assert_called_once_with()
+
+
+  # Mock command line arguments, specifying bogus config file and metric data
+  # table name
+  @patch_helpers.patchCLIArgs("taurus-model-latency-monitor",
+                              "--monitorConfPath",
+                              _TEST_CONF_FILEPATH,
+                              "--metricDataTable",
+                              "taurus.metric_data.test")
+  def testRegisterCheckRegisteredOnlyCheckAllModelLatency(self):
+    modelLatencyChecker = ModelLatencyChecker()
+    self.assertEqual(len(modelLatencyChecker.checks), 1)
+    self.assertSetEqual(set(fn.func_name for fn in modelLatencyChecker.checks),
+                        set(["checkAllModelLatency"]))
+
+
+
+if __name__ == "__main__":
+  # TODO: Remove (or retain) this pending resolution of
+  # "PROPOSAL: setup.py test runner"
+  unittest.main()
