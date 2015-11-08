@@ -23,7 +23,6 @@
 
 
 import logging
-import __main__
 import argparse
 
 from nta.utils.config import Config
@@ -41,7 +40,7 @@ def main():
   logging_support.LoggingSupport().initTool()
 
 
-  parser = argparse.ArgumentParser(description=__main__.__doc__)
+  parser = argparse.ArgumentParser(description=__doc__)
 
   parser.add_argument(
     "--apikey",

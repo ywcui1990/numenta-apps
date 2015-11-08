@@ -40,7 +40,7 @@ class SetApiKeyTestCase(unittest.TestCase):
   @patch("taurus.engine.set_api_key.Config", autospec=True)
   def testMain(self, configClassMock, _loggingSupportMock):
 
-    with patch("sys.argv", new=["testapp", "--apikey", "54321"]):
+    with patch("sys.argv", new=["testapp", "--apikey", "ApIkEy"]):
       set_api_key.main()
 
       configClassMock.assert_called_with(
@@ -50,7 +50,7 @@ class SetApiKeyTestCase(unittest.TestCase):
 
       configClassMock.return_value.set.assert_called_once_with("security",
                                                                "apikey",
-                                                               "54321")
+                                                               "ApIkEy")
       configClassMock.return_value.save.assert_called_once_with()
 
 
