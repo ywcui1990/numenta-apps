@@ -25,16 +25,16 @@ import {ACTIONS} from '../lib/Constants';
  * @param  {File} file File Object
  * @return {Promise}
  */
-export default (actionContext, file) => {
+export default function (actionContext, file) {
   let db = actionContext.getDatabaseClient();
   return new Promise((resolve, reject) => {
     db.putFile(file, (error, results) => {
       if (error) {
         reject(error);
       } else {
-        actionContext.dispatch(ACTIONS.UPDATE_FILE_SUCCESS, file);
+        actionContext.dispatch(ACTIONS.UPDATE_FILE, file);
         resolve();
       }
     });
   });
-};
+}

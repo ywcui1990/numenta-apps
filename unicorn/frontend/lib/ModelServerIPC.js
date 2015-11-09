@@ -79,18 +79,13 @@ export default class ModelServerIPC {
    *  - 'remove': Stops and remove the model
    *  - 'list':   List running models as Array of IDs in `returnValue['models']`
    *  - 'sendData': Send data to the model. See 'sendData' for 'params' format
-   * @method
-   * @param  {Event}  event   IPC Event Object.
-   *                          Any error will be returned via 'returnValue.error'
-   * @param  {Object} payload Event payload in the following format:
-   *                          {
-   *                            'modelId': Model Id
-   *                            'command': 'create' | 'remove' | 'list'
-   *                            				 | 'sendData'
-   *                            'params': {Object} // Optional
-   *                          }
-   * @private
-   * @this ModelServerIPC
+
+   * @param {Event} event - IPC Event Object.
+   *                        Any error will be returned via 'returnValue.error'
+   * @param {Object} payload - Event payload
+   * @param {string} modelId - Model Id
+   * @param {string} command -  'create' | 'remove' | 'list' | 'sendData'
+   * @param {Object} [params] - Command parameters
    */
   _handleIPCEvent(event, payload) {
     const {modelId, command} = payload;

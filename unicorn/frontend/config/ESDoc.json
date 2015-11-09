@@ -1,7 +1,7 @@
 {
   "source": "./frontend",
   "destination": "./frontend/docs",
-  "autoPrivate": true,
+  "title": "Numenta Unicorn Application",
   "excludes": [
     "bundle\\.js$"
   ],

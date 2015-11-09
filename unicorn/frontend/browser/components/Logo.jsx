@@ -65,7 +65,8 @@ export default class Logo extends React.Component {
   render() {
     return (
       <header style={this._style}>
-        <Avatar backgroundColor="#145591" size={65} src="assets/images/unicorn-logo-300.png">
+        <Avatar backgroundColor="#145591" size={65}
+                src="assets/images/unicorn-logo-300.png">
           Unicorn
         </Avatar>
       </header>

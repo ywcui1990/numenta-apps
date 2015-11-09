@@ -23,9 +23,11 @@ import {ACTIONS} from '../lib/Constants';
 
 /**
  * Delete model
+ * @param {FluxibleContext} actionContext -
+ * @param {string} modelId - Model ID
  */
-export default (actionContext, modelId) => {
-  actionContext.dispatch(ACTIONS.DELETE_MODEL_SUCCESS, modelId);
+export default function (actionContext, modelId) {
+  actionContext.dispatch(ACTIONS.DELETE_MODEL, modelId);
   let modelClient = actionContext.getModelClient();
   modelClient.removeModel(modelId);
-};
+}

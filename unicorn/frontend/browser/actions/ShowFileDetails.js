@@ -21,10 +21,10 @@ import {ACTIONS} from '../lib/Constants';
 
 /**
  * Show {FileDetails} page for the given file
- * @param  {FluxibleContext} actionContext The action context
- * @param  {string} filename      The name of the file to show.
- *                                Must be in the {FileStore}
+ * @param  {FluxibleContext} actionContext - The action context
+ * @param  {string} filename - The name of the file to show.
+ *                             Must be in the {@link FileStore}
  */
-export default (actionContext, filename) => {
+export default function (actionContext, filename) {
   actionContext.dispatch(ACTIONS.SHOW_FILE_DETAILS, filename);
 }

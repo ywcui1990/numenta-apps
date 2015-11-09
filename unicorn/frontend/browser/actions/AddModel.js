@@ -24,22 +24,19 @@ import StartModelAction from './StartModel';
 
 /**
  * Add new model
- * @param  {FluxContext} actionContext
- * @param  {Object} payload {
- *                          	modelId: 'id',
- *                            filename: 'file',
- *                            timestampField: 'timestampField',
- *                            metric: 'metric'
- *                          }
+ *
+ * @param {FluxibleContext} actionContext -
+ * @param {Object} payload - Action payload object
+ * @param {string} payload.modelId - Model Unique ID.
+ *                                	See {@link Utls.generateModelId}
+ * @param {string} payload.filename - File full path name
+ * @param {string} payload.timestampField - Timestamp field name
+ * @param {string} payload.metric - Metric field name
+ *
  * @return {Promise}
  * @todo Persist model reference
  */
-export default (actionContext, payload) => {
-  let model = Object.assign({
-    active: false,
-    error: null
-  }, payload);
-  actionContext.dispatch(ACTIONS.ADD_MODEL_SUCCESS, model);
-  // Start model
-  return actionContext.executeAction(StartModelAction, model.modelId);
-};
+export default function (actionContext, payload) {
+  actionContext.dispatch(ACTIONS.ADD_MODEL, payload);
+  return actionContext.executeAction(StartModelAction, payload.modelId);
+}

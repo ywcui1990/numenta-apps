@@ -23,14 +23,12 @@ import {ACTIONS} from '../lib/Constants';
 
 /**
  * Receive model data
- * @param  {Object} payload The action payload in the following format:
- *                          <code>
- *                          {
- *                          	modelId: {String}, // Required model id
- *                          	data:{Array}},     // New data to be appended
- *                          }
- *                          </code>
+ *
+ * @param {FluxibleContext} actionContext - Fluxible action context object
+ * @param {Object} payload - The action payload
+ * @param {String} payload.modelId - Required model id
+ * @param {Object[]} payload.data - New data to be appended
  */
-export default (actionContext, payload) => {
-  return actionContext.dispatch(ACTIONS.RECEIVE_DATA_SUCCESS, payload);
-};
+export default function (actionContext, payload) {
+  actionContext.dispatch(ACTIONS.RECEIVE_DATA, payload);
+}

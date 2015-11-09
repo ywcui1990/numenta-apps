@@ -19,6 +19,11 @@
 
 
 // externals
+/*eslint-disable*/
+/**
+ *  @external {csp.chan} https://github.com/ubolonton/js-csp/blob/master/doc/basic.md#channels
+ */
+ /*eslint-enable*/
 
 import csp from 'js-csp';
 
@@ -90,6 +95,8 @@ function putMetricStatsIntoDatabase(options) {
  * @param {Object} options - Options hash passed in
  * @param {Object} options.actionContext - Fluxible action context object
  * @param {Object} options.model - Model data object
+ *
+ * @return {csp.chan}
  */
 function getMetricDataFromDatabase(options) {
   let {actionContext, model} = options;
@@ -114,6 +121,8 @@ function getMetricDataFromDatabase(options) {
  * Start streaming data records to the model and emit results.
  * @param {Object} actionContext - Fluxible action context object
  * @param {string} modelId - Unique Model ID to stream data for
+ *
+ * @return {Promise}
  */
 function streamData(actionContext, modelId) {
   let databaseClient = actionContext.getDatabaseClient();
@@ -209,7 +218,7 @@ function streamData(actionContext, modelId) {
  * Action used to Start streaming data to the nupic model. The file will be
  *  streamed one record at the time. 'ReceiveData' Action will be fired as
  *  results become available.
- * @param {Object} actionContext - Fluxible action context object
+ * @param {FluxibleContext} actionContext - Fluxible action context object
  * @param {string} model - An object with model+data to start
  * @returns {Promise} - Promise object to stream data in on, resolves when done
  */
@@ -274,7 +283,7 @@ export default function (actionContext, modelId) {
       }
 
       log.debug('metric min/max retrieved (either from DB or FS), ready!');
-      actionContext.dispatch(ACTIONS.START_MODEL_SUCCESS, modelId);
+      actionContext.dispatch(ACTIONS.START_MODEL, modelId);
       modelClient.createModel(modelId, {min: stats.min, max: stats.max});
       return streamData(actionContext, modelId);
 

@@ -21,7 +21,7 @@
 import {ACTIONS} from '../lib/Constants';
 
 
-export default (actionContext, payload) => {
+export default function (actionContext, payload) {
   let {command, modelId, error} = payload;
 
   if (command === 'create') {
@@ -35,4 +35,4 @@ export default (actionContext, payload) => {
     ACTIONS.UNKNOWN_MODEL_FAILURE,
     {modelId, error}
   );
-};
+}

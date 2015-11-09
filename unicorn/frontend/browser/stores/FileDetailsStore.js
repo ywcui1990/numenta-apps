@@ -28,7 +28,7 @@ export default class FileDetailsStore extends BaseStore {
     return {
       SHOW_FILE_DETAILS: '_showFileDetails',
       HIDE_FILE_DETAILS: '_hideFileDetails',
-      UPLOADED_FILE_SUCCESS: '_handleFileUpload'
+      UPLOADED_FILE: '_handleFileUpload'
     }
   }
   constructor(dispatcher) {

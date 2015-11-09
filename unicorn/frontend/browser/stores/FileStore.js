@@ -32,10 +32,10 @@ export default class FileStore extends BaseStore {
 
   static get handlers() {
     return {
-      UPDATE_FILE_SUCCESS: '_handleSetFile',
-      UPLOADED_FILE_SUCCESS: '_handleSetFile',
-      LIST_FILES_SUCCESS: '_handleListFiles',
-      LIST_METRICS_SUCCESS: '_handleListMetrics'
+      UPDATE_FILE: '_handleSetFile',
+      UPLOADED_FILE: '_handleSetFile',
+      LIST_FILES: '_handleListFiles',
+      LIST_METRICS: '_handleListMetrics'
     }
   }
 

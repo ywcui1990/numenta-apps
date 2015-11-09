@@ -99,7 +99,7 @@ export default class FileDetails extends React.Component {
           }
         });
         // File size in bytes
-        let stats = fs.statSync(file.filename);
+        let stats = fs.statSync(file.filename); // eslint-disable-line no-sync
         fileSize = stats.size;
       }
     }
