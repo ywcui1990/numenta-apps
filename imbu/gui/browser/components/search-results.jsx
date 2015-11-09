@@ -18,8 +18,6 @@
 * http://numenta.org/licenses/
 * -------------------------------------------------------------------------- */
 
-'use strict';
-
 import React from 'react';
 import Material from 'material-ui';
 import connectToStores from 'fluxible-addons-react/connectToStores';
@@ -55,7 +53,7 @@ export default class SearchResultsComponent extends React.Component {
     super(props);
   }
 
-  getChildContext () {
+  getChildContext() {
     return {
       muiTheme: ThemeManager.getCurrentTheme()
     };
@@ -78,7 +76,7 @@ export default class SearchResultsComponent extends React.Component {
         }
       },
       content: {
-        'padding-left': Spacing.desktopGutterMini + 'px',
+        'padding-left': `${Spacing.desktopGutterMini}px`,
         maxWidth: '1200px',
         margin: '0 auto'
       },
@@ -88,12 +86,12 @@ export default class SearchResultsComponent extends React.Component {
     };
   }
 
-  render () {
+  render() {
     if (this.props.results.length > 0) {
       let styles = this._getStyles();
 
       // Convert SearchStore results to Table rowData structure
-      const data = this.props.results.map(result => {
+      const data = this.props.results.map((result) => {
         return ({
           summary: {
             content: result.text,
@@ -111,7 +109,7 @@ export default class SearchResultsComponent extends React.Component {
           content: 'Summary'
         },
         score: {
-          content: 'Score',
+          content: 'Distance',
           style: styles.header.score
         }
       };
@@ -128,11 +126,10 @@ export default class SearchResultsComponent extends React.Component {
             showRowHover={true} style={styles.table}/>
         </Paper>
       );
-    } else {
-      // Nothing to show
-      return (
-        <p/>
-      );
     }
+    // Nothing to show
+    return (
+      <p/>
+    );
   }
-};
+}

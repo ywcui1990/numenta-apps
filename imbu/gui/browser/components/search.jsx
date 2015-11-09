@@ -18,8 +18,6 @@
 * http://numenta.org/licenses/
 * -------------------------------------------------------------------------- */
 
-'use strict';
-
 import React from 'react';
 import Material from 'material-ui';
 import connectToStores from 'fluxible-addons-react/connectToStores';
@@ -54,7 +52,7 @@ export default class SearchComponent extends React.Component {
     super();
   }
 
-  getChildContext () {
+  getChildContext() {
     return {
       muiTheme: ThemeManager.getCurrentTheme()
     };
@@ -74,7 +72,7 @@ export default class SearchComponent extends React.Component {
   _getStyles() {
     return {
       content: {
-        padding: Spacing.desktopGutterMini + 'px',
+        padding: `${Spacing.desktopGutterMini}px`,
         maxWidth: '1200px',
         margin: '0 auto',
         boxSizing: 'border-box'
@@ -82,7 +80,7 @@ export default class SearchComponent extends React.Component {
     };
   }
 
-  render () {
+  render() {
     let styles = this._getStyles();
 
     return (

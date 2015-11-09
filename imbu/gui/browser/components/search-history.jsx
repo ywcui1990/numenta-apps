@@ -18,7 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
 
 import React from 'react';
 import Material from 'material-ui';
@@ -86,7 +85,7 @@ class SearchHistoryComponent extends React.Component {
         text: 'HISTORY'
       }
     ];
-    return items.concat(Array.from(this.state.history, q => {
+    return items.concat(Array.from(this.state.history, (q) => {
       return {
         text: q
       };
@@ -103,6 +102,6 @@ class SearchHistoryComponent extends React.Component {
         onChange={this._onChanged.bind(this)} ref="leftNav"/>
     );
   }
-};
+}
 
 export default SearchHistoryComponent;

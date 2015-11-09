@@ -18,8 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
-
 import BaseStore from 'fluxible/addons/BaseStore';
 
 /**
@@ -30,8 +28,8 @@ export default class SearchStore extends BaseStore {
   static storeName = 'SearchStore';
 
   static handlers = {
-    'SEARCH_RECEIVED_DATA': '_handleReceivedData',
-    'SEARCH_CLEAR_DATA': '_handleClearData'
+    SEARCH_RECEIVED_DATA: '_handleReceivedData',
+    SEARCH_CLEAR_DATA: '_handleClearData'
   };
 
   constructor(dispatcher) {
@@ -76,7 +74,7 @@ export default class SearchStore extends BaseStore {
       this.query = '';
     }
     // Do not add empty queries to history
-    if (query) {
+    if (this.query) {
       this.history.add(this.query);
     }
     if (payload.results) {
@@ -100,4 +98,4 @@ export default class SearchStore extends BaseStore {
     this.history.clear();
     this.emitChange();
   }
-};
+}

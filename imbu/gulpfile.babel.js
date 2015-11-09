@@ -116,7 +116,7 @@ gulp.task('webpack', () => {
       module: {
         loaders: [{
           test: /\.(js|jsx)$/,
-          loaders: ['react-hot', 'babel-loader?stage=1'],
+          loaders: ['babel-loader?stage=1'],
           exclude: /node_modules/
         }, {
           test: /\.json$/,

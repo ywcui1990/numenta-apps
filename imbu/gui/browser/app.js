@@ -18,7 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-'use strict';
 
 // Add ES6/7 polyfills such as "Array.from"
 import 'babel/polyfill';

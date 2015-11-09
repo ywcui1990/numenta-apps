@@ -13,26 +13,18 @@
 ### Setup
 
 ```shell
-brew install git node  # darwin
+brew install git node nginx # darwin
 git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/imbu
 npm install
 python setup.py install
 ```
 
-### nupic.research dependencies (FIXME)
-
-Currently **Fluent** depends on [nupic.research/classification](https://github.com/numenta/nupic.research/tree/master/classification) project. As of this writings you will need to install this dependency manually.
-
-```shell
-git clone https://github.com/numenta/nupic.research
-export PYTHONPATH=$PYTHONPATH:<path to "nupic.research/classification">
-```
-
 #### Cortical.io Setup
 
 1. Get [cortical.io](http://www.cortical.io/) API key from http://www.cortical.io/resources_apikey.html
-1. Update `CORTICAL_API_KEY` value with your new API key in [conf/supervisord.conf](conf/supervisord.conf) configuration file.
+1. Create `CORTICAL_API_KEY` environment variable with your new API key.
+1. Create `IMBU_RETINA_ID` environment variable with the name of the *retina* to use.
 
 ## Running
 
@@ -59,6 +51,18 @@ Start `Fluent API` services:
 ```shell
 mkdir -p logs
 supervisord -c conf/supervisord.conf
+```
+
+Open application from this URL: http://localhost:8080
+
+## Docker
+
+In the root of `numenta-apps/imbu`:
+
+```
+cp /your/formatted/data.csv engine/data.csv
+docker build -t imbu:latest .
+docker run --name imbu -d -p 8080:80 -e CORTICAL_API_KEY=${CORTICAL_API_KEY} -e IMBU_RETINA_ID=${IMBU_RETINA_ID} imbu:latest
 ```
 
 Open application from this URL: http://localhost:8080
