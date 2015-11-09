@@ -22,15 +22,31 @@
 Implements Imbu's web API.
 """
 
+from collections import OrderedDict
 import json
 import logging
+import os
 import pkg_resources
 import web
 
-from fluent.experiments.runner import Runner as FluentRunner
+from htmresearch.encoders import EncoderTypes
+from htmresearch.frameworks.nlp.classify_fingerprint import (
+  ClassificationModelFingerprint)
+# from htmresearch.frameworks.nlp.classify_htm import ClassificationModelHTM
+# from htmresearch.frameworks.nlp.classify_keywords import (
+#   ClassificationModelKeywords)
+from htmresearch.support.csv_helper import readCSV
+
 
 g_log = logging.getLogger(__name__)
 
+_NETWORK_JSON = "imbu_tp.json"
+_MODEL_MAPPING = {
+  "CioWordFingerprint": ClassificationModelFingerprint,
+  "CioDocumentFingerprint": ClassificationModelFingerprint
+  # "Keywords": ClassificationModelKeywords,
+  # "HTMNetwork": ClassificationModelHTM,
+}
 
 def addStandardHeaders(contentType="application/json; charset=UTF-8"):
   """
@@ -60,43 +76,95 @@ def addCORSHeaders():
   web.header("Access-Control-Allow-Methods", "POST", True)
 
 
-class FluentWrapper(object):
-  """ Wraps nupic.fluent Model """
+def loadJSON(jsonPath):
+  try:
+    with pkg_resources.resource_filename(__name__, jsonPath) as fin:
+      return json.load(fin)
+  except IOError as e:
+    print "Could not find JSON at \'{}\'.".format(jsonPath)
+    raise e
 
-  def __init__(self, dataPath):
+
+def createModel(modelName, dataPath, csvdata):
+  """Return an instantiated model."""
+  modelCls = _MODEL_MAPPING.get(modelName, None)
+
+  if modelCls is None:
+    raise ValueError("Could not instantiate model \'{}\'.".format(modelName))
+
+  # TODO: remove these if blocks and just use the else; either specify the Cio
+  # FP type elsewhere, or split Word and Doc into separate classes.
+
+  if modelName == "HTMNetwork":
+    networkConfig = loadJSON(_NETWORK_JSON)
+
+    model = modelCls(retina=os.environ['IMBU_RETINA_ID'],
+                     apiKey=os.environ['CORTICAL_API_KEY'],
+                     networkConfig=networkConfig,
+                     inputFilePath=dataPath,
+                     prepData=True,
+                     numLabels=0,
+                     stripCats=True,
+                     retinaScaling=1.0)
+
+    numRecords = sum(model.networkDataGen.getNumberOfTokens(model.networkDataPath))
+    model.trainModel(iterations=numRecords)
+    model.verbosity = 0
+    model.numLabels = 0
+    return model
+
+  elif modelName == "CioWordFingerprint":
+    model = modelCls(retina=os.environ['IMBU_RETINA_ID'],
+                     apiKey=os.environ['CORTICAL_API_KEY'],
+                     fingerprintType=EncoderTypes.word)
+
+  elif modelName == "CioDocumentFingerprint":
+    model = modelCls(retina=os.environ['IMBU_RETINA_ID'],
+                     apiKey=os.environ['CORTICAL_API_KEY'],
+                     fingerprintType=EncoderTypes.document)
+
+  else:
+    model = modelCls()
+
+  model.verbosity = 0
+  model.numLabels = 0
+  samples = model.prepData(csvdata, False)
+  model.encodeSamples(samples)
+
+  for i in xrange(len(samples)):
+    model.trainModel(i)
+
+  return model
+
+
+class FluentWrapper(object):
+  """ Wraps imbu Model """
+
+  def __init__(self, dataPath="data.csv"):
     """
-    initializes nupic.fluent model with given sample data
+    initializes imbu model with given sample data
 
     :param str dataPath: Path to sample data file.
                          Must be a CSV file having 'ID and 'Sample' columns
     """
-    g_log.info("Initialize nupic.fluent")
-    # Initialize nupic.fluent model runner
-    self._fluent = FluentRunner(dataPath=dataPath,
-                        resultsDir="",
-                        experimentName="imbu_fingerprints",
-                        load=False,
-                        modelName="ClassificationModelFingerprint",
-                        modelModuleName="fluent.models.classify_fingerprint",
-                        numClasses=1,  # must be >0 to go through training
-                        plots=0,
-                        orderedSplit=False,
-                        trainSizes=[],
-                        verbosity=0)
+    g_log.info("Initialize imbu model")
 
-    # Train model with given sample data
-    self._fluent.initModel()
-    self._fluent.setupData()
-    self._fluent.trainSize = len(self._fluent.samples)
-    self._fluent.encodeSamples()
-    self._fluent.resetModel(0)
-
-    for i in range(self._fluent.trainSize):
-      self._fluent.model.trainModel(i)
+    csvdata = readCSV(dataPath, numLabels=0)
+    self.samples = OrderedDict()
+    for dataID, text in csvdata.iteritems():
+      self.samples[dataID] = text
 
 
-  def query(self, text):
+    self.models = {modelName: createModel(modelName, dataPath, csvdata)
+      for modelName, modelCls in _MODEL_MAPPING.iteritems()}
+
+
+  def query(self, model, text):
     """ Queries fluent model and returns an ordered list of matching documents.
+
+    :param str model: Model to use. Possible values are:
+                      CioWordFingerprint, CioDocumentFingerprint,
+                      Keywords, HTMNetwork
 
     :param str text: The text to match.
 
@@ -111,11 +179,15 @@ class FluentWrapper(object):
     results = []
     if text:
       g_log.info("Query model for : %s", text)
-      sampleIDs, sampleDists = self._fluent.model.queryModel(text, False)
-      for sID, dist in zip (sampleIDs, sampleDists):
+      sortedDistances = self.models[model].queryModel(text, False)
+      for sID, dist in sortedDistances:
         results.append({"id": sID,
-                        "text": self._fluent.dataDict[sID][0],
+                        "text": self.samples[sID],
                         "score": dist.item()})
+
+      results.append({"id": "sID",
+                      "text": model,
+                      "score": 1})
 
     return results
 
@@ -131,21 +203,26 @@ class DefaultHandler(object):
 class FluentAPIHandler(object):
   """ Handles Fluent API Requests """
 
-  def OPTIONS(self): # pylint: disable=R0201,C0103
+  def OPTIONS(self, modelName="CioWordFingerprint"): # pylint: disable=R0201,C0103
+    addStandardHeaders()
+    addCORSHeaders()
+    if modelName not in g_fluent:
+      raise web.notfound("%s Model not found" % modelName)
+
+
+  def POST(self, modelName="CioWordFingerprint"): # pylint: disable=R0201,C0103
     addStandardHeaders()
     addCORSHeaders()
 
-
-  def POST(self): # pylint: disable=R0201,C0103
-    addStandardHeaders()
-    addCORSHeaders()
+    if modelName not in g_fluent.models:
+      raise web.notfound("%s Model not found" % modelName)
 
     response = []
 
     data = web.data()
     if data:
       if isinstance(data, basestring):
-        response = g_fluent.query(data)
+        response = g_fluent.query(modelName, data)
       else:
         raise web.badrequest("Invalid Data. Query data must be a string")
 
@@ -159,14 +236,16 @@ class FluentAPIHandler(object):
 
 
 urls = (
-    "", "DefaultHandler",
-    "/", "DefaultHandler",
-    "/fluent", "FluentAPIHandler"
+  "", "DefaultHandler",
+  "/", "DefaultHandler",
+  "/fluent", "FluentAPIHandler",
+  "/fluent/(.*)", "FluentAPIHandler"
 )
 app = web.application(urls, globals())
 
-# Create nupic.fluent model runner
-g_fluent = FluentWrapper(pkg_resources.resource_filename(__name__, "data.csv"))
+# Create imbu model runner
+IMBU_DATA = os.getenv('IMBU_DATA', pkg_resources.resource_filename(__name__, "data.csv"))
+g_fluent = FluentWrapper(IMBU_DATA)
 
 if __name__ == "__main__":
   app.run()
