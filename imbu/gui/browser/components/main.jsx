@@ -18,7 +18,6 @@
 * http://numenta.org/licenses/
 * -------------------------------------------------------------------------- */
 
-'use strict';
 
 import React from 'react';
 import Material from 'material-ui';
@@ -66,4 +65,4 @@ export default class Main extends React.Component {
       </div>
     );
   }
-};
+}

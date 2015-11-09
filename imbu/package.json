@@ -20,8 +20,9 @@
     "clean": "rm -Rf node_modules/",
     "dev": "npm run pack-web && npm run serve",
     "electron": "electron .",
+    "lint": "eslint --ext=js --ext=jsx gui/ tests/js/",
     "pack-electron": "gulp webpack --target atom",
-    "pack-web": "gulp webpack",
+    "pack-web": "npm run lint && gulp webpack",
     "serve": "http-server -p 9999 ./gui/browser/",
     "start": "npm run pack-electron && npm run electron",
     "test": "echo \"Error: no test specified\" && exit 1"
