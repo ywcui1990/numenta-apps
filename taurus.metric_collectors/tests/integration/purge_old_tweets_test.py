@@ -116,8 +116,9 @@ class PurgeOldTweetsTestCase(unittest.TestCase):
 
       self.assertEqual(len(remainingRows), len(youngRows))
 
-      self.assertItemsEqual([row["uid"] for row in youngRows],
-                            [row.uid for row in remainingRows])
+      self.assertItemsEqual(
+        [row["uid"] for row in youngRows],
+        [row.uid for row in remainingRows]) # pylint: disable=E1101
 
 
 

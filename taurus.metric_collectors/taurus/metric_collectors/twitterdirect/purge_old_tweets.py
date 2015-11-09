@@ -51,9 +51,8 @@ def _parseArgs():
   :returns: dict of arg names and values:
     days - Messages older than this number of days will be purged
   """
-  helpString = (
-    "%%prog [options]"
-    "Purges old records from %s table.") % (collectorsdb.schema.twitterTweets,)
+  helpString = ("%prog [options] Purges old records from {} table.").format(
+    collectorsdb.schema.twitterTweets)
 
   parser = OptionParser(helpString)
 
@@ -66,7 +65,7 @@ def _parseArgs():
 
   options, remainingArgs = parser.parse_args()
   if remainingArgs:
-    parser.error("Unexpected remaining args: %r" % (remainingArgs,))
+    parser.error("Unexpected remaining args: {}".format(remainingArgs))
 
   if options.days is None:
     parser.error("Required \"--days\" option was not specified")
@@ -95,7 +94,7 @@ def purgeOldTweets(thresholdDays):
   selectionPredicate = (
     twitterTweetsSchema.c.created_at <
     sql.func.date_sub(sql.func.utc_timestamp(),
-                      sql.text("INTERVAL %i DAY" % (thresholdDays,)))
+                      sql.text("INTERVAL {:d} DAY".format(thresholdDays)))
   )
 
   estimate = _estimateNumTweetsToDelete(sqlEngine, selectionPredicate)
