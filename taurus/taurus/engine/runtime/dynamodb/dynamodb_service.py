@@ -486,9 +486,10 @@ class DynamoDBService(object):
     """ Purge metric from dynamodb metric table
     :param uid: Metric uid
     """
-    g_log.info("Removing %s from dynamodb", uid)
+    g_log.info("Handling `deleteModel` for %s", uid)
     try:
       metricItem = self._metric.lookup(uid, consistent=True)
+      g_log.info("Deleting %r from dynamodb", metricItem)
       metricItem.delete()
     except ItemNotFound as err:
       g_log.warning("Nothing to remove.  %s", str(err))
