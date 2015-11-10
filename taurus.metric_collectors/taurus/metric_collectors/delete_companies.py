@@ -143,9 +143,13 @@ def deleteCompanies(tickerSymbols,
 
   # NOTE: We must query custom metrics after flushing the metric data path,
   # since metrics may get created as a side-effect of processing metric data.
-  allMetricNames = tuple(
-    obj["name"] for obj in
-    metric_utils.getAllCustomMetrics(host=engineServer, apiKey=engineApiKey))
+  allMetricsMap = {
+    obj["name"] : obj
+    for obj in
+    metric_utils.getAllCustomMetrics(host=engineServer, apiKey=engineApiKey)
+  }
+
+  allMetricNames = allMetricsMap.keys()
 
   for symbolNum, symbol in enumerate(tickerSymbols, 1):
     # Delete corresponding metrics from Taurus Engine
@@ -165,7 +169,8 @@ def deleteCompanies(tickerSymbols,
       metric_utils.deleteMetric(host=engineServer,
                                 apiKey=engineApiKey,
                                 metricName=metricName)
-      g_log.info("Deleted metric=%s", metricName)
+      g_log.info("Deleted metric name=%s, uid=%s", metricName,
+                 allMetricsMap[metricName]["uid"])
 
 
     # Delete the symbol from xignite_security table last; this cascades to
