@@ -20,20 +20,48 @@
 
 import BaseStore from 'fluxible/addons/BaseStore';
 
+/**
+ * @typedef {Object} ModelStore.Model
+ * @property {string} modelId - Model Unique ID.
+ * @property {string} filename - File full path name
+ * @property {string} timestampField - Timestamp field name
+ * @property {string} metric - Metric field name
+ * @property {boolean} active - Whether or not this model is running
+ * @property {boolean} visible - Whether or not this model is visible
+ * @property {?string} error - Last known error or null for no error
+ */
+const DEFAULT_VALUES = {
+  modelId: null,
+  filename: null,
+  timestampField: null,
+  metric: null,
+  active: false,
+  visible: false,
+  error: null
+}
 
+/**
+ * Manages nupic models UI properties
+ */
 export default class ModelStore extends BaseStore {
 
+  /**
+   * ModelStore
+   */
   static get storeName() {
     return 'ModelStore'
   }
 
   static get handlers() {
     return {
-      ADD_MODEL_SUCCESS: '_handleAddModel',
-      DELETE_MODEL_SUCCESS: '_handleDeleteModel',
-      LIST_MODELS_SUCCESS: '_handleListModels',
-      STOP_MODEL_SUCCESS: '_handleStopModel',
-      START_MODEL_SUCCESS: '_handleStartModel',
+      ADD_MODEL: '_addModels',
+      DELETE_MODEL: '_deleteModel',
+      LIST_MODELS: '_addModels',
+      STOP_MODEL: '_stopModel',
+      START_MODEL: '_startModel',
+      SHOW_MODEL: '_showModel',
+      HIDE_MODEL: '_hideModel',
+
       STOP_MODEL_FAILED: '_handleModelFailed',
       START_MODEL_FAILED: '_handleModelFailed',
       UNKNOWN_MODEL_FAILURE: '_handleModelFailed'
@@ -46,57 +74,28 @@ export default class ModelStore extends BaseStore {
   }
 
   /**
-   * Handles adding or replacing a model in the store.
-   * @param  {Object} payload The action payload in the following format:
-   *             <code>
-   *             {
-   *               modelId: {string},   // Required model id
-   *               filename: {string},  // File name
-   *               metric: {string},    // Metric Name
-   *               timestampField: {string},    // Timestamp field Name
-   *               active: {boolean}    // Whether or not this model is running
-   *             }
-   *             </code>
+   * Load model(s) into the store.
+   * @param  {ModelStore.Model|ModelStore.Model[]} models model(s) to add to
+   *                                                      the store
    */
-  _handleAddModel(payload) {
-    if (payload && 'modelId' in payload) {
-      this._models.set(payload.modelId, payload);
-      this.emitChange();
-    }
-  }
-
-  /**
-   * Load model list into the store.
-   * @param  {Object} payload The action payload in the following format:
-   *    <code>
-   *    [
-   *      {
-   *      	modelId: "id",
-   *      	filename: "filename",
-   *      	metric: "metric",
-   *      	timestampField: "timestamp",
-   *      	active: true|false
-   *      }
-   *      ...
-   *    ]
-   *    </code>
-   */
-  _handleListModels(payload) {
-    if (Array.isArray(payload) && payload.length) {
-      payload.forEach((model) => {
-        if ('modelId' in model) {
-          this._models.set(model.modelId, model);
-        }
+  _addModels(models) {
+    if (Array.isArray(models)) {
+      models.forEach((model) => {
+        this._models.set(model.modelId,
+          Object.assign({}, DEFAULT_VALUES, model));
       });
       this.emitChange();
+    } else if ('modelId' in models) {
+      this._models.set(models.modelId,
+        Object.assign({}, DEFAULT_VALUES, models));
     }
   }
 
   /**
-   * Delete model data.
+   * Delete model from the store.
    * @param {string} modelId - Model to delete
    */
-  _handleDeleteModel(modelId) {
+  _deleteModel(modelId) {
     this._models.delete(modelId);
     this.emitChange();
   }
@@ -105,7 +104,7 @@ export default class ModelStore extends BaseStore {
    * Mark the model as stopped.
    * @param {string} modelId The model to update
    */
-  _handleStopModel(modelId) {
+  _stopModel(modelId) {
     let model = this._models.get(modelId);
     if (model) {
       model.active = false;
@@ -118,7 +117,7 @@ export default class ModelStore extends BaseStore {
    * Mark the model as active.
    * @param {string} modelId - The model to update
    */
-  _handleStartModel(modelId) {
+  _startModel(modelId) {
     let model = this._models.get(modelId);
     if (model) {
       model.active = true;
@@ -127,6 +126,13 @@ export default class ModelStore extends BaseStore {
     }
   }
 
+  /**
+   * Handles model failures
+   *
+   * @param {Object} payload - Action payload
+   * @param {string} payload.modelId - Model ID to update error
+   * @param {string} payload.error - Error message
+   */
   _handleModelFailed(payload) {
     let {modelId, error} = payload;
     let model = this._models.get(modelId);
@@ -140,17 +146,8 @@ export default class ModelStore extends BaseStore {
   /**
    * Get model from store.
    * @param  {string} modelId Model to get
-   * @return {Object} The model object in the following format:
-   *             <code>
-   *             {
-   *               modelId: {string},  // Required model id
-   *               filename: {string}, // File name
-   *               metric: {string}    // Metric Name
-   *               timestampField: {string},    // Timestamp field Name
-   *               active: {boolean}    // Whether or not this model is running
-   *             }
-   *             </code>
-   *             or undefined if the model can't be found
+   * @return {?ModelStore.Model} The model object or null if the model
+   *                             can't be found
    */
   getModel(modelId) {
     return this._models.get(modelId);
@@ -158,35 +155,9 @@ export default class ModelStore extends BaseStore {
 
   /**
    * Returns a list of all models currently kept in this store.
-   * @return {Array} All models
-   *    <code>
-   *    [
-   *      {
-   *      	modelId: "id",
-   *      	filename: "filename",
-   *      	metric: "metric",
-   *      	timestampField: "timestamp",
-   *      	active: true|false
-   *      }
-   *      ...
-   *    ]
-   *    </code>
+   * @return {ModelStore.Model[]} All models
    */
   getModels() {
     return Array.from(this._models.values());
   }
-
-  /**
-   * Whether or not the model is active/running.
-   * @param {string} modelId - The model to check
-   * @return {boolean} - Returns true if the model is active.
-   */
-  isModelActive(modelId) {
-    let model = this._models.get(modelId);
-    if (model) {
-      return model.active;
-    }
-    return false;
-  }
-
 }

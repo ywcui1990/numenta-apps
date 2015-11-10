@@ -185,7 +185,7 @@ function putMetricsIntoDB(options) {
 /**
  * Get uploaded file
  */
-export default (actionContext, file) => {
+export default function (actionContext, file) {
   return csp.go(function* () {
     let fileFormatted, fileHandle, fileMetrics, result;
     let log = actionContext.getLoggerClient();
@@ -219,7 +219,7 @@ export default (actionContext, file) => {
       };
 
       log.debug('on to UI');
-      actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, fileFormatted);
+      actionContext.dispatch(ACTIONS.UPLOADED_FILE, fileFormatted);
       return fileFormatted;
     }
 
@@ -253,7 +253,7 @@ export default (actionContext, file) => {
     }
 
     log.debug('on to UI');
-    actionContext.dispatch(ACTIONS.UPLOADED_FILE_SUCCESS, fileFormatted);
+    actionContext.dispatch(ACTIONS.UPLOADED_FILE, fileFormatted);
     return fileFormatted;
   }); // csp.go
-}; // export
+} // export

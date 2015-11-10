@@ -373,4 +373,4 @@ DatabaseServer.prototype.close = function (callback) {
 
 
 // EXPORTS
-module.exports = DatabaseServer;
+export default DatabaseServer;

@@ -32,7 +32,7 @@ import Utils from '../../lib/Utils';
 /**
  * Get List of files from backend
  */
-export default (actionContext) => {
+export default function (actionContext) {
   return new Promise((resolve, reject) => {
 
     let databaseClient = actionContext.getDatabaseClient();
@@ -49,7 +49,7 @@ export default (actionContext) => {
         reject(error);
       } else if (files.length) {
         log.debug('files in db already, not first run, straight to UI');
-        actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
+        actionContext.dispatch(ACTIONS.LIST_FILES, files);
         resolve(files);
       } else {
         log.debug('no files in db, first run, so load them from fs');
@@ -76,7 +76,7 @@ export default (actionContext) => {
                 reject(error);
               } else {
                 log.debug('DB now has Files, on to UI.');
-                actionContext.dispatch(ACTIONS.LIST_FILES_SUCCESS, files);
+                actionContext.dispatch(ACTIONS.LIST_FILES, files);
                 resolve(files);
               }
             }); // databaseClient.putFiles()
@@ -86,4 +86,4 @@ export default (actionContext) => {
     }); // databaseClient.queryFile()
 
   }); // Promise
-};
+}

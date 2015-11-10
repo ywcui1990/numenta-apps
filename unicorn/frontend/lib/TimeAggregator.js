@@ -20,21 +20,13 @@ var util = require('util'); // eslint-disable-line no-var
 var Transform = require('stream').Transform; // eslint-disable-line no-var
 
 /**
- * Creates a stream {Transform} class used to aggregate the stream.
- * @param {type} options - Aggregation settings:
- *                          <code>
- *                          {
- *                          	// Name of the field representing 'time'
- *                          	'timefield' : {String},
- *                          	// Name of the field containing the 'value'
- *                          	'valuefield': {String},
- *                          	// Aggregation function to use:
- *                          	//   'sum', 'count', 'avg', 'min', 'max'
- *                          	'function' : {String},
- *                          	// Time interval in milliseconds
- *                          	'interval' : {number}
- *                          }
- *                          </code>
+ * Creates a stream {@link Transform} class used to aggregate the data stream.
+ * @param {Object} options - Aggregation settings:
+ * @param {string} options.timefield - Name of the field representing 'time'
+ * @param {string} options.valuefield - Name of the field containing the 'value'
+ * @param {string} options.function - Aggregation function to use: 'sum',
+ *                                  	'count', 'avg', 'min', 'max'
+ * @param {number} options.interval - Time interval in milliseconds
  */
 function TimeAggregator(options) {
   this._options = Object.assign({}, options, {objectMode: true});

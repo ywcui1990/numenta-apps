@@ -29,8 +29,8 @@ export default class ModelDataStore extends BaseStore {
 
   static get handlers() {
     return {
-      RECEIVE_DATA_SUCCESS: '_handReceiveData',
-      DELETE_MODEL_SUCCESS: '_handleDeleteModel'
+      RECEIVE_DATA: '_handReceiveData',
+      DELETE_MODEL: '_handleDeleteModel'
     };
   }
 
@@ -81,17 +81,11 @@ export default class ModelDataStore extends BaseStore {
 
   /**
    * Get data for the given model.
-   * @param  {string} modelId  Model to get data from
-   * @return {Array}           Model data in the following format:
-   *         <code>
-   *         [
-   *         	 {
-   *          	 modelId: "id", // The model id
-   *             data: [[val11, val12], [val21, val22], ...],
-   *             modified: {Date} // Last time the data was modified
-   *           }
-   *         ]
-   *         </code>
+   * @param  {string} modelId - Model to get data from
+   * @return {Object[]} - Model results
+   * @property {string} modelId: - The model id
+   * @property {Array<number[]>} data -  [[val11, val12], [val21, val22], ...],
+   * @property {Date} modified - Last time the data was modified
    */
   getData(modelId) {
     return this._models.get(modelId) || {modelId, data:[], modified:0};

@@ -32,7 +32,7 @@ import Utils from '../../lib/Utils';
 /**
  * List all available metrics of the given file
  */
-export default (actionContext, files) => {
+export default function (actionContext, files) {
   return new Promise((resolve, reject) => {
 
     let databaseClient = actionContext.getDatabaseClient();
@@ -60,7 +60,7 @@ export default (actionContext, files) => {
         });
 
         log.debug('DB already had Metrics, now to UI');
-        actionContext.dispatch(ACTIONS.LIST_METRICS_SUCCESS, payload);
+        actionContext.dispatch(ACTIONS.LIST_METRICS, payload);
         resolve(payload);
       } else {
         log.debug('no metrics in db, is first run, so load them from fs');
@@ -101,7 +101,7 @@ export default (actionContext, files) => {
                       });
                     });
                     actionContext.dispatch(
-                      ACTIONS.LIST_METRICS_SUCCESS,
+                      ACTIONS.LIST_METRICS,
                       payload
                     );
                     resolve(payload);
@@ -116,4 +116,4 @@ export default (actionContext, files) => {
     }); // databaseClient.getMetrics()
 
   }); // Promise
-};
+}

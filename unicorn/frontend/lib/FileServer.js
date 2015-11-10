@@ -167,7 +167,7 @@ FileServer.prototype.getFields = function (filename, options, callback) {
  * @param {string} filename - The absolute path of the CSV file to load
  * @param {Object} options - Optional settings
  *                    See https://github.com/klaemo/csv-stream#options
- *                    <code>
+ *                    ```
  *                     {
  *                        delimiter: ',', // comma, semicolon, whatever
  *                        newline: 'n', // newline character
@@ -198,9 +198,9 @@ FileServer.prototype.getFields = function (filename, options, callback) {
  *                          'interval' : {number}
  *                        }
  *                      }
- *                    </code>
+ *                    ```
  * @param {Function} callback - This callback to be called on every record.
- *                              <code>function (error, data)</code>
+ *                              `function (error, data)`
  */
 FileServer.prototype.getData = function (filename, options, callback) {
   // "options" is optional
@@ -228,12 +228,12 @@ FileServer.prototype.getData = function (filename, options, callback) {
   lastStream
     .on('data', function (data) {
       if (limit > 0) {
-        callback(null, data);
+        callback(null, data); // eslint-disable-line callback-return 
       }
       if (limit === 0) {
         fileStream.unpipe();
         fileStream.destroy();
-        callback();
+        callback(); // eslint-disable-line callback-return
       }
       limit -= 1;
     })
@@ -268,7 +268,8 @@ FileServer.prototype.getData = function (filename, options, callback) {
  *                    </code>
  * @param {Function} callback - This callback will be called with the results in
  *                              the following format:
- *                              <code>function (error, stats)</code>
+ *                              `function (error, stats)`
+ *                              ```
  *                              stats = {
  *                              	count: '100',
  *                              	fields: {
@@ -282,6 +283,7 @@ FileServer.prototype.getData = function (filename, options, callback) {
  *                              	  }, ...
  *                              	}
  *                              }
+ *                              ```
  */
 FileServer.prototype.getStatistics = function (filename, options, callback) {
   // "options" is optional
@@ -355,4 +357,4 @@ FileServer.prototype.getStatistics = function (filename, options, callback) {
 
 
 // EXPORTS
-module.exports = FileServer;
+export default FileServer;

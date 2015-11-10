@@ -21,11 +21,13 @@
 import {ACTIONS} from '../lib/Constants';
 
 
-/**
- * Stop running model
- */
-export default (actionContext, modelId) => {
-  actionContext.dispatch(ACTIONS.STOP_MODEL_SUCCESS, modelId);
+ /**
+  * Stop running model
+  * @param  {FluxibleContext} actionContext -
+  * @param  {string} modelId - Model ID
+  */
+export default function (actionContext, modelId) {
+  actionContext.dispatch(ACTIONS.STOP_MODEL, modelId);
   let modelClient = actionContext.getModelClient();
   modelClient.removeModel(modelId);
-};
+}

@@ -20,6 +20,16 @@
 
 
 // externals
+/*eslint-disable*/
+/**
+ * @external {FluxibleContext} http://fluxible.io/api/fluxible-context.html
+ */
+/** @external {BaseStore} http://fluxible.io/addons/BaseStore.html
+ */
+/**
+ * @external {React.Component} https://facebook.github.io/react/docs/component-api.html
+ */
+ /*eslint-enable*/
 
 import 'babel/polyfill'; // es6/7 polyfill Array.from()
 

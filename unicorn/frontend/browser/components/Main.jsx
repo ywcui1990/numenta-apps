@@ -40,11 +40,6 @@ import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
 
 /**
  * React Main View Component
- * @class
- * @extends React.Component
- * @module
- * @public
- * @this MainComponent
  */
 @provideContext({
   getConfigClient: React.PropTypes.func,
@@ -53,8 +48,8 @@ import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
   getFileClient: React.PropTypes.func,
   getModelClient: React.PropTypes.func
 })
-@ThemeDecorator(ThemeManager.getMuiTheme(UnicornTheme))
-export default class MainComponent extends React.Component {
+@ThemeDecorator(ThemeManager.getMuiTheme(UnicornTheme)) // eslint-disable-line new-cap
+export default class Main extends React.Component {
 
   static get contextTypes() {
     return {

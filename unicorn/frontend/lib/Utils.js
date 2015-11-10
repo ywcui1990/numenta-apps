@@ -20,17 +20,17 @@
 import crypto from 'crypto';
 
 
-export default {
+export default class Utils {
 
   /**
    * Genereate unique hashed UID based on seed string and SHA1.
    * @param  {string} seed - Seed string to hash
    * @return {string} Unique id
    */
-  generateId(seed) {
+  static generateId(seed) {
     const hash = crypto.createHash('sha1');
     return hash.update(seed).digest('hex');
-  },
+  }
 
   /**
    * Genereate unique model uid based on the filename and metric name
@@ -39,9 +39,9 @@ export default {
    * @param  {string} metric - Metric name
    * @return {string} Unique id
    */
-  generateModelId(filename, metric) {
-    return this.generateId(`${filename}#${metric}`);
-  },
+  static generateModelId(filename, metric) {
+    return Utils.generateId(`${filename}#${metric}`);
+  }
 
   /**
    * Genereate unique metric data row uid based on the filename, metric name,
@@ -51,8 +51,7 @@ export default {
    * @param  {string} timestamp - Unique Record row timestamp string
    * @return {string} Unique id
    */
-  generateDataId(filename, metric, timestamp) {
-    return this.generateId(`${filename}#${metric}#${timestamp}`);
+  static generateDataId(filename, metric, timestamp) {
+    return Utils.generateId(`${filename}#${metric}#${timestamp}`);
   }
-
-};
+}
