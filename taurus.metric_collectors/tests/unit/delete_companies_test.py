@@ -29,6 +29,7 @@ Unit tests for taurus.metric_collectors.delete_companies
 
 import time
 import unittest
+import uuid
 
 import mock
 from mock import ANY, Mock, patch
@@ -83,7 +84,8 @@ class DeleteCompaniesTestCase(unittest.TestCase):
 
     # Patch getAllCustomMetrics to return all negatives and positives
     getAllCustomMetricsMock.return_value = [
-      {"name": metric} for metric in negatives.union(positives)
+      {"uid": uuid.uuid1().hex, "name": metric}
+      for metric in negatives.union(positives)
     ]
 
     # Simulate xitgnite_security found for first symbol, but not the second one.
@@ -150,7 +152,8 @@ class DeleteCompaniesTestCase(unittest.TestCase):
 
     # Patch getAllCustomMetrics to return all negatives and positives
     getAllCustomMetricsMock.return_value = [
-      {"name": metric} for metric in negatives.union(positives)
+      {"uid": uuid.uuid1().hex, "name": metric}
+      for metric in negatives.union(positives)
     ]
 
     engineFactoryMock.return_value.begin.return_value.__enter__.return_value \
