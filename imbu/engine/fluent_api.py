@@ -185,10 +185,6 @@ class FluentWrapper(object):
                         "text": self.samples[sID],
                         "score": dist.item()})
 
-      results.append({"id": "sID",
-                      "text": model,
-                      "score": 1})
-
     return results
 
 
