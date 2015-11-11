@@ -144,7 +144,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         let firstRun = NSUserDefaults.standardUserDefaults().boolForKey("firstRun")
         if (firstRun != true){
-            performSegueWithIdentifier ("startTutorial", sender: nil)
+            self.navigationController!.performSegueWithIdentifier ("startTutorial", sender: nil)
             NSUserDefaults.standardUserDefaults().setBool(true, forKey: "firstRun")
         }
         
