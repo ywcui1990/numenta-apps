@@ -20,6 +20,7 @@
 *
 */
 import Foundation
+import UIKit
 
 class TutorialController :  UIViewController, UIPageViewControllerDelegate{
     

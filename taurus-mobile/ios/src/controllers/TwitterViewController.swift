@@ -150,16 +150,14 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         instanceTable.backgroundColor = UIColor.clearColor()
           self.instanceTable.estimatedRowHeight = 80.0
         self.instanceTable.rowHeight = UITableViewAutomaticDimension
+  
+        let menuIcon = UIImage(named: "menu")
+        let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self, action: "showMenu:")
+
+        self.menuButton = b2
         
-        if self.revealViewController() != nil {
-            let menuIcon = UIImage(named: "menu")
-            let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self.revealViewController(), action: "rightRevealToggle:")
-            self.menuButton = b2
+        self.navigationItem.rightBarButtonItems = [menuButton!]
             
-            self.navigationItem.rightBarButtonItems = [menuButton!]
-            
-          //  self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
-        }
         
         metricChartView.selectionCallback = self.selection
         condensedToggle?.on = false
@@ -181,6 +179,10 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             self.loadTwitterData()
         }
         
+    }
+    
+    func showMenu( sender : UIButton){
+        CustomMenuController.showMenu( self)
     }
     
 
@@ -527,6 +529,9 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     */
     func selection( index : Int)->Void{
        
+        if (metricChartData == nil || metricChartData!.rawData == nil){
+            return
+        }
         let numIndexes =  Int64(metricChartData!.rawData!.count)
         let timeStamp = metricChartData!.endDate + DataUtils.MILLIS_PER_HOUR  -  ( numIndexes-index) * DataUtils.METRIC_DATA_INTERVAL
         if (twitterIndex.count <= 0){

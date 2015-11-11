@@ -180,7 +180,7 @@
         
         let endProfile =  DataUtils.timestampFromDate( NSDate())
         
-        Log.line ("time: " + String(endProfile-startProfile))
+     //   Log.line ("time: " + String(endProfile-startProfile))
         refreshData()
         return true
     }

@@ -22,9 +22,10 @@
 
 import UIKit
 import CoreData
+import MessageUI
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, MFMailComposeViewControllerDelegate {
 
     var window: UIWindow?
     let syncQueue = dispatch_queue_create("com.numenta.Sync", nil)
@@ -46,8 +47,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         TaurusApplication.client = syncService.client as? TaurusClient
         
         
+        let dispatchTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(4 * Double(NSEC_PER_SEC)))
         
-        dispatch_async(syncQueue) {
+        dispatch_after(dispatchTime, syncQueue) {
             UIApplication.sharedApplication().networkActivityIndicatorVisible = true
             syncService.synchronizeWithServer()
             UIApplication.sharedApplication().networkActivityIndicatorVisible = false
@@ -97,6 +99,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             syncService.synchronizeWithServer()
             completionHandler(.NewData)
         }
+    }
+    
+    /** mail delegate
+     */
+    func mailComposeController(controller: MFMailComposeViewController!, didFinishWithResult result: MFMailComposeResult, error: NSError!) {
+        
+        
+        controller.dismissViewControllerAnimated(true, completion: nil)
+        
+        
     }
     
    

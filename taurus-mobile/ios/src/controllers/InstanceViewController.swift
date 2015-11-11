@@ -86,7 +86,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         
         let menuIcon = UIImage(named: "menu")
-        let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self.revealViewController(), action: "rightRevealToggle:")
+        let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self, action: "showMenu:")
         self.menuButton = b2
         
         
@@ -131,12 +131,12 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         self.syncWithDB()
         
-       if self.revealViewController() != nil {
+     /*  if self.revealViewController() != nil {
             menuButton!.target = self.revealViewController()
             menuButton!.action = "rightRevealToggle:"
           //  self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
                 self.revealViewController().rightViewRevealWidth = 180
-        }
+        }*/
         
        
         dayTimePeriodFormatter.dateFormat = "EEEE, M/d"
@@ -147,12 +147,15 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         let firstRun = NSUserDefaults.standardUserDefaults().boolForKey("firstRun")
         if (firstRun != true){
-            self.revealViewController().frontViewController.performSegueWithIdentifier ("startTutorial", sender: nil)
+            performSegueWithIdentifier ("startTutorial", sender: nil)
             NSUserDefaults.standardUserDefaults().setBool(true, forKey: "firstRun")
         }
         
     }
 
+    func showMenu( sender : UIButton){
+        CustomMenuController.showMenu( self)
+    }
     
     /** shows search bar in navigation area
     */
@@ -508,6 +511,11 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         for var i = 0; i<4; i++ {
             listData[i] = [InstanceAnomalyChartData]()
+            
+            if ( i >= self.allData.count){
+                continue
+            }
+            
             let sectionData = self.allData[i]!
             for val : InstanceAnomalyChartData in  sectionData {
                 if ( searchPredicate.evaluateWithObject ( val.ticker ) ||
