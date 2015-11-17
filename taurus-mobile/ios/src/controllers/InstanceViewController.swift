@@ -487,7 +487,9 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
               //   self.currentData = listData
                 self.tableData = self.allData
                 self.timeSlider?.endDate = DataUtils.dateFromTimestamp( TaurusApplication.getDatabase().getLastTimestamp() )
-                self.instanceTable?.reloadData()
+                
+                self.favoriteSwitch (self.favoriteSegmentControl!)
+               
 
             }
         }
@@ -542,6 +544,8 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
                 if (data != nil ){
                     controller.chartData = data![ indexPath.item]
                 }
+                
+                self.instanceTable.deselectRowAtIndexPath (indexPath , animated: false)
             }
         }
     }
