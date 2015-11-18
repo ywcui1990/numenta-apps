@@ -278,7 +278,7 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace, nupicVersion):
       # also install pycapnp
       command = ("pip", "install",
                  "--install-option=--prefix=%s" % buildWorkspace,
-                 "pycapnp=0.5.5")
+                 "pycapnp==0.5.5")
       runWithOutput(command=command, env=env, logger=logger)
 
       shutil.rmtree("build", ignore_errors=True)
@@ -347,7 +347,7 @@ def buildNuPIC(env, logger, buildWorkspace):
 
       # also install pycapnp
       command = ("pip", "install", "--install-option=--prefix=%s" % env["NTA"],
-                 "pycapnp=0.5.5")
+                 "pycapnp==0.5.5")
       runWithOutput(command=command, env=env, logger=logger)
 
       # need to remove this folder for wheel build to work
