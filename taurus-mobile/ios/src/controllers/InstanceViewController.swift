@@ -26,6 +26,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     @IBOutlet var instanceTable: UITableView!
     @IBOutlet var menuButton:UIBarButtonItem?
     @IBOutlet var dateLabel: UILabel?
+    @IBOutlet var progressLabel: UILabel?
     
     var searchController : UISearchController?
     var searchButton : UIBarButtonItem?
@@ -70,7 +71,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         favoriteSegmentControl!.addTarget(self, action: "favoriteSwitch:", forControlEvents: UIControlEvents.ValueChanged)
         
         favoriteSegmentControl!.setWidth( 50.0, forSegmentAtIndex: 0)
-        favoriteSegmentControl!.setWidth( 60.0, forSegmentAtIndex: 1)
+        favoriteSegmentControl!.setWidth( 65.0, forSegmentAtIndex: 1)
         let container = UIView()
         container.addSubview(favoriteSegmentControl!)
         container.backgroundColor = UIColor.blueColor()
@@ -140,13 +141,30 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         dateLabel!.layer.masksToBounds = true
         self.dateLabel!.hidden  = true
         
-        
+         progressLabel!.layer.masksToBounds = true
         
         let firstRun = NSUserDefaults.standardUserDefaults().boolForKey("firstRun")
         if (firstRun != true){
             self.navigationController!.performSegueWithIdentifier ("startTutorial", sender: nil)
             NSUserDefaults.standardUserDefaults().setBool(true, forKey: "firstRun")
         }
+        
+        // Show sync progress
+        NSNotificationCenter.defaultCenter().addObserverForName(DataSyncService.PROGRESS_STATE_EVENT, object: nil, queue: nil, usingBlock: {
+                [unowned self] note in
+                    let date = note.object as? NSDate
+            
+                dispatch_async(dispatch_get_main_queue()) {
+                    if (date == nil || self.tableData.count>0 ){
+                        self.progressLabel!.hidden  = true
+                        return
+                    }
+                    self.progressLabel!.text = "Syncing\r\n"+self.dayTimePeriodFormatter.stringFromDate(date!)
+                    self.progressLabel!.hidden  = false
+                    
+                    
+                }
+            })
         
     }
 
@@ -484,7 +502,9 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
               //   self.currentData = listData
                 self.tableData = self.allData
                 self.timeSlider?.endDate = DataUtils.dateFromTimestamp( TaurusApplication.getDatabase().getLastTimestamp() )
-                self.instanceTable?.reloadData()
+                
+                self.favoriteSwitch (self.favoriteSegmentControl!)
+               
 
             }
         }
@@ -539,6 +559,8 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
                 if (data != nil ){
                     controller.chartData = data![ indexPath.item]
                 }
+                
+                self.instanceTable.deselectRowAtIndexPath (indexPath , animated: false)
             }
         }
     }
