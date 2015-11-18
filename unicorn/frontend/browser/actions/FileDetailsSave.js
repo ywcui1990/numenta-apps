@@ -18,7 +18,7 @@
 // http://numenta.org/licenses/
 
 import FileUpdateAction from '../actions/FileUpdate';
-import AddModelAction from '../actions/AddModel';
+import CreateModelAction from '../actions/CreateModel';
 
 /**
  * File Details Save action is called when the user updates the File information
@@ -41,7 +41,8 @@ export default function (actionContext, payload) {
         for (let [, metric] of metrics) {
           if (metric) {
             // Create models
-            promises.push(actionContext.executeAction(AddModelAction, metric));
+            promises.push(actionContext.executeAction(CreateModelAction,
+                                                      metric));
           }
         }
         return Promise.all(promises);

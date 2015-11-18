@@ -75,11 +75,13 @@ export default class ModelList extends React.Component {
   }
 
   _renderModels() {
-    return this.props.models.map((model) => {
-      return (
-        <Model key={model.modelId} modelId={model.modelId} />
-      );
-    });
+    return this.props.models
+      .filter((model) => model.visible)
+      .map((model) => {
+        return (
+          <Model key={model.modelId} modelId={model.modelId} />
+        );
+      });
   }
 
   render() {
@@ -90,5 +92,4 @@ export default class ModelList extends React.Component {
       </Paper>
     );
   }
-
 }

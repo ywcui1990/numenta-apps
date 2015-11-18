@@ -16,27 +16,14 @@
 // along with this program.  If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
-
-
 import {ACTIONS} from '../lib/Constants';
-import StartModelAction from './StartModel';
-
 
 /**
- * Add new model
- *
- * @param {FluxibleContext} actionContext -
- * @param {Object} payload - Action payload object
- * @param {string} payload.modelId - Model Unique ID.
- *                                	See {@link Utls.generateModelId}
- * @param {string} payload.filename - File full path name
- * @param {string} payload.timestampField - Timestamp field name
- * @param {string} payload.metric - Metric field name
- *
- * @return {Promise}
- * @todo Persist model reference
+ * Show model
+ * @param  {FluxibleContext} actionContext - The action context
+ * @param  {string} modelId - The model to show.
+ *                            Must be in the {@link ModelStore}
  */
-export default function (actionContext, payload) {
-  actionContext.dispatch(ACTIONS.ADD_MODEL, payload);
-  return actionContext.executeAction(StartModelAction, payload.modelId);
+export default function (actionContext, modelId) {
+  actionContext.dispatch(ACTIONS.SHOW_MODEL, modelId);
 }
