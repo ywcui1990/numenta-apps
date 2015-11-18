@@ -295,7 +295,9 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace, nupicVersion):
                            pythonLibDir=libdir,
                            pythonIncludeDir=includeDir),
                       env=env, logger=logger)
-        runWithOutput("VERBOSE=1 make -j 1", env=env, logger=logger)
+        newEnv = dict(env)
+        newEnv["VERBOSE"] = "1"
+        runWithOutput("make -j 1", env=newEnv, logger=logger)
         runWithOutput("make install", env=env, logger=logger)
 
       # need to remove this folder to allow the caching process to work
