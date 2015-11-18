@@ -36,7 +36,7 @@ const DEFAULT_VALUES = {
   timestampField: null,
   metric: null,
   active: false,
-  visible: false,
+  visible: true,
   error: null
 }
 
@@ -122,6 +122,30 @@ export default class ModelStore extends BaseStore {
     if (model) {
       model.active = true;
       model.error = null;
+      this.emitChange();
+    }
+  }
+
+  /**
+   * Mark model as hidden from the UI
+   * @param  {string} modelId - The model to update
+   */
+  _hideModel(modelId) {
+    let model = this._models.get(modelId);
+    if (model) {
+      model.visible = false;
+      this.emitChange();
+    }
+  }
+
+  /**
+   * Mark model as visible to the UI
+   * @param  {string} modelId - The model to update
+   */
+  _showModel(modelId) {
+    let model = this._models.get(modelId);
+    if (model) {
+      model.visible = true;
       this.emitChange();
     }
   }

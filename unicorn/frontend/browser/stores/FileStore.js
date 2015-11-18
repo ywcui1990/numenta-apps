@@ -62,14 +62,14 @@ export default class FileStore extends BaseStore {
     if (files) {
       files.forEach((file) => {
         file.metrics = [];
-        this._files.set(file.filename, file);
+        this._files.set(file.filename, Object.assign({},file));
       });
       this.emitChange();
     }
   }
 
   _handleSetFile(file) {
-    this._files.set(file.filename, file);
+    this._files.set(file.filename, Object.assign({},file));
     this.emitChange();
   }
 
@@ -79,7 +79,7 @@ export default class FileStore extends BaseStore {
     payloads.forEach((payload) => {
       let file = this._files.get(payload.filename);
       if (file) {
-        file.metrics = payload.metrics;
+        file.metrics = payload.metrics.map((m) => Object.assign({}, m));
         changed = true;
       }
     });

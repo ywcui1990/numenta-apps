@@ -18,7 +18,7 @@
 // http://numenta.org/licenses/
 
 /**
- * - ADD_MODEL : {@link AddModel}
+ * - ADD_MODEL : {@link CreateModel}
  * - DELETE_MODEL : {@link DeleteModel}
  * - RECEIVE_DATA : {@link ReceiveData}
  * - SEND_DATA : {@link SendData}
@@ -33,9 +33,13 @@
  * - LIST_METRICS | LIST_METRICS_FAILURE : {@link ListMetrics}
  * - SHOW_FILE_DETAILS : {@link ShowFileDetails}
  * - HIDE_FILE_DETAILS : {@link HideFileDetails}
+ * - SHOW_METRIC_DETAILS : {@link ShowMetricDetails}
+ * - HIDE_METRIC_DETAILS : {@link HideMetricDetails}
  * - UNKNOWN_MODEL_FAILURE : {@link ModelError}
  */
 export const ACTIONS = Object.freeze({
+  SHOW_MODEL: 'SHOW_MODEL',
+  HIDE_MODEL: 'HIDE_MODEL',
   ADD_MODEL: 'ADD_MODEL',
   DELETE_MODEL: 'DELETE_MODEL',
   RECEIVE_DATA: 'RECEIVE_DATA',
@@ -45,6 +49,7 @@ export const ACTIONS = Object.freeze({
   START_MODEL_FAILED: 'START_MODEL_FAILED',
   STOP_MODEL: 'STOP_MODEL',
   STOP_MODEL_FAILED: 'STOP_MODEL_FAILED',
+  DELETE_FILE: 'DELETE_FILE',
   UPLOADED_FILE: 'UPLOADED_FILE',
   UPLOADED_FILE_FAILED: 'UPLOADED_FILE_FAILED',
   UPDATE_FILE: 'UPDATE_FILE',
@@ -55,6 +60,8 @@ export const ACTIONS = Object.freeze({
   LIST_METRICS_FAILURE: 'LIST_METRICS_FAILURE',
   SHOW_FILE_DETAILS: 'SHOW_FILE_DETAILS',
   HIDE_FILE_DETAILS: 'HIDE_FILE_DETAILS',
+  SHOW_METRIC_DETAILS: 'SHOW_METRIC_DETAILS',
+  HIDE_METRIC_DETAILS: 'HIDE_METRIC_DETAILS',
   UNKNOWN_MODEL_FAILURE: 'UNKNOWN_MODEL_FAILURE'
 });
 
