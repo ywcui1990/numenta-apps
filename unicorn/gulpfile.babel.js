@@ -37,19 +37,6 @@ let WebServer = null; // @TODO not global
 // TASKS
 
 /**
- * Gulp task to serve site from the _site/ build dir
- */
-gulp.task('serve', () => {
-  let stream = gulp.src('.')
-    .pipe(gwebserver({ port: config.get('TEST_PORT') }))
-    .on('error', console.error);
-
-  WebServer = stream;
-
-  return stream;
-});
-
-/**
  * Gulp task to run WebPack to transpile require/modules/Babel into bundle
  */
 gulp.task('webpack', ()  => {
