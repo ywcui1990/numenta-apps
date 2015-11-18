@@ -520,12 +520,16 @@ public class TaurusClient : GrokClient {
             
             for var i = 0; i<=totalDays ; i++ {
                 
+                 NSNotificationCenter.defaultCenter().postNotificationName(DataSyncService.PROGRESS_STATE_EVENT, object: date)
+                
              //   print (date)
                 getAllInstanceDataForDate(date, fromHour:0, toHour: 23, ascending: ascending, callback : callback)
                 
                 // FIXME verify this handles end of year wrapping properly
                 date = calendar.dateByAddingUnit(NSCalendarUnit.Day, value: interval, toDate: date, options: [])!
             }
+            
+             NSNotificationCenter.defaultCenter().postNotificationName(DataSyncService.PROGRESS_STATE_EVENT, object: nil)
         }
     }
 }
