@@ -117,6 +117,19 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </label>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="u4u-a8-Mml" userLabel="progressLabel">
+                                <rect key="frame" x="22" y="100" width="240" height="42"/>
+                                <animations/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.79295291385135136" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </label>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -127,6 +140,8 @@
                             <constraint firstItem="eW6-wk-JBA" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="SuE-sR-4rY"/>
                             <constraint firstItem="eW6-wk-JBA" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailing" id="eu9-u9-fd8"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="eW6-wk-JBA" secondAttribute="bottom" id="ilR-d8-KJJ"/>
+                            <constraint firstItem="u4u-a8-Mml" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="qi8-0S-gGU"/>
+                            <constraint firstItem="u4u-a8-Mml" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="v7D-7k-Xi3"/>
                         </constraints>
                     </view>
                     <toolbarItems/>
@@ -135,6 +150,7 @@
                     <connections>
                         <outlet property="dateLabel" destination="0aV-IG-t4H" id="v4g-8B-75L"/>
                         <outlet property="instanceTable" destination="YlD-31-9g5" id="MIV-uG-VkY"/>
+                        <outlet property="progressLabel" destination="u4u-a8-Mml" id="Jlv-87-rg6"/>
                         <outlet property="timeSlider" destination="eW6-wk-JBA" id="JP2-Yh-r6t"/>
                     </connections>
                 </viewController>

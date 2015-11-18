@@ -28,12 +28,12 @@ public class TaurusDataSyncService: DataSyncService{
     /** loads  instance data
     */
     override func loadAllData() {
-        
-            let db = TaurusApplication.getTaurusDatabase()
-            var from = db.getLastTimestamp()
-        
-            let nowDate = NSDate()
-            let now = DataUtils.timestampFromDate( nowDate )
+    
+        let db = TaurusApplication.getTaurusDatabase()
+        var from = db.getLastTimestamp()
+    
+        let nowDate = NSDate()
+        let now = DataUtils.timestampFromDate( nowDate )
         // The server updates the instance data table into hourly buckets as the models process
         // data. This may leave the last hour with outdated values when the server updates the
         // instance data table after we start loading the new hourly bucket.
