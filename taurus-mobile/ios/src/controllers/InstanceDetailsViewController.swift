@@ -115,28 +115,23 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         instanceTable.backgroundColor = UIColor.clearColor()
    
         let menuIcon = UIImage(named: "menu")
-        let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self.revealViewController(), action: "rightRevealToggle:")
+        
+        let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self, action: "showMenu:")
+
+        
         self.menuButton = b2
      
         b2.tintColor = UIColor.whiteColor()
    
         self.navigationItem.rightBarButtonItems = [ menuButton!]
         
-        if self.revealViewController() != nil {
-         //   menuButton.target = self.revealViewController()
-           // menuButton.action = "revealToggle:"
-            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
-            
-                self.revealViewController().rearViewRevealWidth = 100
-        }
-        
+       
          marketHoursSwitch?.on = self.marketHoursOnly
         
          configureView()
         
         dispatch_set_target_queue(loadQueue, dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0))
-        
-      
+
     }
 
     
@@ -244,6 +239,11 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         let dateString = dayTimePeriodFormatter.stringFromDate(date)
         
         self.date?.text = dateString
+    }
+    
+    
+    func showMenu( sender : UIButton){
+        CustomMenuController.showMenu( self)
     }
     
     /** get the amount of time to shift

@@ -115,14 +115,6 @@ class InstanceAnomalyChartData : AnomalyChartData {
             return $0.0 < $1.0
         }
         
-        if (ticker == "JNJ"){
-            for score in scores{
-                print(score)
-            }
-        }
-       
-        
-     
        
         // Check if anything changed
         // fixmeabs(
@@ -179,7 +171,7 @@ class InstanceAnomalyChartData : AnomalyChartData {
     */
     func setEndDate( endDate : NSDate){
         
-        print (endDate)
+      //  print (endDate)
         let secsSince1970 : Double = endDate.timeIntervalSince1970
         self.endDate = Int64(secsSince1970*1000)
     }

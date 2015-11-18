@@ -23,6 +23,8 @@ import MessageUI
 /** class for handling social aspects of app
 */
 class ShareService  {
+    
+    var mailDelegate : MFMailComposeViewControllerDelegate?
     /** provides a UI to share a screen shot of the current view
         - parameter controller: controller to take a screen shot of
     */
@@ -40,13 +42,14 @@ class ShareService  {
     */
     func feedback (controller: UIViewController, presenter: MFMailComposeViewControllerDelegate){
         
+        mailDelegate = presenter
         // make sure mail is configured.
         if (MFMailComposeViewController.canSendMail() == false){
             
             
             let alert = UIAlertController(title: "Unable to send mail", message:
                 "Your device could not send e-mail.  Please check e-mail configuration and try again.", preferredStyle: UIAlertControllerStyle.Alert)
-            alert.addAction(UIAlertAction(title: "Click", style: UIAlertActionStyle.Default, handler: nil))
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Default, handler: nil))
             controller.presentViewController(alert, animated: true, completion: nil)
             return
         }
@@ -56,12 +59,14 @@ class ShareService  {
         
         mailController.setToRecipients(["support@numenta.com"])
         mailController.setSubject("feedback")
+       // mailController.setMessageBody( Log.log, isHTML: false)
+        //Log.log = ""
         
         // create attachment and convert to a jpeg
         let screenshot = takeScreenshot (controller)
         let myData = UIImageJPEGRepresentation(screenshot, 0.9);
         mailController.addAttachmentData(myData!, mimeType:"image/jpg" ,fileName:"screenshot.jpg")
-
+        
         controller.presentViewController(mailController, animated: true, completion: nil)
     }
     

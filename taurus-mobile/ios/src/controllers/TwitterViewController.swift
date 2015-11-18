@@ -147,16 +147,14 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         instanceTable.backgroundColor = UIColor.clearColor()
           self.instanceTable.estimatedRowHeight = 80.0
         self.instanceTable.rowHeight = UITableViewAutomaticDimension
+  
+        let menuIcon = UIImage(named: "menu")
+        let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self, action: "showMenu:")
+
+        self.menuButton = b2
         
-        if self.revealViewController() != nil {
-            let menuIcon = UIImage(named: "menu")
-            let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self.revealViewController(), action: "rightRevealToggle:")
-            self.menuButton = b2
+        self.navigationItem.rightBarButtonItems = [menuButton!]
             
-            self.navigationItem.rightBarButtonItems = [menuButton!]
-            
-            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
-        }
         
         metricChartView.selectionCallback = self.selection
         condensedToggle?.on = false
@@ -178,6 +176,10 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             self.loadTwitterData()
         }
         
+    }
+    
+    func showMenu( sender : UIButton){
+        CustomMenuController.showMenu( self)
     }
     
 
@@ -323,17 +325,18 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         
         let alertView = UIAlertController(title: "Open Twitter", message: "Are you sure you want to open this message using twitter?", preferredStyle: .Alert)
 
+        let section = indexPath.section
+        let tsIndex = self.twitterIndex[section]
+        
+        let twitterEntry = self.twittermap[tsIndex]
+        
+        let items : [Tweet]? = twitterEntry!.data
+        let tweet = items![ indexPath.item]
+        
+        let uri = "http://twitter.com/" + tweet.userName + "/status/" + tweet.id
 
         alertView.addAction(UIAlertAction(title: "Open", style: .Default, handler: { (alertAction) -> Void in
-            let section = indexPath.section
-            let tsIndex = self.twitterIndex[section]
-            
-            let twitterEntry = self.twittermap[tsIndex]
-            
-            let items : [Tweet]? = twitterEntry!.data
-            let tweet = items![ indexPath.item]
-            
-            let uri = "http://twitter.com/" + tweet.userName + "/status/" + tweet.id
+          
             
             UIApplication.sharedApplication().openURL(NSURL(string: uri)!)
 
@@ -342,10 +345,10 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         presentViewController(alertView, animated: true, completion: nil)
     }
     
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
+   /* func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
     {
         
-    }
+    }*/
     
     
     
@@ -523,8 +526,11 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     */
     func selection( index : Int)->Void{
        
+        if (metricChartData == nil || metricChartData!.rawData == nil){
+            return
+        }
         let numIndexes =  Int64(metricChartData!.rawData!.count)
-        let timeStamp = metricChartData!.endDate -  ( numIndexes-index) * DataUtils.METRIC_DATA_INTERVAL
+        let timeStamp = metricChartData!.endDate + DataUtils.MILLIS_PER_HOUR  -  ( numIndexes-index) * DataUtils.METRIC_DATA_INTERVAL
         if (twitterIndex.count <= 0){
             return
         }
@@ -568,9 +574,9 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             
         }
       
-        let index  = Int64(metricChartView!.data.count) - ((metricChartData?.endDate)! - time)/DataUtils.METRIC_DATA_INTERVAL
+        let index  = Int64(metricChartView!.data.count) - ((metricChartData?.endDate)!+DataUtils.MILLIS_PER_HOUR  - time)/DataUtils.METRIC_DATA_INTERVAL
         
-        self.metricChartView.selectIndex( index)
+        self.metricChartView.selectIndex(index)
 
     }
     

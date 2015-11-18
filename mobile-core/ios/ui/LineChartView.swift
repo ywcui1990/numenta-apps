@@ -1,6 +1,7 @@
 
 
 import Foundation
+import UIKit
 
 class LineChartView: UIView {
   //  var label: String = "Stock Price"
