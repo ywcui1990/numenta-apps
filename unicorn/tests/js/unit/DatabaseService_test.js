@@ -17,7 +17,7 @@
 //
 // http://numenta.org/licenses/
 
-import DatabaseServer from '../../../frontend/lib/DatabaseServer';
+import DatabaseService from '../../../frontend/lib/DatabaseService';
 import FileSchema from '../../../frontend/database/schema/File.json';
 import MetricSchema from '../../../frontend/database/schema/Metric.json';
 import MetricDataSchema from '../../../frontend/database/schema/MetricData.json'; // eslint-disable-line
@@ -53,33 +53,33 @@ const EXPECTED_METRIC_DATA = {
 };
 
 
-describe('DatabaseServer', () => {
-  let server;
+describe('DatabaseService', () => {
+  let service;
 
   before(() => {
     let tmpDir = path.join(os.tmpDir(), 'unicorn_db');
-    server = new DatabaseServer(tmpDir);
+    service = new DatabaseService(tmpDir);
   });
   after(() => {
-    server.close((err) => assert.ifError(err));
-    server.destroy((err) => assert.ifError(err));
+    service.close((err) => assert.ifError(err));
+    service.destroy((err) => assert.ifError(err));
   });
 
   describe('Schema', () => {
     it('should validate "File"', (done) => {
-      let results = server.validator.validate(EXPECTED_FILE, FileSchema);
+      let results = service.validator.validate(EXPECTED_FILE, FileSchema);
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
 
     it('should validate "Metric"', (done) => {
-      let results = server.validator.validate(EXPECTED_METRIC, MetricSchema);
+      let results = service.validator.validate(EXPECTED_METRIC, MetricSchema);
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
 
     it('should validate "MetricData"', (done) => {
-      let results = server.validator.validate(EXPECTED_METRIC_DATA, MetricDataSchema); // eslint-disable-line
+      let results = service.validator.validate(EXPECTED_METRIC_DATA, MetricDataSchema); // eslint-disable-line
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
@@ -88,7 +88,7 @@ describe('DatabaseServer', () => {
   /* eslint-disable max-nested-callbacks */
   describe('File Table', () => {
     it('should add a single file to the database', (done) => {
-      server.putFile(EXPECTED_FILE, (error) => {
+      service.putFile(EXPECTED_FILE, (error) => {
         assert.ifError(error);
         done();
       });
@@ -96,7 +96,7 @@ describe('DatabaseServer', () => {
     it('should not add invalid file to the database', (done) => {
       let invalid = Object.assign({}, EXPECTED_FILE);
       delete invalid.uid; // eslint-disable-line
-      server.putFile(invalid, (error) => {
+      service.putFile(invalid, (error) => {
         assert.ifError(!error);
         done();
       });
@@ -105,7 +105,7 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_FILE, {uid});
       });
-      server.putFileBatch(batch, (error) => {
+      service.putFileBatch(batch, (error) => {
         assert.ifError(error);
         done();
       });
@@ -114,9 +114,9 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_FILE, {uid});
       });
-      server.putFileBatch(batch, (error) => {
+      service.putFileBatch(batch, (error) => {
         assert.ifError(error);
-        server.getFile(batch[0].uid, (error, actual) => {
+        service.getFile(batch[0].uid, (error, actual) => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch[0]);
           done();
@@ -127,9 +127,9 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_FILE, {uid});
       });
-      server.putFileBatch(batch, (error) => {
+      service.putFileBatch(batch, (error) => {
         assert.ifError(error);
-        server.queryFile({}, (error, actual) => {
+        service.queryFile({}, (error, actual) => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch);
           done();
@@ -140,7 +140,7 @@ describe('DatabaseServer', () => {
 
   describe('Metric Table', () => {
     it('should add a single metric to the database', (done) => {
-      server.putMetric(EXPECTED_METRIC, (error) => {
+      service.putMetric(EXPECTED_METRIC, (error) => {
         assert.ifError(error);
         done();
       });
@@ -148,7 +148,7 @@ describe('DatabaseServer', () => {
     it('should not add invalid metric to the database', (done) => {
       let invalid = Object.assign({}, EXPECTED_METRIC);
       delete invalid.uid; // eslint-disable-line
-      server.putMetric(invalid, (error) => {
+      service.putMetric(invalid, (error) => {
         assert.ifError(!error);
         done();
       });
@@ -157,7 +157,7 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_METRIC, {uid});
       });
-      server.putMetricBatch(batch, (error) => {
+      service.putMetricBatch(batch, (error) => {
         assert.ifError(error);
         done();
       });
@@ -166,9 +166,9 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_METRIC, {uid});
       });
-      server.putMetricBatch(batch, (error) => {
+      service.putMetricBatch(batch, (error) => {
         assert.ifError(error);
-        server.getMetric(batch[0].uid, (error, actual) => {
+        service.getMetric(batch[0].uid, (error, actual) => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch[0]);
           done();
@@ -179,9 +179,9 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_METRIC, {uid});
       });
-      server.putMetricBatch(batch, (error) => {
+      service.putMetricBatch(batch, (error) => {
         assert.ifError(error);
-        server.queryMetric({}, (error, actual) => {
+        service.queryMetric({}, (error, actual) => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch);
           done();
@@ -192,7 +192,7 @@ describe('DatabaseServer', () => {
 
   describe('MetricData Table', () => {
     it('should add a single MetricData record to the database', (done) => {
-      server.putMetricData(EXPECTED_METRIC_DATA, (error) => {
+      service.putMetricData(EXPECTED_METRIC_DATA, (error) => {
         assert.ifError(error);
         done();
       });
@@ -200,7 +200,7 @@ describe('DatabaseServer', () => {
     it('should not add invalid MetricData record to the database', (done) => {
       let invalid = Object.assign({}, EXPECTED_METRIC_DATA);
       delete invalid.uid; // eslint-disable-line
-      server.putMetricData(invalid, (error) => {
+      service.putMetricData(invalid, (error) => {
         assert.ifError(!error);
         done();
       });
@@ -209,7 +209,7 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_METRIC_DATA, {uid, metric_uid: uid});
       });
-      server.putMetricDataBatch(batch, (error) => {
+      service.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
         done();
       });
@@ -218,9 +218,9 @@ describe('DatabaseServer', () => {
       let batch = Array.from(['id.1', 'id.2'], (uid) => {
         return Object.assign({}, EXPECTED_METRIC_DATA, {uid, metric_uid: uid});
       });
-      server.putMetricDataBatch(batch, (error) => {
+      service.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
-        server.queryMetricData({}, (error, actual) => {
+        service.queryMetricData({}, (error, actual) => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch);
           done();

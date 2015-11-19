@@ -28,8 +28,8 @@ import path from 'path';
 
 // internals
 
-import Config from './lib/ConfigServer';
-import ModelServerIPC from './lib/ModelServerIPC';
+import Config from './lib/ConfigService';
+import ModelServiceIPC from './lib/ModelServiceIPC';
 
 const config = new Config();
 const log = bunyan.createLogger({
@@ -39,7 +39,7 @@ const log = bunyan.createLogger({
 const initialPage = path.join(__dirname, '/browser/index.html');
 
 let mainWindow = null; // global ref to keep window object from JS GC
-let modelServer = null;
+let modelService = null;
 
 
 /**
@@ -97,7 +97,7 @@ app.on('ready', () => {
     log.info('Electron Main: Renderer DOM is now ready!');
   });
 
-  // Handle IPC commuication for the ModelServer
-  modelServer = new ModelServerIPC();
-  modelServer.start(mainWindow.webContents);
+  // Handle IPC commuication for the ModelService
+  modelService = new ModelServiceIPC();
+  modelService.start(mainWindow.webContents);
 });

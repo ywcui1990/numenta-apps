@@ -60,10 +60,10 @@ export class ModelNotFoundError extends UserError {
 
 
 /**
- * Unicorn: ModelServer - Respond to a ModelClient over IPC, sharing our access
+ * Unicorn: ModelService - Respond to a ModelClient over IPC, sharing our access
  * to Unicorn Backend Model Runner python and NuPIC processes.
  */
-export class ModelServer extends EventEmitter {
+export class ModelService extends EventEmitter {
 
   /**
    * @constructor

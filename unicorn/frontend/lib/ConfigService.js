@@ -39,12 +39,12 @@ const Defaults = {
 
 
 /**
- * Unicorn: ConfigServer - Respond to a ConfigClient over IPC, sharing our
+ * Unicorn: ConfigService - Respond to a ConfigClient over IPC, sharing our
  *  access to the Node-layer config settings.
  *  NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
  * @returns {Object} - Configuration data handler object
  */
-function ConfigServer() {
+function ConfigService() {
   const config = nconf.env().argv().defaults(Defaults);
 
   config.file(path.join(CONFIG_PATH, CONFIG_FILE));
@@ -62,4 +62,4 @@ function ConfigServer() {
 
 
 // EXPORTS
-module.exports = ConfigServer;
+module.exports = ConfigService;

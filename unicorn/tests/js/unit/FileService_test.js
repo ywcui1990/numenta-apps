@@ -22,7 +22,7 @@ const assert = require('assert');
 
 import path from 'path';
 
-import FileServer from '../../../frontend/lib/FileServer';
+import FileService from '../../../frontend/lib/FileService';
 
 
 // Contents of 'fixture/file.csv'
@@ -80,16 +80,16 @@ const FILENAME_SMALL = path.resolve(__dirname, 'fixtures/file.csv');
 const FILENAME_LARGE = path.resolve(__dirname, 'fixtures/rec-center-15.csv');
 
 /* eslint-disable max-nested-callbacks */
-describe('FileServer', () => {
-  let server;
+describe('FileService', () => {
+  let service;
 
   beforeEach(() => {
-    server = new FileServer();
+    service = new FileService();
   });
 
   describe('#getSampleFiles()', () => {
     it('should list sample files', (done) => {
-      server.getSampleFiles((error, files) => {
+      service.getSampleFiles((error, files) => {
         assert.ifError(error);
         assert.deepEqual(files.map((f) => {
           return f.name;
@@ -104,7 +104,7 @@ describe('FileServer', () => {
 
   describe('#getContents', () => {
     it('should get File Contents', (done) => {
-      server.getContents(FILENAME_SMALL, (error, data) => {
+      service.getContents(FILENAME_SMALL, (error, data) => {
         assert.ifError(error);
         assert.equal(data, EXPECTED_CONTENT, 'Got different file content');
         done();
@@ -114,7 +114,7 @@ describe('FileServer', () => {
 
   describe('#getFields', () => {
     it('should get fields using default options', (done) => {
-      server.getFields(FILENAME_SMALL, (error, fields) => {
+      service.getFields(FILENAME_SMALL, (error, fields) => {
         assert.ifError(error);
         fields.forEach((field, index) => {
           // match object keys
@@ -140,7 +140,7 @@ describe('FileServer', () => {
   describe('#getData', () => {
     it('should get data using default options', (done) => {
       let i = 0;
-      server.getData(FILENAME_SMALL, (error, data) => {
+      service.getData(FILENAME_SMALL, (error, data) => {
         assert.ifError(error);
         if (data) {
           let row = JSON.parse(data);
@@ -152,7 +152,7 @@ describe('FileServer', () => {
     });
 
     it('should get data with limit=1', (done) => {
-      server.getData(FILENAME_SMALL, {limit: 1}, (error, data) => {
+      service.getData(FILENAME_SMALL, {limit: 1}, (error, data) => {
         assert.ifError(error);
         if (data) {
           let row = JSON.parse(data);
@@ -173,7 +173,7 @@ describe('FileServer', () => {
           interval: 24 * 60 * 60 * 1000
         }
       };
-      server.getData(FILENAME_LARGE, options, (error, data) => {
+      service.getData(FILENAME_LARGE, options, (error, data) => {
         assert.ifError(error);
         if (data) {
           let row = JSON.parse(data);
@@ -187,7 +187,7 @@ describe('FileServer', () => {
 
   describe('#getStatistics', () => {
     it('should get statistics for the whole file', (done) => {
-      server.getStatistics(FILENAME_SMALL, (error, data) => {
+      service.getStatistics(FILENAME_SMALL, (error, data) => {
         assert.ifError(error);
         assert.equal(data.count, EXPECTED_COUNT, 'Got different "Count"');
         assert.equal(data.fields['metric'].min, EXPECTED_MIN,
@@ -207,7 +207,7 @@ describe('FileServer', () => {
     });
 
     it('should get statistics for some records of the file', (done) => {
-      server.getStatistics(FILENAME_SMALL, {limit: 2}, (error, data) => {
+      service.getStatistics(FILENAME_SMALL, {limit: 2}, (error, data) => {
         assert.ifError(error);
         assert.equal(data.fields['metric'].min, EXPECTED_MIN_PARTIAL);
         assert.equal(data.fields['metric'].max, EXPECTED_MAX_PARTIAL);

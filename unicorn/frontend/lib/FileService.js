@@ -36,12 +36,12 @@ const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
 
 
 /**
- * Unicorn: FileServer - Respond to a FileClient over IPC, sharing our access to
+ * Unicorn: FileService - Respond to a FileClient over IPC, sharing our access to
  *  the Node layer of filesystem, so client can CRUD files.
  * @class
  * @module
  */
-function FileServer() {
+function FileService() {
 }
 
 
@@ -50,7 +50,7 @@ function FileServer() {
  * @param {string} filename - The absolute path of the CSV file to load
  * @param {Function} callback - Async callback: function (error, results)
  */
-FileServer.prototype.getContents = function (filename, callback) {
+FileService.prototype.getContents = function (filename, callback) {
   filesystem.readFile(filename, callback);
 };
 
@@ -58,7 +58,7 @@ FileServer.prototype.getContents = function (filename, callback) {
  * Get a list of sample files embedded with the application.
  * @param {Function} callback - Async callback: function (error, results)
  */
-FileServer.prototype.getSampleFiles = function (callback) {
+FileService.prototype.getSampleFiles = function (callback) {
   filesystem.readdir(SAMPLES_FILE_PATH, function (error, data) {
     var files;
     if (error) {
@@ -86,7 +86,7 @@ FileServer.prototype.getSampleFiles = function (callback) {
  * @param {Object} file - File getting uploaded
  * @param {Function} callback - Async callback: function (error, results)
  */
-FileServer.prototype.getUploadedFiles = function (file, callback) {
+FileService.prototype.getUploadedFiles = function (file, callback) {
   var formattedFile = {
     uid: Utils.generateId(file.path),
     name: file.name,
@@ -118,7 +118,7 @@ FileServer.prototype.getUploadedFiles = function (file, callback) {
  *  following format:
  *  <code> { name:'fieldName', type:'number', date:'string' } </code>
  */
-FileServer.prototype.getFields = function (filename, options, callback) {
+FileService.prototype.getFields = function (filename, options, callback) {
   var fields = [];
   var fieldName, stream;
 
@@ -202,7 +202,7 @@ FileServer.prototype.getFields = function (filename, options, callback) {
  * @param {Function} callback - This callback to be called on every record.
  *                              `function (error, data)`
  */
-FileServer.prototype.getData = function (filename, options, callback) {
+FileService.prototype.getData = function (filename, options, callback) {
   // "options" is optional
   if (typeof callback == 'undefined' && typeof options == 'function') {
     callback = options;
@@ -285,7 +285,7 @@ FileServer.prototype.getData = function (filename, options, callback) {
  *                              }
  *                              ```
  */
-FileServer.prototype.getStatistics = function (filename, options, callback) {
+FileService.prototype.getStatistics = function (filename, options, callback) {
   // "options" is optional
   if (typeof callback == 'undefined' && typeof options == 'function') {
     callback = options;
@@ -357,4 +357,4 @@ FileServer.prototype.getStatistics = function (filename, options, callback) {
 
 
 // EXPORTS
-export default FileServer;
+export default FileService;

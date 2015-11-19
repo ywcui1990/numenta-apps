@@ -50,15 +50,15 @@ const DB_FILE_PATH = location;
 
 
 /**
- * Unicorn: DatabaseServer - Respond to a DatabaseClient over IPC.
+ * Unicorn: DatabaseService - Respond to a DatabaseClient over IPC.
  *  For sharing our access to a file-based NodeJS database system.
  *  Meant for heavy persistence.
  * @class
  * @module
  * @param {string} [path] - Database location path (optional)
- * @this DatabaseServer
+ * @this DatabaseService
  */
-function DatabaseServer(path) {
+function DatabaseService(path) {
   let location = path || DB_FILE_PATH;
 
   this.validator = new Validator();
@@ -79,7 +79,7 @@ function DatabaseServer(path) {
  * @param {string} uid - Unique ID of file to get
  * @param {Function} callback - Async callback function(error, results)
  */
-DatabaseServer.prototype.getFile = function (uid, callback) {
+DatabaseService.prototype.getFile = function (uid, callback) {
   const table = this.dbh.sublevel('file');
   table.get(uid, callback);
 };
@@ -89,7 +89,7 @@ DatabaseServer.prototype.getFile = function (uid, callback) {
  * @param {Object} query - JSONquery object to use, empty object for all results
  * @param {Function} callback - Async callback function(error, results)
  */
-DatabaseServer.prototype.queryFile = function (query, callback) {
+DatabaseService.prototype.queryFile = function (query, callback) {
   let results = [];
   const table = levelQuery(this.dbh.sublevel('file'));
   table.query.use(jsonQuery());
@@ -112,7 +112,7 @@ DatabaseServer.prototype.queryFile = function (query, callback) {
  * @param {string} uid - Unique ID of metric to get
  * @param {Function} callback - Async callback function(error, results)
  */
-DatabaseServer.prototype.getMetric = function (uid, callback) {
+DatabaseService.prototype.getMetric = function (uid, callback) {
   const table = this.dbh.sublevel('metric');
   table.get(uid, callback);
 };
@@ -122,7 +122,7 @@ DatabaseServer.prototype.getMetric = function (uid, callback) {
  * @param {Object} query - JSONquery object to use, empty object for all results
  * @param {Function} callback - Async callback function(error, results)
  */
-DatabaseServer.prototype.queryMetric = function (query, callback) {
+DatabaseService.prototype.queryMetric = function (query, callback) {
   let results = [];
   const table = levelQuery(this.dbh.sublevel('metric'));
   table.query.use(jsonQuery());
@@ -151,9 +151,9 @@ DatabaseServer.prototype.queryMetric = function (query, callback) {
  *  empty object "{}" for all results.
  * @param {Function} [callback] - Async callback: function (error, results)
  * @public
- * @this DatabaseServer
+ * @this DatabaseService
  */
-DatabaseServer.prototype.queryMetricData = function (query, callback) {
+DatabaseService.prototype.queryMetricData = function (query, callback) {
   let results = [];
   const table = levelQuery(this.dbh.sublevel('metricData'));
   table.query.use(jsonQuery());
@@ -200,7 +200,7 @@ DatabaseServer.prototype.queryMetricData = function (query, callback) {
  * @param {Object} file - Data object of File info to save
  * @param {Function} callback - Async callback on done: function(error, results)
  */
-DatabaseServer.prototype.putFile = function (file, callback) {
+DatabaseService.prototype.putFile = function (file, callback) {
   const table = this.dbh.sublevel('file');
   const validation = this.validator.validate(file, FileSchema);
 
@@ -219,9 +219,9 @@ DatabaseServer.prototype.putFile = function (file, callback) {
  * @param {Array} files - List of File objects to insert
  * @param {Function} callback - Async result handler: function (error, results)
  * @public
- * @this DatabaseServer
+ * @this DatabaseService
  */
-DatabaseServer.prototype.putFileBatch = function (files, callback) {
+DatabaseService.prototype.putFileBatch = function (files, callback) {
   let ops = [];
   const table = this.dbh.sublevel('file');
 
@@ -252,7 +252,7 @@ DatabaseServer.prototype.putFileBatch = function (files, callback) {
  * @param {Object} metric - Data object of Metric info to save
  * @param {Function} callback - Async callback on done: function(error, results)
  */
-DatabaseServer.prototype.putMetric = function (metric, callback) {
+DatabaseService.prototype.putMetric = function (metric, callback) {
   const table = this.dbh.sublevel('metric');
   const validation = this.validator.validate(metric, MetricSchema);
 
@@ -269,7 +269,7 @@ DatabaseServer.prototype.putMetric = function (metric, callback) {
  * @param {Array} metrics - Data objects of Metrics info to save
  * @param {Function} callback - Async callback on done: function(error, results)
  */
-DatabaseServer.prototype.putMetricBatch = function (metrics, callback) {
+DatabaseService.prototype.putMetricBatch = function (metrics, callback) {
   const table = this.dbh.sublevel('metric');
   let ops = [];
 
@@ -300,7 +300,7 @@ DatabaseServer.prototype.putMetricBatch = function (metrics, callback) {
  * @param {Object} metricData - Data object of MetricData info to save
  * @param {Function} callback - Async callback on done: function(error, results)
  */
-DatabaseServer.prototype.putMetricData = function (metricData, callback) {
+DatabaseService.prototype.putMetricData = function (metricData, callback) {
   const table = this.dbh.sublevel('metricData');
   const validation = this.validator.validate(metricData, MetricDataSchema);
 
@@ -322,7 +322,7 @@ DatabaseServer.prototype.putMetricData = function (metricData, callback) {
  * @param {Array} metricDatas - List of Data objects of MetricDatas to save
  * @param {Function} callback - Async callback on done: function(error, results)
  */
-DatabaseServer.prototype.putMetricDataBatch = function (metricDatas, callback) {
+DatabaseService.prototype.putMetricDataBatch = function (metricDatas, callback) {
   const table = this.dbh.sublevel('metricData');
   let ops = [];
 
@@ -358,7 +358,7 @@ DatabaseServer.prototype.putMetricDataBatch = function (metricDatas, callback) {
  * @param  {Function} callback called when the destroy operation is complete,
  *                             with a possible error argument
  */
-DatabaseServer.prototype.destroy = function (callback) {
+DatabaseService.prototype.destroy = function (callback) {
   leveldown.destroy(this.levelup.location, callback);
 };
 
@@ -367,10 +367,10 @@ DatabaseServer.prototype.destroy = function (callback) {
  * @param {Function} callback - Receive any error encountered during closing as
  *  the first argument.
  */
-DatabaseServer.prototype.close = function (callback) {
+DatabaseService.prototype.close = function (callback) {
   this.levelup.db.close(callback);
 };
 
 
 // EXPORTS
-export default DatabaseServer;
+export default DatabaseService;

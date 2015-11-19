@@ -19,31 +19,31 @@
 
 
 import ipc from 'ipc';
-import {ModelServer} from './ModelServer';
+import {ModelService} from './ModelService';
 import UserError from './UserError';
 
 export const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 
 
 /**
- * IPC interface to ModelServer.
+ * IPC interface to ModelService.
  * @class
  * @exports
  * @module
  * @public
  */
-export default class ModelServerIPC {
+export default class ModelServiceIPC {
 
   /**
    * @constructor
    * @method
    * @public
-   * @this ModelServerIPC
+   * @this ModelServiceIPC
    */
   constructor() {
     this._webContents = null;
     this._attached = new Set();
-    this._server = new ModelServer();
+    this._service = new ModelService();
   }
 
   /**
@@ -51,7 +51,7 @@ export default class ModelServerIPC {
    * @method
    * @param {Object} webContents - Electron webContents object for IPC messages.
    * @public
-   * @this ModelServerIPC
+   * @this ModelServiceIPC
    */
   start(webContents) {
     // Initialize IPC events
@@ -64,7 +64,7 @@ export default class ModelServerIPC {
    * Stop listening for IPC Events.
    * @method
    * @public
-   * @this ModelServerIPC
+   * @this ModelServiceIPC
    */
   stop() {
     ipc.removeAllListeners(MODEL_SERVER_IPC_CHANNEL);
@@ -75,7 +75,7 @@ export default class ModelServerIPC {
    * Handle IPC calls from renderer process.
    * The supported commands are:
    *  - 'create': Create new HTM model.
-   *  						See 'ModelServer#createModel' for 'params' format.
+   *  						See 'ModelService#createModel' for 'params' format.
    *  - 'remove': Stops and remove the model
    *  - 'list':   List running models as Array of IDs in `returnValue['models']`
    *  - 'sendData': Send data to the model. See 'sendData' for 'params' format
@@ -119,14 +119,14 @@ export default class ModelServerIPC {
    * @method
    * @param {string} modelId - New ID of New Model to start up
    * @private
-   * @this ModelServerIPC
+   * @this ModelServiceIPC
    */
   _attach(modelId) {
     if (this._attached.has(modelId)) {
       return;
     }
     this._attached.add(modelId);
-    this._server.on(modelId, (command, payload) => {
+    this._service.on(modelId, (command, payload) => {
       if (!this._attached.has(modelId)) {
         return;
       }
@@ -153,12 +153,12 @@ export default class ModelServerIPC {
    * @method
    * @param {string} modelId - ID of existing Model to shut down
    * @private
-   * @this ModelServerIPC
+   * @this ModelServiceIPC
    */
   _dettach(modelId) {
     if (this._attached.has(modelId)) {
       this._attached.delete(modelId);
-      this._server.removeAllListeners(modelId);
+      this._service.removeAllListeners(modelId);
     }
   }
 
@@ -168,11 +168,11 @@ export default class ModelServerIPC {
    * @param {string} modelId - ID of Model to transmit data for
    * @param {string} data - JSON-encoded string of data to send
    * @private
-   * @this ModelServerIPC
+   * @this ModelServiceIPC
    */
   _onSendData(modelId, data) {
     const input = JSON.parse(data);
-    this._server.sendData(modelId, input);
+    this._service.sendData(modelId, input);
   }
 
   /**
@@ -180,11 +180,11 @@ export default class ModelServerIPC {
    * @method
    * @private
    * @returns {Object} - Current Models + State
-   * @this ModelServerIPC
+   * @this ModelServiceIPC
    */
   _onList() {
     return {
-      models: this._server.getModels()
+      models: this._service.getModels()
     };
   }
 
@@ -194,11 +194,11 @@ export default class ModelServerIPC {
    * @param {string} modelId - New ID of New Model to create
    * @param {Object} params - Model Parameters to use in model creation
    * @private
-   * @this ModelServerIPC
+   * @this ModelServiceIPC
    */
   _onCreate(modelId, params) {
     this._attach(modelId);
-    this._server.createModel(modelId, params);
+    this._service.createModel(modelId, params);
   }
 
   /**
@@ -206,11 +206,11 @@ export default class ModelServerIPC {
    * @method
    * @param {string} modelId - ID of existing Model to shut down
    * @private
-   * @this ModelServerIPC
+   * @this ModelServiceIPC
    */
   _onRemove(modelId) {
     this._dettach(modelId);
-    this._server.removeModel(modelId);
+    this._service.removeModel(modelId);
   }
 
 }
