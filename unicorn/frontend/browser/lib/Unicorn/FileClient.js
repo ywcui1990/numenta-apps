@@ -18,34 +18,11 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-
-// externals
-
-import isElectronRenderer from 'is-electron-renderer';
-
-// internals
-
-import FileClientHTTP from './FileClientHTTP';
-
-let FileClient;
-
-
 /**
- * Unicorn: FileClient - Talk to a FileServer over IPC or HTTP, gaining
+ * Unicorn: FileClient - Talk to a FileService over IPC or HTTP, gaining
  *  access to the Node/io.js layer of filesystem, so we can CRUD files.
  *  Connects via HTTP or IPC adapter. FileClientIPC adpater is currently a
  *  pseudo-library, using the magic of Electron's `remote` module.
  */
-if (isElectronRenderer) { // desktop
-  let remote;
-  try {
-    remote = require('remote'); // eslint-disable-line
-  } catch (error) { /* Ignore */ }
-  FileClient = remote.require('./lib/FileServer'); // pseduo-FileClientIPC
-} else { // web
-  FileClient = FileClientHTTP;
-}
-
-
-// EXPORT
-export default FileClient;
+let remote = require('remote'); // eslint-disable-line
+export default remote.require('./lib/FileService');  // pseduo-FileClientIPC

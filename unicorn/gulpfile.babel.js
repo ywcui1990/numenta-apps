@@ -27,7 +27,7 @@ import webpacker from 'webpack-stream';
 
 // internals
 
-import Config from './frontend/lib/ConfigServer';
+import Config from './frontend/lib/ConfigService';
 
 const config = new Config();
 

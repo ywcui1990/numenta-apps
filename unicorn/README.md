@@ -63,7 +63,7 @@ frontend/           # Frontend+GUI that exposes NuPIC HTM functionality to the U
   database/         # File-based database storage (levelup + leveldown)
     schema/         # Database defintion schemas in JSON
   docs/             # Output dir for generated frontend docs (not saved in src)
-  lib/              # Custom JS libs for outside the browser (engine servers)
+  lib/              # Custom JS libs for outside the browser (engine services)
   samples/          # Sample .CSV data files to pre-load for user in GUI
 logs/               # Logfile output of all kinds should end up here
 node_modules/       # Where `npm` installs packages to, not in source control
