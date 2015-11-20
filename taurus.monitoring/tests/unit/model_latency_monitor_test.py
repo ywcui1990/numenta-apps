@@ -103,10 +103,11 @@ class ModelLatencyCheckerTest(unittest.TestCase):
       exc.exception.message,
       "The following models have exceeded the acceptable threshold for time si"
       "nce last timestamp in taurus.metric_data.test DynamoDB table:\n    Late"
-      "ncyMonitorErrorParams(model_name=u'XIGNITE.TRI.VOLUME', model_uid=u'002"
-      "61089e61b4af1a1e4b3d0c06aa84a', threshold=31640.219257818433)\n    Late"
-      "ncyMonitorErrorParams(model_name=u'XIGNITE.BK.CLOSINGPRICE', model_uid="
-      "u'018662cc75b14860b72319d92883c896', threshold=31640.219257818433)")
+      "ncyMonitorErrorParams(model_name=XIGNITE.TRI.VOLUME, model_uid=00261089"
+      "e61b4af1a1e4b3d0c06aa84a, threshold=31640.2192578 seconds, last_timesta"
+      "mp=2015-10-30 19:55:00)\n    LatencyMonitorErrorParams(model_name=XIGNI"
+      "TE.BK.CLOSINGPRICE, model_uid=018662cc75b14860b72319d92883c896, thresho"
+      "ld=31640.2192578 seconds, last_timestamp=2015-10-30 19:55:00)")
 
 
   # Mock command line arguments, specifying test config file and bogus
@@ -180,12 +181,13 @@ class ModelLatencyCheckerTest(unittest.TestCase):
       exc.exception.message,
       "The following models have exceeded the acceptable threshold for time si"
       "nce last timestamp in taurus.metric_data.test DynamoDB table:\n    Late"
-      "ncyMonitorErrorParams(model_name=u'TWITTER.TWEET.HANDLE.SPG.VOLUME', mo"
-      "del_uid=u'0021c2d17c0a4eb4965b6cb315c1d2e9', threshold=None)\n    Laten"
-      "cyMonitorErrorParams(model_name=u'XIGNITE.TRI.VOLUME', model_uid=u'0026"
-      "1089e61b4af1a1e4b3d0c06aa84a', threshold=None)\n    LatencyMonitorError"
-      "Params(model_name=u'XIGNITE.BK.CLOSINGPRICE', model_uid=u'018662cc75b14"
-      "860b72319d92883c896', threshold=None)")
+      "ncyMonitorErrorParams(model_name=TWITTER.TWEET.HANDLE.SPG.VOLUME, model"
+      "_uid=0021c2d17c0a4eb4965b6cb315c1d2e9, threshold=None seconds, last_tim"
+      "estamp=None)\n    LatencyMonitorErrorParams(model_name=XIGNITE.TRI.VOLU"
+      "ME, model_uid=00261089e61b4af1a1e4b3d0c06aa84a, threshold=None seconds,"
+      " last_timestamp=None)\n    LatencyMonitorErrorParams(model_name=XIGNITE"
+      ".BK.CLOSINGPRICE, model_uid=018662cc75b14860b72319d92883c896, threshold"
+      "=None seconds, last_timestamp=None)")
 
 
   # Mock command line arguments, specifying test config file and ommitting
