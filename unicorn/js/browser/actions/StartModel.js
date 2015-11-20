@@ -32,11 +32,11 @@ import csp from 'js-csp';
 import {ACTIONS} from '../lib/Constants';
 import {
   DatabaseGetError, DatabasePutError, FilesystemGetError
-} from '../../lib/UserError';
+} from '../../main/UserError';
 import ModelStore from '../stores/ModelStore';
 import SendDataAction from '../actions/SendData';
 import StopModelAction from '../actions/StopModel';
-import Utils from '../../lib/Utils';
+import Utils from '../../main/Utils';
 
 
 // FUNCTIONS

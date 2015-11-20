@@ -19,12 +19,10 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * Unicorn: DatabaseClient - Talk to a DatabaseService over IPC, gaining
- *  access to the Node/io.js layer of filesystem, so we can CRUD against a
- *  flat-file database. Connects via IPC adapter. DatabaseClientIPC
- *  adpater is currently a pseudo-library, using the magic of Electron's
- *  `remote` module.
+ * Unicorn: FileClient - Talk to a FileService over IPC or HTTP, gaining
+ *  access to the Node/io.js layer of filesystem, so we can CRUD files.
+ *  Connects via HTTP or IPC adapter. FileClientIPC adpater is currently a
+ *  pseudo-library, using the magic of Electron's `remote` module.
  */
-
 let remote = require('remote'); // eslint-disable-line
-export default remote.require('./lib/DatabaseService');
+export default remote.require('./FileService');  // pseduo-FileClientIPC

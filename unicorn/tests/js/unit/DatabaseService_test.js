@@ -17,10 +17,10 @@
 //
 // http://numenta.org/licenses/
 
-import DatabaseService from '../../../frontend/lib/DatabaseService';
-import FileSchema from '../../../frontend/database/schema/File.json';
-import MetricSchema from '../../../frontend/database/schema/Metric.json';
-import MetricDataSchema from '../../../frontend/database/schema/MetricData.json'; // eslint-disable-line
+import DatabaseService from '../../../js/main/DatabaseService';
+import FileSchema from '../../../js/database/schema/File.json';
+import MetricSchema from '../../../js/database/schema/Metric.json';
+import MetricDataSchema from '../../../js/database/schema/MetricData.json'; // eslint-disable-line
 import path from 'path';
 import os from 'os';
 

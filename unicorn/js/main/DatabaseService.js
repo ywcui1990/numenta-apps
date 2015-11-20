@@ -37,7 +37,7 @@ import FileSchema from '../database/schema/File.json';
 import MetricSchema from '../database/schema/Metric.json';
 import MetricDataSchema from '../database/schema/MetricData.json';
 
-let location = path.join('frontend', 'database', 'data');
+let location = path.join('js', 'database', 'data');
 if (! isElectronRenderer) {
   try {
     // This module is only available inside 'Electron' main process
@@ -371,6 +371,10 @@ DatabaseService.prototype.close = function (callback) {
   this.levelup.db.close(callback);
 };
 
+
+DatabaseService.prototype.exportModelResults = function (modelId, callback) {
+
+}
 
 // EXPORTS
 export default DatabaseService;

@@ -26,8 +26,8 @@ import UserError from './UserError';
 import system from 'os';
 
 const MODEL_RUNNER_PATH = path.join(
-  __dirname, '..', '..', 'dist', 'model_runner'
-  // __dirname, '..', '..', 'backend', 'unicorn_backend', 'model_runner.py'
+   __dirname, '..', '..', 'dist', 'model_runner'
+  // __dirname, '..', '..', 'py', 'unicorn_backend', 'model_runner.py'
 );
 
 
