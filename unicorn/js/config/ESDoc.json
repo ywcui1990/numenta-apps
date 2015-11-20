@@ -1,6 +1,6 @@
 {
-  "source": "./frontend",
-  "destination": "./frontend/docs",
+  "source": "./js",
+  "destination": "./js/docs",
   "title": "Numenta Unicorn Application",
   "excludes": [
     "bundle\\.js$"

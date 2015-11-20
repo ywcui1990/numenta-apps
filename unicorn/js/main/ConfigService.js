@@ -27,7 +27,7 @@ import path from 'path';
 // internals
 
 const CONFIG_FILE = 'default.json';
-const CONFIG_PATH = path.join('frontend', 'config');
+const CONFIG_PATH = path.join('js', 'config');
 
 const Defaults = {
   NODE_ENV: 'development',

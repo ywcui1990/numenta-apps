@@ -19,10 +19,10 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * Unicorn: FileClient - Talk to a FileService over IPC or HTTP, gaining
- *  access to the Node/io.js layer of filesystem, so we can CRUD files.
- *  Connects via HTTP or IPC adapter. FileClientIPC adpater is currently a
+ * Unicorn: ConfigClient - Talk to a ConfigService over IPC, gaining
+ *  access to the Node/io.js-layer configuration settings.
+ *  Connects via IPC adapter. ConfigClientIPC adpater is currently a
  *  pseudo-library, using the magic of Electron's `remote` module.
  */
 let remote = require('remote'); // eslint-disable-line
-export default remote.require('./lib/FileService');  // pseduo-FileClientIPC
+export default remote.require('./ConfigService'); // pseduo-ConfigClientIPC

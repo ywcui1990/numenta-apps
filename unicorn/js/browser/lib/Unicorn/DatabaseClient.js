@@ -19,10 +19,12 @@
  * -------------------------------------------------------------------------- */
 
 /**
- * Unicorn: ConfigClient - Talk to a ConfigService over IPC, gaining
- *  access to the Node/io.js-layer configuration settings.
- *  Connects via IPC adapter. ConfigClientIPC adpater is currently a
- *  pseudo-library, using the magic of Electron's `remote` module.
+ * Unicorn: DatabaseClient - Talk to a DatabaseService over IPC, gaining
+ *  access to the Node/io.js layer of filesystem, so we can CRUD against a
+ *  flat-file database. Connects via IPC adapter. DatabaseClientIPC
+ *  adpater is currently a pseudo-library, using the magic of Electron's
+ *  `remote` module.
  */
+
 let remote = require('remote'); // eslint-disable-line
-export default remote.require('./lib/ConfigService'); // pseduo-ConfigClientIPC
+export default remote.require('./DatabaseService');

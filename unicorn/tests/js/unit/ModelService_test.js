@@ -21,7 +21,7 @@
 
 import {
   ModelService, MaximumConcurrencyError
-} from '../../../frontend/lib/ModelService';
+} from '../../../js/main/ModelService';
 const assert = require('assert');
 
 const STATS = '{"min": 0, "max": 10}';

@@ -33,7 +33,7 @@ import ModelStore from '../stores/ModelStore';
 import ShowFileDetailsAction from '../actions/ShowFileDetails';
 import ShowMetricDetailsAction from '../actions/ShowMetricDetails';
 import ShowModelAction from '../actions/ShowModel';
-import Utils from '../../lib/Utils';
+import Utils from '../../main/Utils';
 
 
 const {
@@ -87,7 +87,6 @@ export default class FileList extends React.Component {
       }
     });
   }
-
 
   _dismissDialog() {
     this.setState({

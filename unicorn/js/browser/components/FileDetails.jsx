@@ -27,7 +27,7 @@ import FileStore from '../stores/FileStore';
 import FileDetailsStore from '../stores/FileDetailsStore';
 import FileDetailsSaveAction from '../actions/FileDetailsSave';
 import HideFileDetailsAction from '../actions/HideFileDetails';
-import Utils from '../../lib/Utils';
+import Utils from '../../main/Utils';
 import {TIMESTAMP_FORMATS} from '../lib/Constants';
 
 const {

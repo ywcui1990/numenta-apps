@@ -23,8 +23,8 @@
 import {ACTIONS} from '../lib/Constants';
 import {
   DatabaseGetError, DatabasePutError, FilesystemGetError
-} from '../../lib/UserError';
-import Utils from '../../lib/Utils';
+} from '../../main/UserError';
+import Utils from '../../main/Utils';
 
 
 // MAIN

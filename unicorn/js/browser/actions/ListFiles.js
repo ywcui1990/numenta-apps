@@ -23,14 +23,14 @@
 import {ACTIONS} from '../lib/Constants';
 import {
   DatabaseGetError, DatabasePutError, FilesystemGetError
-} from '../../lib/UserError';
-import Utils from '../../lib/Utils';
+} from '../../main/UserError';
+import Utils from '../../main/Utils';
 
 
 // MAIN
 
 /**
- * Get List of files from backend
+ * Get List of files from py
  */
 export default function (actionContext) {
   return new Promise((resolve, reject) => {

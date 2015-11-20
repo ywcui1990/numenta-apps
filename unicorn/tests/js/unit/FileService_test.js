@@ -22,7 +22,7 @@ const assert = require('assert');
 
 import path from 'path';
 
-import FileService from '../../../frontend/lib/FileService';
+import FileService from '../../../js/main/FileService';
 
 
 // Contents of 'fixture/file.csv'
@@ -73,7 +73,7 @@ const EXPECTED_STDEV = 2.422120283277993 ;
 const EXPECTED_MIN_PARTIAL = 17;
 const EXPECTED_MAX_PARTIAL = 21;
 
-// Keep this list up to date with file names in "frontend/samples"
+// Keep this list up to date with file names in "js/samples"
 const EXPECTED_SAMPLE_FILES = ['file1.csv', 'gym.csv'];
 
 const FILENAME_SMALL = path.resolve(__dirname, 'fixtures/file.csv');

@@ -28,15 +28,15 @@ import path from 'path';
 
 // internals
 
-import Config from './lib/ConfigService';
-import ModelServiceIPC from './lib/ModelServiceIPC';
+import Config from './ConfigService';
+import ModelServiceIPC from './ModelServiceIPC';
 
 const config = new Config();
 const log = bunyan.createLogger({
   name: 'Unicorn:Main',
   level: 'debug'  // @TODO higher for Production
 });
-const initialPage = path.join(__dirname, '/browser/index.html');
+const initialPage = path.join(__dirname, '..', 'browser', 'index.html');
 
 let mainWindow = null; // global ref to keep window object from JS GC
 let modelService = null;
