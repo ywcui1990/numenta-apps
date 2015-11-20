@@ -66,7 +66,7 @@ _LatencyMonitorErrorParams = (
 class LatencyMonitorErrorParams(_LatencyMonitorErrorParams):
   def __repr__(self):
     return ("{}(model_name={}, model_uid={}, threshold={} seconds, "
-               "last_timestamp={})"
+            "last_timestamp={})"
             .format(self.__class__.__name__,
                     self.model_name,
                     self.model_uid,
