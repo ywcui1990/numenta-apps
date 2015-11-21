@@ -23,18 +23,19 @@ import connectToStores from 'fluxible-addons-react/connectToStores';
 import Material from 'material-ui';
 import MoreIcon from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
 import React from 'react';
-
 import CreateModelAction from '../actions/CreateModel';
 import DeleteFileAction from '../actions/DeleteFile';
 import DeleteModelAction from '../actions/DeleteModel';
+import ExportModelResultsAction from '../actions/ExportModelResults';
 import FileStore from '../stores/FileStore';
 import HideModelAction from '../actions/HideModel';
 import ModelStore from '../stores/ModelStore';
+import remote from 'remote';
 import ShowFileDetailsAction from '../actions/ShowFileDetails';
 import ShowMetricDetailsAction from '../actions/ShowMetricDetails';
 import ShowModelAction from '../actions/ShowModel';
 import Utils from '../../main/Utils';
-
+const dialog = remote.require('dialog');
 
 const {
   List, ListItem, Checkbox, IconButton, IconMenu, MenuItem, Dialog
@@ -102,6 +103,15 @@ export default class FileList extends React.Component {
     }
   }
 
+  _exportModelResults(modelId) {
+    dialog.showSaveDialog({
+      title: 'Export Model Results',
+      defaultPath: 'Untitled.csv'
+    }, (filename) => {
+      this.context.executeAction(ExportModelResultsAction, {modelId, filename});
+    })
+  }
+
   _handleFileContextMenu(filename, ev, action) {
     if (action === 'detail') {
       this.context.executeAction(ShowFileDetailsAction, filename);
@@ -130,7 +140,7 @@ export default class FileList extends React.Component {
           this._dismissDialog();
         });
     } else if (action === 'export') {
-
+      this._exportModelResults(modelId);
     }
   }
 
