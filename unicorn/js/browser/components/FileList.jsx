@@ -19,12 +19,18 @@
  * -------------------------------------------------------------------------- */
 
 
+// externals
+
 import connectToStores from 'fluxible-addons-react/connectToStores';
-import Material from 'material-ui';
 import IconClose from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
 import IconMore from 'material-ui/lib/svg-icons/navigation/more-vert';
 // import IconOpen from 'material-ui/lib/svg-icons/navigation/arrow-drop-up';
+import Material from 'material-ui';
 import React from 'react';
+import remote from 'remote';
+
+// internals
+
 import CreateModelAction from '../actions/CreateModel';
 import DeleteFileAction from '../actions/DeleteFile';
 import DeleteModelAction from '../actions/DeleteModel';
@@ -32,11 +38,13 @@ import ExportModelResultsAction from '../actions/ExportModelResults';
 import FileStore from '../stores/FileStore';
 import HideModelAction from '../actions/HideModel';
 import ModelStore from '../stores/ModelStore';
-import remote from 'remote';
 import ShowFileDetailsAction from '../actions/ShowFileDetails';
 import ShowMetricDetailsAction from '../actions/ShowMetricDetails';
 import ShowModelAction from '../actions/ShowModel';
 import Utils from '../../main/Utils';
+
+// locals
+
 const dialog = remote.require('dialog');
 
 const {
@@ -53,6 +61,7 @@ const DIALOG_STRINGS = {
     message: 'Deleting this dataset will delete the associated models. Are you sure you want to delete this file?'
   }
 }
+
 
 /**
  * Component used to display a list of files
@@ -201,7 +210,6 @@ export default class FileList extends React.Component {
       if (file.type === filetype) {
         let fileId = file.uid;
         let filename = file.filename;
-
         let contextMenu = (
           <IconMenu
             style={{whiteSpace: 'nowrap'}}
@@ -222,7 +230,7 @@ export default class FileList extends React.Component {
             key={file.name}
             leftIcon={
               <IconButton onTouchTap={this._handleFileToggle.bind(this, fileId)}>
-                <IconClose/>
+                <IconClose />
               </IconButton>
             }
             nestedItems={this._renderMetrics(file)}
