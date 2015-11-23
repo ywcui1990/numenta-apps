@@ -26,8 +26,9 @@ import UserError from './UserError';
 import system from 'os';
 
 const MODEL_RUNNER_PATH = path.join(
-   __dirname, '..', '..', 'dist', 'model_runner'
-  // __dirname, '..', '..', 'py', 'unicorn_backend', 'model_runner.py'
+  // FIXME: https://bitbucket.org/anthony_tuininga/cx_freeze/issues/161
+  //  __dirname, '..', '..', 'dist', 'model_runner'
+  __dirname, '..', '..', 'py', 'unicorn_backend', 'model_runner.py'
 );
 
 
