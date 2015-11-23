@@ -21,7 +21,9 @@
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Material from 'material-ui';
-import MoreIcon from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
+import IconClose from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
+import IconMore from 'material-ui/lib/svg-icons/navigation/more-vert';
+// import IconOpen from 'material-ui/lib/svg-icons/navigation/arrow-drop-up';
 import React from 'react';
 import CreateModelAction from '../actions/CreateModel';
 import DeleteFileAction from '../actions/DeleteFile';
@@ -112,7 +114,12 @@ export default class FileList extends React.Component {
     })
   }
 
-  _handleFileContextMenu(filename, ev, action) {
+  _handleFileToggle(fileId, event) {
+    let ref = this.refs[[`file-toggle-${fileId}`]];
+    ref.setState({open : !ref.state.open});
+  }
+
+  _handleFileContextMenu(filename, event, action) {
     if (action === 'detail') {
       this.context.executeAction(ShowFileDetailsAction, filename);
     } else if (action === 'delete') {
@@ -166,7 +173,7 @@ export default class FileList extends React.Component {
                 this._handleMetricContextMenu.bind(this, modelId, file.filename,
                                                    timestampField.name,
                                                    metric.name)}
-              iconButtonElement={<IconButton><MoreIcon/></IconButton>}>
+              iconButtonElement={<IconButton><IconMore/></IconButton>}>
               <MenuItem index={1} value="details">Metric Details</MenuItem>
               <MenuItem index={2} value="create" disabled={hasModel}>Create Model</MenuItem>
               <MenuItem index={3} value="delete" disabled={!hasModel}>Delete Model</MenuItem>
@@ -192,24 +199,36 @@ export default class FileList extends React.Component {
   _renderFiles(filetype) {
     return this.props.files.map((file) => {
       if (file.type === filetype) {
+        let fileId = file.uid;
         let filename = file.filename;
 
         let contextMenu = (
           <IconMenu
             style={{whiteSpace: 'nowrap'}}
             onChange={this._handleFileContextMenu.bind(this, filename)}
-            iconButtonElement={<IconButton><MoreIcon/></IconButton>}>
-            <MenuItem index={1} disabled={filetype === 'sample'} value="delete">Delete</MenuItem>
-            <MenuItem index={2} value="detail">Details</MenuItem>
+            iconButtonElement={<IconButton><IconMore/></IconButton>}>
+            <MenuItem index={1} disabled={filetype === 'sample'} value="delete">
+              Delete
+            </MenuItem>
+            <MenuItem index={2} value="detail">
+              Details
+            </MenuItem>
           </IconMenu>
         );
 
         return (
-          <ListItem initiallyOpen={true}
-            rightIconButton={contextMenu}
+          <ListItem
+            initiallyOpen={true}
             key={file.name}
+            leftIcon={
+              <IconButton onTouchTap={this._handleFileToggle.bind(this, fileId)}>
+                <IconClose/>
+              </IconButton>
+            }
             nestedItems={this._renderMetrics(file)}
-            primaryText={file.name}/>
+            primaryText={file.name}
+            ref={`file-toggle-${fileId}`}
+            rightIconButton={contextMenu} />
         );
       }
     });
