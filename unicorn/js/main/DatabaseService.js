@@ -20,22 +20,19 @@
 // NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
 
 
-// externals
-
+import fs from 'fs';
+import FileSchema from '../database/schema/File.json';
 import isElectronRenderer from 'is-electron-renderer';
 import jsonQuery from 'jsonquery-engine';
-import levelQuery from 'level-queryengine';
+import json2csv from 'json2csv-stream';
 import leveldown from 'leveldown';
+import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
+import MetricDataSchema from '../database/schema/MetricData.json';
+import MetricSchema from '../database/schema/Metric.json';
 import path from 'path';
 import sublevel from 'level-sublevel';
 import {Validator} from 'jsonschema';
-
-// internals
-
-import FileSchema from '../database/schema/File.json';
-import MetricSchema from '../database/schema/Metric.json';
-import MetricDataSchema from '../database/schema/MetricData.json';
 
 let location = path.join('js', 'database', 'data');
 if (! isElectronRenderer) {
@@ -372,8 +369,36 @@ DatabaseService.prototype.close = function (callback) {
 };
 
 
-DatabaseService.prototype.exportModelResults = function (modelId, callback) {
-
+/**
+ * Exports model results into a CSV file
+ * @param  {string}   modelId The model from which to export results
+ * @param  {string}  filename Full path name for the destination file (.csv)
+ * @param  {Function} callback called when the export operation is complete,
+ *                             with a possible error argument
+ */
+DatabaseService.prototype.exportMetricData = function (modelId, filename, callback) {
+  const output = fs.createWriteStream(filename);
+  const parser = json2csv({
+    keys: [
+      'timestamp', 'metric_value', 'anomaly_likelihood']
+  });
+  parser.pipe(output);
+  const table = levelQuery(this.dbh.sublevel('metricData'));
+  table.query.use(jsonQuery());
+  table.query({metric_uid: modelId})
+    .on('stats', (stats) => {
+    })
+    .on('error', (error) => {
+      parser.destroy();
+      callback(error);
+    })
+    .on('data', (result) => {
+      parser.write(JSON.stringify(result));
+    })
+    .on('end', (result) => {
+      parser.end();
+      callback();
+    });
 }
 
 // EXPORTS
