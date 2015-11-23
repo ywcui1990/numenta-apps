@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		236016D11BCFDCD200AF82FE /* TwitterHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D01BCFDCD200AF82FE /* TwitterHeaderCell.swift */; settings = {ASSET_TAGS = (); }; };
-		236016D31BD00A9500AF82FE /* Appearence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D21BD00A9500AF82FE /* Appearence.swift */; settings = {ASSET_TAGS = (); }; };
-		236016D71BD1410100AF82FE /* ShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D61BD1410100AF82FE /* ShareService.swift */; settings = {ASSET_TAGS = (); }; };
+		233A6A1C1BD9C45E00815BBB /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 233A6A1B1BD9C45E00815BBB /* NotificationService.swift */; };
+		236016D11BCFDCD200AF82FE /* TwitterHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D01BCFDCD200AF82FE /* TwitterHeaderCell.swift */; };
+		236016D31BD00A9500AF82FE /* Appearence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D21BD00A9500AF82FE /* Appearence.swift */; };
+		236016D71BD1410100AF82FE /* ShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D61BD1410100AF82FE /* ShareService.swift */; };
 		236989821BA919C200EA4FB5 /* MarketCalendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236989811BA919C200EA4FB5 /* MarketCalendar.swift */; };
 		236D00471BBC2C4C00782B36 /* TwitterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236D00461BBC2C4C00782B36 /* TwitterViewController.swift */; };
 		237CDC421BAB3C9E00AAF305 /* createdb.sql in Resources */ = {isa = PBXBuildFile; fileRef = 237CDC411BAB3C9E00AAF305 /* createdb.sql */; };
@@ -64,10 +65,9 @@
 		23DF8CB71BA9CEE900ECAE98 /* DataSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23DF8CB61BA9CEE900ECAE98 /* DataSyncService.swift */; };
 		23DF8CEA1BA9CF9C00ECAE98 /* AnomalyChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23DF8CE91BA9CF9C00ECAE98 /* AnomalyChartData.swift */; };
 		23DF8CEC1BA9CFA800ECAE98 /* InstanceAnomalyChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23DF8CEB1BA9CFA800ECAE98 /* InstanceAnomalyChartData.swift */; };
+		23E477D91BF2AA7400BA3858 /* CustomMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23E477D81BF2AA7400BA3858 /* CustomMenuController.swift */; };
 		23ED58D01BB088D800EEEEC1 /* GrokApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23ED58CF1BB088D800EEEEC1 /* GrokApplication.swift */; };
-		23F58D6F1BBA1CBB00C7C6B6 /* SWRevealViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F58D6E1BBA1CBB00C7C6B6 /* SWRevealViewController.m */; };
 		23F58D711BBA287200C7C6B6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 23F58D701BBA287200C7C6B6 /* Images.xcassets */; };
-		23F58D731BBA318700C7C6B6 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F58D721BBA318700C7C6B6 /* MenuController.swift */; };
 		23F58D751BBAC21D00C7C6B6 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F58D741BBAC21D00C7C6B6 /* SettingsController.swift */; };
 		9D6590581D077B613D94B220 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5967E9F3F71FA63EF40469B /* libPods.a */; };
 		DE8C3C6C96A556CE6C2EB24F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5967E9F3F71FA63EF40469B /* libPods.a */; };
@@ -92,6 +92,7 @@
 
 /* Begin PBXFileReference section */
 		2319D5721BA7798100935447 /* Taurus-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Taurus-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
+		233A6A1B1BD9C45E00815BBB /* NotificationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		236016D01BCFDCD200AF82FE /* TwitterHeaderCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwitterHeaderCell.swift; sourceTree = "<group>"; };
 		236016D21BD00A9500AF82FE /* Appearence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Appearence.swift; sourceTree = "<group>"; };
 		236016D61BD1410100AF82FE /* ShareService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareService.swift; sourceTree = "<group>"; };
@@ -155,11 +156,9 @@
 		23DF8CB61BA9CEE900ECAE98 /* DataSyncService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataSyncService.swift; sourceTree = "<group>"; };
 		23DF8CE91BA9CF9C00ECAE98 /* AnomalyChartData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnomalyChartData.swift; sourceTree = "<group>"; };
 		23DF8CEB1BA9CFA800ECAE98 /* InstanceAnomalyChartData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstanceAnomalyChartData.swift; sourceTree = "<group>"; };
+		23E477D81BF2AA7400BA3858 /* CustomMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomMenuController.swift; sourceTree = "<group>"; };
 		23ED58CF1BB088D800EEEEC1 /* GrokApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GrokApplication.swift; path = app/GrokApplication.swift; sourceTree = "<group>"; };
-		23F58D6D1BBA1CBB00C7C6B6 /* SWRevealViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWRevealViewController.h; sourceTree = "<group>"; };
-		23F58D6E1BBA1CBB00C7C6B6 /* SWRevealViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWRevealViewController.m; sourceTree = "<group>"; };
 		23F58D701BBA287200C7C6B6 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		23F58D721BBA318700C7C6B6 /* MenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MenuController.swift; path = src/controllers/MenuController.swift; sourceTree = SOURCE_ROOT; };
 		23F58D741BBAC21D00C7C6B6 /* SettingsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SettingsController.swift; path = src/controllers/SettingsController.swift; sourceTree = SOURCE_ROOT; };
 		CC722459B06198A44AE0D9BF /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		D5967E9F3F71FA63EF40469B /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -197,13 +196,13 @@
 			isa = PBXGroup;
 			children = (
 				238055C11BBEED020048E214 /* ModelController.swift */,
-				23F58D721BBA318700C7C6B6 /* MenuController.swift */,
 				236D00461BBC2C4C00782B36 /* TwitterViewController.swift */,
 				23AD4F1E1BB3AA590041D650 /* InstanceDetailsViewController.swift */,
 				23AD4F131BB31B8D0041D650 /* InstanceViewController.swift */,
 				23F58D741BBAC21D00C7C6B6 /* SettingsController.swift */,
 				2380557F1BBEE7190048E214 /* TutorialController.swift */,
 				238055811BBEE88D0048E214 /* TutorialPageController.swift */,
+				23E477D81BF2AA7400BA3858 /* CustomMenuController.swift */,
 			);
 			name = controllers;
 			sourceTree = "<group>";
@@ -253,7 +252,6 @@
 		23AB22F71BA75F170091A5E6 /* Taurus */ = {
 			isa = PBXGroup;
 			children = (
-				23F58D6C1BBA1CBB00C7C6B6 /* SWReveal */,
 				23DF8C941BA9BF3800ECAE98 /* views */,
 				23DF8CAC1BA9CEB700ECAE98 /* service */,
 				23DF8CA91BA9CE9C00ECAE98 /* metric */,
@@ -391,6 +389,7 @@
 				23DF8CAE1BA9CEB700ECAE98 /* TaurusClientFactory.swift */,
 				23DF8CAF1BA9CEB700ECAE98 /* TaurusDataSyncService.swift */,
 				236016D61BD1410100AF82FE /* ShareService.swift */,
+				233A6A1B1BD9C45E00815BBB /* NotificationService.swift */,
 			);
 			name = service;
 			path = src/service;
@@ -412,16 +411,6 @@
 			);
 			name = app;
 			sourceTree = "<group>";
-		};
-		23F58D6C1BBA1CBB00C7C6B6 /* SWReveal */ = {
-			isa = PBXGroup;
-			children = (
-				23F58D6D1BBA1CBB00C7C6B6 /* SWRevealViewController.h */,
-				23F58D6E1BBA1CBB00C7C6B6 /* SWRevealViewController.m */,
-			);
-			name = SWReveal;
-			path = src/SWReveal;
-			sourceTree = SOURCE_ROOT;
 		};
 		76FCBF07FE6EF1A60CEF38C3 /* Frameworks */ = {
 			isa = PBXGroup;
@@ -664,11 +653,11 @@
 				23BF792A1BB4C67D0025E996 /* MetricAnomalyChartData.swift in Sources */,
 				23AD4F1A1BB31C640041D650 /* AppDelegate.swift in Sources */,
 				23AD79181BA778B3003FBEF4 /* GrokClient.swift in Sources */,
-				23F58D731BBA318700C7C6B6 /* MenuController.swift in Sources */,
 				23CFAC3D1BB4A1E100B4E882 /* MetricCell.swift in Sources */,
 				23AD4F1F1BB3AA590041D650 /* InstanceDetailsViewController.swift in Sources */,
 				23DF8CA41BA9CDE500ECAE98 /* TaurusInstanceData.swift in Sources */,
 				23AD790D1BA778B3003FBEF4 /* CoreDatabase.swift in Sources */,
+				23E477D91BF2AA7400BA3858 /* CustomMenuController.swift in Sources */,
 				23AD79101BA778B3003FBEF4 /* CoreDataFactoryImpl.swift in Sources */,
 				23DF8CA51BA9CDE500ECAE98 /* TaurusNotification.swift in Sources */,
 				23AD79191BA778B3003FBEF4 /* GrokClientFactory.swift in Sources */,
@@ -677,7 +666,6 @@
 				236989821BA919C200EA4FB5 /* MarketCalendar.swift in Sources */,
 				23AD790E1BA778B3003FBEF4 /* CoreDatabaseImpl.swift in Sources */,
 				23F58D751BBAC21D00C7C6B6 /* SettingsController.swift in Sources */,
-				23F58D6F1BBA1CBB00C7C6B6 /* SWRevealViewController.m in Sources */,
 				23AD79131BA778B3003FBEF4 /* Metric.swift in Sources */,
 				23DF8CB21BA9CEB700ECAE98 /* TaurusDataSyncService.swift in Sources */,
 				23AD790B1BA778B3003FBEF4 /* AggregationType.swift in Sources */,
@@ -696,6 +684,7 @@
 				23DF8CEC1BA9CFA800ECAE98 /* InstanceAnomalyChartData.swift in Sources */,
 				236D00471BBC2C4C00782B36 /* TwitterViewController.swift in Sources */,
 				23DF8CA81BA9CE2700ECAE98 /* TarusDBProtocol.swift in Sources */,
+				233A6A1C1BD9C45E00815BBB /* NotificationService.swift in Sources */,
 				23DF8CA01BA9CDE500ECAE98 /* AnomalyValue.swift in Sources */,
 				238055C21BBEED020048E214 /* ModelController.swift in Sources */,
 				236016D71BD1410100AF82FE /* ShareService.swift in Sources */,
@@ -856,6 +845,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.numenta.taurusmobile;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Debug;
 		};
@@ -871,6 +862,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.numenta.taurusmobile;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 			};
 			name = Release;
 		};

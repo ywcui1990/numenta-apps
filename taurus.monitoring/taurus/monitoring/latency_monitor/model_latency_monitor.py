@@ -56,8 +56,22 @@ g_logger = logging.getLogger(__name__)
 
 
 
-_ErrorParams = namedtuple("LatencyMonitorErrorParams",
-                          "model_name model_uid threshold")
+_LatencyMonitorErrorParams = (
+  namedtuple("_LatencyMonitorErrorParams",
+             "model_name model_uid threshold last_timestamp")
+)
+
+
+
+class LatencyMonitorErrorParams(_LatencyMonitorErrorParams):
+  def __repr__(self):
+    return ("{}(model_name={}, model_uid={}, threshold={} seconds, "
+            "last_timestamp={})"
+            .format(self.__class__.__name__,
+                    self.model_name,
+                    self.model_uid,
+                    self.threshold,
+                    self.last_timestamp))
 
 
 
@@ -257,7 +271,9 @@ class ModelLatencyChecker(MonitorDispatcher):
 
 
       if not intervals:
-        errors.append(_ErrorParams(model["name"], model["uid"], None))
+        errors.append(
+          LatencyMonitorErrorParams(model["name"], model["uid"], None, None)
+        )
         continue # There are no intervals between samples, indicating there is
                  # no data at all!  No point in calculating stddev.
 
@@ -278,9 +294,10 @@ class ModelLatencyChecker(MonitorDispatcher):
       # have a reasonable expectation that there may be a problem with the
       # model
       if currentInterval > acceptableThreshold:
-        errors.append(_ErrorParams(model["name"],
-                                   model["uid"],
-                                   acceptableThreshold))
+        errors.append(LatencyMonitorErrorParams(model["name"],
+                                                model["uid"],
+                                                acceptableThreshold,
+                                                lastSampleTimestamp))
 
     g_logger.info("Processed statistics for %d model%s, found %d error%s.",
                   len(models),

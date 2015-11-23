@@ -26,6 +26,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     @IBOutlet var instanceTable: UITableView!
     @IBOutlet var menuButton:UIBarButtonItem?
     @IBOutlet var dateLabel: UILabel?
+    @IBOutlet var progressLabel: UILabel?
     
     var searchController : UISearchController?
     var searchButton : UIBarButtonItem?
@@ -70,7 +71,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         favoriteSegmentControl!.addTarget(self, action: "favoriteSwitch:", forControlEvents: UIControlEvents.ValueChanged)
         
         favoriteSegmentControl!.setWidth( 50.0, forSegmentAtIndex: 0)
-        favoriteSegmentControl!.setWidth( 60.0, forSegmentAtIndex: 1)
+        favoriteSegmentControl!.setWidth( 65.0, forSegmentAtIndex: 1)
         let container = UIView()
         container.addSubview(favoriteSegmentControl!)
         container.backgroundColor = UIColor.blueColor()
@@ -83,7 +84,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         
         let menuIcon = UIImage(named: "menu")
-        let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self.revealViewController(), action: "rightRevealToggle:")
+        let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self, action: "showMenu:")
         self.menuButton = b2
         
         
@@ -96,9 +97,10 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         // Show header icon
         
-        let icon = UIImage(named: "grok_header")
+        let icon = UIImage(named: "ic_grok_logo")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal)
+
         
-        
+       // icon?.renderingMode = UIImageRenderingModeAlwaysOriginal
         logo = UIBarButtonItem (image: icon,  style: UIBarButtonItemStyle.Plain, target: nil, action: nil)
         
         // Shit it to the left to free up some space
@@ -127,19 +129,48 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         self.syncWithDB()
         
-       if self.revealViewController() != nil {
+     /*  if self.revealViewController() != nil {
             menuButton!.target = self.revealViewController()
             menuButton!.action = "rightRevealToggle:"
-            self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
+          //  self.view.addGestureRecognizer(self.revealViewController().panGestureRecognizer())
                 self.revealViewController().rightViewRevealWidth = 180
-        }
+        }*/
         
        
         dayTimePeriodFormatter.dateFormat = "EEEE, M/d"
         dateLabel!.layer.masksToBounds = true
         self.dateLabel!.hidden  = true
+        
+         progressLabel!.layer.masksToBounds = true
+        
+        let firstRun = NSUserDefaults.standardUserDefaults().boolForKey("firstRun")
+        if (firstRun != true){
+            self.navigationController!.performSegueWithIdentifier ("startTutorial", sender: nil)
+            NSUserDefaults.standardUserDefaults().setBool(true, forKey: "firstRun")
+        }
+        
+        // Show sync progress
+        NSNotificationCenter.defaultCenter().addObserverForName(DataSyncService.PROGRESS_STATE_EVENT, object: nil, queue: nil, usingBlock: {
+                [unowned self] note in
+                    let date = note.object as? NSDate
+            
+                dispatch_async(dispatch_get_main_queue()) {
+                    if (date == nil || self.tableData.count>0 ){
+                        self.progressLabel!.hidden  = true
+                        return
+                    }
+                    self.progressLabel!.text = "Syncing\r\n"+self.dayTimePeriodFormatter.stringFromDate(date!)
+                    self.progressLabel!.hidden  = false
+                    
+                    
+                }
+            })
+        
     }
 
+    func showMenu( sender : UIButton){
+        CustomMenuController.showMenu( self)
+    }
     
     /** shows search bar in navigation area
     */
@@ -320,13 +351,13 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         return cell!
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+/*    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
     }
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
     {
         
-    }
+    }*/
     
     /** gets the index into the table data
         - parameter section : table section
@@ -471,7 +502,9 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
               //   self.currentData = listData
                 self.tableData = self.allData
                 self.timeSlider?.endDate = DataUtils.dateFromTimestamp( TaurusApplication.getDatabase().getLastTimestamp() )
-                self.instanceTable?.reloadData()
+                
+                self.favoriteSwitch (self.favoriteSegmentControl!)
+               
 
             }
         }
@@ -495,6 +528,11 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         
         for var i = 0; i<4; i++ {
             listData[i] = [InstanceAnomalyChartData]()
+            
+            if ( i >= self.allData.count){
+                continue
+            }
+            
             let sectionData = self.allData[i]!
             for val : InstanceAnomalyChartData in  sectionData {
                 if ( searchPredicate.evaluateWithObject ( val.ticker ) ||
@@ -521,6 +559,8 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
                 if (data != nil ){
                     controller.chartData = data![ indexPath.item]
                 }
+                
+                self.instanceTable.deselectRowAtIndexPath (indexPath , animated: false)
             }
         }
     }

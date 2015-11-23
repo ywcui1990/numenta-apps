@@ -27,7 +27,7 @@ import webpacker from 'webpack-stream';
 
 // internals
 
-import Config from './frontend/lib/ConfigServer';
+import Config from './js/main/ConfigService';
 
 const config = new Config();
 
@@ -42,7 +42,7 @@ let WebServer = null; // @TODO not global
 gulp.task('webpack', ()  => {
   let target = (config.get('UNICORN_TARGET') === 'desktop') ? 'atom' : 'web';
 
-  return gulp.src('frontend/browser/app.js')
+  return gulp.src('js/browser/app.js')
     .pipe(webpacker({
       bail: true,
       devtool: 'source-map',
@@ -78,7 +78,7 @@ gulp.task('webpack', ()  => {
       },
       output: {
         filename: 'bundle.js',
-        publicPath: path.join(__dirname, '/frontend/browser/assets/bundle/')
+        publicPath: path.join(__dirname, '/js/browser/assets/bundle/')
       },
       plugins: [
         new webpack.IgnorePlugin(/vertx/)  // @TODO remove in fluxible 4.x
@@ -89,7 +89,7 @@ gulp.task('webpack', ()  => {
       target,
       verbose: true
     }))
-    .pipe(gulp.dest('frontend/browser/assets/bundle/'));
+    .pipe(gulp.dest('js/browser/assets/bundle/'));
 });
 
 

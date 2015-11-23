@@ -274,6 +274,13 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace, nupicVersion):
                              "--install-option=--prefix=%s "
                              "--ignore-installed" % buildWorkspace),
                             env=env, logger=logger)
+
+      # also install pycapnp
+      command = ("pip", "install",
+                 "--install-option=--prefix=%s" % buildWorkspace,
+                 "pycapnp==0.5.5")
+      runWithOutput(command=command, env=env, logger=logger)
+
       shutil.rmtree("build", ignore_errors=True)
       mkdirp("build/scripts")
       with changeToWorkingDir("build/scripts"):
@@ -288,7 +295,7 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace, nupicVersion):
                            pythonLibDir=libdir,
                            pythonIncludeDir=includeDir),
                       env=env, logger=logger)
-        runWithOutput("make -j 4", env=env, logger=logger)
+        runWithOutput("VERBOSE=1 make -j 1", env=env, logger=logger)
         runWithOutput("make install", env=env, logger=logger)
 
       # need to remove this folder to allow the caching process to work
@@ -336,8 +343,13 @@ def buildNuPIC(env, logger, buildWorkspace):
       # install requirements
       command = ("pip", "install", "--install-option=--prefix=%s" % env["NTA"],
                  "--requirement", "external/common/requirements.txt")
-
       runWithOutput(command=command, env=env, logger=logger)
+
+      # also install pycapnp
+      command = ("pip", "install", "--install-option=--prefix=%s" % env["NTA"],
+                 "pycapnp==0.5.5")
+      runWithOutput(command=command, env=env, logger=logger)
+
       # need to remove this folder for wheel build to work
       shutil.rmtree("external/linux32arm")
 
