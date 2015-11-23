@@ -28,6 +28,8 @@ import pickle
 import unittest
 import os
 
+import pytz
+
 from nta.utils.test_utils import patch_helpers
 
 from taurus.monitoring.latency_monitor.model_latency_monitor import (
@@ -72,8 +74,10 @@ class ModelLatencyCheckerTest(unittest.TestCase):
   @patch("boto.dynamodb2", autospec=True)
   @patch("taurus.monitoring.latency_monitor.model_latency_monitor.Table",
          autospec=True)
-  # Fix datetime.datetime.utcnow() to known time relative to cached metric data
-  @patch_helpers.patchUTCNow(datetime.datetime(2015, 11, 1, 22, 41, 0, 0))
+  # Fix datetime.datetime.now() to known time relative to cached metric data
+  @patch_helpers.patchNow(
+    pytz.timezone("UTC").localize(
+      datetime.datetime(2015, 11, 2, 20, 41, 0, 0)))
   # Disable pylint warning re: unused botoDynamoDB2Mock argument
   # pylint: disable=W0613
   def testCheckAllSendsNotification(self, tableMock, botoDynamoDB2Mock,
@@ -103,11 +107,96 @@ class ModelLatencyCheckerTest(unittest.TestCase):
       exc.exception.message,
       "The following models have exceeded the acceptable threshold for time si"
       "nce last timestamp in taurus.metric_data.test DynamoDB table:\n    Late"
-      "ncyMonitorErrorParams(model_name=XIGNITE.TRI.VOLUME, model_uid=00261089"
-      "e61b4af1a1e4b3d0c06aa84a, threshold=31640.2192578 seconds, last_timesta"
-      "mp=2015-10-30 19:55:00)\n    LatencyMonitorErrorParams(model_name=XIGNI"
-      "TE.BK.CLOSINGPRICE, model_uid=018662cc75b14860b72319d92883c896, thresho"
-      "ld=31640.2192578 seconds, last_timestamp=2015-10-30 19:55:00)")
+      "ncyMonitorErrorParams(model_name=TWITTER.TWEET.HANDLE.SPG.VOLUME, model"
+      "_uid=0021c2d17c0a4eb4965b6cb315c1d2e9, threshold=28190.6248932 seconds,"
+      " last_timestamp=2015-11-01 16:12:53+00:00)\n    LatencyMonitorErrorPara"
+      "ms(model_name=XIGNITE.TRI.VOLUME, model_uid=00261089e61b4af1a1e4b3d0c06"
+      "aa84a, threshold=31640.2192578 seconds, last_timestamp=2015-10-30 19:55"
+      ":00+00:00)\n    LatencyMonitorErrorParams(model_name=XIGNITE.BK.CLOSING"
+      "PRICE, model_uid=018662cc75b14860b72319d92883c896, threshold=31640.2192"
+      "578 seconds, last_timestamp=2015-10-30 19:55:00+00:00)")
+
+
+  # Mock command line arguments, specifying test config file and bogus
+  # metric data table name
+  @patch_helpers.patchCLIArgs("taurus-model-latency-monitor",
+                              "--monitorConfPath",
+                              _TEST_CONF_FILEPATH,
+                              "--metricDataTable",
+                              "taurus.metric_data.test")
+  # Prevent Taurus HTTP API calls
+  @patch("requests.get", autospec=True)
+  # Prevent boto dynamodb API calls
+  @patch("boto.dynamodb2", autospec=True)
+  @patch("taurus.monitoring.latency_monitor.model_latency_monitor.Table",
+         autospec=True)
+  # Fix datetime.datetime.now() to known holiday
+  @patch_helpers.patchNow(
+    pytz.timezone("UTC").localize(datetime.datetime(2015, 1, 1, 18, 0, 0, 0)))
+  # Disable pylint warning re: unused botoDynamoDB2Mock argument
+  # pylint: disable=W0613
+  def testMarketHolidays(self, tableMock, botoDynamoDB2Mock, requestsGetMock):
+
+    # Mock API to return pre-defined models in lieu of making an API call to
+    # a live taurus models HTTP endpoint
+    requestsGetMock.return_value = Mock(status_code=200,
+                                        json=Mock(return_value=MODELS))
+
+    # Mock boto dynamodb queries by returning locally cached metric data.
+    # See data/*-data.pickle
+    # Disable pylint warning about unused, and improperly named arguments
+    # pylint: disable=W0613,C0103
+    def query2SideEffect(uid__eq, timestamp__gte):
+      return METRIC_DATA_BY_ID[uid__eq]
+
+    tableMock.return_value = (
+      Mock(query_2=Mock(side_effect=query2SideEffect,
+                        __name__=str(id(query2SideEffect))))
+    )
+
+    # This should not raise an exception
+    ModelLatencyChecker().checkAllModelLatency()
+
+
+  # Mock command line arguments, specifying test config file and bogus
+  # metric data table name
+  @patch_helpers.patchCLIArgs("taurus-model-latency-monitor",
+                              "--monitorConfPath",
+                              _TEST_CONF_FILEPATH,
+                              "--metricDataTable",
+                              "taurus.metric_data.test")
+  # Prevent Taurus HTTP API calls
+  @patch("requests.get", autospec=True)
+  # Prevent boto dynamodb API calls
+  @patch("boto.dynamodb2", autospec=True)
+  @patch("taurus.monitoring.latency_monitor.model_latency_monitor.Table",
+         autospec=True)
+  # Fix datetime.datetime.now() to known holiday
+  @patch_helpers.patchNow(
+    pytz.timezone("UTC").localize(datetime.datetime(2015, 1, 2, 18, 0, 0, 0)))
+  # Disable pylint warning re: unused botoDynamoDB2Mock argument
+  # pylint: disable=W0613
+  def testMarketHours(self, tableMock, botoDynamoDB2Mock, requestsGetMock):
+
+    # Mock API to return pre-defined models in lieu of making an API call to
+    # a live taurus models HTTP endpoint
+    requestsGetMock.return_value = Mock(status_code=200,
+                                        json=Mock(return_value=MODELS))
+
+    # Mock boto dynamodb queries by returning locally cached metric data.
+    # See data/*-data.pickle
+    # Disable pylint warning about unused, and improperly named arguments
+    # pylint: disable=W0613,C0103
+    def query2SideEffect(uid__eq, timestamp__gte):
+      return METRIC_DATA_BY_ID[uid__eq]
+
+    tableMock.return_value = (
+      Mock(query_2=Mock(side_effect=query2SideEffect,
+                        __name__=str(id(query2SideEffect))))
+    )
+
+    # This should not raise an exception
+    ModelLatencyChecker().checkAllModelLatency()
 
 
   # Mock command line arguments, specifying test config file and bogus
@@ -150,8 +239,10 @@ class ModelLatencyCheckerTest(unittest.TestCase):
   @patch("boto.dynamodb2", autospec=True)
   @patch("taurus.monitoring.latency_monitor.model_latency_monitor.Table",
          autospec=True)
-  # Fix datetime.datetime.utcnow() to known time relative to cached metric data
-  @patch_helpers.patchUTCNow(datetime.datetime(2015, 11, 1, 22, 41, 0, 0))
+  # Fix datetime.datetime.now() to known time relative to cached metric data
+  @patch_helpers.patchNow(
+    pytz.timezone("UTC").localize(
+      datetime.datetime(2015, 11, 2, 20, 41, 0, 0)))
   # Disable pylint warning re: unused botoDynamoDB2Mock argument
   # pylint: disable=W0613
   def testCheckAllModelLatencyGracefullyHandlesNoMetricData(self, tableMock,

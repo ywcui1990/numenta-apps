@@ -26,6 +26,7 @@ import datetime
 import boto.dynamodb2
 from boto.dynamodb2.table import Table
 import numpy
+import pytz
 import requests
 
 from nta.utils import error_reporting
@@ -49,6 +50,11 @@ SIGMA_MULTIPLIER = 3 # Standard deviation multiplier.  According to 68-95-99.7
                      # purposes, intervals greater than 3 x stddev are
                      # exceptional for that data set
 FIXED_WINDOW = 14 # Number of days over which to calculate stddev.
+
+# UTC datetime objects will be converted to US/Eastern local time for purposes
+# of determining market closure
+_UTC_TZ = pytz.timezone("UTC")
+_EASTERN_TZ = pytz.timezone("US/Eastern")
 
 
 
@@ -77,6 +83,108 @@ class LatencyMonitorErrorParams(_LatencyMonitorErrorParams):
 
 class LatencyMonitorError(TaurusMonitorError):
   pass
+
+
+
+def isStockModel(model):
+  """ Returns true if model is a stock model.  False if type is not recognized
+  as either "StockPrice" or "StockVolume".
+  :param dict model: Model dict
+  :returns: True if metric type is one of "StockPrice", "StockVolume", False
+    otherwise
+  """
+  return (model
+          .get("parameters", {})
+          .get("metricSpec", {})
+          .get("userInfo", {})
+          .get("metricType")) in {"StockPrice", "StockVolume"}
+
+
+
+def isOutsideMarketHours(utcnow):
+  """ Determines whether or not the passed time is within a time period during
+  which we should expect recent stock data.
+
+  :param datetime utcnow: UTC-localized timestamp
+  :returns: Truth value for whether or not passed utcnow param is outside of
+    expected market hours
+  """
+  # Adjust utcnow for market hours...
+  marketLocalTime = utcnow.astimezone(_EASTERN_TZ)
+
+  if marketLocalTime.date().weekday() > 4:
+    # Weekday is 5 (saturday) or 6 (sunday)
+    return True
+
+  marketClosureHolidays = {
+    datetime.date(2015, 1, 1),
+    datetime.date(2015, 1, 19),
+    datetime.date(2015, 2, 16),
+    datetime.date(2015, 4, 3),
+    datetime.date(2015, 5, 25),
+    datetime.date(2015, 7, 3),
+    datetime.date(2015, 9, 7),
+    datetime.date(2015, 11, 26),
+    datetime.date(2015, 12, 25),
+    datetime.date(2016, 1, 1),
+    datetime.date(2016, 1, 18),
+    datetime.date(2016, 2, 15),
+    datetime.date(2016, 3, 25),
+    datetime.date(2016, 5, 30),
+    datetime.date(2016, 7, 4),
+    datetime.date(2016, 9, 5),
+    datetime.date(2016, 11, 24),
+    datetime.date(2016, 12, 26),
+    datetime.date(2017, 1, 2),
+    datetime.date(2017, 1, 16),
+    datetime.date(2017, 2, 20),
+    datetime.date(2017, 4, 14),
+    datetime.date(2017, 5, 29),
+    datetime.date(2017, 7, 4),
+    datetime.date(2017, 9, 4),
+    datetime.date(2017, 11, 23),
+    datetime.date(2017, 12, 25),
+    datetime.date(2018, 1, 1),
+    datetime.date(2018, 1, 15),
+    datetime.date(2018, 2, 19),
+    datetime.date(2018, 3, 30),
+    datetime.date(2018, 5, 28),
+    datetime.date(2018, 7, 4),
+    datetime.date(2018, 9, 3),
+    datetime.date(2018, 11, 22),
+    datetime.date(2018, 12, 25),
+    datetime.date(2019, 1, 1),
+    datetime.date(2019, 1, 21),
+    datetime.date(2019, 2, 18),
+    datetime.date(2019, 4, 19),
+    datetime.date(2019, 5, 27),
+    datetime.date(2019, 7, 4),
+    datetime.date(2019, 9, 2),
+    datetime.date(2019, 11, 28),
+    datetime.date(2019, 12, 25),
+    datetime.date(2020, 1, 1),
+    datetime.date(2020, 1, 20),
+    datetime.date(2020, 2, 17),
+    datetime.date(2020, 4, 10),
+    datetime.date(2020, 5, 25),
+    datetime.date(2020, 7, 3),
+    datetime.date(2020, 9, 7),
+    datetime.date(2020, 11, 26),
+    datetime.date(2020, 12, 25)
+  }
+
+  if marketLocalTime.date() in marketClosureHolidays:
+    # market-local date is a known market holiday
+    return True
+
+  if (marketLocalTime.time() < datetime.time(10, 30) or
+      marketLocalTime.time() > datetime.time(17, 30)):
+    # market-local time is roughly within the time frame we care about.  10:30
+    # to account for a natural delay at the beginning, and 5:30 to account for
+    # catching up at the end of the day.
+    return True
+
+  return False
 
 
 
@@ -220,7 +328,7 @@ class ModelLatencyChecker(MonitorDispatcher):
       http://boto.readthedocs.org/en/latest/dynamodb2_tut.html#the-resultset)
     """
     # Query recent DynamoDB metric data for each model
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(_UTC_TZ)
 
     then = str(now - datetime.timedelta(days=self.days,
                                         microseconds=now.microsecond))
@@ -245,6 +353,16 @@ class ModelLatencyChecker(MonitorDispatcher):
     errors = []
 
     for model in models:
+
+      # Calculate current UTC timestamp adjusted to account for acceptable
+      # 10-minute delay in processing.
+      utcnow = datetime.datetime.now(_UTC_TZ) - datetime.timedelta(minutes=10)
+
+      if isStockModel(model) and isOutsideMarketHours(utcnow):
+        g_logger.info("Skipping %s.  Reason: outside market hours",
+                      model["name"])
+        continue
+
       resultSet = self.getMetricData(metricUid=model["uid"])
       # Track all time intervals between valid (e.g. non-zero) samples
       intervals = []
@@ -255,8 +373,10 @@ class ModelLatencyChecker(MonitorDispatcher):
         if not sample["metric_value"]:
           continue
 
-        timestamp = datetime.datetime.strptime(sample["timestamp"],
-                                               "%Y-%m-%dT%H:%M:%S")
+        timestamp = (
+          _UTC_TZ.localize(datetime.datetime.strptime(sample["timestamp"],
+                                                      "%Y-%m-%dT%H:%M:%S"))
+        )
 
         if lastSampleTimestamp is None:
           lastSampleTimestamp = timestamp
@@ -264,11 +384,6 @@ class ModelLatencyChecker(MonitorDispatcher):
 
         intervals.append((timestamp - lastSampleTimestamp).total_seconds())
         lastSampleTimestamp = timestamp
-
-      # Calculate current UTC timestamp adjusted to account for acceptable
-      # 10-minute delay in processing.
-      utcnow = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
-
 
       if not intervals:
         errors.append(
