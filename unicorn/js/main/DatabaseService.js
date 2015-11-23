@@ -304,7 +304,7 @@ DatabaseService.prototype.putMetricData = function (metricData, callback) {
   const table = this.dbh.sublevel('metricData');
   const validation = this.validator.validate(metricData, MetricDataSchema);
 
-  if (typeof metricDatas === 'string') {
+  if (typeof metricData === 'string') {
     // JSONify here to get around Electron IPC remote() memory leaks
     metricData = JSON.parse(metricData);
   }
@@ -319,20 +319,20 @@ DatabaseService.prototype.putMetricData = function (metricData, callback) {
 
 /**
  * Put multiple MetricData records into DB.
- * @param {Array} metricDatas - List of Data objects of MetricDatas to save
+ * @param {Array} data - List of Metric Data objects of MetricDatas to save
  * @param {Function} callback - Async callback on done: function(error, results)
  */
-DatabaseService.prototype.putMetricDataBatch = function (metricDatas, callback) {
+DatabaseService.prototype.putMetricDataBatch = function (data, callback) {
   const table = this.dbh.sublevel('metricData');
   let ops = [];
 
-  if (typeof metricDatas === 'string') {
+  if (typeof data === 'string') {
     // JSONify here to get around Electron IPC remote() memory leaks
-    metricDatas = JSON.parse(metricDatas);
+    data = JSON.parse(data);
   }
 
   // validate
-  metricDatas.forEach((metricData) => {
+  data.forEach((metricData) => {
     const validation = this.validator.validate(metricData, MetricDataSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
@@ -341,7 +341,7 @@ DatabaseService.prototype.putMetricDataBatch = function (metricDatas, callback) 
   });
 
   // prepare
-  ops = metricDatas.map((metricData) => {
+  ops = data.map((metricData) => {
     return {
       type: 'put',
       key: metricData.uid,

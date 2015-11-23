@@ -19,10 +19,14 @@
  * -------------------------------------------------------------------------- */
 
 
+// externals
+
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Material from 'material-ui';
 import MoreIcon from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
 import React from 'react';
+
+// internals
 
 import CreateModelAction from '../actions/CreateModel';
 import DeleteFileAction from '../actions/DeleteFile';
@@ -35,6 +39,7 @@ import ShowMetricDetailsAction from '../actions/ShowMetricDetails';
 import ShowModelAction from '../actions/ShowModel';
 import Utils from '../../main/Utils';
 
+// locals
 
 const {
   List, ListItem, Checkbox, IconButton, IconMenu, MenuItem, Dialog
@@ -43,13 +48,16 @@ const {
 const DIALOG_STRINGS = {
   model: {
     title: 'Delete Model',
-    message: 'Deleting this model will delete the associated model results. Are you sure you want to delete this model?'
+    message: `Deleting this model will delete the associated model results.
+              Are you sure you want to delete this model?`
   },
   file: {
     title: 'Delete File',
-    message: 'Deleting this dataset will delete the associated models. Are you sure you want to delete this file?'
+    message: `Deleting this dataset will delete the associated models.
+              Are you sure you want to delete this file?`
   }
 }
+
 
 /**
  * Component used to display a list of files
@@ -102,7 +110,7 @@ export default class FileList extends React.Component {
     }
   }
 
-  _handleFileContextMenu(filename, ev, action) {
+  _handleFileContextMenu(filename, event, action) {
     if (action === 'detail') {
       this.context.executeAction(ShowFileDetailsAction, filename);
     } else if (action === 'delete') {
@@ -115,12 +123,12 @@ export default class FileList extends React.Component {
     }
   }
 
-  _handleMetricContextMenu(modelId, filename, timestampField, metric, ev, action) {
+  _handleMetricContextMenu(modelId, filename, tsField, metric, event, action) {
     if (action === 'details') {
       this.context.executeAction(ShowMetricDetailsAction, modelId);
     } else if (action === 'create') {
       this.context.executeAction(CreateModelAction, {
-        modelId, filename, metric, timestampField
+        modelId, filename, metric, tsField
       });
     } else if (action === 'delete') {
       this._confirmDialog(
@@ -129,9 +137,7 @@ export default class FileList extends React.Component {
           this.context.executeAction(DeleteModelAction, modelId);
           this._dismissDialog();
         });
-    } else if (action === 'export') {
-
-    }
+    } /* else if (action === 'export') {} */
   }
 
   _renderMetrics(file) {
@@ -153,14 +159,23 @@ export default class FileList extends React.Component {
               className="context-menu-icon"
               style={{whiteSpace: 'nowrap'}}
               onChange={
-                this._handleMetricContextMenu.bind(this, modelId, file.filename,
-                                                   timestampField.name,
-                                                   metric.name)}
+                this._handleMetricContextMenu.bind(
+                  this, modelId, file.filename, timestampField.name, metric.name
+                )
+              }
               iconButtonElement={<IconButton><MoreIcon/></IconButton>}>
-              <MenuItem index={1} value="details">Metric Details</MenuItem>
-              <MenuItem index={2} value="create" disabled={hasModel}>Create Model</MenuItem>
-              <MenuItem index={3} value="delete" disabled={!hasModel}>Delete Model</MenuItem>
-              <MenuItem index={4} value="export" disabled={!hasModel}>Export Results</MenuItem>
+              <MenuItem index={1} value="details">
+                Metric Details
+              </MenuItem>
+              <MenuItem index={2} value="create" disabled={hasModel}>
+                Create Model
+              </MenuItem>
+              <MenuItem index={3} value="delete" disabled={!hasModel}>
+                Delete Model
+              </MenuItem>
+              <MenuItem index={4} value="export" disabled={!hasModel}>
+                Export Results
+              </MenuItem>
             </IconMenu>
           );
           let isModelVisible = hasModel && model && model.visible;
@@ -189,8 +204,12 @@ export default class FileList extends React.Component {
             style={{whiteSpace: 'nowrap'}}
             onChange={this._handleFileContextMenu.bind(this, filename)}
             iconButtonElement={<IconButton><MoreIcon/></IconButton>}>
-            <MenuItem index={1} disabled={filetype === 'sample'} value="delete">Delete</MenuItem>
-            <MenuItem index={2} value="detail">Details</MenuItem>
+            <MenuItem index={1} disabled={filetype === 'sample'} value="delete">
+              Delete
+            </MenuItem>
+            <MenuItem index={2} value="detail">
+              Details
+            </MenuItem>
           </IconMenu>
         );
 

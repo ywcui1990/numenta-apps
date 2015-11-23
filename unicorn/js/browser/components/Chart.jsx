@@ -162,6 +162,12 @@ export default class Chart extends React.Component {
 
   /**
    * DyGrpahs Chart range finder change/zoom callback function
+   * @method
+   * @param {Number} rangeXmin - Minimum X value of chart Range Finder
+   * @param {Number} rangeXmax - Maximum X value of chart Range Finder
+   * @param {Array} [yRanges] - Extra Y value data (unused currently)
+   * @private
+   * @this Chart
    */
   _chartZoomCallback(rangeXmin, rangeXmax, yRanges) {
     // chart range finder, far-right scroll lock
@@ -175,6 +181,7 @@ export default class Chart extends React.Component {
 
   /**
    * DyGrpahs Chart RangeSelector mousedown callback function
+   * @param {Object} event - Event handler object
    */
   _rangeMouseDownCallback(event) {
     this._chartBusy = true;
@@ -182,6 +189,7 @@ export default class Chart extends React.Component {
 
   /**
    * DyGrpahs Chart RangeSelector mouseup callback function
+   * @param {Object} event - Event handler object
    */
   _rangeMouseUpCallback(event) {
     let [graphXmin, graphXmax] = this._dygraph.xAxisExtremes();
@@ -196,11 +204,19 @@ export default class Chart extends React.Component {
 
   /**
    * Should scroll lock be turned on? (Is chart range slider far-to-the-right?)
+   * @param {Number} xDiff - Current width of range slider selection
+   * @param {Number} xRange - Full width of range slider possible values
+   * @returns {Boolean} - Should range slider "scroll lock" be considered active
+   *  based on current position/range?
    */
   _isScrollLockActive(xDiff, xRange) {
     return (xDiff < (xRange * 0.1));  // near right edge ~10%
   }
 
+  /**
+   * React render()
+   * @returns {Object} - Built React component pseudo-DOM object
+   */
   render() {
     return (
       <Paper ref="chart" style={this._style} zDepth={this.props.zDepth} />
