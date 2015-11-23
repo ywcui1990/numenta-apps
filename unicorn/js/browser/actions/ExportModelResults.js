@@ -24,8 +24,21 @@ import {ACTIONS} from '../lib/Constants';
 /**
  * Export model results
  * @param {FluxibleContext} actionContext -
- * @param {string} modelId - Model ID
+ * @param {Object} payload Action payload
+ * @param {string} payload.modelId - Model to export results from
+ * @param {string} payload.filename - The destination csv file to store model results
  */
-export default function (actionContext, modelId) {
-  actionContext.dispatch(ACTIONS.EXPORT_MODEL_RESULTS, modelId);
+export default function (actionContext, payload) {
+  let {modelId, filename} = payload;
+  return new Promise((resolve, reject) => {
+    let databaseClient = actionContext.getDatabaseClient();
+    databaseClient.exportMetricData(modelId, filename, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        actionContext.dispatch(ACTIONS.EXPORT_MODEL_RESULTS, modelId, filename);
+        resolve();
+      }
+    });
+  })
 }

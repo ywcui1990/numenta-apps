@@ -19,10 +19,11 @@
 
 import DatabaseService from '../../../js/main/DatabaseService';
 import FileSchema from '../../../js/database/schema/File.json';
-import MetricSchema from '../../../js/database/schema/Metric.json';
+import fs from 'fs';
 import MetricDataSchema from '../../../js/database/schema/MetricData.json'; // eslint-disable-line
-import path from 'path';
+import MetricSchema from '../../../js/database/schema/Metric.json';
 import os from 'os';
+import path from 'path';
 
 const assert = require('assert');
 
@@ -52,17 +53,25 @@ const EXPECTED_METRIC_DATA = {
   anomaly_likelihood: 1
 };
 
+const EXPECTED_EXPORTED_RESULTS =
+`timestamp,metric_value,anomaly_likelihood
+2015-01-01 00:00:00Z,1,1
+2015-01-01 00:00:00Z,1,1
+2015-01-01 00:00:00Z,1,1
+2015-01-01 00:00:00Z,1,1`;
 
 describe('DatabaseService', () => {
   let service;
+  const TEMP_DIR = path.join(os.tmpDir(), 'unicorn_db');
+  const FILENAME = path.join(TEMP_DIR, 'file.csv');
 
   before(() => {
-    let tmpDir = path.join(os.tmpDir(), 'unicorn_db');
-    service = new DatabaseService(tmpDir);
+    service = new DatabaseService(TEMP_DIR);
   });
   after(() => {
     service.close((err) => assert.ifError(err));
     service.destroy((err) => assert.ifError(err));
+    fs.unlinkSync(FILENAME);
   });
 
   describe('Schema', () => {
@@ -215,8 +224,8 @@ describe('DatabaseService', () => {
       });
     });
     it('should load multiple MetricData records from the database', (done) => {
-      let batch = Array.from(['id.1', 'id.2'], (uid) => {
-        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, metric_uid: uid});
+      let batch = Array.from(['id.1', 'id.2'], (uid, idx) => {
+        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, rowid: idx});
       });
       service.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
@@ -225,6 +234,22 @@ describe('DatabaseService', () => {
           assert.deepStrictEqual(actual, batch);
           done();
         });
+      });
+    });
+    it('should export MetricData from the database', (done) => {
+      let batch = Array.from(['id.1', 'id.2', 'id.3', 'id.4'], (uid, idx) => {
+        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, rowid: idx});
+      });
+      service.putMetricDataBatch(batch, (error) => {
+        assert.ifError(error);
+        service.exportMetricData(EXPECTED_METRIC_DATA.metric_uid, FILENAME, (error, res) => {
+          assert.ifError(error);
+          fs.readFile(FILENAME, 'utf8', (error, data) => {
+            assert.ifError(error);
+            assert.equal(data, EXPECTED_EXPORTED_RESULTS);
+            done();
+          })
+        })
       });
     });
   });
