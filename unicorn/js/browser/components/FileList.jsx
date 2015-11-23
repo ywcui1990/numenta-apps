@@ -128,7 +128,7 @@ export default class FileList extends React.Component {
       this.context.executeAction(ShowMetricDetailsAction, modelId);
     } else if (action === 'create') {
       this.context.executeAction(CreateModelAction, {
-        modelId, filename, metric, tsField
+        modelId, filename, metric, timestampField: tsField
       });
     } else if (action === 'delete') {
       this._confirmDialog(
