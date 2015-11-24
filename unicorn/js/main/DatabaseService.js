@@ -21,18 +21,19 @@
 
 
 import fs from 'fs';
-import FileSchema from '../database/schema/File.json';
 import isElectronRenderer from 'is-electron-renderer';
-import jsonQuery from 'jsonquery-engine';
 import json2csv from 'json2csv-stream';
+import jsonQuery from 'jsonquery-engine';
 import leveldown from 'leveldown';
 import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
-import MetricDataSchema from '../database/schema/MetricData.json';
-import MetricSchema from '../database/schema/Metric.json';
 import path from 'path';
 import sublevel from 'level-sublevel';
 import {Validator} from 'jsonschema';
+
+import MetricDataSchema from '../database/schema/MetricData.json';
+import MetricSchema from '../database/schema/Metric.json';
+import FileSchema from '../database/schema/File.json';
 
 let location = path.join('js', 'database', 'data');
 if (! isElectronRenderer) {
@@ -50,10 +51,7 @@ const DB_FILE_PATH = location;
  * Unicorn: DatabaseService - Respond to a DatabaseClient over IPC.
  *  For sharing our access to a file-based NodeJS database system.
  *  Meant for heavy persistence.
- * @class
- * @module
  * @param {string} [path] - Database location path (optional)
- * @this DatabaseService
  */
 function DatabaseService(path) {
   let location = path || DB_FILE_PATH;
@@ -143,12 +141,9 @@ DatabaseService.prototype.queryMetric = function (query, callback) {
 /**
  * Get all/queried MetricData records.
  * @callback
- * @method
  * @param {Object} query - DB Query filter object (jsonquery-engine),
  *  empty object "{}" for all results.
  * @param {Function} [callback] - Async callback: function (error, results)
- * @public
- * @this DatabaseService
  */
 DatabaseService.prototype.queryMetricData = function (query, callback) {
   let results = [];
@@ -212,11 +207,8 @@ DatabaseService.prototype.putFile = function (file, callback) {
 /**
  * Put multiple Files into DB.
  * @callback
- * @method
  * @param {Array} files - List of File objects to insert
  * @param {Function} callback - Async result handler: function (error, results)
- * @public
- * @this DatabaseService
  */
 DatabaseService.prototype.putFileBatch = function (files, callback) {
   let ops = [];

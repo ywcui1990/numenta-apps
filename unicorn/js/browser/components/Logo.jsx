@@ -24,11 +24,6 @@ import React from 'react';
 
 /**
  * Logo custom View Component
- * @class
- * @extends React.Component
- * @module
- * @public
- * @this Logo
  */
 export default class Logo extends React.Component {
 
@@ -55,10 +50,7 @@ export default class Logo extends React.Component {
 
   /**
    * Render
-   * @method
-   * @public
-   * @returns {object} Abstracted React/JSX DOM representation to render to HTML
-   * @this Logo
+   * @return {object} Abstracted React/JSX DOM representation to render to HTML
    * @todo refactor split into Header->Brand(Avatar)->Company(text) components,
    *  each w/own style. Space/align logo and Company text a bit.
    */

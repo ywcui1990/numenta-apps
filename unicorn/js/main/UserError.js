@@ -20,22 +20,12 @@
 
 /**
  * Base UserError class
- *
  * Overcomes the fact babel have problems inheriting from builtin objects:
- *  @TODO: http://stackoverflow.com/questions/3108980
- *
- * @class
- * @extends Error
- * @module
- * @this UserError
+ * @todo http://stackoverflow.com/questions/3108980
  */
 export default class UserError extends Error {
   /**
-   * @constructor
-   * @default
-   * @method
    * @param {string} message - Error message for user
-   * @this UserError
    */
   constructor(message) {
     super(message);
@@ -47,17 +37,10 @@ export default class UserError extends Error {
 
 /**
  * Thrown when having trouble getting data from Database
- * @class
- * @extends UserError
- * @module
- * @this DatabaseGetError
  */
 export class DatabaseGetError extends UserError {
   /**
-   * @constructor
-   * @method
    * @param {string} message - Error message for user
-   * @this DatabaseGetError
    */
   constructor(message) {
     super(message || 'Could not perform GET operation from Database');
@@ -66,17 +49,10 @@ export class DatabaseGetError extends UserError {
 
 /**
  * Thrown when having trouble putting data into Database
- * @class
- * @extends UserError
- * @module
- * @this DatabasePutError
  */
 export class DatabasePutError extends UserError {
   /**
-   * @constructor
-   * @method
    * @param {string} message - Error message for user
-   * @this DatabasePutError
    */
   constructor(message) {
     super(message || 'Could not perform PUT operation into Database');
@@ -85,17 +61,10 @@ export class DatabasePutError extends UserError {
 
 /**
  * Thrown when having trouble getting data from Filesystem
- * @class
- * @extends UserError
- * @module
- * @this FilesystemGetError
  */
 export class FilesystemGetError extends UserError {
   /**
-   * @constructor
-   * @method
    * @param {string} message - Error message for user
-   * @this FilesystemGetError
    */
   constructor(message) {
     super(message || 'Could not perform READ operation on Filesystem');
