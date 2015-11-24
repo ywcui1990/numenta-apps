@@ -179,9 +179,10 @@ export default class FileList extends React.Component {
               className="context-menu-icon"
               style={{whiteSpace: 'nowrap'}}
               onChange={
-                this._handleMetricContextMenu.bind(this, modelId, file.filename,
-                                                   timestampField.name,
-                                                   metric.name)}
+                this._handleMetricContextMenu.bind(
+                  this, modelId, file.filename, timestampField.name, metric.name
+                )
+              }
               iconButtonElement={<IconButton><IconMore/></IconButton>}>
               <MenuItem index={1} value="details">Metric Details</MenuItem>
               <MenuItem index={2} value="create" disabled={hasModel}>Create Model</MenuItem>
@@ -190,6 +191,7 @@ export default class FileList extends React.Component {
             </IconMenu>
           );
           let isModelVisible = hasModel && model && model.visible;
+
           return (
             <ListItem key={modelId}
               className="context-menu-item"
