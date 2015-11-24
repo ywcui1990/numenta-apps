@@ -116,6 +116,8 @@ def isOutsideMarketHours(utcnow):
     # Weekday is 5 (saturday) or 6 (sunday)
     return True
 
+  # NASDAQ and NYSE holidays through 2020, according to
+  # http://markets.on.nytimes.com/research/markets/holidays/holidays.asp
   marketClosureHolidays = {
     datetime.date(2015, 1, 1),
     datetime.date(2015, 1, 19),
@@ -211,7 +213,7 @@ class ModelLatencyChecker(MonitorDispatcher):
                           "(Default: {})").format(MIN_THRESHOLD))
   parser.add_option("--sigmaMultiplier",
                     default=SIGMA_MULTIPLIER,
-                    type="int",
+                    type="float",
                     dest="sigmaMultiplier",
                     help=("Standard deviation multiplier. Consider 68-95-99.7 "
                           "rule.  For example, 99.7% of values fall within 3 "
@@ -393,6 +395,7 @@ class ModelLatencyChecker(MonitorDispatcher):
                  # no data at all!  No point in calculating stddev.
 
       stddev = numpy.nanstd(intervals)
+      mean = numpy.mean(intervals)
 
       # Fabricate a hypothetical interval representing the amount of time since
       # the most recent valid timestamp
@@ -402,8 +405,9 @@ class ModelLatencyChecker(MonitorDispatcher):
       # arbitrary minimum threshold.  More frequent companies will have a
       # lower stddev and therefore required a higher, if artifical, threshold
       # to avoid too many false positives
-      acceptableThreshold = max(self.threshold,
-                                self.sigmaMultiplier * stddev)
+      acceptableThreshold = (
+        max(self.threshold, mean + self.sigmaMultiplier * stddev)
+      )
 
       # If the hypothetical interval exceeds the acceptable threshold, then we
       # have a reasonable expectation that there may be a problem with the
