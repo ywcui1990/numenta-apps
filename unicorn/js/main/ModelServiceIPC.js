@@ -27,19 +27,9 @@ export const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 
 /**
  * IPC interface to ModelService.
- * @class
- * @exports
- * @module
- * @public
  */
 export default class ModelServiceIPC {
 
-  /**
-   * @constructor
-   * @method
-   * @public
-   * @this ModelServiceIPC
-   */
   constructor() {
     this._webContents = null;
     this._attached = new Set();
@@ -48,10 +38,7 @@ export default class ModelServiceIPC {
 
   /**
    * Start listening for IPC events.
-   * @method
    * @param {Object} webContents - Electron webContents object for IPC messages.
-   * @public
-   * @this ModelServiceIPC
    */
   start(webContents) {
     // Initialize IPC events
@@ -62,9 +49,6 @@ export default class ModelServiceIPC {
 
   /**
    * Stop listening for IPC Events.
-   * @method
-   * @public
-   * @this ModelServiceIPC
    */
   stop() {
     ipc.removeAllListeners(MODEL_SERVER_IPC_CHANNEL);
@@ -79,7 +63,7 @@ export default class ModelServiceIPC {
    *  - 'remove': Stops and remove the model
    *  - 'list':   List running models as Array of IDs in `returnValue['models']`
    *  - 'sendData': Send data to the model. See 'sendData' for 'params' format
-
+   *
    * @param {Event} event - IPC Event Object.
    *                        Any error will be returned via 'returnValue.error'
    * @param {Object} payload - Event payload
@@ -116,10 +100,7 @@ export default class ModelServiceIPC {
 
   /**
    * Start up a new model.
-   * @method
    * @param {string} modelId - New ID of New Model to start up
-   * @private
-   * @this ModelServiceIPC
    */
   _attach(modelId) {
     if (this._attached.has(modelId)) {
@@ -150,10 +131,7 @@ export default class ModelServiceIPC {
 
   /**
    * Close down a running model.
-   * @method
    * @param {string} modelId - ID of existing Model to shut down
-   * @private
-   * @this ModelServiceIPC
    */
   _dettach(modelId) {
     if (this._attached.has(modelId)) {
@@ -164,11 +142,8 @@ export default class ModelServiceIPC {
 
   /**
    * Event callback handler for sending data to client.
-   * @method
    * @param {string} modelId - ID of Model to transmit data for
    * @param {string} data - JSON-encoded string of data to send
-   * @private
-   * @this ModelServiceIPC
    */
   _onSendData(modelId, data) {
     const input = JSON.parse(data);
@@ -177,10 +152,7 @@ export default class ModelServiceIPC {
 
   /**
    * Event callback handler for listing data.
-   * @method
-   * @private
-   * @returns {Object} - Current Models + State
-   * @this ModelServiceIPC
+   * @return {Object} - Current Models + State
    */
   _onList() {
     return {
@@ -190,11 +162,8 @@ export default class ModelServiceIPC {
 
   /**
    * Event callback handler for creating a new model.
-   * @method
    * @param {string} modelId - New ID of New Model to create
    * @param {Object} params - Model Parameters to use in model creation
-   * @private
-   * @this ModelServiceIPC
    */
   _onCreate(modelId, params) {
     this._attach(modelId);
@@ -203,10 +172,7 @@ export default class ModelServiceIPC {
 
   /**
    * Event callback handler for removing an existing model.
-   * @method
    * @param {string} modelId - ID of existing Model to shut down
-   * @private
-   * @this ModelServiceIPC
    */
   _onRemove(modelId) {
     this._dettach(modelId);

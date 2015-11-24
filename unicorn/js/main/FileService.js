@@ -38,8 +38,6 @@ const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
 /**
  * Unicorn: FileService - Respond to a FileClient over IPC, sharing our access to
  *  the Node layer of filesystem, so client can CRUD files.
- * @class
- * @module
  */
 function FileService() {
 }
@@ -228,7 +226,7 @@ FileService.prototype.getData = function (filename, options, callback) {
   lastStream
     .on('data', function (data) {
       if (limit > 0) {
-        callback(null, data); // eslint-disable-line callback-return 
+        callback(null, data); // eslint-disable-line callback-return
       }
       if (limit === 0) {
         fileStream.unpipe();

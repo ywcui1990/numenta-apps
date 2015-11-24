@@ -28,11 +28,6 @@ import Logo from '../components/Logo';
 
 /**
  * LeftNav custom View Component
- * @class
- * @extends React.Component
- * @module
- * @public
- * @this LeftNav
  */
 export default class LeftNav extends React.Component {
 
@@ -70,10 +65,7 @@ export default class LeftNav extends React.Component {
 
   /**
    * Render
-   * @method
-   * @public
-   * @returns {object} Abstracted React/JSX DOM representation to render to HTML
-   * @this LeftNav
+   * @return {object} Abstracted React/JSX DOM representation to render to HTML
    */
   render() {
     return (

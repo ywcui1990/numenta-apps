@@ -96,10 +96,6 @@ The Machine Intelligence behind this app is a technology known as Hierarchical
 Temporal Memory (HTM). NuPIC is Numenta's open source HTM engine. NuPIC runs
 on streams of data, predicting future values, and detecting pattern anomalies.
 
-#### Guidelines
-
-* Python Styleguide: @TODO
-
 
 ### Frontend
 
@@ -145,8 +141,6 @@ on streams of data, predicting future values, and detecting pattern anomalies.
 * Tooling:
   * Streaming task runner: [Gulp](https://github.com/gulpjs/gulp)
   * Linting: [eslint](http://eslint.org/)
-  * JS auto-formatting (like `gofmt`):
-    [esformatter](https://github.com/millermedeiros/esformatter)
 
 #### Description
 
@@ -212,11 +206,10 @@ export APPLICATION_LOG_DIR=logs  # to change to model_runner.py param?
 Important note: when running `npm run desktop` the application will fail to find
 `dist/model_runner` if `model_runner.py` was never frozen before. Make sure
 to run `npm run prepare:python` beforehand, if any of the following applies:
-* The script `model_runner.py` has never been frozen (i.e. neither `npm run build`
-  nor `npm run prepare:python` have been run before)
+* The script `model_runner.py` has never been frozen (i.e. neither
+  `npm run build` nor `npm run prepare:python` have been run before).
 * Changes were made to the the code under `unicon/py`.
 * Changes to NuPIC were made.
-
 
 Start code via Electron as a Desktop App:
 
@@ -234,26 +227,6 @@ npm run desktop | `npm bin`/bunyan    # pretty logs
 
 # desktop prod
 NODE_ENV=production npm run desktop
-```
-
-### Web App
-
-This is *nice-to-have*, and *not* required like the Desktop App. The more this
-Web version stays synced with the Desktop version, the easier it will be to
-later port this to a real Web App, or to Android/iOS mobile via
-[React Native](https://facebook.github.io/react-native/).
-
-Start app on local webserver, you can open it with Chrome Browser
-at `http://localhost:9999`:
-
-```shell
-# web dev (same)
-npm run web
-NODE_ENV=development npm run web  # same
-npm run web | `npm bin`/bunyan    # pretty logs
-
-# web prod
-NODE_ENV=production npm run web
 ```
 
 ### Documentation
@@ -410,7 +383,3 @@ NEED `npm run blah` examples here @TODO
 * Add in Flow type checking
 * i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
 * Document where are imports=>requires handled? Babel/Webpack?
-* add Architecture docs and charts
-  * Copy in Arch doc Errors section to this doc
-    * Errors can do screenshots:
-      https://github.com/atom/electron/blob/master/docs/api/browser-window.md#browserwindowcapturepagerect-callback

@@ -54,11 +54,13 @@ const {
 const DIALOG_STRINGS = {
   model: {
     title: 'Delete Model',
-    message: 'Deleting this model will delete the associated model results. Are you sure you want to delete this model?'
+    message: 'Deleting this model will delete the associated model results.' +
+              ' Are you sure you want to delete this model?'
   },
   file: {
     title: 'Delete File',
-    message: 'Deleting this dataset will delete the associated models. Are you sure you want to delete this file?'
+    message: 'Deleting this dataset will delete the associated models.' +
+              ' Are you sure you want to delete this file?'
   }
 }
 
@@ -141,7 +143,9 @@ export default class FileList extends React.Component {
     }
   }
 
-  _handleMetricContextMenu(modelId, filename, timestampField, metric, ev, action) {
+  _handleMetricContextMenu(
+    modelId, filename, timestampField, metric, event, action
+  ) {
     if (action === 'details') {
       this.context.executeAction(ShowMetricDetailsAction, modelId);
     } else if (action === 'create') {
@@ -183,11 +187,19 @@ export default class FileList extends React.Component {
                   this, modelId, file.filename, timestampField.name, metric.name
                 )
               }
-              iconButtonElement={<IconButton><IconMore/></IconButton>}>
-              <MenuItem index={1} value="details">Metric Details</MenuItem>
-              <MenuItem index={2} value="create" disabled={hasModel}>Create Model</MenuItem>
-              <MenuItem index={3} value="delete" disabled={!hasModel}>Delete Model</MenuItem>
-              <MenuItem index={4} value="export" disabled={!hasModel}>Export Results</MenuItem>
+              iconButtonElement={<IconButton><MoreIcon/></IconButton>}>
+              <MenuItem index={1} value="details">
+                Metric Details
+              </MenuItem>
+              <MenuItem index={2} value="create" disabled={hasModel}>
+                Create Model
+              </MenuItem>
+              <MenuItem index={3} value="delete" disabled={!hasModel}>
+                Delete Model
+              </MenuItem>
+              <MenuItem index={4} value="export" disabled={!hasModel}>
+                Export Results
+              </MenuItem>
             </IconMenu>
           );
           let isModelVisible = hasModel && model && model.visible;

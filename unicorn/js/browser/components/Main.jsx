@@ -98,10 +98,7 @@ export default class Main extends React.Component {
 
   /**
    * Render
-   * @method
-   * @public
-   * @returns {object} Abstracted React/JSX DOM representation to render to HTML
-   * @this MainComponent
+   * @return {object} Abstracted React/JSX DOM representation to render to HTML
    * @todo refactor to better sub-components with individuated styles
    * @todo check up zIndex and zDepths
    * @TODO Better + ADD fonticon
