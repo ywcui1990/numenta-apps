@@ -31,12 +31,7 @@ import ModelStore from '../stores/ModelStore';
 
 
 /**
- * @module
- * @class
- * @public
- * @exports
- * @extends React.Component
- * @this ModelList
+ * List of Model Charts, React component
  */
 @connectToStores([ModelStore], (context) => ({
   models: context.getStore(ModelStore).getModels()

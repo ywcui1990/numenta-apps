@@ -25,8 +25,8 @@ import path from 'path';
 import UserError from './UserError';
 import system from 'os';
 
+// @todo https://bitbucket.org/anthony_tuininga/cx_freeze/issues/161
 const MODEL_RUNNER_PATH = path.join(
-  // FIXME: https://bitbucket.org/anthony_tuininga/cx_freeze/issues/161
   //  __dirname, '..', '..', 'dist', 'model_runner'
   __dirname, '..', '..', 'py', 'unicorn_backend', 'model_runner.py'
 );
@@ -66,9 +66,6 @@ export class ModelNotFoundError extends UserError {
  */
 export class ModelService extends EventEmitter {
 
-  /**
-   * @constructor
-   */
   constructor() {
     super();
     this._models = new Map();
@@ -77,7 +74,7 @@ export class ModelService extends EventEmitter {
 
   /**
    * Calculate max model concurrency.
-   * @returns {number} - Maximum concurrency for this system
+   * @return {number} - Maximum concurrency for this system
    */
   _calculateMaxConcurrency() {
     // Adapted from htmengine/model_swapper/model_scheduler_service.py
@@ -88,7 +85,7 @@ export class ModelService extends EventEmitter {
 
   /**
    * Returns the number of slots available to run new models.
-   * @returns {number} - Maximum available slots avilable on this system
+   * @return {number} - Maximum available slots avilable on this system
    */
   availableSlots() {
     return this._maxConcurrency - this._models.size;
@@ -156,7 +153,7 @@ export class ModelService extends EventEmitter {
 
   /**
    * Returns a list of active models.
-   * @returns {Array} - List of Model IDs with the active models
+   * @return {Array} - List of Model IDs with the active models
    */
   getModels() {
     return Array.from(this._models.keys());

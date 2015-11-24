@@ -42,7 +42,7 @@ const Defaults = {
  * Unicorn: ConfigService - Respond to a ConfigClient over IPC, sharing our
  *  access to the Node-layer config settings.
  *  NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
- * @returns {Object} - Configuration data handler object
+ * @return {Object} - Configuration data handler object
  */
 function ConfigService() {
   const config = nconf.env().argv().defaults(Defaults);

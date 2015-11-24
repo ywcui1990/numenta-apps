@@ -35,7 +35,6 @@ import Utils from '../../main/Utils';
 
 /**
  * CSP channel wrapper around method to Get File Upload via File Client.
- * @function
  * @param {Object} options - Options passed as properties to this method
  * @param {Object} options.actionContext - Fluxible ActionContext
  * @param {Object} options.file - File info to use to lookup from FS
@@ -61,7 +60,6 @@ function getFileFromUpload(options) {
 
 /**
  * CSP channel wrapper around method to Get File via DB Client.
- * @function
  * @param {Object} options - Options passed as properties to this method
  * @param {Object} options.actionContext - Fluxible ActionContext
  * @param {Object} options.file - File info to use to lookup from DB
@@ -88,7 +86,6 @@ function getFileFromDB(options) {
 
 /**
  * CSP channel wrapper around method to Get Metrics via DB Client.
- * @function
  * @param {Object} options - Options passed as properties to this method
  * @param {Object} options.actionContext - Fluxible ActionContext
  * @param {Object} options.file - File info to use to lookup from DB
@@ -115,7 +112,6 @@ function getMetricsFromDB(options) {
 
 /**
  * CSP channel wrapper around method to Put File via DB Client.
- * @function
  * @param {Object} options - Options passed as properties to this method
  * @param {Object} options.actionContext - Fluxible ActionContext
  * @param {Object} options.file - File data to put into DB
@@ -147,7 +143,6 @@ function putFileIntoDB(options) {
 
 /**
  * CSP channel wrapper around method to Put Metrics via DB Client.
- * @function
  * @param {Object} options - Options passed as properties to this method
  * @param {Object} options.actionContext - Fluxible ActionContext
  * @param {Object} options.file - File data to put into DB

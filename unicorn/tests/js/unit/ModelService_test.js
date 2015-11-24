@@ -40,7 +40,9 @@ describe('ModelService', () => {
   afterEach(() => {
     try {
       service.removeModel(MODEL_ID);
-    } catch (ignore) {/* It may be closed by the test itself */}
+    } catch (ignore) {
+      /* It may be closed by the test itself */
+    }
   });
 
   describe('#getModels()', () => {
