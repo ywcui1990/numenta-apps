@@ -71,7 +71,7 @@ describe('DatabaseService', () => {
   after(() => {
     service.close((err) => assert.ifError(err));
     service.destroy((err) => assert.ifError(err));
-    fs.unlinkSync(FILENAME);
+    fs.unlinkSync(FILENAME); // eslint-disable-line
   });
 
   describe('Schema', () => {
@@ -242,14 +242,18 @@ describe('DatabaseService', () => {
       });
       service.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
-        service.exportMetricData(EXPECTED_METRIC_DATA.metric_uid, FILENAME, (error, res) => {
-          assert.ifError(error);
-          fs.readFile(FILENAME, 'utf8', (error, data) => {
+        service.exportMetricData(
+          EXPECTED_METRIC_DATA.metric_uid,
+          FILENAME,
+          (error, res) => {
             assert.ifError(error);
-            assert.equal(data, EXPECTED_EXPORTED_RESULTS);
-            done();
-          })
-        })
+            fs.readFile(FILENAME, 'utf8', (error, data) => {
+              assert.ifError(error);
+              assert.equal(data, EXPECTED_EXPORTED_RESULTS);
+              done();
+            });
+          }
+        );
       });
     });
   });

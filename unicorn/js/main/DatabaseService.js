@@ -368,7 +368,9 @@ DatabaseService.prototype.close = function (callback) {
  * @param  {Function} callback called when the export operation is complete,
  *                             with a possible error argument
  */
-DatabaseService.prototype.exportMetricData = function (modelId, filename, callback) {
+DatabaseService.prototype.exportMetricData = function (
+  modelId, filename, callback
+) {
   const output = fs.createWriteStream(filename);
   const parser = json2csv({
     keys: [

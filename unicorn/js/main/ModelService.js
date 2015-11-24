@@ -25,8 +25,8 @@ import path from 'path';
 import UserError from './UserError';
 import system from 'os';
 
+// @todo https://bitbucket.org/anthony_tuininga/cx_freeze/issues/161
 const MODEL_RUNNER_PATH = path.join(
-  // FIXME: https://bitbucket.org/anthony_tuininga/cx_freeze/issues/161
   //  __dirname, '..', '..', 'dist', 'model_runner'
   __dirname, '..', '..', 'py', 'unicorn_backend', 'model_runner.py'
 );

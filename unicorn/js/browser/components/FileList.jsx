@@ -52,13 +52,13 @@ const {
 const DIALOG_STRINGS = {
   model: {
     title: 'Delete Model',
-    message: `Deleting this model will delete the associated model results. ` +
-              `Are you sure you want to delete this model?`;
+    message: 'Deleting this model will delete the associated model results.' +
+              ' Are you sure you want to delete this model?'
   },
   file: {
     title: 'Delete File',
-    message: `Deleting this dataset will delete the associated models. ` +
-              `Are you sure you want to delete this file?`;
+    message: 'Deleting this dataset will delete the associated models.' +
+              ' Are you sure you want to delete this file?'
   }
 }
 
