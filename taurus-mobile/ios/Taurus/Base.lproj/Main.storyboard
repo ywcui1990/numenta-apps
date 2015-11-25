@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9051"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
     </dependencies>
@@ -194,18 +195,21 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FB6-0o-aU1">
-                                <rect key="frame" x="8" y="0.0" width="240" height="128"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="FB6-0o-aU1">
+                                <rect key="frame" x="0.0" y="0.0" width="334" height="560"/>
                                 <animations/>
+                                <constraints>
+                                    <constraint firstAttribute="height" secondItem="FB6-0o-aU1" secondAttribute="width" multiplier="1.67778" id="7Oi-gp-GQJ"/>
+                                </constraints>
                             </imageView>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="A7q-z1-JJl" firstAttribute="top" secondItem="FB6-0o-aU1" secondAttribute="bottom" constant="40" id="1j7-KP-WMR"/>
-                            <constraint firstItem="FB6-0o-aU1" firstAttribute="leading" secondItem="8bS-gq-6MO" secondAttribute="leadingMargin" id="Vo1-w8-3fk"/>
-                            <constraint firstItem="FB6-0o-aU1" firstAttribute="top" secondItem="8bS-gq-6MO" secondAttribute="topMargin" id="eam-7C-nFm"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="FB6-0o-aU1" secondAttribute="trailing" id="mcZ-o5-Lub"/>
+                            <constraint firstItem="FB6-0o-aU1" firstAttribute="leading" secondItem="8bS-gq-6MO" secondAttribute="leading" id="Vo1-w8-3fk"/>
+                            <constraint firstItem="FB6-0o-aU1" firstAttribute="top" secondItem="8bS-gq-6MO" secondAttribute="top" id="eam-7C-nFm"/>
+                            <constraint firstItem="FB6-0o-aU1" firstAttribute="trailing" secondItem="8bS-gq-6MO" secondAttribute="trailing" id="mcZ-o5-Lub"/>
                         </constraints>
                     </view>
                     <connections>

@@ -41,7 +41,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     @IBOutlet weak var menuButton:UIBarButtonItem!
     @IBOutlet weak var condensedToggle: UISwitch?
     
-       
+    
     
     var twittermap = [ Int64 : TwitterEntry]()
     var twitterIndex = [Int64]()
@@ -50,12 +50,12 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     
     var cancelLoad = false
     // Serial queue for loading chart data
-   // let loadQueue = dispatch_queue_create("com.numenta.TwitterController", nil)
+    // let loadQueue = dispatch_queue_create("com.numenta.TwitterController", nil)
     
     var  metricChartData : MetricAnomalyChartData?
     
     var _aggregation: AggregationType = TaurusApplication.getAggregation()
-
+    
     var chartData: InstanceAnomalyChartData? {
         didSet {
             // Update the view.
@@ -67,7 +67,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     
     
     /** handle the UISwitch for condensed tweets
-    */
+     */
     @IBAction func toggleCondensed(){
         self.showCondensed = (condensedToggle?.on)!
         self.instanceTable.reloadData()
@@ -80,7 +80,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     /** bind data to view
-    */
+     */
     func configureView() {
         if (chartData == nil){
             return
@@ -99,23 +99,23 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             if ( metricChartData?.rawData == nil){
                 if (metricChartDataLoading == false){
                     metricChartDataLoading = true
-                     let priority = QOS_CLASS_USER_INITIATED
+                    let priority = QOS_CLASS_USER_INITIATED
                     
                     dispatch_async(dispatch_get_global_queue(priority, 0)) {
-                       
+                        
                         self.metricChartData!.load()
                         self.metricChartData!.collapsed = false
                         self.metricChartData!.refreshData()
-
+                        
                         if (self.metricChartData!.rawData != nil){
                             dispatch_async(dispatch_get_main_queue()) {
                                 
-                              
+                                
                                 self.metricChartView?.data  = self.metricChartData!.rawData!
                                 self.metricChartView?.anomalies = self.metricChartData!.data!
                                 self.metricChartView?.updateData()
                                 
-                               
+                                
                                 dispatch_async(dispatch_get_global_queue(priority, 0)) {
                                     self.loadTwitterData()
                                 }
@@ -126,7 +126,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             }else{
                 metricChartData!.collapsed = false
                 metricChartData!.refreshData()
-
+                
                 
                 metricChartView?.data  = metricChartData!.rawData!
                 metricChartView?.anomalies = metricChartData!.data!
@@ -139,22 +139,22 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-
+        
         timeSlider?.showBottom = false
         timeSlider?.transparentBackground = true
         // on iOS 8+ need to make sure table background is clear
         
         instanceTable.backgroundColor = UIColor.clearColor()
-          self.instanceTable.estimatedRowHeight = 80.0
+        self.instanceTable.estimatedRowHeight = 80.0
         self.instanceTable.rowHeight = UITableViewAutomaticDimension
-  
+        
         let menuIcon = UIImage(named: "menu")
         let b2 = UIBarButtonItem (image: menuIcon,  style: UIBarButtonItemStyle.Plain, target: self, action: "showMenu:")
-
+        
         self.menuButton = b2
         
         self.navigationItem.rightBarButtonItems = [menuButton!]
-            
+        
         
         metricChartView.selectionCallback = self.selection
         condensedToggle?.on = false
@@ -168,7 +168,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         let dateString = dayTimePeriodFormatter.stringFromDate( self.timeSlider!.endDate)
         
         self.date?.text = dateString
-
+        
         
         
         let priority = QOS_CLASS_USER_INITIATED
@@ -182,28 +182,28 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         CustomMenuController.showMenu( self)
     }
     
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
     /** Datasource delegate
-    - returns : number of sections in table
-    */
+     - returns : number of sections in table
+     */
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return twitterIndex.count
-
+        
     }
     
     /** header title
-    */
-   /* func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String?{
-       
-        
-        let s = formatter.stringFromDate ( date ) + " tweets: " + String(twitterEntry!.tweets)
-        return s
-    }*/
+     */
+     /* func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String?{
+     
+     
+     let s = formatter.stringFromDate ( date ) + " tweets: " + String(twitterEntry!.tweets)
+     return s
+     }*/
     
     
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -224,12 +224,12 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         headerCell.date.text = formatter.stringFromDate(date)
         headerCell.tweetTotal.text = String(twitterEntry!.tweets)
         return headerCell
-    
+        
     }
     
     
     /** Datasource delegate to return number of rows in a cell.
-    */
+     */
     func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int{
         let tsIndex = twitterIndex[section]
         let twitterEntry = twittermap[tsIndex]
@@ -244,7 +244,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     
     
     /** bind data to cell and return the cell
-    */
+     */
     func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell!{
         
         let cell:TwitterCell? = self.instanceTable.dequeueReusableCellWithIdentifier("TwitterCell") as! TwitterCell?
@@ -266,7 +266,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
                 let bodyAttrs = [NSFontAttributeName : UIFont.systemFontOfSize(14.0)]
                 let tweetText = NSMutableAttributedString(string: " links", attributes:bodyAttrs)
                 attrStr.appendAttributedString(tweetText)
-            
+                
             }
             cell?.label?.attributedText = attrStr
             
@@ -281,17 +281,17 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
                 cell?.retweetCount.hidden = true
             }
         }else{
-        
+            
             let attrs = [NSFontAttributeName : UIFont.boldSystemFontOfSize(14.0)]
             let attrStr = NSMutableAttributedString(string:"@" + tweet.userName , attributes:attrs)
             
             let bodyAttrs = [NSFontAttributeName : UIFont.systemFontOfSize(14.0)]
-               let tweetText = NSMutableAttributedString(string: "\r\n" + tweet.text, attributes:bodyAttrs)
+            let tweetText = NSMutableAttributedString(string: "\r\n" + tweet.text, attributes:bodyAttrs)
             
             attrStr.appendAttributedString(tweetText)
             
             
-      
+            
             cell?.label?.attributedText = attrStr
             
             
@@ -305,7 +305,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             if ( tweet.retweetCount>1 || tweet.retweetTotal > 1){
                 cell?.retweetImage.hidden = false
             } else{
-                 cell?.retweetImage.hidden = true
+                cell?.retweetImage.hidden = true
             }
             
             if (tweet.retweetTotal > 1){
@@ -320,11 +320,11 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     /** prompt the user if they want to open the tweet when a row is selected
-    */
+     */
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
         let alertView = UIAlertController(title: "Open Twitter", message: "Are you sure you want to open this message using twitter?", preferredStyle: .Alert)
-
+        
         let section = indexPath.section
         let tsIndex = self.twitterIndex[section]
         
@@ -334,30 +334,30 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         let tweet = items![ indexPath.item]
         
         let uri = "http://twitter.com/" + tweet.userName + "/status/" + tweet.id
-
+        
         alertView.addAction(UIAlertAction(title: "Open", style: .Default, handler: { (alertAction) -> Void in
-          
+            
             
             UIApplication.sharedApplication().openURL(NSURL(string: uri)!)
-
+            
         }))
         alertView.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
         presentViewController(alertView, animated: true, completion: nil)
     }
     
-   /* func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
+    /* func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath)
     {
-        
+    
     }*/
     
     
     
     /** load twitter data
-        fixme - do the more optimal load
+    fixme - do the more optimal load
     */
     func loadTwitterData(){
         
-          UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
         let client = TaurusApplication.connectToTaurus()
         let metric = metricChartData?.metric
         
@@ -401,13 +401,13 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             
             loadIntervals.append ( (startDate, intervalEnd)   )
         }
-    
+        
         for entry in loadIntervals {
             if (self.cancelLoad){
                 UIApplication.sharedApplication().networkActivityIndicatorVisible = false
                 return
             }
-
+            
             
             client?.getTweets( (metric?.getName())!, from: entry.0, to: entry.1 ){ (tweet: Tweet?)in
                 if (tweet != nil){
@@ -416,11 +416,11 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
                     
                     if (aggregationTime != lastTime){
                         if (lastEntry != nil){
-                             self.sortTwitterEntry(lastEntry!)
+                            self.sortTwitterEntry(lastEntry!)
                             self.twittermap[lastTime] = lastEntry
                             
                         }
-                       
+                        
                         lastEntry = TwitterEntry()
                         lastTime = aggregationTime
                     }
@@ -442,7 +442,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
                     twitterEntry?.tweets += 1
                     
                 }
-               
+                
                 return nil
             }
             
@@ -453,12 +453,14 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             updateList()
         }
         UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-
+        
     }
     
     
     func sortTwitterEntry( twitterEntry: TwitterEntry){
-        twitterEntry.data.sortInPlace{
+        // 11-24-2015 Don't use sort in place since it causes crashes with large datasets.
+        // Bug has been reported to apple and looks like it is fixed in beta compilers
+       twitterEntry.data =  twitterEntry.data.sort {
             if ( $0.aggregated != $1.aggregated){
                 return $0.aggregated > $1.aggregated
             }
@@ -479,26 +481,26 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     func updateList(){
         
-      /*  for twitterEntry  in self.twittermap.values {
-            twitterEntry.data.sortInPlace{
-                if ( $0.aggregated != $1.aggregated){
-                    return $0.aggregated > $1.aggregated
-                }
-                
-                
-                if ( $0.retweetCount != $1.retweetCount){
-                    return $0.retweetCount > $1.retweetCount
-                }
-                
-                if ( $0.retweetTotal != $1.retweetTotal){
-                    return $0.retweetTotal > $1.retweetTotal
-                }
-                
-                
-                return  $0.id < $1.id
-                
-            }
-            
+        /*  for twitterEntry  in self.twittermap.values {
+        twitterEntry.data.sortInPlace{
+        if ( $0.aggregated != $1.aggregated){
+        return $0.aggregated > $1.aggregated
+        }
+        
+        
+        if ( $0.retweetCount != $1.retweetCount){
+        return $0.retweetCount > $1.retweetCount
+        }
+        
+        if ( $0.retweetTotal != $1.retweetTotal){
+        return $0.retweetTotal > $1.retweetTotal
+        }
+        
+        
+        return  $0.id < $1.id
+        
+        }
+        
         }*/
         
         
@@ -522,10 +524,10 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     /** Scroll table to match the selection
-        - parameter index:
-    */
+     - parameter index:
+     */
     func selection( index : Int)->Void{
-       
+        
         if (metricChartData == nil || metricChartData!.rawData == nil){
             return
         }
@@ -551,16 +553,16 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             section = twitterIndex.count - 1
         }
         
-     
+        
         let index = NSIndexPath(forRow: 0, inSection: section)
         
         self.instanceTable?.selectRowAtIndexPath(index, animated: false, scrollPosition: UITableViewScrollPosition.Top)
-
+        
     }
     
     /** When the view is scrolled, update the metric chart selection
-    */
-     func scrollViewDidScroll(scrollView: UIScrollView){
+     */
+    func scrollViewDidScroll(scrollView: UIScrollView){
         let visibleCells = self.instanceTable.visibleCells
         
         var time : Int64 = 0
@@ -573,21 +575,20 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
             }
             
         }
-      
+        
         let index  = Int64(metricChartView!.data.count) - ((metricChartData?.endDate)!+DataUtils.MILLIS_PER_HOUR  - time)/DataUtils.METRIC_DATA_INTERVAL
         
         self.metricChartView.selectIndex(index)
-
+        
     }
     
     /**
-    tell any pending chart to stop loading if the view is going away
-    */
+     tell any pending chart to stop loading if the view is going away
+     */
     override func viewWillDisappear(animated:Bool){
         self.cancelLoad = true
         super.viewWillDisappear (animated)
         
     }
-
+    
 }
-
