@@ -458,7 +458,9 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     
     
     func sortTwitterEntry( twitterEntry: TwitterEntry){
-        twitterEntry.data.sortInPlace{
+        // 11-24-2015 Don't use sort in place since it causes crashes with large datasets.
+        // Bug has been reported to apple and looks like it is fixed in beta compilers
+       twitterEntry.data =  twitterEntry.data.sort {
             if ( $0.aggregated != $1.aggregated){
                 return $0.aggregated > $1.aggregated
             }
