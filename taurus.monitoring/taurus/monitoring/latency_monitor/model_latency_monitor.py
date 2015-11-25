@@ -362,6 +362,8 @@ class ModelLatencyChecker(MonitorDispatcher):
       # 10-minute delay in processing.
       utcnow = datetime.datetime.now(_UTC_TZ) - datetime.timedelta(minutes=10)
 
+      # Skip processing of models outside of market hours to avoid false
+      # positives
       if isStockModel(model) and isOutsideMarketHours(utcnow):
         g_logger.info("Skipping %s.  Reason: outside market hours",
                       model["name"])
@@ -396,6 +398,10 @@ class ModelLatencyChecker(MonitorDispatcher):
         continue # There are no intervals between samples, indicating there is
                  # no data at all!  No point in calculating stddev.
 
+      # Even though we only apply this to stock metrics during approximate
+      # market hours, we still count intervals included in off-market hours.
+      # It's ok, though.  The math still works out and we'll catch metrics for
+      # which we stop receiving data anyway.
       stddev = numpy.nanstd(intervals)
       mean = numpy.mean(intervals)
 
