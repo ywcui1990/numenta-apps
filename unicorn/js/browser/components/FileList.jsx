@@ -24,6 +24,8 @@
 import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import IconClose from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
+import IconDelete from 'material-ui/lib/svg-icons/action/delete';
+import IconInfo from 'material-ui/lib/svg-icons/action/info-outline';
 import IconMore from 'material-ui/lib/svg-icons/navigation/more-vert';
 import IconOpen from 'material-ui/lib/svg-icons/navigation/arrow-drop-up';
 import Material from 'material-ui';
@@ -263,33 +265,27 @@ export default class FileList extends React.Component {
             onChange={this._handleFileContextMenu.bind(this, filename)}
             style={{whiteSpace: 'nowrap'}}
           >
-            <MenuItem index={1} disabled={filetype === 'sample'} value="delete">
-              Delete
-            </MenuItem>
-            <MenuItem index={2} value="detail">
-              Details
-            </MenuItem>
+            <MenuItem index={1} leftIcon={<IconInfo />} primaryText="Details" value="detail" />
+            <MenuItem index={2} leftIcon={<IconDelete />} primaryText="Delete" value="delete" disabled={filetype === 'sample'} />
           </IconMenu>
         );
 
         // choose file visibility toggle icon
         if (this.state.showNested[fileId]) {
-          toggleIcon = (<IconClose />);
+          toggleIcon = (
+            <IconClose onTouchTap={this._handleFileToggle.bind(this, fileId)} />
+          );
         } else {
-          toggleIcon = (<IconOpen />);
+          toggleIcon = (
+            <IconOpen onTouchTap={this._handleFileToggle.bind(this, fileId)} />
+          );
         }
 
         return (
           <ListItem
             initiallyOpen={true}
             key={file.name}
-            leftIcon={
-              <IconButton onTouchTap={
-                this._handleFileToggle.bind(this, fileId)
-              }>
-                {toggleIcon}
-              </IconButton>
-            }
+            leftIcon={<IconButton>{toggleIcon}</IconButton>}
             nestedItems={this._renderMetrics(file)}
             primaryText={file.name}
             ref={`file-toggle-${fileId}`}
