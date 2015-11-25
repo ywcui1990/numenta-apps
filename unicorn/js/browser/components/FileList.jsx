@@ -21,14 +21,20 @@
 
 // externals
 
+import Checkbox from 'material-ui/lib/checkbox';
 import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
+import Dialog from 'material-ui/lib/dialog';
+import IconButton from 'material-ui/lib/icon-button';
 import IconClose from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
 import IconDelete from 'material-ui/lib/svg-icons/action/delete';
 import IconInfo from 'material-ui/lib/svg-icons/action/info-outline';
+import IconMenu from 'material-ui/lib/menus/icon-menu';
 import IconMore from 'material-ui/lib/svg-icons/navigation/more-vert';
 import IconOpen from 'material-ui/lib/svg-icons/navigation/arrow-drop-up';
-import Material from 'material-ui';
+import List from 'material-ui/lib/lists/list';
+import ListItem from 'material-ui/lib/lists/list-item';
+import MenuItem from 'material-ui/lib/menus/menu-item';
 import React from 'react';
 import remote from 'remote';
 
@@ -49,10 +55,6 @@ import Utils from '../../main/Utils';
 // locals
 
 const dialog = remote.require('dialog');
-
-const {
-  Checkbox, Dialog, IconButton, IconMenu, List, ListItem, MenuItem
-} = Material;
 
 const DIALOG_STRINGS = {
   model: {
@@ -237,10 +239,13 @@ export default class FileList extends React.Component {
           return (
             <ListItem key={modelId}
               className="context-menu-item"
-              leftCheckbox={<Checkbox name={modelId} ref={`${modelId}-checkbox`}
-              checked={isModelVisible}
-              disabled={!hasModel}
-              onCheck={this._onMetricCheck.bind(this, modelId)}/>}
+              leftCheckbox={
+                <Checkbox name={modelId}
+                  ref={`${modelId}-checkbox`}
+                  checked={isModelVisible}
+                  disabled={!hasModel}
+                  onCheck={this._onMetricCheck.bind(this, modelId)} />
+              }
               rightIconButton={contextMenu}
               primaryText={metric.name} />
           );
@@ -263,29 +268,35 @@ export default class FileList extends React.Component {
               </IconButton>
             }
             onChange={this._handleFileContextMenu.bind(this, filename)}
-            style={{whiteSpace: 'nowrap'}}
           >
-            <MenuItem index={1} leftIcon={<IconInfo />} primaryText="Details" value="detail" />
-            <MenuItem index={2} leftIcon={<IconDelete />} primaryText="Delete" value="delete" disabled={filetype === 'sample'} />
+            <MenuItem index={1}
+              value="detail"
+              leftIcon={<IconInfo />}
+              primaryText="Details" />
+            <MenuItem index={2}
+              value="delete"
+              leftIcon={<IconDelete />}
+              primaryText="Delete"
+              disabled={filetype === 'sample'} />
           </IconMenu>
         );
 
         // choose file visibility toggle icon
         if (this.state.showNested[fileId]) {
-          toggleIcon = (
-            <IconClose onTouchTap={this._handleFileToggle.bind(this, fileId)} />
-          );
+          toggleIcon = (<IconOpen />);
         } else {
-          toggleIcon = (
-            <IconOpen onTouchTap={this._handleFileToggle.bind(this, fileId)} />
-          );
+          toggleIcon = (<IconClose />);
         }
 
         return (
           <ListItem
             initiallyOpen={true}
             key={file.name}
-            leftIcon={<IconButton>{toggleIcon}</IconButton>}
+            leftIcon={
+              <IconButton onTouchTap={this._handleFileToggle.bind(this, fileId)}>
+                {toggleIcon}
+              </IconButton>
+            }
             nestedItems={this._renderMetrics(file)}
             primaryText={file.name}
             ref={`file-toggle-${fileId}`}
