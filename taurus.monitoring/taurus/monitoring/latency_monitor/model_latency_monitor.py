@@ -183,7 +183,9 @@ def isOutsideMarketHours(utcnow):
       marketLocalTime.time() > datetime.time(17, 30)):
     # market-local time is roughly within the time frame we care about.  10:30
     # to account for a natural delay at the beginning, and 5:30 to account for
-    # catching up at the end of the day.
+    # catching up at the end of the day.  The specific values are chosen to
+    # generously account for delayed market info and dynamodb latency rather
+    # than match true market hours.
     return True
 
   return False
@@ -332,14 +334,14 @@ class ModelLatencyChecker(MonitorDispatcher):
     # Query recent DynamoDB metric data for each model
     now = datetime.datetime.now(_UTC_TZ)
 
-    then = str(now - datetime.timedelta(days=self.days,
-                                        microseconds=now.microsecond))
+    then = now - datetime.timedelta(days=self.days,
+                                    microseconds=now.microsecond)
 
     conn = self._connectDynamoDB()
     metricDataTable = Table(self.metricDataTable, connection=conn)
 
     return retryOnTransientDynamoDBError(g_logger)(metricDataTable.query_2)(
-      uid__eq=metricUid, timestamp__gte=then)
+      uid__eq=metricUid, timestamp__gte=then.strftime("%Y-%m-%d %H:%M:%S"))
 
 
   @MonitorDispatcher.registerCheck
