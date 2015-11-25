@@ -21,10 +21,14 @@
 
 // externals
 
+import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
+import IconClose from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
+import IconMore from 'material-ui/lib/svg-icons/navigation/more-vert';
+import IconOpen from 'material-ui/lib/svg-icons/navigation/arrow-drop-up';
 import Material from 'material-ui';
-import MoreIcon from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
 import React from 'react';
+import remote from 'remote';
 
 // internals
 
@@ -35,7 +39,6 @@ import ExportModelResultsAction from '../actions/ExportModelResults';
 import FileStore from '../stores/FileStore';
 import HideModelAction from '../actions/HideModel';
 import ModelStore from '../stores/ModelStore';
-import remote from 'remote';
 import ShowFileDetailsAction from '../actions/ShowFileDetails';
 import ShowMetricDetailsAction from '../actions/ShowMetricDetails';
 import ShowModelAction from '../actions/ShowModel';
@@ -46,7 +49,7 @@ import Utils from '../../main/Utils';
 const dialog = remote.require('dialog');
 
 const {
-  List, ListItem, Checkbox, IconButton, IconMenu, MenuItem, Dialog
+  Checkbox, Dialog, IconButton, IconMenu, List, ListItem, MenuItem
 } = Material;
 
 const DIALOG_STRINGS = {
@@ -75,14 +78,25 @@ export default class FileList extends React.Component {
   static get contextTypes() {
     return {
       executeAction: React.PropTypes.func,
-      getStore: React.PropTypes.func
+      getStore: React.PropTypes.func,
+      muiTheme: React.PropTypes.object
     };
   }
 
   constructor(props, context) {
     super(props, context);
+
+    let showNested = {};
+
+    // prep visibility toggle nested file contents
+    props.files.forEach((file) => {
+      showNested[file.uid] = true;
+    });
+
+    // init state
     this.state = Object.assign({
-      confirmDialog: null
+      confirmDialog: null,
+      showNested
     }, props);
   }
 
@@ -123,16 +137,30 @@ export default class FileList extends React.Component {
     })
   }
 
+  _handleFileToggle(fileId, event) {
+    let ref = this.refs[`file-toggle-${fileId}`];
+    let showNested = this.state.showNested;
+
+    // custom icon toggle
+    showNested[fileId] = !showNested[fileId];
+    this.setState({showNested});
+
+    // piggyback on default MaterialUI nested show/hide
+    ref.setState({open: !ref.state.open});
+  }
+
   _handleFileContextMenu(filename, event, action) {
     if (action === 'detail') {
       this.context.executeAction(ShowFileDetailsAction, filename);
     } else if (action === 'delete') {
       this._confirmDialog(
         DIALOG_STRINGS.file.title,
-        DIALOG_STRINGS.file.message, () => {
+        DIALOG_STRINGS.file.message,
+        () => {
           this.context.executeAction(DeleteFileAction, filename);
           this._dismissDialog();
-        });
+        }
+      );
     }
   }
 
@@ -148,10 +176,12 @@ export default class FileList extends React.Component {
     } else if (action === 'delete') {
       this._confirmDialog(
         DIALOG_STRINGS.model.title,
-        DIALOG_STRINGS.model.message, () => {
+        DIALOG_STRINGS.model.message,
+        () => {
           this.context.executeAction(DeleteModelAction, modelId);
           this._dismissDialog();
-        });
+        }
+      );
     } else if (action === 'export') {
       this._exportModelResults(modelId);
     }
@@ -180,7 +210,12 @@ export default class FileList extends React.Component {
                   this, modelId, file.filename, timestampField.name, metric.name
                 )
               }
-              iconButtonElement={<IconButton><MoreIcon/></IconButton>}>
+              iconButtonElement={
+                <IconButton>
+                  <IconMore color={Colors.grey500} />
+                </IconButton>
+              }
+            >
               <MenuItem index={1} value="details">
                 Metric Details
               </MenuItem>
@@ -196,6 +231,7 @@ export default class FileList extends React.Component {
             </IconMenu>
           );
           let isModelVisible = hasModel && model && model.visible;
+
           return (
             <ListItem key={modelId}
               className="context-menu-item"
@@ -214,13 +250,19 @@ export default class FileList extends React.Component {
   _renderFiles(filetype) {
     return this.props.files.map((file) => {
       if (file.type === filetype) {
+        let fileId = file.uid;
         let filename = file.filename;
-
+        let toggleIcon;
         let contextMenu = (
           <IconMenu
-            style={{whiteSpace: 'nowrap'}}
+            iconButtonElement={
+              <IconButton>
+                <IconMore color={Colors.grey500} />
+              </IconButton>
+            }
             onChange={this._handleFileContextMenu.bind(this, filename)}
-            iconButtonElement={<IconButton><MoreIcon/></IconButton>}>
+            style={{whiteSpace: 'nowrap'}}
+          >
             <MenuItem index={1} disabled={filetype === 'sample'} value="delete">
               Delete
             </MenuItem>
@@ -230,12 +272,28 @@ export default class FileList extends React.Component {
           </IconMenu>
         );
 
+        // choose file visibility toggle icon
+        if (this.state.showNested[fileId]) {
+          toggleIcon = (<IconClose />);
+        } else {
+          toggleIcon = (<IconOpen />);
+        }
+
         return (
-          <ListItem initiallyOpen={true}
-            rightIconButton={contextMenu}
+          <ListItem
+            initiallyOpen={true}
             key={file.name}
+            leftIcon={
+              <IconButton onTouchTap={
+                this._handleFileToggle.bind(this, fileId)
+              }>
+                {toggleIcon}
+              </IconButton>
+            }
             nestedItems={this._renderMetrics(file)}
-            primaryText={file.name}/>
+            primaryText={file.name}
+            ref={`file-toggle-${fileId}`}
+            rightIconButton={contextMenu} />
         );
       }
     });
