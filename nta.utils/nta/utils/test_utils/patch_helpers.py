@@ -59,3 +59,22 @@ def patchUTCNow(utcnow):
   """
   return patch("datetime.datetime", Mock(wraps=datetime.datetime,
                                          utcnow=Mock(return_value=utcnow)))
+
+
+def patchNow(now):
+  """ Patch decorator helper for patching `datetime.datetime` to some fixed
+  value for `now()`.  Python builtin types, including datetime.datetime,
+  which is partially implemented in C, are immutable and cannot be patched
+  directly.  This decorator provides a simple, straight-forward decorator that
+  works around the immutability problem, allowing you to affix the value
+  returned by `datetime.datetime.now()`.
+
+  Usage::
+
+    @patch_helpers.patchNow(datetime.datetime(2015, 11, 1, 22, 41, 0, 0))
+
+  :param datetime.datetime now: Timestamp value to which `now()` will be
+    fixed in context of patched function
+  """
+  return patch("datetime.datetime", Mock(wraps=datetime.datetime,
+                                         now=Mock(return_value=now)))
