@@ -506,6 +506,8 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
                 self.tableData = self.allData
                 self.timeSlider?.endDate = DataUtils.dateFromTimestamp( TaurusApplication.getDatabase().getLastTimestamp() )
                 
+                self.timeSlider?.setNeedsDisplay()
+                
                 self.favoriteSwitch (self.favoriteSegmentControl!)
                
 
