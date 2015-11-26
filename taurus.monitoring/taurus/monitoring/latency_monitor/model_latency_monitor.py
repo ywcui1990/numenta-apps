@@ -365,8 +365,8 @@ class ModelLatencyChecker(MonitorDispatcher):
       # Skip processing of models outside of market hours to avoid false
       # positives
       if isStockModel(model) and isOutsideMarketHours(utcnow):
-        g_logger.info("Skipping %s.  Reason: outside market hours",
-                      model["name"])
+        g_logger.debug("Skipping %s.  Reason: outside market hours",
+                       model["name"])
         continue
 
       resultSet = self.getMetricData(metricUid=model["uid"])
@@ -402,8 +402,8 @@ class ModelLatencyChecker(MonitorDispatcher):
       # market hours, we still count intervals included in off-market hours.
       # It's ok, though.  The math still works out and we'll catch metrics for
       # which we stop receiving data anyway.
-      stddev = numpy.nanstd(intervals)
-      mean = numpy.mean(intervals)
+      stddev = numpy.nanstd(intervals)  # pylint: disable=E1101
+      mean = numpy.mean(intervals)  # pylint: disable=E1101
 
       # Fabricate a hypothetical interval representing the amount of time since
       # the most recent valid timestamp
