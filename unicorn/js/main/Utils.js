@@ -33,25 +33,42 @@ export default class Utils {
   }
 
   /**
-   * Genereate unique model uid based on the filename and metric name
+   * Genereate unique file ID
+   * @param  {string} filename - The absolute path
+   * @return {string} Unique id
+   */
+  static generateFileId(filename) {
+    // Use 64 bit hash
+    return Utils.generateId(filename).substr(0,16);
+  }
+
+  /**
+   * Genereate unique metric uid based on the filename and metric name
    *  via hashing.
    * @param  {string} filename - The absolute path
    * @param  {string} metric - Metric name
    * @return {string} Unique id
    */
-  static generateModelId(filename, metric) {
-    return Utils.generateId(`${filename}#${metric}`);
+  static generateMetricId(filename, metric) {
+    let fileId = Utils.generateFileId(filename);
+    // Use 64 bit hash
+    let metricId = Utils.generateId(metric).substr(0,16);
+    return `${fileId}!${metricId}`
   }
 
   /**
    * Genereate unique metric data row uid based on the filename, metric name,
-   *  and row timestamp string, via hashing.
+   *  and row timestamp, via hashing.
    * @param  {string} filename - The absolute path
    * @param  {string} metric - Metric name
-   * @param  {string} timestamp - Unique Record row timestamp string
+   * @param  {Date} timestamp - timestamp for the data record
    * @return {string} Unique id
    */
-  static generateDataId(filename, metric, timestamp) {
-    return Utils.generateId(`${filename}#${metric}#${timestamp}`);
+  static generateMetricDataId(filename, metric, timestamp) {
+    let metricId = Utils.generateMetricId(filename, metric);
+    if (!(timestamp instanceof Date)) {
+      timestamp = new Date(timestamp);
+    }
+    return `${metricId}!${timestamp.getTime()}`;
   }
 }

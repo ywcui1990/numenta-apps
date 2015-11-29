@@ -77,7 +77,7 @@ export default class FileDetails extends React.Component {
       if (file) {
         file.metrics.forEach((metric) => {
           if (metric.type !== 'date') {
-            let modelId = Utils.generateModelId(file.filename, metric.name);
+            let modelId = Utils.generateMetricId(file.filename, metric.name);
             metrics.set(modelId, null);
           } else {
             timestampField = metric.name;
@@ -216,7 +216,7 @@ export default class FileDetails extends React.Component {
       if (timestampField) {
         let items = file.metrics.map((metric) => {
           if (metric.type !== 'date') {
-            let modelId = Utils.generateModelId(file.filename, metric.name);
+            let modelId = Utils.generateMetricId(file.filename, metric.name);
             let checked = metrics.get(modelId) ? true : false; // eslint-disable-line
             return (
               <ListItem key={modelId}

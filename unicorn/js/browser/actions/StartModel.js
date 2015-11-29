@@ -45,7 +45,7 @@ function getMetricFromDatabase(options) {
   let {actionContext, model} = options;
   let channel = csp.chan();
   let databaseClient = actionContext.getDatabaseClient();
-  let metricId = Utils.generateModelId(model.filename, model.metric);
+  let metricId = Utils.generateMetricId(model.filename, model.metric);
 
   databaseClient.getMetric(metricId, (error, results) => {
     if (error && (!('notFound' in error))) {
@@ -104,7 +104,7 @@ function getMetricDataFromDatabase(options) {
   let databaseClient = actionContext.getDatabaseClient();
 
   databaseClient.queryMetricData(
-    {metric_uid: Utils.generateModelId(model.filename, model.metric)},
+    {metric_uid: Utils.generateMetricId(model.filename, model.metric)},
     (error, results) => {
       if (error) {
         csp.putAsync(channel, new DatabaseGetError(error));
@@ -178,8 +178,9 @@ function streamData(actionContext, modelId) {
           timestamp = new Date(row[model.timestampField]);
           value = new Number(row[model.metric]).valueOf();
           rows.push({ // getting around Electron IPC remote() memory leaks
-            uid: Utils.generateDataId(model.filename, model.metric, timestamp),
-            metric_uid: Utils.generateModelId(model.filename, model.metric),
+            uid: Utils.generateMetricDataId(model.filename, model.metric,
+                                            timestamp),
+            metric_uid: Utils.generateMetricId(model.filename, model.metric),
             rowid: rowId,
             timestamp: timestamp.toISOString(),
             metric_value: value,

@@ -194,7 +194,7 @@ export default class FileList extends React.Component {
     if (timestampField) {
       return file.metrics.map((metric) => {
         if (metric.type !== 'date') {
-          let modelId = Utils.generateModelId(file.filename, metric.name);
+          let modelId = Utils.generateMetricId(file.filename, metric.name);
           let models = this.props.models;
           let model = models.find((m) => m.modelId === modelId);
           let hasModel = false;

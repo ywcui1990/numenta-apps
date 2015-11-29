@@ -63,7 +63,7 @@ export default function (actionContext) {
           } else {
             log.debug('got file list from fs, saving to db for next runs');
             files = files.map((file) => {
-              file.uid = Utils.generateId(file.filename);
+              file.uid = Utils.generateFileId(file.filename);
               return file;
             });
 
