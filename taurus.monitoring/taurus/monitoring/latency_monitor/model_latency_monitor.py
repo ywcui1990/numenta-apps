@@ -86,21 +86,6 @@ class LatencyMonitorError(TaurusMonitorError):
 
 
 
-def isStockModel(model):
-  """ Returns true if model is a stock model.  False if type is not recognized
-  as either "StockPrice" or "StockVolume".
-  :param dict model: Model dict
-  :returns: True if metric type is one of "StockPrice", "StockVolume", False
-    otherwise
-  """
-  return (model
-          .get("parameters", {})
-          .get("metricSpec", {})
-          .get("userInfo", {})
-          .get("metricType")) in {"StockPrice", "StockVolume"}
-
-
-
 def isOutsideMarketHours(utcnow):
   """ Determines whether or not the passed time is within a time period during
   which we should expect recent stock data.
@@ -364,7 +349,7 @@ class ModelLatencyChecker(MonitorDispatcher):
 
       # Skip processing of models outside of market hours to avoid false
       # positives
-      if isStockModel(model) and isOutsideMarketHours(utcnow):
+      if isOutsideMarketHours(utcnow):
         g_logger.debug("Skipping %s.  Reason: outside market hours",
                        model["name"])
         continue
