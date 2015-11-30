@@ -1,25 +1,20 @@
-/* -----------------------------------------------------------------------------
- * Copyright © 2015, Numenta, Inc. Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
- * following terms and conditions apply:
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero Public License version 3 as published by
- * the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for
- * more details.
- *
- * You should have received a copy of the GNU Affero Public License along with
- * this program. If not, see http://www.gnu.org/licenses.
- *
- * http://numenta.org/licenses/
- * -------------------------------------------------------------------------- */
+// Copyright © 2015, Numenta, Inc.  Unless you have purchased from
+// Numenta, Inc. a separate commercial license for this software code, the
+// following terms and conditions apply:
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the Free
+// Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
+//
+// You should have received a copy of the GNU Affero Public License along with
+// this program.  If not, see http://www.gnu.org/licenses.
+//
+// http://numenta.org/licenses/
 
-
-// externals
 
 import Checkbox from 'material-ui/lib/checkbox';
 import Colors from 'material-ui/lib/styles/colors';
@@ -38,8 +33,6 @@ import MenuItem from 'material-ui/lib/menus/menu-item';
 import React from 'react';
 import remote from 'remote';
 
-// internals
-
 import CreateModelAction from '../actions/CreateModel';
 import DeleteFileAction from '../actions/DeleteFile';
 import DeleteModelAction from '../actions/DeleteModel';
@@ -51,8 +44,6 @@ import ShowFileDetailsAction from '../actions/ShowFileDetails';
 import ShowMetricDetailsAction from '../actions/ShowMetricDetails';
 import ShowModelAction from '../actions/ShowModel';
 import Utils from '../../main/Utils';
-
-// locals
 
 const dialog = remote.require('dialog');
 
@@ -293,8 +284,9 @@ export default class FileList extends React.Component {
             initiallyOpen={true}
             key={file.name}
             leftIcon={
-              <IconButton onTouchTap={this._handleFileToggle.bind(this, fileId)}>
-                {toggleIcon}
+              <IconButton
+                onTouchTap={this._handleFileToggle.bind(this, fileId)}>
+                  {toggleIcon}
               </IconButton>
             }
             nestedItems={this._renderMetrics(file)}
