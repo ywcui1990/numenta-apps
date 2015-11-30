@@ -25,13 +25,13 @@
 import csp from 'js-csp';
 
 import {ACTIONS} from '../lib/Constants';
-import {
-  DatabaseGetError, DatabasePutError, FilesystemGetError
-} from '../../main/UserError';
 import ModelStore from '../stores/ModelStore';
 import SendDataAction from '../actions/SendData';
 import StopModelAction from '../actions/StopModel';
 import Utils from '../../main/Utils';
+import {
+  DatabaseGetError, DatabasePutError, FilesystemGetError
+} from '../../main/UserError';
 
 
 // FUNCTIONS

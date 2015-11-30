@@ -16,8 +16,6 @@
 // http://numenta.org/licenses/
 
 
-// externals
-
 import Dygraph from 'dygraphs';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
@@ -59,12 +57,6 @@ export default class Chart extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    let muiTheme = this.context.muiTheme;
-    this._style = {
-      height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 5,
-      width: '100%'
-    };
-
     // DyGraphs chart container
     this._dygraph = null;
 
@@ -73,6 +65,15 @@ export default class Chart extends React.Component {
     this._chartRange = null;
     this._chartRangeWidth = null;
     this._chartScrollLock = null;
+
+    // dynamic styles
+    let muiTheme = this.context.muiTheme;
+    this._styles = {
+      root: {
+        height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 5,
+        width: '100%'
+      }
+    };
   }
 
   componentDidMount() {
@@ -210,7 +211,7 @@ export default class Chart extends React.Component {
    */
   render() {
     return (
-      <Paper ref="chart" style={this._style} zDepth={this.props.zDepth} />
+      <Paper ref="chart" style={this._styles.root} zDepth={this.props.zDepth} />
     );
   }
 

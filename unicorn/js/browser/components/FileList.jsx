@@ -31,34 +31,23 @@ import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import React from 'react';
-import remote from 'remote';
 
 import CreateModelAction from '../actions/CreateModel';
 import DeleteFileAction from '../actions/DeleteFile';
-import DeleteModelAction from '../actions/DeleteModel';
-import ExportModelResultsAction from '../actions/ExportModelResults';
 import FileStore from '../stores/FileStore';
 import HideModelAction from '../actions/HideModel';
 import ModelStore from '../stores/ModelStore';
 import ShowFileDetailsAction from '../actions/ShowFileDetails';
-import ShowMetricDetailsAction from '../actions/ShowMetricDetails';
-import ShowModelAction from '../actions/ShowModel';
+// import ShowModelAction from '../actions/ShowModel';
 import Utils from '../../main/Utils';
 
-const dialog = remote.require('dialog');
-
 const DIALOG_STRINGS = {
-  model: {
-    title: 'Delete Model',
-    message: 'Deleting this model will delete the associated model results.' +
-              ' Are you sure you want to delete this model?'
-  },
   file: {
     title: 'Delete File',
     message: 'Deleting this dataset will delete the associated models.' +
               ' Are you sure you want to delete this file?'
   }
-}
+};
 
 
 /**
@@ -115,21 +104,15 @@ export default class FileList extends React.Component {
     });
   }
 
-  _onMetricCheck(modelId, event, checked) {
+  _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
     if (checked) {
-      this.context.executeAction(ShowModelAction, modelId);
+      this.context.executeAction(CreateModelAction, {
+        modelId, filename, metric, timestampField
+      });
+      // this.context.executeAction(ShowModelAction, modelId);
     } else {
       this.context.executeAction(HideModelAction, modelId);
     }
-  }
-
-  _exportModelResults(modelId) {
-    dialog.showSaveDialog({
-      title: 'Export Model Results',
-      defaultPath: 'Untitled.csv'
-    }, (filename) => {
-      this.context.executeAction(ExportModelResultsAction, {modelId, filename});
-    })
   }
 
   _handleFileToggle(fileId, event) {
@@ -159,29 +142,6 @@ export default class FileList extends React.Component {
     }
   }
 
-  _handleMetricContextMenu(
-    modelId, filename, timestampField, metric, event, action
-  ) {
-    if (action === 'details') {
-      this.context.executeAction(ShowMetricDetailsAction, modelId);
-    } else if (action === 'create') {
-      this.context.executeAction(CreateModelAction, {
-        modelId, filename, metric, timestampField
-      });
-    } else if (action === 'delete') {
-      this._confirmDialog(
-        DIALOG_STRINGS.model.title,
-        DIALOG_STRINGS.model.message,
-        () => {
-          this.context.executeAction(DeleteModelAction, modelId);
-          this._dismissDialog();
-        }
-      );
-    } else if (action === 'export') {
-      this._exportModelResults(modelId);
-    }
-  }
-
   _renderMetrics(file) {
     let timestampField = file.metrics.find((metric) => {
       return metric.type === 'date';
@@ -193,39 +153,12 @@ export default class FileList extends React.Component {
           let models = this.props.models;
           let model = models.find((m) => m.modelId === modelId);
           let hasModel = false;
+          let isModelVisible;
+
           if (model) {
             hasModel = true;
           }
-          let contextMenu = (
-            <IconMenu
-              className="context-menu-icon"
-              style={{whiteSpace: 'nowrap'}}
-              onChange={
-                this._handleMetricContextMenu.bind(
-                  this, modelId, file.filename, timestampField.name, metric.name
-                )
-              }
-              iconButtonElement={
-                <IconButton>
-                  <IconMore color={Colors.grey500} />
-                </IconButton>
-              }
-            >
-              <MenuItem index={1} value="details">
-                Metric Details
-              </MenuItem>
-              <MenuItem index={2} value="create" disabled={hasModel}>
-                Create Model
-              </MenuItem>
-              <MenuItem index={3} value="delete" disabled={!hasModel}>
-                Delete Model
-              </MenuItem>
-              <MenuItem index={4} value="export" disabled={!hasModel}>
-                Export Results
-              </MenuItem>
-            </IconMenu>
-          );
-          let isModelVisible = hasModel && model && model.visible;
+          isModelVisible = hasModel && model && model.visible;
 
           return (
             <ListItem key={modelId}
@@ -234,10 +167,16 @@ export default class FileList extends React.Component {
                 <Checkbox name={modelId}
                   ref={`${modelId}-checkbox`}
                   checked={isModelVisible}
-                  disabled={!hasModel}
-                  onCheck={this._onMetricCheck.bind(this, modelId)} />
+                  onCheck={
+                    this._onMetricCheck.bind(
+                      this,
+                      modelId,
+                      file.filename,
+                      timestampField.name,
+                      metric.name
+                    )
+                  }/>
               }
-              rightIconButton={contextMenu}
               primaryText={metric.name} />
           );
         }
@@ -327,7 +266,7 @@ export default class FileList extends React.Component {
           actions={dialogActions}
           onDismiss={this._dismissDialog.bind(this)}
           actionFocus="submit">
-          {confirmDialog.message}
+            {confirmDialog.message}
         </Dialog>
       </nav>
     );

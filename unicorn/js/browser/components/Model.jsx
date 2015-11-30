@@ -16,11 +16,10 @@
 // http://numenta.org/licenses/
 
 
-// externals
-
-import React from 'react';
-
 import connectToStores from 'fluxible-addons-react/connectToStores';
+import path from 'path';
+import React from 'react';
+import remote from 'remote';
 
 import Avatar from 'material-ui/lib/avatar';
 import Card from 'material-ui/lib/card/card';
@@ -28,17 +27,33 @@ import CardActions from 'material-ui/lib/card/card-actions';
 import CardHeader from 'material-ui/lib/card/card-header';
 import CardText from 'material-ui/lib/card/card-text';
 import Colors from 'material-ui/lib/styles/colors';
+import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
+import IconDelete from 'material-ui/lib/svg-icons/action/delete';
+import IconExport from 'material-ui/lib/svg-icons/file/file-download';
+import IconInfo from 'material-ui/lib/svg-icons/action/info-outline';
+import IconStop from 'material-ui/lib/svg-icons/av/stop';
 
-// internals
-
+import DeleteModelAction from '../actions/DeleteModel';
+import ExportModelResultsAction from '../actions/ExportModelResults';
 import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
+import ShowMetricDetailsAction from '../actions/ShowMetricDetails';
 import StopModelAction from '../actions/StopModel';
+
+const dialog = remote.require('dialog');
+
+const DIALOG_STRINGS = {
+  model: {
+    title: 'Delete Model',
+    message: 'Deleting this model will delete the associated model results.' +
+              ' Are you sure you want to delete this model?'
+  }
+};
 
 
 /**
- *
+ * Model component, contains Chart details, actions, and Chart Graph itself.
  */
 @connectToStores([ModelStore], () => ({}))
 export default class Model extends React.Component {
@@ -46,7 +61,8 @@ export default class Model extends React.Component {
   static get contextTypes() {
     return {
       executeAction: React.PropTypes.func,
-      getStore: React.PropTypes.func
+      getStore: React.PropTypes.func,
+      muiTheme: React.PropTypes.object
     };
   }
 
@@ -59,14 +75,18 @@ export default class Model extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    let store = this.context.getStore(ModelStore);
+    let model = store.getModel(this.props.modelId);
+
     this._style = {
       marginBottom: '1rem',
       width: '100%'
     };
 
-    let store = this.context.getStore(ModelStore);
-    let model = store.getModel(this.props.modelId);
-    this.state = Object.assign({}, model);
+    // init state
+    this.state = Object.assign({
+      confirmDialog: null
+    }, model);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -75,24 +95,118 @@ export default class Model extends React.Component {
     this.setState(Object.assign({}, model));
   }
 
-  _onStopButtonClick() {
-    this.context.executeAction(StopModelAction, this.props.modelId);
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.confirmDialog !== null) {
+      this.refs.confirmDialog.show();
+    } else if (prevState.confirmDialog !== null) {
+      this.refs.confirmDialog.dismiss();
+    }
+  }
+
+  /**
+   * Opens a modal confirmation dialog
+   * @param  {string}   title    Dialog title
+   * @param  {string}   message  Dialog Message
+   * @param  {Function} callback Function to be called on confirmation
+   */
+  _confirmDialog(title, message, callback) {
+    this.setState({
+      confirmDialog: {
+        message, title, callback
+      }
+    });
+  }
+
+  _dismissDialog() {
+    this.setState({
+      confirmDialog: null
+    });
+  }
+
+  _onStopButtonClick(modelId) {
+    this.context.executeAction(StopModelAction, modelId);
+  }
+
+  _deleteModel(modelId) {
+    this._confirmDialog(
+      DIALOG_STRINGS.model.title,
+      DIALOG_STRINGS.model.message,
+      () => {
+        this.context.executeAction(DeleteModelAction, modelId);
+        this._dismissDialog();
+      }
+    );
+  }
+
+  _exportModelResults(modelId) {
+    dialog.showSaveDialog({
+      title: 'Export Model Results',
+      defaultPath: 'Untitled.csv'
+    }, (filename) => {
+      this.context.executeAction(ExportModelResultsAction, {modelId, filename});
+    });
+  }
+
+  _showMetricDetails(modelId) {
+    this.context.executeAction(ShowMetricDetailsAction, modelId);
   }
 
   render() {
     let actions, avatar, title, titleColor;
     let model = this.state;
+    let modelId = model.modelId;
+    let filename = path.basename(model.filename);
+    let confirmDialog = this.state.confirmDialog || {};
+    let dialogActions = [
+       {text: 'Cancel'},
+       {text: 'Delete', onTouchTap: confirmDialog.callback, ref: 'submit'}
+    ];
+    let iconColor = this.context.muiTheme.rawTheme.palette.primary1Color;
+    let buttonStyle = {color: iconColor};
+    let iconStyle = {
+      position: 'relative',
+      left: '10px',
+      top: '7px'
+    };
 
     if (model.active) {
       actions = (
-        <CardActions  expandable={true}>
-          <FlatButton label="Stop"
-            onClick={this._onStopButtonClick.bind(this)}/>
-        </CardActions>);
+        <CardActions style={{textAlign:'right', marginRight:'2rem', marginTop:'-5rem'}}>
+          <FlatButton
+            label="Details"
+            labelPosition="after"
+            labelStyle={buttonStyle}
+            onTouchTap={this._showMetricDetails.bind(this, modelId)}>
+              <IconInfo color={iconColor} style={iconStyle} />
+          </FlatButton>
+          <FlatButton
+            label="Stop"
+            labelPosition="after"
+            labelStyle={buttonStyle}
+            onTouchTap={this._onStopButtonClick.bind(this, modelId)}>
+              <IconStop color={iconColor} style={iconStyle} />
+          </FlatButton>
+          <FlatButton
+            label="Delete"
+            labelPosition="after"
+            labelStyle={buttonStyle}
+            onTouchTap={this._deleteModel.bind(this, modelId)}>
+              <IconDelete color={iconColor} style={iconStyle} />
+          </FlatButton>
+          <FlatButton
+            label="Export"
+            labelPosition="after"
+            labelStyle={buttonStyle}
+            onTouchTap={this._exportModelResults.bind(this, modelId)}>
+              <IconExport color={iconColor} style={iconStyle} />
+          </FlatButton>
+        </CardActions>
+      );
     }
+
     if (model.error) {
       avatar = (<Avatar backgroundColor={Colors.red500}>E</Avatar>);
-      title = `${model.metric} : ${model.error.message}`;
+      title = `${model.metric} | ${model.error.message}`;
       titleColor = Colors.red500;
     } else {
       avatar = (<Avatar backgroundColor={Colors.green500}></Avatar>);
@@ -103,14 +217,25 @@ export default class Model extends React.Component {
     return (
       <Card initiallyExpanded={true} style={this._style}>
         <CardHeader showExpandableButton={true}
-          subtitle={model.filename}
           avatar={avatar}
+          subtitle={filename}
           title={title}
-          titleColor={titleColor} />
-        {actions}
+          titleColor={titleColor}
+          style={{paddingBottom:'1rem'}} />
+
         <CardText expandable={true}>
-          <ModelData modelId={model.modelId} />
+          {actions}
+          <ModelData modelId={modelId} />
         </CardText>
+
+        <Dialog title={confirmDialog.title}
+          ref="confirmDialog"
+          modal={true}
+          actions={dialogActions}
+          onDismiss={this._dismissDialog.bind(this)}
+          actionFocus="submit">
+            {confirmDialog.message}
+        </Dialog>
       </Card>
     );
   }

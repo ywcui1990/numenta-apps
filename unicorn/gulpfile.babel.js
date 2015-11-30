@@ -63,6 +63,10 @@ gulp.task('webpack', ()  => {
             test: /\.css$/,
             loaders: ['style', 'css']
           },
+          {
+            test: /\.scss$/,
+            loaders: ['style', 'css', 'sass']
+          },
 
           // script
           {
