@@ -34,7 +34,6 @@ from nta.utils.test_utils import patch_helpers
 
 from taurus.monitoring.latency_monitor.model_latency_monitor import (
   isOutsideMarketHours,
-  isStockModel,
   LatencyMonitorError,
   main,
   ModelLatencyChecker
@@ -164,8 +163,8 @@ class ModelLatencyCheckerTest(unittest.TestCase):
 
     self.assertTrue(isOutsideMarketHoursMock.called)
 
-    # Now, check to see if we attempted to query dynamodb for stock models
-    stockModelUIDs = [model["uid"] for model in MODELS if isStockModel(model)]
+    # Now, check to see if we attempted to query dynamodb
+    stockModelUIDs = [model["uid"] for model in MODELS]
 
     for (_, kwargs) in tableMock.return_value.query_2.call_args_list:
       for uid in stockModelUIDs:
@@ -218,8 +217,8 @@ class ModelLatencyCheckerTest(unittest.TestCase):
 
     self.assertTrue(isOutsideMarketHoursMock.called)
 
-    # Now, check to see if we attempted to query dynamodb for stock models
-    stockModelUIDs = [model["uid"] for model in MODELS if isStockModel(model)]
+    # Now, check to see if we attempted to query dynamodb
+    stockModelUIDs = [model["uid"] for model in MODELS]
 
     for (_, kwargs) in tableMock.return_value.query_2.call_args_list:
       for uid in stockModelUIDs:
