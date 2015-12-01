@@ -119,6 +119,9 @@ def launchInstance(amiID, config, logger):
           if exc.error_code != "InvalidInstanceID.NotFound":
             raise
 
+          logger.debug("launchInstance: suppressing transient "
+                       "InvalidInstanceID.NotFound on instance=%s", instanceID)
+
       if instance.state == "running":
         break
     else:
