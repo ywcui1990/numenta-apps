@@ -48,6 +48,8 @@ _MODEL_MAPPING = {
   # "HTMNetwork": ClassificationModelHTM,
 }
 
+
+
 def addStandardHeaders(contentType="application/json; charset=UTF-8"):
   """
   Add Standard HTTP Headers ("Content-Type", "Server") to the response.
@@ -65,6 +67,7 @@ def addStandardHeaders(contentType="application/json; charset=UTF-8"):
   web.header("Content-Type", contentType, True)
 
 
+
 def addCORSHeaders():
   """
   Add CORS (http://www.w3.org/TR/cors/) headers
@@ -76,6 +79,7 @@ def addCORSHeaders():
   web.header("Access-Control-Allow-Methods", "POST", True)
 
 
+
 def loadJSON(jsonPath):
   try:
     with pkg_resources.resource_filename(__name__, jsonPath) as fin:
@@ -85,11 +89,12 @@ def loadJSON(jsonPath):
     raise e
 
 
+
 def createModel(modelName, dataPath, csvdata):
   """Return an instantiated model."""
-  modelCls = _MODEL_MAPPING.get(modelName, None)
+  modelFactory = _MODEL_MAPPING.get(modelName, None)
 
-  if modelCls is None:
+  if modelFactory is None:
     raise ValueError("Could not instantiate model \'{}\'.".format(modelName))
 
   # TODO: remove these if blocks and just use the else; either specify the Cio
@@ -98,33 +103,35 @@ def createModel(modelName, dataPath, csvdata):
   if modelName == "HTMNetwork":
     networkConfig = loadJSON(_NETWORK_JSON)
 
-    model = modelCls(retina=os.environ['IMBU_RETINA_ID'],
-                     apiKey=os.environ['CORTICAL_API_KEY'],
-                     networkConfig=networkConfig,
-                     inputFilePath=dataPath,
-                     prepData=True,
-                     numLabels=0,
-                     stripCats=True,
-                     retinaScaling=1.0)
+    model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
+                         apiKey=os.environ["CORTICAL_API_KEY"],
+                         networkConfig=networkConfig,
+                         inputFilePath=dataPath,
+                         prepData=True,
+                         numLabels=0,
+                         stripCats=True,
+                         retinaScaling=1.0)
 
-    numRecords = sum(model.networkDataGen.getNumberOfTokens(model.networkDataPath))
+    numRecords = (
+      sum(model.networkDataGen.getNumberOfTokens(model.networkDataPath))
+    )
     model.trainModel(iterations=numRecords)
     model.verbosity = 0
     model.numLabels = 0
     return model
 
   elif modelName == "CioWordFingerprint":
-    model = modelCls(retina=os.environ['IMBU_RETINA_ID'],
-                     apiKey=os.environ['CORTICAL_API_KEY'],
-                     fingerprintType=EncoderTypes.word)
+    model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
+                         apiKey=os.environ["CORTICAL_API_KEY"],
+                         fingerprintType=EncoderTypes.word)
 
   elif modelName == "CioDocumentFingerprint":
-    model = modelCls(retina=os.environ['IMBU_RETINA_ID'],
-                     apiKey=os.environ['CORTICAL_API_KEY'],
-                     fingerprintType=EncoderTypes.document)
+    model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
+                         apiKey=os.environ["CORTICAL_API_KEY"],
+                         fingerprintType=EncoderTypes.document)
 
   else:
-    model = modelCls()
+    model = modelFactory()
 
   model.verbosity = 0
   model.numLabels = 0
@@ -135,6 +142,7 @@ def createModel(modelName, dataPath, csvdata):
     model.trainModel(i)
 
   return model
+
 
 
 class FluentWrapper(object):
@@ -156,7 +164,7 @@ class FluentWrapper(object):
 
 
     self.models = {modelName: createModel(modelName, dataPath, csvdata)
-      for modelName, modelCls in _MODEL_MAPPING.iteritems()}
+      for modelName, modelFactory in _MODEL_MAPPING.iteritems()}
 
 
   def query(self, model, text):
@@ -240,10 +248,9 @@ urls = (
 app = web.application(urls, globals())
 
 # Create imbu model runner
-IMBU_DATA = os.getenv('IMBU_DATA', pkg_resources.resource_filename(__name__, "data.csv"))
+IMBU_DATA = os.getenv("IMBU_DATA",
+                      pkg_resources.resource_filename(__name__, "data.csv"))
 g_fluent = FluentWrapper(IMBU_DATA)
 
-if __name__ == "__main__":
-  app.run()
-
+# Required by uWSGI per WSGI spec
 application = app.wsgifunc()
