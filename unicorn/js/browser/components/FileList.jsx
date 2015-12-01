@@ -15,7 +15,7 @@
 //
 // http://numenta.org/licenses/
 
-
+import Avatar from 'material-ui/lib/avatar';
 import Checkbox from 'material-ui/lib/checkbox';
 import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
@@ -32,13 +32,12 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import React from 'react';
 
-import CreateModelAction from '../actions/CreateModel';
 import DeleteFileAction from '../actions/DeleteFile';
 import FileStore from '../stores/FileStore';
 import HideModelAction from '../actions/HideModel';
 import ModelStore from '../stores/ModelStore';
 import ShowFileDetailsAction from '../actions/ShowFileDetails';
-// import ShowModelAction from '../actions/ShowModel';
+import ShowModelAction from '../actions/ShowModel';
 import Utils from '../../main/Utils';
 
 const DIALOG_STRINGS = {
@@ -104,12 +103,9 @@ export default class FileList extends React.Component {
     });
   }
 
-  _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
+  _onMetricCheck(modelId, event, checked) {
     if (checked) {
-      this.context.executeAction(CreateModelAction, {
-        modelId, filename, metric, timestampField
-      });
-      // this.context.executeAction(ShowModelAction, modelId);
+      this.context.executeAction(ShowModelAction, modelId);
     } else {
       this.context.executeAction(HideModelAction, modelId);
     }
@@ -167,17 +163,10 @@ export default class FileList extends React.Component {
                 <Checkbox name={modelId}
                   ref={`${modelId}-checkbox`}
                   checked={isModelVisible}
-                  onCheck={
-                    this._onMetricCheck.bind(
-                      this,
-                      modelId,
-                      file.filename,
-                      timestampField.name,
-                      metric.name
-                    )
-                  }/>
+                  onCheck={this._onMetricCheck.bind(this, modelId)}/>
               }
-              primaryText={metric.name} />
+              primaryText={metric.name}
+              rightIcon={<Avatar backgroundColor={Colors.red500}></Avatar>}/>
           );
         }
       });

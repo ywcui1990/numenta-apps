@@ -15,7 +15,6 @@
 //
 // http://numenta.org/licenses/
 
-
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import path from 'path';
 import React from 'react';
@@ -29,11 +28,13 @@ import CardText from 'material-ui/lib/card/card-text';
 import Colors from 'material-ui/lib/styles/colors';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
+import IconCreate from 'material-ui/lib/svg-icons/content/add-circle-outline';
 import IconDelete from 'material-ui/lib/svg-icons/action/delete';
 import IconExport from 'material-ui/lib/svg-icons/file/file-download';
 import IconInfo from 'material-ui/lib/svg-icons/action/info-outline';
 import IconStop from 'material-ui/lib/svg-icons/av/stop';
 
+import CreateModelAction from '../actions/CreateModel';
 import DeleteModelAction from '../actions/DeleteModel';
 import ExportModelResultsAction from '../actions/ExportModelResults';
 import ModelData from '../components/ModelData';
@@ -127,6 +128,12 @@ export default class Model extends React.Component {
     this.context.executeAction(StopModelAction, modelId);
   }
 
+  _createModel(modelId, filename, timestampField, metric) {
+    this.context.executeAction(CreateModelAction, {
+      modelId, filename, metric, timestampField
+    });
+  }
+
   _deleteModel(modelId) {
     this._confirmDialog(
       DIALOG_STRINGS.model.title,
@@ -152,7 +159,7 @@ export default class Model extends React.Component {
   }
 
   render() {
-    let actions, avatar, title, titleColor;
+    let avatar, title, titleColor;
     let model = this.state;
     let modelId = model.modelId;
     let filename = path.basename(model.filename);
@@ -169,40 +176,47 @@ export default class Model extends React.Component {
       top: '7px'
     };
 
-    if (model.active) {
-      actions = (
-        <CardActions style={{textAlign:'right', marginRight:'2rem', marginTop:'-5rem'}}>
-          <FlatButton
-            label="Details"
-            labelPosition="after"
-            labelStyle={buttonStyle}
-            onTouchTap={this._showMetricDetails.bind(this, modelId)}>
-              <IconInfo color={iconColor} style={iconStyle} />
-          </FlatButton>
-          <FlatButton
-            label="Stop"
-            labelPosition="after"
-            labelStyle={buttonStyle}
-            onTouchTap={this._onStopButtonClick.bind(this, modelId)}>
-              <IconStop color={iconColor} style={iconStyle} />
-          </FlatButton>
-          <FlatButton
-            label="Delete"
-            labelPosition="after"
-            labelStyle={buttonStyle}
-            onTouchTap={this._deleteModel.bind(this, modelId)}>
-              <IconDelete color={iconColor} style={iconStyle} />
-          </FlatButton>
-          <FlatButton
-            label="Export"
-            labelPosition="after"
-            labelStyle={buttonStyle}
-            onTouchTap={this._exportModelResults.bind(this, modelId)}>
-              <IconExport color={iconColor} style={iconStyle} />
-          </FlatButton>
-        </CardActions>
-      );
-    }
+    let actionList = [
+      (<FlatButton
+        label="Details"
+        labelPosition="after"
+        labelStyle={buttonStyle}
+        onTouchTap={this._showMetricDetails.bind(this, modelId)}>
+          <IconInfo color={iconColor} style={iconStyle} />
+      </FlatButton>),
+      (<FlatButton
+        label="Stop"
+        labelPosition="after"
+        labelStyle={buttonStyle}
+        onTouchTap={this._onStopButtonClick.bind(this, modelId)}>
+          <IconStop color={iconColor} style={iconStyle} />
+      </FlatButton>),
+      (<FlatButton
+        label="Create"
+        labelPosition="after"
+        labelStyle={buttonStyle}
+        onTouchTap={
+          this._createModel.bind(
+            this, modelId, model.filename, model.metric, timestampField
+          )
+        }>
+          <IconCreate color={iconColor} style={iconStyle} />
+      </FlatButton>),
+      (<FlatButton
+        label="Delete"
+        labelPosition="after"
+        labelStyle={buttonStyle}
+        onTouchTap={this._deleteModel.bind(this, modelId)}>
+          <IconDelete color={iconColor} style={iconStyle} />
+      </FlatButton>),
+      (<FlatButton
+        label="Export"
+        labelPosition="after"
+        labelStyle={buttonStyle}
+        onTouchTap={this._exportModelResults.bind(this, modelId)}>
+          <IconExport color={iconColor} style={iconStyle} />
+      </FlatButton>)
+    ];
 
     if (model.error) {
       avatar = (<Avatar backgroundColor={Colors.red500}>E</Avatar>);
@@ -224,7 +238,9 @@ export default class Model extends React.Component {
           style={{paddingBottom:'1rem'}} />
 
         <CardText expandable={true}>
-          {actions}
+          <CardActions style={{textAlign:'right', marginRight:'2rem', marginTop:'-5rem'}}>
+            {actionList.join()}
+          </CardActions>
           <ModelData modelId={modelId} />
         </CardText>
 
