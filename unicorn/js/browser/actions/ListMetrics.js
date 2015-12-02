@@ -41,7 +41,7 @@ export default function (actionContext, files) {
     let payload = [];
 
     log.debug('load existing metrics from db, from previous runs');
-    databaseClient.queryMetric({}, (error, metrics) => {
+    databaseClient.getAllMetrics((error, metrics) => {
       if (error) {
         actionContext.dispatch(
           ACTIONS.LIST_METRICS_FAILURE,

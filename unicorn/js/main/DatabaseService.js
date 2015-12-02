@@ -23,12 +23,11 @@
 import fs from 'fs';
 import isElectronRenderer from 'is-electron-renderer';
 import json2csv from 'json2csv-stream';
-import jsonQuery from 'jsonquery-engine';
 import leveldown from 'leveldown';
-import levelQuery from 'level-queryengine';
 import levelup from 'levelup';
 import path from 'path';
 import sublevel from 'level-sublevel';
+import Batch from 'level-sublevel/batch';
 import {Validator} from 'jsonschema';
 
 import MetricDataSchema from '../database/schema/MetricData.json';
@@ -57,13 +56,14 @@ function DatabaseService(path) {
   let location = path || DB_FILE_PATH;
 
   this.validator = new Validator();
-  // this.validator.addSchema(AddressSchema, '/Address');
-
   this.levelup = levelup(location, {
     db: leveldown,
     valueEncoding: 'json'
-  })
-  this.dbh = sublevel(this.levelup);
+  });
+  this._root = sublevel(this.levelup);
+  this._files = this._root.sublevel('File');
+  this._metrics = this._root.sublevel('Metric');
+  this._metricData = this._root.sublevel('MetricData');
 }
 
 
@@ -75,29 +75,21 @@ function DatabaseService(path) {
  * @param {Function} callback - Async callback function(error, results)
  */
 DatabaseService.prototype.getFile = function (uid, callback) {
-  const table = this.dbh.sublevel('file');
-  table.get(uid, callback);
+  this._files.get(uid, callback);
 };
 
 /**
- * Get all/queried Files.
- * @param {Object} query - JSONquery object to use, empty object for all results
+ * Get all Files.
  * @param {Function} callback - Async callback function(error, results)
  */
-DatabaseService.prototype.queryFile = function (query, callback) {
+DatabaseService.prototype.getAllFiles = function (callback) {
   let results = [];
-  const table = levelQuery(this.dbh.sublevel('file'));
-  table.query.use(jsonQuery());
-  table.query(query)
-    .on('stats', () => {})
-    .on('error', callback)
-    .on('data', (result) => {
-      results.push(result);
+  this._files.createValueStream()
+    .on('data', (file) => {
+      results.push(file);
     })
-    .on('end', (result) => {
-      if (result) {
-        results.push(result);
-      }
+    .on('error', callback)
+    .on('end', () => {
       callback(null, results);
     });
 };
@@ -108,80 +100,66 @@ DatabaseService.prototype.queryFile = function (query, callback) {
  * @param {Function} callback - Async callback function(error, results)
  */
 DatabaseService.prototype.getMetric = function (uid, callback) {
-  const table = this.dbh.sublevel('metric');
-  table.get(uid, callback);
+  this._metrics.get(uid, callback);
 };
 
 /**
- * Get all/queried Metrics.
- * @param {Object} query - JSONquery object to use, empty object for all results
+ * Get all Metrics.
  * @param {Function} callback - Async callback function(error, results)
  */
-DatabaseService.prototype.queryMetric = function (query, callback) {
+DatabaseService.prototype.getAllMetrics = function (callback) {
   let results = [];
-  const table = levelQuery(this.dbh.sublevel('metric'));
-  table.query.use(jsonQuery());
-  table.ensureIndex('file_uid');
-  table.query(query)
-    .on('stats', () => {})
-    .on('error', (error) => {
-      callback(error, null);
+  this._metrics.createValueStream()
+    .on('data', (metric) => {
+      results.push(metric);
     })
-    .on('data', (result) => {
-      results.push(result);
-    })
-    .on('end', (result) => {
-      if (result) {
-        results.push(result);
-      }
+    .on('error', callback)
+    .on('end', () => {
       callback(null, results);
     });
+};
+
+/**
+ * Get all metrics of the given file Id
+ * @param {string}   fileId    The ID of the file to get metrics
+ * @param {Function} callback - Async callback function(error, results)
+ */
+DatabaseService.prototype.getMetricsByFile = function (fileId, callback) {
+  let results = [];
+  // Metric UID is based on file Id. See Util.generateMetricId
+  this._metrics.createValueStream({
+    gte: `${fileId}`,
+    lt:  `${fileId}\xff`
+  })
+  .on('data', (metric) => {
+    results.push(metric);
+  })
+  .on('error', callback)
+  .on('end', () => {
+    callback(null, results);
+  });
 };
 
 /**
  * Get all/queried MetricData records.
  * @callback
- * @param {Object} query - DB Query filter object (jsonquery-engine),
- *  empty object "{}" for all results.
- * @param {Function} [callback] - Async callback: function (error, results)
+ * @param {string} metricId Metric ID
+ * @param {Function} callback - Async callback: function (error, results)
  */
-DatabaseService.prototype.queryMetricData = function (query, callback) {
+DatabaseService.prototype.getMetricData = function (metricId, callback) {
   let results = [];
-  const table = levelQuery(this.dbh.sublevel('metricData'));
-  table.query.use(jsonQuery());
-  table.ensureIndex('metric_uid');
-  table.query(query)
-    .on('stats', () => {})
-    .on('error', (error) => {
-      callback(error, null);
-    })
-    .on('data', (result) => {
-      results.push(result);
-    })
-    .on('end', (result) => {
-      if (result) {
-        results.push(result);
-      }
-
-      // sort by uid, metric_uid, rowid
-      results.sort((prev, next) => {
-        if (prev.metric_uid === next.metric_uid) {
-          if (prev.uid === next.uid) {
-            if (prev.rowid > next.rowid) {
-              return 1;
-            }
-            if (prev.rowid < next.rowid) {
-              return -1;
-            }
-            return 0;
-          }
-          return prev.metric_uid.localeCompare(next.metric_uid);
-        }
-        return prev.uid.localeCompare(next.uid);
-      });
-
-      callback(null, results);
-    });
+  // Metric Data ID is based on metricId. See Util.generateMetricDataId
+  this._metricData.createValueStream({
+    gte: `${metricId}`,
+    lt:  `${metricId}\xff`
+  })
+  .on('data', (metric) => {
+    results.push(metric);
+  })
+  .on('error', callback)
+  .on('end', () => {
+    callback(null, results);
+  });
 };
 
 
@@ -193,7 +171,6 @@ DatabaseService.prototype.queryMetricData = function (query, callback) {
  * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseService.prototype.putFile = function (file, callback) {
-  const table = this.dbh.sublevel('file');
   const validation = this.validator.validate(file, FileSchema);
 
   if (validation.errors.length) {
@@ -201,7 +178,7 @@ DatabaseService.prototype.putFile = function (file, callback) {
     return;
   }
 
-  table.put(file.uid, file, callback);
+  this._files.put(file.uid, file, callback);
 };
 
 /**
@@ -211,20 +188,17 @@ DatabaseService.prototype.putFile = function (file, callback) {
  * @param {Function} callback - Async result handler: function (error, results)
  */
 DatabaseService.prototype.putFileBatch = function (files, callback) {
-  let ops = [];
-  const table = this.dbh.sublevel('file');
-
   // validate
-  files.forEach((file) => {
-    const validation = this.validator.validate(file, FileSchema);
+  for (let i=0; i<files.length; i++) {
+    const validation = this.validator.validate(files[i], FileSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
     }
-  });
+  }
 
   // prepare
-  ops = files.map((file) => {
+  let ops = files.map((file) => {
     return {
       type: 'put',
       key: file.uid,
@@ -233,7 +207,7 @@ DatabaseService.prototype.putFileBatch = function (files, callback) {
   });
 
   // execute
-  table.batch(ops, callback);
+  this._files.batch(ops, callback);
 };
 
 /**
@@ -242,7 +216,6 @@ DatabaseService.prototype.putFileBatch = function (files, callback) {
  * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseService.prototype.putMetric = function (metric, callback) {
-  const table = this.dbh.sublevel('metric');
   const validation = this.validator.validate(metric, MetricSchema);
 
   if (validation.errors.length) {
@@ -250,7 +223,7 @@ DatabaseService.prototype.putMetric = function (metric, callback) {
     return;
   }
 
-  table.put(metric.uid, metric, callback);
+  this._metrics.put(metric.uid, metric, callback);
 };
 
 /**
@@ -259,20 +232,17 @@ DatabaseService.prototype.putMetric = function (metric, callback) {
  * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseService.prototype.putMetricBatch = function (metrics, callback) {
-  const table = this.dbh.sublevel('metric');
-  let ops = [];
-
   // validate
-  metrics.forEach((metric) => {
-    const validation = this.validator.validate (metric, MetricSchema);
+  for (let i=0; i<metrics.length; i++) {
+    const validation = this.validator.validate (metrics[i], MetricSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
     }
-  });
+  }
 
   // prepare
-  ops = metrics.map((metric) => {
+  let ops = metrics.map((metric) => {
     return {
       type: 'put',
       key: metric.uid,
@@ -281,7 +251,7 @@ DatabaseService.prototype.putMetricBatch = function (metrics, callback) {
   });
 
   // execute
-  table.batch(ops, callback);
+  this._metrics.batch(ops, callback);
 };
 
 /**
@@ -290,7 +260,6 @@ DatabaseService.prototype.putMetricBatch = function (metrics, callback) {
  * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseService.prototype.putMetricData = function (metricData, callback) {
-  const table = this.dbh.sublevel('metricData');
   const validation = this.validator.validate(metricData, MetricDataSchema);
 
   if (typeof metricData === 'string') {
@@ -303,7 +272,7 @@ DatabaseService.prototype.putMetricData = function (metricData, callback) {
     return;
   }
 
-  table.put(metricData.uid, metricData, callback);
+  this._metricData.put(metricData.uid, metricData, callback);
 };
 
 /**
@@ -312,25 +281,22 @@ DatabaseService.prototype.putMetricData = function (metricData, callback) {
  * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseService.prototype.putMetricDataBatch = function (data, callback) {
-  const table = this.dbh.sublevel('metricData');
-  let ops = [];
-
   if (typeof data === 'string') {
     // JSONify here to get around Electron IPC remote() memory leaks
     data = JSON.parse(data);
   }
 
   // validate
-  data.forEach((metricData) => {
-    const validation = this.validator.validate(metricData, MetricDataSchema);
+  for (let i=0; i<data.length; i++) {
+    const validation = this.validator.validate(data[i], MetricDataSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
     }
-  });
+  }
 
   // prepare
-  ops = data.map((metricData) => {
+  let ops = data.map((metricData) => {
     return {
       type: 'put',
       key: metricData.uid,
@@ -339,7 +305,7 @@ DatabaseService.prototype.putMetricDataBatch = function (data, callback) {
   });
 
   // execute
-  table.batch(ops, callback);
+  this._metricData.batch(ops, callback);
 };
 
 /**
@@ -363,36 +329,117 @@ DatabaseService.prototype.close = function (callback) {
 
 /**
  * Exports model results into a CSV file
- * @param  {string}   modelId The model from which to export results
- * @param  {string}  filename Full path name for the destination file (.csv)
+ * @param  {string}   metricId The metric from which to export results
+ * @param  {string}   filename Full path name for the destination file (.csv)
  * @param  {Function} callback called when the export operation is complete,
  *                             with a possible error argument
  */
-DatabaseService.prototype.exportMetricData = function (
-  modelId, filename, callback
-) {
+DatabaseService.prototype.exportMetricData =
+function (metricId, filename, callback) {
   const output = fs.createWriteStream(filename);
   const parser = json2csv({
-    keys: [
-      'timestamp', 'metric_value', 'anomaly_likelihood']
+    keys: ['timestamp', 'metric_value', 'anomaly_likelihood']
   });
   parser.pipe(output);
-  const table = levelQuery(this.dbh.sublevel('metricData'));
-  table.query.use(jsonQuery());
-  table.query({metric_uid: modelId})
-    .on('stats', (stats) => {
-    })
-    .on('error', (error) => {
-      parser.destroy();
+
+  // Metric Data id is based on metric Id. See Util.generateMetricDataId
+  this._metricData.createValueStream({
+    gte: `${metricId}`,
+    lt:  `${metricId}\xff`
+  })
+  .on('error', (error) => {
+    parser.destroy();
+    callback(error);
+  })
+  .on('data', (result) => {
+    parser.write(JSON.stringify(result));
+  })
+  .on('end', () => {
+    parser.end();
+    callback();
+  });
+}
+
+/**
+ * Delete all data for the given metric
+ * @param  {string}   metricId Metric to delete data
+ * @param  {Function} callback called when the operation is complete,
+ *                             with a possible error argument
+ */
+DatabaseService.prototype.deleteMetricData = function (metricId, callback) {
+  let batch = new Batch(this._metricData);
+  this._metricData.createKeyStream({
+    gte: `${metricId}`,
+    lt:  `${metricId}\xff`
+  })
+  .on('data', (uid) => {
+    batch.del(uid);
+  })
+  .on('error',callback)
+  .on('end', () => {
+    batch.write(callback);
+  });
+}
+
+/**
+ * Delete metric and associated data from database.
+ * @param  {string}   metricId Metric to delete
+ * @param  {Function} callback called when the operation is complete,
+ *                             with a possible error argument
+ */
+DatabaseService.prototype.deleteMetric = function (metricId, callback) {
+  this._metrics.del(metricId, (error) => {
+    if (error) {
       callback(error);
-    })
-    .on('data', (result) => {
-      parser.write(JSON.stringify(result));
-    })
-    .on('end', (result) => {
-      parser.end();
-      callback();
-    });
+      return;
+    }
+    this.deleteMetricData(metricId, callback);
+  })
+}
+
+/**
+ * Delete all metrics for the given file
+ * @param {string}   fileId    The ID of the file to delete the metrics from
+ * @param  {Function} callback called when the operation is complete,
+ *                             with a possible error argument
+ */
+DatabaseService.prototype.deleteMetricsByFile = function (fileId, callback) {
+  let metrics = [];
+  this._metrics.createKeyStream({
+    gte: `${fileId}`,
+    lt:  `${fileId}\xff`
+  })
+  .on('data', (id) => {
+    metrics.push(id);
+  })
+  .on('error', callback)
+  .on('end', () => {
+    for (let i=0; i<metrics.length; i++) {
+      this.deleteMetric(metrics[i], (error) => {
+        if (error) {
+          callback(error);
+          return;
+        }
+      });
+    }
+    callback();
+  });
+}
+
+/**
+ * Delete metric and associated metrics from database.
+ * @param  {string}   fileId   File to delete
+ * @param  {Function} callback called when the operation is complete,
+ *                             with a possible error argument
+ */
+DatabaseService.prototype.deleteFile = function (fileId, callback) {
+  this._files.del(fileId, (error) => {
+    if (error) {
+      callback(error);
+      return;
+    }
+    this.deleteMetricsByFile(fileId, callback);
+  });
 }
 
 // EXPORTS
