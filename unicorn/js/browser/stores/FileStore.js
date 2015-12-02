@@ -32,6 +32,7 @@ export default class FileStore extends BaseStore {
 
   static get handlers() {
     return {
+      DELETE_FILE: '_handleDeleteFile',
       UPDATE_FILE: '_handleSetFile',
       UPLOADED_FILE: '_handleSetFile',
       LIST_FILES: '_handleListFiles',
@@ -58,6 +59,13 @@ export default class FileStore extends BaseStore {
   getFile(filename) {
     return this._files.get(filename);
   }
+
+  _handleDeleteFile(filename) {
+    if (this._files.delete(filename)) {
+      this.emitChange();
+    }
+  }
+
   _handleListFiles(files) {
     if (files) {
       files.forEach((file) => {
