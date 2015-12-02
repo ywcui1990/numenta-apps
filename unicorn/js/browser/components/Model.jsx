@@ -28,18 +28,13 @@ import CardText from 'material-ui/lib/card/card-text';
 import Colors from 'material-ui/lib/styles/colors';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
-import IconCreate from 'material-ui/lib/svg-icons/content/add-circle-outline';
-import IconDelete from 'material-ui/lib/svg-icons/action/delete';
-import IconExport from 'material-ui/lib/svg-icons/file/file-download';
-import IconInfo from 'material-ui/lib/svg-icons/action/info-outline';
-import IconStop from 'material-ui/lib/svg-icons/av/stop';
 
-import CreateModelAction from '../actions/CreateModel';
 import DeleteModelAction from '../actions/DeleteModel';
 import ExportModelResultsAction from '../actions/ExportModelResults';
 import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
 import ShowMetricDetailsAction from '../actions/ShowMetricDetails';
+import StartModelAction from '../actions/StartModel';
 import StopModelAction from '../actions/StopModel';
 
 const dialog = remote.require('dialog');
@@ -128,10 +123,8 @@ export default class Model extends React.Component {
     this.context.executeAction(StopModelAction, modelId);
   }
 
-  _createModel(modelId, filename, timestampField, metric) {
-    this.context.executeAction(CreateModelAction, {
-      modelId, filename, metric, timestampField
-    });
+  _createModel(modelId) {
+    this.context.executeAction(StartModelAction, modelId);
   }
 
   _deleteModel(modelId) {
@@ -168,55 +161,38 @@ export default class Model extends React.Component {
        {text: 'Cancel'},
        {text: 'Delete', onTouchTap: confirmDialog.callback, ref: 'submit'}
     ];
-    let iconColor = this.context.muiTheme.rawTheme.palette.primary1Color;
-    let buttonStyle = {color: iconColor};
-    let iconStyle = {
-      position: 'relative',
-      left: '10px',
-      top: '7px'
-    };
+    let actions = {};
+    let action = null;
 
-    let actionList = [
-      (<FlatButton
+    actions.details = (
+      <FlatButton
         label="Details"
         labelPosition="after"
-        labelStyle={buttonStyle}
-        onTouchTap={this._showMetricDetails.bind(this, modelId)}>
-          <IconInfo color={iconColor} style={iconStyle} />
-      </FlatButton>),
-      (<FlatButton
-        label="Stop"
-        labelPosition="after"
-        labelStyle={buttonStyle}
-        onTouchTap={this._onStopButtonClick.bind(this, modelId)}>
-          <IconStop color={iconColor} style={iconStyle} />
-      </FlatButton>),
-      (<FlatButton
-        label="Create"
-        labelPosition="after"
-        labelStyle={buttonStyle}
-        onTouchTap={
-          this._createModel.bind(
-            this, modelId, model.filename, model.metric, timestampField
-          )
-        }>
-          <IconCreate color={iconColor} style={iconStyle} />
-      </FlatButton>),
-      (<FlatButton
-        label="Delete"
-        labelPosition="after"
-        labelStyle={buttonStyle}
-        onTouchTap={this._deleteModel.bind(this, modelId)}>
-          <IconDelete color={iconColor} style={iconStyle} />
-      </FlatButton>),
-      (<FlatButton
-        label="Export"
-        labelPosition="after"
-        labelStyle={buttonStyle}
-        onTouchTap={this._exportModelResults.bind(this, modelId)}>
-          <IconExport color={iconColor} style={iconStyle} />
-      </FlatButton>)
-    ];
+        onTouchTap={this._showMetricDetails.bind(this, modelId)}/>
+    );
+
+    action = (
+      <CardActions style={{textAlign:'right', marginRight:'2rem', marginTop:'-5rem'}}>
+        {actions.details}
+        <FlatButton
+          label="Create"
+          labelPosition="after"
+          onTouchTap={this._createModel.bind(this, modelId)}/>
+        <FlatButton
+          disabled={true}
+          label="Stop"
+          labelPosition="after"
+          onTouchTap={this._onStopButtonClick.bind(this, modelId)}/>
+        <FlatButton
+          label="Delete"
+          labelPosition="after"
+          onTouchTap={this._deleteModel.bind(this, modelId)}/>
+        <FlatButton
+          label="Export"
+          labelPosition="after"
+          onTouchTap={this._exportModelResults.bind(this, modelId)}/>
+      </CardActions>
+    );
 
     if (model.error) {
       avatar = (<Avatar backgroundColor={Colors.red500}>E</Avatar>);
@@ -234,13 +210,10 @@ export default class Model extends React.Component {
           avatar={avatar}
           subtitle={filename}
           title={title}
-          titleColor={titleColor}
-          style={{paddingBottom:'1rem'}} />
+          titleColor={titleColor}/>
 
         <CardText expandable={true}>
-          <CardActions style={{textAlign:'right', marginRight:'2rem', marginTop:'-5rem'}}>
-            {actionList.join()}
-          </CardActions>
+          {action}
           <ModelData modelId={modelId} />
         </CardText>
 

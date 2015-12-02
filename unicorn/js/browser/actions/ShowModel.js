@@ -15,16 +15,14 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
 
 
 /**
  * Show model
- * @param  {FluxibleContext} actionContext - The action context
- * @param  {string} modelId - The model to show.
- *                            Must be in the {@link ModelStore}
+ * @param {FluxibleContext} actionContext - The action context.
+ * @param {String} modelId - Unique modelId to show.
  */
 export default function (actionContext, modelId) {
-  actionContext.dispatch(ACTIONS.SHOW_MODEL, modelId);
+  return actionContext.dispatch(ACTIONS.SHOW_MODEL, modelId);
 }

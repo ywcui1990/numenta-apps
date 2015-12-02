@@ -26,5 +26,5 @@ import {ACTIONS} from '../lib/Constants';
  *                            Must be in the {@link ModelStore}
  */
 export default function (actionContext, modelId) {
-  actionContext.dispatch(ACTIONS.HIDE_MODEL, modelId);
+  return actionContext.dispatch(ACTIONS.HIDE_MODEL, modelId);
 }

@@ -15,9 +15,7 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
-import StartModelAction from './StartModel';
 
 
 /**
@@ -35,6 +33,5 @@ import StartModelAction from './StartModel';
  * @todo Persist model reference
  */
 export default function (actionContext, payload) {
-  actionContext.dispatch(ACTIONS.ADD_MODEL, payload);
-  return actionContext.executeAction(StartModelAction, payload.modelId);
+  return actionContext.dispatch(ACTIONS.ADD_MODEL, payload);
 }

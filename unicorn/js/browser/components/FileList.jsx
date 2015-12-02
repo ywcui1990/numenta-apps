@@ -32,6 +32,7 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import React from 'react';
 
+import CreateModelAction from '../actions/CreateModel';
 import DeleteFileAction from '../actions/DeleteFile';
 import FileStore from '../stores/FileStore';
 import HideModelAction from '../actions/HideModel';
@@ -103,10 +104,21 @@ export default class FileList extends React.Component {
     });
   }
 
-  _onMetricCheck(modelId, event, checked) {
-    if (checked) {
+  _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
+    let models = this.props.models;
+    let model = models.find((m) => m.modelId === modelId);
+
+    if (checked && model) {
+      // show: already known
+      this.context.executeAction(ShowModelAction, modelId);
+    } else if (checked) {
+      // show: unknown, so know it first
+      this.context.executeAction(CreateModelAction, {
+        modelId, filename, timestampField, metric
+      });
       this.context.executeAction(ShowModelAction, modelId);
     } else {
+      // hide
       this.context.executeAction(HideModelAction, modelId);
     }
   }
@@ -163,10 +175,19 @@ export default class FileList extends React.Component {
                 <Checkbox name={modelId}
                   ref={`${modelId}-checkbox`}
                   checked={isModelVisible}
-                  onCheck={this._onMetricCheck.bind(this, modelId)}/>
+                  onCheck={
+                    this._onMetricCheck.bind(
+                      this,
+                      modelId,
+                      file.filename,
+                      timestampField.name,
+                      metric.name
+                    )
+                  } />
               }
               primaryText={metric.name}
-              rightIcon={<Avatar backgroundColor={Colors.red500}></Avatar>}/>
+              rightIcon={<Avatar backgroundColor={Colors.red500} />}
+              />
           );
         }
       });

@@ -83,11 +83,11 @@ export default class ModelStore extends BaseStore {
         this._models.set(model.modelId,
           Object.assign({}, DEFAULT_VALUES, model));
       });
-      this.emitChange();
     } else if ('modelId' in models) {
       this._models.set(models.modelId,
         Object.assign({}, DEFAULT_VALUES, models));
     }
+    this.emitChange();
   }
 
   /**
@@ -97,32 +97,6 @@ export default class ModelStore extends BaseStore {
   _deleteModel(modelId) {
     this._models.delete(modelId);
     this.emitChange();
-  }
-
-  /**
-   * Mark the model as stopped.
-   * @param {string} modelId The model to update
-   */
-  _stopModel(modelId) {
-    let model = this._models.get(modelId);
-    if (model) {
-      model.active = false;
-      model.error = null;
-      this.emitChange();
-    }
-  }
-
-  /**
-   * Mark the model as active.
-   * @param {string} modelId - The model to update
-   */
-  _startModel(modelId) {
-    let model = this._models.get(modelId);
-    if (model) {
-      model.active = true;
-      model.error = null;
-      this.emitChange();
-    }
   }
 
   /**
@@ -145,6 +119,32 @@ export default class ModelStore extends BaseStore {
     let model = this._models.get(modelId);
     if (model) {
       model.visible = true;
+      this.emitChange();
+    }
+  }
+
+  /**
+   * Mark the model as active.
+   * @param {string} modelId - The model to update
+   */
+  _startModel(modelId) {
+    let model = this._models.get(modelId);
+    if (model) {
+      model.active = true;
+      model.error = null;
+      this.emitChange();
+    }
+  }
+
+  /**
+   * Mark the model as stopped.
+   * @param {string} modelId The model to update
+   */
+  _stopModel(modelId) {
+    let model = this._models.get(modelId);
+    if (model) {
+      model.active = false;
+      model.error = null;
       this.emitChange();
     }
   }

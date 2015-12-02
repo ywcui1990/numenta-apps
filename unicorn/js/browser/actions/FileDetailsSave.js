@@ -18,12 +18,12 @@
 
 import FileUpdateAction from '../actions/FileUpdate';
 import CreateModelAction from '../actions/CreateModel';
+import StartModelAction from '../actions/StartModel';
 
 
 /**
  * File Details Save action is called when the user updates the File information
  * from the {FileDetails} page.
- *
  * @param {FluxibleContext} actionContext FluxibleContext
  * @param {Object} payload Action payload
  * @param {FileStore.File} payload.file  The file to be update
@@ -34,15 +34,25 @@ import CreateModelAction from '../actions/CreateModel';
 export default function (actionContext, payload) {
   let {file, metrics} = payload;
   return actionContext.executeAction(FileUpdateAction, file)
-    .then((result) => {
+    .then(() => {
       if (metrics) {
-        // Update models
+        // Add models
         let promises = [];
         for (let [, metric] of metrics) {
           if (metric) {
-            // Create models
-            promises.push(actionContext.executeAction(CreateModelAction,
-                                                      metric));
+            promises.push(actionContext.executeAction(CreateModelAction, metric));
+          }
+        }
+        return Promise.all(promises);
+      }
+    })
+    .then(() => {
+      if (metrics) {
+        // Start models
+        let promises = [];
+        for (let [, metric] of metrics) {
+          if (metric) {
+            promises.push(actionContext.executeAction(StartModelAction, metric));
           }
         }
         return Promise.all(promises);

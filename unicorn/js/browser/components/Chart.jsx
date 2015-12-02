@@ -15,7 +15,6 @@
 //
 // http://numenta.org/licenses/
 
-
 import Dygraph from 'dygraphs';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
