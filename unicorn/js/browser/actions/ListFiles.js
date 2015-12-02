@@ -40,7 +40,7 @@ export default function (actionContext) {
     let log = actionContext.getLoggerClient();
 
     log.debug('load existing files from db, from previous runs');
-    databaseClient.queryFile({}, (error, files) => {
+    databaseClient.getAllFiles((error, files) => {
       if (error) {
         actionContext.dispatch(
           ACTIONS.LIST_FILES_FAILURE,
@@ -63,7 +63,7 @@ export default function (actionContext) {
           } else {
             log.debug('got file list from fs, saving to db for next runs');
             files = files.map((file) => {
-              file.uid = Utils.generateId(file.filename);
+              file.uid = Utils.generateFileId(file.filename);
               return file;
             });
 
@@ -83,7 +83,7 @@ export default function (actionContext) {
           }
         }); // fileClient.getSampleFiles()
       }
-    }); // databaseClient.queryFile()
+    }); // databaseClient.getAllFiles()
 
   }); // Promise
 }

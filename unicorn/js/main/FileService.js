@@ -66,7 +66,7 @@ FileService.prototype.getSampleFiles = function (callback) {
     files = data.map((item) => {
       var filename = path.resolve(SAMPLES_FILE_PATH, item);
       return {
-        uid: Utils.generateId(filename),
+        uid: Utils.generateFileId(filename),
         description: `Sample File: ${path.basename(item)}`,
         timestampFormat: 'YYYY-MM-DDTHH:mm:ss.sss',
         name: path.basename(item),
@@ -86,7 +86,7 @@ FileService.prototype.getSampleFiles = function (callback) {
  */
 FileService.prototype.getUploadedFiles = function (file, callback) {
   var formattedFile = {
-    uid: Utils.generateId(file.path),
+    uid: Utils.generateFileId(file.path),
     name: file.name,
     filename: file.path,
     type: 'uploaded',
@@ -138,8 +138,8 @@ FileService.prototype.getFields = function (filename, options, callback) {
         for (fieldName in data) {
           const val = data[fieldName];
           const field = {
-            uid: Utils.generateModelId(filename, fieldName),
-            file_uid: Utils.generateId(filename),
+            uid: Utils.generateMetricId(filename, fieldName),
+            file_uid: Utils.generateFileId(filename),
             name: fieldName,
             type: 'string'
           };

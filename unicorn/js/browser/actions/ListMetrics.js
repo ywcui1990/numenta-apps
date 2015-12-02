@@ -41,7 +41,7 @@ export default function (actionContext, files) {
     let payload = [];
 
     log.debug('load existing metrics from db, from previous runs');
-    databaseClient.queryMetric({}, (error, metrics) => {
+    databaseClient.getAllMetrics((error, metrics) => {
       if (error) {
         actionContext.dispatch(
           ACTIONS.LIST_METRICS_FAILURE,
@@ -54,7 +54,7 @@ export default function (actionContext, files) {
           payload.push({
             filename: file.filename,
             metrics: metrics.filter((value) => {
-              return value['file_uid'] === Utils.generateId(file.filename);
+              return value['file_uid'] === Utils.generateFileId(file.filename);
             })
           });
         });
