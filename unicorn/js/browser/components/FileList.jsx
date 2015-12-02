@@ -15,15 +15,13 @@
 //
 // http://numenta.org/licenses/
 
-import Avatar from 'material-ui/lib/avatar';
 import Checkbox from 'material-ui/lib/checkbox';
 import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
+import IconBulb from 'material-ui/lib/svg-icons/av/fiber-manual-record';
 import IconButton from 'material-ui/lib/icon-button';
 import IconClose from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
-import IconDelete from 'material-ui/lib/svg-icons/action/delete';
-import IconInfo from 'material-ui/lib/svg-icons/action/info-outline';
 import IconMenu from 'material-ui/lib/menus/icon-menu';
 import IconMore from 'material-ui/lib/svg-icons/navigation/more-vert';
 import IconOpen from 'material-ui/lib/svg-icons/navigation/arrow-drop-up';
@@ -170,7 +168,6 @@ export default class FileList extends React.Component {
 
           return (
             <ListItem key={modelId}
-              className="context-menu-item"
               leftCheckbox={
                 <Checkbox name={modelId}
                   ref={`${modelId}-checkbox`}
@@ -183,10 +180,11 @@ export default class FileList extends React.Component {
                       timestampField.name,
                       metric.name
                     )
-                  } />
+                  }
+                  />
               }
               primaryText={metric.name}
-              rightIcon={<Avatar backgroundColor={Colors.red500} />}
+              rightIcon={<IconBulb viewBox="5 0 13 13" />}
               />
           );
         }
@@ -203,19 +201,15 @@ export default class FileList extends React.Component {
         let contextMenu = (
           <IconMenu
             iconButtonElement={
-              <IconButton>
-                <IconMore color={Colors.grey500} />
-              </IconButton>
+              <IconButton><IconMore color={Colors.grey500} /></IconButton>
             }
             onChange={this._handleFileContextMenu.bind(this, filename)}
           >
             <MenuItem index={1}
               value="detail"
-              leftIcon={<IconInfo />}
               primaryText="Details" />
             <MenuItem index={2}
               value="delete"
-              leftIcon={<IconDelete />}
               primaryText="Delete"
               disabled={filetype === 'sample'} />
           </IconMenu>

@@ -69,6 +69,7 @@ export default class Chart extends React.Component {
     let muiTheme = this.context.muiTheme;
     this._styles = {
       root: {
+        boxShadow: 'none',
         height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 5,
         width: '100%'
       }

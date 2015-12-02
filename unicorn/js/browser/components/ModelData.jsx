@@ -54,9 +54,6 @@ export default class ModelData extends React.Component {
         <Chart data={modelData.data} options={options} ref="chart"/>
       );
     }
-    return (
-      <h3>This metric doesn't have a model yet.</h3>
-    );
   }
 
 }

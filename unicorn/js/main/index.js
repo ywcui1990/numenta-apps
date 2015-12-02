@@ -76,7 +76,7 @@ app.on('ready', () => {
   });
   mainWindow.loadUrl(`file://${initialPage}`);
   mainWindow.center();
-  // mainWindow.openDevTools();
+  mainWindow.openDevTools();
 
   // browser window events
   mainWindow.on('closed', () => {

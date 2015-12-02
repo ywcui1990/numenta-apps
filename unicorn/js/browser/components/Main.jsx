@@ -20,19 +20,19 @@
 
 import 'roboto-fontface/css/roboto-fontface.css';
 
-import React from 'react';
-import provideContext from 'fluxible-addons-react/provideContext';
-import ThemeDecorator from 'material-ui/lib/styles/theme-decorator';
 import FloatingActionButton from 'material-ui/lib/floating-action-button';
-import SvgIconContentAdd from 'material-ui/lib/svg-icons/content/add';
+import IconAdd from 'material-ui/lib/svg-icons/content/add';
+import provideContext from 'fluxible-addons-react/provideContext';
+import React from 'react';
+import ThemeDecorator from 'material-ui/lib/styles/theme-decorator';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 // internals
 
 import FileAddAction from '../actions/FileAdd';
-import FileUploadAction from '../actions/FileUpload';
 import FileList from '../components/FileList';
 import FileDetails from '../components/FileDetails';
+import FileUploadAction from '../actions/FileUpload';
 import LeftNav from '../components/LeftNav';
 import ModelList from '../components/ModelList';
 import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
@@ -59,7 +59,22 @@ export default class Main extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this._style = {};
+
+    this._styles = {
+      root: {},
+      add: {
+        position: 'fixed',
+        top: 96,
+        left: 225
+      },
+      input: {
+        display: 'none'
+      },
+      models: {
+        marginLeft: 256,
+        padding: '1rem'
+      }
+    };
   }
 
   /**
@@ -101,25 +116,29 @@ export default class Main extends React.Component {
    * @return {object} Abstracted React/JSX DOM representation to render to HTML
    * @todo refactor to better sub-components with individuated styles
    * @todo check up zIndex and zDepths
-   * @TODO Better + ADD fonticon
    * @TODO Tooltip on + ADD icon - "Upload new CSV file" or something
    */
   render() {
     return (
-      <main style={this._style}>
+      <main style={this._styles.root}>
         <LeftNav>
-          <FloatingActionButton onClick={this._onClick.bind(this)}
-            style={{position:'fixed', top:96, left:224}}>
-            <SvgIconContentAdd/>
+          <FloatingActionButton
+            onClick={this._onClick.bind(this)}
+            style={this._styles.add}>
+              <IconAdd viewBox="5 5 14 13" />
           </FloatingActionButton>
-          <FileList/>
+          <input
+            onChange={this._onFileSelect.bind(this)}
+            ref="fileInput"
+            style={this._styles.input}
+            type="file"
+            />
+          <FileList />
         </LeftNav>
-        <section style={{marginLeft:'256px', padding:'1rem'}}>
+        <section style={this._styles.models}>
           <ModelList />
         </section>
-        <input onChange={this._onFileSelect.bind(this)} ref="fileInput"
-          style={{display:'none'}} type="file" />
-        <FileDetails/>
+        <FileDetails />
       </main>
     );
   }

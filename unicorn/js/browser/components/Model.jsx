@@ -74,9 +74,16 @@ export default class Model extends React.Component {
     let store = this.context.getStore(ModelStore);
     let model = store.getModel(this.props.modelId);
 
-    this._style = {
-      marginBottom: '1rem',
-      width: '100%'
+    this._styles = {
+      root: {
+        marginBottom: '1rem',
+        width: '100%'
+      },
+      actions: {
+        textAlign: 'right',
+        marginRight: '2rem',
+        marginTop: '-5rem'
+      }
     };
 
     // init state
@@ -172,7 +179,7 @@ export default class Model extends React.Component {
     );
 
     action = (
-      <CardActions style={{textAlign:'right', marginRight:'2rem', marginTop:'-5rem'}}>
+      <CardActions style={this._styles.actions}>
         {actions.details}
         <FlatButton
           label="Create"
@@ -205,7 +212,7 @@ export default class Model extends React.Component {
     }
 
     return (
-      <Card initiallyExpanded={true} style={this._style}>
+      <Card initiallyExpanded={true} style={this._styles.root}>
         <CardHeader showExpandableButton={true}
           avatar={avatar}
           subtitle={filename}

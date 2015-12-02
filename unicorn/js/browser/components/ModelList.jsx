@@ -58,6 +58,8 @@ export default class ModelList extends React.Component {
   _getStyles() {
     return {
       root: {
+        backgroundColor: 'transparent',
+        boxShadow: 'none',
         width: '100%'
       }
     };
