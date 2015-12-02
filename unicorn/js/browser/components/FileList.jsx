@@ -19,12 +19,12 @@ import Checkbox from 'material-ui/lib/checkbox';
 import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
-import IconBulb from 'material-ui/lib/svg-icons/av/fiber-manual-record';
 import IconButton from 'material-ui/lib/icon-button';
 import IconClose from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
 import IconMenu from 'material-ui/lib/menus/icon-menu';
 import IconMore from 'material-ui/lib/svg-icons/navigation/more-vert';
 import IconOpen from 'material-ui/lib/svg-icons/navigation/arrow-drop-up';
+import IconStatus from 'material-ui/lib/svg-icons/image/lens';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 import MenuItem from 'material-ui/lib/menus/menu-item';
@@ -80,6 +80,20 @@ export default class FileList extends React.Component {
       confirmDialog: null,
       showNested
     }, props);
+
+    this._styles = {
+      root: {},
+      more: {
+        width: 40
+      },
+      status: {
+        height: 15,
+        padding: 0,
+        right: 13,
+        top: 16,
+        width: 15
+      }
+    };
   }
 
   /**
@@ -158,14 +172,13 @@ export default class FileList extends React.Component {
           let modelId = Utils.generateModelId(file.filename, metric.name);
           let models = this.props.models;
           let model = models.find((m) => m.modelId === modelId);
-          let hasModel = false;
-          let isModelVisible;
+          let isModelVisible = model && 'visible' in model && model.visible;
+          let statusColor = Colors.red400;
 
-          if (model) {
-            hasModel = true;
+          if (model && 'active' in model && model.active) {
+            statusColor = Colors.green400;
           }
-          isModelVisible = hasModel && model && model.visible;
-
+          console.log('OK!', isModelVisible);
           return (
             <ListItem key={modelId}
               leftCheckbox={
@@ -183,8 +196,10 @@ export default class FileList extends React.Component {
                   }
                   />
               }
+              rightIcon={
+                <IconStatus color={statusColor} style={this._styles.status} />
+              }
               primaryText={metric.name}
-              rightIcon={<IconBulb viewBox="5 0 13 13" />}
               />
           );
         }
@@ -204,13 +219,14 @@ export default class FileList extends React.Component {
               <IconButton><IconMore color={Colors.grey500} /></IconButton>
             }
             onChange={this._handleFileContextMenu.bind(this, filename)}
+            style={this._styles.more}
           >
             <MenuItem index={1}
               value="detail"
-              primaryText="Details" />
+              primaryText="File Details" />
             <MenuItem index={2}
               value="delete"
-              primaryText="Delete"
+              primaryText="Delete File"
               disabled={filetype === 'sample'} />
           </IconMenu>
         );

@@ -33,7 +33,6 @@ import DeleteModelAction from '../actions/DeleteModel';
 import ExportModelResultsAction from '../actions/ExportModelResults';
 import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
-import ShowMetricDetailsAction from '../actions/ShowMetricDetails';
 import StartModelAction from '../actions/StartModel';
 import StopModelAction from '../actions/StopModel';
 
@@ -150,65 +149,65 @@ export default class Model extends React.Component {
       title: 'Export Model Results',
       defaultPath: 'Untitled.csv'
     }, (filename) => {
-      this.context.executeAction(ExportModelResultsAction, {modelId, filename});
+      if (filename) {
+        this.context.executeAction(
+          ExportModelResultsAction, {modelId, filename}
+        );
+      } else {
+        // @TODO trigger error about "bad file"
+      }
     });
   }
 
-  _showMetricDetails(modelId) {
-    this.context.executeAction(ShowMetricDetailsAction, modelId);
-  }
-
   render() {
-    let avatar, title, titleColor;
+    let avatar, titleColor;
     let model = this.state;
     let modelId = model.modelId;
     let filename = path.basename(model.filename);
     let confirmDialog = this.state.confirmDialog || {};
+    let title = model.metric;
+    let isModelActive = (model && 'active' in model && model.active);
     let dialogActions = [
        {text: 'Cancel'},
        {text: 'Delete', onTouchTap: confirmDialog.callback, ref: 'submit'}
     ];
-    let actions = {};
-    let action = null;
-
-    actions.details = (
-      <FlatButton
-        label="Details"
-        labelPosition="after"
-        onTouchTap={this._showMetricDetails.bind(this, modelId)}/>
-    );
-
-    action = (
+    let actions = (
       <CardActions style={this._styles.actions}>
-        {actions.details}
         <FlatButton
-          label="Create"
+          disabled={isModelActive}
+          label="Create Model"
           labelPosition="after"
-          onTouchTap={this._createModel.bind(this, modelId)}/>
+          onTouchTap={this._createModel.bind(this, modelId)}
+          />
         <FlatButton
-          disabled={true}
-          label="Stop"
+          disabled={!isModelActive}
+          label="Stop Model"
           labelPosition="after"
-          onTouchTap={this._onStopButtonClick.bind(this, modelId)}/>
+          onTouchTap={this._onStopButtonClick.bind(this, modelId)}
+          />
         <FlatButton
-          label="Delete"
+          disabled={!isModelActive}
+          label="Delete Model"
           labelPosition="after"
-          onTouchTap={this._deleteModel.bind(this, modelId)}/>
+          onTouchTap={this._deleteModel.bind(this, modelId)}
+          />
         <FlatButton
-          label="Export"
+          disabled={!isModelActive}
+          label="Export Results"
           labelPosition="after"
-          onTouchTap={this._exportModelResults.bind(this, modelId)}/>
+          onTouchTap={this._exportModelResults.bind(this, modelId)}
+          />
       </CardActions>
     );
 
     if (model.error) {
-      avatar = (<Avatar backgroundColor={Colors.red500}>E</Avatar>);
+      avatar = (<Avatar backgroundColor={Colors.red400}>!</Avatar>);
       title = `${model.metric} | ${model.error.message}`;
-      titleColor = Colors.red500;
+      titleColor = Colors.red400;
+    } else if (model.active) {
+      avatar = (<Avatar backgroundColor={Colors.green400}></Avatar>);
     } else {
-      avatar = (<Avatar backgroundColor={Colors.green500}></Avatar>);
-      title = model.metric;
-      titleColor = Colors.darkBlack;
+      avatar = (<Avatar backgroundColor={Colors.red400}></Avatar>);
     }
 
     return (
@@ -218,12 +217,10 @@ export default class Model extends React.Component {
           subtitle={filename}
           title={title}
           titleColor={titleColor}/>
-
         <CardText expandable={true}>
-          {action}
+          {actions}
           <ModelData modelId={modelId} />
         </CardText>
-
         <Dialog title={confirmDialog.title}
           ref="confirmDialog"
           modal={true}

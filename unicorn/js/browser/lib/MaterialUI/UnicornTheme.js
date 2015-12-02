@@ -23,10 +23,10 @@ export default {
   spacing: Spacing,
   fontFamily: 'Roboto, sans-serif',
   palette: {
-    primary1Color: Colors.lightBlue400,
+    primary1Color: Colors.lightBlue700,
     primary2Color: Colors.cyan700,
     primary3Color: Colors.lightBlack,
-    accent1Color: Colors.blueGrey500,
+    accent1Color: Colors.lightBlue400,
     accent2Color: Colors.grey100,
     accent3Color: Colors.grey500,
     textColor: Colors.darkBlack,

@@ -70,7 +70,7 @@ export default class Chart extends React.Component {
     this._styles = {
       root: {
         boxShadow: 'none',
-        height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 5,
+        height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 3,
         width: '100%'
       }
     };
@@ -123,8 +123,14 @@ export default class Chart extends React.Component {
 
     // range selector custom events
     selector = el.getElementsByClassName('dygraph-rangesel-fgcanvas')[0];
-    selector.addEventListener('mousedown', this._rangeMouseDownCallback.bind(this)); // eslint-disable-line max-len
-    selector.addEventListener('mouseup', this._rangeMouseUpCallback.bind(this));
+    selector.addEventListener(
+      'mousedown',
+      this._rangeMouseDownCallback.bind(this)
+    );
+    selector.addEventListener(
+      'mouseup',
+      this._rangeMouseUpCallback.bind(this)
+    );
   }
 
   /**
