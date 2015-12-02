@@ -27,7 +27,15 @@ import {ACTIONS} from '../lib/Constants';
  * @param {string} modelId - Model ID
  */
 export default function (actionContext, modelId) {
-  actionContext.dispatch(ACTIONS.DELETE_MODEL, modelId);
-  let modelClient = actionContext.getModelClient();
-  modelClient.removeModel(modelId);
+  let database = actionContext.getDatabaseClient();
+  // Delete model data
+  database.deleteMetricData(modelId, (error) => {
+    if (error) {
+      actionContext.dispatch(ACTIONS.DELETE_MODEL_FAILED, {modelId, error});
+    } else {
+      actionContext.dispatch(ACTIONS.DELETE_MODEL, modelId);
+      let modelClient = actionContext.getModelClient();
+      modelClient.removeModel(modelId);
+    }
+  });
 }
