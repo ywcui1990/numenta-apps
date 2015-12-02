@@ -62,6 +62,7 @@ export default class ModelStore extends BaseStore {
       SHOW_MODEL: '_showModel',
       HIDE_MODEL: '_hideModel',
 
+      DELETE_MODEL_FAILED: '_handleModelFailed',
       STOP_MODEL_FAILED: '_handleModelFailed',
       START_MODEL_FAILED: '_handleModelFailed',
       UNKNOWN_MODEL_FAILURE: '_handleModelFailed'
