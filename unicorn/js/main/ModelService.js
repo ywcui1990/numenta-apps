@@ -64,7 +64,6 @@ export class ModelNotFoundError extends UserError {
  * to Unicorn Backend Model Runner python and NuPIC processes.
  */
 export class ModelService extends EventEmitter {
-
   constructor() {
     super();
     this._models = new Map();
@@ -94,7 +93,7 @@ export class ModelService extends EventEmitter {
    * Creates new HTM model.
    * @param  {string} modelId - Unique identifier for the model
    * @param  {Object} stats - HTM Model parameters. See model_runner.py
-   * @throws MaximumConcurrencyError, DuplicateIDError
+   * @throws {@link MaximumConcurrencyError}, {@link DuplicateIDError}
    */
   createModel(modelId, stats) {
     if (this.availableSlots() <= 0) {
@@ -138,7 +137,7 @@ export class ModelService extends EventEmitter {
    * @param {string} modelId - The model to send data
    * @param {Array} inputData - The data values to be sent to the model, usually
    *  in the following format: '[timestamp, value]'
-   * @throws ModelNotFoundError
+   * @throws {@link ModelNotFoundError}
    */
   sendData(modelId, inputData) {
     if (!this._models.has(modelId)) {
@@ -172,5 +171,4 @@ export class ModelService extends EventEmitter {
     model.child.kill();
     this.removeAllListeners(modelId);
   }
-
 }

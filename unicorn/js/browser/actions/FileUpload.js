@@ -64,7 +64,7 @@ function getFileFromDB(options) {
   let {actionContext, file} = options;
   let channel = csp.chan();
   let databaseClient = actionContext.getDatabaseClient();
-  let fileId = Utils.generateId(file.path);
+  let fileId = Utils.generateFileId(file.path);
 
   databaseClient.getFile(fileId, (error, results) => {
     if (error && (!('notFound' in error))) {
@@ -90,9 +90,9 @@ function getMetricsFromDB(options) {
   let {actionContext, file} = options;
   let channel = csp.chan();
   let databaseClient = actionContext.getDatabaseClient();
-  let fileId = Utils.generateId(file.path);
+  let fileId = Utils.generateFileId(file.path);
 
-  databaseClient.queryMetric({file_uid: fileId}, (error, results) => {
+  databaseClient.getMetricsByFile(fileId, (error, results) => {
     if (error && (!('notFound' in error))) {
       csp.putAsync(channel, new DatabaseGetError(error));
     } else {
@@ -117,7 +117,7 @@ function putFileIntoDB(options) {
   let channel = csp.chan();
   let databaseClient = actionContext.getDatabaseClient();
   let payload = {
-    uid: Utils.generateId(file.filename),
+    uid: Utils.generateFileId(file.filename),
     name: file.name,
     filename: file.filename,
     type: file.type
@@ -149,8 +149,8 @@ function putMetricsIntoDB(options) {
   let databaseClient = actionContext.getDatabaseClient();
   let payload = file.metrics.map((metric) => {
     return {
-      uid: Utils.generateModelId(file.filename, metric.name),
-      file_uid: Utils.generateId(file.filename),
+      uid: Utils.generateMetricId(file.filename, metric.name),
+      file_uid: Utils.generateFileId(file.filename),
       name: metric.name,
       type: metric.type
     };
@@ -200,7 +200,7 @@ export default function (actionContext, file) {
         return fileMetrics;
       }
       fileFormatted = {
-        uid: Utils.generateId(file.path),
+        uid: Utils.generateFileId(file.path),
         name: file.name,
         filename: file.path,
         type: 'uploaded',
