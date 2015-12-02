@@ -234,7 +234,7 @@ DatabaseService.prototype.putMetric = function (metric, callback) {
 DatabaseService.prototype.putMetricBatch = function (metrics, callback) {
   // validate
   for (let i=0; i<metrics.length; i++) {
-    const validation = this.validator.validate (metrics[i], MetricSchema);
+    const validation = this.validator.validate(metrics[i], MetricSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
