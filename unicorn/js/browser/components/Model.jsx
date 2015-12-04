@@ -166,12 +166,13 @@ export default class Model extends React.Component {
   }
 
   render() {
-    let avatarColor, titleColor;
     let model = this.state;
     let modelId = model.modelId;
     let filename = path.basename(model.filename);
     let confirmDialog = this.state.confirmDialog || {};
     let title = model.metric;
+    let titleColor;
+    let avatarColor = Colors.red400;
     let avatarContents = model.metric.charAt(0);
     let isModelActive = (model && ('active' in model) && model.active);
     let hasModelRun = (model && ('ran' in model) && model.ran);
@@ -209,13 +210,11 @@ export default class Model extends React.Component {
     );
 
     if (model.error) {
-      avatarColor = titleColor = Colors.red400;
+      titleColor = Colors.red400;
       avatarContents = '!';
       title = `${model.metric} | ${model.error.message}`;
-    } else if (model.active) {
+    } else if (model.ran) {
       avatarColor = Colors.green400;
-    } else {
-      avatarColor = Colors.red400;
     }
 
     return (

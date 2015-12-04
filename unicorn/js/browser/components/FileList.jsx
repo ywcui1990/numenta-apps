@@ -174,19 +174,19 @@ export default class FileList extends React.Component {
     if (timestampField) {
       return file.metrics.map((metric) => {
         if (metric.type !== 'date') {
-          let isModelActive = false;
-          let isModelVisible = false;
-          let statusColor = Colors.red400;
           let modelId = Utils.generateMetricId(file.filename, metric.name);
           let models = this.props.models;
           let model = models.find((m) => m.modelId === modelId);
+          let isModelVisible = false;
+          let statusColor = Colors.red400;
 
           if (model) {
-            isModelActive = ('active' in model) && model.active;
-            isModelVisible = ('visible' in model) && model.visible;
-          }
-          if (isModelActive) {
-            statusColor = Colors.green400;
+            if (model.visible) {
+              isModelVisible = true;
+            }
+            if (model.ran) {
+              statusColor = Colors.green400;
+            }
           }
 
           return (

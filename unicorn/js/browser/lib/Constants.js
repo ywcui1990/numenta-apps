@@ -17,6 +17,8 @@
 
 
 /**
+ * Fluxible Action keys
+ * - ADD_FILE: {@link FileAdd}
  * - ADD_MODEL : {@link StartModel}
  * - DELETE_MODEL : {@link DeleteModel}
  * - EXPORT_MODEL_RESULTS : {@link ExportModelResults}
@@ -44,6 +46,7 @@
  * - UPLOADED_FILE_FAILED : {@link FileUpload}
  */
 export const ACTIONS = Object.freeze({
+  ADD_FILE: 'ADD_FILE',
   ADD_MODEL: 'ADD_MODEL',
   DELETE_FILE: 'DELETE_FILE',
   DELETE_MODEL: 'DELETE_MODEL',

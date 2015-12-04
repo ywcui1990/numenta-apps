@@ -18,6 +18,8 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
+import {ACTIONS} from '../lib/Constants';
+
 
 /**
  * Fluxible Action: Add (user adding new file)
@@ -25,5 +27,5 @@
  * @param {Object} [payload] -
  */
 export default function (actionContext, payload) {
-  actionContext.dispatch('ADD_ACTION', payload);
+  actionContext.dispatch(ACTIONS.ADD_FILE, payload);
 }
