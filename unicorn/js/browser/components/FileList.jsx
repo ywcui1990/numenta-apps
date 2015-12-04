@@ -69,6 +69,7 @@ export default class FileList extends React.Component {
     super(props, context);
 
     let showNested = {};
+    let muiTheme = this.context.muiTheme;
 
     // prep visibility toggle nested file contents
     props.files.forEach((file) => {
@@ -82,6 +83,9 @@ export default class FileList extends React.Component {
     }, props);
 
     this._styles = {
+      list: {
+        color: muiTheme.rawTheme.palette.primary1Color
+      },
       file: {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -293,10 +297,10 @@ export default class FileList extends React.Component {
 
     return (
       <nav>
-        <List subheader="Sample Data">
+        <List subheader="Sample Data" subheaderStyle={this._styles.list}>
           {this._renderFiles('sample')}
         </List>
-        <List subheader="Your Data">
+        <List subheader="Your Data" subheaderStyle={this._styles.list}>
           {this._renderFiles('uploaded')}
         </List>
         <Dialog title={confirmDialog.title}

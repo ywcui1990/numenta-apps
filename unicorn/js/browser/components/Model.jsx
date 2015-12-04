@@ -82,7 +82,10 @@ export default class Model extends React.Component {
         textTransform: 'capitalize'
       },
       title: {
-        textTransform: 'capitalize'
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        width: '13rem'
       },
       actions: {
         textAlign: 'right',
@@ -226,9 +229,8 @@ export default class Model extends React.Component {
             </Avatar>
           }
           showExpandableButton={true}
-          style={this._styles.title}
-          subtitle={filename}
-          title={title}
+          subtitle={<div style={this._styles.title}>{filename}</div>}
+          title={<div style={this._styles.title}>{title}</div>}
           titleColor={titleColor}
           />
         <CardText expandable={true}>
