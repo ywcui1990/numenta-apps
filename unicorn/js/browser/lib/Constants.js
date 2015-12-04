@@ -28,11 +28,11 @@
  * - LIST_FILES_FAILURE : {@link ListFiles}
  * - LIST_METRICS : {@link ListMetrics}
  * - LIST_METRICS_FAILURE : {@link ListMetrics}
- * - RECEIVE_DATA : {@link ReceiveData}
- * - SEND_DATA : {@link SendData}
- * - SEND_DATA_FAILED : {@link ModelError}
+ * - RECEIVE_MODEL_DATA : {@link ReceiveModelData}
+ * - SEND_METRIC_DATA : {@link SendMetricData}
  * - LOAD_METRIC_DATA: {@link LoadMetricData}
  * - UNLOAD_METRIC_DATA: 'UnloadMetricData',
+ * - SEND_METRIC_DATA_FAILED : {@link ModelError}
  * - SHOW_FILE_DETAILS : {@link ShowFileDetails}
  * - SHOW_METRIC_DETAILS : {@link ShowMetricDetails}
  * - SHOW_MODEL : {@linl ShowModel}
@@ -59,9 +59,9 @@ export const ACTIONS = Object.freeze({
   LIST_FILES: 'LIST_FILES',
   LIST_METRICS_FAILURE: 'LIST_METRICS_FAILURE',
   LIST_METRICS: 'LIST_METRICS',
-  RECEIVE_DATA: 'RECEIVE_DATA',
-  SEND_DATA_FAILED: 'SEND_DATA_FAILED',
-  SEND_DATA: 'SEND_DATA',
+  RECEIVE_MODEL_DATA: 'RECEIVE_MODEL_DATA',
+  SEND_METRIC_DATA_FAILED: 'SEND_METRIC_DATA_FAILED',
+  SEND_METRIC_DATA: 'SEND_METRIC_DATA',
   LOAD_METRIC_DATA: 'LOAD_METRIC_DATA',
   UNLOAD_METRIC_DATA: 'UNLOAD_METRIC_DATA',
   SHOW_FILE_DETAILS: 'SHOW_FILE_DETAILS',

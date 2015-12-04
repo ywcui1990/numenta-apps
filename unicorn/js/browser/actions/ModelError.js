@@ -29,7 +29,7 @@ export default function (actionContext, payload) {
   } else if (command === 'remove') {
     return actionContext.dispatch(ACTIONS.STOP_MODEL_FAILED, {modelId, error});
   } else if (command === 'sendData') {
-    return actionContext.dispatch(ACTIONS.SEND_DATA_FAILED, {modelId, error});
+    return actionContext.dispatch(ACTIONS.SEND_METRIC_DATA_FAILED, {modelId, error});
   }
   return actionContext.dispatch(
     ACTIONS.UNKNOWN_MODEL_FAILURE,

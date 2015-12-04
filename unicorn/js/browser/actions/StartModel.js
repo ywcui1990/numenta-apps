@@ -34,7 +34,7 @@ import {
   DatabaseGetError, DatabasePutError, FilesystemGetError
 } from '../../main/UserError';
 import ModelStore from '../stores/ModelStore';
-import SendDataAction from '../actions/SendData';
+import SendMetricDataAction from '../actions/SendMetricData';
 import StopModelAction from '../actions/StopModel';
 import Utils from '../../main/Utils';
 
@@ -143,7 +143,7 @@ function streamData(actionContext, modelId) {
       if (metricData.length > 0) {
         log.debug('yes metric data is already in DB, use it');
         metricData.forEach((row) => {
-          actionContext.executeAction(SendDataAction, {
+          actionContext.executeAction(SendMetricDataAction, {
             modelId: model.modelId,
             data: [
               new Date(row[model.timestampField]).getTime() / 1000,
@@ -185,7 +185,7 @@ function streamData(actionContext, modelId) {
           rowId++;
 
           // send new row to UI
-          actionContext.executeAction(SendDataAction, {
+          actionContext.executeAction(SendMetricDataAction, {
             modelId: model.modelId,
             data: [(timestamp.getTime() / 1000), value]
           });
@@ -213,7 +213,7 @@ function streamData(actionContext, modelId) {
 
 /**
  * Action used to Start streaming data to the nupic model. The file will be
- *  streamed one record at the time. 'ReceiveData' Action will be fired as
+ *  streamed one record at the time. 'ReceiveModelData' Action will be fired as
  *  results become available.
  * @param {FluxibleContext} actionContext - Fluxible action context object
  * @param {string} model - An object with model+data to start

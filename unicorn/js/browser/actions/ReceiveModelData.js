@@ -22,18 +22,13 @@ import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Action used to send data to models
+ * Receive model data
  *
  * @param {FluxibleContext} actionContext - Fluxible action context object
- * @param {Object} payload - Action payload
- * @param {string} payload.modelId - Model to send data
- * @param {Array} payload.data - Data to send in the following format:
- *                             `[timestamp, value]`
- *
+ * @param {Object} payload - The action payload
+ * @param {String} payload.modelId - Required model id
+ * @param {Object[]} payload.data - New data to be appended
  */
 export default function (actionContext, payload) {
-  let modelClient = actionContext.getModelClient();
-  let {modelId, data} = payload;
-  actionContext.dispatch(ACTIONS.SEND_DATA, modelId);
-  modelClient.sendData(modelId, data);
+  actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, payload);
 }

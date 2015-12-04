@@ -20,7 +20,9 @@
 
 import BaseStore from 'fluxible/addons/BaseStore';
 
-
+/**
+ * Maintains model results data store
+ */
 export default class ModelDataStore extends BaseStore {
 
   static get storeName() {
@@ -29,7 +31,7 @@ export default class ModelDataStore extends BaseStore {
 
   static get handlers() {
     return {
-      RECEIVE_DATA: '_handReceiveData',
+      RECEIVE_MODEL_DATA: '_handReceiveModelData',
       DELETE_MODEL: '_handleDeleteModel'
     };
   }
@@ -49,12 +51,12 @@ export default class ModelDataStore extends BaseStore {
    *                          }
    *                          </code>
    */
-  _handReceiveData(payload) {
+  _handReceiveModelData(payload) {
     if (payload && 'modelId' in payload) {
       let model = this._models.get(payload.modelId);
       if (model) {
         // Append payload data to existing model
-        Reflect.apply(Array.prototype.push, model.data, payload.data);
+        model.data.push(...payload.data);
         // Record last time this model was modified
         model.modified = new Date();
       } else {
@@ -90,5 +92,4 @@ export default class ModelDataStore extends BaseStore {
   getData(modelId) {
     return this._models.get(modelId) || {modelId, data:[], modified:0};
   }
-
 }
