@@ -77,7 +77,6 @@ export default class Chart extends React.Component {
 
   componentDidMount() {
     this._chartBusy = false;
-    this._chartRangeWidth = 200; // chart range finder static 200 datapoints
     this._chartRange = [0, this._chartRangeWidth]; // hold current range window
     this._chartScrollLock = true; // if chart far-right, stay floated right
 
@@ -133,6 +132,13 @@ export default class Chart extends React.Component {
     let options = {};
     let graphXmax;
 
+    if (this._chartRangeWidth === null) {
+      let first = this._dygraph.getValue(0, 0);
+      let second = this._dygraph.getValue(1, 0);
+      if (first !== null && second !== null) {
+        this._chartRangeWidth = (second - first) * 200; // chart range finder static 200 datapoints
+      }
+    }
     if (this._chartScrollLock && !this._chartBusy) {
       // if range scroll is locked, we're far right, so stay far right on chart
       graphXmax = this._dygraph.xAxisExtremes()[1];
