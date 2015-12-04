@@ -24,7 +24,6 @@ import {ACTIONS} from '../lib/Constants';
 import {
   DatabaseGetError, DatabasePutError, FilesystemGetError
 } from '../../main/UserError';
-import Utils from '../../main/Utils';
 
 
 // MAIN
@@ -37,9 +36,8 @@ export default function (actionContext) {
 
     let databaseClient = actionContext.getDatabaseClient();
     let fileClient = actionContext.getFileClient();
-    let log = actionContext.getLoggerClient();
 
-    log.debug('load existing files from db, from previous runs');
+    // load existing files from db, from previous execution
     databaseClient.getAllFiles((error, files) => {
       if (error) {
         actionContext.dispatch(
@@ -48,11 +46,11 @@ export default function (actionContext) {
         );
         reject(error);
       } else if (files.length) {
-        log.debug('files in db already, not first run, straight to UI');
+        // files in db already, not first run, straight to UI
         actionContext.dispatch(ACTIONS.LIST_FILES, files);
         resolve(files);
       } else {
-        log.debug('no files in db, first run, so load them from fs');
+        // no files in db, first run, so load them from fs
         fileClient.getSampleFiles((error, files) => {
           if (error) {
             actionContext.dispatch(
@@ -61,12 +59,7 @@ export default function (actionContext) {
             );
             reject(error);
           } else {
-            log.debug('got file list from fs, saving to db for next runs');
-            files = files.map((file) => {
-              file.uid = Utils.generateFileId(file.filename);
-              return file;
-            });
-
+            // got file list from fs, saving to db for next runs
             databaseClient.putFileBatch(files, (error) => {
               if (error) {
                 actionContext.dispatch(
@@ -75,7 +68,7 @@ export default function (actionContext) {
                 );
                 reject(error);
               } else {
-                log.debug('DB now has Files, on to UI.');
+                // DB now has Files, on to UI.
                 actionContext.dispatch(ACTIONS.LIST_FILES, files);
                 resolve(files);
               }
@@ -84,6 +77,5 @@ export default function (actionContext) {
         }); // fileClient.getSampleFiles()
       }
     }); // databaseClient.getAllFiles()
-
   }); // Promise
 }
