@@ -17,6 +17,7 @@
 
 
 import {ACTIONS} from '../lib/Constants';
+import UnloadMetricDataAction from './UnloadMetricData';
 
 
 /**
@@ -28,5 +29,6 @@ import {ACTIONS} from '../lib/Constants';
  * @see http://fluxible.io/api/actions.html#api-code-actions-code-
  */
 export default function (actionContext, modelId) {
-  return actionContext.dispatch(ACTIONS.HIDE_MODEL, modelId);
+  actionContext.dispatch(ACTIONS.HIDE_MODEL, modelId);
+  return actionContext.executeAction(UnloadMetricDataAction, modelId);
 }

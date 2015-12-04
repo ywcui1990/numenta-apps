@@ -20,7 +20,7 @@ import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Action used to send data to models
+ * Action used to send metric data to models
  *
  * @param {FluxibleContext} actionContext - Fluxible action context object
  * @param {Object} payload - Action payload
@@ -32,6 +32,6 @@ import {ACTIONS} from '../lib/Constants';
 export default function (actionContext, payload) {
   let modelClient = actionContext.getModelClient();
   let {modelId, data} = payload;
-  actionContext.dispatch(ACTIONS.SEND_DATA, modelId);
+  actionContext.dispatch(ACTIONS.SEND_METRIC_DATA, modelId);
   modelClient.sendData(modelId, data);
 }

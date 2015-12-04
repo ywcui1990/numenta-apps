@@ -16,6 +16,7 @@
 // http://numenta.org/licenses/
 
 import {ACTIONS} from '../lib/Constants';
+import LoadMetricDataAction from './LoadMetricData';
 
 
 /**
@@ -26,5 +27,6 @@ import {ACTIONS} from '../lib/Constants';
  * @see http://fluxible.io/api/actions.html#api-code-actions-code-
  */
 export default function (actionContext, modelId) {
-  return actionContext.dispatch(ACTIONS.SHOW_MODEL, modelId);
+  actionContext.dispatch(ACTIONS.SHOW_MODEL, modelId);
+  return actionContext.executeAction(LoadMetricDataAction, modelId);
 }

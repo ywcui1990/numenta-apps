@@ -23,14 +23,19 @@ export default function (actionContext, payload) {
   let {command, modelId, error} = payload;
 
   if (command === 'create') {
-    return actionContext.dispatch(ACTIONS.START_MODEL_FAILED, {modelId, error});
+    return actionContext.dispatch(ACTIONS.START_MODEL_FAILED, {
+      modelId, error
+    });
   } else if (command === 'remove') {
-    return actionContext.dispatch(ACTIONS.STOP_MODEL_FAILED, {modelId, error});
+    return actionContext.dispatch(ACTIONS.STOP_MODEL_FAILED, {
+      modelId, error
+    });
   } else if (command === 'sendData') {
-    return actionContext.dispatch(ACTIONS.SEND_DATA_FAILED, {modelId, error});
+    return actionContext.dispatch(ACTIONS.SEND_METRIC_DATA_FAILED, {
+      modelId, error
+    });
   }
-  return actionContext.dispatch(
-    ACTIONS.UNKNOWN_MODEL_FAILURE,
-    {modelId, error}
-  );
+  return actionContext.dispatch(ACTIONS.UNKNOWN_MODEL_FAILURE, {
+    modelId, error
+  });
 }

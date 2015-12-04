@@ -21,7 +21,7 @@
 import ipc from 'ipc';
 
 import ModelErrorAction from '../../actions/ModelError';
-import ReceiveDataAction from '../../actions/ReceiveData';
+import ReceiveModelDataAction from '../../actions/ReceiveModelData';
 import StopModelAction from '../../actions/StopModel';
 
 const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
@@ -113,7 +113,7 @@ export default class ModelClient {
         return JSON.parse(row);
       }
     });
-    this._context.executeAction(ReceiveDataAction, {modelId, data});
+    this._context.executeAction(ReceiveModelDataAction, {modelId, data});
   }
 
 }

@@ -23,17 +23,22 @@ import {ACTIONS} from '../lib/Constants';
  * Delete model
  * @param {FluxibleContext} actionContext -
  * @param {string} modelId - Model ID
+ * @return {Promise}
  */
 export default function (actionContext, modelId) {
-  let database = actionContext.getDatabaseClient();
-  // Delete model data
-  database.deleteMetricData(modelId, (error) => {
-    if (error) {
-      actionContext.dispatch(ACTIONS.DELETE_MODEL_FAILED, {modelId, error});
-    } else {
-      actionContext.dispatch(ACTIONS.DELETE_MODEL, modelId);
-      let modelClient = actionContext.getModelClient();
-      modelClient.removeModel(modelId);
-    }
+  return new Promise((resolve, reject) => {
+    let database = actionContext.getDatabaseClient();
+    // Delete model data
+    database.deleteMetricData(modelId, (error) => {
+      if (error) {
+        actionContext.dispatch(ACTIONS.DELETE_MODEL_FAILED, {modelId, error});
+        reject(error);
+      } else {
+        actionContext.dispatch(ACTIONS.DELETE_MODEL, modelId);
+        let modelClient = actionContext.getModelClient();
+        modelClient.removeModel(modelId);
+        resolve(modelId);
+      }
+    });
   });
 }

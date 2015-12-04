@@ -28,5 +28,5 @@ import {ACTIONS} from '../lib/Constants';
  * @param {Object[]} payload.data - New data to be appended
  */
 export default function (actionContext, payload) {
-  actionContext.dispatch(ACTIONS.RECEIVE_DATA, payload);
+  actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, payload);
 }
