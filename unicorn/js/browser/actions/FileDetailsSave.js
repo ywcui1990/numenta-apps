@@ -55,7 +55,7 @@ export default function (actionContext, payload) {
         for (let [, metric] of metrics) {
           if (metric) {
             promises.push(
-              actionContext.executeAction(StartModelAction, metric)
+              actionContext.executeAction(StartModelAction, metric.modelId)
             );
           }
         }
