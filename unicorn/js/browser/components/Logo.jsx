@@ -16,8 +16,6 @@
 // http://numenta.org/licenses/
 
 
-// externals
-
 import Avatar from 'material-ui/lib/avatar';
 import React from 'react';
 
@@ -36,15 +34,28 @@ export default class Logo extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    // dynamic styles
     let muiTheme = this.context.muiTheme;
-    this._style = {
-      backgroundColor: muiTheme.appBar.color,
-      color: muiTheme.appBar.textColor,
-      fontSize: 32,
-      height: muiTheme.appBar.height * 2,
-      margin: 0,
-      padding: muiTheme.rawTheme.spacing.desktopGutter,
-      width: '100%'
+    this._styles = {
+      root: {
+        backgroundColor: muiTheme.appBar.color,
+        color: muiTheme.appBar.textColor,
+        height: muiTheme.appBar.height * 2,
+        margin: 0,
+        padding: muiTheme.rawTheme.spacing.desktopGutter,
+        width: '100%'
+      },
+      avatar: {
+        backgroundColor: muiTheme.rawTheme.palette.accent2Color,
+        borderColor: muiTheme.rawTheme.palette.accent2Color,
+        position: 'relative',
+        top: '0.666rem'
+      },
+      title: {
+        marginLeft: '0.666rem',
+        marginTop: '-3rem',
+        fontSize: '200%'
+      }
     };
   }
 
@@ -56,10 +67,14 @@ export default class Logo extends React.Component {
    */
   render() {
     return (
-      <header style={this._style}>
-        <Avatar backgroundColor="#145591" size={65}
-                src="assets/images/unicorn-logo-300.png">
-          Unicorn
+      <header style={this._styles.root}>
+        <Avatar
+          size={65}
+          style={this._styles.avatar}
+          src="assets/images/unicorn-logo-300.png">
+            <span style={this._styles.title}>
+              Unicorn
+            </span>
         </Avatar>
       </header>
     );

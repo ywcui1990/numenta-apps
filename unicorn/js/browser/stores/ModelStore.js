@@ -1,24 +1,22 @@
-// Numenta Platform for Intelligent Computing (NuPIC)
-// Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+// Copyright © 2015, Numenta, Inc. Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero Public License version 3 as
-// published by the Free Software Foundation.
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the
+// Free Software Foundation.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU Affero Public License for more details.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
 //
-// You should have received a copy of the GNU Affero Public License
-// along with this program.  If not, see http://www.gnu.org/licenses.
+// You should have received a copy of the GNU Affero Public License along with
+// this program. If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
 
-
 import BaseStore from 'fluxible/addons/BaseStore';
+
 
 /**
  * @typedef {Object} ModelStore.Model
@@ -27,6 +25,7 @@ import BaseStore from 'fluxible/addons/BaseStore';
  * @property {string} timestampField - Timestamp field name
  * @property {string} metric - Metric field name
  * @property {boolean} active - Whether or not this model is running
+ * @property {boolean} ran - Whether not this metric model has run once
  * @property {boolean} visible - Whether or not this model is visible
  * @property {?string} error - Last known error or null for no error
  */
@@ -36,9 +35,11 @@ const DEFAULT_VALUES = {
   timestampField: null,
   metric: null,
   active: false,
-  visible: true,
+  ran: false,
+  visible: false,
   error: null
-}
+};
+
 
 /**
  * Manages nupic models UI properties
@@ -49,7 +50,7 @@ export default class ModelStore extends BaseStore {
    * ModelStore
    */
   static get storeName() {
-    return 'ModelStore'
+    return 'ModelStore';
   }
 
   static get handlers() {
@@ -85,11 +86,11 @@ export default class ModelStore extends BaseStore {
         this._models.set(model.modelId,
           Object.assign({}, DEFAULT_VALUES, model));
       });
-      this.emitChange();
     } else if ('modelId' in models) {
       this._models.set(models.modelId,
         Object.assign({}, DEFAULT_VALUES, models));
     }
+    this.emitChange();
   }
 
   /**
@@ -99,32 +100,6 @@ export default class ModelStore extends BaseStore {
   _deleteModel(modelId) {
     this._models.delete(modelId);
     this.emitChange();
-  }
-
-  /**
-   * Mark the model as stopped.
-   * @param {string} modelId The model to update
-   */
-  _stopModel(modelId) {
-    let model = this._models.get(modelId);
-    if (model) {
-      model.active = false;
-      model.error = null;
-      this.emitChange();
-    }
-  }
-
-  /**
-   * Mark the model as active.
-   * @param {string} modelId - The model to update
-   */
-  _startModel(modelId) {
-    let model = this._models.get(modelId);
-    if (model) {
-      model.active = true;
-      model.error = null;
-      this.emitChange();
-    }
   }
 
   /**
@@ -147,6 +122,33 @@ export default class ModelStore extends BaseStore {
     let model = this._models.get(modelId);
     if (model) {
       model.visible = true;
+      this.emitChange();
+    }
+  }
+
+  /**
+   * Mark the model as active.
+   * @param {string} modelId - The model to update
+   */
+  _startModel(modelId) {
+    let model = this._models.get(modelId);
+    if (model) {
+      model.active = true;
+      model.ran = true;
+      model.error = null;
+      this.emitChange();
+    }
+  }
+
+  /**
+   * Mark the model as stopped.
+   * @param {string} modelId The model to update
+   */
+  _stopModel(modelId) {
+    let model = this._models.get(modelId);
+    if (model) {
+      model.active = false;
+      model.error = null;
       this.emitChange();
     }
   }
@@ -185,4 +187,5 @@ export default class ModelStore extends BaseStore {
   getModels() {
     return Array.from(this._models.values());
   }
+
 }

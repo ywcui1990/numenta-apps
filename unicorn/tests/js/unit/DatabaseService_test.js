@@ -235,7 +235,10 @@ describe('DatabaseService:', () => {
             assert.ifError(error);
             service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
               // Make sure metric was deleted
-              assert(error && error.type === 'NotFoundError', 'Metric was not deleted');
+              assert(
+                error && error.type === 'NotFoundError',
+                'Metric was not deleted'
+              );
               // Make sure data was deleted
               service.getMetricData(EXPECTED_METRIC.uid, (error, actual) => { // eslint-disable-line
                 assert(actual.length === 0, 'MetricData was not deleted');
@@ -267,7 +270,10 @@ describe('DatabaseService:', () => {
             assert.ifError(error);
             service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
               // Make sure metric was deleted
-              assert(error && error.type === 'NotFoundError', 'Metric was not deleted');
+              assert(
+                error && error.type === 'NotFoundError',
+                'Metric was not deleted'
+              );
               done();
             });
           });
