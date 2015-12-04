@@ -35,6 +35,8 @@ from htmresearch.frameworks.nlp.classify_fingerprint import (
 # from htmresearch.frameworks.nlp.classify_htm import ClassificationModelHTM
 # from htmresearch.frameworks.nlp.classify_keywords import (
 #   ClassificationModelKeywords)
+from htmresearch.frameworks.nlp.classify_windows import (
+  ClassificationModelWindows)
 from htmresearch.support.csv_helper import readCSV
 
 
@@ -43,10 +45,12 @@ g_log = logging.getLogger(__name__)
 _NETWORK_JSON = "imbu_tp.json"
 _MODEL_MAPPING = {
   "CioWordFingerprint": ClassificationModelFingerprint,
-  "CioDocumentFingerprint": ClassificationModelFingerprint
+  "CioDocumentFingerprint": ClassificationModelFingerprint,
+  "CioWindows": ClassificationModelWindows,
   # "Keywords": ClassificationModelKeywords,
   # "HTMNetwork": ClassificationModelHTM,
 }
+_DEFAULT_MODEL_NAME = "CioWindows"
 
 
 
@@ -85,7 +89,7 @@ def loadJSON(jsonPath):
     with pkg_resources.resource_filename(__name__, jsonPath) as fin:
       return json.load(fin)
   except IOError as e:
-    print "Could not find JSON at \'{}\'.".format(jsonPath)
+    print "Could not find JSON at '{}'.".format(jsonPath)
     raise e
 
 
@@ -95,10 +99,7 @@ def createModel(modelName, dataPath, csvdata):
   modelFactory = _MODEL_MAPPING.get(modelName, None)
 
   if modelFactory is None:
-    raise ValueError("Could not instantiate model \'{}\'.".format(modelName))
-
-  # TODO: remove these if blocks and just use the else; either specify the Cio
-  # FP type elsewhere, or split Word and Doc into separate classes.
+    raise ValueError("Could not instantiate model '{}'.".format(modelName))
 
   if modelName == "HTMNetwork":
     networkConfig = loadJSON(_NETWORK_JSON)
@@ -112,12 +113,14 @@ def createModel(modelName, dataPath, csvdata):
                          stripCats=True,
                          retinaScaling=1.0)
 
-    numRecords = (
-      sum(model.networkDataGen.getNumberOfTokens(model.networkDataPath))
-    )
+    # Train the HTM network once
+    numRecords = sum(
+      model.networkDataGen.getNumberOfTokens(model.networkDataPath))
     model.trainModel(iterations=numRecords)
+
     model.verbosity = 0
     model.numLabels = 0
+
     return model
 
   elif modelName == "CioWordFingerprint":
@@ -146,32 +149,34 @@ def createModel(modelName, dataPath, csvdata):
 
 
 class FluentWrapper(object):
-  """ Wraps imbu Model """
+  """Wraps the Imbu model"""
 
   def __init__(self, dataPath="data.csv"):
     """
-    initializes imbu model with given sample data
+    Initializes Imbu model with given sample data.
 
     :param str dataPath: Path to sample data file.
-                         Must be a CSV file having 'ID and 'Sample' columns
+                         Must be a CSV file having 'ID' and 'Sample' columns.
     """
-    g_log.info("Initialize imbu model")
+    g_log.info("Initialize Imbu model")
 
+    # Get data and order by unique ID
     csvdata = readCSV(dataPath, numLabels=0)
     self.samples = OrderedDict()
-    for dataID, text in csvdata.iteritems():
-      self.samples[dataID] = text
+    for sample in csvdata.values():
+      self.samples[sample[2]] = sample[0]
 
-
+    # Create all models
     self.models = {modelName: createModel(modelName, dataPath, csvdata)
       for modelName, modelFactory in _MODEL_MAPPING.iteritems()}
 
 
   def query(self, model, text):
-    """ Queries fluent model and returns an ordered list of matching documents.
+    """
+    Queries the model and returns an ordered list of matching samples.
 
     :param str model: Model to use. Possible values are:
-                      CioWordFingerprint, CioDocumentFingerprint,
+                      CioWordFingerprint, CioDocumentFingerprint, CioWindows,
                       Keywords, HTMNetwork
 
     :param str text: The text to match.
@@ -187,7 +192,7 @@ class FluentWrapper(object):
     results = []
     if text:
       g_log.info("Query model for : %s", text)
-      sortedDistances = self.models[model].queryModel(text, False)
+      sortedDistances = self.models[model].queryModel(text, preprocess=False)
       for sID, dist in sortedDistances:
         results.append({"id": sID,
                         "text": self.samples[sID],
@@ -205,16 +210,16 @@ class DefaultHandler(object):
 
 
 class FluentAPIHandler(object):
-  """ Handles Fluent API Requests """
+  """Handles API requests"""
 
-  def OPTIONS(self, modelName="CioWordFingerprint"): # pylint: disable=R0201,C0103
+  def OPTIONS(self, modelName=_DEFAULT_MODEL_NAME): # pylint: disable=R0201,C0103
     addStandardHeaders()
     addCORSHeaders()
     if modelName not in g_fluent:
       raise web.notfound("%s Model not found" % modelName)
 
 
-  def POST(self, modelName="CioWordFingerprint"): # pylint: disable=R0201,C0103
+  def POST(self, modelName=_DEFAULT_MODEL_NAME): # pylint: disable=R0201,C0103
     addStandardHeaders()
     addCORSHeaders()
 
@@ -247,9 +252,9 @@ urls = (
 )
 app = web.application(urls, globals())
 
-# Create imbu model runner
-IMBU_DATA = os.getenv("IMBU_DATA",
-                      pkg_resources.resource_filename(__name__, "data.csv"))
+# Create Imbu model runner
+IMBU_DATA = os.getenv(
+  "IMBU_DATA", pkg_resources.resource_filename(__name__, "data.csv"))
 g_fluent = FluentWrapper(IMBU_DATA)
 
 # Required by uWSGI per WSGI spec
