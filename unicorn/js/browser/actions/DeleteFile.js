@@ -17,6 +17,7 @@
 
 
 import {ACTIONS} from '../lib/Constants';
+import Utils from '../../main/Utils';
 
 
 /**
@@ -24,8 +25,17 @@ import {ACTIONS} from '../lib/Constants';
  * @param  {FluxibleContext} actionContext -
  * @param  {string} filename - The name of the file to delete.
  *                             Must be in the {@link FileStore}
- * @todo UNI-238 Implement delete file and its models
  */
 export default function (actionContext, filename) {
-  actionContext.dispatch(ACTIONS.DELETE_FILE, filename);
+
+  let database = actionContext.getDatabaseClient();
+  // Delete file and its data
+  let fileId = Utils.generateFileId(filename);
+  database.deleteFile(fileId, (error) => {
+    if (error) {
+      actionContext.dispatch(ACTIONS.DELETE_FILE_FAILED, {filename, error});
+    } else {
+      actionContext.dispatch(ACTIONS.DELETE_FILE, filename);
+    }
+  });
 }
