@@ -46,11 +46,13 @@ export default class Logo extends React.Component {
         width: '100%'
       },
       avatar: {
+        backgroundColor: muiTheme.rawTheme.palette.accent2Color,
+        borderColor: muiTheme.rawTheme.palette.accent2Color,
         position: 'relative',
         top: '0.666rem'
       },
       title: {
-        marginLeft: '0.5rem',
+        marginLeft: '0.666rem',
         marginTop: '-3rem',
         fontSize: '200%'
       }
@@ -67,7 +69,6 @@ export default class Logo extends React.Component {
     return (
       <header style={this._styles.root}>
         <Avatar
-          backgroundColor="#29aae2"
           size={65}
           style={this._styles.avatar}
           src="assets/images/unicorn-logo-300.png">

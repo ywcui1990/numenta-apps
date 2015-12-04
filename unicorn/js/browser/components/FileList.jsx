@@ -20,10 +20,10 @@ import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import IconButton from 'material-ui/lib/icon-button';
-import IconClose from 'material-ui/lib/svg-icons/navigation/arrow-drop-down';
+import IconClose from 'material-ui/lib/svg-icons/hardware/keyboard-arrow-down';
 import IconMenu from 'material-ui/lib/menus/icon-menu';
 import IconMore from 'material-ui/lib/svg-icons/navigation/more-vert';
-import IconOpen from 'material-ui/lib/svg-icons/navigation/arrow-drop-up';
+import IconOpen from 'material-ui/lib/svg-icons/hardware/keyboard-arrow-up';
 import IconStatus from 'material-ui/lib/svg-icons/image/lens';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
@@ -82,9 +82,14 @@ export default class FileList extends React.Component {
     }, props);
 
     this._styles = {
-      root: {},
+      file: {
+        textTransform: 'capitalize'
+      },
       more: {
         width: 40
+      },
+      metric: {
+        textTransform: 'capitalize'
       },
       status: {
         height: 15,
@@ -169,21 +174,26 @@ export default class FileList extends React.Component {
     if (timestampField) {
       return file.metrics.map((metric) => {
         if (metric.type !== 'date') {
+          let isModelActive = false;
+          let isModelVisible = false;
+          let statusColor = Colors.red400;
           let modelId = Utils.generateMetricId(file.filename, metric.name);
           let models = this.props.models;
           let model = models.find((m) => m.modelId === modelId);
-          let isModelVisible = model && 'visible' in model && model.visible;
-          let statusColor = Colors.red400;
 
-          if (model && 'active' in model && model.active) {
+          if (model) {
+            isModelActive = ('active' in model) && model.active;
+            isModelVisible = ('visible' in model) && model.visible;
+          }
+          if (isModelActive) {
             statusColor = Colors.green400;
           }
-          console.log('OK!', isModelVisible);
+
           return (
-            <ListItem key={modelId}
+            <ListItem
+              key={modelId}
               leftCheckbox={
-                <Checkbox name={modelId}
-                  ref={`${modelId}-checkbox`}
+                <Checkbox
                   checked={isModelVisible}
                   onCheck={
                     this._onMetricCheck.bind(
@@ -196,10 +206,11 @@ export default class FileList extends React.Component {
                   }
                   />
               }
+              primaryText={metric.name}
               rightIcon={
                 <IconStatus color={statusColor} style={this._styles.status} />
               }
-              primaryText={metric.name}
+              style={this._styles.metric}
               />
           );
         }
@@ -220,14 +231,16 @@ export default class FileList extends React.Component {
             }
             onChange={this._handleFileContextMenu.bind(this, filename)}
             style={this._styles.more}
-          >
-            <MenuItem index={1}
-              value="detail"
-              primaryText="File Details" />
-            <MenuItem index={2}
-              value="delete"
-              primaryText="Delete File"
-              disabled={filetype === 'sample'} />
+            >
+              <MenuItem index={1}
+                primaryText="File Details"
+                value="detail"
+                />
+              <MenuItem index={2}
+                disabled={filetype === 'sample'}
+                primaryText="Delete File"
+                value="delete"
+                />
           </IconMenu>
         );
 
@@ -251,7 +264,9 @@ export default class FileList extends React.Component {
             nestedItems={this._renderMetrics(file)}
             primaryText={file.name}
             ref={`file-toggle-${fileId}`}
-            rightIconButton={contextMenu} />
+            rightIconButton={contextMenu}
+            style={this._styles.file}
+            />
         );
       }
     });

@@ -51,7 +51,10 @@ export default class ModelData extends React.Component {
         showRangeSelector: true
       };
       return (
-        <Chart data={modelData.data} options={options} ref="chart"/>
+        <Chart
+          data={modelData.data}
+          options={options}
+          />
       );
     }
   }

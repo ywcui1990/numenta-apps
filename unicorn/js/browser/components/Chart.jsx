@@ -70,14 +70,14 @@ export default class Chart extends React.Component {
     this._styles = {
       root: {
         boxShadow: 'none',
-        height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 3,
+        height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 3.5,
         width: '100%'
       }
     };
   }
 
   componentDidMount() {
-    this._chartBusy = false;
+    this._chartBusy = false; // flag for when chart is busy
     this._chartRangeWidth = 200; // chart range finder static 200 datapoints
     this._chartRange = [0, this._chartRangeWidth]; // hold current range window
     this._chartScrollLock = true; // if chart far-right, stay floated right
@@ -118,6 +118,8 @@ export default class Chart extends React.Component {
     let el = ReactDOM.findDOMNode(this.refs.chart);
     let selector;
 
+    this._chartBusy = true;
+
     Object.assign(options, this.props.options);
     this._dygraph = new Dygraph(el, this.props.data, options);
 
@@ -131,6 +133,8 @@ export default class Chart extends React.Component {
       'mouseup',
       this._rangeMouseUpCallback.bind(this)
     );
+
+    this._chartBusy = false;
   }
 
   /**
@@ -147,10 +151,12 @@ export default class Chart extends React.Component {
     }
 
     // update chart
+    this._chartBusy = true;
     options.dateWindow = this._chartRange; // fixed width
     options.file = this.props.data; // new data
     Object.assign(options, this.props.options);
     this._dygraph.updateOptions(options);
+    this._chartBusy = false;
   }
 
   /**
@@ -217,7 +223,9 @@ export default class Chart extends React.Component {
    */
   render() {
     return (
-      <Paper ref="chart" style={this._styles.root} zDepth={this.props.zDepth} />
+      <Paper ref="chart" style={this._styles.root} zDepth={this.props.zDepth}>
+        <br/>This Metric does not yet have a Model.
+      </Paper>
     );
   }
 

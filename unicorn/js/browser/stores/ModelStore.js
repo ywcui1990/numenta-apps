@@ -15,8 +15,8 @@
 //
 // http://numenta.org/licenses/
 
-
 import BaseStore from 'fluxible/addons/BaseStore';
+
 
 /**
  * @typedef {Object} ModelStore.Model
@@ -25,6 +25,7 @@ import BaseStore from 'fluxible/addons/BaseStore';
  * @property {string} timestampField - Timestamp field name
  * @property {string} metric - Metric field name
  * @property {boolean} active - Whether or not this model is running
+ * @property {boolean} ran - Whether not this metric model has run once
  * @property {boolean} visible - Whether or not this model is visible
  * @property {?string} error - Last known error or null for no error
  */
@@ -34,9 +35,10 @@ const DEFAULT_VALUES = {
   timestampField: null,
   metric: null,
   active: false,
-  visible: true,
+  ran: false,
+  visible: false,
   error: null
-}
+};
 
 
 /**
@@ -48,7 +50,7 @@ export default class ModelStore extends BaseStore {
    * ModelStore
    */
   static get storeName() {
-    return 'ModelStore'
+    return 'ModelStore';
   }
 
   static get handlers() {
@@ -131,6 +133,7 @@ export default class ModelStore extends BaseStore {
     let model = this._models.get(modelId);
     if (model) {
       model.active = true;
+      model.ran = true;
       model.error = null;
       this.emitChange();
     }

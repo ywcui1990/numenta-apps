@@ -27,7 +27,7 @@ export default {
     primary2Color: Colors.cyan700,
     primary3Color: Colors.lightBlack,
     accent1Color: Colors.lightBlue400,
-    accent2Color: Colors.grey100,
+    accent2Color: Colors.lightBlue800,
     accent3Color: Colors.grey500,
     textColor: Colors.darkBlack,
     alternateTextColor: Colors.white,

@@ -78,6 +78,12 @@ export default class Model extends React.Component {
         marginBottom: '1rem',
         width: '100%'
       },
+      avatar: {
+        textTransform: 'capitalize'
+      },
+      title: {
+        textTransform: 'capitalize'
+      },
       actions: {
         textAlign: 'right',
         marginRight: '2rem',
@@ -160,13 +166,15 @@ export default class Model extends React.Component {
   }
 
   render() {
-    let avatar, titleColor;
+    let avatarColor, titleColor;
     let model = this.state;
     let modelId = model.modelId;
     let filename = path.basename(model.filename);
     let confirmDialog = this.state.confirmDialog || {};
     let title = model.metric;
-    let isModelActive = (model && 'active' in model && model.active);
+    let avatarContents = model.metric.charAt(0);
+    let isModelActive = (model && ('active' in model) && model.active);
+    let hasModelRun = (model && ('ran' in model) && model.ran);
     let dialogActions = [
        {text: 'Cancel'},
        {text: 'Delete', onTouchTap: confirmDialog.callback, ref: 'submit'}
@@ -174,7 +182,7 @@ export default class Model extends React.Component {
     let actions = (
       <CardActions style={this._styles.actions}>
         <FlatButton
-          disabled={isModelActive}
+          disabled={hasModelRun}
           label="Create Model"
           labelPosition="after"
           onTouchTap={this._createModel.bind(this, modelId)}
@@ -186,13 +194,13 @@ export default class Model extends React.Component {
           onTouchTap={this._onStopButtonClick.bind(this, modelId)}
           />
         <FlatButton
-          disabled={!isModelActive}
+          disabled={!hasModelRun}
           label="Delete Model"
           labelPosition="after"
           onTouchTap={this._deleteModel.bind(this, modelId)}
           />
         <FlatButton
-          disabled={!isModelActive}
+          disabled={!hasModelRun}
           label="Export Results"
           labelPosition="after"
           onTouchTap={this._exportModelResults.bind(this, modelId)}
@@ -201,22 +209,29 @@ export default class Model extends React.Component {
     );
 
     if (model.error) {
-      avatar = (<Avatar backgroundColor={Colors.red400}>!</Avatar>);
+      avatarColor = titleColor = Colors.red400;
+      avatarContents = '!';
       title = `${model.metric} | ${model.error.message}`;
-      titleColor = Colors.red400;
     } else if (model.active) {
-      avatar = (<Avatar backgroundColor={Colors.green400}></Avatar>);
+      avatarColor = Colors.green400;
     } else {
-      avatar = (<Avatar backgroundColor={Colors.red400}></Avatar>);
+      avatarColor = Colors.red400;
     }
 
     return (
       <Card initiallyExpanded={true} style={this._styles.root}>
-        <CardHeader showExpandableButton={true}
-          avatar={avatar}
+        <CardHeader
+          avatar={
+            <Avatar backgroundColor={avatarColor} style={this._styles.avatar}>
+              {avatarContents}
+            </Avatar>
+          }
+          showExpandableButton={true}
+          style={this._styles.title}
           subtitle={filename}
           title={title}
-          titleColor={titleColor}/>
+          titleColor={titleColor}
+          />
         <CardText expandable={true}>
           {actions}
           <ModelData modelId={modelId} />
@@ -226,7 +241,8 @@ export default class Model extends React.Component {
           modal={true}
           actions={dialogActions}
           onDismiss={this._dismissDialog.bind(this)}
-          actionFocus="submit">
+          actionFocus="submit"
+          >
             {confirmDialog.message}
         </Dialog>
       </Card>

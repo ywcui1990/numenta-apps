@@ -15,7 +15,6 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
 
 
@@ -25,7 +24,7 @@ import {ACTIONS} from '../lib/Constants';
   * @param  {string} modelId - Model ID
   */
 export default function (actionContext, modelId) {
-  actionContext.dispatch(ACTIONS.STOP_MODEL, modelId);
   let modelClient = actionContext.getModelClient();
   modelClient.removeModel(modelId);
+  return actionContext.dispatch(ACTIONS.STOP_MODEL, modelId);
 }

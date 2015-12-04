@@ -15,7 +15,6 @@
 //
 // http://numenta.org/licenses/
 
-
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import fs from 'fs';
 import Material from 'material-ui';
@@ -38,11 +37,11 @@ const {
 /**
  * Show file details page. The file must be available from the {@link FileStore}
  */
- @connectToStores([FileDetailsStore], (context) => ({
-   filename: context.getStore(FileDetailsStore).getFileName(),
-   visible: context.getStore(FileDetailsStore).isVisible(),
-   newFile: context.getStore(FileDetailsStore).isNewFile()
- }))
+@connectToStores([FileDetailsStore], (context) => ({
+  filename: context.getStore(FileDetailsStore).getFileName(),
+  visible: context.getStore(FileDetailsStore).isVisible(),
+  newFile: context.getStore(FileDetailsStore).isNewFile()
+}))
 export default class FileDetails extends React.Component {
 
   static contextTypes = {
@@ -54,191 +53,15 @@ export default class FileDetails extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+
     this.state = {
       file: null,
       fileSize: 0,
       data: [],
       metrics: new Map()
     };
-  }
 
-  componentWillReceiveProps(nextProps) {
-    let file, timestampField;
-    let metrics = new Map();
-    let data = [];
-    let fileSize = 0;
-
-    if (nextProps.visible && nextProps.filename) {
-      // Initialize file
-      let fileStore = this.context.getStore(FileStore);
-      file = fileStore.getFile(nextProps.filename);
-
-      // Initialize metrics
-      if (file) {
-        file.metrics.forEach((metric) => {
-          if (metric.type !== 'date') {
-            let modelId = Utils.generateMetricId(file.filename, metric.name);
-            metrics.set(modelId, null);
-          } else {
-            timestampField = metric.name;
-          }
-        });
-
-        // Load first 20 records
-        let fileClient = this.context.getFileClient();
-        let options = {limit: 20};
-        fileClient.getData(file.filename, options, (error, buffer) => {
-          if (buffer) {
-            data.push(JSON.parse(buffer));
-            // Guess timestamp format based the first row
-            if (timestampField && data.length === 1) {
-              file.timestampFormat = TIMESTAMP_FORMATS.find((format) => {
-                return moment(data[0][timestampField], format, true).isValid();
-              });
-            }
-          }
-        });
-        // File size in bytes
-        let stats = fs.statSync(file.filename); // eslint-disable-line no-sync
-        fileSize = stats.size;
-      }
-    }
-
-    // Initialize State
-    this.setState({file, fileSize, data, metrics});
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.props.visible) {
-      this.refs.dialog.show();
-    } else {
-      this.refs.dialog.dismiss();
-    }
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    // Only update if visible
-    return nextProps.visible;
-  }
-
-  render() {
-    let body, title;
-    if (this.state.file) {
-      title = this.state.file.name;
-      body = this._renderBody();
-    }
-    return (
-      <Dialog ref="dialog" title={title} actions={[
-          {text: 'Cancel'},
-          {text: 'Save', onTouchTap: this._onSave.bind(this), ref: 'submit'}]}
-          actionFocus="submit" onDismiss={this._onDismiss.bind(this)}>
-        {body}
-      </Dialog>)
-  }
-
-  _renderBody() {
-    let styles = this._getStyles();
-    let file = this.state.file;
-    let fileSize = this.state.fileSize;
-
-    return (
-      <div style={styles.container}>
-
-        <div style={styles.fields}>
-
-          <TextField ref="description"
-            name="description"
-            multiLine={true}
-            rowsMax={2}
-            floatingLabelText="Description"
-            value={file.description}
-            onChange={this._handleFileInputChange.bind(this)}/>
-
-          <TextField ref="fileSize"
-            name="fileSize"
-            readOnly={true}
-            tabIndex={-1}
-            underlineFocusStyle={{display:'none'}}
-            floatingLabelText="File Size (bytes)"
-            value={fileSize}/>
-
-          {this._renderMetrics()}
-        </div>
-
-        <div style={styles.data}>
-          {this._renderDataTable()}
-        </div>
-      </div>
-    );
-  }
-
-  _renderDataTable() {
-    let styles = this._getStyles();
-
-    let data = this.state.data;
-    if (data.length > 0) {
-      let columnHeader = Object.keys(data[0]).map((name, idx) => {
-        return (<TableHeaderColumn key={idx}>{name}</TableHeaderColumn>);
-      });
-
-      let tableRows = [];
-      data.map((row, rowIdx) => {
-        let columns = [];
-        Object.values(row).map((value, colIdx) => {
-          columns.push(<TableRowColumn key={colIdx}>{value}</TableRowColumn>);
-        });
-        tableRows.push(<TableRow key={rowIdx}>{columns}</TableRow>);
-      });
-
-      return (
-        <Table height="300px" selectable={false} fixedHeader={true}
-          style={styles.table}>
-          <TableHeader adjustForCheckbox={false} displaySelectAll={false}
-            enableSelectAll={false}>
-            <TableRow>
-              {columnHeader}
-            </TableRow>
-          </TableHeader>
-          <TableBody stripedRows={true} displayRowCheckbox={false}>
-            {tableRows}
-          </TableBody>
-        </Table>
-      );
-    }
-  }
-
-  _renderMetrics() {
-    if (this.props.newFile) {
-      let {file, metrics} = this.state;
-      let timestampField = file.metrics.find((metric) => {
-        return metric.type === 'date';
-      });
-      if (timestampField) {
-        let items = file.metrics.map((metric) => {
-          if (metric.type !== 'date') {
-            let modelId = Utils.generateMetricId(file.filename, metric.name);
-            let checked = metrics.get(modelId) ? true : false; // eslint-disable-line
-            return (
-              <ListItem key={modelId}
-                leftCheckbox={<Checkbox name={modelId}
-                checked={checked}
-                onCheck={this._onMetricCheck.bind(this, modelId, file.filename,
-                  timestampField.name, metric.name)}/>}
-                primaryText={metric.name} />
-            );
-          }
-        });
-        return (
-          <List subheader="Create Models" height="50px">
-            {items}
-          </List>
-        );
-      }
-    }
-  }
-
-  _getStyles() {
-    return {
+    this._styles = {
       container: {
         display: 'flex',
         flex: '1 100%',
@@ -260,7 +83,67 @@ export default class FileDetails extends React.Component {
       table: {
         tableLayout: 'auto'
       }
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let file, stats, timestampField;
+    let fileStore = this.context.getStore(FileStore);
+    let fileClient = this.context.getFileClient();
+    let metrics = new Map();
+    let data = [];
+    let fileSize = 0;
+
+    if (nextProps.visible && nextProps.filename) {
+      // Initialize file
+      file = fileStore.getFile(nextProps.filename);
+
+      // Initialize metrics
+      if (file) {
+        file.metrics.forEach((metric) => {
+          if (metric.type !== 'date') {
+            let modelId = Utils.generateMetricId(file.filename, metric.name);
+            metrics.set(modelId, null);
+          } else {
+            timestampField = metric.name;
+          }
+        });
+
+        // File size in bytes
+        stats = fs.statSync(file.filename); // eslint-disable-line no-sync
+        fileSize = stats.size;
+
+        // Load first 20 records
+        fileClient.getData(file.filename, {limit: 20}, (error, buffer) => {
+          if (error) {
+            throw new Error(error);
+          } else if (buffer) {
+            data.push(JSON.parse(buffer));
+            // Guess timestamp format based the first row
+            if (timestampField && data.length === 1) {
+              file.timestampFormat = TIMESTAMP_FORMATS.find((format) => {
+                return moment(data[0][timestampField], format, true).isValid();
+              });
+            }
+          } else {
+            // Initialize State
+            this.setState({file, fileSize, data, metrics});
+          }
+        });
+      }
     }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.visible) {
+      this.refs.dialog.show();
+    } else {
+      this.refs.dialog.dismiss();
+    }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.visible;
   }
 
   _handleFileInputChange(e) {
@@ -295,4 +178,133 @@ export default class FileDetails extends React.Component {
     }
     this.setState(state);
   }
+
+  _renderMetrics() {
+    let items;
+    let {file, metrics} = this.state;
+    let timestampField = file.metrics.find((metric) => {
+      return metric.type === 'date';
+    });
+
+    if (this.props.newFile && timestampField) {
+      items = file.metrics.map((metric) => {
+        let checked, modelId;
+
+        if (metric.type !== 'date') {
+          modelId = Utils.generateMetricId(file.filename, metric.name);
+          checked = metrics.get(modelId) ? true : false; // eslint-disable-line
+
+          return (
+            <ListItem key={modelId}
+              leftCheckbox={<Checkbox name={modelId}
+              checked={checked}
+              onCheck={this._onMetricCheck.bind(this, modelId, file.filename,
+                timestampField.name, metric.name)}/>}
+              primaryText={metric.name} />
+          );
+        }
+      });
+      return (
+        <List subheader="Create Models" height="50px">
+          {items}
+        </List>
+      );
+    }
+  }
+
+  _renderDataTable() {
+    let columnHeader;
+    let data = this.state.data;
+    let tableRows = [];
+
+    if (data.length > 0) {
+      columnHeader = Object.keys(data[0]).map((name, idx) => {
+        return (<TableHeaderColumn key={idx}>{name}</TableHeaderColumn>);
+      });
+
+      data.forEach((row, rowIdx) => {
+        let columns = [];
+        Object.values(row).map((value, colIdx) => {
+          columns.push(<TableRowColumn key={colIdx}>{value}</TableRowColumn>);
+        });
+        tableRows.push(<TableRow key={rowIdx}>{columns}</TableRow>);
+      });
+
+      return (
+        <Table selectable={false} fixedHeader={true} height={300}
+            style={this._styles.table}>
+          <TableHeader adjustForCheckbox={false} displaySelectAll={false}
+              enableSelectAll={false}>
+            <TableRow>
+              {columnHeader}
+            </TableRow>
+          </TableHeader>
+          <TableBody stripedRows={true} displayRowCheckbox={false}>
+            {tableRows}
+          </TableBody>
+        </Table>
+      );
+    }
+  }
+
+  _renderBody() {
+    let file = this.state.file;
+    let fileSize = this.state.fileSize;
+
+    return (
+      <div style={this._styles.container}>
+        <div style={this._styles.fields}>
+          <TextField
+            floatingLabelText="Description"
+            multiLine={true}
+            name="description"
+            onChange={this._handleFileInputChange.bind(this)}
+            ref="description"
+            rowsMax={2}
+            value={file.description}
+            />
+          <TextField
+            floatingLabelText="File Size (bytes)"
+            name="fileSize"
+            readOnly={true}
+            ref="fileSize"
+            tabIndex={-1}
+            underlineStyle={{display:'none'}}
+            underlineFocusStyle={{display:'none'}}
+            value={fileSize.toString()}
+            />
+          {this._renderMetrics()}
+        </div>
+        <div style={this._styles.data}>
+          {this._renderDataTable()}
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    let body, title;
+    let actions=[
+      {text: 'Cancel'},
+      {text: 'Save', onTouchTap: this._onSave.bind(this), ref: 'submit'}
+    ];
+
+    if (this.state.file) {
+      title = this.state.file.name;
+      body = this._renderBody();
+    }
+
+    return (
+      <Dialog
+        actionFocus="submit"
+        actions={actions}
+        onDismiss={this._onDismiss.bind(this)}
+        ref="dialog"
+        title={title}
+        >
+          {body}
+      </Dialog>
+    );
+  }
+
 }
