@@ -29,7 +29,6 @@ import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 // internals
 
-import FileAddAction from '../actions/FileAdd';
 import FileUploadAction from '../actions/FileUpload';
 import FileList from '../components/FileList';
 import FileDetails from '../components/FileDetails';
@@ -66,8 +65,6 @@ export default class Main extends React.Component {
    * Add "+" upload new data/CSV file button onClick event handler
    */
   _onClick() {
-    this.context.executeAction(FileAddAction, {});
-
     /* open file upload window */
     this.refs.fileInput.value = null;
     this.refs.fileInput.click();
