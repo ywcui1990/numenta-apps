@@ -17,6 +17,7 @@
 //
 // http://numenta.org/licenses/
 import {ACTIONS} from '../lib/Constants';
+import LoadMetricDataAction from './LoadMetricData';
 
 /**
  * Show model
@@ -26,4 +27,5 @@ import {ACTIONS} from '../lib/Constants';
  */
 export default function (actionContext, modelId) {
   actionContext.dispatch(ACTIONS.SHOW_MODEL, modelId);
+  return actionContext.executeAction(LoadMetricDataAction, modelId);
 }

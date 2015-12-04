@@ -31,6 +31,8 @@
  * - RECEIVE_DATA : {@link ReceiveData}
  * - SEND_DATA : {@link SendData}
  * - SEND_DATA_FAILED : {@link ModelError}
+ * - LOAD_METRIC_DATA: {@link LoadMetricData}
+ * - UNLOAD_METRIC_DATA: 'UnloadMetricData',
  * - SHOW_FILE_DETAILS : {@link ShowFileDetails}
  * - SHOW_METRIC_DETAILS : {@link ShowMetricDetails}
  * - SHOW_MODEL : {@linl ShowModel}
@@ -60,6 +62,8 @@ export const ACTIONS = Object.freeze({
   RECEIVE_DATA: 'RECEIVE_DATA',
   SEND_DATA_FAILED: 'SEND_DATA_FAILED',
   SEND_DATA: 'SEND_DATA',
+  LOAD_METRIC_DATA: 'LOAD_METRIC_DATA',
+  UNLOAD_METRIC_DATA: 'UNLOAD_METRIC_DATA',
   SHOW_FILE_DETAILS: 'SHOW_FILE_DETAILS',
   SHOW_METRIC_DETAILS: 'SHOW_METRIC_DETAILS',
   SHOW_MODEL: 'SHOW_MODEL',

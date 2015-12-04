@@ -50,6 +50,7 @@ import FileStore from './stores/FileStore';
 import FileDetailsStore from './stores/FileDetailsStore';
 import ModelStore from './stores/ModelStore';
 import ModelDataStore from './stores/ModelDataStore';
+import MetricDataStore from './stores/MetricDataStore';
 
 import MainComponent from './components/Main';
 
@@ -113,7 +114,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // init GUI flux/ible app
   app = new Fluxible({
     component: MainComponent,
-    stores: [FileStore, ModelStore, ModelDataStore, FileDetailsStore]
+    stores: [
+      FileStore, ModelStore, ModelDataStore, MetricDataStore, FileDetailsStore
+    ]
   });
 
   // Plug Unicorn plugin giving access to Unicorn clients

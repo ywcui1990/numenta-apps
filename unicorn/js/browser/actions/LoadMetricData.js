@@ -1,4 +1,3 @@
-// Numenta Platform for Intelligent Computing (NuPIC)
 // Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
@@ -18,15 +17,20 @@
 // http://numenta.org/licenses/
 
 import {ACTIONS} from '../lib/Constants';
-import UnloadMetricDataAction from './UnloadMetricData';
 
-/**
- * Hides model from UI
- * @param  {FluxibleContext} actionContext - The action context
- * @param  {string} modelId - The model to hide.
- *                            Must be in the {@link ModelStore}
- */
-export default function (actionContext, modelId) {
-  actionContext.dispatch(ACTIONS.HIDE_MODEL, modelId);
-  return actionContext.executeAction(UnloadMetricDataAction, modelId);
+export default function (actionContext, metricId) {
+  return new Promise((resolve, reject) => {
+    let db = actionContext.getDatabaseClient();
+    db.getMetricData(metricId, (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        let data = result.map((row) => {
+          return [new Date(row.timestamp), row.metric_value];
+        });
+        actionContext.dispatch(ACTIONS.LOAD_METRIC_DATA, {metricId, data});
+        resolve(data);
+      }
+    });
+  });
 }
