@@ -81,7 +81,8 @@ export default class FileDetails extends React.Component {
         border: '1px solid gray'
       },
       table: {
-        tableLayout: 'auto'
+        tableLayout: 'auto',
+        height: 300
       }
     };
   }
@@ -231,8 +232,7 @@ export default class FileDetails extends React.Component {
       });
 
       return (
-        <Table selectable={false} fixedHeader={true} height={300}
-            style={this._styles.table}>
+        <Table selectable={false} fixedHeader={true} style={this._styles.table}>
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}
               enableSelectAll={false}>
             <TableRow>
