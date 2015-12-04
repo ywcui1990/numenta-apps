@@ -40,7 +40,9 @@ export default function (actionContext, payload) {
         let promises = [];
         for (let [, metric] of metrics) {
           if (metric) {
-            promises.push(actionContext.executeAction(CreateModelAction, metric));
+            promises.push(
+              actionContext.executeAction(CreateModelAction, metric)
+            );
           }
         }
         return Promise.all(promises);
@@ -52,7 +54,9 @@ export default function (actionContext, payload) {
         let promises = [];
         for (let [, metric] of metrics) {
           if (metric) {
-            promises.push(actionContext.executeAction(StartModelAction, metric));
+            promises.push(
+              actionContext.executeAction(StartModelAction, metric)
+            );
           }
         }
         return Promise.all(promises);

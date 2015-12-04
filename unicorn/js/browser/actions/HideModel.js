@@ -24,6 +24,8 @@ import {ACTIONS} from '../lib/Constants';
  * @param  {FluxibleContext} actionContext - The action context
  * @param  {string} modelId - The model to hide.
  *                            Must be in the {@link ModelStore}
+ * @returns {Promise} - Fluxible resolves with return value
+ * @see http://fluxible.io/api/actions.html#api-code-actions-code-
  */
 export default function (actionContext, modelId) {
   return actionContext.dispatch(ACTIONS.HIDE_MODEL, modelId);
