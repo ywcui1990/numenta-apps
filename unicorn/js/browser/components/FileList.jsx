@@ -83,13 +83,19 @@ export default class FileList extends React.Component {
 
     this._styles = {
       file: {
-        textTransform: 'capitalize'
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        textTransform: 'capitalize',
+        whiteSpace: 'nowrap'
       },
       more: {
         width: 40
       },
       metric: {
-        textTransform: 'capitalize'
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        textTransform: 'capitalize',
+        whiteSpace: 'nowrap'
       },
       status: {
         height: 15,
@@ -206,11 +212,10 @@ export default class FileList extends React.Component {
                   }
                   />
               }
-              primaryText={metric.name}
+              primaryText={<div style={this._styles.metric}>{metric.name}</div>}
               rightIcon={
                 <IconStatus color={statusColor} style={this._styles.status} />
               }
-              style={this._styles.metric}
               />
           );
         }
@@ -262,10 +267,9 @@ export default class FileList extends React.Component {
               </IconButton>
             }
             nestedItems={this._renderMetrics(file)}
-            primaryText={file.name}
+            primaryText={<div style={this._styles.file}>{file.name}</div>}
             ref={`file-toggle-${fileId}`}
             rightIconButton={contextMenu}
-            style={this._styles.file}
             />
         );
       }
