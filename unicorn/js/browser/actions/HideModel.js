@@ -15,7 +15,6 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
 import UnloadMetricDataAction from './UnloadMetricData';
 

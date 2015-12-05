@@ -53,7 +53,7 @@ export default class ModelData extends React.Component {
     if (metricData.length) {
       // Copy raw data and timestamp
       data = Array.from(metricData);
-      
+
       // Format raw data series
       let labels = ['Time', 'Value'];
       let series = {
@@ -109,7 +109,10 @@ export default class ModelData extends React.Component {
       };
     }
     return (
-      <Chart data={data} options={options} ref="chart"/>
+      <Chart
+        data={data}
+        options={options}
+        />
     );
   }
 }

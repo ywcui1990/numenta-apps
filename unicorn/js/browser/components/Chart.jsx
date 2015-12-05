@@ -77,8 +77,7 @@ export default class Chart extends React.Component {
   }
 
   componentDidMount() {
-    this._chartBusy = false; // flag for when chart is busy
-    this._chartRangeWidth = 200; // chart range finder static 200 datapoints
+    this._chartBusy = false;
     this._chartRange = [0, this._chartRangeWidth]; // hold current range window
     this._chartScrollLock = true; // if chart far-right, stay floated right
 

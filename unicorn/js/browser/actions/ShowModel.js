@@ -21,10 +21,9 @@ import LoadMetricDataAction from './LoadMetricData';
 
 /**
  * Show model
- * @param {FluxibleContext} actionContext - The action context.
- * @param {String} modelId - Unique modelId to show.
- * @returns {Promise} - Fluxible resolves with return value
- * @see http://fluxible.io/api/actions.html#api-code-actions-code-
+ * @param  {FluxibleContext} actionContext - The action context
+ * @param  {string} modelId - The model to show.
+ *                            Must be in the {@link ModelStore}
  */
 export default function (actionContext, modelId) {
   actionContext.dispatch(ACTIONS.SHOW_MODEL, modelId);
