@@ -59,7 +59,7 @@ export default class SearchResultsComponent extends React.Component {
       },
       column: {
         summary: {
-          'white-space': 'normal',
+          whiteSpace: 'normal',
           overflow: 'auto'
         },
         score: {
