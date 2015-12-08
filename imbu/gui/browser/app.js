@@ -25,6 +25,7 @@ import 'babel/polyfill';
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import tapEventInject from 'react-tap-event-plugin';
 import MainComponent from './components/main.jsx';
 import SearchStore from './stores/search';
@@ -41,5 +42,5 @@ let app = new Fluxible({
 
 // add context to app
 let context = app.createContext();
-
-React.render(FluxibleReact.createElementWithContext(context), document.body);
+let container = document.getElementById('main');
+ReactDOM.render(FluxibleReact.createElementWithContext(context), container);

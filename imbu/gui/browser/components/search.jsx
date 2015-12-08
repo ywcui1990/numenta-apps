@@ -18,6 +18,7 @@
 * http://numenta.org/licenses/
 * -------------------------------------------------------------------------- */
 
+import ReactDOM from 'react-dom';
 import React from 'react';
 import Material from 'material-ui';
 import connectToStores from 'fluxible-addons-react/connectToStores';
@@ -32,8 +33,6 @@ const {
   Spacing
 } = Styles;
 
-const ThemeManager = new Styles.ThemeManager();
-
 @connectToStores([SearchStore], (context) => ({
   query: context.getStore(SearchStore).getQuery()
 }))
@@ -44,22 +43,12 @@ export default class SearchComponent extends React.Component {
     getStore: React.PropTypes.func
   };
 
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object
-  };
-
   constructor() {
     super();
   }
 
-  getChildContext() {
-    return {
-      muiTheme: ThemeManager.getCurrentTheme()
-    };
-  }
-
   componentDidUpdate() {
-    const el = React.findDOMNode(this.refs.query);
+    const el = ReactDOM.findDOMNode(this.refs.query);
     this.refs.query.setValue(this.props.query);
     el.focus();
   }
@@ -85,7 +74,7 @@ export default class SearchComponent extends React.Component {
 
     return (
       <ClearFix style={styles.content}>
-        <TextField floatingLabelText="Sample Text to match" fullWidth={true}
+        <TextField floatingLabelText="Enter query:" fullWidth={true}
                   id="query" name="query"
                   onEnterKeyDown={this._search.bind(this)} ref="query"/>
         <RaisedButton label="Search" onTouchTap={this._search.bind(this)}
