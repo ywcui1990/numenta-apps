@@ -25,16 +25,10 @@ import SearchStore from '../stores/search';
 import SearchQueryAction from '../actions/search-query';
 
 const {
-  LeftNav, MenuItem, Styles
+  LeftNav, MenuItem
 } = Material;
 
-const ThemeManager = new Styles.ThemeManager();
-
 class SearchHistoryComponent extends React.Component {
-
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object
-  };
 
   static contextTypes = {
     executeAction: React.PropTypes.func,
@@ -51,11 +45,6 @@ class SearchHistoryComponent extends React.Component {
 
   toggle() {
     this.refs.leftNav.toggle();
-  }
-  getChildContext() {
-    return {
-      muiTheme: ThemeManager.getCurrentTheme()
-    };
   }
 
   getStoreState() {
