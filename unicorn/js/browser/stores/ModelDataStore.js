@@ -1,26 +1,26 @@
-// Numenta Platform for Intelligent Computing (NuPIC)
-// Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+// Copyright © 2015, Numenta, Inc. Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero Public License version 3 as
-// published by the Free Software Foundation.
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the
+// Free Software Foundation.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU Affero Public License for more details.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
 //
-// You should have received a copy of the GNU Affero Public License
-// along with this program.  If not, see http://www.gnu.org/licenses.
+// You should have received a copy of the GNU Affero Public License along with
+// this program. If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
 
 
 import BaseStore from 'fluxible/addons/BaseStore';
 
-
+/**
+ * Maintains model results data store
+ */
 export default class ModelDataStore extends BaseStore {
 
   static get storeName() {
@@ -29,7 +29,7 @@ export default class ModelDataStore extends BaseStore {
 
   static get handlers() {
     return {
-      RECEIVE_DATA: '_handReceiveData',
+      RECEIVE_MODEL_DATA: '_handReceiveModelData',
       DELETE_MODEL: '_handleDeleteModel'
     };
   }
@@ -49,12 +49,12 @@ export default class ModelDataStore extends BaseStore {
    *                          }
    *                          </code>
    */
-  _handReceiveData(payload) {
+  _handReceiveModelData(payload) {
     if (payload && 'modelId' in payload) {
       let model = this._models.get(payload.modelId);
       if (model) {
         // Append payload data to existing model
-        Reflect.apply(Array.prototype.push, model.data, payload.data);
+        model.data.push(...payload.data);
         // Record last time this model was modified
         model.modified = new Date();
       } else {
@@ -90,5 +90,4 @@ export default class ModelDataStore extends BaseStore {
   getData(modelId) {
     return this._models.get(modelId) || {modelId, data:[], modified:0};
   }
-
 }

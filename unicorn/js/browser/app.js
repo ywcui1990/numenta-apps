@@ -41,23 +41,18 @@ import ReactDOM from 'react-dom';
 import remote from 'remote';
 import tapEventInject from 'react-tap-event-plugin';
 
-// internals
-
-import ListFilesAction from './actions/ListFiles';
-import ListMetricsAction from './actions/ListMetrics';
-
-import FileStore from './stores/FileStore';
-import FileDetailsStore from './stores/FileDetailsStore';
-import ModelStore from './stores/ModelStore';
-import ModelDataStore from './stores/ModelDataStore';
-
-import MainComponent from './components/Main';
-
 import ConfigClient from './lib/Unicorn/ConfigClient';
 import DatabaseClient from './lib/Unicorn/DatabaseClient';
 import FileClient from './lib/Unicorn/FileClient';
+import FileDetailsStore from './stores/FileDetailsStore';
+import FileStore from './stores/FileStore';
+import ListFilesAction from './actions/ListFiles';
+import ListMetricsAction from './actions/ListMetrics';
+import MainComponent from './components/Main';
+import MetricDataStore from './stores/MetricDataStore';
 import ModelClient from './lib/Unicorn/ModelClient';
-
+import ModelDataStore from './stores/ModelDataStore';
+import ModelStore from './stores/ModelStore';
 import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
 
 // setup
@@ -113,7 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // init GUI flux/ible app
   app = new Fluxible({
     component: MainComponent,
-    stores: [FileStore, ModelStore, ModelDataStore, FileDetailsStore]
+    stores: [
+      FileStore, ModelStore, ModelDataStore, MetricDataStore, FileDetailsStore
+    ]
   });
 
   // Plug Unicorn plugin giving access to Unicorn clients

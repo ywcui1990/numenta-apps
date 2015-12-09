@@ -1,24 +1,25 @@
-// Numenta Platform for Intelligent Computing (NuPIC)
-// Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+// Copyright © 2015, Numenta, Inc. Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero Public License version 3 as
-// published by the Free Software Foundation.
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the
+// Free Software Foundation.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU Affero Public License for more details.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
 //
-// You should have received a copy of the GNU Affero Public License
-// along with this program.  If not, see http://www.gnu.org/licenses.
+// You should have received a copy of the GNU Affero Public License along with
+// this program. If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
 
+
 /**
- * - ADD_MODEL : {@link CreateModel}
+ * Fluxible Action keys
+ * - ADD_FILE: {@link FileAdd}
+ * - ADD_MODEL : {@link StartModel}
  * - DELETE_MODEL : {@link DeleteModel}
  * - EXPORT_MODEL_RESULTS : {@link ExportModelResults}
  * - HIDE_FILE_DETAILS : {@link HideFileDetails}
@@ -28,9 +29,10 @@
  * - LIST_FILES_FAILURE : {@link ListFiles}
  * - LIST_METRICS : {@link ListMetrics}
  * - LIST_METRICS_FAILURE : {@link ListMetrics}
- * - RECEIVE_DATA : {@link ReceiveData}
- * - SEND_DATA : {@link SendData}
- * - SEND_DATA_FAILED : {@link ModelError}
+ * - LOAD_METRIC_DATA: {@link LoadMetricData}
+ * - RECEIVE_MODEL_DATA : {@link ReceiveModelData}
+ * - SEND_METRIC_DATA : {@link SendMetricData}
+ * - SEND_METRIC_DATA_FAILED : {@link ModelError}
  * - SHOW_FILE_DETAILS : {@link ShowFileDetails}
  * - SHOW_METRIC_DETAILS : {@link ShowMetricDetails}
  * - SHOW_MODEL : {@linl ShowModel}
@@ -39,12 +41,14 @@
  * - STOP_MODEL : {@link StopModel}
  * - STOP_MODEL_FAILED : {@link ModelError}
  * - UNKNOWN_MODEL_FAILURE : {@link ModelError}
+ * - UNLOAD_METRIC_DATA: 'UnloadMetricData',
  * - UPDATE_FILE : {@link FileUpdate}
  * - UPDATE_FILE_FAILED : {@link FileUpdate}
  * - UPLOADED_FILE : {@link FileUpload}
  * - UPLOADED_FILE_FAILED : {@link FileUpload}
  */
 export const ACTIONS = Object.freeze({
+  ADD_FILE: 'ADD_FILE',
   ADD_MODEL: 'ADD_MODEL',
   DELETE_FILE: 'DELETE_FILE',
   DELETE_MODEL: 'DELETE_MODEL',
@@ -57,9 +61,10 @@ export const ACTIONS = Object.freeze({
   LIST_FILES: 'LIST_FILES',
   LIST_METRICS_FAILURE: 'LIST_METRICS_FAILURE',
   LIST_METRICS: 'LIST_METRICS',
-  RECEIVE_DATA: 'RECEIVE_DATA',
-  SEND_DATA_FAILED: 'SEND_DATA_FAILED',
-  SEND_DATA: 'SEND_DATA',
+  LOAD_METRIC_DATA: 'LOAD_METRIC_DATA',
+  RECEIVE_MODEL_DATA: 'RECEIVE_MODEL_DATA',
+  SEND_METRIC_DATA_FAILED: 'SEND_METRIC_DATA_FAILED',
+  SEND_METRIC_DATA: 'SEND_METRIC_DATA',
   SHOW_FILE_DETAILS: 'SHOW_FILE_DETAILS',
   SHOW_METRIC_DETAILS: 'SHOW_METRIC_DETAILS',
   SHOW_MODEL: 'SHOW_MODEL',
@@ -68,6 +73,7 @@ export const ACTIONS = Object.freeze({
   STOP_MODEL_FAILED: 'STOP_MODEL_FAILED',
   STOP_MODEL: 'STOP_MODEL',
   UNKNOWN_MODEL_FAILURE: 'UNKNOWN_MODEL_FAILURE',
+  UNLOAD_METRIC_DATA: 'UNLOAD_METRIC_DATA',
   UPDATE_FILE_FAILED: 'UPDATE_FILE_FAILED',
   UPDATE_FILE: 'UPDATE_FILE',
   UPLOADED_FILE_FAILED: 'UPLOADED_FILE_FAILED',
