@@ -18,20 +18,13 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-
-// externals
 /*eslint-disable*/
 /**
+ * @external {BaseStore} http://fluxible.io/addons/BaseStore.html
  * @external {FluxibleContext} http://fluxible.io/api/fluxible-context.html
- */
-/** @external {BaseStore} http://fluxible.io/addons/BaseStore.html
- */
-/**
  * @external {React.Component} https://facebook.github.io/react/docs/component-api.html
  */
- /*eslint-enable*/
-
-import 'babel/polyfill'; // es6/7 polyfill Array.from()
+/*eslint-enable*/
 
 import bunyan from 'bunyan';
 import Fluxible from 'fluxible';
@@ -54,8 +47,6 @@ import ModelClient from './lib/Unicorn/ModelClient';
 import ModelDataStore from './stores/ModelDataStore';
 import ModelStore from './stores/ModelStore';
 import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
-
-// setup
 
 const dialog = remote.require('dialog');
 

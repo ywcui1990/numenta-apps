@@ -67,7 +67,7 @@ gulp.task('webpack', ()  => {
           // script
           {
             test: /\.(js|jsx)$/,
-            loader: 'babel?stage=1',
+            loader: 'babel-loader',
             exclude: /node_modules/
           },
           {
@@ -81,10 +81,21 @@ gulp.task('webpack', ()  => {
         publicPath: path.join(__dirname, '/js/browser/assets/bundle/')
       },
       plugins: [
-        new webpack.IgnorePlugin(/vertx/)  // @TODO remove in fluxible 4.x
+        new webpack.IgnorePlugin(/vertx/)  // @TODO remove in future fluxible
       ],
       resolve: {
-        extensions: ['', '.css', '.js', '.json', '.jsx']
+        extensions: [
+          '',
+          '.css',
+          '.eot',
+          '.js',
+          '.json',
+          '.jsx',
+          '.svg',
+          '.ttf',
+          '.woff',
+          '.woff2'
+        ]
       },
       target,
       verbose: true

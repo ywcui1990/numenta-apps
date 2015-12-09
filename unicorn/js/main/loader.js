@@ -18,5 +18,5 @@
 
 // This file must be ES5!
 
-require('babel/register');  // Sends us into ES6 transpiler
-require('./index.js');       // Load ES6 App
+require('babel-core/register'); // Sends us into ES6 transpiler
+require('./index.js');          // Load ES6 App
