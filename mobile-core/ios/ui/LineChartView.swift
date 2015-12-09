@@ -117,9 +117,9 @@ class LineChartView: UIView {
                     color = Appearence.yellowbarColor
                     bar.size.height -= 5.0
                 }else {
-                   color = UIColor.greenColor().CGColor
-                    bar.size.height -= 4.0
-                  // continue
+//                   color = UIColor.greenColor().CGColor
+//                    bar.size.height -= 4.0
+                   continue
                 }
        
                 CGContextSaveGState( context)
