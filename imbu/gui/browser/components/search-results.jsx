@@ -26,7 +26,6 @@ import SearchStore from '../stores/search';
 const {
   Styles, Paper,
   Table, TableHeader, TableRow, TableHeaderColumn, TableBody, TableRowColumn
-
 } = Material;
 
 const {
@@ -98,8 +97,7 @@ export default class SearchResultsComponent extends React.Component {
         <Paper style={styles.content}>
           <Table selectable={false} fixedHeader={true}
             height={styles.table.height} ref="results" style={styles.table}>
-            <TableHeader  adjustForCheckbox={false} displaySelectAll={false}
-                enableSelectAll={false}>
+            <TableHeader  adjustForCheckbox={false} displaySelectAll={false}>
               <TableRow>
                 <TableHeaderColumn key={0} style={styles.column.summary}>
                   Match
