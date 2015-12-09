@@ -235,9 +235,9 @@ class FluentAPIHandler(object):
         raise web.badrequest("Invalid Data. Query data must be a string")
 
     else:
-      # sample data is missing
-      g_log.error("sample data is missing, raising BadRequest exception")
-      raise web.badrequest("Sample data is missing")
+      # no sample data, just return all samples
+      response = [{"id": item[0], "text": item[1], "score": 0}
+        for item in g_fluent.samples.items()]
 
     return json.dumps(response)
 

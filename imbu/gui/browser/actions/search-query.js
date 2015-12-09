@@ -22,10 +22,18 @@ import request from 'superagent';
 
 const API_HOST = '/fluent';
 
-export default (context, query) => {
+export default (context, payload) => {
+  let url = API_HOST;
+  let query, model;
+  if (payload) {
+    query = payload.query;
+    model = payload.model;
+    url = `${API_HOST}/${model}`
+  }
+
   return new Promise((resolve, reject) => {
     request
-      .post(API_HOST)
+      .post(url)
       .send(query)
       .set('Accept', 'application/json')
       .set('Access-Control-Allow-Origin', '*')
@@ -35,7 +43,7 @@ export default (context, query) => {
           console.error(error);
         } else {
           context.dispatch('SEARCH_RECEIVED_DATA',
-                          {query, results: results.body});
+                          {query, model, results: results.body});
           resolve(results.body);
         }
       }
