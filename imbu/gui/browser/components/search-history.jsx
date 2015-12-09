@@ -76,13 +76,14 @@ class SearchHistoryComponent extends React.Component {
     ];
     return items.concat(Array.from(this.state.history, (q) => {
       return {
-        text: q
+        text: `${q.model}: ${q.query}`,
+        payload: q
       };
     }));
   }
 
-  _onChanged(e, key, payload) {
-    this.context.executeAction(SearchQueryAction, payload.text);
+  _onChanged(e, key, item) {
+    this.context.executeAction(SearchQueryAction, item.payload);
   }
 
   render() {

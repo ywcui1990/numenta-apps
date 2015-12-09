@@ -29,6 +29,7 @@ import ReactDOM from 'react-dom';
 import tapEventInject from 'react-tap-event-plugin';
 import MainComponent from './components/main.jsx';
 import SearchStore from './stores/search';
+import SearchQueryAction from './actions/search-query';
 
 window.React = React; // dev tools @TODO remove for non-dev
 
@@ -42,5 +43,8 @@ let app = new Fluxible({
 
 // add context to app
 let context = app.createContext();
-let container = document.getElementById('main');
-ReactDOM.render(FluxibleReact.createElementWithContext(context), container);
+context.executeAction(SearchQueryAction, null)
+  .then(() => {
+    let container = document.getElementById('main');
+    ReactDOM.render(FluxibleReact.createElementWithContext(context), container);
+  });
