@@ -187,7 +187,48 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         let distance = getDistance( Double( translation.x) * -1.0 )
         sender.setTranslation(CGPointZero, inView: self.view)
       
-        let newTime:NSDate? =  timeSlider?.endDate.dateByAddingTimeInterval(distance)
+        var newTime:NSDate?
+        
+        if (self.marketHoursOnly){
+            if (self.chartData == nil)
+            {
+                return
+            }
+            let pixelsPerBar = Double(Double( self.view.frame.size.width) / (Double)(TaurusApplication.getTotalBarsOnChart()))
+            
+            let pDistance = Int(translation.x * -1.0)/Int(pixelsPerBar)
+            var bars = self.chartData!.getData()
+            if (pDistance<0){
+                // Scolling backwars
+                let maxIndex :Int  = (bars?.count)! + pDistance  - 1
+                var pos = max (0, maxIndex)
+                var time = bars![pos].0
+                
+                while ( TaurusApplication.marketCalendar.isOpen (time) == false){
+                    pos = pos - 1
+                    if (pos < 0){
+                        break
+                    }
+                    time = bars![pos].0
+                }
+                newTime = DataUtils.dateFromTimestamp( time )
+                
+            }else{
+                // scrolling forward
+                var time = bars![bars!.count - 1].0
+                    + pDistance * Int(chartData!.getAggregation().milliseconds())
+                while ( TaurusApplication.marketCalendar.isOpen (time) == false){
+                    time = time + chartData!.getAggregation().milliseconds()
+                }
+                newTime = DataUtils.dateFromTimestamp( time )
+            }
+            
+        }else{
+             newTime =  timeSlider?.endDate.dateByAddingTimeInterval(distance)
+        }
+        
+        
+       
      //   print ((timeSlider?.endDate,newTime))
         
         var flooredDate = DataUtils.floorTo5Mins (newTime!)

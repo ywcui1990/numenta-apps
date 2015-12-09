@@ -565,6 +565,13 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     func scrollViewDidScroll(scrollView: UIScrollView){
         let visibleCells = self.instanceTable.visibleCells
         
+        
+        // If there are no visible cells don't do anything
+        if (visibleCells.count <= 0){
+            return
+        }
+
+        
         var time : Int64 = 0
         for cell in visibleCells{
             let twitterCell = cell as! TwitterCell
@@ -577,7 +584,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         }
         
         let index  = Int64(metricChartView!.data.count) - ((metricChartData?.endDate)!+DataUtils.MILLIS_PER_HOUR  - time)/DataUtils.METRIC_DATA_INTERVAL
-        
+     
         self.metricChartView.selectIndex(index)
         
     }
