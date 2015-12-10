@@ -1,8 +1,6 @@
-// Numenta Platform for Intelligent Computing (NuPIC)
-//
-// Copyright © 2015, Numenta, Inc. Unless you have purchased from Numenta, Inc.
-// a separate commercial license for this software code, the following terms
-// and conditions apply:
+// Copyright © 2015, Numenta, Inc. Unless you have purchased from
+// Numenta, Inc. a separate commercial license for this software code, the
+// following terms and conditions apply:
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero Public License version 3 as published by the
@@ -13,22 +11,18 @@
 // FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
 //
 // You should have received a copy of the GNU Affero Public License along with
-// this program.  If not, see http://www.gnu.org/licenses.
+// this program. If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
 
 
-// externals
-
 import csp from 'js-csp';
 
-// internals
-
 import {ACTIONS} from '../lib/Constants';
+import Utils from '../../main/Utils';
 import {
   DatabaseGetError, DatabasePutError, FilesystemGetError
 } from '../../main/UserError';
-import Utils from '../../main/Utils';
 
 
 // FUNCTIONS

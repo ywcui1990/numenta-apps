@@ -36,10 +36,12 @@ export default class SearchStore extends BaseStore {
     super(dispatcher);
     // Text used to query
     this.query = null;
+    // Model used to query
+    this.model = null;
     // Last query results
     this.results = [];
     // Past queries
-    this.history = new Set();
+    this.history = new Map();
   }
 
   /**
@@ -50,10 +52,17 @@ export default class SearchStore extends BaseStore {
   }
 
   /**
+   * Return current model
+   */
+  getModel() {
+    return this.model;
+  }
+
+  /**
    * Return past queries history
    */
   getHistory() {
-    return this.history;
+    return this.history.values();
   }
 
   /**
@@ -67,15 +76,18 @@ export default class SearchStore extends BaseStore {
    * Handle new data
    */
   _handleReceivedData(payload) {
-    // Remove whitespaces
     if (payload.query) {
+      // Remove whitespaces
       this.query = payload.query.trim();
     } else {
       this.query = '';
     }
+    this.model = payload.model;
+
     // Do not add empty queries to history
     if (this.query) {
-      this.history.add(this.query);
+      this.history.set(`${this.model}:${this.query}`,
+        {query: this.query, model: this.model});
     }
     if (payload.results) {
       // Sort results by score
@@ -94,6 +106,7 @@ export default class SearchStore extends BaseStore {
    */
   _handleClearData() {
     this.query = null;
+    this.model = null;
     this.results = [];
     this.history.clear();
     this.emitChange();

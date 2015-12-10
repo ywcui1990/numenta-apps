@@ -18,7 +18,6 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-
 import childProcess from 'child_process';
 import EventEmitter from 'events';
 import path from 'path';

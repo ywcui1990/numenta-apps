@@ -20,9 +20,18 @@ import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Hide {FileDetails} page
- * @param  {FluxibleContext} actionContext The action context
+ * Action used to send metric data to models
+ *
+ * @param {FluxibleContext} actionContext - Fluxible action context object
+ * @param {Object} payload - Action payload
+ * @param {string} payload.modelId - Model to send data
+ * @param {Array} payload.data - Data to send in the following format:
+ *                             `[timestamp, value]`
+ *
  */
-export default function (actionContext) {
-  actionContext.dispatch(ACTIONS.HIDE_FILE_DETAILS);
+export default function (actionContext, payload) {
+  let modelClient = actionContext.getModelClient();
+  let {modelId, data} = payload;
+  actionContext.dispatch(ACTIONS.SEND_METRIC_DATA, modelId);
+  modelClient.sendData(modelId, data);
 }

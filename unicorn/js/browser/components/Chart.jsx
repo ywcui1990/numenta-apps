@@ -15,9 +15,6 @@
 //
 // http://numenta.org/licenses/
 
-
-// externals
-
 import Dygraph from 'dygraphs';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
@@ -59,12 +56,6 @@ export default class Chart extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    let muiTheme = this.context.muiTheme;
-    this._style = {
-      height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 5,
-      width: '100%'
-    };
-
     // DyGraphs chart container
     this._dygraph = null;
 
@@ -73,11 +64,20 @@ export default class Chart extends React.Component {
     this._chartRange = null;
     this._chartRangeWidth = null;
     this._chartScrollLock = null;
+
+    // dynamic styles
+    let muiTheme = this.context.muiTheme;
+    this._styles = {
+      root: {
+        boxShadow: 'none',
+        height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 3.5,
+        width: '100%'
+      }
+    };
   }
 
   componentDidMount() {
     this._chartBusy = false;
-    this._chartRangeWidth = 200; // chart range finder static 200 datapoints
     this._chartRange = [0, this._chartRangeWidth]; // hold current range window
     this._chartScrollLock = true; // if chart far-right, stay floated right
 
@@ -117,13 +117,23 @@ export default class Chart extends React.Component {
     let el = ReactDOM.findDOMNode(this.refs.chart);
     let selector;
 
+    this._chartBusy = true;
+
     Object.assign(options, this.props.options);
     this._dygraph = new Dygraph(el, this.props.data, options);
 
     // range selector custom events
     selector = el.getElementsByClassName('dygraph-rangesel-fgcanvas')[0];
-    selector.addEventListener('mousedown', this._rangeMouseDownCallback.bind(this)); // eslint-disable-line max-len
-    selector.addEventListener('mouseup', this._rangeMouseUpCallback.bind(this));
+    selector.addEventListener(
+      'mousedown',
+      this._rangeMouseDownCallback.bind(this)
+    );
+    selector.addEventListener(
+      'mouseup',
+      this._rangeMouseUpCallback.bind(this)
+    );
+
+    this._chartBusy = false;
   }
 
   /**
@@ -140,10 +150,12 @@ export default class Chart extends React.Component {
     }
 
     // update chart
+    this._chartBusy = true;
     options.dateWindow = this._chartRange; // fixed width
     options.file = this.props.data; // new data
     Object.assign(options, this.props.options);
     this._dygraph.updateOptions(options);
+    this._chartBusy = false;
   }
 
   /**
@@ -210,7 +222,9 @@ export default class Chart extends React.Component {
    */
   render() {
     return (
-      <Paper ref="chart" style={this._style} zDepth={this.props.zDepth} />
+      <Paper ref="chart" style={this._styles.root} zDepth={this.props.zDepth}>
+        <br/>This Metric does not yet have a Model.
+      </Paper>
     );
   }
 

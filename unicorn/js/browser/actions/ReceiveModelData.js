@@ -20,9 +20,13 @@ import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Hide {FileDetails} page
- * @param  {FluxibleContext} actionContext The action context
+ * Receive model data
+ *
+ * @param {FluxibleContext} actionContext - Fluxible action context object
+ * @param {Object} payload - The action payload
+ * @param {String} payload.modelId - Required model id
+ * @param {Object[]} payload.data - New data to be appended
  */
-export default function (actionContext) {
-  actionContext.dispatch(ACTIONS.HIDE_FILE_DETAILS);
+export default function (actionContext, payload) {
+  actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, payload);
 }

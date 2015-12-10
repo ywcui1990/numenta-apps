@@ -16,10 +16,13 @@
 //
 // http://numenta.org/licenses/
 
+
+/* eslint-disable max-len, prefer-reflect */
+
 import DatabaseService from '../../../js/main/DatabaseService';
 import FileSchema from '../../../js/database/schema/File.json';
 import fs from 'fs';
-import MetricDataSchema from '../../../js/database/schema/MetricData.json'; // eslint-disable-line
+import MetricDataSchema from '../../../js/database/schema/MetricData.json';
 import MetricSchema from '../../../js/database/schema/Metric.json';
 import os from 'os';
 import path from 'path';
@@ -62,6 +65,7 @@ const EXPECTED_EXPORTED_RESULTS =
 const TEMP_DIR = path.join(os.tmpDir(), 'unicorn_db');
 const FILENAME = path.join(TEMP_DIR, 'file.csv');
 
+
 describe('DatabaseService:', () => {
   let service;
 
@@ -96,7 +100,7 @@ describe('DatabaseService:', () => {
       done();
     });
     it('should validate "MetricData"', (done) => {
-      let results = service.validator.validate(EXPECTED_METRIC_DATA, MetricDataSchema); // eslint-disable-line
+      let results = service.validator.validate(EXPECTED_METRIC_DATA, MetricDataSchema);
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
@@ -116,7 +120,7 @@ describe('DatabaseService:', () => {
     });
     it('should not add invalid file to the database', (done) => {
       let invalid = Object.assign({}, EXPECTED_FILE);
-      delete invalid.uid; // eslint-disable-line
+      delete invalid.uid;
       service.putFile(invalid, (error) => {
         assert(error, 'Invalid file was created');
         done();
@@ -163,7 +167,7 @@ describe('DatabaseService:', () => {
     });
     it('should not add invalid metric to the database', (done) => {
       let invalid = Object.assign({}, EXPECTED_METRIC);
-      delete invalid.uid; // eslint-disable-line
+      delete invalid.uid;
       service.putMetric(invalid, (error) => {
         assert(error, 'Invalid Metric was created');
         done();
@@ -235,9 +239,12 @@ describe('DatabaseService:', () => {
             assert.ifError(error);
             service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
               // Make sure metric was deleted
-              assert(error && error.type === 'NotFoundError', 'Metric was not deleted');
+              assert(
+                error && error.type === 'NotFoundError',
+                'Metric was not deleted'
+              );
               // Make sure data was deleted
-              service.getMetricData(EXPECTED_METRIC.uid, (error, actual) => { // eslint-disable-line
+              service.getMetricData(EXPECTED_METRIC.uid, (error, actual) => {
                 assert(actual.length === 0, 'MetricData was not deleted');
                 done();
               });
@@ -267,7 +274,10 @@ describe('DatabaseService:', () => {
             assert.ifError(error);
             service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
               // Make sure metric was deleted
-              assert(error && error.type === 'NotFoundError', 'Metric was not deleted');
+              assert(
+                error && error.type === 'NotFoundError',
+                'Metric was not deleted'
+              );
               done();
             });
           });
@@ -285,7 +295,7 @@ describe('DatabaseService:', () => {
     });
     it('should not add invalid MetricData record to the database', (done) => {
       let invalid = Object.assign({}, EXPECTED_METRIC_DATA);
-      delete invalid.uid; // eslint-disable-line
+      delete invalid.uid;
       service.putMetricData(invalid, (error) => {
         assert(error, 'Invalid MetricData was created');
         done();
@@ -313,7 +323,7 @@ describe('DatabaseService:', () => {
       });
       service.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
-        service.getMetricData(EXPECTED_METRIC_DATA.metric_uid, (error, actual) => { // eslint-disable-line
+        service.getMetricData(EXPECTED_METRIC_DATA.metric_uid, (error, actual) => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch);
           done();
@@ -322,7 +332,7 @@ describe('DatabaseService:', () => {
     });
     it('should export MetricData from the database', (done) => {
       after(() => {
-        fs.unlinkSync(FILENAME);
+        fs.unlinkSync(FILENAME); // eslint-disable-line no-sync
       });
 
       let batch = Array.from([
@@ -335,7 +345,7 @@ describe('DatabaseService:', () => {
       });
       service.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
-        service.exportMetricData(EXPECTED_METRIC_DATA.metric_uid, FILENAME, (error, res) => { // eslint-disable-line
+        service.exportMetricData(EXPECTED_METRIC_DATA.metric_uid, FILENAME, (error, res) => {
           assert.ifError(error);
           fs.readFile(FILENAME, 'utf8', (error, data) => {
             assert.ifError(error);
@@ -359,14 +369,14 @@ describe('DatabaseService:', () => {
       service.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
         // Make sure data exist
-        service.getMetricData(EXPECTED_METRIC_DATA.metric_uid, (error, actual) => { // eslint-disable-line
+        service.getMetricData(EXPECTED_METRIC_DATA.metric_uid, (error, actual) => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch);
           // Delete data
-          service.deleteMetricData(EXPECTED_METRIC_DATA.metric_uid, (error) => { // eslint-disable-line
+          service.deleteMetricData(EXPECTED_METRIC_DATA.metric_uid, (error) => {
             assert.ifError(error);
             // Make sure data was deleted
-            service.getMetricData(EXPECTED_METRIC_DATA.metric_uid, (error, actual) => { // eslint-disable-line
+            service.getMetricData(EXPECTED_METRIC_DATA.metric_uid, (error, actual) => {
               assert.ifError(error);
               assert.equal(actual.length, 0);
               done();

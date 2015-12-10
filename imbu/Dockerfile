@@ -1,5 +1,4 @@
 # ----------------------------------------------------------------------
-# Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
 # Numenta, Inc. a separate commercial license for this software code, the
 # following terms and conditions apply:
@@ -35,7 +34,10 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv 68576280 && \
 ENV CORTICAL_API_KEY=OVERRIDE_ME
 # Select the retina to use  using '-e IMBU_RETINA_ID=$IMBU_RETINA_ID'
 ENV IMBU_RETINA_ID=OVERRIDE_ME
+EXPOSE 80
 
+# Override workdir using '-v /your/local/dir:/opt/numenta/imbu'
+VOLUME /opt/numenta/imbu
 WORKDIR /opt/numenta/imbu
 
 # Install python packages
@@ -49,7 +51,6 @@ RUN npm install
 
 # Build javascript app
 COPY . /opt/numenta/imbu
-RUN npm run pack-web
+RUN npm run build
 
-EXPOSE 80
 CMD ./start_imbu.sh

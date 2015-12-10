@@ -1,30 +1,25 @@
-// Numenta Platform for Intelligent Computing (NuPIC)
-// Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+// Copyright © 2015, Numenta, Inc. Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero Public License version 3 as
-// published by the Free Software Foundation.
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the
+// Free Software Foundation.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU Affero Public License for more details.
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
 //
-// You should have received a copy of the GNU Affero Public License
-// along with this program.  If not, see http://www.gnu.org/licenses.
+// You should have received a copy of the GNU Affero Public License along with
+// this program. If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
 
-
-// internals
 
 import {ACTIONS} from '../lib/Constants';
 import {
   DatabaseGetError, DatabasePutError, FilesystemGetError
 } from '../../main/UserError';
-import Utils from '../../main/Utils';
 
 
 // MAIN
@@ -37,9 +32,8 @@ export default function (actionContext) {
 
     let databaseClient = actionContext.getDatabaseClient();
     let fileClient = actionContext.getFileClient();
-    let log = actionContext.getLoggerClient();
 
-    log.debug('load existing files from db, from previous runs');
+    // load existing files from db, from previous execution
     databaseClient.getAllFiles((error, files) => {
       if (error) {
         actionContext.dispatch(
@@ -48,11 +42,11 @@ export default function (actionContext) {
         );
         reject(error);
       } else if (files.length) {
-        log.debug('files in db already, not first run, straight to UI');
+        // files in db already, not first run, straight to UI
         actionContext.dispatch(ACTIONS.LIST_FILES, files);
         resolve(files);
       } else {
-        log.debug('no files in db, first run, so load them from fs');
+        // no files in db, first run, so load them from fs
         fileClient.getSampleFiles((error, files) => {
           if (error) {
             actionContext.dispatch(
@@ -61,12 +55,7 @@ export default function (actionContext) {
             );
             reject(error);
           } else {
-            log.debug('got file list from fs, saving to db for next runs');
-            files = files.map((file) => {
-              file.uid = Utils.generateFileId(file.filename);
-              return file;
-            });
-
+            // got file list from fs, saving to db for next runs
             databaseClient.putFileBatch(files, (error) => {
               if (error) {
                 actionContext.dispatch(
@@ -75,7 +64,7 @@ export default function (actionContext) {
                 );
                 reject(error);
               } else {
-                log.debug('DB now has Files, on to UI.');
+                // DB now has Files, on to UI.
                 actionContext.dispatch(ACTIONS.LIST_FILES, files);
                 resolve(files);
               }
@@ -84,6 +73,5 @@ export default function (actionContext) {
         }); // fileClient.getSampleFiles()
       }
     }); // databaseClient.getAllFiles()
-
   }); // Promise
 }

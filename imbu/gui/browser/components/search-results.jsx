@@ -24,14 +24,14 @@ import connectToStores from 'fluxible-addons-react/connectToStores';
 import SearchStore from '../stores/search';
 
 const {
-  Styles, Table, Paper
+  Styles, Paper,
+  Table, TableHeader, TableRow, TableHeaderColumn, TableBody, TableRowColumn
 } = Material;
 
 const {
   Spacing
 } = Styles;
 
-const ThemeManager = new Styles.ThemeManager();
 
 /**
  * Display Search Results on a Material UI Table
@@ -45,18 +45,8 @@ export default class SearchResultsComponent extends React.Component {
     getStore: React.PropTypes.func
   };
 
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object
-  };
-
   constructor(props) {
     super(props);
-  }
-
-  getChildContext() {
-    return {
-      muiTheme: ThemeManager.getCurrentTheme()
-    };
   }
 
   _getStyles() {
@@ -68,7 +58,7 @@ export default class SearchResultsComponent extends React.Component {
       },
       column: {
         summary: {
-          'white-space': 'normal',
+          whiteSpace: 'normal',
           overflow: 'auto'
         },
         score: {
@@ -76,7 +66,7 @@ export default class SearchResultsComponent extends React.Component {
         }
       },
       content: {
-        'padding-left': `${Spacing.desktopGutterMini}px`,
+        paddingLeft: `${Spacing.desktopGutterMini}px`,
         maxWidth: '1200px',
         margin: '0 auto'
       },
@@ -90,40 +80,37 @@ export default class SearchResultsComponent extends React.Component {
     if (this.props.results.length > 0) {
       let styles = this._getStyles();
 
-      // Convert SearchStore results to Table rowData structure
-      const data = this.props.results.map((result) => {
-        return ({
-          summary: {
-            content: result.text,
-            style: styles.column.summary
-          },
-          score: {
-            content: result.score.toFixed(4),
-            style: styles.column.score
-          }
-        });
+      // Convert SearchStore results to Table rows
+      let rows = this.props.results.map((result, idx) => {
+        return (
+          <TableRow key={idx}>
+            <TableRowColumn key={0} style={styles.column.summary}>
+              {result.text}
+            </TableRowColumn>
+            <TableRowColumn key={1} style={styles.column.score}>
+              {result.score.toFixed(4)}
+            </TableRowColumn>
+          </TableRow>);
       });
-      // Format Table Header
-      let headerCols = {
-        summary: {
-          content: 'Summary'
-        },
-        score: {
-          content: 'Distance',
-          style: styles.header.score
-        }
-      };
-      let colOrder = [
-        'summary', 'score'
-      ];
 
       return (
         <Paper style={styles.content}>
-          <Table columnOrder={colOrder}
-            displayRowCheckbox={false} displaySelectAll={false}
-            fixedHeader={true} headerColumns={headerCols}
-            height={styles.table.height} ref="results" rowData={data}
-            showRowHover={true} style={styles.table}/>
+          <Table selectable={false} fixedHeader={true}
+            height={styles.table.height} ref="results" style={styles.table}>
+            <TableHeader  adjustForCheckbox={false} displaySelectAll={false}>
+              <TableRow>
+                <TableHeaderColumn key={0} style={styles.column.summary}>
+                  Match
+                </TableHeaderColumn>
+                <TableHeaderColumn key={1} style={styles.column.score}>
+                  Overlap
+                </TableHeaderColumn>
+              </TableRow>
+            </TableHeader>
+            <TableBody displayRowCheckbox={false}>
+              {rows}
+            </TableBody>
+          </Table>
         </Paper>
       );
     }

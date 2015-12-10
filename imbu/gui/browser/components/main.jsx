@@ -24,11 +24,11 @@ import Material from 'material-ui';
 import SearchComponent from './search.jsx';
 import SearchResultsComponent from './search-results.jsx';
 import SearchHistoryComponent from './search-history.jsx';
+import ThemeManager from 'material-ui/lib/styles/theme-manager';
+import LightTheme from 'material-ui/lib/styles/raw-themes/light-raw-theme';
 const {
-  AppBar, IconButton, Styles
+  AppBar, IconButton
 } = Material;
-
-const ThemeManager = new Styles.ThemeManager();
 
 export default class Main extends React.Component {
 
@@ -45,10 +45,9 @@ export default class Main extends React.Component {
   }
 
   getChildContext() {
-    return {
-      muiTheme: ThemeManager.getCurrentTheme()
-    };
+    return {muiTheme: ThemeManager.getMuiTheme(LightTheme)};
   }
+
 
   render() {
     return (

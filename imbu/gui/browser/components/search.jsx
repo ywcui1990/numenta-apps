@@ -18,6 +18,7 @@
 * http://numenta.org/licenses/
 * -------------------------------------------------------------------------- */
 
+import ReactDOM from 'react-dom';
 import React from 'react';
 import Material from 'material-ui';
 import connectToStores from 'fluxible-addons-react/connectToStores';
@@ -32,10 +33,9 @@ const {
   Spacing
 } = Styles;
 
-const ThemeManager = new Styles.ThemeManager();
-
 @connectToStores([SearchStore], (context) => ({
-  query: context.getStore(SearchStore).getQuery()
+  query: context.getStore(SearchStore).getQuery(),
+  model: context.getStore(SearchStore).getModel()
 }))
 export default class SearchComponent extends React.Component {
 
@@ -44,29 +44,23 @@ export default class SearchComponent extends React.Component {
     getStore: React.PropTypes.func
   };
 
-  static childContextTypes = {
-    muiTheme: React.PropTypes.object
-  };
-
   constructor() {
     super();
   }
 
-  getChildContext() {
-    return {
-      muiTheme: ThemeManager.getCurrentTheme()
-    };
-  }
-
   componentDidUpdate() {
-    const el = React.findDOMNode(this.refs.query);
+    const el = ReactDOM.findDOMNode(this.refs.query);
     this.refs.query.setValue(this.props.query);
+    if (this.props.model) {
+      this.refs.model.value = this.props.model;
+    }
     el.focus();
   }
 
   _search() {
     let query = this.refs.query.getValue();
-    this.context.executeAction(SearchQueryAction, query);
+    let model = this.refs.model.value;
+    this.context.executeAction(SearchQueryAction, {query, model});
   }
 
   _getStyles() {
@@ -76,20 +70,34 @@ export default class SearchComponent extends React.Component {
         maxWidth: '1200px',
         margin: '0 auto',
         boxSizing: 'border-box'
+      },
+      modelsMenu: {
+        height: '36px',
+        fontSize: '12pt',
+        border: '1px solid lightgray'
       }
     };
   }
 
   render() {
     let styles = this._getStyles();
-
     return (
       <ClearFix style={styles.content}>
-        <TextField floatingLabelText="Sample Text to match" fullWidth={true}
+        <TextField floatingLabelText="Enter query:" fullWidth={true}
                   id="query" name="query"
                   onEnterKeyDown={this._search.bind(this)} ref="query"/>
-        <RaisedButton label="Search" onTouchTap={this._search.bind(this)}
-                      role="search" secondary={true}/>
+
+          <select height={styles.modelsMenu.height}
+                  defaultValue="CioWindows"
+                  ref="model" name="model"
+                  style={styles.modelsMenu}>
+            <option value="CioWindows">CioWindows</option>
+            <option value="CioDocumentFingerprint">CioDocumentFingerprint</option>
+            <option value="CioWordFingerprint">CioWordFingerprint</option>
+          </select>
+
+          <RaisedButton label="Search" onTouchTap={this._search.bind(this)}
+                        role="search" secondary={true}/>
       </ClearFix>
     );
   }
