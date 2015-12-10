@@ -21,13 +21,17 @@
 """
 Implements Imbu's web API.
 """
-
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import json
 import logging
+from multiprocessing import JoinableQueue, Process
 import os
 import pkg_resources
+from threading import Thread
+import traceback
 import web
+
+from uwsgidecorators import postfork, thread
 
 from htmresearch.encoders import EncoderTypes
 from htmresearch.frameworks.nlp.classify_fingerprint import (
@@ -40,7 +44,10 @@ from htmresearch.frameworks.nlp.classify_windows import (
 from htmresearch.support.csv_helper import readCSV
 
 
+
 g_log = logging.getLogger(__name__)
+
+
 
 _NETWORK_JSON = "imbu_tp.json"
 _MODEL_MAPPING = {
@@ -51,6 +58,136 @@ _MODEL_MAPPING = {
   # "HTMNetwork": ClassificationModelHTM,
 }
 _DEFAULT_MODEL_NAME = "CioWindows"
+
+
+
+PrepDataTask = namedtuple("PrepDataTask", "dataDict, preprocess")
+EncodeSamplesTask = namedtuple("EncodeSamplesTask", "samples")
+TrainModelTask = namedtuple("TrainModelTask", "i")
+QueryModelTask = namedtuple("QueryModelTask", "query, preprocess")
+
+
+
+class ModelProcess(Process):
+  """ multiprocessing.Process subclass; Executes model operations in separate
+  process, communicating over JoinableQueue for synchronous results
+  """
+
+
+  def __init__(self, modelObj, inputQueue, outputQueue):
+    """
+    :param modelObj: Model
+    :param inputQueue: JoinableQueue in which process receives input
+    :param outputQueue: JoinableQueue to which process publishes output
+    """
+    super(ModelProcess, self).__init__()
+    self._inputQueue = inputQueue
+    self._outputQueue = outputQueue
+    self.modelObj = modelObj
+
+
+  def run(self):
+    """ Listen for input, perform task, return results, repeat.  Forever.
+    """
+
+    while True:
+      try:
+        output = None
+
+        # Blocking get
+        obj = self._inputQueue.get()
+
+        if isinstance(obj, PrepDataTask):
+          output = self.modelObj.prepData(dataDict=obj.dataDict,
+                                          preprocess=obj.preprocess)
+        elif isinstance(obj, EncodeSamplesTask):
+          output = self.modelObj.encodeSamples(samples=obj.samples)
+        elif isinstance(obj, TrainModelTask):
+          output = self.modelObj.trainModel(i=obj.i)
+        elif isinstance(obj, QueryModelTask):
+          output = self.modelObj.queryModel(query=obj.query,
+                                            preprocess=obj.preprocess)
+
+        # Blocking put
+        self._outputQueue.put(output)
+
+        # Input has been handled
+        self._inputQueue.task_done()
+
+        # Output has been handled
+        self._outputQueue.join()
+
+      except:
+        traceback.print_exc(file=open(str(os.getpid()) + ".out", "w"))
+
+
+
+class SynchronousBackgroundModelProxy(object):
+  """ Executes model process in background, blocks in foreground.
+
+  Instances of SynchronousBackgroundModelProxy serve as proxies in the
+  foreground to long-running processes running in the background.  A
+  light-weight RPC mechanism is implemented in prepData(), encodeSamples(),
+  trainModel(), and queryModel(), and the internal implementation ensures that
+  the RPC calls block in the foreground.  In order to execute RPC calls in
+  parallel, you must use threads to execute the functions, as is done in
+  setupModelWorkers() to create, prepare, and train the models at startup.
+  """
+
+
+  def __init__(self, modelObj):
+    self.inputQueue = JoinableQueue(1)
+    self.outputQueue = JoinableQueue(1)
+    modelProcess = ModelProcess(modelObj, self.inputQueue, self.outputQueue)
+    self._modelProcess = modelProcess
+    self._modelProcess.start()
+
+
+  def prepData(self, dataDict, preprocess):
+    return self._submitTask(PrepDataTask._make([dataDict, preprocess]))
+
+
+  def encodeSamples(self, samples):
+    return self._submitTask(EncodeSamplesTask._make([samples]))
+
+
+  def trainModel(self, i):
+    return self._submitTask(TrainModelTask._make([i]))
+
+
+  def queryModel(self, query, preprocess):
+    return self._submitTask(QueryModelTask._make([query, preprocess]))
+
+
+  def _submitTask(self, inputValue):
+    # Blocking put
+    self.inputQueue.put(inputValue)
+
+    # Wait for input to be handled
+    self.inputQueue.join()
+
+    # Blocking get
+    outputValue = self.outputQueue.get()
+
+    # Output has been received
+    self.outputQueue.task_done()
+
+    return outputValue
+
+
+  @property
+  def process(self):
+    """ Public accessor method for internal model process
+    """
+    return self._modelProcess
+
+
+  def terminateAndCleanup(self):
+    self._modelProcess.terminate()
+
+
+  def __del__(self):
+    self.terminateAndCleanup()
 
 
 
@@ -93,35 +230,36 @@ def loadJSON(jsonPath):
     raise e
 
 
+# Indicates global ready status of all models.  g_ready will transition to
+# True when all models have been created, trained, and are ready to handle
+# requests
+g_ready = False
+g_models = {}
+g_csvdata = (
+  readCSV(
+    os.getenv("IMBU_DATA",
+              pkg_resources.resource_filename(__name__, "data.csv")),
+  numLabels=0)
+)
 
-def createModel(modelName, dataPath, csvdata):
+# Get data and order by unique ID
+g_samples = OrderedDict(
+  (sample[2], sample[0]) for sample in g_csvdata.values()
+)
+
+
+
+def createModel(modelName, modelFactory):
   """Return an instantiated model."""
-  modelFactory = _MODEL_MAPPING.get(modelName, None)
+
+  global g_models
 
   if modelFactory is None:
     raise ValueError("Could not instantiate model '{}'.".format(modelName))
 
   if modelName == "HTMNetwork":
-    networkConfig = loadJSON(_NETWORK_JSON)
 
-    model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
-                         apiKey=os.environ["CORTICAL_API_KEY"],
-                         networkConfig=networkConfig,
-                         inputFilePath=dataPath,
-                         prepData=True,
-                         numLabels=0,
-                         stripCats=True,
-                         retinaScaling=1.0)
-
-    # Train the HTM network once
-    numRecords = sum(
-      model.networkDataGen.getNumberOfTokens(model.networkDataPath))
-    model.trainModel(iterations=numRecords)
-
-    model.verbosity = 0
-    model.numLabels = 0
-
-    return model
+    raise NotImplementedError()
 
   elif modelName == "CioWordFingerprint":
     model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
@@ -138,38 +276,52 @@ def createModel(modelName, dataPath, csvdata):
 
   model.verbosity = 0
   model.numLabels = 0
-  samples = model.prepData(csvdata, False)
-  model.encodeSamples(samples)
+
+  modelProxy = SynchronousBackgroundModelProxy(model)
+
+  samples = modelProxy.prepData(g_csvdata, False)
+
+  modelProxy.encodeSamples(samples)
 
   for i in xrange(len(samples)):
-    model.trainModel(i)
+    modelProxy.trainModel(i)
 
-  return model
+  g_models[modelName] = modelProxy
+
+
+
+@postfork
+@thread
+def setupModelWorkers():
+  """ Create all models.
+
+  This function is decorated by the uwsgi-provided postfork decorator to ensure
+  that the model proxy objects (and their queues) are created in the same
+  worker process as the request handlers.
+  """
+  global g_ready
+
+  threads = []
+
+  for modelName, modelFactory in _MODEL_MAPPING.iteritems():
+    createAndTrainModelThread = Thread(target=createModel,
+                                       args=(modelName, modelFactory))
+
+    createAndTrainModelThread.start()
+    threads.append(createAndTrainModelThread)
+
+  print "waiting for models..."
+
+  for thread in threads:
+    thread.join()
+
+  g_ready = True
+
+  print "Models ready!"
 
 
 
 class FluentWrapper(object):
-  """Wraps the Imbu model"""
-
-  def __init__(self, dataPath="data.csv"):
-    """
-    Initializes Imbu model with given sample data.
-
-    :param str dataPath: Path to sample data file.
-                         Must be a CSV file having 'ID' and 'Sample' columns.
-    """
-    g_log.info("Initialize Imbu model")
-
-    # Get data and order by unique ID
-    csvdata = readCSV(dataPath, numLabels=0)
-    self.samples = OrderedDict()
-    for sample in csvdata.values():
-      self.samples[sample[2]] = sample[0]
-
-    # Create all models
-    self.models = {modelName: createModel(modelName, dataPath, csvdata)
-      for modelName, modelFactory in _MODEL_MAPPING.iteritems()}
-
 
   def query(self, model, text):
     """
@@ -189,13 +341,16 @@ class FluentWrapper(object):
         ...
     ]
     """
+
+    global g_models
+
     results = []
     if text:
-      g_log.info("Query model for : %s", text)
-      sortedDistances = self.models[model].queryModel(text, preprocess=False)
+      sortedDistances = g_models[model].queryModel(text, preprocess=False)
+
       for sID, dist in sortedDistances:
         results.append({"id": sID,
-                        "text": self.samples[sID],
+                        "text": g_samples[sID],
                         "score": dist.item()})
 
     return results
@@ -215,15 +370,25 @@ class FluentAPIHandler(object):
   def OPTIONS(self, modelName=_DEFAULT_MODEL_NAME): # pylint: disable=R0201,C0103
     addStandardHeaders()
     addCORSHeaders()
-    if modelName not in g_fluent:
+    if modelName not in g_models:
       raise web.notfound("%s Model not found" % modelName)
+
+
+  def GET(self):
+    """ GET global ready status.  Returns "true" when all models have been
+    created and are ready for queries.
+    """
+    addStandardHeaders()
+    addCORSHeaders()
+
+    return json.dumps(g_ready)
 
 
   def POST(self, modelName=_DEFAULT_MODEL_NAME): # pylint: disable=R0201,C0103
     addStandardHeaders()
     addCORSHeaders()
 
-    if modelName not in g_fluent.models:
+    if modelName not in g_models:
       raise web.notfound("%s Model not found" % modelName)
 
     response = []
@@ -253,9 +418,7 @@ urls = (
 app = web.application(urls, globals())
 
 # Create Imbu model runner
-IMBU_DATA = os.getenv(
-  "IMBU_DATA", pkg_resources.resource_filename(__name__, "data.csv"))
-g_fluent = FluentWrapper(IMBU_DATA)
+g_fluent = FluentWrapper()
 
 # Required by uWSGI per WSGI spec
 application = app.wsgifunc()
