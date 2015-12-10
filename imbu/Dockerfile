@@ -36,8 +36,6 @@ ENV CORTICAL_API_KEY=OVERRIDE_ME
 ENV IMBU_RETINA_ID=OVERRIDE_ME
 EXPOSE 80
 
-# Override workdir using '-v /your/local/dir:/opt/numenta/imbu'
-VOLUME /opt/numenta/imbu
 WORKDIR /opt/numenta/imbu
 
 # Install python packages
