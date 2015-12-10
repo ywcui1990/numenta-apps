@@ -99,9 +99,9 @@
      //    collaspedAnomalies = nil
     }
     
-    func setCollapsed (collapsed: Bool){
+  /*  func setCollapsed (collapsed: Bool){
         
-    }
+    }*/
     
     func getEndDate()->NSDate?{
         return DataUtils.dateFromTimestamp(endDate)
@@ -135,7 +135,7 @@
         let fromTime = lastTimestamp + DataUtils.MILLIS_PER_HOUR - numOfDays * DataUtils.MILLIS_PER_DAY
         let from = DataUtils.dateFromTimestamp(fromTime)
         
-        let startProfile = DataUtils.timestampFromDate( NSDate())
+       // let startProfile = DataUtils.timestampFromDate( NSDate())
         
         client.getMetricsValues (getId(),  from: from, to: to,ascending: true ){( metricId: String,  timestamp: Int64,  value: Float,  anomaly: Float) in
             
@@ -147,7 +147,7 @@
             
      
             newRawData[idx] = Double(value)
-         
+        
             let hour = DataUtils.floorTo60Minutes(timestamp)
             let score = aggregated[hour]
             if (score == nil || score < anomaly) {
@@ -163,7 +163,7 @@
         var newAnomalies = [(Int64, Double)]()
         
         // Populate anomaly array for all scrollable period
-        for  var time = fromTime; time < lastTimestamp; time += DataUtils.MILLIS_PER_HOUR {
+        for  var time = fromTime; time < lastTimestamp + DataUtils.MILLIS_PER_HOUR; time += DataUtils.MILLIS_PER_HOUR {
             var value  = 0.0
             let  anomalyValue : Float? = aggregated[time]
             if (anomalyValue != nil){
@@ -178,7 +178,7 @@
         self.allAnomalies = newAnomalies
         
         
-        let endProfile =  DataUtils.timestampFromDate( NSDate())
+       // let endProfile =  DataUtils.timestampFromDate( NSDate())
         
      //   Log.line ("time: " + String(endProfile-startProfile))
         refreshData()
@@ -217,10 +217,10 @@
         
         // Anomalies
         size = Int64( allAnomalies.count)
-        start = max(size - (lastTimestamp - endDate) / BAR_INTERVAL - bars+1, 0)
-        end =  Int ( min ( start+bars, size))
+        start = max(size - (lastTimestamp - endDate) / BAR_INTERVAL - bars, 0)
+        end =  Int ( min ( start+bars+1, size))
 
-        let anomalySlice = self.allAnomalies[Range<Int>(start: Int( start), end: end)]
+        let anomalySlice = self.allAnomalies[Range<Int>(start: Int(start), end: end)]
         self.anomalies = Array(anomalySlice)
     }
     
@@ -307,7 +307,9 @@
                 for (var i : Int64 = 0; i < intervalsPerBar; i++){
                     let index = Int((bars-1) * intervalsPerBar + i  )
                     let srcIndex  = endIndex - (intervalsPerBar - i )
-                    results[ index ] = allRawData![ Int(srcIndex) ]
+                    
+                    
+                    results[ index] = allRawData![ Int(srcIndex) ]
 
                     
                 }
