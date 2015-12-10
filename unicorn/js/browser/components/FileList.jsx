@@ -302,13 +302,21 @@ export default class FileList extends React.Component {
        {text: 'Delete', onTouchTap: confirmDialog.callback, ref: 'submit'}
     ];
     let userFiles = (
-      <List subheader="Your Data" subheaderStyle={this._styles.list}>
-        {this._renderFiles('uploaded')}
+      <List
+        key="uploaded"
+        subheader="Your Data"
+        subheaderStyle={this._styles.list}
+        >
+          {this._renderFiles('uploaded')}
       </List>
     );
     let sampleFiles = (
-      <List subheader="Sample Data" subheaderStyle={this._styles.list}>
-        {this._renderFiles('sample')}
+      <List
+        key="sample"
+        subheader="Sample Data"
+        subheaderStyle={this._styles.list}
+        >
+          {this._renderFiles('sample')}
       </List>
     );
     let filesList = [sampleFiles];
@@ -321,11 +329,12 @@ export default class FileList extends React.Component {
       <nav>
         {filesList}
         <Dialog title={confirmDialog.title}
-          ref="confirmDialog"
-          modal={true}
+          actionFocus="submit"
           actions={dialogActions}
+          modal={true}
           onDismiss={this._dismissDialog.bind(this)}
-          actionFocus="submit">
+          ref="confirmDialog"
+          >
             {confirmDialog.message}
         </Dialog>
       </nav>
