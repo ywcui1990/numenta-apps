@@ -402,7 +402,7 @@ class FluentAPIHandler(object):
     else:
       # no sample data, just return all samples
       response = [{"id": item[0], "text": item[1], "score": 0}
-        for item in g_fluent.samples.items()]
+        for item in g_samples.items()]
 
     return json.dumps(response)
 
