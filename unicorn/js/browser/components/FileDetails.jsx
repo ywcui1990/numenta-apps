@@ -231,7 +231,7 @@ export default class FileDetails extends React.Component {
       });
 
       return (
-        <Table selectable={false} fixedHeader={true} height={300}
+        <Table selectable={false} fixedHeader={true} height="300"
             style={this._styles.table}>
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}
               enableSelectAll={false}>
@@ -298,7 +298,7 @@ export default class FileDetails extends React.Component {
       <Dialog
         actionFocus="submit"
         actions={actions}
-        onDismiss={this._onDismiss.bind(this)}
+        onRequestClose={this._onDismiss.bind(this)}
         ref="dialog"
         title={title}
         >
