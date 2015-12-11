@@ -387,13 +387,13 @@ class FluentAPIHandler(object):
     addStandardHeaders()
     addCORSHeaders()
 
-    if modelName not in g_models:
-      raise web.notfound("%s Model not found" % modelName)
-
     response = []
 
     data = web.data()
     if data:
+      if modelName not in g_models:
+        raise web.notfound("%s Model not found" % modelName)
+
       if isinstance(data, basestring):
         response = g_fluent.query(modelName, data)
       else:
