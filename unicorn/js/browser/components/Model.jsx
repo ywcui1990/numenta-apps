@@ -96,7 +96,7 @@ export default class Model extends React.Component {
 
     // init state
     this.state = Object.assign({
-      confirmDialog: null
+      deleteConfirmDialog: null
     }, model);
   }
 
@@ -106,31 +106,21 @@ export default class Model extends React.Component {
     this.setState(Object.assign({}, model));
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.confirmDialog !== null) {
-      this.refs.confirmDialog.show();
-    } else if (prevState.confirmDialog !== null) {
-      this.refs.confirmDialog.dismiss();
-    }
-  }
-
   /**
    * Opens a modal confirmation dialog
    * @param  {string}   title    Dialog title
    * @param  {string}   message  Dialog Message
    * @param  {Function} callback Function to be called on confirmation
    */
-  _confirmDialog(title, message, callback) {
+  _showDeleteConfirmDialog(title, message, callback) {
     this.setState({
-      confirmDialog: {
-        message, title, callback
-      }
+      deleteConfirmDialog: {callback, message, title}
     });
   }
 
-  _dismissDialog() {
+  _dismissDeleteConfirmDialog() {
     this.setState({
-      confirmDialog: null
+      deleteConfirmDialog: null
     });
   }
 
@@ -143,12 +133,12 @@ export default class Model extends React.Component {
   }
 
   _deleteModel(modelId) {
-    this._confirmDialog(
+    this._showDeleteConfirmDialog(
       DIALOG_STRINGS.model.title,
       DIALOG_STRINGS.model.message,
       () => {
         this.context.executeAction(DeleteModelAction, modelId);
-        this._dismissDialog();
+        this._dismissDeleteConfirmDialog();
       }
     );
   }
@@ -169,19 +159,20 @@ export default class Model extends React.Component {
   }
 
   render() {
+    let titleColor;
     let model = this.state;
     let modelId = model.modelId;
     let filename = path.basename(model.filename);
-    let confirmDialog = this.state.confirmDialog || {};
     let title = model.metric;
-    let titleColor;
     let avatarColor = Colors.red400;
     let avatarContents = model.metric.charAt(0);
     let isModelActive = (model && ('active' in model) && model.active);
     let hasModelRun = (model && ('ran' in model) && model.ran);
+    let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
+    let dialogOpen = false;
     let dialogActions = [
        {text: 'Cancel'},
-       {text: 'Delete', onTouchTap: confirmDialog.callback, ref: 'submit'}
+       {text: 'Delete', onTouchTap: deleteConfirmDialog.callback, ref: 'submit'}
     ];
     let actions = (
       <CardActions style={this._styles.actions}>
@@ -220,6 +211,10 @@ export default class Model extends React.Component {
       avatarColor = Colors.green400;
     }
 
+    if (this.state.deleteConfirmDialog) {
+      dialogOpen = true;
+    }
+
     return (
       <Card initiallyExpanded={true} style={this._styles.root}>
         <CardHeader
@@ -237,14 +232,15 @@ export default class Model extends React.Component {
           {actions}
           <ModelData modelId={modelId} />
         </CardText>
-        <Dialog title={confirmDialog.title}
-          ref="confirmDialog"
-          modal={true}
-          actions={dialogActions}
-          onDismiss={this._dismissDialog.bind(this)}
+        <Dialog
           actionFocus="submit"
+          actions={dialogActions}
+          onRequestClose={this._dismissDeleteConfirmDialog.bind(this)}
+          open={dialogOpen}
+          ref="deleteConfirmDialog"
+          title={deleteConfirmDialog.title}
           >
-            {confirmDialog.message}
+            {deleteConfirmDialog.message}
         </Dialog>
       </Card>
     );
