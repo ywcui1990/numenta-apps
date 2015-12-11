@@ -78,7 +78,7 @@ export default class FileList extends React.Component {
 
     // init state
     this.state = Object.assign({
-      confirmDialog: null,
+      deleteConfirmDialog: null,
       showNested
     }, props);
 
@@ -117,15 +117,15 @@ export default class FileList extends React.Component {
    * @param  {string}   message  Dialog Message
    * @param  {Function} callback Function to be called on confirmation
    */
-  _confirmDialog(title, message, callback) {
+  _showDeleteConfirmDialog(title, message, callback) {
     this.setState({
-      confirmDialog: {callback, message, title}
+      deleteConfirmDialog: {callback, message, title}
     });
   }
 
-  _dismissDialog() {
+  _dismissDeleteConfirmDialog() {
     this.setState({
-      confirmDialog: null
+      deleteConfirmDialog: null
     });
   }
 
@@ -169,12 +169,12 @@ export default class FileList extends React.Component {
     if (action === 'detail') {
       this.context.executeAction(ShowFileDetailsAction, filename);
     } else if (action === 'delete') {
-      this._confirmDialog(
+      this._showDeleteConfirmDialog(
         DIALOG_STRINGS.file.title,
         DIALOG_STRINGS.file.message,
         () => {
           this.context.executeAction(DeleteFileAction, filename);
-          this._dismissDialog();
+          this._dismissDeleteConfirmDialog();
         }
       );
     }
@@ -284,11 +284,11 @@ export default class FileList extends React.Component {
   }
 
   render() {
-    let confirmDialog = this.state.confirmDialog || {};
-    let dialogOpen = this.state.confirmDialog !== null;
+    let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
+    let dialogOpen = this.state.deleteConfirmDialog !== null;
     let dialogActions = [
        {text: 'Cancel'},
-       {text: 'Delete', onTouchTap: confirmDialog.callback, ref: 'submit'}
+       {text: 'Delete', onTouchTap: deleteConfirmDialog.callback, ref: 'submit'}
     ];
     let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
     let uploadCount = uploaded.length || 0;
@@ -319,14 +319,14 @@ export default class FileList extends React.Component {
     return (
       <nav>
         {filesList}
-        <Dialog title={confirmDialog.title}
+        <Dialog title={deleteConfirmDialog.title}
           actionFocus="submit"
           actions={dialogActions}
-          onRequestClose={this._dismissDialog.bind(this)}
+          onRequestClose={this._dismissDeleteConfirmDialog.bind(this)}
           open={dialogOpen}
-          ref="confirmDialog"
+          ref="deleteConfirmDialog"
           >
-            {confirmDialog.message}
+            {deleteConfirmDialog.message}
         </Dialog>
       </nav>
     );
