@@ -51,7 +51,7 @@ public class TaurusDataSyncService: DataSyncService{
         if (now >= DataUtils.timestampFromDate(date!)) {
             // Download the previous hour
             from -= DataUtils.MILLIS_PER_HOUR;
-            var units : NSCalendarUnit = [NSCalendarUnit.NSYearCalendarUnit,
+            let units : NSCalendarUnit = [NSCalendarUnit.NSYearCalendarUnit,
                 NSCalendarUnit.NSMonthCalendarUnit     ,
                 NSCalendarUnit.NSDayCalendarUnit ,
                 NSCalendarUnit.NSHourCalendarUnit ,
@@ -113,6 +113,10 @@ public class TaurusDataSyncService: DataSyncService{
             }
             
         )
+    }
+    
+    override func synchronizeNotification (){
+        TaurusNotificationService().syncNotifications()
     }
     
 
