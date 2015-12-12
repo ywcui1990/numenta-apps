@@ -69,8 +69,7 @@ app.on('ready', () => {
   // create browser window
   mainWindow = new BrowserWindow({
     width: 1200,
-    height: 720,
-    resizable: false
+    height: 720
     // @TODO fill out options
     //  https://github.com/atom/electron/blob/master/docs/api/browser-window.md
   });

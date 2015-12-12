@@ -26,8 +26,6 @@
  */
 /*eslint-enable*/
 
-require('babel-polyfill');
-
 import bunyan from 'bunyan';
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';

@@ -16,7 +16,12 @@
 //
 // http://numenta.org/licenses/
 
+
 // This file must be ES5!
 
-require('babel-core/register'); // Sends us into ES6 transpiler
-require('./index.js');          // Load ES6 App
+
+// Sends us into ES6 transpiler
+require('babel-core/register');
+
+// Load ES6 App
+require('./index.js');
