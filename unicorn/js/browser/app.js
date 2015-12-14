@@ -1,22 +1,19 @@
-/* -----------------------------------------------------------------------------
- * Copyright © 2015, Numenta, Inc. Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
- * following terms and conditions apply:
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero Public License version 3 as published by
- * the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for
- * more details.
- *
- * You should have received a copy of the GNU Affero Public License along with
- * this program. If not, see http://www.gnu.org/licenses.
- *
- * http://numenta.org/licenses/
- * -------------------------------------------------------------------------- */
+// Copyright © 2015, Numenta, Inc.  Unless you have purchased from
+// Numenta, Inc. a separate commercial license for this software code, the
+// following terms and conditions apply:
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the Free
+// Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
+//
+// You should have received a copy of the GNU Affero Public License along with
+// this program.  If not, see http://www.gnu.org/licenses.
+//
+// http://numenta.org/licenses/
 
 /*eslint-disable*/
 /**
@@ -35,12 +32,11 @@ import remote from 'remote';
 import tapEventInject from 'react-tap-event-plugin';
 
 import ConfigClient from './lib/Unicorn/ConfigClient';
-import DatabaseClient from './lib/Unicorn/DatabaseClient';
-import FileClient from './lib/Unicorn/FileClient';
 import FileDetailsStore from './stores/FileDetailsStore';
 import FileStore from './stores/FileStore';
 import ListFilesAction from './actions/ListFiles';
 import ListMetricsAction from './actions/ListMetrics';
+import loggerConfig from '../config/logger';
 import MainComponent from './components/Main';
 import MetricDataStore from './stores/MetricDataStore';
 import ModelClient from './lib/Unicorn/ModelClient';
@@ -48,24 +44,18 @@ import ModelDataStore from './stores/ModelDataStore';
 import ModelStore from './stores/ModelStore';
 import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
 
+// The following Electron .remote() Clients don't work with
+//  `babel-plugin-add-module-exports` for some reason, so we must use
+//  the long-form `.default` accessor here.
+// @see http://stackoverflow.com/questions/33505992/babel-6-changes-how-it-exports-default
+const DatabaseClient = require('./lib/Unicorn/DatabaseClient').default;
+const FileClient = require('./lib/Unicorn/FileClient').default;
+
 const dialog = remote.require('dialog');
-
 const config = new ConfigClient();
-const log = bunyan.createLogger({
-  name: 'Unicorn:Renderer',
-  streams: [{ // @TODO hardcoded to Dev right now, needs Prod mode. Refactor.
-    level: 'debug',  // @TODO higher for Production
-    stream: {
-      write(rec) {
-        let name = bunyan.nameFromLevel[rec.level];
-        let method = (name === 'debug') ? 'log' : name;
-        console[method]('[%s]: %s', name, rec.msg); // eslint-disable-line
-      }
-    },
-    type: 'raw'
-  }]
-});
+const logger = bunyan.createLogger(loggerConfig);
 
+// init Client instances to speak to backend
 let databaseClient = new DatabaseClient();
 let fileClient = new FileClient();
 let modelClient = new ModelClient();
@@ -110,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // add context to app
   context = app.createContext({
     configClient: config,
-    loggerClient: log,
+    loggerClient: logger,
     databaseClient,
     fileClient,
     modelClient
