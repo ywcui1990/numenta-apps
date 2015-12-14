@@ -331,7 +331,7 @@ pushd "${REPOPATH}"
      sudo rabbitmqctl stop_app &&
      sudo rabbitmqctl reset &&
      sudo rabbitmqctl start_app &&
-     python -c 'from htmengine.model_checkpoint_mgr import ModelCheckpointMgr; ModelCheckpointMgr.removeAll()' &&
+     python -c 'from htmengine.model_checkpoint_mgr.model_checkpoint_mgr import ModelCheckpointMgr; ModelCheckpointMgr.removeAll()' &&
      taurus-set-sql-login \
         --host=${MYSQL_HOST} \
         --user=${MYSQL_USER} \
