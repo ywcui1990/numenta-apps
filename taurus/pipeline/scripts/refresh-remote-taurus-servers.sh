@@ -214,13 +214,13 @@ pushd "${REPOPATH}"
 
   fi
 
-  # Shutdown services, clear out metrics
+  # Shutdown services
   ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products/taurus.metric_collectors &&
      if [ -f supervisord.pid ]; then
        supervisorctl --serverurl http://localhost:8001 shutdown &&
        nta-wait-for-supervisord-stopped http://localhost:8001
-     fi
+     fi"
 
   # Stop taurus server instance
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
@@ -308,7 +308,7 @@ pushd "${REPOPATH}"
     taurus/pipeline/scripts/taurus-env.sh \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/env.sh
 
-  # Perform Engine update
+  # Perform Engine update, clear out metrics, start Engine
   TAURUS_ENGINE_TESTS="py.test tests/deployment"
   if [[ ${RUN_UNIT_AND_INTEGRATION_TESTS} == 1 ]]; then
     TAURUS_ENGINE_TESTS="
@@ -351,7 +351,7 @@ pushd "${REPOPATH}"
      supervisord -c conf/supervisord.conf &&
      ${TAURUS_ENGINE_TESTS}"
 
-  # Perform Collector update
+  # Perform Collector update, start Collector
   if [[ ${RUN_UNIT_AND_INTEGRATION_TESTS} == 1 ]]; then
     TAURUS_COLLECTOR_UNIT_AND_INTEGRATION_TESTS="
       py.test ../nta.utils/tests &&
