@@ -34,13 +34,9 @@ local changes without conflicts:
 
 - Edit `conf-user/nginx-taurus.conf`, replacing `user ec2-user ec2-user;` with
   `user <your username> <your group>;`.  For example `user employee1 staff;`.
-- Edit `conf-user/supervisord.conf`, replacing `/opt/numenta/taurus/conf` with
-  your own configuration path.  For example, the line
-  `environment=APPLICATION_CONFIG_PATH=/opt/numenta/taurus/conf` should instead
-  be something like `environment=APPLICATION_CONFIG_PATH=/Users/<your username>/nta/numenta-apps/taurus/conf-user`
 - Additionally ensure that APPLICATION_CONFIG_PATH is set in your environment.
-- Edit `conf-user/supervisord.conf` to uncomment the lines for the DynamoDB
-  local test tool.
+- If running with local dynamodb emulation, edit `conf-user/supervisord.conf` to
+  uncomment the lines for the DynamoDB local test tool.
 
 Create empty `logs` and `.dynamodb` directories:
 

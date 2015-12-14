@@ -214,23 +214,20 @@ pushd "${REPOPATH}"
 
   fi
 
-  # Shutdown services, clear out metrics
+  # Shutdown services
   ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products/taurus.metric_collectors &&
      if [ -f supervisord.pid ]; then
-       supervisorctl --serverurl http://localhost:8001 shutdown
-     fi &&
-     taurus-unmonitor-metrics \
-       --server=\"${TAURUS_SERVER_HOST_PRIVATE}\" \
-       --apikey=\"${TAURUS_API_KEY}\" \
-       --all \
-       --modelsout=./unmonitor.json || true"
+       supervisorctl --serverurl http://localhost:8001 shutdown &&
+       nta-wait-for-supervisord-stopped http://localhost:8001
+     fi"
 
   # Stop taurus server instance
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "cd /opt/numenta/products/taurus &&
      if [ -f taurus-supervisord.pid ]; then
-       supervisorctl --serverurl http://localhost:9001 shutdown
+       supervisorctl --serverurl http://localhost:9001 shutdown &&
+       nta-wait-for-supervisord-stopped http://localhost:9001
      fi  &&
      if [ -f /var/run/nginx.pid ]; then
        sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s stop;
@@ -311,7 +308,7 @@ pushd "${REPOPATH}"
     taurus/pipeline/scripts/taurus-env.sh \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/env.sh
 
-  # Perform Engine update
+  # Perform Engine update, clear out metrics, start Engine
   TAURUS_ENGINE_TESTS="py.test tests/deployment"
   if [[ ${RUN_UNIT_AND_INTEGRATION_TESTS} == 1 ]]; then
     TAURUS_ENGINE_TESTS="
@@ -331,6 +328,10 @@ pushd "${REPOPATH}"
         --host=${RABBITMQ_HOST} \
         --user=${RABBITMQ_USER} \
         --password=${RABBITMQ_PASSWD} &&
+     sudo rabbitmqctl stop_app &&
+     sudo rabbitmqctl reset &&
+     sudo rabbitmqctl start_app &&
+     python -c 'from htmengine.model_checkpoint_mgr.model_checkpoint_mgr import ModelCheckpointMgr; ModelCheckpointMgr.removeAll()' &&
      taurus-set-sql-login \
         --host=${MYSQL_HOST} \
         --user=${MYSQL_USER} \
@@ -344,24 +345,13 @@ pushd "${REPOPATH}"
         --host=${DYNAMODB_HOST} \
         --port=${DYNAMODB_PORT} \
         --table-suffix=${DYNAMODB_TABLE_SUFFIX} &&
-     taurus-set-api-key \
-        --apikey=${TAURUS_API_KEY} &&
-     cd /opt/numenta/products/taurus/taurus/engine/repository &&
-     python migrate.py &&
+     taurus-set-api-key --apikey=${TAURUS_API_KEY} &&
      cd /opt/numenta/products/taurus &&
-     if [ -f /var/run/nginx.pid ]; then
-       sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s reload
-     else
-       sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf
-     fi &&
-     if [ -f taurus-supervisord.pid ]; then
-       supervisorctl --serverurl http://localhost:9001 reload
-     else
-       supervisord -c conf/supervisord.conf
-     fi &&
+     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
+     supervisord -c conf/supervisord.conf &&
      ${TAURUS_ENGINE_TESTS}"
 
-  # Perform Collector update
+  # Perform Collector update, start Collector
   if [[ ${RUN_UNIT_AND_INTEGRATION_TESTS} == 1 ]]; then
     TAURUS_COLLECTOR_UNIT_AND_INTEGRATION_TESTS="
       py.test ../nta.utils/tests &&
