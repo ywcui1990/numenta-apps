@@ -153,9 +153,14 @@ export default class FileList extends React.Component {
   _handleFileToggle(fileId, event) {
     let ref = this.refs[`file-toggle-${fileId}`];
     let showNested = this.state.showNested;
+    let nesting = true;
+
+    if (showNested[fileId]) {
+      nesting = false;
+    }
 
     // custom icon toggle
-    showNested[fileId] = !showNested[fileId];
+    showNested[fileId] = nesting;
     this.setState({showNested});
 
     // piggyback on default MaterialUI nested show/hide
@@ -290,19 +295,31 @@ export default class FileList extends React.Component {
 
   render() {
     let confirmDialog = this.state.confirmDialog || {};
+    let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
+    let uploadCount = uploaded.length || 0;
     let dialogActions = [
        {text: 'Cancel'},
        {text: 'Delete', onTouchTap: confirmDialog.callback, ref: 'submit'}
     ];
+    let userFiles = (
+      <List subheader="Your Data" subheaderStyle={this._styles.list}>
+        {this._renderFiles('uploaded')}
+      </List>
+    );
+    let sampleFiles = (
+      <List subheader="Sample Data" subheaderStyle={this._styles.list}>
+        {this._renderFiles('sample')}
+      </List>
+    );
+    let filesList = [sampleFiles];
+
+    if (uploadCount > 0) {
+      filesList.unshift(userFiles);
+    }
 
     return (
       <nav>
-        <List subheader="Sample Data" subheaderStyle={this._styles.list}>
-          {this._renderFiles('sample')}
-        </List>
-        <List subheader="Your Data" subheaderStyle={this._styles.list}>
-          {this._renderFiles('uploaded')}
-        </List>
+        {filesList}
         <Dialog title={confirmDialog.title}
           ref="confirmDialog"
           modal={true}

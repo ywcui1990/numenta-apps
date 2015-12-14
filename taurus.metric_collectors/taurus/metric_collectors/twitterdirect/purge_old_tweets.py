@@ -200,8 +200,8 @@ def _deleteRows(sqlEngine, uids):
   :param sqlalchemy.engine.Engine sqlEngine:
   :param uids: sequence of UID values of twitter_tweets rows to delete
 
-  :returns: number of rows actually deleted; this may be less than limit, if
-    there aren't enough rows that match the predicate
+  :returns: number of rows actually deleted; this may be less than requested if
+    something else deleted some of the requested rows
   """
   twitterTweetsSchema = collectorsdb.schema.twitterTweets
 
