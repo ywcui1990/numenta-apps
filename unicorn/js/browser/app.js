@@ -98,6 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
     dialog.showErrorBox('Document Error', 'No document body found');
   }
 
+  // exit app
+  window.onbeforeunload = (event) => {
+    dialog.showErrorBox('Quitting', 'Quitting');
+  };
+
   // expose React to dev tools
   if (config.get('NODE_ENV') !== 'production') {
     window.React = React; // expose dev tools to browser
