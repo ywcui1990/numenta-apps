@@ -134,18 +134,6 @@ export default class FileDetails extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.props.visible) {
-      this.refs.dialog.show();
-    } else {
-      this.refs.dialog.dismiss();
-    }
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextProps.visible;
-  }
-
   _handleFileInputChange(e) {
     let name = e.target.name;
     let value = e.target.value;
@@ -154,7 +142,7 @@ export default class FileDetails extends React.Component {
     this.setState(state);
   }
 
-  _onDismiss() {
+  _onRequestClose() {
     this.context.executeAction(HideFileDetailsAction);
   }
 
@@ -231,7 +219,7 @@ export default class FileDetails extends React.Component {
       });
 
       return (
-        <Table selectable={false} fixedHeader={true} height="300"
+        <Table selectable={false} fixedHeader={true} height={'300px'}
             style={this._styles.table}>
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}
               enableSelectAll={false}>
@@ -296,9 +284,10 @@ export default class FileDetails extends React.Component {
 
     return (
       <Dialog
+        open={this.props.visible}
         actionFocus="submit"
         actions={actions}
-        onRequestClose={this._onDismiss.bind(this)}
+        onRequestClose={this._onRequestClose.bind(this)}
         ref="dialog"
         title={title}
         >
@@ -306,5 +295,4 @@ export default class FileDetails extends React.Component {
       </Dialog>
     );
   }
-
 }

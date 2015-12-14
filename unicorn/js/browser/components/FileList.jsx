@@ -319,12 +319,13 @@ export default class FileList extends React.Component {
     return (
       <nav>
         {filesList}
-        <Dialog title={deleteConfirmDialog.title}
+        <Dialog
           actionFocus="submit"
           actions={dialogActions}
           onRequestClose={this._dismissDeleteConfirmDialog.bind(this)}
           open={dialogOpen}
           ref="deleteConfirmDialog"
+          title={deleteConfirmDialog.title}
           >
             {deleteConfirmDialog.message}
         </Dialog>
