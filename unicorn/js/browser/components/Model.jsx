@@ -239,9 +239,8 @@ export default class Model extends React.Component {
         </CardText>
         <Dialog title={confirmDialog.title}
           ref="confirmDialog"
-          modal={true}
           actions={dialogActions}
-          onDismiss={this._dismissDialog.bind(this)}
+          onRequestClose={this._dismissDialog.bind(this)}
           actionFocus="submit"
           >
             {confirmDialog.message}
