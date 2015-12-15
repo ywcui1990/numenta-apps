@@ -70,4 +70,32 @@ export default class Utils {
     }
     return `${metricId}!${timestamp.getTime()}`;
   }
+
+  /**
+   * Template String to trim extra spaces from multiline es6 strings.
+   * @param {Array} strings - Input string literals for es6 template string.
+   * @param {...Array} [values] - Template string filler values.
+   * @returns {String} - Completed and filled string.
+   */
+  static trims(strings, ...values) {
+    let result = '';
+    let i = 0;
+    let tmp;
+
+    while (i < strings.length) {
+      tmp = strings[i];
+      tmp = tmp.replace(/\n/g, ' ');
+      tmp = tmp.replace(/\s+/g, ' ');
+      result += tmp;
+
+      if (i < values.length) {
+        result += values[i];
+      }
+
+      i++;
+    }
+
+    return result;
+  }
+
 }
