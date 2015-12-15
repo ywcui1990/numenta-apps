@@ -48,7 +48,6 @@ g_log = logging.getLogger(__name__)
 
 
 
-_NETWORK_JSON = "imbu_tp.json"
 _MODEL_MAPPING = {
   "CioWordFingerprint": ClassificationModelFingerprint,
   "CioDocumentFingerprint": ClassificationModelFingerprint,

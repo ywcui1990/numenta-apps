@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		233A6A1C1BD9C45E00815BBB /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 233A6A1B1BD9C45E00815BBB /* NotificationService.swift */; };
 		236016D11BCFDCD200AF82FE /* TwitterHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D01BCFDCD200AF82FE /* TwitterHeaderCell.swift */; };
 		236016D31BD00A9500AF82FE /* Appearence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D21BD00A9500AF82FE /* Appearence.swift */; };
 		236016D71BD1410100AF82FE /* ShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 236016D61BD1410100AF82FE /* ShareService.swift */; };
@@ -70,6 +69,7 @@
 		23F58D711BBA287200C7C6B6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 23F58D701BBA287200C7C6B6 /* Images.xcassets */; };
 		23F58D751BBAC21D00C7C6B6 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F58D741BBAC21D00C7C6B6 /* SettingsController.swift */; };
 		9D6590581D077B613D94B220 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5967E9F3F71FA63EF40469B /* libPods.a */; };
+		B9C914E31C1FDD8C004B8DE6 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C914E21C1FDD8C004B8DE6 /* NotificationService.swift */; };
 		DE8C3C6C96A556CE6C2EB24F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5967E9F3F71FA63EF40469B /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -92,7 +92,6 @@
 
 /* Begin PBXFileReference section */
 		2319D5721BA7798100935447 /* Taurus-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Taurus-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
-		233A6A1B1BD9C45E00815BBB /* NotificationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		236016D01BCFDCD200AF82FE /* TwitterHeaderCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwitterHeaderCell.swift; sourceTree = "<group>"; };
 		236016D21BD00A9500AF82FE /* Appearence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Appearence.swift; sourceTree = "<group>"; };
 		236016D61BD1410100AF82FE /* ShareService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareService.swift; sourceTree = "<group>"; };
@@ -160,6 +159,7 @@
 		23ED58CF1BB088D800EEEEC1 /* GrokApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GrokApplication.swift; path = app/GrokApplication.swift; sourceTree = "<group>"; };
 		23F58D701BBA287200C7C6B6 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		23F58D741BBAC21D00C7C6B6 /* SettingsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SettingsController.swift; path = src/controllers/SettingsController.swift; sourceTree = SOURCE_ROOT; };
+		B9C914E21C1FDD8C004B8DE6 /* NotificationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		CC722459B06198A44AE0D9BF /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		D5967E9F3F71FA63EF40469B /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F04A1F33885B832737DD0D75 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
@@ -385,11 +385,11 @@
 		23DF8CAC1BA9CEB700ECAE98 /* service */ = {
 			isa = PBXGroup;
 			children = (
+				B9C914E21C1FDD8C004B8DE6 /* NotificationService.swift */,
 				23DF8CAD1BA9CEB700ECAE98 /* TaurusClient.swift */,
 				23DF8CAE1BA9CEB700ECAE98 /* TaurusClientFactory.swift */,
 				23DF8CAF1BA9CEB700ECAE98 /* TaurusDataSyncService.swift */,
 				236016D61BD1410100AF82FE /* ShareService.swift */,
-				233A6A1B1BD9C45E00815BBB /* NotificationService.swift */,
 			);
 			name = service;
 			path = src/service;
@@ -646,6 +646,7 @@
 				23AD79121BA778B3003FBEF4 /* InstanceData.swift in Sources */,
 				23DF8CB01BA9CEB700ECAE98 /* TaurusClient.swift in Sources */,
 				23DF8CB11BA9CEB700ECAE98 /* TaurusClientFactory.swift in Sources */,
+				B9C914E31C1FDD8C004B8DE6 /* NotificationService.swift in Sources */,
 				23AD79141BA778B3003FBEF4 /* MetricData.swift in Sources */,
 				236016D31BD00A9500AF82FE /* Appearence.swift in Sources */,
 				23DF8C971BA9BF3800ECAE98 /* AnomalyChartView.swift in Sources */,
@@ -684,7 +685,6 @@
 				23DF8CEC1BA9CFA800ECAE98 /* InstanceAnomalyChartData.swift in Sources */,
 				236D00471BBC2C4C00782B36 /* TwitterViewController.swift in Sources */,
 				23DF8CA81BA9CE2700ECAE98 /* TarusDBProtocol.swift in Sources */,
-				233A6A1C1BD9C45E00815BBB /* NotificationService.swift in Sources */,
 				23DF8CA01BA9CDE500ECAE98 /* AnomalyValue.swift in Sources */,
 				238055C21BBEED020048E214 /* ModelController.swift in Sources */,
 				236016D71BD1410100AF82FE /* ShareService.swift in Sources */,

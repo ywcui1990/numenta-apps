@@ -203,47 +203,6 @@ def checkIfProjectExistsLocallyForSHA(project, sha, logger):
 
 
 
-def buildCapnp(env, logger):
-  """Builds capnp
-
-    :param dict env: The environment which will be set before building.
-    :param logger: An initialized logger
-
-    :returns: Prefix path for capnp.
-
-    :raises infrastructure.utilities.exceptions.NupicBuildFailed:
-      This exception is raised if build fails.
-  """
-  with changeToWorkingDir(env["NUPIC_CORE_DIR"]):
-    try:
-      mkdirp("capnp_tmp")
-      with changeToWorkingDir("capnp_tmp"):
-        runWithOutput(
-            ["curl", "-O", "https://capnproto.org/capnproto-c++-0.5.2.tar.gz"],
-            env=env, logger=logger)
-        runWithOutput(["tar", "zxf", "capnproto-c++-0.5.2.tar.gz"],
-                      env=env, logger=logger)
-        capnpTmp = os.getcwd()
-        with changeToWorkingDir("capnproto-c++-0.5.2"):
-          capnpEnv = env.copy()
-          capnpEnv["CXXFLAGS"] = (
-              "-fPIC -std=c++11 -m64 -fvisibility=hidden -Wall -Wreturn-type "
-              "-Wunused -Wno-unused-parameter")
-          runWithOutput(
-              ["./configure", "--disable-shared",
-               "--prefix={}".format(capnpTmp)],
-              env=capnpEnv, logger=logger)
-          runWithOutput("make -j4", env=env, logger=logger)
-          runWithOutput("make install", env=env, logger=logger)
-        return capnpTmp
-    except Exception:
-      logger.exception("capnp building failed due to unknown reason.")
-      raise
-    else:
-      logger.info("capnp building was successful.")
-
-
-
 def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace, nupicVersion):
   """
     Builds nupic.core
@@ -262,12 +221,12 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace, nupicVersion):
       logger.debug("Building nupic.core SHA : %s ", nupicCoreSha)
       git.resetHard(sha=nupicCoreSha, logger=logger)
 
-      capnpTmp = buildCapnp(env, logger)
-
       if isVersionGreaterOrEqual(nupicVersion, "0.3.5"):
         srcDir = "../.."
       else:
         srcDir = "../../src"
+
+      pyExtensionsDir = "../../bindings/py/nupic/bindings"
 
       # install pre-reqs into  the build workspace for isolation
       runWithOutput(command=("pip install -r bindings/py/requirements.txt "
@@ -287,13 +246,13 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace, nupicVersion):
         libdir = sysconfig.get_config_var("LIBDIR")
         includeDir = sysconfig.get_config_var("INCLUDEPY")
         runWithOutput(("cmake {srcDir} -DCMAKE_INSTALL_PREFIX=../release "
-                       "-DCMAKE_PREFIX_PATH={capnpPrefixPath} "
                        "-DPYTHON_LIBRARY={pythonLibDir}/libpython2.7.so "
-                       "-DPYTHON_INCLUDE_DIR={pythonIncludeDir}").format(
+                       "-DPYTHON_INCLUDE_DIR={pythonIncludeDir} "
+                       "-DPY_EXTENSIONS_DIR={pyExtensionsDir}").format(
                            srcDir=srcDir,
-                           capnpPrefixPath=capnpTmp,
                            pythonLibDir=libdir,
-                           pythonIncludeDir=includeDir),
+                           pythonIncludeDir=includeDir,
+                           pyExtensionsDir=pyExtensionsDir),
                       env=env, logger=logger)
         newEnv = dict(env)
         newEnv["VERBOSE"] = "1"
@@ -304,18 +263,11 @@ def buildNuPICCore(env, nupicCoreSha, logger, buildWorkspace, nupicVersion):
       shutil.rmtree("external/linux32arm")
 
       # build the distributions
-      nupicBindingsEnv = env.copy()
-      nupicBindingsEnv["CPPFLAGS"] = "-I{}".format(
-          os.path.join(capnpTmp, "include"))
-      nupicBindingsEnv["LDFLAGS"] = "-L{}".format(
-          os.path.join(capnpTmp, "lib"))
-      command = (
-          "python setup.py install --prefix={} --nupic-core-dir={}".format(
-              buildWorkspace, os.path.join(os.getcwd(), "build", "release")))
+      command = "python setup.py install --prefix={}".format(buildWorkspace)
       # Building on jenkins, not local
       if "JENKINS_HOME" in os.environ:
         command += " bdist_wheel bdist_egg upload -r numenta-pypi"
-      runWithOutput(command=command, env=nupicBindingsEnv, logger=logger)
+      runWithOutput(command=command, env=env, logger=logger)
     except:
       logger.exception("Failed to build nupic.core")
       raise
