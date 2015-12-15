@@ -34,7 +34,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
 
     // Serial queue for loading chart data
     let loadQueue = dispatch_queue_create("com.numenta.InstanceDetailsController", nil)
-     var  metricChartData  = [MetricAnomalyChartData]()
+    var  metricChartData  = [MetricAnomalyChartData]()
     
     //
     var _aggregation: AggregationType = TaurusApplication.getAggregation()
@@ -187,7 +187,48 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         let distance = getDistance( Double( translation.x) * -1.0 )
         sender.setTranslation(CGPointZero, inView: self.view)
       
-        let newTime:NSDate? =  timeSlider?.endDate.dateByAddingTimeInterval(distance)
+        var newTime:NSDate?
+        
+        if (self.marketHoursOnly){
+            if (self.chartData == nil)
+            {
+                return
+            }
+            let pixelsPerBar = Double(Double( self.view.frame.size.width) / (Double)(TaurusApplication.getTotalBarsOnChart()))
+            
+            let pDistance = Int(translation.x * -1.0)/Int(pixelsPerBar)
+            var bars = self.chartData!.getData()
+            if (pDistance<0){
+                // Scolling backwars
+                let maxIndex :Int  = (bars?.count)! + pDistance  - 1
+                var pos = max (0, maxIndex)
+                var time = bars![pos].0
+                
+                while ( TaurusApplication.marketCalendar.isOpen (time) == false){
+                    pos = pos - 1
+                    if (pos < 0){
+                        break
+                    }
+                    time = bars![pos].0
+                }
+                newTime = DataUtils.dateFromTimestamp( time )
+                
+            }else{
+                // scrolling forward
+                var time = bars![bars!.count - 1].0
+                    + pDistance * Int(chartData!.getAggregation().milliseconds())
+                while ( TaurusApplication.marketCalendar.isOpen (time) == false){
+                    time = time + chartData!.getAggregation().milliseconds()
+                }
+                newTime = DataUtils.dateFromTimestamp( time )
+            }
+            
+        }else{
+             newTime =  timeSlider?.endDate.dateByAddingTimeInterval(distance)
+        }
+        
+        
+       
      //   print ((timeSlider?.endDate,newTime))
         
         var flooredDate = DataUtils.floorTo5Mins (newTime!)
@@ -325,6 +366,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
          let cellData =  metricChartData[ indexPath.item]
         
         if (MetricType.enumForKey(cellData.metric.getUserInfo("metricType")) == MetricType.TwitterVolume){
+            
             performSegueWithIdentifier("twitterSegue", sender: nil)
         }
         
@@ -372,6 +414,54 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
                 
                 controller.metricChartData = self.metricChartData[indexPath.row].shallowCopy()
                 controller.chartData = self.chartData
+
+                    let cell = self.instanceTable.cellForRowAtIndexPath(indexPath) as! MetricCell
+                    if (cell.chart.selection != -1){
+                        let selection = cell.chart.selection
+                        let data = controller.metricChartData?.anomalies
+                        var timestamp = controller.chartData?.endDate
+                        if (data != nil){
+                            let firstBucket = data!.count - TaurusApplication.getTotalBarsOnChart()
+                            var selectedBucket = firstBucket + selection/12
+                            
+                        var value = data![selectedBucket]
+                            
+                        let selectedTime = value.0 + Int64(selection % 12) * DataUtils.METRIC_DATA_INTERVAL
+                            
+                        controller.timeToSelect = selectedTime
+                            
+                        if (self.marketHoursOnly){
+                            // Find end of collapsed period to be expanded
+                            while (selectedBucket < data!.count - 1) {
+                                if (value.0 == 0) {
+                                    selectedBucket--
+                                    value = data![selectedBucket]
+                                    break
+                                }
+                                selectedBucket++;
+                                value = data![selectedBucket]
+                            }
+                            
+                            // Check if selected collapsed bar
+                            if (value.0 == 0) {
+                                if (selectedBucket > 0) {
+                                    // Get previous bar instead
+                                    selectedBucket--;
+                                    value = data![selectedBucket]
+                                }
+                            }
+                            
+                            // Use end of period as end date (right most bar)
+                            if (value.0 != 0) {
+                                timestamp = value.0
+                            }
+                        
+                            controller.chartData?.setEndDate(DataUtils.dateFromTimestamp(timestamp!))
+                       
+                        }
+                    }
+                    
+                }
             }
         }
     }
