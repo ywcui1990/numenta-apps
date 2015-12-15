@@ -34,7 +34,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
 
     // Serial queue for loading chart data
     let loadQueue = dispatch_queue_create("com.numenta.InstanceDetailsController", nil)
-     var  metricChartData  = [MetricAnomalyChartData]()
+    var  metricChartData  = [MetricAnomalyChartData]()
     
     //
     var _aggregation: AggregationType = TaurusApplication.getAggregation()
@@ -366,6 +366,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
          let cellData =  metricChartData[ indexPath.item]
         
         if (MetricType.enumForKey(cellData.metric.getUserInfo("metricType")) == MetricType.TwitterVolume){
+            
             performSegueWithIdentifier("twitterSegue", sender: nil)
         }
         
@@ -413,6 +414,54 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
                 
                 controller.metricChartData = self.metricChartData[indexPath.row].shallowCopy()
                 controller.chartData = self.chartData
+
+                    let cell = self.instanceTable.cellForRowAtIndexPath(indexPath) as! MetricCell
+                    if (cell.chart.selection != -1){
+                        let selection = cell.chart.selection
+                        let data = controller.metricChartData?.anomalies
+                        var timestamp = controller.chartData?.endDate
+                        if (data != nil){
+                            let firstBucket = data!.count - TaurusApplication.getTotalBarsOnChart()
+                            var selectedBucket = firstBucket + selection/12
+                            
+                        var value = data![selectedBucket]
+                            
+                        let selectedTime = value.0 + Int64(selection % 12) * DataUtils.METRIC_DATA_INTERVAL
+                            
+                        controller.timeToSelect = selectedTime
+                            
+                        if (self.marketHoursOnly){
+                            // Find end of collapsed period to be expanded
+                            while (selectedBucket < data!.count - 1) {
+                                if (value.0 == 0) {
+                                    selectedBucket--
+                                    value = data![selectedBucket]
+                                    break
+                                }
+                                selectedBucket++;
+                                value = data![selectedBucket]
+                            }
+                            
+                            // Check if selected collapsed bar
+                            if (value.0 == 0) {
+                                if (selectedBucket > 0) {
+                                    // Get previous bar instead
+                                    selectedBucket--;
+                                    value = data![selectedBucket]
+                                }
+                            }
+                            
+                            // Use end of period as end date (right most bar)
+                            if (value.0 != 0) {
+                                timestamp = value.0
+                            }
+                        
+                            controller.chartData?.setEndDate(DataUtils.dateFromTimestamp(timestamp!))
+                       
+                        }
+                    }
+                    
+                }
             }
         }
     }

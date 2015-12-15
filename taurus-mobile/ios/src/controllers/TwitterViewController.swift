@@ -42,6 +42,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     @IBOutlet weak var condensedToggle: UISwitch?
     
     
+    var timeToSelect :Int64 = 0
     
     var twittermap = [ Int64 : TwitterEntry]()
     var twitterIndex = [Int64]()
@@ -132,6 +133,14 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
                 metricChartView?.anomalies = metricChartData!.data!
                 metricChartView?.updateData()
             }
+        }
+        
+        
+        if ( self.timeToSelect > 0){
+            let index  = Int64(metricChartView!.data.count) - ((metricChartData?.endDate)!+DataUtils.MILLIS_PER_HOUR  - timeToSelect)/DataUtils.METRIC_DATA_INTERVAL
+            
+            self.metricChartView.selectOnDraw = index
+            
         }
     }
     
