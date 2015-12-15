@@ -1,10 +1,10 @@
 # Numenta Imbu
 
-IMBU is a web application to demonstrate applications of Hierarchical
+Imbu is a web application to demonstrate applications of Hierarchical
 Temporal Memory (HTM) to Natural Language Processing (NLP) problems, as well as
 support ongoing research.  Originally based off of the
 [nupic.fluent](https://github.com/numenta-archive/nupic.fluent) OSS community
-project, IMBU is a project of its own in
+project, Imbu is a project of its own in
 [nupic.research](https://github.com/numenta/nupic.research).
 
 ## License
@@ -26,8 +26,9 @@ project, IMBU is a project of its own in
 │   ├── nginx-uwsgi.conf           # nGinx reverse proxy configuration
 │   └── supervisord.conf           # Main supervisor configuration file
 ├── engine/
-│   ├── data.csv                   # IMBU data set
-│   └── fluent_api.py              # Python web application
+│   ├── data.csv                   # Imbu data set
+│   ├── fluent_api.py              # Python web application
+│   └── imbu_tp.json
 ├── gui/
 │   ├── browser/
 │   │   ├── actions/
@@ -57,7 +58,7 @@ project, IMBU is a project of its own in
 
 ## Technology Stack
 
-IMBU is implemented as a hybrid Python and Javascript application -- Javascript
+Imbu is implemented as a hybrid Python and Javascript application -- Javascript
 on the front end, Python on the back end.
 
 ### Javascript:
@@ -87,14 +88,14 @@ TBD
 
 ## Back End
 
-IMBU implements a web service API at `/fluent`, supporting a `POST` HTTP
-method for querying IMBU models.
+Imbu implements a web service API at `/fluent`, supporting a `POST` HTTP
+method for querying Imbu models.
 
 ## Data Flow
 
 TBD
 
-## Running IMBU
+## Running Imbu
 
 ### Cortical.io Setup
 
@@ -102,7 +103,7 @@ TBD
 1. Create `CORTICAL_API_KEY` environment variable with your new API key.
 1. Create `IMBU_RETINA_ID` environment variable with the name of the *retina* to use.
 
-### Run IMBU in Docker
+### Run Imbu in Docker
 
 In the root of `numenta-apps/imbu`:
 
