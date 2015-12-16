@@ -29,11 +29,6 @@ class TaurusNotificationService{
         
         // check if notifications are enabled let defaults = NSUserDefaults.standardUserDefaults()
         let frequency : Int64 =  Int64 (NSUserDefaults.standardUserDefaults().integerForKey("maxNotificationsPerCompany")) * 1000
-        let enabled = NSUserDefaults.standardUserDefaults().boolForKey("notificationsEnabled")
-        
-        if (enabled == false){
-            return
-        }
         
         let now = NSDate()
         let lastRunTime =  NSUserDefaults.standardUserDefaults().objectForKey("LastNotification")

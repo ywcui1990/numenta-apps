@@ -1,37 +1,27 @@
-/* -----------------------------------------------------------------------------
- * Copyright © 2015, Numenta, Inc. Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
- * following terms and conditions apply:
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero Public License version 3 as published by
- * the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for
- * more details.
- *
- * You should have received a copy of the GNU Affero Public License along with
- * this program. If not, see http://www.gnu.org/licenses.
- *
- * http://numenta.org/licenses/
- * -------------------------------------------------------------------------- */
+// Copyright © 2015, Numenta, Inc.  Unless you have purchased from
+// Numenta, Inc. a separate commercial license for this software code, the
+// following terms and conditions apply:
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the Free
+// Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
+//
+// You should have received a copy of the GNU Affero Public License along with
+// this program.  If not, see http://www.gnu.org/licenses.
+//
+// http://numenta.org/licenses/
 
-
-// externals
 /*eslint-disable*/
 /**
+ * @external {BaseStore} http://fluxible.io/addons/BaseStore.html
  * @external {FluxibleContext} http://fluxible.io/api/fluxible-context.html
- */
-/** @external {BaseStore} http://fluxible.io/addons/BaseStore.html
- */
-/**
  * @external {React.Component} https://facebook.github.io/react/docs/component-api.html
  */
- /*eslint-enable*/
-
-import 'babel/polyfill'; // es6/7 polyfill Array.from()
+/*eslint-enable*/
 
 import bunyan from 'bunyan';
 import Fluxible from 'fluxible';
@@ -48,6 +38,7 @@ import FileDetailsStore from './stores/FileDetailsStore';
 import FileStore from './stores/FileStore';
 import ListFilesAction from './actions/ListFiles';
 import ListMetricsAction from './actions/ListMetrics';
+import loggerConfig from '../config/logger';
 import MainComponent from './components/Main';
 import MetricDataStore from './stores/MetricDataStore';
 import ModelClient from './lib/Unicorn/ModelClient';
@@ -56,25 +47,9 @@ import ModelStore from './stores/ModelStore';
 import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
 import Utils from '../main/Utils';
 
-// setup
-
-const dialog = remote.require('dialog');
-
 const config = new ConfigClient();
-const log = bunyan.createLogger({
-  name: 'Unicorn:Renderer',
-  streams: [{ // @TODO hardcoded to Dev right now, needs Prod mode. Refactor.
-    level: 'debug',  // @TODO higher for Production
-    stream: {
-      write(rec) {
-        let name = bunyan.nameFromLevel[rec.level];
-        let method = (name === 'debug') ? 'log' : name;
-        console[method]('[%s]: %s', name, rec.msg); // eslint-disable-line
-      }
-    },
-    type: 'raw'
-  }]
-});
+const dialog = remote.require('dialog');
+const logger = bunyan.createLogger(loggerConfig);
 
 let databaseClient = new DatabaseClient();
 let fileClient = new FileClient();
@@ -120,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // add context to app
   context = app.createContext({
     configClient: config,
-    loggerClient: log,
+    loggerClient: logger,
     databaseClient,
     fileClient,
     modelClient

@@ -38,7 +38,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
     
     //
     var _aggregation: AggregationType = TaurusApplication.getAggregation()
-    var marketHoursOnly = false
+    var marketHoursOnly = true
      var chartData: InstanceAnomalyChartData? {
         didSet {
             // Update the view.
@@ -126,9 +126,10 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         self.navigationItem.rightBarButtonItems = [ menuButton!]
         
        
-         marketHoursSwitch?.on = self.marketHoursOnly
-        
-         configureView()
+        marketHoursSwitch?.on = self.marketHoursOnly
+        self.timeSlider?.collapsed =  self.marketHoursOnly
+
+        configureView()
         
         dispatch_set_target_queue(loadQueue, dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0))
 
@@ -392,6 +393,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
                 dispatch_async(dispatch_get_main_queue()) {
                     
                     data.setEndDate(  (self.timeSlider?.endDate)!)
+                    data.collapsed = self.marketHoursOnly
                     data.refreshData()
                     cell.chart.data  = data.rawData!
                     cell.chart.anomalies = data.data!

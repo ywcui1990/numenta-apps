@@ -41,11 +41,14 @@ let WebServer = null; // @TODO not global
  */
 gulp.task('webpack', ()  => {
   let target = (config.get('UNICORN_TARGET') === 'desktop') ? 'atom' : 'web';
+  let source = path.join(__dirname, '/js/browser/app.js');
+  let destination = path.join(__dirname, '/js/browser/assets/bundle/');
 
-  return gulp.src('js/browser/app.js')
+  return gulp.src(source)
     .pipe(webpacker({
       bail: true,
       devtool: 'source-map',
+      entry: ['babel-polyfill', source],
       module: {
         loaders: [
           // fonts
@@ -67,7 +70,7 @@ gulp.task('webpack', ()  => {
           // script
           {
             test: /\.(js|jsx)$/,
-            loader: 'babel?stage=1',
+            loader: 'babel-loader',
             exclude: /node_modules/
           },
           {
@@ -78,18 +81,26 @@ gulp.task('webpack', ()  => {
       },
       output: {
         filename: 'bundle.js',
-        publicPath: path.join(__dirname, '/js/browser/assets/bundle/')
+        publicPath: destination
       },
-      plugins: [
-        new webpack.IgnorePlugin(/vertx/)  // @TODO remove in fluxible 4.x
-      ],
       resolve: {
-        extensions: ['', '.css', '.js', '.json', '.jsx']
+        extensions: [
+          '',
+          '.css',
+          '.eot',
+          '.js',
+          '.json',
+          '.jsx',
+          '.svg',
+          '.ttf',
+          '.woff',
+          '.woff2'
+        ]
       },
       target,
       verbose: true
     }))
-    .pipe(gulp.dest('js/browser/assets/bundle/'));
+    .pipe(gulp.dest(destination));
 });
 
 
