@@ -307,8 +307,8 @@ def createModel(modelName, modelFactory):
 
   try:
     g_log.info("Attempting to load from %s", modelDir)
-    model.loadModel(modelDir)
-    g_log.info("Model loaded from %s", model.modelDir)
+    modelProxy.loadModel(modelDir)
+    g_log.info("Model loaded from %s", modelDir)
 
   except IOError:
     g_log.warning("Model failed to load from %s.  Let's train it from "
