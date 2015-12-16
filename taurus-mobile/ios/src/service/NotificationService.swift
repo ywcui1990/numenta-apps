@@ -84,7 +84,7 @@ class TaurusNotificationService{
                 
                 let logScale = DataUtils.logScale(Double(abs(value.1.anomaly)))
                 
-                if (Float(logScale) > 0 /* TaurusApplication.redBarFloor*/){
+                if (Float(logScale) >= TaurusApplication.redBarFloor){
                     
                     if (value.1.metricMask.contains( MetricType.StockVolume) ||
                         value.1.metricMask.contains( MetricType.StockPrice)
