@@ -47,7 +47,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
     var twittermap = [ Int64 : TwitterEntry]()
     var twitterIndex = [Int64]()
     
-    var showCondensed = false
+    var showCondensed = true
     
     var cancelLoad = false
     // Serial queue for loading chart data
@@ -166,8 +166,8 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         
         
         metricChartView.selectionCallback = self.selection
-        condensedToggle?.on = false
-        self.instanceTable.separatorColor = UIColor.lightGrayColor()
+        condensedToggle?.on = self.showCondensed
+        self.instanceTable.separatorColor =  UIColor.blackColor()
         configureView()
         
         
