@@ -34,6 +34,9 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv 68576280 && \
 ENV CORTICAL_API_KEY=OVERRIDE_ME
 # Select the retina to use  using '-e IMBU_RETINA_ID=$IMBU_RETINA_ID'
 ENV IMBU_RETINA_ID=OVERRIDE_ME
+# Default cache dir in container
+ENV MODEL_CACHE_DIR=/opt/numenta/imbu/cache
+
 EXPOSE 80
 
 WORKDIR /opt/numenta/imbu
@@ -50,5 +53,9 @@ RUN npm install
 # Build javascript app
 COPY . /opt/numenta/imbu
 RUN npm run build
+
+# Setup persistent model cache
+RUN mkdir -p cache
+VOLUME cache
 
 CMD ./start_imbu.sh

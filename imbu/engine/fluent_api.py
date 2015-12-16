@@ -56,13 +56,15 @@ _MODEL_MAPPING = {
   # "HTMNetwork": ClassificationModelHTM,
 }
 _DEFAULT_MODEL_NAME = "CioWindows"
-
+_MODEL_CACHE_DIR_PREFIX = os.environ.get("MODEL_CACHE_DIR", os.getcwd())
 
 
 PrepDataTask = namedtuple("PrepDataTask", "dataDict, preprocess")
 EncodeSamplesTask = namedtuple("EncodeSamplesTask", "samples")
 TrainModelTask = namedtuple("TrainModelTask", "i")
 QueryModelTask = namedtuple("QueryModelTask", "query, preprocess")
+SaveModelTask = namedtuple("SaveModelTask", "")
+LoadModelTask = namedtuple("LoadModelTask", "modelDir")
 
 
 
@@ -105,6 +107,10 @@ class ModelProcess(Process):
         elif isinstance(obj, QueryModelTask):
           output = self.modelObj.queryModel(query=obj.query,
                                             preprocess=obj.preprocess)
+        elif isinstance(obj, SaveModelTask):
+          output = self.modelObj.saveModel()
+        elif isinstance(obj, LoadModelTask):
+          output = self.modelObj.loadModel(modelDir=obj.modelDir) # TODO: Fix this modelDir scope mess!
 
         # Blocking put
         self._outputQueue.put(output)
@@ -126,9 +132,9 @@ class SynchronousBackgroundModelProxy(object):
   Instances of SynchronousBackgroundModelProxy serve as proxies in the
   foreground to long-running processes running in the background.  A
   light-weight RPC mechanism is implemented in prepData(), encodeSamples(),
-  trainModel(), and queryModel(), and the internal implementation ensures that
-  the RPC calls block in the foreground.  In order to execute RPC calls in
-  parallel, you must use threads to execute the functions, as is done in
+  trainModel(), queryModel(), and more and the internal implementation ensures
+  that the RPC calls block in the foreground.  In order to execute RPC calls
+  in parallel, you must use threads to execute the functions, as is done in
   setupModelWorkers() to create, prepare, and train the models at startup.
   """
 
@@ -139,6 +145,9 @@ class SynchronousBackgroundModelProxy(object):
     modelProcess = ModelProcess(modelObj, self.inputQueue, self.outputQueue)
     self._modelProcess = modelProcess
     self._modelProcess.start()
+
+
+  # Begin RPC definitions.  See handlers in ModelProcess.run()
 
 
   def prepData(self, dataDict, preprocess):
@@ -157,7 +166,23 @@ class SynchronousBackgroundModelProxy(object):
     return self._submitTask(QueryModelTask._make([query, preprocess]))
 
 
+  def saveModel(self):
+    return self._submitTask(SaveModelTask._make([]))
+
+
+  def loadModel(self, modelDir):
+    return self._submitTask(LoadModelTask._make([modelDir]))
+
+
+  # End RPC definitions
+
+
   def _submitTask(self, inputValue):
+    """
+    :param object inputValue: Instance of a class that defines a task that is
+      recognized, and handled, by ModelProcess.run().  See *Task namedtuples
+      defined in this module.
+    """
     # Blocking put
     self.inputQueue.put(inputValue)
 
@@ -255,6 +280,8 @@ def createModel(modelName, modelFactory):
   if modelFactory is None:
     raise ValueError("Could not instantiate model '{}'.".format(modelName))
 
+  modelDir = os.path.join(_MODEL_CACHE_DIR_PREFIX, modelName)
+
   if modelName == "HTMNetwork":
 
     raise NotImplementedError()
@@ -262,27 +289,45 @@ def createModel(modelName, modelFactory):
   elif modelName == "CioWordFingerprint":
     model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
                          apiKey=os.environ["CORTICAL_API_KEY"],
-                         fingerprintType=EncoderTypes.word)
+                         fingerprintType=EncoderTypes.word,
+                         modelDir=modelDir)
 
   elif modelName == "CioDocumentFingerprint":
     model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
                          apiKey=os.environ["CORTICAL_API_KEY"],
-                         fingerprintType=EncoderTypes.document)
+                         fingerprintType=EncoderTypes.document,
+                         modelDir=modelDir)
 
   else:
-    model = modelFactory()
+    model = modelFactory(modelDir=modelDir)
 
   model.verbosity = 0
-  model.numLabels = 0
 
   modelProxy = SynchronousBackgroundModelProxy(model)
 
-  samples = modelProxy.prepData(g_csvdata, False)
+  try:
+    g_log.info("Attempting to load from %s", modelDir)
+    model.loadModel(modelDir)
+    g_log.info("Model loaded from %s", model.modelDir)
 
-  modelProxy.encodeSamples(samples)
+  except IOError:
+    g_log.warning("Model failed to load from %s.  Let's train it from "
+                  "scratch.", modelDir)
 
-  for i in xrange(len(samples)):
-    modelProxy.trainModel(i)
+    model.numLabels = 0
+
+    samples = modelProxy.prepData(g_csvdata, False)
+
+    modelProxy.encodeSamples(samples)
+
+    for i in xrange(len(samples)):
+      modelProxy.trainModel(i)
+
+    g_log.info("Model trained, save it.")
+
+    modelProxy.saveModel()
+
+    g_log.info("Model saved")
 
   g_models[modelName] = modelProxy
 
