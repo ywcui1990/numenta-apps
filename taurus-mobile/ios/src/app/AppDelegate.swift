@@ -47,24 +47,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MFMailComposeViewControll
         let dispatchTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(4 * Double(NSEC_PER_SEC)))
         
         dispatch_after(dispatchTime, syncQueue) {
-            UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+            application.networkActivityIndicatorVisible = true
             syncService.synchronizeWithServer()
-            UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+            application.networkActivityIndicatorVisible = false
         }
         
-        
-        
+
+
         let defaults = NSUserDefaults.standardUserDefaults()
+
+        // Update version
+        let appVersionString = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as! String
+        let appBuildString =  NSBundle.mainBundle().objectForInfoDictionaryKey( "CFBundleVersion") as! String
+        let versionBuildString = String(format: "%@  (%@)", appVersionString, appBuildString)
+        defaults.setValue(versionBuildString, forKey: "version")
+
+        defaults.synchronize()
+
+        // Request background syncs
         let frequency =  defaults.integerForKey("refreshFrequency")
-        
-         var interval : NSTimeInterval  = Double(frequency) * 60.0
+        var interval : NSTimeInterval  = Double(frequency) * 60.0
         if (interval<60.0){
             interval = 60.0
         }
-        // Request background syncs
-        UIApplication.sharedApplication().setMinimumBackgroundFetchInterval(interval)
+        application.setMinimumBackgroundFetchInterval(interval)
         return true
     }
+
+
 
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

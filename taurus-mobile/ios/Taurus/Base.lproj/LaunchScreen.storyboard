@@ -17,29 +17,25 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_logo_below" translatesAutoresizingMaskIntoConstraints="NO" id="7FZ-my-1e4">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="ic_logo_below" translatesAutoresizingMaskIntoConstraints="NO" id="7FZ-my-1e4">
                                 <rect key="frame" x="210" y="118" width="179" height="164"/>
-                                <animations/>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DBh-mg-y36">
+                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DBh-mg-y36">
                                 <rect key="frame" x="150" y="282" width="300" height="75"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="HTM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="92k-Jt-XK6">
                                         <rect key="frame" x="0.0" y="9" width="97" height="57.5"/>
-                                        <animations/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="42"/>
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="for Stocks" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="d38-bi-k4v">
                                         <rect key="frame" x="97" y="8" width="186.5" height="57.5"/>
-                                        <animations/>
                                         <fontDescription key="fontDescription" type="system" pointSize="42"/>
                                         <color key="textColor" red="0.40000000596046448" green="0.80000001192092896" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
-                                <animations/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstItem="d38-bi-k4v" firstAttribute="leading" secondItem="92k-Jt-XK6" secondAttribute="trailing" constant="4" id="7qI-vv-s0h"/>
@@ -51,7 +47,6 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <animations/>
                         <color key="backgroundColor" red="0.098039217293262482" green="0.098039217293262482" blue="0.098039217293262482" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="DBh-mg-y36" firstAttribute="top" secondItem="7FZ-my-1e4" secondAttribute="bottom" id="5WC-yV-O9d"/>

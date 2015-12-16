@@ -69,6 +69,7 @@
 		23F58D711BBA287200C7C6B6 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 23F58D701BBA287200C7C6B6 /* Images.xcassets */; };
 		23F58D751BBAC21D00C7C6B6 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23F58D741BBAC21D00C7C6B6 /* SettingsController.swift */; };
 		9D6590581D077B613D94B220 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5967E9F3F71FA63EF40469B /* libPods.a */; };
+		B94DA73A1C20CC14004493DE /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B94DA7391C20CC14004493DE /* Settings.bundle */; };
 		B9C914E31C1FDD8C004B8DE6 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C914E21C1FDD8C004B8DE6 /* NotificationService.swift */; };
 		DE8C3C6C96A556CE6C2EB24F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5967E9F3F71FA63EF40469B /* libPods.a */; };
 /* End PBXBuildFile section */
@@ -159,6 +160,7 @@
 		23ED58CF1BB088D800EEEEC1 /* GrokApplication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GrokApplication.swift; path = app/GrokApplication.swift; sourceTree = "<group>"; };
 		23F58D701BBA287200C7C6B6 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		23F58D741BBAC21D00C7C6B6 /* SettingsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SettingsController.swift; path = src/controllers/SettingsController.swift; sourceTree = SOURCE_ROOT; };
+		B94DA7391C20CC14004493DE /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		B9C914E21C1FDD8C004B8DE6 /* NotificationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		CC722459B06198A44AE0D9BF /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		D5967E9F3F71FA63EF40469B /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -226,6 +228,7 @@
 		23AB22EC1BA75F170091A5E6 = {
 			isa = PBXGroup;
 			children = (
+				B94DA7391C20CC14004493DE /* Settings.bundle */,
 				23F58D701BBA287200C7C6B6 /* Images.xcassets */,
 				237CDC411BAB3C9E00AAF305 /* createdb.sql */,
 				23AD4EC41BB2FEC00041D650 /* README.txt */,
@@ -540,6 +543,7 @@
 				23F58D711BBA287200C7C6B6 /* Images.xcassets in Resources */,
 				23AB22FE1BA75F170091A5E6 /* Main.storyboard in Resources */,
 				23AD4EC51BB2FEC00041D650 /* README.txt in Resources */,
+				B94DA73A1C20CC14004493DE /* Settings.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
