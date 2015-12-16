@@ -25,8 +25,8 @@ export default class UserError extends Error {
   /**
    * @param {string} message - Error message for user
    */
-  constructor(message) {
-    super(message);
+  constructor(message, ...args) {
+    super(message, ...args);
     this.message = message;
     this.stack = (new Error()).stack;
     this.name = this.constructor.name;

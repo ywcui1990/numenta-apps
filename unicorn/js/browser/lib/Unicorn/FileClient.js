@@ -25,4 +25,5 @@
  *  pseudo-library, using the magic of Electron's `remote` module.
  */
 let remote = require('remote'); // eslint-disable-line
-export default remote.require('./FileService');  // pseduo-FileClientIPC
+let client = remote.require('./FileService'); // pseduo-FileClientIPC
+export default client;

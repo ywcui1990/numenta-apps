@@ -229,7 +229,7 @@ npm run desktop | `npm bin`/bunyan    # pretty logs
 NODE_ENV=production npm run desktop
 ```
 
-### Documentation
+### Code Documentation
 
 Frontend code documentation can be generated and viewed by following the
 directions below. Comments are in [JSDoc](http://usejsdoc.org/) format, with
@@ -243,19 +243,33 @@ npm run docs
 open js/docs/index.html
 ```
 
-### Notes
+### Development Problems?
 
+* Maybe the DB stored bad data? `npm run clean:db`
+* Sometimes `node_modules/` directory can become corrupted, try cleaning and
+  reinstalling: `npm run clean ; npm run check`
+* Local Git repo can get stuck with out-of-date JS somehow, so back up your
+  current repo, and try again on a fresh repo clone.
+
+### Development Notes
+
+* Do not upgrade the following node/npm packages without syncing with the
+  rest of the team first. The Mac build box is dependent on these versions,
+  and must be upgraded in parallel.
+  * `npm`
+  * `node`
+  * `electron-packager`
+  * `electron-prebuilt`
+  * `is-electron-renderer`
+* Make sure to update packages often, especially after pulling an update into
+  your branch:
+  * `npm run check`
+  * `pip list --outdated`
 * Lint your code before creating pull requests:
   * `npm run lint`
 * Manual access to LevelDB file database from
   [Lev](https://github.com/hij1nx/lev) command-line tool (Mac OS/X):
   * `` `npm bin`/lev $HOME/Library/Application\ Support/unicorn/database/ ``
-* Make sure to update packages often, especially after pulling an update into
-  your branch:
-  * `npm run check`
-  * `pip list --outdated`
-* Sometimes `node_modules/` directory can become corrupted, try cleaning and
-  reinstalling: `npm run clean ; npm run check`
 * Remember, this is cross-platform. We need to support all main operating
   systems! Windows has no environment variables, etc. Paths should not be
   defined manually, but use the `path` library helper instead.
@@ -378,8 +392,7 @@ NEED `npm run blah` examples here @TODO
 ## @TODO
 
 * Spread global config around! `nconf` work
-* New Electron/Node4 doesn't need babel bundle anymore?
-* Brev Electron integration test skeleton
+* New Electron/Node4 doesn't need babel bundle anymore? (node5 for sure)
 * Add in Flow type checking
 * i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
-* Document where are imports=>requires handled? Babel/Webpack?
+* Electron integration test skeleton
