@@ -62,6 +62,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MFMailComposeViewControll
         let versionBuildString = String(format: "%@  (%@)", appVersionString, appBuildString)
         defaults.setValue(versionBuildString, forKey: "version")
 
+        // Update notifications
+
+        application.registerUserNotificationSettings(
+            UIUserNotificationSettings(
+                forTypes: [UIUserNotificationType.Alert, UIUserNotificationType.Badge, UIUserNotificationType.Sound],
+                categories: nil))
+
         defaults.synchronize()
 
         // Request background syncs
