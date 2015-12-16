@@ -231,8 +231,7 @@ pushd "${REPOPATH}"
      fi  &&
      if [ -f /var/run/nginx.pid ]; then
        sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s stop;
-     fi &&
-     rm -rf ${HOME}/taurus_model_checkpoints/*"
+     fi"
 
 
   # Sync git histories with taurus server for current HEAD
@@ -328,24 +327,17 @@ pushd "${REPOPATH}"
         --host=${RABBITMQ_HOST} \
         --user=${RABBITMQ_USER} \
         --password=${RABBITMQ_PASSWD} &&
-     sudo rabbitmqctl stop_app &&
-     sudo rabbitmqctl reset &&
-     sudo rabbitmqctl start_app &&
-     python -c 'from htmengine.model_checkpoint_mgr.model_checkpoint_mgr import ModelCheckpointMgr; ModelCheckpointMgr.removeAll()' &&
      taurus-set-sql-login \
         --host=${MYSQL_HOST} \
         --user=${MYSQL_USER} \
         --password=${MYSQL_PASSWD} &&
-     taurus-create-db \
-        --host=${MYSQL_HOST} \
-        --user=${MYSQL_USER} \
-        --password=${MYSQL_PASSWD} \
-        --suppress-prompt-and-continue-with-deletion &&
      taurus-set-dynamodb \
         --host=${DYNAMODB_HOST} \
         --port=${DYNAMODB_PORT} \
         --table-suffix=${DYNAMODB_TABLE_SUFFIX} &&
      taurus-set-api-key --apikey=${TAURUS_API_KEY} &&
+     cd /opt/numenta/products/taurus &&
+     python setup.py reset_all_data --suppress-prompt-and-obliterate &&
      cd /opt/numenta/products/taurus &&
      sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
      supervisord -c conf/supervisord.conf &&
@@ -375,8 +367,6 @@ pushd "${REPOPATH}"
         --host=${RABBITMQ_HOST} \
         --user=${RABBITMQ_USER} \
         --password=${RABBITMQ_PASSWD} &&
-     cd /opt/numenta/products/taurus.metric_collectors/taurus/metric_collectors/collectorsdb &&
-     python migrate.py &&
      cd /opt/numenta/products/taurus.metric_collectors &&
      supervisorctl --serverurl http://localhost:8001 shutdown &&
      nta-wait-for-supervisord-stopped http://localhost:8001 &&
