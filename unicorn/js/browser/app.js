@@ -32,6 +32,8 @@ import remote from 'remote';
 import tapEventInject from 'react-tap-event-plugin';
 
 import ConfigClient from './lib/Unicorn/ConfigClient';
+import DatabaseClient from './lib/Unicorn/DatabaseClient';
+import FileClient from './lib/Unicorn/FileClient';
 import FileDetailsStore from './stores/FileDetailsStore';
 import FileStore from './stores/FileStore';
 import ListFilesAction from './actions/ListFiles';
@@ -48,8 +50,8 @@ import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
 //  `babel-plugin-add-module-exports` for some reason, so we must use
 //  the long-form `.default` accessor here.
 // @see http://stackoverflow.com/questions/33505992/babel-6-changes-how-it-exports-default
-const DatabaseClient = require('./lib/Unicorn/DatabaseClient').default;
-const FileClient = require('./lib/Unicorn/FileClient').default;
+// const DatabaseClient = require('./lib/Unicorn/DatabaseClient').default;
+// const FileClient = require('./lib/Unicorn/FileClient').default;
 
 const dialog = remote.require('dialog');
 const config = new ConfigClient();
