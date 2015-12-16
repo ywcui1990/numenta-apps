@@ -46,18 +46,10 @@ import ModelDataStore from './stores/ModelDataStore';
 import ModelStore from './stores/ModelStore';
 import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
 
-// The following Electron .remote() Clients don't work with
-//  `babel-plugin-add-module-exports` for some reason, so we must use
-//  the long-form `.default` accessor here.
-// @see http://stackoverflow.com/questions/33505992/babel-6-changes-how-it-exports-default
-// const DatabaseClient = require('./lib/Unicorn/DatabaseClient').default;
-// const FileClient = require('./lib/Unicorn/FileClient').default;
-
-const dialog = remote.require('dialog');
 const config = new ConfigClient();
+const dialog = remote.require('dialog');
 const logger = bunyan.createLogger(loggerConfig);
 
-// init Client instances to speak to backend
 let databaseClient = new DatabaseClient();
 let fileClient = new FileClient();
 let modelClient = new ModelClient();
