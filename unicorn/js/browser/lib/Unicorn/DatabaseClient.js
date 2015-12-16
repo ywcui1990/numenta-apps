@@ -25,6 +25,6 @@
  *  adpater is currently a pseudo-library, using the magic of Electron's
  *  `remote` module.
  */
-
 let remote = require('remote'); // eslint-disable-line
-export default remote.require('./DatabaseService');
+let client = remote.require('./DatabaseService'); // pseduo-DBClientIPC
+export default client;
