@@ -115,14 +115,19 @@ class ModelProcess(Process):
         # Blocking put
         self._outputQueue.put(output)
 
-        # Input has been handled
-        self._inputQueue.task_done()
-
-        # Output has been handled
-        self._outputQueue.join()
-
-      except:
+      except Exception as err:
         traceback.print_exc(file=open(str(os.getpid()) + ".out", "w"))
+
+        # Blocking put
+        self._outputQueue.put(err)
+
+      # Input has been handled
+      self._inputQueue.task_done()
+
+      # Output has been handled
+      self._outputQueue.join()
+
+
 
 
 
@@ -195,7 +200,10 @@ class SynchronousBackgroundModelProxy(object):
     # Output has been received
     self.outputQueue.task_done()
 
-    return outputValue
+    if isinstance(outputValue, Exception):
+      raise outputValue
+    else:
+      return outputValue
 
 
   @property
@@ -306,13 +314,12 @@ def createModel(modelName, modelFactory):
   modelProxy = SynchronousBackgroundModelProxy(model)
 
   try:
-    g_log.info("Attempting to load from %s", modelDir)
+    print "Attempting to load from", modelDir
     modelProxy.loadModel(modelDir)
-    g_log.info("Model loaded from %s", modelDir)
+    print "Model loaded from", modelDir
 
   except IOError:
-    g_log.warning("Model failed to load from %s.  Let's train it from "
-                  "scratch.", modelDir)
+    print "Model failed to load from", modelDir, "Let's train it from scratch."
 
     model.numLabels = 0
 
@@ -323,11 +330,11 @@ def createModel(modelName, modelFactory):
     for i in xrange(len(samples)):
       modelProxy.trainModel(i)
 
-    g_log.info("Model trained, save it.")
+    print "Model trained, save it."
 
     modelProxy.saveModel()
 
-    g_log.info("Model saved")
+    print "Model saved"
 
   g_models[modelName] = modelProxy
 
