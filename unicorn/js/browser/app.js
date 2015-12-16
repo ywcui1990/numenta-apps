@@ -15,13 +15,15 @@
 //
 // http://numenta.org/licenses/
 
-/*eslint-disable*/
 /**
  * @external {BaseStore} http://fluxible.io/addons/BaseStore.html
+ */
+/**
  * @external {FluxibleContext} http://fluxible.io/api/fluxible-context.html
+ */
+/**
  * @external {React.Component} https://facebook.github.io/react/docs/component-api.html
  */
-/*eslint-enable*/
 
 import bunyan from 'bunyan';
 import Fluxible from 'fluxible';
@@ -45,6 +47,7 @@ import ModelClient from './lib/Unicorn/ModelClient';
 import ModelDataStore from './stores/ModelDataStore';
 import ModelStore from './stores/ModelStore';
 import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
+import Utils from '../main/Utils';
 
 const config = new ConfigClient();
 const dialog = remote.require('dialog');
@@ -102,6 +105,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Start listening for model events
   modelClient.start(context.getActionContext());
+
+  // app exit handler
+  window.onbeforeunload = (event) => {
+    let models = context.getStore(ModelStore).getModels();
+    let active = models.filter((model) => model.active === true) || [];
+    let modelCount = active.length || 0;
+    let cancel;
+    if (modelCount > 0) {
+      cancel = dialog.showMessageBox({
+        buttons: ['Quit', 'Cancel'],
+        message: Utils.trims`There are still ${modelCount} active models
+                  running. All models will be interrupted upon quitting, and
+                  it won’t be possible to restart these models. All results
+                  obtained so far will be persisted. Are you sure you want to
+                  quit the app and stop all running models?`,
+        title: 'Exit?',
+        type: 'question'
+      });
+      if (!cancel) {
+        // stop all active models before quitting
+        active.forEach((model) => {
+          modelClient.removeModel(model.modelId);
+        });
+      }
+      return !cancel; // quit
+    }
+  };
 
   // fire initial app action to load all files
   context.executeAction(ListFilesAction, {})

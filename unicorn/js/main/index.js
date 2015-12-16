@@ -81,9 +81,6 @@ app.on('ready', () => {
   mainWindow.on('closed', () => {
     mainWindow = null; // dereference single main window object
   });
-  mainWindow.on('unresponsive', () => {
-    dialog.showErrorBox('Error', 'Application has become unresponsive');
-  });
 
   // browser window web contents events
   mainWindow.webContents.on('crashed', () => {
