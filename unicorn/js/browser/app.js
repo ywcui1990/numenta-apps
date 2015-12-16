@@ -15,13 +15,15 @@
 //
 // http://numenta.org/licenses/
 
-/*eslint-disable*/
 /**
  * @external {BaseStore} http://fluxible.io/addons/BaseStore.html
+ */
+/**
  * @external {FluxibleContext} http://fluxible.io/api/fluxible-context.html
+ */
+/**
  * @external {React.Component} https://facebook.github.io/react/docs/component-api.html
  */
-/*eslint-enable*/
 
 import bunyan from 'bunyan';
 import Fluxible from 'fluxible';
@@ -114,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
       cancel = dialog.showMessageBox({
         buttons: ['Quit', 'Cancel'],
         message: Utils.trims`There are still ${modelCount} active models
-                  running. All models will be interrupted upon quitting, and 
+                  running. All models will be interrupted upon quitting, and
                   it won’t be possible to restart these models. All results
                   obtained so far will be persisted. Are you sure you want to
                   quit the app and stop all running models?`,
