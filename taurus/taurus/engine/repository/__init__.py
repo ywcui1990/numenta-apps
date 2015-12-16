@@ -19,6 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import argparse
 import sys
 
 from sqlalchemy import create_engine
@@ -26,6 +27,7 @@ from sqlalchemy import create_engine
 from nta.utils import sqlalchemy_utils
 
 from taurus.engine import config
+from taurus.engine import logging_support
 from taurus.engine.repository import schema
 from taurus.engine.repository.migrate import migrate
 from htmengine.repository import (_EngineSingleton,
@@ -123,41 +125,79 @@ def engineFactory(reset=False):
 
 
 
-def reset(offline=False):
+def resetDatabaseConsoleScriptEntryPoint():
+  """ Setuptools console script entry point for resetting Taurus Engine's
+  database.
+
+  :returns: 0 if reset was completed successfully; 1 if user doesn't confirm the
+    request
+  """
+  logging_support.LoggingSupport.initTool()
+
+  parser = argparse.ArgumentParser(
+    description=(
+      "WARNING: PERMANENT DATA LOSS! Obliterate/reset Taurus Engine's sql "
+      "database {db} on server {host}.").format(
+        **dict(config.items("repository")))
+  )
+
+  parser.add_argument(
+    "--suppress-prompt-and-continue-with-deletion",
+    action="store_true",
+    dest="suppressPrompt",
+    help=("Suppresses confirmation prompt and proceedes with this "
+          "DESTRUCTIVE operation. This option is intended for scripting."))
+
+  args = parser.parse_args()
+
+  if args.suppressPrompt:
+    return reset(suppressPromptAndContinueWithDeletion=True)
+  else:
+    return reset()
+
+
+
+def reset(offline=False, **kwargs):
   """
   Reset the taurus database; upon successful completion, the necessary schema
   are created, but the tables are not populated
 
   :param offline: False to execute SQL commands; True to just dump SQL commands
     to stdout for offline mode or debugging
+  :param bool suppressPromptAndContinueWithDeletion: kwarg only! When passed
+    with the value of True, proceeds to drop the Taurus Engine database without
+    prompting. Without this arg or if it's False, will prompt the user via
+    terminal and expect a specific string to be entered
+
+  :returns: 0 if reset was completed successfully; 1 if user doesn't confirm the
+    request
   """
   # Make sure we have the latest version of configuration
   config.loadConfig()
   dbName = config.get("repository", "db")
   dbHost = config.get("repository", "host")
 
-  if "--suppress-prompt-and-continue-with-deletion" not in sys.argv:
+  if not kwargs.get("suppressPromptAndContinueWithDeletion"):
     answer = raw_input(
+      "\n"
       "Attention!  You are about to do something irreversible, and potentially"
       " dangerous.\n"
       "\n"
       "To back out immediately without making any changes, feel free to type "
       "anything but \"Yes\" in the prompt below, and press return.\n"
       "\n"
-      "Should you choose to continue the database \"%s\" on \"%s\" will be"
-      "permanently deleted.  If you do not wish to see this message again, "
-      "you can pass --suppress-prompt-and-continue-with-deletion as an "
-      "argument to this command.\n"
+      "Should you choose to continue, the database \"%s\" on \"%s\" will be"
+      "permanently deleted.\n"
       "\n"
       "Are you sure you want to continue? " % (dbName, dbHost))
 
     if answer.strip() != "Yes":
       print "Wise choice, my friend.  Bye."
-      return
+      return 1
 
   resetDatabaseSQL = (
-      "DROP DATABASE IF EXISTS %(database)s; "
-      "CREATE DATABASE %(database)s;" % {"database": dbName})
+    "DROP DATABASE IF EXISTS %(database)s; "
+    "CREATE DATABASE %(database)s;" % {"database": dbName})
   statements = resetDatabaseSQL.split(";")
 
   engine = getUnaffiliatedEngine()
@@ -167,4 +207,6 @@ def reset(offline=False):
         connection.execute(s)
 
   migrate(offline=offline)
+
+  return 0
 
