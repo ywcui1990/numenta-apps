@@ -22,6 +22,7 @@
 """Get state of supervisord"""
 
 from argparse import ArgumentParser
+import errno
 import socket
 import sys
 import time
@@ -133,11 +134,13 @@ def waitForStoppedStateMain():
   for i in xrange(1, maxWaitCycles + 2):
     try:
       getSupervisordState(args.supervisorApiUrl)
-    except (socket.error, xmlrpclib.Fault):
-      # API is no longer available at specified supervisorApiUrl.  It is safe
-      # to assume that IF the supervisordApiUrl is correct, that supervisor is
-      # not running.  In which case, break out of loop and return.
-      break
+    except socket.error as exc:
+      if exc.errno == errno.ECONNREFUSED:
+        # API is no longer available at specified supervisorApiUrl.  Assuming
+        # that if the supervisordApiUrl is correct, then connection refusal
+        # indicates that supervisord is not running.
+        print "Supervisord stop detected via exception={!r}".format(exc)
+        break
 
     if i <= maxWaitCycles:
       print "Waiting for supervisord to stop..."

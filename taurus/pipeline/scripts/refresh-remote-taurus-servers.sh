@@ -214,7 +214,7 @@ pushd "${REPOPATH}"
 
   fi
 
-  # Shutdown services
+  # Stop taurus metric collector server
   ssh -v -t ${SSH_ARGS} "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}" \
     "cd /opt/numenta/products/taurus.metric_collectors &&
      if [ -f supervisord.pid ]; then
@@ -222,7 +222,7 @@ pushd "${REPOPATH}"
        nta-wait-for-supervisord-stopped http://localhost:8001
      fi"
 
-  # Stop taurus server instance
+  # Stop taurus engine server
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "cd /opt/numenta/products/taurus &&
      if [ -f taurus-supervisord.pid ]; then
@@ -341,6 +341,7 @@ pushd "${REPOPATH}"
      cd /opt/numenta/products/taurus &&
      sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
      supervisord -c conf/supervisord.conf &&
+     nta-wait-for-supervisord-running http://localhost:9001 &&
      ${TAURUS_ENGINE_TESTS}"
 
   # Perform Collector update, start Collector
@@ -368,8 +369,6 @@ pushd "${REPOPATH}"
         --user=${RABBITMQ_USER} \
         --password=${RABBITMQ_PASSWD} &&
      cd /opt/numenta/products/taurus.metric_collectors &&
-     supervisorctl --serverurl http://localhost:8001 shutdown &&
-     nta-wait-for-supervisord-stopped http://localhost:8001 &&
      py.test tests/deployment/resource_accessibility_test.py &&
      supervisord -c conf/supervisord.conf &&
      nta-wait-for-supervisord-running http://localhost:8001 &&
