@@ -15,9 +15,8 @@
 //
 // http://numenta.org/licenses/
 
-
-import FileUpdateAction from '../actions/FileUpdate';
 import CreateModelAction from '../actions/CreateModel';
+import FileUpdateAction from '../actions/FileUpdate';
 import StartModelAction from '../actions/StartModel';
 
 
@@ -40,6 +39,7 @@ export default function (actionContext, payload) {
         let promises = [];
         for (let [, metric] of metrics) {
           if (metric) {
+            metric.visible = true; // make sure to show new "auto-created" model
             promises.push(
               actionContext.executeAction(CreateModelAction, metric)
             );
