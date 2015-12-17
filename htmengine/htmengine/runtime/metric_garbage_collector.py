@@ -45,7 +45,7 @@ from htmengine.repository import schema
 
 # Maximum number of rows to delete per query for reducing the likelihood of the
 # MySQL "Lock wait timeout exceeded" error
-_MAX_DELETE_BATCH_SIZE = 10000
+_MAX_DELETE_BATCH_SIZE = 1000
 
 
 
