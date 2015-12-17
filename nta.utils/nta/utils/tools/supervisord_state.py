@@ -130,10 +130,14 @@ def waitForStoppedStateMain():
 
   args = parser.parse_args()
 
+  lastError = None
   maxWaitCycles = 6
   for i in xrange(1, maxWaitCycles + 2):
     try:
       getSupervisordState(args.supervisorApiUrl)
+    except xmlrpclib.Fault as exc:
+      # Almost there
+      lastError = exc
     except socket.error as exc:
       if exc.errno == errno.ECONNREFUSED:
         # API is no longer available at specified supervisorApiUrl.  Assuming
@@ -141,12 +145,16 @@ def waitForStoppedStateMain():
         # indicates that supervisord is not running.
         print "Supervisord stop detected via exception={!r}".format(exc)
         break
+      else:
+        lastError = exc
 
     if i <= maxWaitCycles:
-      print "Waiting for supervisord to stop..."
+      print "Waiting for supervisord to stop ({})...".format(
+        args.supervisorApiUrl)
       time.sleep(5)
   else:
-    sys.exit("Timed out waiting for supervisord to stop")
+    sys.exit("Timed out waiting for supervisord to stop; "
+             "lastError={!r}".format(lastError))
 
 
 def waitForAllToStop():
