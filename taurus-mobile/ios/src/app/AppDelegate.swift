@@ -26,29 +26,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MFMailComposeViewControll
 
     var window: UIWindow?
     let syncQueue = dispatch_queue_create("com.numenta.Sync", nil)
+    var syncService: TaurusDataSyncService?
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         TaurusApplication.setup()
         
         // Launch sync service
-        let
-        credentialsProvider = AWSCognitoCredentialsProvider(
-            regionType: AWSRegionType.USEast1,
-            identityPoolId: AppConfig.identityPoolId)
+        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: AWSRegionType.USEast1, identityPoolId: AppConfig.identityPoolId)
+
+        let client : TaurusClient = TaurusClient(provider: credentialsProvider, region: AWSRegionType.USWest2)
         
-        let client : TaurusClient = TaurusClient( provider : credentialsProvider, region: AWSRegionType.USWest2 )
+        syncService = TaurusDataSyncService(client:client)
         
-        let syncService = TaurusDataSyncService(client:client)
-        
-        TaurusApplication.client = syncService.client as? TaurusClient
-        
-        
-        let dispatchTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(4 * Double(NSEC_PER_SEC)))
-        
-        dispatch_after(dispatchTime, syncQueue) {
+        TaurusApplication.client = syncService?.client as? TaurusClient
+
+        dispatch_async(syncQueue) {
             application.networkActivityIndicatorVisible = true
-            syncService.synchronizeWithServer()
+            self.syncService!.synchronizeWithServer()
             application.networkActivityIndicatorVisible = false
         }
         
@@ -99,6 +94,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MFMailComposeViewControll
 
     func applicationDidBecomeActive(application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+
+        dispatch_async(syncQueue) {
+            application.networkActivityIndicatorVisible = true
+            self.syncService!.synchronizeWithServer()
+            application.networkActivityIndicatorVisible = false
+        }
     }
 
     func applicationWillTerminate(application: UIApplication) {
@@ -109,8 +110,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MFMailComposeViewControll
     func application(application: UIApplication, performFetchWithCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
        
         dispatch_async(syncQueue) {
-            let syncService = TaurusDataSyncService(client: TaurusApplication.client!)
-            syncService.synchronizeWithServer()
+            self.syncService?.synchronizeWithServer()
             completionHandler(.NewData)
         }
     }

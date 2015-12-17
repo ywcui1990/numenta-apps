@@ -44,6 +44,8 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     var tableData = [Int : [InstanceAnomalyChartData]]() // Data to show, after filtering
     var currentData = [Int : [InstanceAnomalyChartData]]() // data before filtering
     var allData = [Int : [InstanceAnomalyChartData]]() // all data
+
+    var synchronizing = false // Whether or not the view is already loading data from the database
     
     
     override func viewDidLoad() {
@@ -125,8 +127,13 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         NSNotificationCenter.defaultCenter().addObserverForName(TaurusDatabase.INSTANCEDATALOADED, object: nil, queue: nil, usingBlock: {
             [unowned self] note in
             self.syncWithDB()
-            })
-        
+        })
+
+        NSNotificationCenter.defaultCenter().addObserverForName(TaurusDataSyncService.INSTANCE_DATA_CHANGED_EVENT, object: nil, queue: nil, usingBlock: {
+            [unowned self] note in
+            self.syncWithDB()
+        })
+
         self.syncWithDB()
         
      /*  if self.revealViewController() != nil {
@@ -439,7 +446,11 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
 
     
     func syncWithDB(){
-          dispatch_async(dispatch_get_global_queue( QOS_CLASS_USER_INITIATED, 0)) {
+          dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
+            if (self.synchronizing) {
+                return
+            }
+            self.synchronizing = true
             let instanceSet = TaurusApplication.getDatabase().getAllInstances()
             var   listData = [Int:[InstanceAnomalyChartData]]()
             
@@ -495,6 +506,8 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
                 }
                                listData[i] = data
             }
+
+            self.synchronizing = false
 
             // Update UI with new data
             dispatch_async(dispatch_get_main_queue()) {
