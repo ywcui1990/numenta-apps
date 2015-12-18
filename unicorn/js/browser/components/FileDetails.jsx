@@ -238,7 +238,7 @@ export default class FileDetails extends React.Component {
       });
 
       return (
-        <Table selectable={false} fixedHeader={true} height="300"}>
+        <Table selectable={false} fixedHeader={true} height="300">
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}
               enableSelectAll={false}>
             <TableRow>
