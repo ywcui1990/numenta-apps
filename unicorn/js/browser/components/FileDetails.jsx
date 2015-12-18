@@ -72,6 +72,12 @@ export default class FileDetails extends React.Component {
         flexDirection: 'column',
         flexShrink: 0
       },
+      metric: {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        width: '10rem'
+      },
       data: {
         display: 'flex',
         flexDirection: 'column',
@@ -80,8 +86,9 @@ export default class FileDetails extends React.Component {
         marginLeft: 15,
         border: '1px solid gray'
       },
-      table: {
-        tableLayout: 'auto'
+      tableHeader: {
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }
     };
   }
@@ -183,12 +190,20 @@ export default class FileDetails extends React.Component {
           checked = metrics.get(modelId) ? true : false; // eslint-disable-line
 
           return (
-            <ListItem key={modelId}
-              leftCheckbox={<Checkbox name={modelId}
-              checked={checked}
-              onCheck={this._onMetricCheck.bind(this, modelId, file.filename,
-                timestampField.name, metric.name)}/>}
-              primaryText={metric.name} />
+            <ListItem
+              key={modelId}
+              leftCheckbox={
+                <Checkbox
+                  checked={checked}
+                  name={modelId}
+                  onCheck={
+                    this._onMetricCheck.bind(this, modelId, file.filename,
+                      timestampField.name, metric.name)
+                  }
+                  />
+              }
+              primaryText={<div style={this._styles.metric}>{metric.name}</div>}
+              />
           );
         }
       });
@@ -207,7 +222,11 @@ export default class FileDetails extends React.Component {
 
     if (data.length > 0) {
       columnHeader = Object.keys(data[0]).map((name, idx) => {
-        return (<TableHeaderColumn key={idx}>{name}</TableHeaderColumn>);
+        return (
+          <TableHeaderColumn key={idx} style={this._styles.tableHeader}>
+            {name}
+          </TableHeaderColumn>
+        );
       });
 
       data.forEach((row, rowIdx) => {
@@ -219,8 +238,7 @@ export default class FileDetails extends React.Component {
       });
 
       return (
-        <Table selectable={false} fixedHeader={true} height={'300px'}
-            style={this._styles.table}>
+        <Table selectable={false} fixedHeader={true} height="300">
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}
               enableSelectAll={false}>
             <TableRow>
@@ -248,7 +266,7 @@ export default class FileDetails extends React.Component {
             name="description"
             onChange={this._handleFileInputChange.bind(this)}
             ref="description"
-            rowsMax={2}
+            rowsMax={1}
             value={file.description}
             />
           <TextField
@@ -257,8 +275,8 @@ export default class FileDetails extends React.Component {
             readOnly={true}
             ref="fileSize"
             tabIndex={-1}
-            underlineStyle={{display:'none'}}
             underlineFocusStyle={{display:'none'}}
+            underlineStyle={{display:'none'}}
             value={fileSize.toString()}
             />
           {this._renderMetrics()}
