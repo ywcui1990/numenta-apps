@@ -131,7 +131,7 @@ class InstanceAnomalyChartData : AnomalyChartData {
         
             rank = 0
             anomalousMetrics.rawValue = 0
-            for (_abs, value) in anomalies!{
+            for (_, value) in anomalies!{
                     rank += Float(DataUtils.calculateSortRank ((Double(abs(value.anomaly)))))
                     anomalousMetrics.insert( value.metricMask)
                 
@@ -143,7 +143,7 @@ class InstanceAnomalyChartData : AnomalyChartData {
                 }
                 
                 if ( anomalousMetrics.contains( MetricType.TwitterVolume) ){
-                    rank += Float(DataUtils.RED_SORT_FLOOR)*100.0
+                    rank += Float(DataUtils.RED_SORT_FLOOR*100.0)
                 }
         
 
