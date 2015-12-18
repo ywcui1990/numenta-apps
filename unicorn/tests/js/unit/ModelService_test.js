@@ -19,9 +19,7 @@
  * -------------------------------------------------------------------------- */
 
 
-import {
-  ModelService, MaximumConcurrencyError
-} from '../../../js/main/ModelService';
+import {ModelService} from '../../../js/main/ModelService';
 const assert = require('assert');
 
 const STATS = '{"min": 0, "max": 10}';
@@ -111,7 +109,7 @@ describe('ModelService', () => {
       // Extra model
       assert.throws(() => {
         service.createModel('extra', STATS);
-      }, MaximumConcurrencyError);
+      }, /Too many models/);
       // Cleanup
       for (let i=1; i<=max; i++) {
         service.removeModel(MODEL_ID+i);

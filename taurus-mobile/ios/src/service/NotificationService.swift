@@ -29,11 +29,6 @@ class TaurusNotificationService{
         
         // check if notifications are enabled let defaults = NSUserDefaults.standardUserDefaults()
         let frequency : Int64 =  Int64 (NSUserDefaults.standardUserDefaults().integerForKey("maxNotificationsPerCompany")) * 1000
-        let enabled = NSUserDefaults.standardUserDefaults().boolForKey("notificationsEnabled")
-        
-        if (enabled == false){
-            return
-        }
         
         let now = NSDate()
         let lastRunTime =  NSUserDefaults.standardUserDefaults().objectForKey("LastNotification")
@@ -89,7 +84,7 @@ class TaurusNotificationService{
                 
                 let logScale = DataUtils.logScale(Double(abs(value.1.anomaly)))
                 
-                if (Float(logScale) > 0 /* TaurusApplication.redBarFloor*/){
+                if (Float(logScale) >= TaurusApplication.redBarFloor){
                     
                     if (value.1.metricMask.contains( MetricType.StockVolume) ||
                         value.1.metricMask.contains( MetricType.StockPrice)

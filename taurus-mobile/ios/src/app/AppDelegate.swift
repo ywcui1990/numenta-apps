@@ -26,45 +26,57 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MFMailComposeViewControll
 
     var window: UIWindow?
     let syncQueue = dispatch_queue_create("com.numenta.Sync", nil)
+    var syncService: TaurusDataSyncService?
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         TaurusApplication.setup()
         
         // Launch sync service
-        let
-        credentialsProvider = AWSCognitoCredentialsProvider(
-            regionType: AWSRegionType.USEast1,
-            identityPoolId: AppConfig.identityPoolId)
+        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: AWSRegionType.USEast1, identityPoolId: AppConfig.identityPoolId)
+
+        let client : TaurusClient = TaurusClient(provider: credentialsProvider, region: AWSRegionType.USWest2)
         
-        let client : TaurusClient = TaurusClient( provider : credentialsProvider, region: AWSRegionType.USWest2 )
+        syncService = TaurusDataSyncService(client:client)
         
-        let syncService = TaurusDataSyncService(client:client)
-        
-        TaurusApplication.client = syncService.client as? TaurusClient
-        
-        
-        let dispatchTime: dispatch_time_t = dispatch_time(DISPATCH_TIME_NOW, Int64(4 * Double(NSEC_PER_SEC)))
-        
-        dispatch_after(dispatchTime, syncQueue) {
-            UIApplication.sharedApplication().networkActivityIndicatorVisible = true
-            syncService.synchronizeWithServer()
-            UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+        TaurusApplication.client = syncService?.client as? TaurusClient
+
+        dispatch_async(syncQueue) {
+            application.networkActivityIndicatorVisible = true
+            self.syncService!.synchronizeWithServer()
+            application.networkActivityIndicatorVisible = false
         }
         
-        
-        
+
+
         let defaults = NSUserDefaults.standardUserDefaults()
+
+        // Update version
+        let appVersionString = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as! String
+        let appBuildString =  NSBundle.mainBundle().objectForInfoDictionaryKey( "CFBundleVersion") as! String
+        let versionBuildString = String(format: "%@  (%@)", appVersionString, appBuildString)
+        defaults.setValue(versionBuildString, forKey: "version")
+
+        // Update notifications
+
+        application.registerUserNotificationSettings(
+            UIUserNotificationSettings(
+                forTypes: [UIUserNotificationType.Alert, UIUserNotificationType.Badge, UIUserNotificationType.Sound],
+                categories: nil))
+
+        defaults.synchronize()
+
+        // Request background syncs
         let frequency =  defaults.integerForKey("refreshFrequency")
-        
-         var interval : NSTimeInterval  = Double(frequency) * 60.0
+        var interval : NSTimeInterval  = Double(frequency) * 60.0
         if (interval<60.0){
             interval = 60.0
         }
-        // Request background syncs
-        UIApplication.sharedApplication().setMinimumBackgroundFetchInterval(interval)
+        application.setMinimumBackgroundFetchInterval(interval)
         return true
     }
+
+
 
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -82,6 +94,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MFMailComposeViewControll
 
     func applicationDidBecomeActive(application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+
+        dispatch_async(syncQueue) {
+            application.networkActivityIndicatorVisible = true
+            self.syncService!.synchronizeWithServer()
+            application.networkActivityIndicatorVisible = false
+        }
     }
 
     func applicationWillTerminate(application: UIApplication) {
@@ -92,8 +110,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MFMailComposeViewControll
     func application(application: UIApplication, performFetchWithCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
        
         dispatch_async(syncQueue) {
-            let syncService = TaurusDataSyncService(client: TaurusApplication.client!)
-            syncService.synchronizeWithServer()
+            self.syncService?.synchronizeWithServer()
             completionHandler(.NewData)
         }
     }

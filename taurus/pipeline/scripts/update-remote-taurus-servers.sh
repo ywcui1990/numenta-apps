@@ -221,13 +221,12 @@ pushd "${REPOPATH}"
        supervisorctl --serverurl http://localhost:8001 restart all
      fi"
 
-  # Stop taurus server instance
+  # Stop taurus engine server
   ssh -v -t ${SSH_ARGS} "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}" \
     "cd /opt/numenta/products/taurus &&
      if [ -f taurus-supervisord.pid ]; then
-       supervisorctl --serverurl http://localhost:9001 stop all
-       nta-wait-for-supervisord-processes-stopped --supervisorApiUrl=http://localhost:9001
-       supervisorctl --serverurl http://localhost:9001 shutdown
+       supervisorctl --serverurl http://localhost:9001 shutdown &&
+       nta-wait-for-supervisord-stopped http://localhost:9001
      fi  &&
      if [ -f /var/run/nginx.pid ]; then
        sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s stop;
@@ -339,16 +338,9 @@ pushd "${REPOPATH}"
      cd /opt/numenta/products/taurus/taurus/engine/repository &&
      python migrate.py &&
      cd /opt/numenta/products/taurus &&
-     if [ -f /var/run/nginx.pid ]; then
-       sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf -s reload
-     else
-       sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf
-     fi &&
-     if [ -f taurus-supervisord.pid ]; then
-       supervisorctl --serverurl http://localhost:9001 reload
-     else
-       supervisord -c conf/supervisord.conf
-     fi &&
+     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
+     supervisord -c conf/supervisord.conf &&
+     nta-wait-for-supervisord-running http://localhost:9001 &&
      ${TAURUS_ENGINE_TESTS}"
 
 

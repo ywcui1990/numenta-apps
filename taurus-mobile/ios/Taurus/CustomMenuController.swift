@@ -88,7 +88,10 @@ class CustomMenuController: UIViewController, UIPopoverControllerDelegate, MFMai
     }
     
     @IBAction func showSettings( sender: UIView ){
-        show ("showSettings")
+        if let appSettings = NSURL(string: UIApplicationOpenSettingsURLString) {
+            UIApplication.sharedApplication().openURL(appSettings)
+            self.dismiss(sender)
+        }
     }
     
     @IBAction func share( ){

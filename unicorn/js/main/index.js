@@ -69,8 +69,7 @@ app.on('ready', () => {
   // create browser window
   mainWindow = new BrowserWindow({
     width: 1200,
-    height: 720,
-    resizable: false
+    height: 720
     // @TODO fill out options
     //  https://github.com/atom/electron/blob/master/docs/api/browser-window.md
   });
@@ -81,9 +80,6 @@ app.on('ready', () => {
   // browser window events
   mainWindow.on('closed', () => {
     mainWindow = null; // dereference single main window object
-  });
-  mainWindow.on('unresponsive', () => {
-    dialog.showErrorBox('Error', 'Application has become unresponsive');
   });
 
   // browser window web contents events

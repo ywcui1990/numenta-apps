@@ -21,7 +21,11 @@ import Foundation
 
 
 public class TaurusDataSyncService: DataSyncService{
-    
+    /**
+     * This Event is fired on instance data changes
+     */
+    public static let INSTANCE_DATA_CHANGED_EVENT = "com.numenta.taurus.data.InstanceDataChangedEvent"
+
     /** loads  instance data
     */
     override func loadAllData() {
@@ -93,8 +97,9 @@ public class TaurusDataSyncService: DataSyncService{
             (instance: InstanceData?) in
             
             if (instance == nil ){
-                if (results.count > 0){
-                     db.addInstanceDataBatch( results )
+                if (results.count > 0) {
+                    db.addInstanceDataBatch( results )
+                    self.fireInstanceDataChangedEvent()
                 }
                 
                 return nil
@@ -103,6 +108,7 @@ public class TaurusDataSyncService: DataSyncService{
             
             if (results.count > 50 ){
                 db.addInstanceDataBatch( results )
+                self.fireInstanceDataChangedEvent()
                 results.removeAll()
             }
             
@@ -111,7 +117,13 @@ public class TaurusDataSyncService: DataSyncService{
             
         )
     }
-    
+    /** Broadcast the ANNOTATION_CHANGED_EVENT notification
+     */
+    func fireInstanceDataChangedEvent() {
+        NSNotificationCenter.defaultCenter().postNotificationName(TaurusDataSyncService.INSTANCE_DATA_CHANGED_EVENT, object: self)
+    }
+
+
     override func synchronizeNotification (){
         TaurusNotificationService().syncNotifications()
     }

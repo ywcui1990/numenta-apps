@@ -145,8 +145,10 @@ class DynamoDBService(object):
 
   _FRESH_DATA_THRESHOLD_DAYS = 14
 
+  _INPUT_QUEUE_NAME = "dynamodb"
+
+
   def __init__(self):
-    self._queueName = "dynamodb"
     self._modelResultsExchange = (
       taurus.engine.config.get("metric_streamer", "results_exchange_name"))
     self._nonMetricDataExchange = (
@@ -580,7 +582,7 @@ class DynamoDBService(object):
     """ Declares dynamodb queue and binds to model results and non-metric data
     exchanges.
     """
-    result = amqpClient.declareQueue(self._queueName, durable=True)
+    result = amqpClient.declareQueue(self._INPUT_QUEUE_NAME, durable=True)
 
     amqpClient.bindQueue(exchange=self._modelResultsExchange,
                          queue=result.queue, routingKey="")
@@ -621,7 +623,7 @@ class DynamoDBService(object):
 
         self._declareExchanges(amqpClient)
         self._declareQueueAndBindToExchanges(amqpClient)
-        consumer = amqpClient.createConsumer(self._queueName)
+        consumer = amqpClient.createConsumer(self._INPUT_QUEUE_NAME)
 
         # Start consuming messages
         for evt in amqpClient.readEvents():
