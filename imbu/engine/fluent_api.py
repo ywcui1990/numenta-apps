@@ -111,6 +111,7 @@ class ModelProcess(Process):
           output = self.modelObj.saveModel()
         elif isinstance(obj, LoadModelTask):
           output = self.modelObj.loadModel(modelDir=obj.modelDir) # TODO: Fix this modelDir scope mess!
+          self.modelObj = output
 
         # Blocking put
         self._outputQueue.put(output)
@@ -270,7 +271,7 @@ g_csvdata = (
   readCSV(
     os.getenv("IMBU_DATA",
               pkg_resources.resource_filename(__name__, "data.csv")),
-  numLabels=0)
+  numLabels=3)
 )
 
 # Get data and order by unique ID
