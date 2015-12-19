@@ -10,5 +10,5 @@ docker run \
   -p 8080:80 \
   -e CORTICAL_API_KEY=${CORTICAL_API_KEY} \
   -e IMBU_RETINA_ID=${IMBU_RETINA_ID} \
-  -v `pwd`/cache:/opt/numenta/imbu/cache \
+  ${IMBU_DOCKER_EXTRAS} \
   imbu:latest

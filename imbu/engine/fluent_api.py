@@ -271,7 +271,7 @@ g_csvdata = (
   readCSV(
     os.getenv("IMBU_DATA",
               pkg_resources.resource_filename(__name__, "data.csv")),
-  numLabels=3)
+  numLabels=0)
 )
 
 # Get data and order by unique ID
