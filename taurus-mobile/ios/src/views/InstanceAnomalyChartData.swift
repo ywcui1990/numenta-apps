@@ -99,7 +99,7 @@ class InstanceAnomalyChartData : AnomalyChartData {
         let anomalies :[Int64:AnomalyValue]? = db.getInstanceData(instanceId, from: startDate, to: endDate)
         var changed = true
         // Extract anomaly scores
-       var scores = [(Int64,Double)]()
+        var scores = [(Int64,Double)]()
         if anomalies == nil{
             return  false
         }
@@ -124,33 +124,33 @@ class InstanceAnomalyChartData : AnomalyChartData {
        
 
         // Rank data based on the last bars if changed
-       if (timestamp != lastDBTimestamp || changed)
-       {
+       if (timestamp != lastDBTimestamp || changed) {
             lastDBTimestamp = timestamp
-             let anomalies :[Int64:AnomalyValue]? = db.getInstanceData(instanceId, from: lastDBTimestamp - Int64(limit)*aggregation.milliseconds(), to: lastDBTimestamp)
-        
+            // Get last "limit" bars
+            let data :[Int64:AnomalyValue]? = db.getInstanceData(instanceId, from: lastDBTimestamp - Int64(limit) * aggregation.milliseconds(), to: lastDBTimestamp)
+            // Sort and Truncate results
+            let sortedAnomalies = data?.sort {
+                $0.0 > $1.0
+            }.prefix(limit)
+
             rank = 0
             anomalousMetrics.rawValue = 0
-            for (_, value) in anomalies!{
-                    rank += Float(DataUtils.calculateSortRank ((Double(abs(value.anomaly)))))
-                    anomalousMetrics.insert( value.metricMask)
-                
+            for (_, value) in sortedAnomalies! {
+                rank += Float(DataUtils.calculateSortRank ((Double(abs(value.anomaly)))))
+                anomalousMetrics.insert(value.metricMask)
             }
-        
-            if ( anomalousMetrics.rawValue != 0){
-                if ( anomalousMetrics.contains( MetricType.StockPrice) || anomalousMetrics.contains( MetricType.StockVolume) ){
+
+            if (anomalousMetrics.rawValue != 0) {
+                if (anomalousMetrics.contains( MetricType.StockPrice) || anomalousMetrics.contains( MetricType.StockVolume)) {
                     rank += Float(DataUtils.RED_SORT_FLOOR*1000.0)
                 }
                 
-                if ( anomalousMetrics.contains( MetricType.TwitterVolume) ){
+                if (anomalousMetrics.contains( MetricType.TwitterVolume)) {
                     rank += Float(DataUtils.RED_SORT_FLOOR*100.0)
                 }
-        
-
             }
         }
         self.modified = false
-       
         
         return changed
     }
