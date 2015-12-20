@@ -1,5 +1,6 @@
 from setuptools import Command, setup, find_packages
 import subprocess
+import sys
 
 
 
@@ -32,7 +33,7 @@ class ResetAllTaurusDataDistutilsCommand(Command):
     # options (e.g., --help-commands) to be executed without dependency on
     # certain environment variables (e.g., `APPLICATION_CONFIG_PATH`).
     cmd = [
-      "python",
+      sys.executable,
       "-m",
       "taurus.engine.reset_all_taurus_engine_data"
     ]
