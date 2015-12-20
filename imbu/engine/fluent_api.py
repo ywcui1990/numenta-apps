@@ -311,31 +311,20 @@ def createModel(modelName, modelFactory):
     model = modelFactory(modelDir=modelDir)
 
   model.verbosity = 0
+  model.numLabels = 0
 
   modelProxy = SynchronousBackgroundModelProxy(model)
 
+  samples = modelProxy.prepData(g_csvdata, False)
+
   try:
-    print "Attempting to load from", modelDir
-    modelProxy.loadModel(modelDir)
-    print "Model loaded from", modelDir
-
-  except IOError:
-    print "Model failed to load from", modelDir, "Let's train it from scratch."
-
-    model.numLabels = 0
-
-    samples = modelProxy.prepData(g_csvdata, False)
-
     modelProxy.encodeSamples(samples)
+  except Exception as err:
+    print "Unable to encode samples for", model
+    raise
 
-    for i in xrange(len(samples)):
-      modelProxy.trainModel(i)
-
-    print "Model trained, save it."
-
-    modelProxy.saveModel()
-
-    print "Model saved"
+  for i in xrange(len(samples)):
+    modelProxy.trainModel(i)
 
   g_models[modelName] = modelProxy
 
