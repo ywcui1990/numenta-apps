@@ -230,7 +230,7 @@ class DeleteCompaniesTestCase(unittest.TestCase):
 
   @patch("taurus.metric_collectors.delete_companies"
          "._waitForFlusherAndGarbageCollect",
-         spec_set=delete_companies._flushTaurusEngineMetricDataPath)
+         spec_set=delete_companies._waitForFlusherAndGarbageCollect)
   @patch("taurus.metric_collectors.metric_utils.metricDataBatchWrite",
          autospec=True)
   def testFlushTaurusEngineMetricDataPath(self,
