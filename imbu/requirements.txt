@@ -5,7 +5,7 @@ web.py==0.37
 # Nupic
 numpy==1.9.2
 pytest==2.5.1
-nupic==0.3.4
+nupic==0.3.6
 
 # Fluent
 enum34==1.0.4

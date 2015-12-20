@@ -110,7 +110,7 @@ In the root of `numenta-apps/imbu`:
 ```
 cp /your/formatted/data.csv engine/data.csv
 docker build -t imbu:latest .
-docker run --name imbu -d -p 8080:80 -e CORTICAL_API_KEY=${CORTICAL_API_KEY} -e IMBU_RETINA_ID=${IMBU_RETINA_ID} imbu:latest
+docker run --name imbu -d -p 8080:80 -e CORTICAL_API_KEY=${CORTICAL_API_KEY} -e IMBU_RETINA_ID=${IMBU_RETINA_ID} -v `pwd`/cache:/opt/numenta/imbu/cache imbu:latest
 ```
 
 Open application from this URL: http://localhost:8080
