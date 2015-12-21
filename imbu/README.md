@@ -173,3 +173,8 @@ export IMBU_DOCKER_EXTRAS="-v <path to cache>:/opt/numenta/imbu/cache -v <path t
 export CORTICAL_API_KEY="<cortical.io api key>"
 export IMBU_RETINA_ID="en_associative"
 ```
+
+Once running, you can monitor progress of the container in real-time by running
+`docker logs -f --tail=all imbu`.  Should you need to "log in" to to debug the
+running container, you can run `docker exec -ti imbu /bin/bash` to run a bash
+prompt in the container.
