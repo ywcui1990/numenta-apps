@@ -131,7 +131,7 @@ A few salient points about the command(s) above:
 - `-p 8080:80` maps port 80 in the container to port 8080 on the host.
 - `-e CORTICAL_API_KEY=${CORTICAL_API_KEY}` defines the `CORTICAL_API_KEY`
   environment variable in the container.  For the command above to work as-is
-  you must have `IMBU_RETINA_ID` set in your own environment!  You may specify
+  you must have `CORTICAL_API_KEY` set in your own environment!  You may specify
   the value inline.
 - `-e IMBU_RETINA_ID=${IMBU_RETINA_ID}` defines the `IMBU_RETINA_ID`
   environment variable in the container.  For the command above to work as-is
