@@ -110,7 +110,71 @@ In the root of `numenta-apps/imbu`:
 ```
 cp /your/formatted/data.csv engine/data.csv
 docker build -t imbu:latest .
-docker run --name imbu -d -p 8080:80 -e CORTICAL_API_KEY=${CORTICAL_API_KEY} -e IMBU_RETINA_ID=${IMBU_RETINA_ID} -v `pwd`/cache:/opt/numenta/imbu/cache imbu:latest
+docker run \
+  --name imbu \
+  -d \
+  -p 8080:80 \
+  -e CORTICAL_API_KEY=${CORTICAL_API_KEY} \
+  -e IMBU_RETINA_ID=${IMBU_RETINA_ID} \
+  imbu:latest
 ```
 
-Open application from this URL: http://localhost:8080
+A few salient points about the command(s) above:
+
+- `docker build -t imbu:latest .` builds a docker image from the state of the
+  `imbu/` directory of `numenta-apps/`.  The repository is called `imbu`, and
+  the image is tagged `latest`.
+- `docker run` starts a container from the image tagged `latest` in the `imbu`
+  repository.
+- `--name imbu` names the container `imbu`
+- `-d` causes the container to run in `daemon` mode in the background
+- `-p 8080:80` maps port 80 in the container to port 8080 on the host.
+- `-e CORTICAL_API_KEY=${CORTICAL_API_KEY}` defines the `CORTICAL_API_KEY`
+  environment variable in the container.  For the command above to work as-is
+  you must have `CORTICAL_API_KEY` set in your own environment!  You may specify
+  the value inline.
+- `-e IMBU_RETINA_ID=${IMBU_RETINA_ID}` defines the `IMBU_RETINA_ID`
+  environment variable in the container.  For the command above to work as-is
+  you must have `IMBU_RETINA_ID` set in your own environment!  You may specify
+  the value inline.
+
+Additionally, there are some optional `docker run` arguments:
+
+- Map the `/opt/numenta/imbu/cache` directory in the container to one on on the
+  host external to the container to persist model state across containers.  For
+  example:
+
+  ```
+  -v `pwd`/cache:/opt/numenta/imbu/cache
+  ```
+- You may use a local clone of nupic.research in the container by mapping the
+  `/opt/numenta/nupic.research` directory.  This will allow you to test changes
+  to nupic.research locally before commiting changes and pushing to github.
+
+  ```
+  -v <path to nupic.research>:/opt/numenta/nupic.research
+  ```
+
+A few helper utilities are included for your convenience:
+
+- `destructive-build-and-refresh-container.sh` to clear persistent model cache,
+  rebuild, and restart the container from scratch
+- `graceful-build-and-refresh-container.sh` to rebuild and restart the
+  container, preserving persistent model cache
+
+Both of these helper utilities will pass along additional arguments to the
+`docker run` command specified in the `IMBU_DOCKER_EXTRAS` environment
+variable.  For example, to map the directories described above.  It can be
+helpful to define all relevant environment variables in a file that you can
+either `source` at-will, or in your bash profile.  For example:
+
+```
+export IMBU_DOCKER_EXTRAS="-v <path to cache>:/opt/numenta/imbu/cache -v <path to nupic.research>:/opt/numenta/nupic.research"
+export CORTICAL_API_KEY="<cortical.io api key>"
+export IMBU_RETINA_ID="en_associative"
+```
+
+Once running, you can monitor progress of the container in real-time by running
+`docker logs -f --tail=all imbu`.  Should you need to "log in" to to debug the
+running container, you can run `docker exec -ti imbu /bin/bash` to run a bash
+prompt in the container.
