@@ -62,6 +62,8 @@ setup(
   cmdclass = {"reset_all_data": ResetAllTaurusDataDistutilsCommand},
   entry_points = {
     "console_scripts": [
+      ("taurus-check-model-consistency = "
+       "%s.check_model_consistency:main") % name,
       ("taurus-create-db = "
        "%s.repository:resetDatabaseConsoleScriptEntryPoint") % name,
       ("taurus-set-dynamodb = "

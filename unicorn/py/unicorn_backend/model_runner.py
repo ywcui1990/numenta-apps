@@ -238,8 +238,6 @@ class _ModelRunner(object):
     """
     self._modelId = modelId
 
-    # NOTE: ModelRecordEncoder is implemented in the pull request
-    # https://github.com/numenta/nupic/pull/2432 that is not yet in master.
     self._modelRecordEncoder = record_stream.ModelRecordEncoder(
       fields=self._INPUT_RECORD_SCHEMA)
 
