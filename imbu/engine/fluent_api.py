@@ -26,7 +26,7 @@ import logging
 from multiprocessing import JoinableQueue, Process
 import os
 import pkg_resources
-import cPickle as pkl
+import cPickle as pickle
 from threading import Thread
 import traceback
 import web
@@ -111,7 +111,7 @@ class ModelProcess(Process):
         elif isinstance(obj, SaveModelTask):
           output = self.modelObj.saveModel()
         elif isinstance(obj, LoadModelTask):
-          output = loadModel(obj.modelDir)  # TODO: Fix this modelDir scope mess!
+          output = loadModel(obj.modelDir)
           self.modelObj = output
 
         # Blocking put
@@ -263,14 +263,14 @@ def loadJSON(jsonPath):
     raise e
 
 
-def loadModel(pklPath):
+def loadModel(picklePath):
   """Return the serialized model."""
   try:
-    with open(pklPath, "rb") as f:
-      model = pkl.load(f)
+    with open(picklePath, "rb") as f:
+      model = pickle.load(f)
     return model
   except IOError as e:
-    print "Could not load model from '{}'.".format(pklPath)
+    print "Could not load model from '{}'.".format(picklePath)
     raise e
 
 
