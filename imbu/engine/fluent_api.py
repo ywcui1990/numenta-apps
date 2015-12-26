@@ -26,6 +26,7 @@ import logging
 from multiprocessing import JoinableQueue, Process
 import os
 import pkg_resources
+import cPickle as pickle
 from threading import Thread
 import traceback
 import web
@@ -110,7 +111,7 @@ class ModelProcess(Process):
         elif isinstance(obj, SaveModelTask):
           output = self.modelObj.saveModel()
         elif isinstance(obj, LoadModelTask):
-          output = self.modelObj.loadModel(modelDir=obj.modelDir) # TODO: Fix this modelDir scope mess!
+          output = loadModel(obj.modelDir)
           self.modelObj = output
 
         # Blocking put
@@ -255,10 +256,21 @@ def addCORSHeaders():
 
 def loadJSON(jsonPath):
   try:
-    with pkg_resources.resource_filename(__name__, jsonPath) as fin:
-      return json.load(fin)
+    with pkg_resources.resource_filename(__name__, jsonPath) as f:
+      return json.load(f)
   except IOError as e:
     print "Could not find JSON at '{}'.".format(jsonPath)
+    raise e
+
+
+def loadModel(picklePath):
+  """Return the serialized model."""
+  try:
+    with open(picklePath, "rb") as f:
+      model = pickle.load(f)
+    return model
+  except IOError as e:
+    print "Could not load model from '{}'.".format(picklePath)
     raise e
 
 
@@ -285,43 +297,45 @@ def createModel(modelName, modelFactory):
   """Return an instantiated model."""
 
   global g_models
-
-  if modelFactory is None:
-    raise ValueError("Could not instantiate model '{}'.".format(modelName))
-
+  
   modelDir = os.path.join(_MODEL_CACHE_DIR_PREFIX, modelName)
-
-  if modelName == "HTMNetwork":
-
-    raise NotImplementedError()
-
-  elif modelName == "CioWordFingerprint":
-    model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
-                         apiKey=os.environ["CORTICAL_API_KEY"],
-                         fingerprintType=EncoderTypes.word,
-                         modelDir=modelDir)
-
-  elif modelName == "CioDocumentFingerprint":
-    model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
-                         apiKey=os.environ["CORTICAL_API_KEY"],
-                         fingerprintType=EncoderTypes.document,
-                         modelDir=modelDir)
-
-  else:
-    model = modelFactory(modelDir=modelDir)
-
-  model.verbosity = 0
-  model.numLabels = 0
-
-  modelProxy = SynchronousBackgroundModelProxy(model)
 
   try:
     print "Attempting to load from", modelDir
-    modelProxy.loadModel(modelDir)
+    model = loadModel(modelDir)
+    modelProxy = SynchronousBackgroundModelProxy(model)
     print "Model loaded from", modelDir
 
   except IOError:
     print "Model failed to load from", modelDir, "Let's train it from scratch."
+
+
+    if modelFactory is None:
+      raise ValueError("Could not instantiate model '{}'.".format(modelName))
+
+    if modelName == "HTMNetwork":
+
+      raise NotImplementedError()
+
+    elif modelName == "CioWordFingerprint":
+      model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
+                           apiKey=os.environ["CORTICAL_API_KEY"],
+                           fingerprintType=EncoderTypes.word,
+                           modelDir=modelDir)
+
+    elif modelName == "CioDocumentFingerprint":
+      model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
+                           apiKey=os.environ["CORTICAL_API_KEY"],
+                           fingerprintType=EncoderTypes.document,
+                           modelDir=modelDir)
+
+    else:
+      model = modelFactory(modelDir=modelDir)
+
+    model.verbosity = 0
+    model.numLabels = 0
+
+    modelProxy = SynchronousBackgroundModelProxy(model)
 
     samples = modelProxy.prepData(g_csvdata, False)
 
