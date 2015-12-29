@@ -30,8 +30,8 @@ from taurus.engine import config
 from taurus.engine import logging_support
 from taurus.engine.repository import schema
 from taurus.engine.repository.migrate import migrate
-from htmengine.repository import (_EngineSingleton,
-                                  addMetric,
+import htmengine.repository
+from htmengine.repository import (addMetric,
                                   addMetricData,
                                   deleteMetric,
                                   deleteModel,
@@ -69,37 +69,19 @@ from htmengine.repository import (_EngineSingleton,
 retryOnTransientErrors = sqlalchemy_utils.retryOnTransientErrors
 
 
-DSN_FORMAT = "mysql://%(user)s:%(passwd)s@%(host)s:%(port)s"
-DB_DSN_FORMAT = "mysql://%(user)s:%(passwd)s@%(host)s:%(port)s/%(db)s"
-
-
-
-def getBaseConnectionArgsDict():
-  """Return a dictonary of common database connection arguments."""
-  return {
-    "host": config.get("repository", "host"),
-    "port": config.getint("repository", "port"),
-    "user": config.get("repository", "user"),
-    "passwd": config.get("repository", "passwd"),
-    "charset": "utf8",
-    "use_unicode": True,
-  }
-
-
 
 def getDSN():
-  return DSN_FORMAT % dict(config.items("repository"))
+  return htmengine.repository.getDSN(config)
 
 
 
 def getUnaffiliatedEngine():
-  return create_engine(getDSN())
+  return htmengine.repository.getUnaffiliatedEngine(config)
 
 
 
 def getDbDSN():
-  return DB_DSN_FORMAT % dict(config.items("repository"))
-
+  return htmengine.repository.getDbDSN(config)
 
 
 def engineFactory(reset=False):
@@ -117,11 +99,7 @@ def engineFactory(reset=False):
       from taurus.engine import repository
       engine = repository.engineFactory()
   """
-  if reset:
-    _EngineSingleton.reset()
-
-  return _EngineSingleton(getDbDSN(), pool_recycle=179, pool_size=0,
-                          max_overflow=-1)
+  return htmengine.repository.engineFactory(config, reset)
 
 
 
