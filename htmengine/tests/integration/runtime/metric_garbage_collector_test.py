@@ -86,7 +86,7 @@ class MetricGarbageCollectorTestCase(unittest.TestCase):
     allRows = oldRows + youngRows
 
     # Use a temporary database
-    with repository_test_utils.ManagedTempRepository("metric_gc"):
+    with repository_test_utils.HtmengineManagedTempRepository("metric_gc"):
       engine = htmengine.repository.engineFactory(config=htmengine.APP_CONFIG)
 
       # Add the dummy metric rows

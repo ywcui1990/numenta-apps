@@ -186,13 +186,13 @@ class ManagedTempRepositoryBase(object):
 
 
 
-class ManagedTempRepository(ManagedTempRepositoryBase):
-  """Context manager and function decorator that on entry patches the
-  respository database name with a unique temp name and creates a temp
-  repository; then drops the repository database on exit.
+class HtmengineManagedTempRepository(ManagedTempRepositoryBase):
+  """Only for tests in htmengine! Context manager and function decorator that on
+  entry patches the respository database name with a unique temp name and
+  creates a temp repository; then drops the repository database on exit.
 
   This effectively redirects repository object transactions to the
-  temporary database while in scope of ManagedTempRepository.
+  temporary database while in scope of HtmengineManagedTempRepository.
 
   NOTE: this affects repository access in the currently-executing process and
   its descendant processes; it has no impact on processes started externally or
@@ -203,13 +203,15 @@ class ManagedTempRepository(ManagedTempRepositoryBase):
 
   Context Manager Example::
 
-      with ManagedTempRepository(clientLabel=self.__class__.__name__) as repoCM:
+      with HtmengineManagedTempRepository(
+          clientLabel=self.__class__.__name__) as repoCM:
         print repoCM.tempDatabaseName
         <do test logic>
 
   Function Decorator Example::
 
-      @ManagedTempRepository(clientLabel="testSomething", kw="tempRepoPatch")
+      @HtmengineManagedTempRepository(clientLabel="testSomething",
+                                      kw="tempRepoPatch")
       def testSomething(self, tempRepoPatch):
         print tempRepoPatch.tempDatabaseName
         <do test logic>
