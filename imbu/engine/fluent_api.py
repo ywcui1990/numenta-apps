@@ -34,6 +34,7 @@ import web
 from uwsgidecorators import postfork, thread
 
 from htmresearch.encoders import EncoderTypes
+from htmresearch.frameworks.nlp.classification_model import ClassificationModel
 from htmresearch.frameworks.nlp.classify_fingerprint import (
   ClassificationModelFingerprint)
 # from htmresearch.frameworks.nlp.classify_htm import ClassificationModelHTM
@@ -65,7 +66,6 @@ EncodeSamplesTask = namedtuple("EncodeSamplesTask", "samples")
 TrainModelTask = namedtuple("TrainModelTask", "i")
 QueryModelTask = namedtuple("QueryModelTask", "query, preprocess")
 SaveModelTask = namedtuple("SaveModelTask", "")
-LoadModelTask = namedtuple("LoadModelTask", "modelDir")
 
 
 
@@ -110,9 +110,6 @@ class ModelProcess(Process):
                                             preprocess=obj.preprocess)
         elif isinstance(obj, SaveModelTask):
           output = self.modelObj.saveModel()
-        elif isinstance(obj, LoadModelTask):
-          output = loadModel(obj.modelDir)
-          self.modelObj = output
 
         # Blocking put
         self._outputQueue.put(output)
@@ -175,10 +172,6 @@ class SynchronousBackgroundModelProxy(object):
 
   def saveModel(self):
     return self._submitTask(SaveModelTask._make([]))
-
-
-  def loadModel(self, modelDir):
-    return self._submitTask(LoadModelTask._make([modelDir]))
 
 
   # End RPC definitions
@@ -263,17 +256,6 @@ def loadJSON(jsonPath):
     raise e
 
 
-def loadModel(picklePath):
-  """Return the serialized model."""
-  try:
-    with open(picklePath, "rb") as f:
-      model = pickle.load(f)
-    return model
-  except IOError as e:
-    print "Could not load model from '{}'.".format(picklePath)
-    raise e
-
-
 # Indicates global ready status of all models.  g_ready will transition to
 # True when all models have been created, trained, and are ready to handle
 # requests
@@ -297,12 +279,12 @@ def createModel(modelName, modelFactory):
   """Return an instantiated model."""
 
   global g_models
-  
+
   modelDir = os.path.join(_MODEL_CACHE_DIR_PREFIX, modelName)
 
   try:
     print "Attempting to load from", modelDir
-    model = loadModel(modelDir)
+    model = ClassificationModel.loadModel(modelDir)
     modelProxy = SynchronousBackgroundModelProxy(model)
     print "Model loaded from", modelDir
 
