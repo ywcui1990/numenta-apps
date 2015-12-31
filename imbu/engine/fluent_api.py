@@ -26,7 +26,6 @@ import logging
 from multiprocessing import JoinableQueue, Process
 import os
 import pkg_resources
-import cPickle as pickle
 from threading import Thread
 import traceback
 import web
@@ -303,13 +302,15 @@ def createModel(modelName, modelFactory):
       model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
                            apiKey=os.environ["CORTICAL_API_KEY"],
                            fingerprintType=EncoderTypes.word,
-                           modelDir=modelDir)
+                           modelDir=modelDir,
+                           cacheRoot=_MODEL_CACHE_DIR_PREFIX)
 
     elif modelName == "CioDocumentFingerprint":
       model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
                            apiKey=os.environ["CORTICAL_API_KEY"],
                            fingerprintType=EncoderTypes.document,
-                           modelDir=modelDir)
+                           modelDir=modelDir,
+                           cacheRoot=_MODEL_CACHE_DIR_PREFIX)
 
     else:
       model = modelFactory(modelDir=modelDir)
