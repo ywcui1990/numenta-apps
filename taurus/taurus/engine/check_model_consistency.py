@@ -68,13 +68,13 @@ def _parseArgs(args):
     "--verbose",
     action="store_true",
     dest="verbose",
-    help=("Turn on verbose mode."))
+    help="Turn on verbose mode.")
 
   parser.add_argument(
     "--warningsAsErrors",
     action="store_true",
     dest="warningsAsErrors",
-    help=("Turn on verbose mode."))
+    help="Warnings will result in non-zero result code.")
 
   return parser.parse_args(args)
 
@@ -98,7 +98,7 @@ def _getMetricsFromDynamodb(verbose):
                metricTable.table_name, metricTable.connection)
 
   resultSet = retryOnTransientDynamoDBError(g_log)(metricTable.scan)()
-  return tuple(row for row in resultSet)
+  return tuple(resultSet)
 
 
 
