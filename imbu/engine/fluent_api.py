@@ -37,8 +37,8 @@ from htmresearch.frameworks.nlp.classification_model import ClassificationModel
 from htmresearch.frameworks.nlp.classify_fingerprint import (
   ClassificationModelFingerprint)
 # from htmresearch.frameworks.nlp.classify_htm import ClassificationModelHTM
-# from htmresearch.frameworks.nlp.classify_keywords import (
-#   ClassificationModelKeywords)
+from htmresearch.frameworks.nlp.classify_keywords import (
+  ClassificationModelKeywords)
 from htmresearch.frameworks.nlp.classify_windows import (
   ClassificationModelWindows)
 from htmresearch.support.csv_helper import readCSV
@@ -54,7 +54,7 @@ _MODEL_MAPPING = {
   "CioWordFingerprint": ClassificationModelFingerprint,
   "CioDocumentFingerprint": ClassificationModelFingerprint,
   "CioWindows": ClassificationModelWindows,
-  # "Keywords": ClassificationModelKeywords,
+  "Keywords": ClassificationModelKeywords,
   # "HTMNetwork": ClassificationModelHTM,
 }
 _DEFAULT_MODEL_NAME = "CioWindows"
