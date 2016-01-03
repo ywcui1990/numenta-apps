@@ -58,6 +58,7 @@ _MODEL_MAPPING = {
   # "HTMNetwork": ClassificationModelHTM,
 }
 _DEFAULT_MODEL_NAME = "CioWindows"
+_MODEL_SIMILARITY_METRIC = "pctOverlapOfInput"
 _MODEL_CACHE_DIR_PREFIX = os.environ.get("MODEL_CACHE_DIR", os.getcwd())
 
 
@@ -284,8 +285,6 @@ def createModel(modelName, modelFactory):
   except IOError:
     print "Model failed to load from", modelDir, "Let's train it from scratch."
 
-    similarityMetric = "pctOverlapOfInput"
-
     if modelFactory is None:
       raise ValueError("Could not instantiate model '{}'.".format(modelName))
 
@@ -299,7 +298,7 @@ def createModel(modelName, modelFactory):
                            fingerprintType=EncoderTypes.word,
                            modelDir=modelDir,
                            cacheRoot=_MODEL_CACHE_DIR_PREFIX,
-                           classifierMetric=similarityMetric)
+                           classifierMetric=_MODEL_SIMILARITY_METRIC)
 
     elif modelName == "CioDocumentFingerprint":
       model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
@@ -307,11 +306,11 @@ def createModel(modelName, modelFactory):
                            fingerprintType=EncoderTypes.document,
                            modelDir=modelDir,
                            cacheRoot=_MODEL_CACHE_DIR_PREFIX,
-                           classifierMetric=similarityMetric)
+                           classifierMetric=_MODEL_SIMILARITY_METRIC)
 
     else:
       model = modelFactory(modelDir=modelDir,
-                           classifierMetric=similarityMetric)
+                           classifierMetric=_MODEL_SIMILARITY_METRIC)
 
     model.verbosity = 0
     model.numLabels = 0
