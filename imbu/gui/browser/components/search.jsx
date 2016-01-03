@@ -132,9 +132,10 @@ export default class SearchComponent extends React.Component {
                 defaultValue="CioWindows"
                 ref="model" name="model"
                 style={styles.modelsMenu}>
-          <option value="CioWindows">CioWindows</option>
-          <option value="CioDocumentFingerprint">CioDocumentFingerprint</option>
-          <option value="CioWordFingerprint">CioWordFingerprint</option>
+          <option value="CioWindows">Cortical.io windows</option>
+          <option value="CioDocumentFingerprint">Cortical.io document-level fingerprints</option>
+          <option value="CioWordFingerprint">Cortical.io word-level fingerprints</option>
+          <option value="Keywords">Keywords (random encodings)</option>
         </select>
         <RaisedButton label="Search" onTouchTap={this._search.bind(this)}
                       disabled={!ready}
