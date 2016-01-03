@@ -48,7 +48,8 @@ from htmresearch.support.csv_helper import readCSV
 g_log = logging.getLogger(__name__)
 
 
-
+_DATA_PATH = os.getenv(
+  "IMBU_DATA", pkg_resources.resource_filename(__name__, "data.csv"))
 _MODEL_MAPPING = {
   "CioWordFingerprint": ClassificationModelFingerprint,
   "CioDocumentFingerprint": ClassificationModelFingerprint,
@@ -131,7 +132,6 @@ class ModelProcess(Process):
 
 class SynchronousBackgroundModelProxy(object):
   """ Executes model process in background, blocks in foreground.
-
   Instances of SynchronousBackgroundModelProxy serve as proxies in the
   foreground to long-running processes running in the background.  A
   light-weight RPC mechanism is implemented in prepData(), encodeSamples(),
@@ -219,13 +219,10 @@ class SynchronousBackgroundModelProxy(object):
 def addStandardHeaders(contentType="application/json; charset=UTF-8"):
   """
   Add Standard HTTP Headers ("Content-Type", "Server") to the response.
-
   Here is an example of the headers added by this method using the default
   values::
-
       Content-Type: application/json; charset=UTF-8
       Server: Imbu x.y.z
-
   :param content_type: The value for the "Content-Type" header.
                        (default "application/json; charset=UTF-8")
   """
@@ -261,10 +258,7 @@ def loadJSON(jsonPath):
 g_ready = False
 g_models = {}
 g_csvdata = (
-  readCSV(
-    os.getenv("IMBU_DATA",
-              pkg_resources.resource_filename(__name__, "data.csv")),
-  numLabels=0)
+  readCSV(_DATA_PATH, numLabels=0)
 )
 
 # Get data and order by unique ID
@@ -290,6 +284,7 @@ def createModel(modelName, modelFactory):
   except IOError:
     print "Model failed to load from", modelDir, "Let's train it from scratch."
 
+    similarityMetric = "pctOverlapOfInput"
 
     if modelFactory is None:
       raise ValueError("Could not instantiate model '{}'.".format(modelName))
@@ -303,17 +298,20 @@ def createModel(modelName, modelFactory):
                            apiKey=os.environ["CORTICAL_API_KEY"],
                            fingerprintType=EncoderTypes.word,
                            modelDir=modelDir,
-                           cacheRoot=_MODEL_CACHE_DIR_PREFIX)
+                           cacheRoot=_MODEL_CACHE_DIR_PREFIX,
+                           classifierMetric=similarityMetric)
 
     elif modelName == "CioDocumentFingerprint":
       model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
                            apiKey=os.environ["CORTICAL_API_KEY"],
                            fingerprintType=EncoderTypes.document,
                            modelDir=modelDir,
-                           cacheRoot=_MODEL_CACHE_DIR_PREFIX)
+                           cacheRoot=_MODEL_CACHE_DIR_PREFIX,
+                           classifierMetric=similarityMetric)
 
     else:
-      model = modelFactory(modelDir=modelDir)
+      model = modelFactory(modelDir=modelDir,
+                           classifierMetric=similarityMetric)
 
     model.verbosity = 0
     model.numLabels = 0
@@ -341,7 +339,6 @@ def createModel(modelName, modelFactory):
 @thread
 def setupModelWorkers():
   """ Create all models.
-
   This function is decorated by the uwsgi-provided postfork decorator to ensure
   that the model proxy objects (and their queues) are created in the same
   worker process as the request handlers.
@@ -373,15 +370,11 @@ class FluentWrapper(object):
   def query(self, model, text):
     """
     Queries the model and returns an ordered list of matching samples.
-
     :param str model: Model to use. Possible values are:
                       CioWordFingerprint, CioDocumentFingerprint, CioWindows,
                       Keywords, HTMNetwork
-
     :param str text: The text to match.
-
     :returns: a sequence of matching samples.
-
     ::
     [
         {"id": "1", "text": "sampleText", "score": "0.75"},
