@@ -225,23 +225,25 @@ class InstanceAnomalyChartData : AnomalyChartData {
     }
 
     func getCollapsedData()->[(Int64, Double)]{
-        var marketCalendar = TaurusApplication.marketCalendar
+        let marketCalendar = TaurusApplication.marketCalendar
         var marketClosed = false
         var collapsedData = [(Int64, Double)]()
-        
-        for val in self.data! {
-            let time = val.0 + DataUtils.METRIC_DATA_INTERVAL
-            
-            if ( marketCalendar.isOpen( time) == false){
-                marketClosed = true
-                continue
+
+        if let data = self.data {
+            for val in data {
+                let time = val.0 + DataUtils.METRIC_DATA_INTERVAL
+                
+                if ( marketCalendar.isOpen( time) == false){
+                    marketClosed = true
+                    continue
+                }
+                
+                if (marketClosed){
+                    collapsedData.append( (0,0) )
+                    marketClosed = false
+                }
+                collapsedData.append ( val )
             }
-            
-            if (marketClosed){
-                collapsedData.append( (0,0) )
-                marketClosed = false
-            }
-            collapsedData.append ( val )
         }
         
         if (marketClosed){
