@@ -65,7 +65,7 @@ _MODEL_CACHE_DIR_PREFIX = os.environ.get("MODEL_CACHE_DIR", os.getcwd())
 PrepDataTask = namedtuple("PrepDataTask", "dataDict, preprocess")
 EncodeSamplesTask = namedtuple("EncodeSamplesTask", "samples")
 TrainModelTask = namedtuple("TrainModelTask", "i")
-QueryModelTask = namedtuple("QueryModelTask", "query, preprocess")
+QueryModelTask = namedtuple("QueryModelTask", "query")
 SaveModelTask = namedtuple("SaveModelTask", "")
 
 
@@ -107,8 +107,7 @@ class ModelProcess(Process):
         elif isinstance(obj, TrainModelTask):
           output = self.modelObj.trainModel(i=obj.i)
         elif isinstance(obj, QueryModelTask):
-          output = self.modelObj.queryModel(query=obj.query,
-                                            preprocess=obj.preprocess)
+          output = self.modelObj.queryModel(query=obj.query)
         elif isinstance(obj, SaveModelTask):
           output = self.modelObj.saveModel()
 
@@ -166,8 +165,8 @@ class SynchronousBackgroundModelProxy(object):
     return self._submitTask(TrainModelTask._make([i]))
 
 
-  def queryModel(self, query, preprocess):
-    return self._submitTask(QueryModelTask._make([query, preprocess]))
+  def queryModel(self, query):
+    return self._submitTask(QueryModelTask._make([query]))
 
 
   def saveModel(self):
@@ -385,7 +384,7 @@ class FluentWrapper(object):
 
     results = []
     if text:
-      sortedDistances = g_models[model].queryModel(text, preprocess=False)
+      sortedDistances = g_models[model].queryModel(text)
 
       for sID, dist in sortedDistances:
         results.append({"id": sID,
