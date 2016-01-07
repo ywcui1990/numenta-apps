@@ -39,9 +39,10 @@ from htmresearch.frameworks.nlp.classify_fingerprint import (
 # from htmresearch.frameworks.nlp.classify_htm import ClassificationModelHTM
 from htmresearch.frameworks.nlp.classify_keywords import (
   ClassificationModelKeywords)
-from htmresearch.frameworks.nlp.classify_windows import (
-  ClassificationModelWindows)
+#from htmresearch.frameworks.nlp.classify_windows import (
+#  ClassificationModelWindows)
 from htmresearch.support.csv_helper import readCSV
+from htmresearch.support.text_preprocess import TextPreprocess
 
 
 
@@ -53,11 +54,11 @@ _DATA_PATH = os.getenv(
 _MODEL_MAPPING = {
   "CioWordFingerprint": ClassificationModelFingerprint,
   "CioDocumentFingerprint": ClassificationModelFingerprint,
-  "CioWindows": ClassificationModelWindows,
+#  "CioWindows": ClassificationModelWindows,
   "Keywords": ClassificationModelKeywords,
   # "HTMNetwork": ClassificationModelHTM,
 }
-_DEFAULT_MODEL_NAME = "CioWindows"
+_DEFAULT_MODEL_NAME = "CioWordFingerprint"
 _MODEL_SIMILARITY_METRIC = "pctOverlapOfInput"
 _MODEL_CACHE_DIR_PREFIX = os.environ.get("MODEL_CACHE_DIR", os.getcwd())
 
@@ -65,6 +66,7 @@ _MODEL_CACHE_DIR_PREFIX = os.environ.get("MODEL_CACHE_DIR", os.getcwd())
 PrepDataTask = namedtuple("PrepDataTask", "dataDict, preprocess")
 EncodeSamplesTask = namedtuple("EncodeSamplesTask", "samples")
 TrainModelTask = namedtuple("TrainModelTask", "i")
+TrainTextTask = namedtuple("TrainTextTask", "token, labels, sequenceId, reset")
 QueryModelTask = namedtuple("QueryModelTask", "query")
 SaveModelTask = namedtuple("SaveModelTask", "")
 
@@ -106,6 +108,11 @@ class ModelProcess(Process):
           output = self.modelObj.encodeSamples(samples=obj.samples)
         elif isinstance(obj, TrainModelTask):
           output = self.modelObj.trainModel(i=obj.i)
+        elif isinstance(obj, TrainTextTask):
+          output = self.modelObj.trainText(token=obj.token,
+                                           labels=obj.labels,
+                                           sequenceId=obj.sequenceId,
+                                           reset=obj.reset)
         elif isinstance(obj, QueryModelTask):
           output = self.modelObj.queryModel(query=obj.query)
         elif isinstance(obj, SaveModelTask):
@@ -135,10 +142,11 @@ class SynchronousBackgroundModelProxy(object):
   Instances of SynchronousBackgroundModelProxy serve as proxies in the
   foreground to long-running processes running in the background.  A
   light-weight RPC mechanism is implemented in prepData(), encodeSamples(),
-  trainModel(), queryModel(), and more and the internal implementation ensures
-  that the RPC calls block in the foreground.  In order to execute RPC calls
-  in parallel, you must use threads to execute the functions, as is done in
-  setupModelWorkers() to create, prepare, and train the models at startup.
+  trainModel(), trainText(), queryModel(), and more; 
+  the internal implementation ensures that the RPC calls block in the 
+  foreground.  In order to execute RPC calls in parallel, you must use threads 
+  to execute the functions, as is done in setupModelWorkers() to create, 
+  prepare, and train the models at startup.
   """
 
 
@@ -163,6 +171,10 @@ class SynchronousBackgroundModelProxy(object):
 
   def trainModel(self, i):
     return self._submitTask(TrainModelTask._make([i]))
+
+
+  def trainText(self, token, labels, sequenceId, reset):
+    return self._submitTask(TrainTextTask._make([token, labels, sequenceId, reset]))
 
 
   def queryModel(self, query):
@@ -256,14 +268,15 @@ def loadJSON(jsonPath):
 # True when all models have been created, trained, and are ready to handle
 # requests
 g_ready = False
+
 g_models = {}
+
+# Get data and order by unique ID
 g_csvdata = (
   readCSV(_DATA_PATH, numLabels=0)
 )
-
-# Get data and order by unique ID
 g_samples = OrderedDict(
-  (sample[2], sample[0]) for sample in g_csvdata.values()
+  (int(sample[2]), sample[0]) for sample in g_csvdata.values()
 )
 
 
@@ -316,12 +329,7 @@ def createModel(modelName, modelFactory):
 
     modelProxy = SynchronousBackgroundModelProxy(model)
 
-    samples = modelProxy.prepData(g_csvdata, False)
-
-    modelProxy.encodeSamples(samples)
-
-    for i in xrange(len(samples)):
-      modelProxy.trainModel(i)
+    trainModelWithText(modelProxy, g_csvdata)
 
     print "Model trained, save it."
 
@@ -330,6 +338,23 @@ def createModel(modelName, modelFactory):
     print "Model saved"
 
   g_models[modelName] = modelProxy
+
+
+def trainModelWithText(model, trainingData):
+  """ Train the given model on trainingData.
+  This is (essentially) the same training method as in the research repo's
+  imbu_runner.py.
+  """
+  TP = TextPreprocess()
+  for text, _, uniqueID in trainingData.values():
+    textTokens = TP.tokenize(text)  # TODO: use model's tokenization method instead
+    lastToken = len(textTokens) - 1
+    for i, token in enumerate(textTokens):
+      # use the sequence's ID as the category label
+      model.trainText(token,
+                      [int(uniqueID)],
+                      sequenceId=int(uniqueID),
+                      reset=int(i==lastToken))
 
 
 
