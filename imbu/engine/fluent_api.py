@@ -346,14 +346,14 @@ def trainModelWithText(model, trainingData):
   imbu_runner.py.
   """
   TP = TextPreprocess()
-  for text, _, uniqueID in trainingData.values():
+  for seqId, (text, _, _) in enumerate(trainingData.values()):
     textTokens = TP.tokenize(text)  # TODO: use model's tokenization method instead
     lastToken = len(textTokens) - 1
     for i, token in enumerate(textTokens):
       # use the sequence's ID as the category label
       model.trainText(token,
-                      [int(uniqueID)],
-                      sequenceId=int(uniqueID),
+                      [seqId],
+                      sequenceId=seqId,
                       reset=int(i==lastToken))
 
 
