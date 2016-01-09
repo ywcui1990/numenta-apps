@@ -129,10 +129,9 @@ export default class SearchComponent extends React.Component {
         <select height={styles.modelsMenu.height}
                 disabled={!ready}
                 onChange={this._search.bind(this)}
-                defaultValue="CioWindows"
+                defaultValue="CioWordFingerprint"
                 ref="model" name="model"
                 style={styles.modelsMenu}>
-          <option value="CioWindows">Cortical.io windows</option>
           <option value="CioDocumentFingerprint">Cortical.io document-level fingerprints</option>
           <option value="CioWordFingerprint">Cortical.io word-level fingerprints</option>
           <option value="Keywords">Keywords (random encodings)</option>
