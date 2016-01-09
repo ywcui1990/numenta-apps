@@ -345,9 +345,9 @@ def trainModelWithText(model, trainingData):
   This is (essentially) the same training method as in the research repo's
   imbu_runner.py.
   """
-  TP = TextPreprocess()
+  textPreprocessor = TextPreprocess()
   for seqId, (text, _, _) in enumerate(trainingData.values()):
-    textTokens = TP.tokenize(text)  # TODO: use model's tokenization method instead
+    textTokens = textPreprocessor.tokenize(text)  # TODO: use model's tokenization method instead
     lastToken = len(textTokens) - 1
     for i, token in enumerate(textTokens):
       # use the sequence's ID as the category label
