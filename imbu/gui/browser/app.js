@@ -19,9 +19,6 @@
  * -------------------------------------------------------------------------- */
 
 
-// Add ES6/7 polyfills such as "Array.from"
-import 'babel/polyfill';
-
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
 import React from 'react';
