@@ -42,7 +42,6 @@ from htmresearch.frameworks.nlp.classify_keywords import (
 #from htmresearch.frameworks.nlp.classify_windows import (
 #  ClassificationModelWindows)
 from htmresearch.support.csv_helper import readCSV
-from htmresearch.support.text_preprocess import TextPreprocess
 
 
 
@@ -114,9 +113,11 @@ class ModelProcess(Process):
                                            sequenceId=obj.sequenceId,
                                            reset=obj.reset)
         elif isinstance(obj, QueryModelTask):
-          output = self.modelObj.queryModel(query=obj.query)
+          output = self.modelObj.queryModel(query=obj.query,
+                                            returnDetailedResults=obj.returnDetailedResults,
+                                            sortResults=obj.sortResults)
         elif isinstance(obj, SaveModelTask):
-          output = self.modelObj.saveModel()
+          output = self.modelObj.save(modelDir=obj.modelDir)
 
         # Blocking put
         self._outputQueue.put(output)
@@ -177,12 +178,12 @@ class SynchronousBackgroundModelProxy(object):
     return self._submitTask(TrainTextTask._make([token, labels, sequenceId, reset]))
 
 
-  def queryModel(self, query):
-    return self._submitTask(QueryModelTask._make([query]))
+  def queryModel(self, query, returnDetailedResults, sortResults):
+    return self._submitTask(QueryModelTask._make([query, returnDetailedResults, sortResults]))
 
 
-  def saveModel(self):
-    return self._submitTask(SaveModelTask._make([]))
+  def saveModel(self, modelDir):
+    return self._submitTask(SaveModelTask._make([modelDir]))
 
 
   # End RPC definitions
@@ -278,6 +279,8 @@ g_csvdata = (
 g_samples = OrderedDict(
   (int(sample[2]), sample[0]) for sample in g_csvdata.values()
 )
+# Each unique sample is assigned its own category
+g_categoryCount = len(g_samples)
 
 
 
@@ -290,7 +293,7 @@ def createModel(modelName, modelFactory):
 
   try:
     print "Attempting to load from", modelDir
-    model = ClassificationModel.loadModel(modelDir)
+    model = ClassificationModel().load(modelDir)
     modelProxy = SynchronousBackgroundModelProxy(model)
     print "Model loaded from", modelDir
 
@@ -325,7 +328,7 @@ def createModel(modelName, modelFactory):
                            classifierMetric=_MODEL_SIMILARITY_METRIC)
 
     model.verbosity = 0
-    model.numLabels = 0
+    model.numLabels = g_categoryCount
 
     modelProxy = SynchronousBackgroundModelProxy(model)
 
@@ -333,7 +336,7 @@ def createModel(modelName, modelFactory):
 
     print "Model trained, save it."
 
-    modelProxy.saveModel()
+    modelProxy.save(modelDir)
 
     print "Model saved"
 
@@ -345,16 +348,8 @@ def trainModelWithText(model, trainingData):
   This is (essentially) the same training method as in the research repo's
   imbu_runner.py.
   """
-  textPreprocessor = TextPreprocess()
   for seqId, (text, _, _) in enumerate(trainingData.values()):
-    textTokens = textPreprocessor.tokenize(text)  # TODO: use model's tokenization method instead
-    lastToken = len(textTokens) - 1
-    for i, token in enumerate(textTokens):
-      # use the sequence's ID as the category label
-      model.trainText(token,
-                      [seqId],
-                      sequenceId=seqId,
-                      reset=int(i==lastToken))
+    model.trainDocument(text, [seqId], seqId)
 
 
 
@@ -409,9 +404,10 @@ class FluentWrapper(object):
 
     results = []
     if text:
-      sortedDistances = g_models[model].queryModel(text)
+      _, idList, sortedDistances = g_models[model].inferDocument(
+        text, returnDetailedResults=True, sortResults=True)
 
-      for sID, dist in sortedDistances:
+      for sID, dist in zip(idList, sortedDistances):
         results.append({"id": sID,
                         "text": g_samples[sID],
                         "score": dist.item()})
