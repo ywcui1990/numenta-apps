@@ -74,10 +74,10 @@ class SearchHistoryComponent extends React.Component {
         text: 'HISTORY'
       }
     ];
-    return items.concat(Array.from(this.state.history, (q) => {
+    return items.concat(Array.from(this.state.history, (query) => {
       return {
-        text: `${q.model}: ${q.query}`,
-        payload: q
+        text: query,
+        payload: {query}
       };
     }));
   }

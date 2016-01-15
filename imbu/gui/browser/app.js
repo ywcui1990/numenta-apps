@@ -28,7 +28,6 @@ import MainComponent from './components/main.jsx';
 import SearchStore from './stores/search';
 import ServerStatusStore from './stores/server-status';
 import CheckServerStatusAction from './actions/server-status';
-import SearchQueryAction from './actions/search-query';
 
 window.React = React; // dev tools @TODO remove for non-dev
 
@@ -43,7 +42,6 @@ let app = new Fluxible({
 // add context to app
 let context = app.createContext();
 context.executeAction(CheckServerStatusAction)
-  .then(() => context.executeAction(SearchQueryAction, null))
   .then(() => {
     let container = document.getElementById('main');
     ReactDOM.render(FluxibleReact.createElementWithContext(context), container);
