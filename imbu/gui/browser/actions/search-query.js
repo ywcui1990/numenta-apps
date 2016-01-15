@@ -23,30 +23,35 @@ import request from 'superagent';
 const API_HOST = '/fluent';
 
 export default (context, payload) => {
-  let url = API_HOST;
-  let query, model;
+  let model, query;
   if (payload) {
     query = payload.query;
     model = payload.model;
-    url = `${API_HOST}/${model}`
   }
-
   return new Promise((resolve, reject) => {
-    request
-      .post(url)
-      .send(query)
-      .set('Accept', 'application/json')
-      .set('Access-Control-Allow-Origin', '*')
-      .end((error, results) => {
-        if (error) {
-          reject(error);
-          console.error(error);
-        } else {
-          context.dispatch('SEARCH_RECEIVED_DATA',
-                          {query, model, results: results.body});
-          resolve(results.body);
+    if (model) {
+      // Request results for given model
+      let url = `${API_HOST}/${model}`
+      request
+        .post(url)
+        .send(query)
+        .set('Accept', 'application/json')
+        .set('Access-Control-Allow-Origin', '*')
+        .end((error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            context.dispatch('SEARCH_RECEIVED_DATA', {
+              query, model, results: results.body
+            });
+            resolve(results.body);
+          }
         }
-      }
-    );
+      );
+    } else {
+      // No model given, just update the query
+      context.dispatch('SEARCH_RECEIVED_DATA', {query});
+      resolve();
+    }
   });
 };

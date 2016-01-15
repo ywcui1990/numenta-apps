@@ -21,7 +21,9 @@
 import React from 'react';
 import Material from 'material-ui';
 import connectToStores from 'fluxible-addons-react/connectToStores';
+import SearchQueryAction from '../actions/search-query';
 import SearchStore from '../stores/search';
+import ServerStatusStore from '../stores/server-status';
 
 const {
   Styles, Paper,
@@ -36,17 +38,26 @@ const {
 /**
  * Display Search Results on a Material UI Table
  */
-@connectToStores([SearchStore], (context) => ({
-  results: context.getStore(SearchStore).getResults()
+@connectToStores([SearchStore, ServerStatusStore], (context, props) => ({
+  ready: context.getStore(ServerStatusStore).isReady(),
+  query:  context.getStore(SearchStore).getQuery()
 }))
 export default class SearchResultsComponent extends React.Component {
 
   static contextTypes = {
-    getStore: React.PropTypes.func
+    getStore: React.PropTypes.func,
+    executeAction: React.PropTypes.func
   };
 
-  constructor(props) {
+  static propTypes = {
+    model: React.PropTypes.string.isRequired
+  };
+
+  constructor(props, context) {
     super(props);
+    let model = props.model;
+    let results = context.getStore(SearchStore).getResults(model);
+    this.state = {model, results};
   }
 
   _getStyles() {
@@ -68,7 +79,12 @@ export default class SearchResultsComponent extends React.Component {
       content: {
         paddingLeft: `${Spacing.desktopGutterMini}px`,
         maxWidth: '1200px',
-        margin: '0 auto'
+        margin: '1 auto'
+      },
+      modelsMenu: {
+        height: '36px',
+        fontSize: '12pt',
+        border: '1px solid lightgray'
       },
       table: {
         height: '500px'
@@ -76,47 +92,78 @@ export default class SearchResultsComponent extends React.Component {
     };
   }
 
-  render() {
-    if (this.props.results.length > 0) {
-      let styles = this._getStyles();
+  _modelChanged(event) {
+    let model = event.target.value;
+    this.setState({model});
+    this._search(this.props.query, model);
+  }
 
-      // Convert SearchStore results to Table rows
-      let rows = this.props.results.map((result, idx) => {
-        return (
-          <TableRow key={idx}>
-            <TableRowColumn key={0} style={styles.column.summary}>
-              {result.text}
-            </TableRowColumn>
-            <TableRowColumn key={1} style={styles.column.score}>
-              {result.score.toFixed(4)}
-            </TableRowColumn>
-          </TableRow>);
-      });
+  _search(query, model) {
+    this.context.executeAction(SearchQueryAction, {query, model});
+  }
 
-      return (
-        <Paper style={styles.content}>
-          <Table selectable={false} fixedHeader={true}
-            height={styles.table.height} ref="results" style={styles.table}>
-            <TableHeader  adjustForCheckbox={false} displaySelectAll={false}>
-              <TableRow>
-                <TableHeaderColumn key={0} style={styles.column.summary}>
-                  Match
-                </TableHeaderColumn>
-                <TableHeaderColumn key={1} style={styles.column.score}>
-                  Overlap
-                </TableHeaderColumn>
-              </TableRow>
-            </TableHeader>
-            <TableBody displayRowCheckbox={false}>
-              {rows}
-            </TableBody>
-          </Table>
-        </Paper>
-      );
+  componentDidMount() {
+    this._search(this.props.query, this.state.model);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let model = this.state.model;
+    let results = this.context.getStore(SearchStore).getResults(model);
+    if (results.length === 0) {
+      this._search(nextProps.query, this.state.model);
+    } else {
+      this.setState({model, results});
     }
-    // Nothing to show
+  }
+
+  render() {
+    console.log(this.state);
+    let styles = this._getStyles();
+    let ready = this.props.ready;
+
+    // Convert SearchStore results to Table rows
+    let rows = this.state.results.map((result, idx) => {
+      return (
+        <TableRow key={idx}>
+          <TableRowColumn key={0} style={styles.column.summary}>
+            {result.text}
+          </TableRowColumn>
+          <TableRowColumn key={1} style={styles.column.score}>
+            {result.score.toFixed(4)}
+          </TableRowColumn>
+        </TableRow>);
+    });
+
     return (
-      <p/>
+      <Paper style={styles.content} depth={1}>
+
+        <select height={styles.modelsMenu.height}
+                disabled={!ready}
+                onChange={this._modelChanged.bind(this)}
+                value={this.state.model}
+                style={styles.modelsMenu}>
+          <option value="CioDocumentFingerprint">Cortical.io document-level fingerprints</option>
+          <option value="CioWordFingerprint">Cortical.io word-level fingerprints</option>
+          <option value="Keywords">Keywords (random encodings)</option>
+        </select>
+
+        <Table selectable={false} fixedHeader={true}
+          height={styles.table.height} ref="results" style={styles.table}>
+          <TableHeader  adjustForCheckbox={false} displaySelectAll={false}>
+            <TableRow>
+              <TableHeaderColumn key={0} style={styles.column.summary}>
+                Match
+              </TableHeaderColumn>
+              <TableHeaderColumn key={1} style={styles.column.score}>
+                Overlap
+              </TableHeaderColumn>
+            </TableRow>
+          </TableHeader>
+          <TableBody displayRowCheckbox={false}>
+            {rows}
+          </TableBody>
+        </Table>
+      </Paper>
     );
   }
 }
