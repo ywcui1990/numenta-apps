@@ -36,67 +36,67 @@ export default class SearchStore extends BaseStore {
     super(dispatcher);
     // Text used to query
     this.query = null;
-    // Model used to query
-    this.model = null;
     // Last query results
-    this.results = [];
+    this.results = new Map();
     // Past queries
-    this.history = new Map();
+    this.history = new Set();
   }
 
   /**
-   * Return current query
+   * @return {string} current query
    */
   getQuery() {
     return this.query;
   }
 
   /**
-   * Return current model
-   */
-  getModel() {
-    return this.model;
-  }
-
-  /**
-   * Return past queries history
+   * @return {iterator} past queries history
    */
   getHistory() {
     return this.history.values();
   }
 
   /**
-   * Returns current query results
+   * Get results for the given model
+   * @param  {[type]} model [description]
+   * @returns {array} current query results
    */
-  getResults() {
-    return this.results;
+  getResults(model) {
+    return this.results.get(model) || [];
   }
 
-  /**
-   * Handle new data
-   */
+   /**
+    * Handle new data event
+    * @param  {object} payload New data
+    */
   _handleReceivedData(payload) {
+    console.log(payload);
     if (payload.query) {
       // Remove whitespaces
       this.query = payload.query.trim();
     } else {
       this.query = '';
     }
-    this.model = payload.model;
 
     // Do not add empty queries to history
     if (this.query) {
-      this.history.set(`${this.model}:${this.query}`,
-        {query: this.query, model: this.model});
+      this.history.add(this.query);
     }
-    if (payload.results) {
-      // Sort results by score
-      this.results = payload.results.sort((a, b) => {
-        return a.score - b.score;
-      });
+
+    if (payload.model) {
+      let model = payload.model;
+      if (payload.results) {
+        // Sort results by score
+        this.results.set(model, payload.results.sort((a, b) => {
+          return a.score - b.score;
+        }));
+      } else {
+        // No data
+        this.results.delete(model);
+      }
     } else {
-      // No data
-      this.results = [];
+      // No model
+      this.results.clear();
     }
     this.emitChange();
   }
@@ -106,8 +106,7 @@ export default class SearchStore extends BaseStore {
    */
   _handleClearData() {
     this.query = null;
-    this.model = null;
-    this.results = [];
+    this.results.clear();
     this.history.clear();
     this.emitChange();
   }

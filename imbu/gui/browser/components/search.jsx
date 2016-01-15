@@ -38,8 +38,7 @@ const {
 
 @connectToStores([SearchStore, ServerStatusStore], (context) => ({
   ready: context.getStore(ServerStatusStore).isReady(),
-  query: context.getStore(SearchStore).getQuery(),
-  model: context.getStore(SearchStore).getModel()
+  query: context.getStore(SearchStore).getQuery()
 }))
 export default class SearchComponent extends React.Component {
 
@@ -60,9 +59,6 @@ export default class SearchComponent extends React.Component {
   componentDidUpdate() {
     const el = ReactDOM.findDOMNode(this.refs.query);
     this.refs.query.setValue(this.props.query);
-    if (this.props.model) {
-      this.refs.model.value = this.props.model;
-    }
     el.focus();
   }
 
@@ -78,25 +74,31 @@ export default class SearchComponent extends React.Component {
   }
 
   _search() {
-    let query = this.refs.query.getValue();
-    let model = this.refs.model.value;
-    this.context.executeAction(SearchQueryAction, {query, model});
+    let query = this.refs.query.getValue() || '';
+    console.log(query);
+    this.context.executeAction(SearchQueryAction, {query});
   }
 
   _getStyles() {
     return {
       content: {
         padding: `${Spacing.desktopGutterMini}px`,
-        maxWidth: '1200px',
         margin: '0 auto',
+        display: 'table',
         boxSizing: 'border-box'
       },
-      modelsMenu: {
-        height: '36px',
-        fontSize: '12pt',
-        border: '1px solid lightgray'
+      searchField: {
+        display: 'table-cell',
+        width: '100%'
+      },
+      searchButton: {
+        display: 'table-cell',
+        width: '1px',
+        float: 'right'
       },
       progress: {
+        textAlign: 'center',
+        padding: 5,
         color: Colors.red500
       }
     };
@@ -109,37 +111,28 @@ export default class SearchComponent extends React.Component {
     if (!ready) {
       progress = (
         <ClearFix>
-          <h3 height={styles.modelsMenu.height} style={styles.progress}>
+          <h3 height={styles.progress.height} style={styles.progress}>
             Please wait while models are being built
           </h3>
-          <p/>
           <LinearProgress mode="indeterminate"/>
         </ClearFix>);
     }
     return (
-
-      <ClearFix style={styles.content}>
+      <div>
         {progress}
-        <TextField floatingLabelText="Enter query:"
-                   fullWidth={true}
-                   id="query" name="query"
-                   disabled={!ready}
-                   onEnterKeyDown={this._search.bind(this)}
-                   ref="query"/>
-        <select height={styles.modelsMenu.height}
-                disabled={!ready}
-                onChange={this._search.bind(this)}
-                defaultValue="CioWordFingerprint"
-                ref="model" name="model"
-                style={styles.modelsMenu}>
-          <option value="CioDocumentFingerprint">Cortical.io document-level fingerprints</option>
-          <option value="CioWordFingerprint">Cortical.io word-level fingerprints</option>
-          <option value="Keywords">Keywords (random encodings)</option>
-        </select>
-        <RaisedButton label="Search" onTouchTap={this._search.bind(this)}
-                      disabled={!ready}
-                      role="search" secondary={true}/>
-    </ClearFix>
-    );
+        <ClearFix style={styles.content}>
+          <TextField floatingLabelText="Enter query:"
+                     fullWidth={true}
+                     id="query" name="query"
+                     disabled={!ready}
+                     onEnterKeyDown={this._search.bind(this)}
+                     style={styles.searchField}
+                     ref="query"/>
+          <RaisedButton label="Search" onTouchTap={this._search.bind(this)}
+                        disabled={!ready}
+                        style={styles.searchButton}
+                        role="search" secondary={true}/>
+      </ClearFix>
+    </div>);
   }
 }
