@@ -20,7 +20,7 @@
 """
 Implements Imbu's web API.
 """
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
 import json
 import logging
 from multiprocessing import JoinableQueue, Process
@@ -36,13 +36,10 @@ from htmresearch.encoders import EncoderTypes
 from htmresearch.frameworks.nlp.classification_model import ClassificationModel
 from htmresearch.frameworks.nlp.classify_fingerprint import (
   ClassificationModelFingerprint)
-# from htmresearch.frameworks.nlp.classify_htm import ClassificationModelHTM
+#from htmresearch.frameworks.nlp.classify_htm import ClassificationModelHTM
 from htmresearch.frameworks.nlp.classify_keywords import (
   ClassificationModelKeywords)
-#from htmresearch.frameworks.nlp.classify_windows import (
-#  ClassificationModelWindows)
 from htmresearch.support.csv_helper import readCSV
-from htmresearch.support.text_preprocess import TextPreprocess
 
 
 
@@ -54,21 +51,14 @@ _DATA_PATH = os.getenv(
 _MODEL_MAPPING = {
   "CioWordFingerprint": ClassificationModelFingerprint,
   "CioDocumentFingerprint": ClassificationModelFingerprint,
-#  "CioWindows": ClassificationModelWindows,
   "Keywords": ClassificationModelKeywords,
-  # "HTMNetwork": ClassificationModelHTM,
+#  "HTMNetwork": ClassificationModelHTM,
 }
 _DEFAULT_MODEL_NAME = "CioWordFingerprint"
 _MODEL_SIMILARITY_METRIC = "pctOverlapOfInput"
-_MODEL_CACHE_DIR_PREFIX = os.environ.get("MODEL_CACHE_DIR", os.getcwd())
 
 
-PrepDataTask = namedtuple("PrepDataTask", "dataDict, preprocess")
-EncodeSamplesTask = namedtuple("EncodeSamplesTask", "samples")
-TrainModelTask = namedtuple("TrainModelTask", "i")
-TrainTextTask = namedtuple("TrainTextTask", "token, labels, sequenceId, reset")
-QueryModelTask = namedtuple("QueryModelTask", "query")
-SaveModelTask = namedtuple("SaveModelTask", "")
+InferDocumentTask = namedtuple("InferDocumentTask", "document, returnDetailedResults, sortResults")
 
 
 
@@ -101,22 +91,10 @@ class ModelProcess(Process):
         # Blocking get
         obj = self._inputQueue.get()
 
-        if isinstance(obj, PrepDataTask):
-          output = self.modelObj.prepData(dataDict=obj.dataDict,
-                                          preprocess=obj.preprocess)
-        elif isinstance(obj, EncodeSamplesTask):
-          output = self.modelObj.encodeSamples(samples=obj.samples)
-        elif isinstance(obj, TrainModelTask):
-          output = self.modelObj.trainModel(i=obj.i)
-        elif isinstance(obj, TrainTextTask):
-          output = self.modelObj.trainText(token=obj.token,
-                                           labels=obj.labels,
-                                           sequenceId=obj.sequenceId,
-                                           reset=obj.reset)
-        elif isinstance(obj, QueryModelTask):
-          output = self.modelObj.queryModel(query=obj.query)
-        elif isinstance(obj, SaveModelTask):
-          output = self.modelObj.saveModel()
+        if isinstance(obj, InferDocumentTask):
+          output = self.modelObj.inferDocument(document=obj.document,
+                                            returnDetailedResults=obj.returnDetailedResults,
+                                            sortResults=obj.sortResults)
 
         # Blocking put
         self._outputQueue.put(output)
@@ -142,7 +120,7 @@ class SynchronousBackgroundModelProxy(object):
   Instances of SynchronousBackgroundModelProxy serve as proxies in the
   foreground to long-running processes running in the background.  A
   light-weight RPC mechanism is implemented in prepData(), encodeSamples(),
-  trainModel(), trainText(), queryModel(), and more; 
+  trainModel(), trainText(), inferDocument(), and more; 
   the internal implementation ensures that the RPC calls block in the 
   foreground.  In order to execute RPC calls in parallel, you must use threads 
   to execute the functions, as is done in setupModelWorkers() to create, 
@@ -161,28 +139,8 @@ class SynchronousBackgroundModelProxy(object):
   # Begin RPC definitions.  See handlers in ModelProcess.run()
 
 
-  def prepData(self, dataDict, preprocess):
-    return self._submitTask(PrepDataTask._make([dataDict, preprocess]))
-
-
-  def encodeSamples(self, samples):
-    return self._submitTask(EncodeSamplesTask._make([samples]))
-
-
-  def trainModel(self, i):
-    return self._submitTask(TrainModelTask._make([i]))
-
-
-  def trainText(self, token, labels, sequenceId, reset):
-    return self._submitTask(TrainTextTask._make([token, labels, sequenceId, reset]))
-
-
-  def queryModel(self, query):
-    return self._submitTask(QueryModelTask._make([query]))
-
-
-  def saveModel(self):
-    return self._submitTask(SaveModelTask._make([]))
+  def inferDocument(self, document, returnDetailedResults, sortResults):
+    return self._submitTask(InferDocumentTask._make([document, returnDetailedResults, sortResults]))
 
 
   # End RPC definitions
@@ -275,9 +233,10 @@ g_models = {}
 g_csvdata = (
   readCSV(_DATA_PATH, numLabels=0)
 )
-g_samples = OrderedDict(
-  (int(sample[2]), sample[0]) for sample in g_csvdata.values()
-)
+g_samples = dict((i, sample[0]) for i, sample in enumerate(g_csvdata.values()))
+
+# Each unique sample is assigned its own category
+g_categoryCount = len(g_samples)
 
 
 
@@ -285,76 +244,20 @@ def createModel(modelName, modelFactory):
   """Return an instantiated model."""
 
   global g_models
-
-  modelDir = os.path.join(_MODEL_CACHE_DIR_PREFIX, modelName)
+  
+  modelDir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                          modelName)
 
   try:
     print "Attempting to load from", modelDir
-    model = ClassificationModel.loadModel(modelDir)
+    model = ClassificationModel.load(modelDir)
     modelProxy = SynchronousBackgroundModelProxy(model)
     print "Model loaded from", modelDir
 
   except IOError:
-    print "Model failed to load from", modelDir, "Let's train it from scratch."
-
-    if modelFactory is None:
-      raise ValueError("Could not instantiate model '{}'.".format(modelName))
-
-    if modelName == "HTMNetwork":
-
-      raise NotImplementedError()
-
-    elif modelName == "CioWordFingerprint":
-      model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
-                           apiKey=os.environ["CORTICAL_API_KEY"],
-                           fingerprintType=EncoderTypes.word,
-                           modelDir=modelDir,
-                           cacheRoot=_MODEL_CACHE_DIR_PREFIX,
-                           classifierMetric=_MODEL_SIMILARITY_METRIC)
-
-    elif modelName == "CioDocumentFingerprint":
-      model = modelFactory(retina=os.environ["IMBU_RETINA_ID"],
-                           apiKey=os.environ["CORTICAL_API_KEY"],
-                           fingerprintType=EncoderTypes.document,
-                           modelDir=modelDir,
-                           cacheRoot=_MODEL_CACHE_DIR_PREFIX,
-                           classifierMetric=_MODEL_SIMILARITY_METRIC)
-
-    else:
-      model = modelFactory(modelDir=modelDir,
-                           classifierMetric=_MODEL_SIMILARITY_METRIC)
-
-    model.verbosity = 0
-    model.numLabels = 0
-
-    modelProxy = SynchronousBackgroundModelProxy(model)
-
-    trainModelWithText(modelProxy, g_csvdata)
-
-    print "Model trained, save it."
-
-    modelProxy.saveModel()
-
-    print "Model saved"
+    print "Model failed to load from", modelDir
 
   g_models[modelName] = modelProxy
-
-
-def trainModelWithText(model, trainingData):
-  """ Train the given model on trainingData.
-  This is (essentially) the same training method as in the research repo's
-  imbu_runner.py.
-  """
-  textPreprocessor = TextPreprocess()
-  for seqId, (text, _, _) in enumerate(trainingData.values()):
-    textTokens = textPreprocessor.tokenize(text)  # TODO: use model's tokenization method instead
-    lastToken = len(textTokens) - 1
-    for i, token in enumerate(textTokens):
-      # use the sequence's ID as the category label
-      model.trainText(token,
-                      [seqId],
-                      sequenceId=seqId,
-                      reset=int(i==lastToken))
 
 
 
@@ -409,9 +312,12 @@ class FluentWrapper(object):
 
     results = []
     if text:
-      sortedDistances = g_models[model].queryModel(text)
+      _, idList, sortedDistances = g_models[model].inferDocument(
+        text, returnDetailedResults=True, sortResults=True)
 
-      for sID, dist in sortedDistances:
+      formattedDistances = (1.0 - sortedDistances) * 100
+
+      for sID, dist in zip(idList, formattedDistances):
         results.append({"id": sID,
                         "text": g_samples[sID],
                         "score": dist.item()})

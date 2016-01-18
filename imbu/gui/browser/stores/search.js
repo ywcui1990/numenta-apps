@@ -88,7 +88,7 @@ export default class SearchStore extends BaseStore {
       if (payload.results) {
         // Sort results by score
         this.results.set(model, payload.results.sort((a, b) => {
-          return a.score - b.score;
+          return b.score - a.score;
         }));
       } else {
         // No data
