@@ -103,7 +103,6 @@ TBD
 1. Create `CORTICAL_API_KEY` environment variable with your new API key.
 1. Create `IMBU_RETINA_ID` environment variable with the name of the *retina* to use.
 1. Create `IMBU_LOAD_PATH_PREFIX` environment variable with the root directory for pre-trained models
-1. Create `IMBU_SAVE_PATH_PREFIX` environment variable with the root directory for pre-trained models (can be the same as `IMBU_LOAD_PATH_PREFIX` above)
 
 ### Run Imbu in Docker
 
