@@ -155,7 +155,7 @@ export default class SearchResultsComponent extends React.Component {
                 Match
               </TableHeaderColumn>
               <TableHeaderColumn key={1} style={styles.column.score}>
-                Overlap
+                Percent Overlap of Query
               </TableHeaderColumn>
             </TableRow>
           </TableHeader>
