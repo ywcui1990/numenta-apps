@@ -22,7 +22,7 @@
 		23AB230E1BA75F170091A5E6 /* TaurusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23AB230D1BA75F170091A5E6 /* TaurusTests.swift */; };
 		23AB23191BA75F170091A5E6 /* TaurusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23AB23181BA75F170091A5E6 /* TaurusUITests.swift */; };
 		23AD4EC31BB2FE080041D650 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23AD4EC21BB2FE080041D650 /* AppConfig.swift */; };
-		23AD4EC51BB2FEC00041D650 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 23AD4EC41BB2FEC00041D650 /* README.txt */; };
+		23AD4EC51BB2FEC00041D650 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 23AD4EC41BB2FEC00041D650 /* README.md */; };
 		23AD4F161BB31B8D0041D650 /* InstanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23AD4F131BB31B8D0041D650 /* InstanceViewController.swift */; };
 		23AD4F181BB31BDC0041D650 /* TimeSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23AD4F171BB31BDC0041D650 /* TimeSliderView.swift */; };
 		23AD4F1A1BB31C640041D650 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23AD4F191BB31C640041D650 /* AppDelegate.swift */; };
@@ -115,7 +115,7 @@
 		23AB23181BA75F170091A5E6 /* TaurusUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaurusUITests.swift; sourceTree = "<group>"; };
 		23AB231A1BA75F170091A5E6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		23AD4EC21BB2FE080041D650 /* AppConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
-		23AD4EC41BB2FEC00041D650 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = SOURCE_ROOT; };
+		23AD4EC41BB2FEC00041D650 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		23AD4F131BB31B8D0041D650 /* InstanceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = InstanceViewController.swift; path = ../src/controllers/InstanceViewController.swift; sourceTree = "<group>"; };
 		23AD4F171BB31BDC0041D650 /* TimeSliderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeSliderView.swift; sourceTree = "<group>"; };
 		23AD4F191BB31C640041D650 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -234,7 +234,7 @@
 				B94DA7391C20CC14004493DE /* Settings.bundle */,
 				23F58D701BBA287200C7C6B6 /* Images.xcassets */,
 				237CDC411BAB3C9E00AAF305 /* createdb.sql */,
-				23AD4EC41BB2FEC00041D650 /* README.txt */,
+				23AD4EC41BB2FEC00041D650 /* README.md */,
 				23AD78F71BA778B3003FBEF4 /* mobileCore */,
 				23AB22F71BA75F170091A5E6 /* Taurus */,
 				23AB230C1BA75F170091A5E6 /* TaurusTests */,
@@ -546,7 +546,7 @@
 				23AB23001BA75F170091A5E6 /* Assets.xcassets in Resources */,
 				23F58D711BBA287200C7C6B6 /* Images.xcassets in Resources */,
 				23AB22FE1BA75F170091A5E6 /* Main.storyboard in Resources */,
-				23AD4EC51BB2FEC00041D650 /* README.txt in Resources */,
+				23AD4EC51BB2FEC00041D650 /* README.md in Resources */,
 				B94DA73A1C20CC14004493DE /* Settings.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
