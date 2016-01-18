@@ -606,5 +606,13 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         super.viewWillDisappear (animated)
         
     }
-    
+
+    override func viewWillAppear(animated: Bool) {
+        // Google Analytics
+        let tracker = GAI.sharedInstance().defaultTracker
+        tracker.set(kGAIScreenName, value: "com.numenta.taurus.twitter.TwitterDetailActivity")
+        let builder = GAIDictionaryBuilder.createScreenView()
+        tracker.send(builder.build() as [NSObject : AnyObject])
+    }
+
 }
