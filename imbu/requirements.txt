@@ -5,7 +5,7 @@ web.py==0.37
 # Nupic
 numpy==1.9.2
 pytest==2.5.1
-nupic==0.3.6
+-e git+https://github.com/numenta/nupic.git@e3e625e98d6c8a1827e44bebc813425e3cb621e8#egg=nupic-0.3.7.dev0
 
 # Fluent
 enum34==1.0.4

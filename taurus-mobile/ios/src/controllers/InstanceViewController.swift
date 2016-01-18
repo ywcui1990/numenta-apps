@@ -575,7 +575,13 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
 
             let alertView = UIAlertController(title: "", message: msg, preferredStyle: .Alert)
             alertView.addAction(UIAlertAction(title: "Yes", style: .Default, handler: { (alertAction) -> Void in
-                
+
+                // Google Analytics
+                let tracker = GAI.sharedInstance().defaultTracker
+                let builder = GAIDictionaryBuilder.createEventWithCategory("Favorites",
+                    action: favorite ? "Remove" : "Add", label: chartData.ticker, value: 1)
+                tracker.send(builder.build() as [NSObject : AnyObject])
+
                 if (favorite) {
                     TaurusApplication.removeInstanceToFavorites(chartData.getId())
                 } else {
@@ -585,6 +591,13 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
             alertView.addAction(UIAlertAction(title: "No", style: .Cancel, handler: nil))
             presentViewController(alertView, animated: true, completion: nil)
         }
+    }
+    override func viewWillAppear(animated: Bool) {
+        // Google Analytics
+        let tracker = GAI.sharedInstance().defaultTracker
+        tracker.set(kGAIScreenName, value: "com.numenta.taurus.instance.InstanceListActivity")
+        let builder = GAIDictionaryBuilder.createScreenView()
+        tracker.send(builder.build() as [NSObject : AnyObject])
     }
 }
 

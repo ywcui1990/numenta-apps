@@ -71,6 +71,7 @@
 		9D6590581D077B613D94B220 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5967E9F3F71FA63EF40469B /* libPods.a */; };
 		B94DA73A1C20CC14004493DE /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B94DA7391C20CC14004493DE /* Settings.bundle */; };
 		B9C914E31C1FDD8C004B8DE6 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C914E21C1FDD8C004B8DE6 /* NotificationService.swift */; };
+		B9D941D51C498059006ADE9E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B9D941D41C498059006ADE9E /* GoogleService-Info.plist */; };
 		DE8C3C6C96A556CE6C2EB24F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5967E9F3F71FA63EF40469B /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -162,6 +163,7 @@
 		23F58D741BBAC21D00C7C6B6 /* SettingsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SettingsController.swift; path = src/controllers/SettingsController.swift; sourceTree = SOURCE_ROOT; };
 		B94DA7391C20CC14004493DE /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		B9C914E21C1FDD8C004B8DE6 /* NotificationService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		B9D941D41C498059006ADE9E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		CC722459B06198A44AE0D9BF /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		D5967E9F3F71FA63EF40469B /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F04A1F33885B832737DD0D75 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 		23AB22EC1BA75F170091A5E6 = {
 			isa = PBXGroup;
 			children = (
+				B9D941D41C498059006ADE9E /* GoogleService-Info.plist */,
 				B94DA7391C20CC14004493DE /* Settings.bundle */,
 				23F58D701BBA287200C7C6B6 /* Images.xcassets */,
 				237CDC411BAB3C9E00AAF305 /* createdb.sql */,
@@ -538,6 +541,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				237CDC421BAB3C9E00AAF305 /* createdb.sql in Resources */,
+				B9D941D51C498059006ADE9E /* GoogleService-Info.plist in Resources */,
 				23AB23031BA75F170091A5E6 /* LaunchScreen.storyboard in Resources */,
 				23AB23001BA75F170091A5E6 /* Assets.xcassets in Resources */,
 				23F58D711BBA287200C7C6B6 /* Images.xcassets in Resources */,
@@ -845,6 +849,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Taurus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.numenta.taurusmobile;
@@ -862,6 +867,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Taurus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.numenta.taurusmobile;

@@ -84,11 +84,23 @@ class CustomMenuController: UIViewController, UIPopoverControllerDelegate, MFMai
     }
 
     @IBAction func showAbout( sender: UIView ){
+      // Google Analytics
+      let tracker = GAI.sharedInstance().defaultTracker
+      tracker.set(kGAIScreenName, value: "com.numenta.taurus.preference.AboutActivity")
+      let builder = GAIDictionaryBuilder.createScreenView()
+      tracker.send(builder.build() as [NSObject : AnyObject])
+
       show("showAbout")
     }
     
     @IBAction func showSettings( sender: UIView ){
         if let appSettings = NSURL(string: UIApplicationOpenSettingsURLString) {
+            // Google Analytics
+            let tracker = GAI.sharedInstance().defaultTracker
+            tracker.set(kGAIScreenName, value: "com.numenta.taurus.preference.SettingsActivity")
+            let builder = GAIDictionaryBuilder.createScreenView()
+            tracker.send(builder.build() as [NSObject : AnyObject])
+
             UIApplication.sharedApplication().openURL(appSettings)
             self.dismiss(sender)
         }

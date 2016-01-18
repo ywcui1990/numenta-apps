@@ -116,8 +116,8 @@ class FluentWrapper(object):
     results = []
     if text:
       sortedDistances = imbu.query(g_models[model], text)
-
-      for sID, dist in sortedDistances:
+      formattedDistances = imbu.formatResults(sortedDistances)
+      for sID, dist in formattedDistances:
         results.append({"id": sID,
                         "text": imbu.dataDict[sID],
                         "score": dist.item()})
@@ -127,7 +127,7 @@ class FluentWrapper(object):
 
 
 class DefaultHandler(object):
-  def GET(self):  # pylint: disable=R0201,C0103
+  def GET(self, *args):  # pylint: disable=R0201,C0103
     addStandardHeaders("text/html; charset=UTF-8")
     return "<html><body><h1>Welcome to Nupic Fluent</h1></body></html>"
 
@@ -143,7 +143,7 @@ class FluentAPIHandler(object):
       raise web.notfound("%s Model not found" % modelName)
 
 
-  def GET(self):
+  def GET(self, *args):
     """ GET global ready status.  Returns "true" when all models have been
     created and are ready for queries.
     """

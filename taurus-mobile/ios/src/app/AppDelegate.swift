@@ -73,6 +73,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MFMailComposeViewControll
             interval = 60.0
         }
         application.setMinimumBackgroundFetchInterval(interval)
+
+        // Configure Google Analytics tracker from GoogleService-Info.plist.
+        var configureError:NSError?
+        GGLContext.sharedInstance().configureWithError(&configureError)
+        assert(configureError == nil, "Error configuring Google services: \(configureError)")
+        let gai = GAI.sharedInstance()
+        gai.trackUncaughtExceptions = true  // report uncaught exceptions
+
         return true
     }
 
