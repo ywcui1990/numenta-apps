@@ -2,6 +2,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 
 
 pod 'FMDB'
+pod 'Google/Analytics'
 
 #pod 'MMDrawerController', '~> 0.5.7'
 
