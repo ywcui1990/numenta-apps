@@ -35,17 +35,11 @@ g_log = logging.getLogger(__name__)
 
 
 
-# There is no longer training in imbu web app.  User must specify
-# load/save paths.
+# There is no longer training in imbu web app.  User must specify loadPath
 if "IMBU_LOAD_PATH_PREFIX" in os.environ:
   _IMBU_LOAD_PATH_PREFIX = os.environ["IMBU_LOAD_PATH_PREFIX"]
 else:
   raise KeyError("Required IMBU_LOAD_PATH_PREFIX missing from environment")
-
-if "IMBU_SAVE_PATH_PREFIX" in os.environ:
-  _IMBU_SAVE_PATH_PREFIX = os.environ["IMBU_SAVE_PATH_PREFIX"]
-else:
-  raise KeyError("Required IMBU_SAVE_PATH_PREFIX missing from environment")
 
 g_models = {} # Global model cache
 
@@ -108,10 +102,7 @@ class FluentWrapper(object):
 
     if model not in g_models:
       loadPath = os.path.join(_IMBU_LOAD_PATH_PREFIX, model)
-      savePath = os.path.join(_IMBU_SAVE_PATH_PREFIX, model)
-      g_models[model] = imbu.createModel(model,
-                                         loadPath=loadPath,
-                                         savePath=savePath)
+      g_models[model] = imbu.createModel(model, loadPath=loadPath)
 
     results = []
     if text:

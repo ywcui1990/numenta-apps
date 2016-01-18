@@ -117,7 +117,6 @@ docker run \
   -d \
   -p 8080:80 \
   -e IMBU_LOAD_PATH_PREFIX=${IMBU_LOAD_PATH_PREFIX} \
-  -e IMBU_SAVE_PATH_PREFIX=${IMBU_SAVE_PATH_PREFIX} \
   -e CORTICAL_API_KEY=${CORTICAL_API_KEY} \
   -e IMBU_RETINA_ID=${IMBU_RETINA_ID} \
   imbu:latest
@@ -135,8 +134,6 @@ A few salient points about the command(s) above:
 - `-p 8080:80` maps port 80 in the container to port 8080 on the host.
 - `-e IMBU_LOAD_PATH_PREFIX=${IMBU_LOAD_PATH_PREFIX}` specifies the location
   from which pre-trained models will be loaded.
-- `-e IMBU_SAVE_PATH_PREFIX=${IMBU_SAVE_PATH_PREFIX}` specifies the location
-  to which models will be saved (if saved at all).
 - `-e CORTICAL_API_KEY=${CORTICAL_API_KEY}` defines the `CORTICAL_API_KEY`
   environment variable in the container.  For the command above to work as-is
   you must have `CORTICAL_API_KEY` set in your own environment!  You may specify
@@ -181,7 +178,6 @@ export IMBU_DOCKER_EXTRAS="-v <path to cache>:/opt/numenta/imbu/cache -v <path t
 export CORTICAL_API_KEY="<cortical.io api key>"
 export IMBU_RETINA_ID="en_associative"
 export IMBU_LOAD_PATH_PREFIX="/opt/numenta/imbu/engine"
-export IMBU_SAVE_PATH_PREFIX="/opt/numenta/imbu/engine"
 ```
 
 Once running, you can monitor progress of the container in real-time by running
