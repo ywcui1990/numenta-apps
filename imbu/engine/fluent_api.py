@@ -115,9 +115,9 @@ class FluentWrapper(object):
 
     results = []
     if text:
-      sortedDistances = imbu.query(g_models[model], text)
+      _, idList, sortedDistances = imbu.query(g_models[model], text)
       formattedDistances = imbu.formatResults(sortedDistances)
-      for sID, dist in formattedDistances:
+      for sID, dist in zip(idList, formattedDistances):
         results.append({"id": sID,
                         "text": imbu.dataDict[sID],
                         "score": dist.item()})
