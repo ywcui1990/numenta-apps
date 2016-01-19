@@ -317,21 +317,21 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
     
     /** Datasource delegate to return number of rows in a cell.
     */
-    func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int{
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
         return metricChartData.count
     }
     
     
     /** bind data to cell and return the cell
     */
-    func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell!{
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
         let cell = self.instanceTable.dequeueReusableCellWithIdentifier("metricCell")
         
         cell?.selectionStyle = UITableViewCellSelectionStyle.None
         let metricCell =  cell    as! MetricCell?
 
         if ( metricCell == nil ){
-          return metricCell
+          return metricCell!
         }
         
         metricCell?.chart.emptyTextString = "Market Closed"
@@ -356,7 +356,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
         
         
         loadChartData( metricCell!, data: cellData)
-        return cell
+        return cell!
     }
     
     /** Handle selection of row

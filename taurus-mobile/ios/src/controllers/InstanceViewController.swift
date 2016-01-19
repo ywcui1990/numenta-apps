@@ -312,7 +312,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     
 
     
-    func tableView(tableView: UITableView!, numberOfRowsInSection section: Int) -> Int{
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int{
         
         let data = tableData[ getSectionIndex(section)]
         if (data != nil){
@@ -321,7 +321,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         return 0
     }
     
-    func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell!{
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
         let cell:InstanceCell? = self.instanceTable.dequeueReusableCellWithIdentifier("InstanceCell") as! InstanceCell?
 
         cell?.backgroundColor = UIColor.clearColor()
