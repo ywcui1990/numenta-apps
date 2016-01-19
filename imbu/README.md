@@ -102,6 +102,7 @@ TBD
 1. Get [cortical.io](http://www.cortical.io/) API key from http://www.cortical.io/resources_apikey.html
 1. Create `CORTICAL_API_KEY` environment variable with your new API key.
 1. Create `IMBU_RETINA_ID` environment variable with the name of the *retina* to use.
+1. Create `IMBU_LOAD_PATH_PREFIX` environment variable with the root directory for pre-trained models
 
 ### Run Imbu in Docker
 
@@ -114,6 +115,7 @@ docker run \
   --name imbu \
   -d \
   -p 8080:80 \
+  -e IMBU_LOAD_PATH_PREFIX=${IMBU_LOAD_PATH_PREFIX} \
   -e CORTICAL_API_KEY=${CORTICAL_API_KEY} \
   -e IMBU_RETINA_ID=${IMBU_RETINA_ID} \
   imbu:latest
@@ -129,6 +131,8 @@ A few salient points about the command(s) above:
 - `--name imbu` names the container `imbu`
 - `-d` causes the container to run in `daemon` mode in the background
 - `-p 8080:80` maps port 80 in the container to port 8080 on the host.
+- `-e IMBU_LOAD_PATH_PREFIX=${IMBU_LOAD_PATH_PREFIX}` specifies the location
+  from which pre-trained models will be loaded.
 - `-e CORTICAL_API_KEY=${CORTICAL_API_KEY}` defines the `CORTICAL_API_KEY`
   environment variable in the container.  For the command above to work as-is
   you must have `CORTICAL_API_KEY` set in your own environment!  You may specify
@@ -172,6 +176,7 @@ either `source` at-will, or in your bash profile.  For example:
 export IMBU_DOCKER_EXTRAS="-v <path to cache>:/opt/numenta/imbu/cache -v <path to nupic.research>:/opt/numenta/nupic.research"
 export CORTICAL_API_KEY="<cortical.io api key>"
 export IMBU_RETINA_ID="en_associative"
+export IMBU_LOAD_PATH_PREFIX="/opt/numenta/imbu/engine"
 ```
 
 Once running, you can monitor progress of the container in real-time by running

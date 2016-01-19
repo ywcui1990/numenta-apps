@@ -20,170 +20,38 @@
 """
 Implements Imbu's web API.
 """
-from collections import namedtuple
 import json
 import logging
-from multiprocessing import JoinableQueue, Process
 import os
 import pkg_resources
-from threading import Thread
-import traceback
 import web
 
-from uwsgidecorators import postfork, thread
-
-from htmresearch.encoders import EncoderTypes
-from htmresearch.frameworks.nlp.classification_model import ClassificationModel
-from htmresearch.frameworks.nlp.classify_fingerprint import (
-  ClassificationModelFingerprint)
-#from htmresearch.frameworks.nlp.classify_htm import ClassificationModelHTM
-from htmresearch.frameworks.nlp.classify_keywords import (
-  ClassificationModelKeywords)
-from htmresearch.support.csv_helper import readCSV
+from htmresearch.frameworks.nlp.imbu import ImbuModels
+from htmresearch.frameworks.nlp.model_factory import ClassificationModelTypes
 
 
 
 g_log = logging.getLogger(__name__)
 
 
-_DATA_PATH = os.getenv(
-  "IMBU_DATA", pkg_resources.resource_filename(__name__, "data.csv"))
-_MODEL_MAPPING = {
-  "CioWordFingerprint": ClassificationModelFingerprint,
-  "CioDocumentFingerprint": ClassificationModelFingerprint,
-  "Keywords": ClassificationModelKeywords,
-#  "HTMNetwork": ClassificationModelHTM,
-}
-_DEFAULT_MODEL_NAME = "CioWordFingerprint"
-_MODEL_SIMILARITY_METRIC = "pctOverlapOfInput"
 
+# There is no longer training in imbu web app.  User must specify loadPath
+if "IMBU_LOAD_PATH_PREFIX" in os.environ:
+  _IMBU_LOAD_PATH_PREFIX = os.environ["IMBU_LOAD_PATH_PREFIX"]
+else:
+  raise KeyError("Required IMBU_LOAD_PATH_PREFIX missing from environment")
 
-InferDocumentTask = namedtuple("InferDocumentTask", "document, returnDetailedResults, sortResults")
+g_models = {} # Global model cache
 
-
-
-class ModelProcess(Process):
-  """ multiprocessing.Process subclass; Executes model operations in separate
-  process, communicating over JoinableQueue for synchronous results
-  """
-
-
-  def __init__(self, modelObj, inputQueue, outputQueue):
-    """
-    :param modelObj: Model
-    :param inputQueue: JoinableQueue in which process receives input
-    :param outputQueue: JoinableQueue to which process publishes output
-    """
-    super(ModelProcess, self).__init__()
-    self._inputQueue = inputQueue
-    self._outputQueue = outputQueue
-    self.modelObj = modelObj
-
-
-  def run(self):
-    """ Listen for input, perform task, return results, repeat.  Forever.
-    """
-
-    while True:
-      try:
-        output = None
-
-        # Blocking get
-        obj = self._inputQueue.get()
-
-        if isinstance(obj, InferDocumentTask):
-          output = self.modelObj.inferDocument(document=obj.document,
-                                            returnDetailedResults=obj.returnDetailedResults,
-                                            sortResults=obj.sortResults)
-
-        # Blocking put
-        self._outputQueue.put(output)
-
-      except Exception as err:
-        traceback.print_exc(file=open(str(os.getpid()) + ".out", "w"))
-
-        # Blocking put
-        self._outputQueue.put(err)
-
-      # Input has been handled
-      self._inputQueue.task_done()
-
-      # Output has been handled
-      self._outputQueue.join()
-
-
-
-
-
-class SynchronousBackgroundModelProxy(object):
-  """ Executes model process in background, blocks in foreground.
-  Instances of SynchronousBackgroundModelProxy serve as proxies in the
-  foreground to long-running processes running in the background.  A
-  light-weight RPC mechanism is implemented in prepData(), encodeSamples(),
-  trainModel(), trainText(), inferDocument(), and more; 
-  the internal implementation ensures that the RPC calls block in the 
-  foreground.  In order to execute RPC calls in parallel, you must use threads 
-  to execute the functions, as is done in setupModelWorkers() to create, 
-  prepare, and train the models at startup.
-  """
-
-
-  def __init__(self, modelObj):
-    self.inputQueue = JoinableQueue(1)
-    self.outputQueue = JoinableQueue(1)
-    modelProcess = ModelProcess(modelObj, self.inputQueue, self.outputQueue)
-    self._modelProcess = modelProcess
-    self._modelProcess.start()
-
-
-  # Begin RPC definitions.  See handlers in ModelProcess.run()
-
-
-  def inferDocument(self, document, returnDetailedResults, sortResults):
-    return self._submitTask(InferDocumentTask._make([document, returnDetailedResults, sortResults]))
-
-
-  # End RPC definitions
-
-
-  def _submitTask(self, inputValue):
-    """
-    :param object inputValue: Instance of a class that defines a task that is
-      recognized, and handled, by ModelProcess.run().  See *Task namedtuples
-      defined in this module.
-    """
-    # Blocking put
-    self.inputQueue.put(inputValue)
-
-    # Wait for input to be handled
-    self.inputQueue.join()
-
-    # Blocking get
-    outputValue = self.outputQueue.get()
-
-    # Output has been received
-    self.outputQueue.task_done()
-
-    if isinstance(outputValue, Exception):
-      raise outputValue
-    else:
-      return outputValue
-
-
-  @property
-  def process(self):
-    """ Public accessor method for internal model process
-    """
-    return self._modelProcess
-
-
-  def terminateAndCleanup(self):
-    self._modelProcess.terminate()
-
-
-  def __del__(self):
-    self.terminateAndCleanup()
-
+imbu = ImbuModels(
+  cacheRoot=os.environ.get("MODEL_CACHE_DIR", os.getcwd()),
+  modelSimilarityMetric=None,
+  dataPath=os.environ.get("IMBU_DATA",
+                          pkg_resources.resource_filename(__name__,
+                                                          "data.csv")),
+  retina=os.environ["IMBU_RETINA_ID"],
+  apiKey=os.environ["CORTICAL_API_KEY"]
+)
 
 
 def addStandardHeaders(contentType="application/json; charset=UTF-8"):
@@ -213,84 +81,6 @@ def addCORSHeaders():
 
 
 
-def loadJSON(jsonPath):
-  try:
-    with pkg_resources.resource_filename(__name__, jsonPath) as f:
-      return json.load(f)
-  except IOError as e:
-    print "Could not find JSON at '{}'.".format(jsonPath)
-    raise e
-
-
-# Indicates global ready status of all models.  g_ready will transition to
-# True when all models have been created, trained, and are ready to handle
-# requests
-g_ready = False
-
-g_models = {}
-
-# Get data and order by unique ID
-g_csvdata = (
-  readCSV(_DATA_PATH, numLabels=0)
-)
-g_samples = dict((i, sample[0]) for i, sample in enumerate(g_csvdata.values()))
-
-# Each unique sample is assigned its own category
-g_categoryCount = len(g_samples)
-
-
-
-def createModel(modelName, modelFactory):
-  """Return an instantiated model."""
-
-  global g_models
-  
-  modelDir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                          modelName)
-
-  try:
-    print "Attempting to load from", modelDir
-    model = ClassificationModel.load(modelDir)
-    modelProxy = SynchronousBackgroundModelProxy(model)
-    print "Model loaded from", modelDir
-
-  except IOError:
-    print "Model failed to load from", modelDir
-
-  g_models[modelName] = modelProxy
-
-
-
-@postfork
-@thread
-def setupModelWorkers():
-  """ Create all models.
-  This function is decorated by the uwsgi-provided postfork decorator to ensure
-  that the model proxy objects (and their queues) are created in the same
-  worker process as the request handlers.
-  """
-  global g_ready
-
-  threads = []
-
-  for modelName, modelFactory in _MODEL_MAPPING.iteritems():
-    createAndTrainModelThread = Thread(target=createModel,
-                                       args=(modelName, modelFactory))
-
-    createAndTrainModelThread.start()
-    threads.append(createAndTrainModelThread)
-
-  print "waiting for models..."
-
-  for thread in threads:
-    thread.join()
-
-  g_ready = True
-
-  print "Models ready!"
-
-
-
 class FluentWrapper(object):
 
   def query(self, model, text):
@@ -310,16 +100,17 @@ class FluentWrapper(object):
 
     global g_models
 
+    if model not in g_models:
+      loadPath = os.path.join(_IMBU_LOAD_PATH_PREFIX, model)
+      g_models[model] = imbu.createModel(model, loadPath, None)
+
     results = []
     if text:
-      _, idList, sortedDistances = g_models[model].inferDocument(
-        text, returnDetailedResults=True, sortResults=True)
-
-      formattedDistances = (1.0 - sortedDistances) * 100
-
+      _, idList, sortedDistances = imbu.query(g_models[model], text)
+      formattedDistances = imbu.formatResults(sortedDistances)
       for sID, dist in zip(idList, formattedDistances):
         results.append({"id": sID,
-                        "text": g_samples[sID],
+                        "text": imbu.dataDict[sID],
                         "score": dist.item()})
 
     return results
@@ -327,7 +118,7 @@ class FluentWrapper(object):
 
 
 class DefaultHandler(object):
-  def GET(self):  # pylint: disable=R0201,C0103
+  def GET(self, *args):  # pylint: disable=R0201,C0103
     addStandardHeaders("text/html; charset=UTF-8")
     return "<html><body><h1>Welcome to Nupic Fluent</h1></body></html>"
 
@@ -336,24 +127,24 @@ class DefaultHandler(object):
 class FluentAPIHandler(object):
   """Handles API requests"""
 
-  def OPTIONS(self, modelName=_DEFAULT_MODEL_NAME): # pylint: disable=R0201,C0103
+  def OPTIONS(self, modelName=ImbuModels.defaultModelType): # pylint: disable=R0201,C0103
     addStandardHeaders()
     addCORSHeaders()
-    if modelName not in g_models:
+    if modelName not in ClassificationModelTypes.getTypes():
       raise web.notfound("%s Model not found" % modelName)
 
 
-  def GET(self):
+  def GET(self, *args):
     """ GET global ready status.  Returns "true" when all models have been
     created and are ready for queries.
     """
     addStandardHeaders()
     addCORSHeaders()
 
-    return json.dumps(g_ready)
+    return json.dumps(True)
 
 
-  def POST(self, modelName=_DEFAULT_MODEL_NAME): # pylint: disable=R0201,C0103
+  def POST(self, modelName=ImbuModels.defaultModelType): # pylint: disable=R0201,C0103
     addStandardHeaders()
     addCORSHeaders()
 
@@ -361,7 +152,7 @@ class FluentAPIHandler(object):
 
     data = web.data()
     if data:
-      if modelName not in g_models:
+      if modelName not in ClassificationModelTypes.getTypes():
         raise web.notfound("%s Model not found" % modelName)
 
       if isinstance(data, basestring):
@@ -372,7 +163,7 @@ class FluentAPIHandler(object):
     else:
       # no sample data, just return all samples
       response = [{"id": item[0], "text": item[1], "score": 0}
-        for item in g_samples.items()]
+        for item in imbu.dataDict.items()]
 
     return json.dumps(response)
 
