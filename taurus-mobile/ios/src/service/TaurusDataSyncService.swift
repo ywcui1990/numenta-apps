@@ -52,16 +52,16 @@ public class TaurusDataSyncService: DataSyncService{
         if (now >= DataUtils.timestampFromDate(date!)) {
             // Download the previous hour
             from -= DataUtils.MILLIS_PER_HOUR;
-            let units : NSCalendarUnit = [NSCalendarUnit.NSYearCalendarUnit,
-                NSCalendarUnit.NSMonthCalendarUnit     ,
-                NSCalendarUnit.NSDayCalendarUnit ,
-                NSCalendarUnit.NSHourCalendarUnit ,
-                NSCalendarUnit.NSMinuteCalendarUnit]
+            let units : NSCalendarUnit = [NSCalendarUnit.Year,
+                NSCalendarUnit.Month,
+                NSCalendarUnit.Day,
+                NSCalendarUnit.Hour,
+                NSCalendarUnit.Minute]
             
             
            
             var newDate =  NSCalendar.currentCalendar().dateByAddingUnit(
-                NSCalendarUnit.NSHourCalendarUnit, // adding hours
+                NSCalendarUnit.Hour, // adding hours
                 value: 1,
                 toDate: nowDate ,
                 options: []
