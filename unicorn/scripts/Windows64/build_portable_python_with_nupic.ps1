@@ -34,9 +34,10 @@ $nupic_bindings_whl_url = "http://s3-us-west-2.amazonaws.com/artifacts.numenta.o
 $nupic_bindings_whl_path = "$wheelhouse_path\nupic.bindings-$nupic_bindings_version-cp27-none-win_amd64.whl"
 
 # nupic
-$nupic_zip_url = "https://github.com/numenta/nupic/archive/master.zip"
-$nupic_zip_path = "$PSScriptRoot\nupic.zip"
-$nupic_path = "$PSScriptRoot\nupic"
+$nupic_version = "0.3.6"
+$nupic_zip_url = "https://github.com/numenta/nupic/archive/$nupic_version.zip"
+$nupic_zip_path = "$PSScriptRoot\nupic-$nupic_version.zip"
+$nupic_path = "$PSScriptRoot\nupic-$nupic_version"
 
 # Utility function to unzip files
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -62,7 +63,7 @@ Write-Host "==> Downloading Python ..."
 Invoke-WebRequest -Uri $python_msi_url -OutFile $python_msi_path
 
 Write-Host "==> Installing Python ..."
-Start-Process  -Wait -FilePath msiexec -ArgumentList /quiet, /a, python-$python_version.msi, ALLUSERS=0, TARGETDIR=$portable_python_path
+Start-Process  -Wait -FilePath msiexec -ArgumentList /q, /a, python-$python_version.msi, ALLUSERS=0, TARGETDIR=$portable_python_path
 
 Write-Host "==> Downloading get-pip.py ..."
 Invoke-WebRequest -Uri $get_pip_url -OutFile $get_pip_path 
@@ -70,11 +71,11 @@ Invoke-WebRequest -Uri $get_pip_url -OutFile $get_pip_path
 Write-Host "==> Installing pip ..."
 Invoke-Expression "$portable_python_path\python.exe $get_pip_path"
 
-Write-Host "==> Downloading Microsoft Visual C++ Compiler for Python ..."
+Write-Host "==> Downloadlsing Microsoft Visual C++ Compiler for Python ..."
 Invoke-WebRequest -Uri $msft_vc_msi_url -OutFile $msft_vc_msi_path
 
 Write-Host "==> Installing Microsoft Visual C++ Compiler for Python ..."
-Start-Process -Wait -FilePath msiexec -ArgumentList /quiet, /a, VCForPython.msi, ALLUSERS=1
+Start-Process -Wait -FilePath msiexec -ArgumentList /q, /a, VCForPython.msi, ALLUSERS=1
 
 Write-Host "==> Downloading nupic.bindings wheel ..."
 Invoke-WebRequest -Uri $nupic_bindings_whl_url -OutFile $nupic_bindings_whl_path
@@ -90,7 +91,8 @@ Unzip $nupic_zip_path $nupic_path
 
 Write-Host "==> Building nupic wheel ..."
 Invoke-Expression "$portable_python_path\Scripts\pip.exe install wheel"
-Invoke-Expression "$portable_python_path\python.exe $nupic_path\nupic-master\setup.py bdist_wheel -d $wheelhouse_path"
+Invoke-Expression "$portable_python_path\python.exe $nupic_path\$nupic_path\setup.py bdist_wheel -d $wheelhouse_path"
 
 Write-Host "==> Installing nupic wheel ..."
-Invoke-Expression "$portable_python_path\Scripts\pip.exe install $wheelhouse_path\nupic-0.3.7.dev0-py2-none-any.whl"
+Invoke-Expression "$portable_python_path\Scripts\pip.exe install $wheelhouse_path\nupic-$nupic_version.dev0-py2-none-any.whl"
+
