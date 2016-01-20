@@ -104,16 +104,12 @@ class FluentWrapper(object):
       loadPath = os.path.join(_IMBU_LOAD_PATH_PREFIX, model)
       g_models[model] = imbu.createModel(model, loadPath, None)
 
-    results = []
     if text:
       _, idList, sortedDistances = imbu.query(g_models[model], text)
-      formattedDistances = imbu.formatResults(sortedDistances)
-      for sID, dist in zip(idList, formattedDistances):
-        results.append({"id": sID,
-                        "text": imbu.dataDict[sID],
-                        "score": dist.item()})
+      return imbu.formatResults(sortedDistances, idList)
 
-    return results
+    else:
+      return []
 
 
 
