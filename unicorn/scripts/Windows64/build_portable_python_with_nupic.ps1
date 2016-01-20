@@ -1,14 +1,17 @@
-# Prerequisite: Install Microsoft .NET Framework 3.5 (to be able to install Microsoft Visuall C++ for Python)
+# Prerequisite: Install Microsoft .NET Framework 3.5 (to be able to install 
+# Microsoft Visuall C++ for Python)
 # 
 # To run this script:
 # 1. Start Windows PowerShell with the "Run as Administrator" option.
-#    Only members of the Administrators group on the computer can change the execution policy.
-# 2. Enable running unsigned scripts by entering: Set-ExecutionPolicy RemoteSigned
-#    This will allow running unsigned scripts that you write on your local computer and signed scripts from Internet.
+#    Only members of the Administrators group on the computer can change 
+#    the execution policy.
+# 2. Enable running unsigned scripts: Set-ExecutionPolicy RemoteSigned
+#    This will allow running unsigned scripts that you write on your local
+#   computer and signed scripts from Internet.
 
 # Python 
 $python_version = "2.7.11"
-$portable_python_path = "C:\Users\marion\build_ppython\portable_python"
+$portable_python_path = "$PSScriptRoot\portable_python"
 $python_msi_url = "https://www.python.org/ftp/python/2.7.11/python-$python_version.amd64.msi"
 $python_msi_path = "$PSScriptRoot\python-$python_version.msi"
 
