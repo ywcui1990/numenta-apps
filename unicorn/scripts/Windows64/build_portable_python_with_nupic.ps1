@@ -15,7 +15,7 @@ $script_path = split-path -parent $MyInvocation.MyCommand.Definition
 $python_version = "2.7.11"
 $portable_python_path = "$script_path\portable_python"
 $python_msi_url = "https://www.python.org/ftp/python/$python_version/python-$python_version.amd64.msi"
-$python_msi_path = "$script_path\python-$python_version.msi"
+$python_msi_path = "$script_path\python-$python_version.amd64.msi"
 
 # Pip
 $get_pip_url = "https://bootstrap.pypa.io/get-pip.py"
@@ -65,7 +65,7 @@ Write-Host "==> Downloading Python ..."
 Invoke-WebRequest -Uri $python_msi_url -OutFile $python_msi_path
 
 Write-Host "==> Installing Python ..."
-Start-Process  -Wait -FilePath msiexec -ArgumentList /silent, /a, $python_msi_path, ALLUSERS=0, TARGETDIR=$portable_python_path
+Start-Process  -Wait -FilePath msiexec -ArgumentList /a, $python_msi_path, ALLUSERS=0, TARGETDIR=$portable_python_path, /qn
 
 Write-Host "==> Downloading get-pip.py ..."
 Invoke-WebRequest -Uri $get_pip_url -OutFile $get_pip_path 
