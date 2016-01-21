@@ -39,7 +39,7 @@ $nupic_bindings_whl_path = "$wheelhouse_path\nupic.bindings-$nupic_bindings_vers
 $nupic_version = "0.3.6"
 $nupic_zip_url = "https://github.com/numenta/nupic/archive/$nupic_version.zip"
 $nupic_zip_path = "$script_path\nupic-$nupic_version.zip"
-$nupic_path = "$script_path\nupic-$nupic_version"
+$nupic_path = "$script_path\nupic-$nupic_version\nupic-$nupic_version"
 
 # Utility function to unzip files
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -70,7 +70,7 @@ Start-Process  -Wait -FilePath msiexec -ArgumentList /a, $python_msi_path, ALLUS
 Write-Host "==> Downloading get-pip.py ..."
 Invoke-WebRequest -Uri $get_pip_url -OutFile $get_pip_path 
 
-Write-Host "==> Installing pip ..."
+Write-Host "==> Installing pip ... $portable_python_path\python.exe $get_pip_path"
 Invoke-Expression "$portable_python_path\python.exe $get_pip_path"
 
 Write-Host "==> Downloadlsing Microsoft Visual C++ Compiler for Python ..."
