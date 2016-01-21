@@ -157,8 +157,8 @@ class FluentAPIHandler(object):
         raise web.badrequest("Invalid Data. Query data must be a string")
 
     else:
-      # no sample data, just return all samples
-      response = [{"id": item[0], "text": item[1], "score": 0}
+      # No sample data, just return all samples
+      response = [{"id": item[0], "text": item[1][0], "score": 0}
         for item in imbu.dataDict.items()]
 
     return json.dumps(response)
