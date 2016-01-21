@@ -27,7 +27,7 @@ $msft_net_exe_path = "$script_path\dotNetFx35setup.exe"
 
 # Microsoft Visual C++ for Python
 $msft_vc_msi_url = "https://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi"
-$msft_vc_msi_path = "$script_path\VCForPython.msi"
+$msft_vc_msi_path = "$script_path\VCForPython27.msi"
 
 # nupic.bindings
 $wheelhouse_path = "$script_path\wheelhouse"
@@ -65,19 +65,19 @@ Write-Host "==> Downloading Python ..."
 Invoke-WebRequest -Uri $python_msi_url -OutFile $python_msi_path
 
 Write-Host "==> Installing Python ..."
-Start-Process  -Wait -FilePath msiexec -ArgumentList /a, $python_msi_path, ALLUSERS=0, TARGETDIR=$portable_python_path, /qn
+Start-Process  -Wait -FilePath msiexec -ArgumentList /i, $python_msi_path, ALLUSERS=0, TARGETDIR=$portable_python_path, /passive, /norestart
 
 Write-Host "==> Downloading get-pip.py ..."
 Invoke-WebRequest -Uri $get_pip_url -OutFile $get_pip_path 
 
-Write-Host "==> Installing pip ... $portable_python_path\python.exe $get_pip_path"
+Write-Host "==> Installing pip ..."
 Invoke-Expression "$portable_python_path\python.exe $get_pip_path"
 
-Write-Host "==> Downloadlsing Microsoft Visual C++ Compiler for Python ..."
+Write-Host "==> Downloading Microsoft Visual C++ Compiler for Python ..."
 Invoke-WebRequest -Uri $msft_vc_msi_url -OutFile $msft_vc_msi_path
 
 Write-Host "==> Installing Microsoft Visual C++ Compiler for Python ..."
-Start-Process -Wait -FilePath msiexec -ArgumentList /q, /a, VCForPython.msi, ALLUSERS=1
+Start-Process -Wait -FilePath msiexec -ArgumentList /i, VCForPython27.msi, /passive, /norestart
 
 Write-Host "==> Downloading nupic.bindings wheel ..."
 Invoke-WebRequest -Uri $nupic_bindings_whl_url -OutFile $nupic_bindings_whl_path
