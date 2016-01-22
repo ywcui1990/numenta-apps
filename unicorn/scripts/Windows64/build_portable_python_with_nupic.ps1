@@ -8,7 +8,9 @@
 param (
     [string]$nupic_unzip_path = (split-path -parent $MyInvocation.MyCommand.Definition),
     [switch]$install_nupic = $false,
-    [switch]$cleanup = $false
+    [switch]$cleanup = $false,
+    [string]$vc_disk = "C:"
+
 )
 
 Write-Host "==> Will unzip nupic source to: $nupic_unzip_path"
@@ -86,10 +88,11 @@ Write-Host "==> Downloading Microsoft Visual C++ Compiler for Python ..."
 Invoke-WebRequest -Uri $msft_vc_msi_url -OutFile $script_path\$msft_vc_msi
 
 Write-Host "==> Installing Microsoft Visual C++ Compiler for Python ..."
-Start-Process -Wait -FilePath msiexec -ArgumentList /a, $msft_vc_msi, /passive, /norestart, TARGETDIR=$script_path
+Start-Process -Wait -FilePath msiexec -ArgumentList /a, $msft_vc_msi, /passive, /norestart
 
-Write-Host "==> Setting VC++ for Python env variables"
-Invoke-Expression "$script_path\Microsoft\Visual C++ for Python\9.0\vcvarsall.bat"
+Write-Host "==> Adding VC++ for Python to the path ..."
+$env:Path = "$vc_disk\Microsoft\Visual C++ for Python\9.0";
+Write-Host "* New path: $env:Path*"
 
 if ($install_nupic) {
     Write-Host "==> Downloading nupic.bindings wheel ..."

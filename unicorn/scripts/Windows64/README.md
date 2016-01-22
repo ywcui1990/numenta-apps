@@ -10,9 +10,10 @@ Only members of the Administrators group on the computer can change the executio
 
 This script will install a portable python distribution with nupic. The options are:
 ```
--cleanup: Clean the build dir and make sure python or VC++ for Python are installed from scratch.
--install_nupic: Install nupic (and nupic.bindings)
--nupic_unzip_path: Path to where to install nupic.
+-cleanup: (default: False) Clean the build dir and make sure python or VC++ for Python are installed from scratch.
+-install_nupic: (default: False) Install nupic (and nupic.bindings)
+-nupic_unzip_path: (default: <build_script_dir>) Path where to install nupic.
+-vc_disk: (default: "C:") Name of the disk where Visual C++ for Python installs on your system.
 ```
 
 For example, to cleanup the build dir and install nupic in the directory Z:\tmp:
