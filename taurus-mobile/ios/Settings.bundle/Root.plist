@@ -50,13 +50,13 @@
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
-			<string>Notifications</string>
+			<string>Notifications Per Company</string>
 		</dict>
 		<dict>
 			<key>Type</key>
 			<string>PSMultiValueSpecifier</string>
 			<key>Title</key>
-			<string>Max Notifications Per Company</string>
+			<string>Max Notifications</string>
 			<key>Key</key>
 			<string>maxNotificationsPerCompany</string>
 			<key>DefaultValue</key>
