@@ -96,4 +96,4 @@ Invoke-Expression "$portable_python_path\Scripts\pip.exe install wheel"
 Invoke-Expression "$portable_python_path\python.exe $nupic_path\nupic-$nupic_version\setup.py bdist_wheel -d $wheelhouse_path"
 
 Write-Host "==> Installing nupic wheel ..."
-Invoke-Expression "$portable_python_path\Scripts\pip.exe install $wheelhouse_path\nupic-$nupic_version.dev0-py2-none-any.whl"
+Invoke-Expression "$portable_python_path\Scripts\pip.exe install $wheelhouse_path\nupic-$nupic_version-py2-none-any.whl"
