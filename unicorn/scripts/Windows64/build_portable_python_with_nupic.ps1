@@ -86,7 +86,7 @@ Write-Host "==> Downloading Microsoft Visual C++ Compiler for Python ..."
 Invoke-WebRequest -Uri $msft_vc_msi_url -OutFile $script_path\$msft_vc_msi
 
 Write-Host "==> Installing Microsoft Visual C++ Compiler for Python ..."
-Start-Process -Wait -FilePath msiexec -ArgumentList /a, $msft_vc_msi, /passive, /norestart
+Start-Process -Wait -FilePath msiexec -ArgumentList /a, $msft_vc_msi, ALLUSERS=1, /passive, /norestart
 
 if ($install_nupic) {
     Write-Host "==> Downloading nupic.bindings wheel ..."
