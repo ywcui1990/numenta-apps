@@ -16,4 +16,6 @@ This script will install a portable python distribution with nupic. The options 
 ```
 
 For example, to cleanup the build dir and install nupic in the directory Z:\tmp:
-`.\test-build.ps1 -cleanup -install_nupic  -nupic_unzip_path "Z:\tmp"`
+```
+.\build_portable_python_with_nupic.ps1 -cleanup -install_nupic  -nupic_unzip_path "Z:\tmp"
+```
