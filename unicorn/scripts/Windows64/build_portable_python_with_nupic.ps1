@@ -1,45 +1,44 @@
 # Prerequisite: Install Microsoft .NET Framework 3.5 (to be able to install 
 # Microsoft Visuall C++ for Python)
 # 
-# To run this script:
-# 1. Start Windows PowerShell with the "Run as Administrator" option.
-#    Only members of the Administrators group on the computer can change 
-#    the execution policy.
-# 2. Enable running unsigned scripts: Set-ExecutionPolicy RemoteSigned
-#    This will allow running unsigned scripts that you write on your local
-#   computer and signed scripts from Internet.
+# To run this script, start Windows PowerShell with the "Run as Administrator" 
+# option. Only members of the Administrators group on the computer can change 
+# the execution policy.
 
+param (
+    [string]$nupic_unzip_path = (split-path -parent $MyInvocation.MyCommand.Definition),
+    [switch]$install_nupic = $false,
+    [switch]$cleanup = $false
+)
+
+Write-Host "==> Will unzip nupic source to: $nupic_unzip_path"
 $script_path = split-path -parent $MyInvocation.MyCommand.Definition
 
 # Python 
 $python_version = "2.7.11"
-$portable_python_path = "portable_python"
+$portable_python_dir = "portable_python"
 $python_msi_url = "https://www.python.org/ftp/python/$python_version/python-$python_version.amd64.msi"
-$python_msi_path = "python-$python_version.amd64.msi"
+$python_msi = "python-$python_version.amd64.msi"
 
 # Pip
 $get_pip_url = "https://bootstrap.pypa.io/get-pip.py"
-$get_pip_path = "get-pip.py"
-
-# Microsoft .NET
-#$msft_net_exe_url = "https://download.microsoft.com/download/7/0/3/703455ee-a747-4cc8-bd3e-98a615c3aedb/dotNetFx35setup.exe"
-#$msft_net_exe_path = "dotNetFx35setup.exe"
+$get_pip = "get-pip.py"
 
 # Microsoft Visual C++ for Python
 $msft_vc_msi_url = "https://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi"
-$msft_vc_msi_path = "VCForPython27.msi"
+$msft_vc_msi = "VCForPython27.msi"
 
 # nupic.bindings
-$wheelhouse_path = "wheelhouse"
+$wheelhouse_dir = "wheelhouse"
 $nupic_bindings_version = "0.2.8.dev0"
 $nupic_bindings_whl_url = "http://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/releases/nupic.bindings/nupic.bindings-$nupic_bindings_version-cp27-none-win_amd64.whl"
-$nupic_bindings_whl_path = "$wheelhouse_path\nupic.bindings-$nupic_bindings_version-cp27-none-win_amd64.whl"
+$nupic_bindings_whl= "bindings-$nupic_bindings_version-cp27-none-win_amd64.whl"
 
 # nupic
 $nupic_version = "0.3.6"
 $nupic_zip_url = "https://github.com/numenta/nupic/archive/$nupic_version.zip"
-$nupic_zip_path = "nupic-$nupic_version.zip"
-$nupic_path = "nupic"
+$nupic_zip = "nupic-$nupic_version.zip"
+$nupic_dir = "nupic"
 
 # Utility function to unzip files
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -50,50 +49,72 @@ function Unzip
     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
 }
 
-Write-Host "==> Cleaning up files and directories ..."
-Remove-Item -Force -ErrorAction Ignore $python_msi_path
-Remove-Item -Force -ErrorAction Ignore $get_pip_path
-Remove-Item -Force -ErrorAction Ignore $msft_vc_msi_path
-Remove-Item -Force -ErrorAction Ignore $nupic_zip_path
-Remove-Item -Force -ErrorAction Ignore $portable_python_path -Recurse
-Remove-Item -Force -ErrorAction Ignore $wheelhouse_path -Recurse
-Remove-Item -Force -ErrorAction Ignore $nupic_path -Recurse
-New-Item $portable_python_path -type Directory | Out-Null
-New-Item $wheelhouse_path -type Directory | Out-Null
+if ($cleanup){
+    Write-Host "==> Uninstalling Python ..."
+    Start-Process  -Wait -FilePath msiexec -ArgumentList /x, $python_msi, /passive, /norestart
+
+    Write-Host "==> Uninstalling Microsoft Visual C++ Compiler for Python ..."
+    Start-Process -Wait -FilePath msiexec -ArgumentList /x, $msft_vc_msi, /passive, /norestart
+
+    Write-Host "==> Cleaning up files and directories ..."
+
+    Remove-Item -Force -ErrorAction Ignore $script_path/$python_msi
+    Remove-Item -Force -ErrorAction Ignore $script_path/$get_pip
+    Remove-Item -Force -ErrorAction Ignore $script_path/$msft_vc_msi
+    Remove-Item -Force -ErrorAction Ignore $script_path/$nupic_zip
+    Remove-Item -Force -ErrorAction Ignore $script_path/$portable_python_dir -Recurse
+    Remove-Item -Force -ErrorAction Ignore $script_path/$wheelhouse_dir -Recurse
+    Remove-Item -Force -ErrorAction Ignore $script_path/$nupic_dir -Recurse
+
+    New-Item $script_path/$portable_python_dir -type Directory | Out-Null
+    New-Item $script_path/$wheelhouse_dir -type Directory | Out-Null
+}
 
 Write-Host "==> Downloading Python ..."
-Invoke-WebRequest -Uri $python_msi_url -OutFile $python_msi_path
+Invoke-WebRequest -Uri $python_msi_url -OutFile $script_path\$python_msi
 
 Write-Host "==> Installing Python ..."
-Start-Process  -Wait -FilePath msiexec -ArgumentList /a, $python_msi_path, ALLUSERS=0, TARGETDIR=$script_path\$portable_python_path, /passive, /norestart
+Start-Process  -Wait -FilePath msiexec -ArgumentList /a, $python_msi, ALLUSERS=0, TARGETDIR=$script_path\$portable_python_dir, /passive, /norestart
 
 Write-Host "==> Downloading get-pip.py ..."
-Invoke-WebRequest -Uri $get_pip_url -OutFile $get_pip_path 
+Invoke-WebRequest -Uri $get_pip_url -OutFile $get_pip
 
 Write-Host "==> Installing pip ..."
-Invoke-Expression "$portable_python_path\python.exe $get_pip_path"
+Invoke-Expression "$script_path\$portable_python_dir\python.exe $get_pip"
 
 Write-Host "==> Downloading Microsoft Visual C++ Compiler for Python ..."
-Invoke-WebRequest -Uri $msft_vc_msi_url -OutFile $msft_vc_msi_path
+Invoke-WebRequest -Uri $msft_vc_msi_url -OutFile $script_path\$msft_vc_msi
 
 Write-Host "==> Installing Microsoft Visual C++ Compiler for Python ..."
-Start-Process -Wait -FilePath msiexec -ArgumentList /i, VCForPython27.msi, /passive, /norestart
+Start-Process -Wait -FilePath msiexec -ArgumentList /i, $msft_vc_msi, /passive, /norestart
 
-Write-Host "==> Downloading nupic.bindings wheel ..."
-Invoke-WebRequest -Uri $nupic_bindings_whl_url -OutFile $nupic_bindings_whl_path
+if ($install_nupic) {
+    Write-Host "==> Downloading nupic.bindings wheel ..."
+    Invoke-WebRequest -Uri $nupic_bindings_whl_url -OutFile $script_path\$wheelhouse_dir\$nupic_bindings_whl
 
-Write-Host "==> Installing nupic.bindings wheel ..."
-Invoke-Expression "$portable_python_path\Scripts\pip.exe install $nupic_bindings_whl_path"
+    Write-Host "==> Installing nupic.bindings wheel ..."
+    Invoke-Expression "$script_path\$portable_python_dir\Scripts\pip.exe install wheel"
+    Invoke-Expression "$script_path\$portable_python_dir\Scripts\pip.exe install $wheelhouse_dir\$nupic_bindings_whl"
 
-Write-Host "==> Downloading nupic source ..."
-Invoke-WebRequest -Uri $nupic_zip_url -OutFile $nupic_zip_path
+    Write-Host "==> Downloading nupic source ..."
+    Invoke-WebRequest -Uri $nupic_zip_url -OutFile $script_path\$nupic_zip
 
-Write-Host "==> Unzip nupic source"
-Unzip $script_path\$nupic_zip_path $script_path\$nupic_path
+    Write-Host "==> Unzipping nupic source ..."
+    Unzip $script_path\$nupic_zip $nupic_unzip_path\$nupic_dir
 
-Write-Host "==> Building nupic wheel ..."
-Invoke-Expression "$portable_python_path\Scripts\pip.exe install wheel"
-Invoke-Expression "$portable_python_path\python.exe $nupic_path\nupic-$nupic_version\setup.py bdist_wheel -d $wheelhouse_path"
+    Write-Host "==> Building nupic wheel ..."
+    cd $nupic_unzip_path\$nupic_dir\nupic-$nupic_version
+    Invoke-Expression "$script_path\$portable_python_dir\python.exe setup.py bdist_wheel -d $script_path\$wheelhouse_dir"
+    cd $script_path
 
-Write-Host "==> Installing nupic wheel ..."
-Invoke-Expression "$portable_python_path\Scripts\pip.exe install $wheelhouse_path\nupic-$nupic_version-py2-none-any.whl"
+    Write-Host "==> Installing nupic wheel ..."
+    Invoke-Expression "$portable_python_dir\Scripts\pip.exe install $wheelhouse_dir\nupic-$nupic_version-py2-none-any.whl"
+
+    Write-Host "==> Testing that nupic and nupic.bindings were succesfully installed ..."
+    $test_nupic_bindings_import = "$portable_python_dir\python.exe -c 'import nupic.bindings.math'"
+    $test_nupic_import = "$portable_python_dir\python.exe -c 'import nupic.algorithms.anomaly_likelihood'"
+    Write-Host $test_nupic_bindings_import
+    Write-Host $test_nupic_import
+    Invoke-Expression $test_nupic_bindings_import
+    Invoke-Expression $test_nupic_import
+}
