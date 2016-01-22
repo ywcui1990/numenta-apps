@@ -92,7 +92,7 @@
 			<key>Key</key>
 			<string>market_data</string>
 			<key>DefaultValue</key>
-			<string>http://www.xignite.com</string>
+			<string>Xignite Inc.</string>
 		</dict>
 	</array>
 </dict>
