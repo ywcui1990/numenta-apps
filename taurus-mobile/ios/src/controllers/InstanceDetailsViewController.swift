@@ -390,47 +390,48 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
                 controller.chartData = self.chartData
 
                 let cell = self.instanceTable.cellForRowAtIndexPath(indexPath) as! MetricCell
+
                 if cell.chart.selection != -1 {
-                    let selection = cell.chart.selection
-                    let data = controller.metricChartData?.anomalies
-                    var timestamp = controller.chartData?.endDate
-                    if data != nil {
-                        let firstBucket = data!.count - TaurusApplication.getTotalBarsOnChart()
-                        var selectedBucket = firstBucket + selection/12
 
-                        var value = data![selectedBucket]
+                    if let data = controller.metricChartData?.anomalies {
+                        if !data.isEmpty {
+                            let firstBucket = data.count - TaurusApplication.getTotalBarsOnChart()
+                            let selection = cell.chart.selection
+                            var selectedBucket = firstBucket + selection/12
+                            var value = data[selectedBucket]
+                            let selectedTime = value.0 + Int64(selection % 12) * DataUtils.METRIC_DATA_INTERVAL
 
-                        let selectedTime = value.0 + Int64(selection % 12) * DataUtils.METRIC_DATA_INTERVAL
+                            controller.timeToSelect = selectedTime
 
-                        controller.timeToSelect = selectedTime
+                            if self.marketHoursOnly {
+                                // Find end of collapsed period to be expanded
+                                while selectedBucket < data.count - 1 {
+                                    if value.0 == 0 {
+                                        selectedBucket--
+                                        value = data[selectedBucket]
+                                        break
+                                    }
+                                    selectedBucket++
+                                    value = data[selectedBucket]
+                                }
 
-                        if self.marketHoursOnly {
-                            // Find end of collapsed period to be expanded
-                            while selectedBucket < data!.count - 1 {
+                                // Check if selected collapsed bar
                                 if value.0 == 0 {
-                                    selectedBucket--
-                                    value = data![selectedBucket]
-                                    break
+                                    if selectedBucket > 0 {
+                                        // Get previous bar instead
+                                        selectedBucket--
+                                        value = data[selectedBucket]
+                                    }
                                 }
-                                selectedBucket++
-                                value = data![selectedBucket]
-                            }
 
-                            // Check if selected collapsed bar
-                            if value.0 == 0 {
-                                if selectedBucket > 0 {
-                                    // Get previous bar instead
-                                    selectedBucket--
-                                    value = data![selectedBucket]
+                                // Use end of period as end date (right most bar)
+                                var timestamp = controller.chartData?.endDate
+                                if value.0 != 0 {
+                                    timestamp = value.0
                                 }
-                            }
 
-                            // Use end of period as end date (right most bar)
-                            if value.0 != 0 {
-                                timestamp = value.0
+                                controller.chartData?.setEndDate(DataUtils.dateFromTimestamp(timestamp!))
                             }
-
-                            controller.chartData?.setEndDate(DataUtils.dateFromTimestamp(timestamp!))
                         }
                     }
                 }
