@@ -28,9 +28,11 @@ Implements param finder, which automatically
 """
 
 import csv
-from datetime import datetime
 import dateutil.parser
+import json
 import numpy
+from nupic.frameworks.opf.common_models.cluster_params import (
+  getScalarMetricWithTimeOfDayAnomalyParams)
 
 _modeFromNameDict = {
   'v': 0,
@@ -214,8 +216,8 @@ class paramFinder(object):
     numDataPts = len(value)
 
     (self.medianSamplingInterval,
-    self.medianAbsoluteDevSamplingInterval) = self.getMedianSamplingInterval(
-                                              timeStamp)
+     self.medianAbsoluteDevSamplingInterval) = self.getMedianSamplingInterval(
+      timeStamp)
 
     (timeStamp, value) = self.resampleData(timeStamp,
                                            value,
@@ -238,15 +240,18 @@ class paramFinder(object):
 
     self.aggFunc = self.getAggregationFunction(timeStamp, value)
 
-    #TODO: add model configuration here to output info
     outputInfo = {
       "aggInfo": self.getAggInfo(),
-      "modelInfo": None,
+      "modelInfo": self.getModelParams(value),
     }
     return outputInfo
 
 
   def getAggInfo(self):
+    """
+    Return a JSON object containing the aggregation window size and
+    aggregation function type
+    """
     if self.suggestedSamplingInterval <= self.medianSamplingInterval:
       aggInfo = None
     else:
@@ -255,6 +260,37 @@ class paramFinder(object):
         "func": self.aggFunc
       }
     return aggInfo
+
+
+  def getModelParams(self, value):
+    """
+    Return a JSON object describing the model configuration
+    :param value: numpy array of metric data, used to compute min/max values
+    """
+    modelParams = getScalarMetricWithTimeOfDayAnomalyParams(
+      metricData=value)
+
+    if self.useTimeOfDay:
+      modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
+        ['c0_timeOfDay'] = dict(fieldname='c0',
+                                name='c0',
+                                type='DateEncoder',
+                                timeOfDay=(21, 9))
+    else:
+      modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
+        ['c0_timeOfDay'] = None
+
+    if self.useDayOfWeek:
+      modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
+        ['c0_dayOfWeek'] = dict(fieldname='c0',
+                                name='c0',
+                                type='DateEncoder',
+                                dayOfWeek=(21, 3))
+    else:
+      modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
+        ['c0_dayOfWeek'] = None
+    return modelParams
+
 
   @staticmethod
   def readCSVFiles(fileName,
@@ -453,7 +489,7 @@ class paramFinder(object):
       localMaxValue = cwtVar[localMax[i]]
       nearestLocalMinValue = numpy.max(leftLocalMinValue, rightLocalMinValue)
 
-      if ((localMaxValue - nearestLocalMinValue) / nearestLocalMinValue
+      if ((localMaxValue - nearestLocalMinValue) / localMaxValue
             > 0.1 and localMaxValue > baseline_value):
         strongLocalMax.append(localMax[i])
 
