@@ -29,7 +29,6 @@ Implements param finder, which automatically
 
 import csv
 import dateutil.parser
-import json
 import numpy
 from nupic.frameworks.opf.common_models.cluster_params import (
   getScalarMetricWithTimeOfDayAnomalyParams)
@@ -56,11 +55,11 @@ def _convolve(a, v, mode='full'):
 
   Parameters
   ----------
-  a : (N,) array_like
+  :param a : (N,) array_like
       First one-dimensional input array.
-  v : (M,) array_like
+  :param v : (M,) array_like
       Second one-dimensional input array.
-  mode : {'full', 'valid', 'same'}, optional
+  :param mode : {'full', 'valid', 'same'}, optional
       'full':
         By default, mode is 'full'.  This returns the convolution
         at each point of overlap, with an output shape of (N+M-1,). At
@@ -79,7 +78,7 @@ def _convolve(a, v, mode='full'):
 
   Returns
   -------
-  out : ndarray
+  :return out : ndarray
       Discrete, linear convolution of `a` and `v`.
 
   References
@@ -118,15 +117,15 @@ def _rickerWavelet(points, a):
 
   Parameters
   ----------
-  points : int
+  :param points : int
       Number of points in `vector`.
       Will be centered around 0.
-  a : scalar
+  :param a : scalar
       Width parameter of the wavelet.
 
   Returns
   -------
-  vector : (N,) ndarray
+  :return vector : (N,) ndarray
       Array of length `points` in shape of ricker curve.
 
   """
@@ -152,9 +151,9 @@ def _cwt(data, wavelet, widths):
 
   Parameters
   ----------
-  data : (N,) ndarray
+  :param data : (N,) ndarray
       data on which to perform the transform.
-  wavelet : function
+  :param wavelet : function
       Wavelet function, which should take 2 arguments.
       The first argument is the number of points that the returned vector
       will have (len(wavelet(width,length)) == length).
@@ -164,7 +163,7 @@ def _cwt(data, wavelet, widths):
   widths : (M,) sequence
       Widths to use for transform.
 
-  Returns
+  :return Returns
   -------
   cwt: (M, N) ndarray
       Will have shape of (len(data), len(widths)).
@@ -202,6 +201,7 @@ class paramFinder(object):
   def run(self):
     """
     Run paramFinder on input csv file
+
     :return: JSON object with the following properties
       "aggInfo" aggregation information, JSON null if no aggregation is needed
         otherwise, a JSON object contains the folowing properties
@@ -238,7 +238,7 @@ class paramFinder(object):
      self.useDayOfWeek) = self.determineEncoderTypes(
       self._cwtVar, self._timeScale)
 
-    self.aggFunc = self.getAggregationFunction(timeStamp, value)
+    self.aggFunc = self.getAggregationFunction()
 
     outputInfo = {
       "aggInfo": self.getAggInfo(),
@@ -265,6 +265,7 @@ class paramFinder(object):
   def getModelParams(self, value):
     """
     Return a JSON object describing the model configuration
+
     :param value: numpy array of metric data, used to compute min/max values
     """
     modelParams = getScalarMetricWithTimeOfDayAnomalyParams(
@@ -300,6 +301,7 @@ class paramFinder(object):
     """
     Read csv data file, the data file must have two columns
     that contains time stamps and data values
+
     :param fileName: str, path to input csv file
     :param rowOffset: int, index of first data row in csv
     :param timestampIndex: int, column index of the timeStamp
@@ -339,6 +341,7 @@ class paramFinder(object):
     Resample data at new sampling interval using linear interpolation
     Note: the resampling function is using interpolation,
     it may not be appropriate for aggregation purpose
+
     :param timeStamp: timeStamp in numpy datetime64 type
     :param value: value of the time series.
     :param newSamplingInterval: numpy timedelta64 format
@@ -388,6 +391,8 @@ class paramFinder(object):
   @staticmethod
   def getMedianSamplingInterval(timeStamp):
     """
+    calculate median and median absolute deviation of sampling interval
+
     :param timeStamp: a numpy array of sampling times
     :return: medianSamplingInterval, numpy timedelta64 format in unit of seconds
              medianAbsoluteDev, median absolute deviation of sampling interval
@@ -412,6 +417,7 @@ class paramFinder(object):
                                  numDataPts):
     """
     Determine data aggregation window
+
     :param timeScale: numpy array, corresponding time scales for wavelet coeffs
     :param cwtVar: numpy array, wavelet coefficients variance over time
     :param thresh: float, cutoff threshold between 0 and 1
@@ -449,6 +455,9 @@ class paramFinder(object):
     periodicity is close to a strong maxima:
     (1) horizontally must within the nearest local minimum
     (2) vertically must within 50% of the peak of the strong maxima
+
+    :param cwtVar: numpy array, wavelet coefficients variance over time
+    :param timeScale: numpy array, corresponding time scales for wavelet coeffs
     """
 
     # Detect all local minima and maxima when the first difference reverse sign
@@ -505,7 +514,7 @@ class paramFinder(object):
     return useTimeOfDay, useDayOfWeek
 
 
-  def getAggregationFunction(self, timeStamp, value):
+  def getAggregationFunction(self):
     """
     Return the aggregation function type:
       ("sum" for transactional data types
@@ -513,10 +522,8 @@ class paramFinder(object):
 
     The data type is determined via a data type indicator, defined as the
     ratio between median absolute deviation and median of the sampling interval.
-    :param: timeStamps: numpy array of time stamps
-    :param: values: numpy array of data values
 
-    @return aggFunc: a string with value "sum" or "mean"
+    :return aggFunc: a string with value "sum" or "mean"
     """
 
     dataTypeIndicator = (self.medianAbsoluteDevSamplingInterval /
