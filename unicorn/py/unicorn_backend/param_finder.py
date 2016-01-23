@@ -182,27 +182,40 @@ class paramFinder(object):
                fileName,
                rowOffset=1,
                timestampIndex=0,
-               valueIndex=1,
-               datetimeFormat="YYYY-MM-DD HH:mm:ss"):
+               valueIndex=1):
     """
     :param fileName: str, path to input csv file
     :param rowOffset: int, index of first data row in csv
     :param timestampIndex: int, column index of the timeStamp
     :param valueIndex: int, column index of the value
-    :param datetimeFormat: str, Datetime Format (from ISO 8601)
     """
 
     self._thresh = 0.2
+    self._fileName = fileName
+    self._rowOffset = rowOffset
+    self._timestampIndex = timestampIndex
+    self._valueIndex = valueIndex
 
-    (timeStamp, value) = self.readCSVFiles(fileName,
-                                           rowOffset,
-                                           timestampIndex,
-                                           valueIndex,
-                                           datetimeFormat)
 
+  def run(self):
+    """
+    Run paramFinder on input csv file
+    :return: JSON object with the following properties
+      "aggInfo" aggregation information, JSON null if no aggregation is needed
+        otherwise, a JSON object contains the folowing properties
+          "windowSize": aggregation window size in seconds (integer)
+          "func": A string representation of the aggregation function (string)
+            the following values are supported: "sum", "mean"
+    """
+    (timeStamp, value) = self.readCSVFiles(self._fileName,
+                                           self._rowOffset,
+                                           self._timestampIndex,
+                                           self._valueIndex)
     numDataPts = len(value)
 
-    self.medianSamplingInterval = self.getMedianSamplingInterval(timeStamp)
+    (self.medianSamplingInterval,
+    self.medianAbsoluteDevSamplingInterval) = self.getMedianSamplingInterval(
+                                              timeStamp)
 
     (timeStamp, value) = self.resampleData(timeStamp,
                                            value,
@@ -223,13 +236,31 @@ class paramFinder(object):
      self.useDayOfWeek) = self.determineEncoderTypes(
       self._cwtVar, self._timeScale)
 
+    self.aggFunc = self.getAggregationFunction(timeStamp, value)
+
+    #TODO: add model configuration here to output info
+    outputInfo = {
+      "aggInfo": self.getAggInfo(),
+      "modelInfo": None,
+    }
+    return outputInfo
+
+
+  def getAggInfo(self):
+    if self.suggestedSamplingInterval <= self.medianSamplingInterval:
+      aggInfo = None
+    else:
+      aggInfo = {
+        "windowSize": self.suggestedSamplingInterval.astype('int'),
+        "func": self.aggFunc
+      }
+    return aggInfo
 
   @staticmethod
   def readCSVFiles(fileName,
                    rowOffset=1,
                    timestampIndex=0,
-                   valueIndex=1,
-                   datetimeFormat="YYYY-MM-DD HH:mm:ss"):
+                   valueIndex=1):
     """
     Read csv data file, the data file must have two columns
     that contains time stamps and data values
@@ -237,7 +268,6 @@ class paramFinder(object):
     :param rowOffset: int, index of first data row in csv
     :param timestampIndex: int, column index of the timeStamp
     :param valueIndex: int, column index of the value
-    :param datetimeFormat: str, Datetime Format (from ISO 8601)
     :return: timeStamps: numpy array of time stamps
              values: numpy array of data values
     """
@@ -250,11 +280,16 @@ class paramFinder(object):
       timeStamps = []
       values = []
 
+      maxRowNumber = 20000
+      numRow = 0
       for row in fileReader:
-        # timeStamp = datetime.strptime(row[timestampIndex], datetimeFormat)
         timeStamp = dateutil.parser.parse(row[timestampIndex])
         timeStamps.append(numpy.datetime64(timeStamp))
         values.append(row[valueIndex])
+
+        numRow += 1
+        if numRow >= maxRowNumber:
+          break
 
       timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
       values = numpy.array(values, dtype='float32')
@@ -318,15 +353,19 @@ class paramFinder(object):
   def getMedianSamplingInterval(timeStamp):
     """
     :param timeStamp: a numpy array of sampling times
-    :return: newSamplingInterval, numpy timedelta64 format in unit of seconds
+    :return: medianSamplingInterval, numpy timedelta64 format in unit of seconds
+             medianAbsoluteDev, median absolute deviation of sampling interval
     """
     if timeStamp.dtype != numpy.dtype('<M8[s]'):
       timeStamp = timeStamp.astype('datetime64[s]')
 
-    timeStampDeltas = numpy.diff(timeStamp)
+    samplingIntervals = numpy.diff(timeStamp)
 
-    medianSamplingInterval = numpy.median(timeStampDeltas)
-    return medianSamplingInterval
+    medianSamplingInterval = numpy.median(samplingIntervals)
+    medianAbsoluteDev = numpy.median(numpy.abs(
+      samplingIntervals - medianSamplingInterval))
+
+    return medianSamplingInterval, medianAbsoluteDev
 
 
   @staticmethod
@@ -428,3 +467,27 @@ class paramFinder(object):
           useDayOfWeek = True
 
     return useTimeOfDay, useDayOfWeek
+
+
+  def getAggregationFunction(self, timeStamp, value):
+    """
+    Return the aggregation function type:
+      ("sum" for transactional data types
+       "mean" for non-transactional data types)
+
+    The data type is determined via a data type indicator, defined as the
+    ratio between median absolute deviation and median of the sampling interval.
+    :param: timeStamps: numpy array of time stamps
+    :param: values: numpy array of data values
+
+    @return aggFunc: a string with value "sum" or "mean"
+    """
+
+    dataTypeIndicator = (self.medianAbsoluteDevSamplingInterval /
+                         self.medianSamplingInterval)
+    if dataTypeIndicator > 0.2:
+      aggFunc = "sum"  # "transactional"
+    else:
+      aggFunc = "mean"  # "non-transactional"
+
+    return aggFunc
