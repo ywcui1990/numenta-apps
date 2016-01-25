@@ -1,7 +1,9 @@
 # Portable python build script
 
 ## Prerequisites
-Install Microsoft .NET Framework 3.5 (to be able to install Microsoft Visuall C++ for Python)
+* Install Microsoft .NET Framework 3.5 (to be able to install Microsoft 
+Visuall C++ for Python)
+* Install Visual C++ for python (at least version 9.0)
 
 ## Run
 
@@ -13,7 +15,6 @@ This script will install a portable python distribution with nupic. The options 
 -cleanup: (default: False) Clean the build dir and make sure python or VC++ for Python are installed from scratch.
 -install_nupic: (default: False) Install nupic (and nupic.bindings)
 -nupic_unzip_path: (default: <build_script_dir>) Path where to install nupic.
--vc_disk: (default: "C:") Name of the disk where Visual C++ for Python installs on your system.
 ```
 
 For example, to cleanup the build dir and install nupic in the directory Z:\tmp:

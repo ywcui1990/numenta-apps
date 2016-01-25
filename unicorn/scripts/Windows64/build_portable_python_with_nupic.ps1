@@ -1,5 +1,5 @@
-# Prerequisite: Install Microsoft .NET Framework 3.5 (to be able to install 
-# Microsoft Visuall C++ for Python)
+# Prerequisites: Install Microsoft .NET Framework 3.5 and Microsoft Visual C++
+# for Python.
 # 
 # To run this script, start Windows PowerShell with the "Run as Administrator" 
 # option. Only members of the Administrators group on the computer can change 
@@ -8,9 +8,7 @@
 param (
     [string]$nupic_unzip_path = (split-path -parent $MyInvocation.MyCommand.Definition),
     [switch]$install_nupic = $false,
-    [switch]$cleanup = $false,
-    [string]$vc_disk = "C:"
-
+    [switch]$cleanup = $false
 )
 
 Write-Host "==> Will unzip nupic source to: $nupic_unzip_path"
@@ -25,10 +23,6 @@ $python_msi = "python-$python_version.amd64.msi"
 # Pip
 $get_pip_url = "https://bootstrap.pypa.io/get-pip.py"
 $get_pip = "get-pip.py"
-
-# Microsoft Visual C++ for Python
-$msft_vc_msi_url = "https://download.microsoft.com/download/7/9/6/796EF2E4-801B-4FC4-AB28-B59FBF6D907B/VCForPython27.msi"
-$msft_vc_msi = "VCForPython27.msi"
 
 # nupic.bindings
 $wheelhouse_dir = "wheelhouse"
@@ -55,14 +49,10 @@ if ($cleanup){
     Write-Host "==> Uninstalling Python ..."
     Start-Process  -Wait -FilePath msiexec -ArgumentList /x, $python_msi, /passive, /norestart
 
-    Write-Host "==> Uninstalling Microsoft Visual C++ Compiler for Python ..."
-    Start-Process -Wait -FilePath msiexec -ArgumentList /x, $msft_vc_msi, /passive, /norestart
-
     Write-Host "==> Cleaning up files and directories ..."
 
     Remove-Item -Force -ErrorAction Ignore $script_path/$python_msi
     Remove-Item -Force -ErrorAction Ignore $script_path/$get_pip
-    Remove-Item -Force -ErrorAction Ignore $script_path/$msft_vc_msi
     Remove-Item -Force -ErrorAction Ignore $script_path/$nupic_zip
     Remove-Item -Force -ErrorAction Ignore $script_path/$portable_python_dir -Recurse
     Remove-Item -Force -ErrorAction Ignore $script_path/$wheelhouse_dir -Recurse
@@ -83,16 +73,6 @@ Invoke-WebRequest -Uri $get_pip_url -OutFile $get_pip
 
 Write-Host "==> Installing pip ..."
 Invoke-Expression "$script_path\$portable_python_dir\python.exe $get_pip"
-
-Write-Host "==> Downloading Microsoft Visual C++ Compiler for Python ..."
-Invoke-WebRequest -Uri $msft_vc_msi_url -OutFile $script_path\$msft_vc_msi
-
-Write-Host "==> Installing Microsoft Visual C++ Compiler for Python ..."
-Start-Process -Wait -FilePath msiexec -ArgumentList /a, $msft_vc_msi, /passive, /norestart
-
-Write-Host "==> Adding VC++ for Python to the path ..."
-$env:Path = "$vc_disk\Microsoft\Visual C++ for Python\9.0";
-Write-Host "* New path: $env:Path*"
 
 if ($install_nupic) {
     Write-Host "==> Downloading nupic.bindings wheel ..."
