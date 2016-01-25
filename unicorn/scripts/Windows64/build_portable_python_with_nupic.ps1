@@ -1,9 +1,4 @@
-# Prerequisites: Install Microsoft .NET Framework 3.5 and Microsoft Visual C++
-# for Python.
-# 
-# To run this script, start Windows PowerShell with the "Run as Administrator" 
-# option. Only members of the Administrators group on the computer can change 
-# the execution policy.
+# See README.md for instructions about prerequisites and how to run this script.
 
 param (
     [string]$nupic_unzip_path = (split-path -parent $MyInvocation.MyCommand.Definition),
