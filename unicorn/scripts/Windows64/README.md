@@ -1,9 +1,9 @@
 # Portable python build script
 
 ## Prerequisites
-* Install Microsoft .NET Framework 3.5 (to be able to install Microsoft 
-Visuall C++ for Python)
-* Install Visual C++ for python (at least version 9.0)
+* Install [Microsoft .NET Framework 3.5](https://www.microsoft.com/en-us/download/details.aspx?id=21) to be able to install Microsoft 
+Visual C++ for Python.
+* Install [Visual C++ for Python](http://aka.ms/vcpython27).
 
 ## Run
 
