@@ -105,8 +105,8 @@ class FluentWrapper(object):
       g_models[model] = imbu.createModel(model, loadPath, None)
 
     if text:
-      _, idList, sortedDistances = imbu.query(g_models[model], text)
-      return imbu.formatResults(sortedDistances, idList)
+      _, sortedIds, sortedDistances = imbu.query(g_models[model], text)
+      return imbu.formatResults(sortedDistances, sortedIds)
 
     else:
       return []
