@@ -106,9 +106,7 @@ class FluentWrapper(object):
 
     if text:
       _, sortedIds, sortedDistances = imbu.query(g_models[model], text)
-      return imbu.formatResults(g_models[model].indexingFactor,
-                                sortedDistances,
-                                sortedIds)
+      return imbu.formatResults(sortedDistances, sortedIds)
 
     else:
       return []
