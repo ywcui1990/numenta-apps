@@ -188,6 +188,9 @@
                                 <rect key="frame" x="0.0" y="0.0" width="334" height="560"/>
                                 <constraints>
                                     <constraint firstAttribute="height" secondItem="FB6-0o-aU1" secondAttribute="width" multiplier="16:9" id="7Oi-gp-GQJ"/>
+                                    <constraint firstAttribute="width" secondItem="FB6-0o-aU1" secondAttribute="height" multiplier="167:280" id="HBu-0s-2Ap"/>
+                                    <constraint firstAttribute="width" constant="720" id="gWz-8i-ml6"/>
+                                    <constraint firstAttribute="height" constant="1280" id="hTV-HQ-Y4q"/>
                                 </constraints>
                             </imageView>
                         </subviews>
@@ -536,11 +539,11 @@
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="EIf-RS-xnw">
                                 <rect key="frame" x="20" y="101" width="560" height="435"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <mutableString key="text"> HTM for Stocks monitors stock price, stock volume and Twitter volume for about 200 large cap, U.S. companies and alerts you if something unusual is happening.  Results are ranked by the most anomalous to enable you to quickly determine what is important.
+                                <string key="text"> HTM for Stocks monitors stock price, stock volume and Twitter volume for about 200 large cap, U.S. companies and alerts you if something unusual is happening.  Results are ranked by the most anomalous to enable you to quickly determine what is important.
   
 This application allows you to experience Numenta Hierarchical Temporal Memory (HTM) technology. The HTM technology automatically learns models for each metric and each stock. The models then predict the next data point and, when the next input arrives, highlight anomalies. Numenta is making the source code for HTM for Stocks available via the NuPIC open source project (www.numenta.org) to encourage others to create new and derivative products.
         
-Contact us at feedback@numenta.com with comments or feedback.</mutableString>
+Contact us at feedback@numenta.com with comments or feedback.</string>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 <dataDetectorType key="dataDetectorTypes" link="YES"/>
