@@ -73,7 +73,8 @@ export default class SearchResultsComponent extends React.Component {
           overflow: 'auto'
         },
         score: {
-          width: '50px'
+          width: '120px',
+          textAlign: 'right'
         }
       },
       content: {
