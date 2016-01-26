@@ -52,7 +52,7 @@
 			<key>Title</key>
 			<string>Notifications Per Company</string>
 			<key>FooterText</key>
-			<string>Notifications will be shown if the application is running in the background</string>
+			<string>Notifications will be shown only if the application is running in the background</string>
 		</dict>
 		<dict>
 			<key>Type</key>
