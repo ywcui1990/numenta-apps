@@ -219,6 +219,7 @@ class TwitterViewController: UIViewController, UITableViewDataSource, UITableVie
         let tweet = items![ indexPath.item]
 
         cell?.timestamp = tsIndex
+        cell?.selectionStyle = .None
 
         if showCondensed {
             let attrs = [NSFontAttributeName : UIFont.boldSystemFontOfSize(14.0)]
