@@ -148,7 +148,7 @@ export default class SearchResultsComponent extends React.Component {
         </select>
 
         <Table selectable={false} fixedHeader={true}
-          height={styles.table.height} ref="results" style={styles.table}>
+          height={styles.table.height} ref="results">
           <TableHeader  adjustForCheckbox={false} displaySelectAll={false}>
             <TableRow>
               <TableHeaderColumn key={0} style={styles.column.summary}>
