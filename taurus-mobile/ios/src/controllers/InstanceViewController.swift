@@ -29,6 +29,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
 
     var searchController: UISearchController?
     var searchButton: UIBarButtonItem?
+    var searchSpacerButton: UIBarButtonItem?
     var favoriteSegment: UIBarButtonItem?
     var favoriteSegmentControl: UISegmentedControl?
     var searchControllerButton: UIBarButtonItem?
@@ -53,6 +54,10 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
         searchController!.searchBar.delegate = self
         searchController!.hidesNavigationBarDuringPresentation = false
         self.definesPresentationContext = true
+
+        // Add spacer to search
+        searchSpacerButton = UIBarButtonItem(barButtonSystemItem: .FixedSpace, target: self, action: nil)
+        searchSpacerButton?.width = -20
 
         // Add buttons to navigation bar
         searchButton = UIBarButtonItem(barButtonSystemItem: .Search, target: self, action: "showSearch")
@@ -159,7 +164,7 @@ class InstanceViewController: UIViewController, UITableViewDataSource, UITableVi
     /** shows search bar in navigation area
      */
     func showSearch() {
-        self.navigationItem.setRightBarButtonItems([searchControllerButton!], animated: true)
+        self.navigationItem.setRightBarButtonItems([searchSpacerButton!, searchControllerButton!], animated: true)
         self.navigationItem.setLeftBarButtonItems([], animated: true)
         searchController?.searchBar.becomeFirstResponder()
     }
