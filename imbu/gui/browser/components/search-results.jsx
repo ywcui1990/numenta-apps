@@ -19,6 +19,7 @@
 * -------------------------------------------------------------------------- */
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Material from 'material-ui';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import SearchQueryAction from '../actions/search-query';
@@ -107,6 +108,13 @@ export default class SearchResultsComponent extends React.Component {
     this._search(this.props.query, this.state.model);
   }
 
+  componentDidUpdate() {
+    let table = ReactDOM.findDOMNode(this.refs.resultBody)
+    if (table.firstChild) {
+      table.firstChild.scrollIntoViewIfNeeded()      
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     let model = this.state.model;
     let results = this.context.getStore(SearchStore).getResults(model);
@@ -160,7 +168,7 @@ export default class SearchResultsComponent extends React.Component {
               </TableHeaderColumn>
             </TableRow>
           </TableHeader>
-          <TableBody displayRowCheckbox={false}>
+          <TableBody displayRowCheckbox={false} ref="resultBody">
             {rows}
           </TableBody>
         </Table>
