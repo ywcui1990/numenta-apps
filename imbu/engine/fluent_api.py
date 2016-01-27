@@ -20,7 +20,7 @@
 """
 Implements Imbu's web API.
 """
-import json
+import simplejson as json
 import logging
 import os
 import pkg_resources
