@@ -70,7 +70,6 @@ export default class SearchStore extends BaseStore {
     * @param  {object} payload New data
     */
   _handleReceivedData(payload) {
-    console.log(payload);
     if (payload.query) {
       // Remove whitespaces
       this.query = payload.query.trim();

@@ -41,7 +41,7 @@ const {
  */
 @connectToStores([SearchStore, ServerStatusStore], (context, props) => ({
   ready: context.getStore(ServerStatusStore).isReady(),
-  query:  context.getStore(SearchStore).getQuery()
+  query: context.getStore(SearchStore).getQuery()
 }))
 export default class SearchResultsComponent extends React.Component {
 
@@ -111,7 +111,7 @@ export default class SearchResultsComponent extends React.Component {
   componentDidUpdate() {
     let table = ReactDOM.findDOMNode(this.refs.resultBody)
     if (table.firstChild) {
-      table.firstChild.scrollIntoViewIfNeeded()      
+      table.firstChild.scrollIntoViewIfNeeded()
     }
   }
 
@@ -126,7 +126,6 @@ export default class SearchResultsComponent extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     let styles = this._getStyles();
     let ready = this.props.ready;
 
@@ -138,7 +137,7 @@ export default class SearchResultsComponent extends React.Component {
             {result.text}
           </TableRowColumn>
           <TableRowColumn key={1} style={styles.column.score}>
-            {result.score.toFixed(4)}
+            {result.maxScore.toFixed(4)}
           </TableRowColumn>
         </TableRow>);
     });
