@@ -86,9 +86,9 @@ class FluentWrapper(object):
   def query(self, model, text):
     """
     Queries the model and returns an ordered list of matching samples.
-    :param str model: Model to use. Possible values are:
-                      CioWordFingerprint, CioDocumentFingerprint, CioWindows,
-                      Keywords, HTMNetwork
+    :param str model: Name of the model to use. Possible values are mapped to 
+        classes in the NLP model factory.
+
     :param str text: The text to match.
     :returns: a sequence of matching samples.
     ::
@@ -106,7 +106,7 @@ class FluentWrapper(object):
 
     if text:
       _, sortedIds, sortedDistances = imbu.query(g_models[model], text)
-      return imbu.formatResults(sortedDistances, sortedIds)
+      return imbu.formatResults(model, sortedDistances, sortedIds)
 
     else:
       return []
