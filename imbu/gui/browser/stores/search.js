@@ -85,10 +85,24 @@ export default class SearchStore extends BaseStore {
     if (payload.model) {
       let model = payload.model;
       if (payload.results) {
-        // Sort results by score
-        this.results.set(model, payload.results.sort((a, b) => {
-          return b.score - a.score;
-        }));
+        // Find and sort results by max score
+        let records = Object.keys(payload.results)
+          .map((id) => {
+            let record = payload.results[id];
+            let text = record.text;
+            let scores = record.scores;
+            // Find max
+            let maxScore = record.scores.reduce((prev, current) => {
+              return prev > current ? prev : current;
+            });
+            return {
+              text, maxScore, scores
+            };
+          })
+          .sort((a, b) => {
+            return b.maxScore - a.maxScore;
+          });
+        this.results.set(model, records);
       } else {
         // No data
         this.results.delete(model);
