@@ -93,7 +93,7 @@ class FluentWrapper(object):
     :returns: a sequence of matching samples.
     ::
     [
-        {"id": "1", "text": "sampleText", "score": "0.75"},
+        {"0": {"text": "sampleText", "scores": [0.75, ...]},
         ...
     ]
     """
@@ -144,7 +144,7 @@ class FluentAPIHandler(object):
     addStandardHeaders()
     addCORSHeaders()
 
-    response = []
+    response = {}
 
     data = web.data()
     if data:
@@ -156,10 +156,11 @@ class FluentAPIHandler(object):
       else:
         raise web.badrequest("Invalid Data. Query data must be a string")
 
-    else:
-      # No sample data, just return all samples
-      response = [{"id": item[0], "text": item[1][0], "score": 0}
-        for item in imbu.dataDict.items()]
+    if len(response) == 0:
+      # No data, just return all samples
+      # See "ImbuModels.formatResults" for expected format
+      for item in imbu.dataDict.items():
+        response[item[0]] = {"text": item[1][0], "scores": [0]}
 
     return json.dumps(response)
 
