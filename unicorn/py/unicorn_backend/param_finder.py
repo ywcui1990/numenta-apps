@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
@@ -24,24 +25,24 @@
 Implements param finder, which automatically
 1. identify appropriate data aggregation window
 2. suggest whether to use TimeOfDay encoder
-3. suggest data aggregation type (SUM or AVG)
+3. suggest data aggregation type (sum or mean)
 """
 
 import csv
-import dateutil.parser
+import datetime
+
 import numpy
+
 from nupic.frameworks.opf.common_models.cluster_params import (
   getScalarMetricWithTimeOfDayAnomalyParams)
 
-_modeFromNameDict = {
-  'v': 0,
-  's': 1,
-  'f': 2
-}
+_CORRELATION_MODE_VALID = 0
+_CORRELATION_MODE_SAME = 1
+_CORRELATION_MODE_FULL = 2
 
 
 
-def _convolve(a, v, mode='full'):
+def _convolve(vector1, vector2, mode=2):
   """
   Returns the discrete, linear convolution of two one-dimensional sequences.
 
@@ -51,26 +52,27 @@ def _convolve(a, v, mode='full'):
   distributed according to the convolution of their individual
   distributions.
 
-  If `v` is longer than `a`, the arrays are swapped before computation.
+  If `vector2` is longer than `vector1`, the arrays are swapped before
+  computation.
 
   Parameters
   ----------
-  :param a : (N,) array_like
+  :param vector1: (N,) array_like
       First one-dimensional input array.
-  :param v : (M,) array_like
+  :param vector2: (M,) array_like
       Second one-dimensional input array.
-  :param mode : {'full', 'valid', 'same'}, optional
-      'full':
+  :param mode: int that indicates mode of convolution, which takes the value of
+      2:
         By default, mode is 'full'.  This returns the convolution
         at each point of overlap, with an output shape of (N+M-1,). At
         the end-points of the convolution, the signals do not overlap
         completely, and boundary effects may be seen.
 
-      'same':
+      1:
         Mode `same` returns output of length ``max(M, N)``.  Boundary
         effects are still visible.
 
-      'valid':
+      0:
         Mode `valid` returns output of length
         ``max(M, N) - min(M, N) + 1``.  The convolution product is only given
         for points where the signals overlap completely.  Values outside
@@ -79,33 +81,29 @@ def _convolve(a, v, mode='full'):
   Returns
   -------
   :return out : ndarray
-      Discrete, linear convolution of `a` and `v`.
+      Discrete, linear convolution of `vector1` and `vector2`.
 
   References
   ----------
   .. [1] Wikipedia, "Convolution", http://en.wikipedia.org/wiki/Convolution.
 
   """
-  a, v = numpy.array(a, ndmin=1), numpy.array(v, ndmin=1)
-  if len(v) > len(a):
-    a, v = v, a
-  if len(a) == 0:
-    raise ValueError('a cannot be empty')
-  if len(v) == 0:
-    raise ValueError('v cannot be empty')
-  mode = _modeFromName(mode)
-  return numpy.core.multiarray.correlate(a, v[::-1], mode)
+  vector1 = numpy.array(vector1, ndmin=1)
+  vector2 = numpy.array(vector2, ndmin=1)
+
+  if len(vector1) == 0:
+    raise ValueError('vector1 cannot be empty')
+  if len(vector2) == 0:
+    raise ValueError('vector2 cannot be empty')
+
+  if len(vector2) > len(vector1):
+    vector1, vector2 = vector2, vector1
+
+  return numpy.core.multiarray.correlate(vector1, vector2[::-1], mode)
 
 
 
-def _modeFromName(mode):
-  if isinstance(mode, basestring):
-    return _modeFromNameDict[mode.lower()[0]]
-  return mode
-
-
-
-def _rickerWavelet(points, a):
+def _rickerWavelet(numPoints, waveletWidth):
   """
   Return a Ricker wavelet, also known as the "Mexican hat wavelet".
 
@@ -113,25 +111,24 @@ def _rickerWavelet(points, a):
 
       ``A (1 - x^2/a^2) exp(-t^2/a^2)``,
 
-  where ``A = 2/sqrt(3a)pi^1/3``.
+  where ``A = 2/sqrt(3a)pi^1/3``, a  is the width parameter of the wavelet
 
   Parameters
   ----------
-  :param points : int
+  :param points: int
       Number of points in `vector`.
       Will be centered around 0.
-  :param a : scalar
-      Width parameter of the wavelet.
+  :param a: scalar Width parameter of the wavelet.
 
   Returns
   -------
-  :return vector : (N,) ndarray
+  :return vector: (N,) ndarray
       Array of length `points` in shape of ricker curve.
 
   """
-  A = 2 / (numpy.sqrt(3 * a) * (numpy.pi ** 0.25))
-  wsq = a ** 2
-  vec = numpy.arange(0, points) - (points - 1.0) / 2
+  A = 2 / (numpy.sqrt(3 * waveletWidth) * (numpy.pi ** 0.25))
+  wsq = waveletWidth ** 2
+  vec = numpy.arange(0, numPoints) - (numPoints - 1.0) / 2
   tsq = vec ** 2
   mod = (1 - tsq / wsq)
   gauss = numpy.exp(-tsq / (2 * wsq))
@@ -172,66 +169,96 @@ def _cwt(data, wavelet, widths):
   output = numpy.zeros([len(widths), len(data)])
   for ind, width in enumerate(widths):
     waveletData = wavelet(min(10 * width, len(data)), width)
-    output[ind, :] = _convolve(data, waveletData,
-                               mode='same')
+    output[ind, :] = _convolve(data, waveletData, mode=_CORRELATION_MODE_SAME)
   return output
 
 
 
-class paramFinder(object):
+class ParamFinder(object):
   def __init__(self,
                fileName,
-               rowOffset=1,
-               timestampIndex=0,
-               valueIndex=1):
+               rowOffset,
+               timestampIndex,
+               valueIndex,
+               datetimeFormat):
     """
     :param fileName: str, path to input csv file
-    :param rowOffset: int, index of first data row in csv
-    :param timestampIndex: int, column index of the timeStamp
-    :param valueIndex: int, column index of the value
+    :param rowOffset: int, zero-based index of first data row in csv
+    :param timestampIndex: int, zero-based column index of the timeStamp
+    :param valueIndex: int, zero-based column index of the value
+    :param datetimeFormat: str, datetime format string for python's
+                          datetime.strptime
     """
 
-    self._thresh = 0.2
+    self._aggregationWindowThreshold = 0.2
     self._fileName = fileName
     self._rowOffset = rowOffset
     self._timestampIndex = timestampIndex
     self._valueIndex = valueIndex
+    self._datetimeFormat = datetimeFormat
+
+    self.medianSamplingInterval = None
+    self.medianAbsoluteDevSamplingInterval = None
+    self._cwtVar = None
+    self._timeScale = None
+    self.suggestedSamplingInterval = None
+    self.useTimeOfDay = None
+    self.useDayOfWeek = None
+    self.aggFunc = None
 
 
   def run(self):
     """
-    Run paramFinder on input csv file
+    Run ParamFinder on input csv file
 
-    :return: JSON object with the following properties
+    :return: JSON object with the following properties:
+
       "aggInfo" aggregation information, JSON null if no aggregation is needed
-        otherwise, a JSON object contains the folowing properties
+        otherwise, a JSON object contains the folowing properties:
           "windowSize": aggregation window size in seconds (integer)
           "func": A string representation of the aggregation function (string)
             the following values are supported: "sum", "mean"
+
+      "modelInfo": JSON object describing the model configuration that
+      contains the following properties:
+        “modelConfig”: OPF Model Configuration parameters (JSON object) for
+        passing to the OPF `ModelFactory.create()` method as the
+        `modelConfig` parameter.
+
+        “inferenceArgs”: OPF Model Inference parameters (JSON object) for
+        passing to the resulting model's `enableInference()` method as the
+        inferenceArgs parameter.
+
+        “timestampFieldName”: The name of the field in `modelConfig`
+        corresponding to the metric timestamp (string)
+
+        “valueFieldName”: The name of the field in `modelConfig`
+        corresponding to the metric value (string)
     """
-    (timeStamp, value) = self.readCSVFiles(self._fileName,
-                                           self._rowOffset,
-                                           self._timestampIndex,
-                                           self._valueIndex)
-    numDataPts = len(value)
+    (timeStamps, values) = self._readCSVFile(self._fileName,
+                                             self._rowOffset,
+                                             self._timestampIndex,
+                                             self._valueIndex,
+                                             self._datetimeFormat)
+    numDataPts = len(values)
 
     (self.medianSamplingInterval,
      self.medianAbsoluteDevSamplingInterval) = self.getMedianSamplingInterval(
-      timeStamp)
+      timeStamps)
 
-    (timeStamp, value) = self.resampleData(timeStamp,
-                                           value,
-                                           self.medianSamplingInterval)
+    (timeStamps, values) = self.resampleData(timeStamps,
+                                             values,
+                                             self.medianSamplingInterval)
 
     (self._cwtVar, self._timeScale) = self.calculateContinuousWaveletTransform(
-      self.medianSamplingInterval, value)
+      self.medianSamplingInterval, values)
 
     self.suggestedSamplingInterval = self.determineAggregationWindow(
-      self._timeScale,
-      self._cwtVar,
-      self._thresh,
-      self.medianSamplingInterval,
-      numDataPts)
+      timeScale=self._timeScale,
+      cwtVar=self._cwtVar,
+      thresh=self._aggregationWindowThreshold,
+      samplingInterval=self.medianSamplingInterval,
+      numDataPts=numDataPts)
 
     # decide whether to use TimeOfDay and DayOfWeek encoders
     (self.useTimeOfDay,
@@ -242,7 +269,9 @@ class paramFinder(object):
 
     outputInfo = {
       "aggInfo": self.getAggInfo(),
-      "modelInfo": self.getModelParams(value),
+      "modelInfo": self.getModelParams(values),
+      "timestampFieldName": "c0",
+      "valueFieldName": "c1"
     }
     return outputInfo
 
@@ -294,10 +323,11 @@ class paramFinder(object):
 
 
   @staticmethod
-  def readCSVFiles(fileName,
-                   rowOffset=1,
-                   timestampIndex=0,
-                   valueIndex=1):
+  def _readCSVFile(fileName,
+                   rowOffset,
+                   timestampIndex,
+                   valueIndex,
+                   datetimeFormat):
     """
     Read csv data file, the data file must have two columns
     that contains time stamps and data values
@@ -306,11 +336,15 @@ class paramFinder(object):
     :param rowOffset: int, index of first data row in csv
     :param timestampIndex: int, column index of the timeStamp
     :param valueIndex: int, column index of the value
-    :return: timeStamps: numpy array of time stamps
-             values: numpy array of data values
+    :param datetimeFormat: str, datetime format string for python's
+                          datetime.strptime
+    :return: A two-tuple (timestamps, values), where
+             timeStamps is a numpy array of datetime64 time stamps and
+             values is a numpy array of float64 data values
     """
 
-    with open(fileName, 'r') as csvFile:
+    with open(fileName, 'rU') as csvFile:
+      csv.field_size_limit(2 ** 27)
       fileReader = csv.reader(csvFile)
       for _ in xrange(rowOffset):
         fileReader.next()  # skip header line
@@ -321,7 +355,8 @@ class paramFinder(object):
       maxRowNumber = 20000
       numRow = 0
       for row in fileReader:
-        timeStamp = dateutil.parser.parse(row[timestampIndex])
+        timeStamp = datetime.datetime.strptime(row[timestampIndex], datetimeFormat)
+        # timeStamp = dateutil.parser.parse(row[timestampIndex])
         timeStamps.append(numpy.datetime64(timeStamp))
         values.append(row[valueIndex])
 
@@ -330,81 +365,85 @@ class paramFinder(object):
           break
 
       timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
-      values = numpy.array(values, dtype='float32')
+      values = numpy.array(values, dtype='float64')
 
       return timeStamps, values
 
 
   @staticmethod
-  def resampleData(timeStamp, value, newSamplingInterval):
+  def resampleData(timeStamps, values, newSamplingInterval):
     """
     Resample data at new sampling interval using linear interpolation
     Note: the resampling function is using interpolation,
     it may not be appropriate for aggregation purpose
 
-    :param timeStamp: timeStamp in numpy datetime64 type
-    :param value: value of the time series.
+    :param timeStamps: numpy array of timeStamp in datetime64 type
+    :param values: numpy array of float64 values
     :param newSamplingInterval: numpy timedelta64 format
     """
-    totalDuration = (timeStamp[-1] - timeStamp[0])
+    totalDuration = (timeStamps[-1] - timeStamps[0])
     nSampleNew = numpy.floor(totalDuration / newSamplingInterval) + 1
     nSampleNew = nSampleNew.astype('int')
 
     newTimestamp = numpy.empty(nSampleNew, dtype='datetime64[s]')
     for sampleI in xrange(nSampleNew):
-      newTimestamp[sampleI] = timeStamp[0] + sampleI * newSamplingInterval
+      newTimestamp[sampleI] = timeStamps[0] + sampleI * newSamplingInterval
 
-    newValue = numpy.interp((newTimestamp - timeStamp[0]).astype('float32'),
-                            (timeStamp - timeStamp[0]).astype('float32'), value)
+    newValue = numpy.interp((newTimestamp - timeStamps[0]).astype('float32'),
+                            (timeStamps - timeStamps[0]).astype('float32'),
+                            values)
 
     return newTimestamp, newValue
 
 
   @staticmethod
-  def calculateContinuousWaveletTransform(samplingInterval, value):
+  def calculateContinuousWaveletTransform(samplingInterval, values):
     """
     Calculate continuous wavelet transformation (CWT)
     Return variance of the cwt coefficients over time
 
     :param samplingInterval: sampling interval of the time series
-    :param value: value of the time series
-    :return cwtVar: numpy array of flaots, variance of the wavelet coeff
-    :return timeScale: numpy array of floats, corresponding time scales
+    :param values: numpy array of float64 values
+    :return a two tuple of (cwtVar, timeScale) where
+    cwtVar is a numpy array that stores variance of the wavelet coefficents
+    timeScale is a numpy array that stores the corresponding time scales
     """
 
-    widths = numpy.logspace(0, numpy.log10(len(value) / 20), 50)
+    widths = numpy.logspace(0, numpy.log10(len(values) / 20), 50)
     timeScale = widths * samplingInterval * 4
 
     # continuous wavelet transformation with ricker wavelet
-    cwtmatr = _cwt(value, _rickerWavelet, widths)
+    cwtMatrix = _cwt(values, _rickerWavelet, widths)
     # clip wavelet coefficients to minimize boundary effect
     maxTimeScale = int(widths[-1])
-    cwtmatr = cwtmatr[:, 4 * maxTimeScale:-4 * maxTimeScale]
+    cwtMatrix = cwtMatrix[:, 4 * maxTimeScale:-4 * maxTimeScale]
 
     # variance of wavelet power
-    cwtVar = numpy.var(numpy.abs(cwtmatr), axis=1)
+    cwtVar = numpy.var(numpy.abs(cwtMatrix), axis=1)
     cwtVar = cwtVar / numpy.sum(cwtVar)
 
     return cwtVar, timeScale
 
 
   @staticmethod
-  def getMedianSamplingInterval(timeStamp):
+  def getMedianSamplingInterval(timeStamps):
     """
     calculate median and median absolute deviation of sampling interval
 
-    :param timeStamp: a numpy array of sampling times
-    :return: medianSamplingInterval, numpy timedelta64 format in unit of seconds
-             medianAbsoluteDev, median absolute deviation of sampling interval
+    :param timeStamps: numpy array of timestamps in datetime64 format
+    :return: a two tuple of (medianSamplingInterval, medianAbsoluteDev) where
+            medianSamplingInterval is numpy timedelta64 in unit of seconds
+            medianAbsoluteDev is the median absolute deviation of
+            sampling interval in timedelta64 format
     """
-    if timeStamp.dtype != numpy.dtype('<M8[s]'):
-      timeStamp = timeStamp.astype('datetime64[s]')
+    if timeStamps.dtype != numpy.dtype('<M8[s]'):
+      timeStamps = timeStamps.astype('datetime64[s]')
 
-    samplingIntervals = numpy.diff(timeStamp)
+    samplingIntervals = numpy.diff(timeStamps)
 
     medianSamplingInterval = numpy.median(samplingIntervals)
-    medianAbsoluteDev = numpy.median(numpy.abs(
-      samplingIntervals - medianSamplingInterval))
+    medianAbsoluteDev = numpy.median(
+      numpy.abs(samplingIntervals - medianSamplingInterval))
 
     return medianSamplingInterval, medianAbsoluteDev
 
@@ -458,6 +497,10 @@ class paramFinder(object):
 
     :param cwtVar: numpy array, wavelet coefficients variance over time
     :param timeScale: numpy array, corresponding time scales for wavelet coeffs
+
+    :return a two tuple of (useTimeOfDay, useDayOfWeek), where
+            useTimeOfDay is bool, indicating whether to use timeOfDay encoder
+            useDayOfWeek is bool, indicating whether to use dayOfWeek encoder
     """
 
     # Detect all local minima and maxima when the first difference reverse sign

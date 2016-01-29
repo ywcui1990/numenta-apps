@@ -29,7 +29,7 @@ import logging
 import os
 import sys
 import traceback
-from param_finder import paramFinder
+from param_finder import ParamFinder
 
 g_log = logging.getLogger(__name__)
 
@@ -47,25 +47,30 @@ class _Options(object):
   __slots__ = ("fileName",
                "rowOffset",
                "timestampIndex",
-               "valueIndex")
+               "valueIndex",
+               "datetimeFormat")
 
 
   def __init__(self,
                fileName,
-               rowOffset=1,
-               timestampIndex=0,
-               valueIndex=1):
+               rowOffset,
+               timestampIndex,
+               valueIndex,
+               datetimeFormat):
     """
-    :param str modelId: model identifier
-    :param dict stats: Metric data stats per stats_schema.json in the
-      unicorn_backend package
-    :param sequence replaceParams: Parameter replacement PATH REPLACEMENT pairs
+    :param fileName: str path to input csv file
+    :param rowOffset: int, zero-based index of first data row in csv
+    :param timestampIndex: int, zero-based column index of the timeStamp
+    :param valueIndex: int, zero-based column index of the value
+    :param datetimeFormat: str, datetime format string for python's
+                          datetime.strptime
     """
     self.fileName = fileName
     self.rowOffset = rowOffset
     self.timestampIndex = timestampIndex
     self.valueIndex = valueIndex
-
+    self.datetimeFormat = datetimeFormat
+    
 
   @property
   def __dict__(self):  # pylint: disable=C0103
@@ -99,18 +104,24 @@ def _parseArgs():
 
   parser.add_argument("--rowOffset",
                       type=int,
-                      default=1,
+                      required=True,
                       help="index of first data row in csv file")
 
   parser.add_argument("--timestampIndex",
                       type=int,
-                      default=0,
+                      required=True,
                       help="zero-based column index of the timestamp")
 
   parser.add_argument("--valueIndex",
                       type=int,
-                      default=1,
+                      required=True,
                       help="zero-based column index of the data value")
+
+  parser.add_argument("--datetimeFormat",
+                      type=str,
+                      required=True,
+                      help="datetime format string for python's "
+                           "datetime.strftime")
 
   options = parser.parse_args()
 
@@ -120,7 +131,8 @@ def _parseArgs():
   return _Options(fileName=options.csv,
                   rowOffset=options.rowOffset,
                   timestampIndex=options.timestampIndex,
-                  valueIndex=options.valueIndex)
+                  valueIndex=options.valueIndex,
+                  datetimeFormat=options.datetimeFormat)
 
 
 
@@ -130,12 +142,12 @@ def main():
   g_log.addHandler(logging.NullHandler())
   try:
 
-    outputInfo = paramFinder(**vars(_parseArgs())).run()
+    outputInfo = ParamFinder(**vars(_parseArgs())).run()
     sys.stdout.write(json.dumps(outputInfo))
     sys.stdout.flush()
 
   except Exception as ex:  # pylint: disable=W0703
-    g_log.exception("paramFinder failed")
+    g_log.exception("ParamFinder failed")
 
     errorMessage = {
       "errorText": str(ex) or repr(ex),
