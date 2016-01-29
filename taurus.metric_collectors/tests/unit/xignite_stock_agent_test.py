@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 # Numenta, Inc. a separate commercial license for this software code, the
 # following terms and conditions apply:
 #
@@ -446,13 +445,19 @@ class XigniteStockAgentTestCase(unittest.TestCase):
 
 
   @patch(
+    "taurus.metric_collectors.xignite.xignite_stock_agent.transmitMetricData",
+    autospec=True)
+  @patch(
     "taurus.metric_collectors.xignite.xignite_stock_agent._getLatestSample",
     autospec=True)
   @patch(
     "taurus.metric_collectors.xignite.xignite_stock_agent.collectorsdb",
     autospec=True)
   def testForwardAfterHours(self, collectorsdb, _getLatestSample,
-                  urllib2, metricDataBatchWriter):
+                            transmitMetricData, urllib2,
+                            metricDataBatchWriter):
+    """ After-hours data should be silenty ignored.
+    """
 
     mockSample = Mock(EndDate=datetime.date(2015, 1, 15),
                       EndTime=datetime.time(17, 30, 0))
@@ -521,7 +526,16 @@ class XigniteStockAgentTestCase(unittest.TestCase):
 
     xignite_stock_agent.forward((msft,), data, security)
 
-    #import pdb; pdb.set_trace()
+    self.assertEqual(
+      collectorsdb.engineFactory.return_value.execute.call_count,
+      0,
+      "Unexpected database query issued for after-hours record. xignite_stock_"
+      "agent.forward() should silently ignore after-hours data.")
+
+    self.assertNotEqual(
+      transmitMetricData.call_count,
+      0,
+      "transmitMetricData() was not called as expected.")
 
 
   @unittest.skip("TAUR-1335")
