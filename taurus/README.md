@@ -32,8 +32,6 @@ local changes without conflicts:
 
     cp -r conf conf-user
 
-- Edit `conf-user/nginx-taurus.conf`, replacing `user ec2-user ec2-user;` with
-  `user <your username> <your group>;`.  For example `user employee1 staff;`.
 - Additionally ensure that APPLICATION_CONFIG_PATH is set in your environment.
 - If running with local dynamodb emulation, edit `conf-user/supervisord.conf` to
   uncomment the lines for the DynamoDB local test tool.
@@ -169,6 +167,14 @@ If you have an old copy of htm-it then you need to clean up RabbitMQ queues.
 ### Start nginx:
 
     sudo nginx -p . -c conf-user/nginx-taurus.conf
+
+Should you need to run nginx as a specific user and group, do so with the use
+of the `NGINX_GLOBAL_PARAMS` environment var, specifying "-g" options per
+http://nginx.org/en/docs/switches.html.
+
+For example:
+
+    export NGINX_GLOBAL_PARAMS="-g 'user root root;'"
 
 ### Start Taurus services with `supervisord`:
 
