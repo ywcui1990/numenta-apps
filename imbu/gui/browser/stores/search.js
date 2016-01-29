@@ -95,12 +95,15 @@ export default class SearchStore extends BaseStore {
             let maxScore = record.scores.reduce((prev, current) => {
               return prev > current ? prev : current;
             });
+            let sumScore = record.scores.reduce((prev, current) => {
+              return prev + current ;
+            });
             return {
-              text, maxScore, scores
+              text, maxScore, sumScore, scores
             };
           })
           .sort((a, b) => {
-            return b.maxScore - a.maxScore;
+            return b.sumScore - a.sumScore;
           });
         this.results.set(model, records);
       } else {
