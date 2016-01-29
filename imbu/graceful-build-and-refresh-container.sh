@@ -1,10 +1,10 @@
 #!/bin/bash
 
 mkdir -p `pwd`/cache
-docker stop imbu
-docker rm imbu
-docker build -t imbu:latest .
-docker run \
+docker ${IMBU_DOCKER_OPTIONS} stop imbu
+docker ${IMBU_DOCKER_OPTIONS} rm imbu
+docker ${IMBU_DOCKER_OPTIONS} build -t imbu:latest .
+docker ${IMBU_DOCKER_OPTIONS} run \
   --name imbu \
   -d \
   -p 8080:80 \
