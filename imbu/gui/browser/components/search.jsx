@@ -75,7 +75,6 @@ export default class SearchComponent extends React.Component {
 
   _search() {
     let query = this.refs.query.getValue() || '';
-    console.log(query);
     this.context.executeAction(SearchQueryAction, {query});
   }
 
