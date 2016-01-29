@@ -454,7 +454,8 @@ class XigniteStockAgentTestCase(unittest.TestCase):
     "taurus.metric_collectors.xignite.xignite_stock_agent.collectorsdb",
     autospec=True)
   def testForwardAfterHours(self, collectorsdb, _getLatestSample,
-      transmitMetricData, urllib2, metricDataBatchWriter):
+                            transmitMetricData, urllib2,
+                            metricDataBatchWriter):
     """ After-hours data should be silenty ignored.
     """
 
