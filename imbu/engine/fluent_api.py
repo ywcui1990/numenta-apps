@@ -102,7 +102,7 @@ class FluentWrapper(object):
 
     if model not in g_models:
       loadPath = os.path.join(_IMBU_LOAD_PATH_PREFIX, model)
-      g_models[model] = imbu.createModel(model, loadPath, None)
+      g_models[model] = imbu.createModel(model, str(loadPath), None)
 
     if text:
       _, sortedIds, sortedDistances = imbu.query(g_models[model], text)
