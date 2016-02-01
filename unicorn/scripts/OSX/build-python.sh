@@ -89,8 +89,6 @@ $PREFIX/bin/python setup.py install
 echo "==> Cleaning up ..."
 rm $PYTHON_SH
 echo "--> Removed: $PYTHON_SH"
-rm -rf $PREFIX
-echo "--> Removed: $PREFIX"
 rm -rf $CAPNP
 echo "--> Removed: $CAPNP"
 rm $CAPNP.tar.gz
@@ -99,3 +97,5 @@ rm -rf $NUPIC_CORE
 echo "--> Removed: $NUPIC_CORE"
 rm -rf $NUPIC
 echo "--> Removed: $NUPIC"
+rm $PYTHON_SH
+echo "--> Removed: $PYTHON_SH"
