@@ -1,12 +1,34 @@
-# This script will create a portable python distribution with 
+#!/bin/bash
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Affero Public License for more details.
+#
+# You should have received a copy of the GNU Affero Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+#
+
+
+# This script will create a portable python distribution with
 # nupic and nupic.bindings installed.
 
-if [ $# -eq 0 ]; then
-    echo "You must provide the OSX version. (E.g: ./build-python.sh 10.10)"
-    exit 1
-fi
+set -o errexit
 
-OSX_VERSION=$1
+OSX_VERSION=$(sw_vers -productVersion | awk -F '.' '{print $1 "." $2}')
+echo "==> System version: $OSX_VERSION"
 CWD=$(pwd)
 PYTHON_SH="Miniconda-latest-MacOSX-x86_64.sh"
 CAPNP="capnproto-c++-0.5.3"
@@ -82,20 +104,20 @@ cd $CWD
 git clone https://github.com/numenta/nupic.git
 
 echo "==> Installing nupic ..."
-cd $NUPIC
+cd $NUPIC
 $PREFIX/bin/pip install -r external/common/requirements.txt
-$PREFIX/bin/python setup.py install
+$PREFIX/bin/python setup.py install
 
 echo "==> Cleaning up ..."
 rm $PYTHON_SH
 echo "--> Removed: $PYTHON_SH"
-rm -rf $CAPNP
-echo "--> Removed: $CAPNP"
-rm $CAPNP.tar.gz
-echo "--> Removed: $CAPNP.tar.gz"
+rm -rf ${CAPNP}*
+echo "--> Removed: $CAPNP $CAPNP.tar.gz"
 rm -rf $NUPIC_CORE
 echo "--> Removed: $NUPIC_CORE"
 rm -rf $NUPIC
 echo "--> Removed: $NUPIC"
-rm $PYTHON_SH
-echo "--> Removed: $PYTHON_SH"
+
+# Check that it worked
+DYLD_LIBRARY_PATH=$PREFIX/lib $PREFIX/bin/python -c "import nupic.algorithms.anomaly_likelihood"
+DYLD_LIBRARY_PATH=$PREFIX/lib $PREFIX/bin/python -c "import nupic.bindings.math"
