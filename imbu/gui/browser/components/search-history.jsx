@@ -89,6 +89,7 @@ class SearchHistoryComponent extends React.Component {
   render() {
     return (
       <LeftNav docked={false} menuItems={this._getItems()}
+        menuItemClassName="historyItem"
         onChange={this._onChanged.bind(this)} ref="leftNav"/>
     );
   }

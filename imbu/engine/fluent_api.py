@@ -20,7 +20,7 @@
 """
 Implements Imbu's web API.
 """
-import json
+import simplejson as json
 import logging
 import os
 import pkg_resources
@@ -86,14 +86,14 @@ class FluentWrapper(object):
   def query(self, model, text):
     """
     Queries the model and returns an ordered list of matching samples.
-    :param str model: Model to use. Possible values are:
-                      CioWordFingerprint, CioDocumentFingerprint, CioWindows,
-                      Keywords, HTMNetwork
+    :param str model: Name of the model to use. Possible values are mapped to 
+        classes in the NLP model factory.
+
     :param str text: The text to match.
     :returns: a sequence of matching samples.
     ::
     [
-        {"id": "1", "text": "sampleText", "score": "0.75"},
+        {"0": {"text": "sampleText", "scores": [0.75, ...]},
         ...
     ]
     """
@@ -105,8 +105,8 @@ class FluentWrapper(object):
       g_models[model] = imbu.createModel(model, loadPath, None)
 
     if text:
-      _, idList, sortedDistances = imbu.query(g_models[model], text)
-      return imbu.formatResults(sortedDistances, idList)
+      _, sortedIds, sortedDistances = imbu.query(g_models[model], text)
+      return imbu.formatResults(model, text, sortedDistances, sortedIds)
 
     else:
       return []
@@ -144,7 +144,7 @@ class FluentAPIHandler(object):
     addStandardHeaders()
     addCORSHeaders()
 
-    response = []
+    response = {}
 
     data = web.data()
     if data:
@@ -156,10 +156,11 @@ class FluentAPIHandler(object):
       else:
         raise web.badrequest("Invalid Data. Query data must be a string")
 
-    else:
-      # No sample data, just return all samples
-      response = [{"id": item[0], "text": item[1][0], "score": 0}
-        for item in imbu.dataDict.items()]
+    if len(response) == 0:
+      # No data, just return all samples
+      # See "ImbuModels.formatResults" for expected format
+      for item in imbu.dataDict.items():
+        response[item[0]] = {"text": item[1][0], "scores": [0]}
 
     return json.dumps(response)
 

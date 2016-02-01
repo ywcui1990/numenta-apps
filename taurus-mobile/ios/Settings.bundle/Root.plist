@@ -50,13 +50,15 @@
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
-			<string>Notifications</string>
+			<string>Notifications Per Company</string>
+			<key>FooterText</key>
+			<string>Notifications will be shown only if the application is running in the background</string>
 		</dict>
 		<dict>
 			<key>Type</key>
 			<string>PSMultiValueSpecifier</string>
 			<key>Title</key>
-			<string>Max Notifications Per Company</string>
+			<string>Max Notifications</string>
 			<key>Key</key>
 			<string>maxNotificationsPerCompany</string>
 			<key>DefaultValue</key>
@@ -92,7 +94,7 @@
 			<key>Key</key>
 			<string>market_data</string>
 			<key>DefaultValue</key>
-			<string>http://www.xignite.com</string>
+			<string>Xignite Inc.</string>
 		</dict>
 	</array>
 </dict>

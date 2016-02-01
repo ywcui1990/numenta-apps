@@ -19,6 +19,7 @@
 * -------------------------------------------------------------------------- */
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Material from 'material-ui';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import SearchQueryAction from '../actions/search-query';
@@ -31,16 +32,15 @@ const {
 } = Material;
 
 const {
-  Spacing
+  Spacing, Colors
 } = Styles;
-
 
 /**
  * Display Search Results on a Material UI Table
  */
 @connectToStores([SearchStore, ServerStatusStore], (context, props) => ({
   ready: context.getStore(ServerStatusStore).isReady(),
-  query:  context.getStore(SearchStore).getQuery()
+  query: context.getStore(SearchStore).getQuery()
 }))
 export default class SearchResultsComponent extends React.Component {
 
@@ -73,7 +73,8 @@ export default class SearchResultsComponent extends React.Component {
           overflow: 'auto'
         },
         score: {
-          width: '50px'
+          width: '120px',
+          textAlign: 'right'
         }
       },
       content: {
@@ -106,6 +107,13 @@ export default class SearchResultsComponent extends React.Component {
     this._search(this.props.query, this.state.model);
   }
 
+  componentDidUpdate() {
+    let table = ReactDOM.findDOMNode(this.refs.resultBody)
+    if (table.firstChild) {
+      table.firstChild.scrollIntoViewIfNeeded()
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     let model = this.state.model;
     let results = this.context.getStore(SearchStore).getResults(model);
@@ -116,20 +124,37 @@ export default class SearchResultsComponent extends React.Component {
     }
   }
 
+  formatResults(text, scores, maxScore) {
+    if (scores.length > 1) {
+      let result = [];
+      let words = text.split(' ');
+      for (let i=0; i < words.length; i++) {
+        let score = scores[i];
+        let style = {};
+        if (score > 0 && score === maxScore) {
+          style = {backgroundColor: Colors.purple200};
+        }
+        result.push((<span title={score} style={style}>{words[i]} </span>));
+      }
+      return result;
+    }
+    return text;
+  }
+
   render() {
-    console.log(this.state);
     let styles = this._getStyles();
     let ready = this.props.ready;
 
     // Convert SearchStore results to Table rows
     let rows = this.state.results.map((result, idx) => {
+      let {text, scores, maxScore} = result;
       return (
         <TableRow key={idx}>
           <TableRowColumn key={0} style={styles.column.summary}>
-            {result.text}
+            {this.formatResults(text, scores, maxScore)}
           </TableRowColumn>
           <TableRowColumn key={1} style={styles.column.score}>
-            {result.score.toFixed(4)}
+            {maxScore.toFixed(4)}
           </TableRowColumn>
         </TableRow>);
     });
@@ -145,10 +170,11 @@ export default class SearchResultsComponent extends React.Component {
           <option value="CioDocumentFingerprint">Cortical.io document-level fingerprints</option>
           <option value="CioWordFingerprint">Cortical.io word-level fingerprints</option>
           <option value="Keywords">Keywords (random encodings)</option>
+          <option value="HTMNetwork">HTM Network (sensor-kNN)</option>
         </select>
 
         <Table selectable={false} fixedHeader={true}
-          height={styles.table.height} ref="results" style={styles.table}>
+          height={styles.table.height} ref="results">
           <TableHeader  adjustForCheckbox={false} displaySelectAll={false}>
             <TableRow>
               <TableHeaderColumn key={0} style={styles.column.summary}>
@@ -159,7 +185,7 @@ export default class SearchResultsComponent extends React.Component {
               </TableHeaderColumn>
             </TableRow>
           </TableHeader>
-          <TableBody displayRowCheckbox={false}>
+          <TableBody displayRowCheckbox={false} ref="resultBody">
             {rows}
           </TableBody>
         </Table>

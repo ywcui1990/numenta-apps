@@ -166,6 +166,10 @@ A few helper utilities are included for your convenience:
 - `graceful-build-and-refresh-container.sh` to rebuild and restart the
   container, preserving persistent model cache
 
+You may also set additional options to the `docker` command by specifying the
+`IMBU_DOCKER_OPTIONS` environment variable. Use `docker help` for a list of
+available options.
+
 Both of these helper utilities will pass along additional arguments to the
 `docker run` command specified in the `IMBU_DOCKER_EXTRAS` environment
 variable.  For example, to map the directories described above.  It can be
@@ -177,6 +181,7 @@ export IMBU_DOCKER_EXTRAS="-v <path to cache>:/opt/numenta/imbu/cache -v <path t
 export CORTICAL_API_KEY="<cortical.io api key>"
 export IMBU_RETINA_ID="en_associative"
 export IMBU_LOAD_PATH_PREFIX="/opt/numenta/imbu/engine"
+export IMBU_DOCKER_OPTIONS="--tlsverify=false"
 ```
 
 Once running, you can monitor progress of the container in real-time by running

@@ -1,10 +1,10 @@
 #!/bin/bash
 
 rm -rf `pwd`/cache/*
-docker kill imbu
-docker rm imbu
-docker build --no-cache --pull -t imbu:latest .
-docker run \
+docker ${IMBU_DOCKER_OPTIONS} kill imbu
+docker ${IMBU_DOCKER_OPTIONS} rm imbu
+docker ${IMBU_DOCKER_OPTIONS} build --no-cache --pull -t imbu:latest .
+docker ${IMBU_DOCKER_OPTIONS} run \
   --name imbu \
   -d \
   -p 8080:80 \

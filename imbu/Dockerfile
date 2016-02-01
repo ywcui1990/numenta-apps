@@ -23,6 +23,7 @@ FROM numenta/nupic:latest
 RUN apt-get update && apt-get -y install  apt-transport-https \
                                           build-essential \
                                           nginx \
+                                          python-matplotlib \
                                           python-software-properties \
                                           software-properties-common
 # Install latest Node JS
