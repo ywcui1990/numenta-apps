@@ -24,16 +24,21 @@
 Implements Unicorn's param_finder interface.
 """
 from argparse import ArgumentParser
+import csv
+import datetime
 import json
 import logging
 import os
 import sys
 import traceback
-from param_finder import ParamFinder
+
+import numpy
+
+from param_finder import find_parameters
 
 g_log = logging.getLogger(__name__)
 
-
+_MAX_ROW_NUMBER = 20000
 
 class _CommandLineArgError(Exception):
   """ Error parsing command-line options """
@@ -70,7 +75,7 @@ class _Options(object):
     self.timestampIndex = timestampIndex
     self.valueIndex = valueIndex
     self.datetimeFormat = datetimeFormat
-    
+
 
   @property
   def __dict__(self):  # pylint: disable=C0103
@@ -135,14 +140,61 @@ def _parseArgs():
                   datetimeFormat=options.datetimeFormat)
 
 
+def _readCSVFile(fileName,
+                 rowOffset,
+                 timestampIndex,
+                 valueIndex,
+                 datetimeFormat):
+  """
+  Read csv data file, the data file must have two columns
+  that contains time stamps and data values
+
+  :param fileName: str, path to input csv file
+  :param rowOffset: int, index of first data row in csv
+  :param timestampIndex: int, column index of the timeStamp
+  :param valueIndex: int, column index of the value
+  :param datetimeFormat: str, datetime format string for python's
+                        datetime.strptime
+  :return: A two-tuple (timestamps, values), where
+           timeStamps is a numpy array of datetime64 time stamps and
+           values is a numpy array of float64 data values
+  """
+
+  with open(fileName, 'rU') as csvFile:
+    csv.field_size_limit(2 ** 27)
+    fileReader = csv.reader(csvFile)
+    for _ in xrange(rowOffset):
+      fileReader.next()  # skip header line
+
+    timeStamps = []
+    values = []
+
+    numRow = 0
+    for row in fileReader:
+      timeStamp = datetime.datetime.strptime(row[timestampIndex],
+                                             datetimeFormat)
+      # timeStamp = dateutil.parser.parse(row[timestampIndex])
+      timeStamps.append(numpy.datetime64(timeStamp))
+      values.append(row[valueIndex])
+
+      numRow += 1
+      if numRow >= _MAX_ROW_NUMBER:
+        break
+
+    timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
+    values = numpy.array(values, dtype='float64')
+
+    return timeStamps, values
+
 
 def main():
   # Use NullHandler for now to avoid getting the unwanted unformatted warning
   # message from logger on stderr "No handlers could be found for logger".
   g_log.addHandler(logging.NullHandler())
   try:
+    (timeStamps, values) = _readCSVFile(**vars(_parseArgs()))
+    outputInfo = find_parameters(timeStamps, values)
 
-    outputInfo = ParamFinder(**vars(_parseArgs())).run()
     sys.stdout.write(json.dumps(outputInfo))
     sys.stdout.flush()
 

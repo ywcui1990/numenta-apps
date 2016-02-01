@@ -28,8 +28,6 @@ Implements param finder, which automatically
 3. suggest data aggregation type (sum or mean)
 """
 
-import csv
-import datetime
 
 import numpy
 
@@ -40,6 +38,8 @@ _CORRELATION_MODE_VALID = 0
 _CORRELATION_MODE_SAME = 1
 _CORRELATION_MODE_FULL = 2
 
+_AGGREGATION_WINDOW_THRESH = 0.2
+_MAX_ROW_NUMBER = 20000
 
 
 def _convolve(vector1, vector2, mode=2):
@@ -174,406 +174,349 @@ def _cwt(data, wavelet, widths):
 
 
 
-class ParamFinder(object):
-  def __init__(self,
-               fileName,
-               rowOffset,
-               timestampIndex,
-               valueIndex,
-               datetimeFormat):
-    """
-    :param fileName: str, path to input csv file
-    :param rowOffset: int, zero-based index of first data row in csv
-    :param timestampIndex: int, zero-based column index of the timeStamp
-    :param valueIndex: int, zero-based column index of the value
-    :param datetimeFormat: str, datetime format string for python's
-                          datetime.strptime
-    """
+def find_parameters(timeStamps, values):
+  """
+  find parameters for a given time series dataset with heuristics
 
-    self._aggregationWindowThreshold = 0.2
-    self._fileName = fileName
-    self._rowOffset = rowOffset
-    self._timestampIndex = timestampIndex
-    self._valueIndex = valueIndex
-    self._datetimeFormat = datetimeFormat
+  :param timeStamps: array_like, each entry is a timeStamp in datetime64 type
+  :param values: array_like, each entry is a float number
 
-    self.medianSamplingInterval = None
-    self.medianAbsoluteDevSamplingInterval = None
-    self._cwtVar = None
-    self._timeScale = None
-    self.suggestedSamplingInterval = None
-    self.useTimeOfDay = None
-    self.useDayOfWeek = None
-    self.aggFunc = None
+  :return: JSON object with the following properties:
+
+    "aggInfo" aggregation information, JSON null if no aggregation is needed
+      otherwise, a JSON object contains the folowing properties:
+        "windowSize": aggregation window size in seconds (integer)
+        "func": A string representation of the aggregation function (string)
+          the following values are supported: "sum", "mean"
+
+    "modelInfo": JSON object describing the model configuration that
+    contains the following properties:
+      “modelConfig”: OPF Model Configuration parameters (JSON object) for
+      passing to the OPF `ModelFactory.create()` method as the
+      `modelConfig` parameter.
+
+      “inferenceArgs”: OPF Model Inference parameters (JSON object) for
+      passing to the resulting model's `enableInference()` method as the
+      inferenceArgs parameter.
+
+      “timestampFieldName”: The name of the field in `modelConfig`
+      corresponding to the metric timestamp (string)
+
+      “valueFieldName”: The name of the field in `modelConfig`
+      corresponding to the metric value (string)
+  """
+  if len(timeStamps) != len(values):
+    raise ValueError('timeStamps and Values must have the same length')
+
+  try:
+    assert(type(timeStamps[0]) is numpy.datetime64)
+    timeStamps = numpy.array(timeStamps)
+  except:
+    raise TypeError('timeStamps must be an array of datetime64')
+
+  try:
+    values = numpy.array(values).astype('float64')
+  except:
+    raise TypeError('values must be an array with float numbers')
+
+  numDataPts = len(values)
+
+  (medianSamplingInterval,
+   medianAbsoluteDevSamplingInterval) = getMedianSamplingInterval(timeStamps)
+
+  (timeStamps, values) = resampleData(timeStamps,
+                                      values,
+                                      medianSamplingInterval)
+
+  (_cwtVar, _timeScale) = calculateContinuousWaveletTransform(
+    medianSamplingInterval, values)
+
+  suggestedSamplingInterval = determineAggregationWindow(
+    timeScale=_timeScale,
+    cwtVar=_cwtVar,
+    thresh=_AGGREGATION_WINDOW_THRESH,
+    samplingInterval=medianSamplingInterval,
+    numDataPts=numDataPts)
+
+  # decide whether to use TimeOfDay and DayOfWeek encoders
+  (useTimeOfDay, useDayOfWeek) = determineEncoderTypes(_cwtVar, _timeScale)
+
+  # decide the aggregation function ("mean" or "sum")
+  aggFunc = getAggregationFunction(medianSamplingInterval,
+                                   medianAbsoluteDevSamplingInterval)
+
+  outputInfo = {
+    "aggInfo": getAggInfo(medianSamplingInterval,
+                          suggestedSamplingInterval,
+                          aggFunc),
+    "modelInfo": getModelParams(useTimeOfDay, useDayOfWeek, values),
+    "timestampFieldName": "c0",
+    "valueFieldName": "c1"
+  }
+  return outputInfo
 
 
-  def run(self):
-    """
-    Run ParamFinder on input csv file
 
-    :return: JSON object with the following properties:
+def getAggInfo(medianSamplingInterval, suggestedSamplingInterval, aggFunc):
+  """
+  Return a JSON object containing the aggregation window size and
+  aggregation function type
 
-      "aggInfo" aggregation information, JSON null if no aggregation is needed
-        otherwise, a JSON object contains the folowing properties:
-          "windowSize": aggregation window size in seconds (integer)
-          "func": A string representation of the aggregation function (string)
-            the following values are supported: "sum", "mean"
-
-      "modelInfo": JSON object describing the model configuration that
-      contains the following properties:
-        “modelConfig”: OPF Model Configuration parameters (JSON object) for
-        passing to the OPF `ModelFactory.create()` method as the
-        `modelConfig` parameter.
-
-        “inferenceArgs”: OPF Model Inference parameters (JSON object) for
-        passing to the resulting model's `enableInference()` method as the
-        inferenceArgs parameter.
-
-        “timestampFieldName”: The name of the field in `modelConfig`
-        corresponding to the metric timestamp (string)
-
-        “valueFieldName”: The name of the field in `modelConfig`
-        corresponding to the metric value (string)
-    """
-    (timeStamps, values) = self._readCSVFile(self._fileName,
-                                             self._rowOffset,
-                                             self._timestampIndex,
-                                             self._valueIndex,
-                                             self._datetimeFormat)
-    numDataPts = len(values)
-
-    (self.medianSamplingInterval,
-     self.medianAbsoluteDevSamplingInterval) = self.getMedianSamplingInterval(
-      timeStamps)
-
-    (timeStamps, values) = self.resampleData(timeStamps,
-                                             values,
-                                             self.medianSamplingInterval)
-
-    (self._cwtVar, self._timeScale) = self.calculateContinuousWaveletTransform(
-      self.medianSamplingInterval, values)
-
-    self.suggestedSamplingInterval = self.determineAggregationWindow(
-      timeScale=self._timeScale,
-      cwtVar=self._cwtVar,
-      thresh=self._aggregationWindowThreshold,
-      samplingInterval=self.medianSamplingInterval,
-      numDataPts=numDataPts)
-
-    # decide whether to use TimeOfDay and DayOfWeek encoders
-    (self.useTimeOfDay,
-     self.useDayOfWeek) = self.determineEncoderTypes(
-      self._cwtVar, self._timeScale)
-
-    self.aggFunc = self.getAggregationFunction()
-
-    outputInfo = {
-      "aggInfo": self.getAggInfo(),
-      "modelInfo": self.getModelParams(values),
-      "timestampFieldName": "c0",
-      "valueFieldName": "c1"
+  :param suggestedSamplingInterval: datetime64
+  :param medianSamplingInterval: datetime64
+  :param aggFunc: str ("mean" or "sum")
+  """
+  if suggestedSamplingInterval <= medianSamplingInterval:
+    aggInfo = None
+  else:
+    aggInfo = {
+      "windowSize": suggestedSamplingInterval.astype('int'),
+      "func": aggFunc
     }
-    return outputInfo
+  return aggInfo
 
 
-  def getAggInfo(self):
-    """
-    Return a JSON object containing the aggregation window size and
-    aggregation function type
-    """
-    if self.suggestedSamplingInterval <= self.medianSamplingInterval:
-      aggInfo = None
+
+def getModelParams(useTimeOfDay, useDayOfWeek, value):
+  """
+  Return a JSON object describing the model configuration
+  :param useTimeOfDay: bool, whether to use timeOfDay encoder
+  :param useDayOfWeek: bool, whether to use dayOfWeej encoder
+  :param value: numpy array of metric data, used to compute min/max values
+  """
+  modelParams = getScalarMetricWithTimeOfDayAnomalyParams(metricData=value)
+
+  if useTimeOfDay:
+    modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
+      ['c0_timeOfDay'] = dict(fieldname='c0',
+                              name='c0',
+                              type='DateEncoder',
+                              timeOfDay=(21, 9))
+  else:
+    modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
+      ['c0_timeOfDay'] = None
+
+  if useDayOfWeek:
+    modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
+      ['c0_dayOfWeek'] = dict(fieldname='c0',
+                              name='c0',
+                              type='DateEncoder',
+                              dayOfWeek=(21, 3))
+  else:
+    modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
+      ['c0_dayOfWeek'] = None
+  return modelParams
+
+
+
+def resampleData(timeStamps, values, newSamplingInterval):
+  """
+  Resample data at new sampling interval using linear interpolation
+  Note: the resampling function is using interpolation,
+  it may not be appropriate for aggregation purpose
+
+  :param timeStamps: numpy array of timeStamp in datetime64 type
+  :param values: numpy array of float64 values
+  :param newSamplingInterval: numpy timedelta64 format
+  :return a two tuple of (newTimestamp, newValue), where
+          newTimestamp is a numpy array of datetime64 after resampling
+          newValue is a numpy array of floats after resampling
+  """
+  totalDuration = (timeStamps[-1] - timeStamps[0])
+  nSampleNew = numpy.floor(totalDuration / newSamplingInterval) + 1
+  nSampleNew = nSampleNew.astype('int')
+
+  newTimestamp = numpy.empty(nSampleNew, dtype='datetime64[s]')
+  for sampleI in xrange(nSampleNew):
+    newTimestamp[sampleI] = timeStamps[0] + sampleI * newSamplingInterval
+
+  newValue = numpy.interp((newTimestamp - timeStamps[0]).astype('float32'),
+                          (timeStamps - timeStamps[0]).astype('float32'),
+                          values)
+
+  return newTimestamp, newValue
+
+
+
+def calculateContinuousWaveletTransform(samplingInterval, values):
+  """
+  Calculate continuous wavelet transformation (CWT)
+  Return variance of the cwt coefficients over time
+
+  :param samplingInterval: sampling interval of the time series
+  :param values: numpy array of float64 values
+  :return a two tuple of (cwtVar, timeScale) where
+  cwtVar is a numpy array that stores variance of the wavelet coefficents
+  timeScale is a numpy array that stores the corresponding time scales
+  """
+
+  widths = numpy.logspace(0, numpy.log10(len(values) / 20), 50)
+  timeScale = widths * samplingInterval * 4
+
+  # continuous wavelet transformation with ricker wavelet
+  cwtMatrix = _cwt(values, _rickerWavelet, widths)
+  # clip wavelet coefficients to minimize boundary effect
+  maxTimeScale = int(widths[-1])
+  cwtMatrix = cwtMatrix[:, 4 * maxTimeScale:-4 * maxTimeScale]
+
+  # variance of wavelet power
+  cwtVar = numpy.var(numpy.abs(cwtMatrix), axis=1)
+  cwtVar = cwtVar / numpy.sum(cwtVar)
+
+  return cwtVar, timeScale
+
+
+
+def getMedianSamplingInterval(timeStamps):
+  """
+  calculate median and median absolute deviation of sampling interval
+
+  :param timeStamps: numpy array of timestamps in datetime64 format
+  :return: a two tuple of (medianSamplingInterval, medianAbsoluteDev) where
+          medianSamplingInterval is numpy timedelta64 in unit of seconds
+          medianAbsoluteDev is the median absolute deviation of
+          sampling interval in timedelta64 format
+  """
+  if timeStamps.dtype != numpy.dtype('<M8[s]'):
+    timeStamps = timeStamps.astype('datetime64[s]')
+
+  samplingIntervals = numpy.diff(timeStamps)
+
+  medianSamplingInterval = numpy.median(samplingIntervals)
+  medianAbsoluteDev = numpy.median(
+    numpy.abs(samplingIntervals - medianSamplingInterval))
+
+  return medianSamplingInterval, medianAbsoluteDev
+
+
+
+def determineAggregationWindow(timeScale,
+                               cwtVar,
+                               thresh,
+                               samplingInterval,
+                               numDataPts):
+  """
+  Determine data aggregation window
+
+  :param timeScale: numpy array, corresponding time scales for wavelet coeffs
+  :param cwtVar: numpy array, wavelet coefficients variance over time
+  :param thresh: float, cutoff threshold between 0 and 1
+  :param samplingInterval: original sampling interval in seconds
+  :param numDataPts: number of data points
+  :return: aggregationTimeScale: float, suggested sampling interval
+  """
+  cumulativeCwtVar = numpy.cumsum(cwtVar)
+  cutoffTimeScale = timeScale[numpy.where(cumulativeCwtVar >= thresh)[0][0]]
+
+  aggregationTimeScale = cutoffTimeScale / 10.0
+  if aggregationTimeScale < samplingInterval * 4:
+    aggregationTimeScale = samplingInterval * 4
+
+  # make sure there is at least 1000 records after aggregation
+  if numDataPts < 1000:
+    aggregationTimeScale = samplingInterval
+  else:
+    maxSamplingInterval = float(numDataPts) / 1000.0 * samplingInterval
+    if aggregationTimeScale > maxSamplingInterval > samplingInterval:
+      aggregationTimeScale = maxSamplingInterval
+
+  return aggregationTimeScale
+
+
+
+def determineEncoderTypes(cwtVar, timeScale):
+  """
+  Find local maxima from the wavelet coefficient variance spectrum
+  A strong maxima is defined as
+  (1) At least 10% higher than the nearest local minima
+  (2) Above the baseline value
+
+  The algorithm will suggest an encoder if its corresponding
+  periodicity is close to a strong maxima:
+  (1) horizontally must within the nearest local minimum
+  (2) vertically must within 50% of the peak of the strong maxima
+
+  :param cwtVar: numpy array, wavelet coefficients variance over time
+  :param timeScale: numpy array, corresponding time scales for wavelet coeffs
+
+  :return a two tuple of (useTimeOfDay, useDayOfWeek), where
+          useTimeOfDay is bool, indicating whether to use timeOfDay encoder
+          useDayOfWeek is bool, indicating whether to use dayOfWeek encoder
+  """
+
+  # Detect all local minima and maxima when the first difference reverse sign
+  signOfFirstDifference = numpy.sign(numpy.diff(cwtVar))
+  localMin = (numpy.diff(signOfFirstDifference) > 0).nonzero()[0] + 1
+  localMax = (numpy.diff(signOfFirstDifference) < 0).nonzero()[0] + 1
+
+  baseline_value = 1.0 / len(cwtVar)
+
+  dayPeriod = 86400.0
+  weekPeriod = 604800.0
+  timeScale = timeScale.astype('float32')
+
+  cwtVarAtDayPeriod = numpy.interp(dayPeriod, timeScale, cwtVar)
+  cwtVarAtWeekPeriod = numpy.interp(weekPeriod, timeScale, cwtVar)
+
+  useTimeOfDay = False
+  useDayOfWeek = False
+
+  strongLocalMax = []
+  for i in xrange(len(localMax)):
+    leftLocalMin = numpy.where(numpy.less(localMin, localMax[i]))[0]
+    if len(leftLocalMin) == 0:
+      leftLocalMin = 0
+      leftLocalMinValue = cwtVar[0]
     else:
-      aggInfo = {
-        "windowSize": self.suggestedSamplingInterval.astype('int'),
-        "func": self.aggFunc
-      }
-    return aggInfo
+      leftLocalMin = localMin[leftLocalMin[-1]]
+      leftLocalMinValue = cwtVar[leftLocalMin]
 
-
-  def getModelParams(self, value):
-    """
-    Return a JSON object describing the model configuration
-
-    :param value: numpy array of metric data, used to compute min/max values
-    """
-    modelParams = getScalarMetricWithTimeOfDayAnomalyParams(
-      metricData=value)
-
-    if self.useTimeOfDay:
-      modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
-        ['c0_timeOfDay'] = dict(fieldname='c0',
-                                name='c0',
-                                type='DateEncoder',
-                                timeOfDay=(21, 9))
+    rightLocalMin = numpy.where(numpy.greater(localMin, localMax[i]))[0]
+    if len(rightLocalMin) == 0:
+      rightLocalMin = len(cwtVar) - 1
+      rightLocalMinValue = cwtVar[-1]
     else:
-      modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
-        ['c0_timeOfDay'] = None
+      rightLocalMin = localMin[rightLocalMin[0]]
+      rightLocalMinValue = cwtVar[rightLocalMin]
 
-    if self.useDayOfWeek:
-      modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
-        ['c0_dayOfWeek'] = dict(fieldname='c0',
-                                name='c0',
-                                type='DateEncoder',
-                                dayOfWeek=(21, 3))
-    else:
-      modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
-        ['c0_dayOfWeek'] = None
-    return modelParams
+    localMaxValue = cwtVar[localMax[i]]
+    nearestLocalMinValue = numpy.max(leftLocalMinValue, rightLocalMinValue)
 
+    if ((localMaxValue - nearestLocalMinValue) / localMaxValue
+          > 0.1 and localMaxValue > baseline_value):
+      strongLocalMax.append(localMax[i])
 
-  @staticmethod
-  def _readCSVFile(fileName,
-                   rowOffset,
-                   timestampIndex,
-                   valueIndex,
-                   datetimeFormat):
-    """
-    Read csv data file, the data file must have two columns
-    that contains time stamps and data values
+      if (timeScale[leftLocalMin] < dayPeriod < timeScale[rightLocalMin]
+          and cwtVarAtDayPeriod > localMaxValue * 0.5):
+        useTimeOfDay = True
 
-    :param fileName: str, path to input csv file
-    :param rowOffset: int, index of first data row in csv
-    :param timestampIndex: int, column index of the timeStamp
-    :param valueIndex: int, column index of the value
-    :param datetimeFormat: str, datetime format string for python's
-                          datetime.strptime
-    :return: A two-tuple (timestamps, values), where
-             timeStamps is a numpy array of datetime64 time stamps and
-             values is a numpy array of float64 data values
-    """
+      if (timeScale[leftLocalMin] < weekPeriod < timeScale[
+        rightLocalMin]
+          and cwtVarAtWeekPeriod > localMaxValue * 0.5):
+        useDayOfWeek = True
 
-    with open(fileName, 'rU') as csvFile:
-      csv.field_size_limit(2 ** 27)
-      fileReader = csv.reader(csvFile)
-      for _ in xrange(rowOffset):
-        fileReader.next()  # skip header line
-
-      timeStamps = []
-      values = []
-
-      maxRowNumber = 20000
-      numRow = 0
-      for row in fileReader:
-        timeStamp = datetime.datetime.strptime(row[timestampIndex], datetimeFormat)
-        # timeStamp = dateutil.parser.parse(row[timestampIndex])
-        timeStamps.append(numpy.datetime64(timeStamp))
-        values.append(row[valueIndex])
-
-        numRow += 1
-        if numRow >= maxRowNumber:
-          break
-
-      timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
-      values = numpy.array(values, dtype='float64')
-
-      return timeStamps, values
+  return useTimeOfDay, useDayOfWeek
 
 
-  @staticmethod
-  def resampleData(timeStamps, values, newSamplingInterval):
-    """
-    Resample data at new sampling interval using linear interpolation
-    Note: the resampling function is using interpolation,
-    it may not be appropriate for aggregation purpose
 
-    :param timeStamps: numpy array of timeStamp in datetime64 type
-    :param values: numpy array of float64 values
-    :param newSamplingInterval: numpy timedelta64 format
-    """
-    totalDuration = (timeStamps[-1] - timeStamps[0])
-    nSampleNew = numpy.floor(totalDuration / newSamplingInterval) + 1
-    nSampleNew = nSampleNew.astype('int')
+def getAggregationFunction(medianSamplingInterval,
+                           medianAbsoluteDevSamplingInterval):
+  """
+  Return the aggregation function type:
+    ("sum" for transactional data types
+     "mean" for non-transactional data types)
 
-    newTimestamp = numpy.empty(nSampleNew, dtype='datetime64[s]')
-    for sampleI in xrange(nSampleNew):
-      newTimestamp[sampleI] = timeStamps[0] + sampleI * newSamplingInterval
+  The data type is determined via a data type indicator, defined as the
+  ratio between median absolute deviation and median of the sampling interval.
 
-    newValue = numpy.interp((newTimestamp - timeStamps[0]).astype('float32'),
-                            (timeStamps - timeStamps[0]).astype('float32'),
-                            values)
+  :return aggFunc: a string with value "sum" or "mean"
+  """
 
-    return newTimestamp, newValue
+  dataTypeIndicator = (medianAbsoluteDevSamplingInterval /
+                       medianSamplingInterval)
+  if dataTypeIndicator > 0.2:
+    aggFunc = "sum"  # "transactional"
+  else:
+    aggFunc = "mean"  # "non-transactional"
 
-
-  @staticmethod
-  def calculateContinuousWaveletTransform(samplingInterval, values):
-    """
-    Calculate continuous wavelet transformation (CWT)
-    Return variance of the cwt coefficients over time
-
-    :param samplingInterval: sampling interval of the time series
-    :param values: numpy array of float64 values
-    :return a two tuple of (cwtVar, timeScale) where
-    cwtVar is a numpy array that stores variance of the wavelet coefficents
-    timeScale is a numpy array that stores the corresponding time scales
-    """
-
-    widths = numpy.logspace(0, numpy.log10(len(values) / 20), 50)
-    timeScale = widths * samplingInterval * 4
-
-    # continuous wavelet transformation with ricker wavelet
-    cwtMatrix = _cwt(values, _rickerWavelet, widths)
-    # clip wavelet coefficients to minimize boundary effect
-    maxTimeScale = int(widths[-1])
-    cwtMatrix = cwtMatrix[:, 4 * maxTimeScale:-4 * maxTimeScale]
-
-    # variance of wavelet power
-    cwtVar = numpy.var(numpy.abs(cwtMatrix), axis=1)
-    cwtVar = cwtVar / numpy.sum(cwtVar)
-
-    return cwtVar, timeScale
-
-
-  @staticmethod
-  def getMedianSamplingInterval(timeStamps):
-    """
-    calculate median and median absolute deviation of sampling interval
-
-    :param timeStamps: numpy array of timestamps in datetime64 format
-    :return: a two tuple of (medianSamplingInterval, medianAbsoluteDev) where
-            medianSamplingInterval is numpy timedelta64 in unit of seconds
-            medianAbsoluteDev is the median absolute deviation of
-            sampling interval in timedelta64 format
-    """
-    if timeStamps.dtype != numpy.dtype('<M8[s]'):
-      timeStamps = timeStamps.astype('datetime64[s]')
-
-    samplingIntervals = numpy.diff(timeStamps)
-
-    medianSamplingInterval = numpy.median(samplingIntervals)
-    medianAbsoluteDev = numpy.median(
-      numpy.abs(samplingIntervals - medianSamplingInterval))
-
-    return medianSamplingInterval, medianAbsoluteDev
-
-
-  @staticmethod
-  def determineAggregationWindow(timeScale,
-                                 cwtVar,
-                                 thresh,
-                                 samplingInterval,
-                                 numDataPts):
-    """
-    Determine data aggregation window
-
-    :param timeScale: numpy array, corresponding time scales for wavelet coeffs
-    :param cwtVar: numpy array, wavelet coefficients variance over time
-    :param thresh: float, cutoff threshold between 0 and 1
-    :param samplingInterval: original sampling interval in seconds
-    :param numDataPts: number of data points
-    :return: aggregationTimeScale: float, suggested sampling interval
-    """
-    cumulativeCwtVar = numpy.cumsum(cwtVar)
-    cutoffTimeScale = timeScale[numpy.where(cumulativeCwtVar >= thresh)[0][0]]
-
-    aggregationTimeScale = cutoffTimeScale / 10.0
-    if aggregationTimeScale < samplingInterval * 4:
-      aggregationTimeScale = samplingInterval * 4
-
-    # make sure there is at least 1000 records after aggregation
-    if numDataPts < 1000:
-      aggregationTimeScale = samplingInterval
-    else:
-      maxSamplingInterval = float(numDataPts) / 1000.0 * samplingInterval
-      if aggregationTimeScale > maxSamplingInterval > samplingInterval:
-        aggregationTimeScale = maxSamplingInterval
-
-    return aggregationTimeScale
-
-
-  @staticmethod
-  def determineEncoderTypes(cwtVar, timeScale):
-    """
-    Find local maxima from the wavelet coefficient variance spectrum
-    A strong maxima is defined as
-    (1) At least 10% higher than the nearest local minima
-    (2) Above the baseline value
-  
-    The algorithm will suggest an encoder if its corresponding
-    periodicity is close to a strong maxima:
-    (1) horizontally must within the nearest local minimum
-    (2) vertically must within 50% of the peak of the strong maxima
-
-    :param cwtVar: numpy array, wavelet coefficients variance over time
-    :param timeScale: numpy array, corresponding time scales for wavelet coeffs
-
-    :return a two tuple of (useTimeOfDay, useDayOfWeek), where
-            useTimeOfDay is bool, indicating whether to use timeOfDay encoder
-            useDayOfWeek is bool, indicating whether to use dayOfWeek encoder
-    """
-
-    # Detect all local minima and maxima when the first difference reverse sign
-    signOfFirstDifference = numpy.sign(numpy.diff(cwtVar))
-    localMin = (numpy.diff(signOfFirstDifference) > 0).nonzero()[0] + 1
-    localMax = (numpy.diff(signOfFirstDifference) < 0).nonzero()[0] + 1
-
-    baseline_value = 1.0 / len(cwtVar)
-
-    dayPeriod = 86400.0
-    weekPeriod = 604800.0
-    timeScale = timeScale.astype('float32')
-
-    cwtVarAtDayPeriod = numpy.interp(dayPeriod, timeScale, cwtVar)
-    cwtVarAtWeekPeriod = numpy.interp(weekPeriod, timeScale, cwtVar)
-
-    useTimeOfDay = False
-    useDayOfWeek = False
-
-    strongLocalMax = []
-    for i in xrange(len(localMax)):
-      leftLocalMin = numpy.where(numpy.less(localMin, localMax[i]))[0]
-      if len(leftLocalMin) == 0:
-        leftLocalMin = 0
-        leftLocalMinValue = cwtVar[0]
-      else:
-        leftLocalMin = localMin[leftLocalMin[-1]]
-        leftLocalMinValue = cwtVar[leftLocalMin]
-
-      rightLocalMin = numpy.where(numpy.greater(localMin, localMax[i]))[0]
-      if len(rightLocalMin) == 0:
-        rightLocalMin = len(cwtVar) - 1
-        rightLocalMinValue = cwtVar[-1]
-      else:
-        rightLocalMin = localMin[rightLocalMin[0]]
-        rightLocalMinValue = cwtVar[rightLocalMin]
-
-      localMaxValue = cwtVar[localMax[i]]
-      nearestLocalMinValue = numpy.max(leftLocalMinValue, rightLocalMinValue)
-
-      if ((localMaxValue - nearestLocalMinValue) / localMaxValue
-            > 0.1 and localMaxValue > baseline_value):
-        strongLocalMax.append(localMax[i])
-
-        if (timeScale[leftLocalMin] < dayPeriod < timeScale[rightLocalMin]
-            and cwtVarAtDayPeriod > localMaxValue * 0.5):
-          useTimeOfDay = True
-
-        if (timeScale[leftLocalMin] < weekPeriod < timeScale[
-          rightLocalMin]
-            and cwtVarAtWeekPeriod > localMaxValue * 0.5):
-          useDayOfWeek = True
-
-    return useTimeOfDay, useDayOfWeek
-
-
-  def getAggregationFunction(self):
-    """
-    Return the aggregation function type:
-      ("sum" for transactional data types
-       "mean" for non-transactional data types)
-
-    The data type is determined via a data type indicator, defined as the
-    ratio between median absolute deviation and median of the sampling interval.
-
-    :return aggFunc: a string with value "sum" or "mean"
-    """
-
-    dataTypeIndicator = (self.medianAbsoluteDevSamplingInterval /
-                         self.medianSamplingInterval)
-    if dataTypeIndicator > 0.2:
-      aggFunc = "sum"  # "transactional"
-    else:
-      aggFunc = "mean"  # "non-transactional"
-
-    return aggFunc
+  return aggFunc
