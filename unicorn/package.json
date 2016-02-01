@@ -115,6 +115,7 @@
     "electron-debug": "0.5.1",
     "electron-packager": "5.1.1",
     "electron-prebuilt": "0.33.3",
+    "escope": "3.3.0",
     "esdoc": "0.4.3",
     "esdoc-es7-plugin": "0.0.3",
     "eslint": "1.10.3",
