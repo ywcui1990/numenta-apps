@@ -28,6 +28,7 @@ Implements param finder, which automatically
 3. suggest data aggregation type (sum or mean)
 """
 
+import datetime
 
 import numpy
 
@@ -178,7 +179,7 @@ def find_parameters(timeStamps, values):
   """
   find parameters for a given time series dataset with heuristics
 
-  :param timeStamps: array_like, each entry is a timeStamp in datetime64 type
+  :param timeStamps: array_like, each entry is a timeStamp in datetime type
   :param values: array_like, each entry is a float number
 
   :return: JSON object with the following properties:
@@ -209,8 +210,8 @@ def find_parameters(timeStamps, values):
     raise ValueError('timeStamps and Values must have the same length')
 
   try:
-    assert(type(timeStamps[0]) is numpy.datetime64)
-    timeStamps = numpy.array(timeStamps)
+    assert(type(timeStamps[0]) is datetime.datetime)
+    timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
   except:
     raise TypeError('timeStamps must be an array of datetime64')
 

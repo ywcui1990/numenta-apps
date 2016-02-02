@@ -172,8 +172,8 @@ def _readCSVFile(fileName,
   :param datetimeFormat: str, datetime format string for python's
                         datetime.strptime
   :return: A two-tuple (timestamps, values), where
-           timeStamps is a numpy array of datetime64 time stamps and
-           values is a numpy array of float64 data values
+           timeStamps is a list of datetime
+           values is a list of float data values
   """
 
   with open(fileName, 'rU') as csvFile:
@@ -193,15 +193,12 @@ def _readCSVFile(fileName,
       # use local timezone to be consistent with the default assumption
       # in numpy datetime64 object
       timeStamp = timeStamp.replace(tzinfo=tz.tzlocal())
-      timeStamps.append(numpy.datetime64(timeStamp))
+      timeStamps.append(timeStamp)
       values.append(row[valueIndex])
 
       numRow += 1
       if numRow >= _MAX_ROW_NUMBER:
         break
-
-    timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
-    values = numpy.array(values, dtype='float64')
 
     return timeStamps, values
 
