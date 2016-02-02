@@ -40,6 +40,7 @@ _CORRELATION_MODE_SAME = 1
 _CORRELATION_MODE_FULL = 2
 
 _AGGREGATION_WINDOW_THRESH = 0.2
+MAX_ROW_NUMBER = 20000
 
 
 def _convolve(vector1, vector2, mode=2):
@@ -210,11 +211,17 @@ def find_parameters(timeStamps, values):
 
   try:
     assert(type(timeStamps[0]) is datetime.datetime)
+    if len(timeStamps) > MAX_ROW_NUMBER:
+      timeStamps = timeStamps[:MAX_ROW_NUMBER]
+
     timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
   except:
     raise TypeError('timeStamps must be an array of datetime64')
 
   try:
+    if len(values) > MAX_ROW_NUMBER:
+      values = values[:MAX_ROW_NUMBER]
+
     values = numpy.array(values).astype('float64')
   except:
     raise TypeError('values must be an array with float numbers')
