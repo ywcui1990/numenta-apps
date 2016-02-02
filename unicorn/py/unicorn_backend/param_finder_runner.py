@@ -33,7 +33,6 @@ import sys
 import traceback
 
 from dateutil import tz
-import numpy
 
 from param_finder import find_parameters
 
