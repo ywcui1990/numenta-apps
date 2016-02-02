@@ -250,8 +250,6 @@ def find_parameters(timeStamps, values):
                           suggestedSamplingInterval,
                           aggFunc),
     "modelInfo": getModelParams(useTimeOfDay, useDayOfWeek, values),
-    "timestampFieldName": "c0",
-    "valueFieldName": "c1"
   }
   return outputInfo
 
@@ -305,6 +303,9 @@ def getModelParams(useTimeOfDay, useDayOfWeek, value):
   else:
     modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
       ['c0_dayOfWeek'] = None
+
+  modelParams["timestampFieldName"] = "c0"
+  modelParams["valueFieldName"] = "c1"
   return modelParams
 
 
