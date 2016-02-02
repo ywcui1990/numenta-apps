@@ -124,5 +124,3 @@ class ParamFinderRunnerTestCase(unittest.TestCase):
     os.remove(tmpfilepath)
 
 
-if __name__ == "__main__":
-  unittest.main()

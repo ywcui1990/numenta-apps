@@ -173,6 +173,3 @@ class ParamFinderTestCase(unittest.TestCase):
     self.assertGreater(aggregationTimeScale, samplingInterval.astype('float64'))
 
 
-
-if __name__ == "__main__":
-  unittest.main()
