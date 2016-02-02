@@ -189,6 +189,7 @@ def _readCSVFile(fileName,
     for row in fileReader:
       timeStamp = datetime.datetime.strptime(row[timestampIndex],
                                              datetimeFormat)
+
       # use local timezone to be consistent with the default assumption
       # in numpy datetime64 object
       timeStamp = timeStamp.replace(tzinfo=tz.tzlocal())

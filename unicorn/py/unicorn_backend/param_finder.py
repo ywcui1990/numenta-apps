@@ -262,8 +262,8 @@ def getAggInfo(medianSamplingInterval, suggestedSamplingInterval, aggFunc):
   Return a JSON object containing the aggregation window size and
   aggregation function type
 
-  :param suggestedSamplingInterval: datetime64
-  :param medianSamplingInterval: datetime64
+  :param suggestedSamplingInterval: timedelta64
+  :param medianSamplingInterval: timedelta64
   :param aggFunc: str ("mean" or "sum")
   """
   if suggestedSamplingInterval <= medianSamplingInterval:
@@ -373,7 +373,7 @@ def getMedianSamplingInterval(timeStamps):
 
   :param timeStamps: numpy array of timestamps in datetime64 format
   :return: a two tuple of (medianSamplingInterval, medianAbsoluteDev) where
-          medianSamplingInterval is numpy timedelta64 in unit of seconds
+          medianSamplingInterval is datetime64 in unit of seconds
           medianAbsoluteDev is the median absolute deviation of
           sampling interval in timedelta64 format
   """
@@ -403,7 +403,7 @@ def determineAggregationWindow(timeScale,
   :param thresh: float, cutoff threshold between 0 and 1
   :param samplingInterval: numpy timedelta64, original sampling interval
   :param numDataPts: number of data points
-  :return: aggregationTimeScale: float, suggested sampling interval
+  :return: aggregationTimeScale: timedelta64, suggested sampling interval
   """
   samplingInterval = samplingInterval.astype('float64')
   cumulativeCwtVar = numpy.cumsum(cwtVar)
@@ -417,10 +417,11 @@ def determineAggregationWindow(timeScale,
   if numDataPts < 1000:
     aggregationTimeScale = samplingInterval
   else:
-    maxSamplingInterval = float(numDataPts) / 1000.0 * samplingInterval
+    maxSamplingInterval = (float(numDataPts) / 1000.0 * samplingInterval)
     if aggregationTimeScale > maxSamplingInterval > samplingInterval:
       aggregationTimeScale = maxSamplingInterval
 
+  aggregationTimeScale = numpy.timedelta64(int(aggregationTimeScale), 's')
   return aggregationTimeScale
 
 
@@ -518,7 +519,6 @@ def getAggregationFunction(medianSamplingInterval,
         A higher threshold will lead to a bias towards non-transactional data
   :return aggFunc: a string with value "sum" or "mean"
   """
-
   dataTypeIndicator = (medianAbsoluteDevSamplingInterval /
                        medianSamplingInterval)
   if dataTypeIndicator > aggregationFuncThresh:

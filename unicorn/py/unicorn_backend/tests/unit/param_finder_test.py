@@ -160,8 +160,7 @@ class ParamFinderTestCase(unittest.TestCase):
     cwtVar = numpy.exp(-(timeScale - weekPeriod) ** 2 / (2 * 100000.0 ** 2))
     numDataPts = 40000
 
-    maxSamplingInterval = float(numDataPts) / 1000.0 * samplingInterval
-    maxSamplingInterval = maxSamplingInterval.astype('float64')
+    maxSamplingInterval = (float(numDataPts) / 1000.0 * samplingInterval)
 
     aggregationTimeScale = param_finder.determineAggregationWindow(
       timeScale=timeScale,
