@@ -319,22 +319,22 @@ def resampleData(timeStamps, values, newSamplingInterval):
   :param values: numpy array of float64 values
   :param newSamplingInterval: numpy timedelta64 format
   :return a two tuple of (newTimestamp, newValue), where
-          newTimestamp is a numpy array of datetime64 after resampling
-          newValue is a numpy array of floats after resampling
+          newTimeStamps is a numpy array of datetime64 after resampling
+          newValues is a numpy array of floats after resampling
   """
   totalDuration = (timeStamps[-1] - timeStamps[0])
   nSampleNew = numpy.floor(totalDuration / newSamplingInterval) + 1
   nSampleNew = nSampleNew.astype('int')
 
-  newTimestamp = numpy.empty(nSampleNew, dtype='datetime64[s]')
+  newTimeStamps = numpy.empty(nSampleNew, dtype='datetime64[s]')
   for sampleI in xrange(nSampleNew):
-    newTimestamp[sampleI] = timeStamps[0] + sampleI * newSamplingInterval
+    newTimeStamps[sampleI] = timeStamps[0] + sampleI * newSamplingInterval
 
-  newValue = numpy.interp((newTimestamp - timeStamps[0]).astype('float32'),
+  newValues = numpy.interp((newTimeStamps - timeStamps[0]).astype('float32'),
                           (timeStamps - timeStamps[0]).astype('float32'),
                           values)
 
-  return newTimestamp, newValue
+  return newTimeStamps, newValues
 
 
 
@@ -401,10 +401,11 @@ def determineAggregationWindow(timeScale,
   :param timeScale: numpy array, corresponding time scales for wavelet coeffs
   :param cwtVar: numpy array, wavelet coefficients variance over time
   :param thresh: float, cutoff threshold between 0 and 1
-  :param samplingInterval: original sampling interval in seconds
+  :param samplingInterval: numpy timedelta64, original sampling interval
   :param numDataPts: number of data points
   :return: aggregationTimeScale: float, suggested sampling interval
   """
+  samplingInterval = samplingInterval.astype('float64')
   cumulativeCwtVar = numpy.cumsum(cwtVar)
   cutoffTimeScale = timeScale[numpy.where(cumulativeCwtVar >= thresh)[0][0]]
 
@@ -500,7 +501,8 @@ def determineEncoderTypes(cwtVar, timeScale):
 
 
 def getAggregationFunction(medianSamplingInterval,
-                           medianAbsoluteDevSamplingInterval):
+                           medianAbsoluteDevSamplingInterval,
+                           aggregationFuncThresh=0.2):
   """
   Return the aggregation function type:
     ("sum" for transactional data types
@@ -508,13 +510,18 @@ def getAggregationFunction(medianSamplingInterval,
 
   The data type is determined via a data type indicator, defined as the
   ratio between median absolute deviation and median of the sampling interval.
-
+  :param medianSamplingInterval, numpy timedelta64 in unit of seconds
+  :param medianAbsoluteDev is the median absolute deviation of
+          sampling interval in timedelta64 format
+  :param aggregationFuncThresh, a positive float number indication the
+        threshold between transactional and non-transactional data types
+        A higher threshold will lead to a bias towards non-transactional data
   :return aggFunc: a string with value "sum" or "mean"
   """
 
   dataTypeIndicator = (medianAbsoluteDevSamplingInterval /
                        medianSamplingInterval)
-  if dataTypeIndicator > 0.2:
+  if dataTypeIndicator > aggregationFuncThresh:
     aggFunc = "sum"  # "transactional"
   else:
     aggFunc = "mean"  # "non-transactional"

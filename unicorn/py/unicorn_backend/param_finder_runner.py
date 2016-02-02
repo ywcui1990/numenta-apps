@@ -32,6 +32,7 @@ import os
 import sys
 import traceback
 
+from dateutil import tz
 import numpy
 
 from param_finder import find_parameters
@@ -99,7 +100,7 @@ def _parseArgs():
       raise _CommandLineArgError(msg)
 
 
-  parser = SilentArgumentParser(description=("Start Unicorn ParamFinder"))
+  parser = SilentArgumentParser(description=("Start Unicorn ParamFinderRunner"))
 
   parser.add_argument("--csv",
                       type=str,
@@ -110,16 +111,19 @@ def _parseArgs():
   parser.add_argument("--rowOffset",
                       type=int,
                       required=True,
+                      default=None,
                       help="index of first data row in csv file")
 
   parser.add_argument("--timestampIndex",
                       type=int,
                       required=True,
+                      default=None,
                       help="zero-based column index of the timestamp")
 
   parser.add_argument("--valueIndex",
                       type=int,
                       required=True,
+                      default=None,
                       help="zero-based column index of the data value")
 
   parser.add_argument("--datetimeFormat",
@@ -132,6 +136,18 @@ def _parseArgs():
 
   if not options.csv:
     parser.error("Missing or empty --csv option value")
+
+  if options.rowOffset is None:
+    parser.error("Missing or empty --rowOffset option value")
+
+  if options.timestampIndex is None:
+    parser.error("Missing or empty --timestampIndex option value")
+
+  if options.valueIndex is None:
+    parser.error("Missing or empty --valueIndex option value")
+
+  if not options.datetimeFormat:
+    parser.error("Missing or empty --datetimeFormat option value")
 
   return _Options(fileName=options.csv,
                   rowOffset=options.rowOffset,
@@ -173,7 +189,9 @@ def _readCSVFile(fileName,
     for row in fileReader:
       timeStamp = datetime.datetime.strptime(row[timestampIndex],
                                              datetimeFormat)
-      # timeStamp = dateutil.parser.parse(row[timestampIndex])
+      # use local timezone to be consistent with the default assumption
+      # in numpy datetime64 object
+      timeStamp = timeStamp.replace(tzinfo=tz.tzlocal())
       timeStamps.append(numpy.datetime64(timeStamp))
       values.append(row[valueIndex])
 
