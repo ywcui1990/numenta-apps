@@ -46,17 +46,17 @@ export PATH=$PATH_VALUE:$PATH
 echo "--> PATH: $PATH"
 
 echo "==> Cleaning up ..."
-rm $PYTHON_SH
+rm $PYTHON_SH || true
 echo "--> Removed: $PYTHON_SH"
 rm -rf $PREFIX
 echo "--> Removed: $PREFIX"
-rm -rf $CAPNP
+rm -rf $CAPNP || true
 echo "--> Removed: $CAPNP"
-rm $CAPNP.tar.gz
+rm $CAPNP.tar.gz || true
 echo "--> Removed: $CAPNP.tar.gz"
-rm -rf $NUPIC_CORE
+rm -rf $NUPIC_CORE || true
 echo "--> Removed: $NUPIC_CORE"
-rm -rf $NUPIC
+rm -rf $NUPIC || true
 echo "--> Removed: $NUPIC"
 
 echo "==> Downloading Miniconda ..."
