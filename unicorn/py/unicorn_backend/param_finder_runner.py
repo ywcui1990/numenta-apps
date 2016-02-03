@@ -29,10 +29,12 @@ import datetime
 import json
 import logging
 import os
+import pkg_resources
 import sys
 import traceback
 
 from dateutil import tz
+import validictory
 
 from param_finder import find_parameters
 
@@ -84,7 +86,6 @@ class _Options(object):
     return {slot: getattr(self, slot) for slot in self.__slots__}
 
 
-
 def _parseArgs():
   """ Parse command-line args
 
@@ -101,59 +102,38 @@ def _parseArgs():
 
   parser = SilentArgumentParser(description=("Start Unicorn ParamFinderRunner"))
 
-  parser.add_argument("--csv",
-                      type=str,
-                      dest="csv",
-                      required=True,
-                      help="REQUIRED: path to input CSV file")
+  parser.add_argument(
+    "--input",
+    type=str,
+    dest="inputSpec",
+    required=True,
+    help=("REQUIRED: JSON object describing the input metric data per "
+          "input_opt_schema.json"))
 
-  parser.add_argument("--rowOffset",
-                      type=int,
-                      required=True,
-                      default=None,
-                      help="index of first data row in csv file")
-
-  parser.add_argument("--timestampIndex",
-                      type=int,
-                      required=True,
-                      default=None,
-                      help="zero-based column index of the timestamp")
-
-  parser.add_argument("--valueIndex",
-                      type=int,
-                      required=True,
-                      default=None,
-                      help="zero-based column index of the data value")
-
-  parser.add_argument("--datetimeFormat",
-                      type=str,
-                      required=True,
-                      help="datetime format string for python's "
-                           "datetime.strftime")
 
   options = parser.parse_args()
 
-  if not options.csv:
-    parser.error("Missing or empty --csv option value")
+  # Input spec is required
+  try:
+    inputSpec = json.loads(options.inputSpec)
+  except ValueError as exc:
+    g_log.exception("JSON parsing of --input value failed")
+    parser.error("--input option value failed JSON parsing: {}".format(exc))
 
-  if options.rowOffset is None:
-    parser.error("Missing or empty --rowOffset option value")
+  with pkg_resources.resource_stream(__name__,
+                                     "input_opt_schema.json") as schemaFile:
+    try:
+      validictory.validate(inputSpec, json.load(schemaFile))
+    except validictory.ValidationError as exc:
+      g_log.exception("JSON schema validation of --input value failed")
+      parser.error("JSON schema validation of --input value failed: {}"
+                   .format(exc))
 
-  if options.timestampIndex is None:
-    parser.error("Missing or empty --timestampIndex option value")
-
-  if options.valueIndex is None:
-    parser.error("Missing or empty --valueIndex option value")
-
-  if not options.datetimeFormat:
-    parser.error("Missing or empty --datetimeFormat option value")
-
-  return _Options(fileName=options.csv,
-                  rowOffset=options.rowOffset,
-                  timestampIndex=options.timestampIndex,
-                  valueIndex=options.valueIndex,
-                  datetimeFormat=options.datetimeFormat)
-
+  return _Options(fileName=inputSpec['csv'],
+                  rowOffset=inputSpec['rowOffset'],
+                  timestampIndex=inputSpec['timestampIndex'],
+                  valueIndex=inputSpec['valueIndex'],
+                  datetimeFormat=inputSpec['datetimeFormat'])
 
 def _readCSVFile(fileName,
                  rowOffset,
