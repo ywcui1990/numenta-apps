@@ -55,6 +55,10 @@ RabbitMQ credentials:
   ☞  RABBITMQ_PASSWD
   ☞  RABBITMQ_USER
 
+nginx options:
+
+  ☞  NGINX_GLOBAL_PARAMS
+
 Taurus instance credentials:
 
   ☞  TAURUS_COLLECTOR_USER
@@ -296,10 +300,7 @@ pushd "${REPOPATH}"
     taurus/pipeline/scripts/ssl/${TAURUS_SERVER_HOST}.key \
     "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/conf/ssl/localhost.key
 
-  # Copy manual overrides
-  scp ${SSH_ARGS} -r \
-    taurus/pipeline/scripts/overrides/taurus/* \
-    "${TAURUS_SERVER_USER}"@"${TAURUS_SERVER_HOST}":/opt/numenta/products/taurus/
+  # Copy env declarations
   scp ${SSH_ARGS} -r \
     taurus/pipeline/scripts/taurus.metric_collectors-env.sh \
     "${TAURUS_COLLECTOR_USER}"@"${TAURUS_COLLECTOR_HOST}":/opt/numenta/products/taurus.metric_collectors/env.sh
@@ -339,7 +340,7 @@ pushd "${REPOPATH}"
      cd /opt/numenta/products/taurus &&
      python setup.py reset_all_data --suppress-prompt-and-obliterate &&
      cd /opt/numenta/products/taurus &&
-     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf &&
+     sudo /usr/sbin/nginx -p . -c conf/nginx-taurus.conf ${NGINX_GLOBAL_PARAMS} &&
      supervisord -c conf/supervisord.conf &&
      nta-wait-for-supervisord-running http://localhost:9001 &&
      ${TAURUS_ENGINE_TESTS}"
