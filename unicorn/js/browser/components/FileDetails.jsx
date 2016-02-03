@@ -291,8 +291,14 @@ export default class FileDetails extends React.Component {
   render() {
     let body, title;
     let actions=[
-      {text: 'Cancel'},
-      {text: 'Save', onTouchTap: this._onSave.bind(this), ref: 'submit'}
+      {
+        text: 'Cancel'
+      },
+      {
+        text: 'Save',
+        onTouchTap: this._onSave.bind(this),
+        ref: 'submit'
+      }
     ];
 
     if (this.state.file) {
@@ -303,7 +309,6 @@ export default class FileDetails extends React.Component {
     return (
       <Dialog
         open={this.props.visible}
-        actionFocus="submit"
         actions={actions}
         onRequestClose={this._onRequestClose.bind(this)}
         ref="dialog"

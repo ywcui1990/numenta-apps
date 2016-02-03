@@ -287,8 +287,17 @@ export default class FileList extends React.Component {
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let dialogOpen = this.state.deleteConfirmDialog !== null;
     let dialogActions = [
-       {text: 'Cancel'},
-       {text: 'Delete', onTouchTap: deleteConfirmDialog.callback, ref: 'submit'}
+      {
+        text: 'Cancel',
+        secondary: true
+      },
+      {
+        text: 'Delete',
+        keyboardFocused: true,
+        onTouchTap: deleteConfirmDialog.callback,
+        primary: true,
+        ref: 'submit'
+      }
     ];
     let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
     let uploadCount = uploaded.length || 0;
@@ -320,7 +329,6 @@ export default class FileList extends React.Component {
       <nav>
         {filesList}
         <Dialog
-          actionFocus="submit"
           actions={dialogActions}
           onRequestClose={this._dismissDeleteConfirmDialog.bind(this)}
           open={dialogOpen}

@@ -171,8 +171,17 @@ export default class Model extends React.Component {
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let dialogOpen = false;
     let dialogActions = [
-       {text: 'Cancel'},
-       {text: 'Delete', onTouchTap: deleteConfirmDialog.callback, ref: 'submit'}
+      {
+        text: 'Cancel',
+        secondary: true
+      },
+      {
+        text: 'Delete',
+        keyboardFocused: true,
+        onTouchTap: deleteConfirmDialog.callback,
+        primary: true,
+        ref: 'submit'
+      }
     ];
     let actions = (
       <CardActions style={this._styles.actions}>
@@ -233,7 +242,6 @@ export default class Model extends React.Component {
           <ModelData modelId={modelId} />
         </CardText>
         <Dialog
-          actionFocus="submit"
           actions={dialogActions}
           onRequestClose={this._dismissDeleteConfirmDialog.bind(this)}
           open={dialogOpen}
