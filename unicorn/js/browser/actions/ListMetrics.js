@@ -65,9 +65,7 @@ export default function (actionContext, files) {
         let fileCount = 0;
 
         files.forEach((file) => {
-          console.error('file', file);
           fileClient.getFields(file.filename, (error, fields) => {
-            console.error('fields', file.filename, error, fields);
             if (error) {
               console.error(error);
               actionContext.dispatch(
