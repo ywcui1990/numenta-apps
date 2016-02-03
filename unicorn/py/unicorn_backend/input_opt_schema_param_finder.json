@@ -1,5 +1,5 @@
 {
-  "description": "--input command-line option object passed to ModelRunner",
+  "description": "--input command-line option object passed to model runner",
   "type": "object",
   "additionalProperties": false,
 
@@ -7,7 +7,7 @@
     "csv": {
       "description": "Absolute path to input CSV file; if omitted, will read CSV from stdin.",
       "type": "string",
-      "required": false
+      "required": true
     },
 
     "rowOffset": {

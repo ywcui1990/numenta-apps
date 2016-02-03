@@ -383,11 +383,16 @@ def main():
   # Use NullHandler for now to avoid getting the unwanted unformatted warning
   # message from logger on stderr "No handlers could be found for logger".
   g_log.addHandler(logging.NullHandler())
+
+  inputFileObj = None
   try:
     options = _parseArgs()
 
     # Create an input file object with the desired properties
-    inputFileObj = os.fdopen(os.dup(sys.stdin.fileno()), "rU")
+    if "csv" in options.inputSpec:
+      inputFileObj = open(options.inputSpec["csv"], mode="rU")
+    else:
+      inputFileObj = os.fdopen(os.dup(sys.stdin.fileno()), "rU")
 
     # Invoke the model runner
     _ModelRunner(
@@ -417,6 +422,9 @@ def main():
     # message to stderr, and don't want the extra text to interfere with parsing
     # in the Front End)
     os._exit(1)  # pylint: disable=W0212
+  finally:
+    if inputFileObj is not None:
+      inputFileObj.close()
 
 
 
