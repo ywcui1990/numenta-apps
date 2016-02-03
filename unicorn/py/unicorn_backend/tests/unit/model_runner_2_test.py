@@ -46,7 +46,8 @@ class ModelRunnerTestCase(unittest.TestCase):
     """ Invalid CLI arguments are rejected
     """
 
-    def _assertArgumentPatternFails(argumentPattern=None):
+    def _assertArgumentPatternFails(argumentPattern=None,
+                                    excSubstring=None):
       if argumentPattern is None:
         argumentPattern = []
 
@@ -54,21 +55,33 @@ class ModelRunnerTestCase(unittest.TestCase):
 
       with patch.object(sys, "argv", argumentPattern):
         # pylint: disable=W0212
-        with self.assertRaises(model_runner_2._CommandLineArgError):
+        with self.assertRaises(model_runner_2._CommandLineArgError) as excCtx:
           model_runner_2._parseArgs()
+
+        if excSubstring is not None:
+          self.assertIn(excSubstring, str(excCtx.exception))
 
     _assertArgumentPatternFails()
 
-    _assertArgumentPatternFails(["--input="])
-    _assertArgumentPatternFails(['--input="1"'])
-    _assertArgumentPatternFails(['--input="{}"'])
+    _assertArgumentPatternFails(["--input="],
+                                "argument --model is required")
+    _assertArgumentPatternFails(['--input="1"'],
+                                "argument --model is required")
+    _assertArgumentPatternFails(['--input="{}"'],
+                                "argument --model is required")
 
-    _assertArgumentPatternFails(["--agg="])
-    _assertArgumentPatternFails(['--agg="1"'])
-    _assertArgumentPatternFails(['--agg="{}"'])
+    _assertArgumentPatternFails(["--agg="],
+                                "argument --input is required")
+    _assertArgumentPatternFails(['--agg="1"'],
+                                "argument --input is required")
+    _assertArgumentPatternFails(['--agg="{}"'],
+                                "argument --input is required")
 
-    _assertArgumentPatternFails(["--model="])
-    _assertArgumentPatternFails(['--model="1"'])
-    _assertArgumentPatternFails(['--model="{}"'])
+    _assertArgumentPatternFails(["--model="],
+                                "argument --input is required")
+    _assertArgumentPatternFails(['--model="1"'],
+                                "argument --input is required")
+    _assertArgumentPatternFails(['--model="{}"'],
+                                "argument --input is required")
 
     _assertArgumentPatternFails(['--input="{}"', '--model="{}"'])
