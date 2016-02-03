@@ -45,7 +45,7 @@ class ParamFinderTestCase(unittest.TestCase):
     timeStamps = numpy.array([datetime.datetime(2000, 1, 1) +
                               datetime.timedelta(hours=i) for i in xrange(24)])
     (medianSamplingInterval,
-     medianAbsoluteDev) = param_finder.getMedianSamplingInterval(timeStamps)
+     medianAbsoluteDev) = param_finder._getMedianSamplingInterval(timeStamps)
     self.assertAlmostEqual(medianSamplingInterval,
                            numpy.timedelta64(3600, 's'))
     self.assertAlmostEqual(medianAbsoluteDev,
@@ -53,11 +53,11 @@ class ParamFinderTestCase(unittest.TestCase):
 
 
   def testGetAggregationFunction(self):
-    aggFunc = param_finder.getAggregationFunction(numpy.timedelta64(300, 's'),
+    aggFunc = param_finder._getAggregationFunction(numpy.timedelta64(300, 's'),
                                                   numpy.timedelta64(0, 's'))
     self.assertEqual(aggFunc, 'mean')
 
-    aggFunc = param_finder.getAggregationFunction(numpy.timedelta64(300, 's'),
+    aggFunc = param_finder._getAggregationFunction(numpy.timedelta64(300, 's'),
                                                   numpy.timedelta64(100, 's'))
     self.assertEqual(aggFunc, 'sum')
 
@@ -69,7 +69,7 @@ class ParamFinderTestCase(unittest.TestCase):
       datetime.timedelta(hours=i)) for i in xrange(8)])
     values = numpy.linspace(0, 7, 8)
     newSamplingInterval = numpy.timedelta64(1800, 's')
-    (newTimeStamps, newValues) = param_finder.resampleData(timeStamps,
+    (newTimeStamps, newValues) = param_finder._resampleData(timeStamps,
                                                            values,
                                                            newSamplingInterval)
 
@@ -81,7 +81,7 @@ class ParamFinderTestCase(unittest.TestCase):
 
     # test down-sampling by a factor of 2
     newSamplingInterval = numpy.timedelta64(7200, 's')
-    (newTimeStamps, newValues) = param_finder.resampleData(timeStamps,
+    (newTimeStamps, newValues) = param_finder._resampleData(timeStamps,
                                                            values,
                                                            newSamplingInterval)
     trueNewTimeStamps = numpy.array([numpy.datetime64(
@@ -99,7 +99,7 @@ class ParamFinderTestCase(unittest.TestCase):
     values = numpy.sin(numpy.linspace(0, 100, 101) * 2 * numpy.pi / 10.0)
     targetPeriod = 3000.0
 
-    (cwtVar, timeScale) = param_finder.calculateContinuousWaveletTransform(
+    (cwtVar, timeScale) = param_finder._calculateContinuousWaveletTransform(
       samplingInterval, values)
 
     calculatedPeriod = timeScale[numpy.where(cwtVar == max(cwtVar))[0][0]]
@@ -120,21 +120,21 @@ class ParamFinderTestCase(unittest.TestCase):
     # a flat cwtVar distribution, no encoder should be used
     cwtVar = numpy.ones(shape=timeScale.shape)
     (useTimeOfDay,
-     useDayOfWeek) = param_finder.determineEncoderTypes(cwtVar, timeScale)
+     useDayOfWeek) = param_finder._determineEncoderTypes(cwtVar, timeScale)
     self.assertFalse(useTimeOfDay)
     self.assertFalse(useDayOfWeek)
 
     # make a peak around daily period
     cwtVar = numpy.exp(-(timeScale - dayPeriod) ** 2 / (2 * 100000.0 ** 2))
     (useTimeOfDay,
-     useDayOfWeek) = param_finder.determineEncoderTypes(cwtVar, timeScale)
+     useDayOfWeek) = param_finder._determineEncoderTypes(cwtVar, timeScale)
     self.assertTrue(useTimeOfDay)
     self.assertFalse(useDayOfWeek)
 
     # make a peak around weekly period
     cwtVar = numpy.exp(-(timeScale - weekPeriod) ** 2 / (2 * 100000.0 ** 2))
     (useTimeOfDay,
-     useDayOfWeek) = param_finder.determineEncoderTypes(cwtVar, timeScale)
+     useDayOfWeek) = param_finder._determineEncoderTypes(cwtVar, timeScale)
     self.assertFalse(useTimeOfDay)
     self.assertTrue(useDayOfWeek)
 
@@ -142,7 +142,7 @@ class ParamFinderTestCase(unittest.TestCase):
     cwtVar = (numpy.exp(-(timeScale - dayPeriod) ** 2 / (2 * 100000.0 ** 2)) +
               numpy.exp(-(timeScale - weekPeriod) ** 2 / (2 * 100000.0 ** 2)))
     (useTimeOfDay,
-     useDayOfWeek) = param_finder.determineEncoderTypes(cwtVar, timeScale)
+     useDayOfWeek) = param_finder._determineEncoderTypes(cwtVar, timeScale)
     self.assertTrue(useTimeOfDay)
     self.assertTrue(useDayOfWeek)
 
@@ -162,7 +162,7 @@ class ParamFinderTestCase(unittest.TestCase):
 
     maxSamplingInterval = (float(numDataPts) / 1000.0 * samplingInterval)
 
-    aggregationTimeScale = param_finder.determineAggregationWindow(
+    aggregationTimeScale = param_finder._determineAggregationWindow(
       timeScale=timeScale,
       cwtVar=cwtVar,
       thresh=0.2,
