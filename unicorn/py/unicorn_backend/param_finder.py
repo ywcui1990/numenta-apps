@@ -43,7 +43,7 @@ _AGGREGATION_WINDOW_THRESH = 0.2
 MAX_ROW_NUMBER = 20000
 
 
-def _convolve(vector1, vector2, mode=2):
+def _convolve(vector1, vector2, mode):
   """
   Returns the discrete, linear convolution of two one-dimensional sequences.
 
@@ -63,17 +63,17 @@ def _convolve(vector1, vector2, mode=2):
   :param vector2: (M,) array_like
       Second one-dimensional input array.
   :param mode: int that indicates mode of convolution, which takes the value of
-      2:
+      _CORRELATION_MODE_FULL:
         By default, mode is 'full'.  This returns the convolution
         at each point of overlap, with an output shape of (N+M-1,). At
         the end-points of the convolution, the signals do not overlap
         completely, and boundary effects may be seen.
 
-      1:
+      _CORRELATION_MODE_SAME:
         Mode `same` returns output of length ``max(M, N)``.  Boundary
         effects are still visible.
 
-      0:
+      _CORRELATION_MODE_VALID:
         Mode `valid` returns output of length
         ``max(M, N) - min(M, N) + 1``.  The convolution product is only given
         for points where the signals overlap completely.  Values outside
@@ -209,19 +209,18 @@ def find_parameters(timeStamps, values):
   if len(timeStamps) != len(values):
     raise ValueError('timeStamps and Values must have the same length')
 
+  if type(timeStamps[0]) is not datetime.datetime:
+    raise TypeError('timeStamps must be datetime type')
+
+  if len(timeStamps) > MAX_ROW_NUMBER:
+    timeStamps = timeStamps[:MAX_ROW_NUMBER]
+
+  if len(values) > MAX_ROW_NUMBER:
+    values = values[:MAX_ROW_NUMBER]
+
+  timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
+
   try:
-    assert(type(timeStamps[0]) is datetime.datetime)
-    if len(timeStamps) > MAX_ROW_NUMBER:
-      timeStamps = timeStamps[:MAX_ROW_NUMBER]
-
-    timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
-  except:
-    raise TypeError('timeStamps must be an array of datetime64')
-
-  try:
-    if len(values) > MAX_ROW_NUMBER:
-      values = values[:MAX_ROW_NUMBER]
-
     values = numpy.array(values).astype('float64')
   except:
     raise TypeError('values must be an array with float numbers')
@@ -229,16 +228,16 @@ def find_parameters(timeStamps, values):
   numDataPts = len(values)
 
   (medianSamplingInterval,
-   medianAbsoluteDevSamplingInterval) = getMedianSamplingInterval(timeStamps)
+   medianAbsoluteDevSamplingInterval) = _getMedianSamplingInterval(timeStamps)
 
-  (timeStamps, values) = resampleData(timeStamps,
+  (timeStamps, values) = _resampleData(timeStamps,
                                       values,
                                       medianSamplingInterval)
 
-  (_cwtVar, _timeScale) = calculateContinuousWaveletTransform(
+  (_cwtVar, _timeScale) = _calculateContinuousWaveletTransform(
     medianSamplingInterval, values)
 
-  suggestedSamplingInterval = determineAggregationWindow(
+  suggestedSamplingInterval = _determineAggregationWindow(
     timeScale=_timeScale,
     cwtVar=_cwtVar,
     thresh=_AGGREGATION_WINDOW_THRESH,
@@ -246,23 +245,23 @@ def find_parameters(timeStamps, values):
     numDataPts=numDataPts)
 
   # decide whether to use TimeOfDay and DayOfWeek encoders
-  (useTimeOfDay, useDayOfWeek) = determineEncoderTypes(_cwtVar, _timeScale)
+  (useTimeOfDay, useDayOfWeek) = _determineEncoderTypes(_cwtVar, _timeScale)
 
   # decide the aggregation function ("mean" or "sum")
-  aggFunc = getAggregationFunction(medianSamplingInterval,
+  aggFunc = _getAggregationFunction(medianSamplingInterval,
                                    medianAbsoluteDevSamplingInterval)
 
   outputInfo = {
-    "aggInfo": getAggInfo(medianSamplingInterval,
+    "aggInfo": _getAggInfo(medianSamplingInterval,
                           suggestedSamplingInterval,
                           aggFunc),
-    "modelInfo": getModelParams(useTimeOfDay, useDayOfWeek, values),
+    "modelInfo": _getModelParams(useTimeOfDay, useDayOfWeek, values),
   }
   return outputInfo
 
 
 
-def getAggInfo(medianSamplingInterval, suggestedSamplingInterval, aggFunc):
+def _getAggInfo(medianSamplingInterval, suggestedSamplingInterval, aggFunc):
   """
   Return a JSON object containing the aggregation window size and
   aggregation function type
@@ -282,7 +281,7 @@ def getAggInfo(medianSamplingInterval, suggestedSamplingInterval, aggFunc):
 
 
 
-def getModelParams(useTimeOfDay, useDayOfWeek, value):
+def _getModelParams(useTimeOfDay, useDayOfWeek, value):
   """
   Return a JSON object describing the model configuration
   :param useTimeOfDay: bool, whether to use timeOfDay encoder
@@ -317,7 +316,7 @@ def getModelParams(useTimeOfDay, useDayOfWeek, value):
 
 
 
-def resampleData(timeStamps, values, newSamplingInterval):
+def _resampleData(timeStamps, values, newSamplingInterval):
   """
   Resample data at new sampling interval using linear interpolation
   Note: the resampling function is using interpolation,
@@ -346,7 +345,7 @@ def resampleData(timeStamps, values, newSamplingInterval):
 
 
 
-def calculateContinuousWaveletTransform(samplingInterval, values):
+def _calculateContinuousWaveletTransform(samplingInterval, values):
   """
   Calculate continuous wavelet transformation (CWT)
   Return variance of the cwt coefficients over time
@@ -375,7 +374,7 @@ def calculateContinuousWaveletTransform(samplingInterval, values):
 
 
 
-def getMedianSamplingInterval(timeStamps):
+def _getMedianSamplingInterval(timeStamps):
   """
   calculate median and median absolute deviation of sampling interval
 
@@ -398,11 +397,11 @@ def getMedianSamplingInterval(timeStamps):
 
 
 
-def determineAggregationWindow(timeScale,
-                               cwtVar,
-                               thresh,
-                               samplingInterval,
-                               numDataPts):
+def _determineAggregationWindow(timeScale,
+                                cwtVar,
+                                thresh,
+                                samplingInterval,
+                                numDataPts):
   """
   Determine data aggregation window
 
@@ -434,7 +433,7 @@ def determineAggregationWindow(timeScale,
 
 
 
-def determineEncoderTypes(cwtVar, timeScale):
+def _determineEncoderTypes(cwtVar, timeScale):
   """
   Find local maxima from the wavelet coefficient variance spectrum
   A strong maxima is defined as
@@ -509,9 +508,9 @@ def determineEncoderTypes(cwtVar, timeScale):
 
 
 
-def getAggregationFunction(medianSamplingInterval,
-                           medianAbsoluteDevSamplingInterval,
-                           aggregationFuncThresh=0.2):
+def _getAggregationFunction(medianSamplingInterval,
+                            medianAbsoluteDevSamplingInterval,
+                            aggregationFuncThresh=0.2):
   """
   Return the aggregation function type:
     ("sum" for transactional data types
