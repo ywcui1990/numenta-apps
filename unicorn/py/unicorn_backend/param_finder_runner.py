@@ -108,7 +108,7 @@ def _parseArgs():
     dest="inputSpec",
     required=True,
     help=("REQUIRED: JSON object describing the input metric data per "
-          "input_opt_schema.json"))
+          "input_opt_schema_param_finder.json"))
 
 
   options = parser.parse_args()
@@ -121,7 +121,7 @@ def _parseArgs():
     parser.error("--input option value failed JSON parsing: {}".format(exc))
 
   with pkg_resources.resource_stream(__name__,
-                                     "input_opt_schema.json") as schemaFile:
+                                     "input_opt_schema_param_finder.json") as schemaFile:
     try:
       validictory.validate(inputSpec, json.load(schemaFile))
     except validictory.ValidationError as exc:
@@ -171,9 +171,9 @@ def _readCSVFile(fileName,
 
       # use local timezone to be consistent with the default assumption
       # in numpy datetime64 object
-      timeStamp = timeStamp.replace(tzinfo=tz.tzlocal())
+      timeStamp = timeStamp.replace(tzinfo=tz.tzutc())
       timeStamps.append(timeStamp)
-      values.append(row[valueIndex])
+      values.append(float(row[valueIndex]))
 
       numRow += 1
       if numRow >= _MAX_ROW_NUMBER:

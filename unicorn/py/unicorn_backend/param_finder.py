@@ -182,7 +182,7 @@ def find_parameters(timeStamps, values):
   :param timeStamps: array_like, each entry is a timeStamp in datetime type
   :param values: array_like, each entry is a float number
 
-  :return: JSON object with the following properties:
+  :returns: JSON object with the following properties:
 
     "aggInfo" aggregation information, JSON null if no aggregation is needed
       otherwise, a JSON object contains the folowing properties:
@@ -192,18 +192,18 @@ def find_parameters(timeStamps, values):
 
     "modelInfo": JSON object describing the model configuration that
     contains the following properties:
-      “modelConfig”: OPF Model Configuration parameters (JSON object) for
-      passing to the OPF `ModelFactory.create()` method as the
-      `modelConfig` parameter.
+      "modelConfig": OPF Model Configuration parameters (JSON object) for
+      passing to the OPF 'ModelFactory.create()' method as the
+      'modelConfig' parameter.
 
-      “inferenceArgs”: OPF Model Inference parameters (JSON object) for
+      "inferenceArgs": OPF Model Inference parameters (JSON object) for
       passing to the resulting model's `enableInference()` method as the
       inferenceArgs parameter.
 
-      “timestampFieldName”: The name of the field in `modelConfig`
+      "timestampFieldName": The name of the field in 'modelConfig'
       corresponding to the metric timestamp (string)
 
-      “valueFieldName”: The name of the field in `modelConfig`
+      "valueFieldName": The name of the field in 'modelConfig'
       corresponding to the metric value (string)
   """
   if len(timeStamps) != len(values):
@@ -281,14 +281,14 @@ def _getAggInfo(medianSamplingInterval, suggestedSamplingInterval, aggFunc):
 
 
 
-def _getModelParams(useTimeOfDay, useDayOfWeek, value):
+def _getModelParams(useTimeOfDay, useDayOfWeek, values):
   """
   Return a JSON object describing the model configuration
-  :param useTimeOfDay: bool, whether to use timeOfDay encoder
-  :param useDayOfWeek: bool, whether to use dayOfWeej encoder
-  :param value: numpy array of metric data, used to compute min/max values
+  :param bool useTimeOfDay: whether to use timeOfDay encoder
+  :param bool useDayOfWeek: whether to use dayOfWeej encoder
+  :param values: numpy array of data values, used to compute min/max values
   """
-  modelParams = getScalarMetricWithTimeOfDayAnomalyParams(metricData=value)
+  modelParams = getScalarMetricWithTimeOfDayAnomalyParams(metricData=values)
 
   if useTimeOfDay:
     modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \

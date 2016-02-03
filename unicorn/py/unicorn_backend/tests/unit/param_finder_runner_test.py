@@ -22,15 +22,14 @@
 """Unit test of the unicorn_backend.param_finder_runner module"""
 
 import csv
-import datetime
+from datetime import datetime
+import json
 import logging
 from mock import patch
 import os
 import sys
 import tempfile
 import unittest
-
-import numpy
 
 from nta.utils.logging_support_raw import LoggingSupport
 from unicorn_backend import param_finder_runner
@@ -75,30 +74,17 @@ class ParamFinderRunnerTestCase(unittest.TestCase):
 
 
     _assertArgumentPatternFails()
-    _assertArgumentPatternFails(["--csv="])
-    _assertArgumentPatternFails(['--csv="1"'])
-    _assertArgumentPatternFails(["--rowOffset="])
-    _assertArgumentPatternFails(['--rowOffset=1'])
-    _assertArgumentPatternFails(["--timestampIndex="])
-    _assertArgumentPatternFails(['--timestampIndex=1'])
-    _assertArgumentPatternFails(["--valueIndex="])
-    _assertArgumentPatternFails(['--valueIndex=1'])
-    _assertArgumentPatternFails(["--datetimeFormat="])
-    _assertArgumentPatternFails(['--datetimeFormat="%Y-%m-%d %H:%M:%S"'])
-    _assertArgumentPatternFails(['--csv="1"', '--rowOffset=1'])
-    _assertArgumentPatternFails(['--csv="1"',
-                                 '--rowOffset=1',
-                                 '--valueIndex=1'])
-    _assertArgumentPatternFails(['--csv="1"',
-                                 '--rowOffset=1',
-                                 '--valueIndex=1',
-                                 "--timestampIndex=1"])
+    _assertArgumentPatternFails(["--input="])
 
-    _assertArgumentPatternPasses(['--csv="1"',
-                                 "--valueIndex=1",
-                                 '--rowOffset=1',
-                                 '--timestampIndex=1',
-                                 '--datetimeFormat="%Y-%m-%d %H:%M:%S"'])
+    inputInfo = {
+       'csv': "file.csv",
+       'rowOffset': 4,
+       'timestampIndex': 0,
+       'valueIndex': 1,
+       'datetimeFormat': "%m/%d/%y %H:%M"}
+    inputInfo = json.dumps(inputInfo)
+
+    _assertArgumentPatternPasses(['--input='+inputInfo])
 
 
   def testReadCSVFile(self):
@@ -119,8 +105,9 @@ class ParamFinderRunnerTestCase(unittest.TestCase):
       datetimeFormat="%Y-%m-%d %H:%M:%S"
     )
     self.assertAlmostEqual(values[0], 20.0)
-    self.assertAlmostEqual(timeStamps[0],
-                           numpy.datetime64('2014-04-01 00:00:00'))
+    self.assertAlmostEqual(str(timeStamps[0]),
+                           '2014-04-01 00:00:00+00:00')
     os.remove(tmpfilepath)
 
-
+if __name__ == "__main__":
+  unittest.main()
