@@ -25,7 +25,7 @@
 
 import csv from 'csv-streamify';
 import filesystem from 'fs';
-import newline from 'newline';
+import convertNewline from 'convert-newline';
 import path from 'path';
 import TimeAggregator from './TimeAggregator';
 import Utils from './Utils';
@@ -116,9 +116,7 @@ FileService.prototype.getUploadedFiles = function (file, callback) {
  */
 FileService.prototype.getFields = function (filename, options, callback) {
   var fields = [];
-  var fieldName, stream;
-
-  console.error('getFields NEWLINE!!!');
+  var fieldName, newliner, stream;
 
   // "options" is optional
   if (typeof callback == 'undefined' && typeof options == 'function') {
@@ -130,10 +128,14 @@ FileService.prototype.getFields = function (filename, options, callback) {
     options.columns = true;
   }
   options.objectMode = true;
-  options.newline = Utils.mapNewline(newline.detect(path.resolve(filename)));
 
-  stream = filesystem.createReadStream(path.resolve(filename));
-  stream.pipe(csv(options))
+  stream = filesystem.createReadStream(
+    path.resolve(filename),
+    {encoding: 'utf8'}
+  );
+  newliner = convertNewline('lf').stream();
+  stream.pipe(newliner)
+    .pipe(csv(options))
     .once('data', function (data) {
       if (data) {
         for (fieldName in data) {
@@ -169,7 +171,7 @@ FileService.prototype.getFields = function (filename, options, callback) {
  *                    ```
  *                     {
  *                        delimiter: ',', // comma, semicolon, whatever
- *                        newline: 'n', // newline character
+ *                        newline: '\n', // newline delimiter
  *                        quote: '"', // what's considered a quote
  *                        empty: '', // empty fields are replaced by this,
  *
@@ -214,10 +216,13 @@ FileService.prototype.getData = function (filename, options, callback) {
   if (!('limit' in options)) {
     options.limit = Number.MAX_SAFE_INTEGER;
   }
-  options.newline = Utils.mapNewline(newline.detect(path.resolve(filename)));
 
   let limit = options.limit;
-  let fileStream = filesystem.createReadStream(path.resolve(filename));
+  let fileStream = filesystem.createReadStream(
+    path.resolve(filename),
+    {encoding: 'utf8'}
+  );
+  let newliner = convertNewline('lf').stream();
   let csvParser = csv(options);
   let lastStream = csvParser;
   let aggregator;
@@ -242,9 +247,9 @@ FileService.prototype.getData = function (filename, options, callback) {
     .once('end', callback);
 
   if (aggregator) {
-    fileStream.pipe(csvParser).pipe(aggregator);
+    fileStream.pipe(newliner).pipe(csvParser).pipe(aggregator);
   } else {
-    fileStream.pipe(csvParser);
+    fileStream.pipe(newliner).pipe(csvParser);
   }
 };
 
@@ -255,7 +260,7 @@ FileService.prototype.getData = function (filename, options, callback) {
  *                    <code>
  *                     {
  *                       delimiter: ',', // comma, semicolon, whatever
- *                       newline: 'n', // newline character
+ *                       newline: '\n', // newline delimiter
  *                       quote: '"', // what's considered a quote
  *                       empty: '', // empty fields are replaced by this,
  *
