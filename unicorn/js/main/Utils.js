@@ -72,6 +72,19 @@ export default class Utils {
   }
 
   /**
+   * Map newline letter representations to character slash-based representations
+   * @param {String} type - Short string 'CR', 'LF', 'CRLF'
+   * @returns {String} - Translated line ending '\r', '\n', '\r\n'
+   */
+  static mapNewline(type) {
+    return {
+      CR: '\r',
+      LF: '\n',
+      CRLF: '\r\n'
+    }[type];
+  }
+
+  /**
    * Template String to trim extra spaces from multiline es6 strings.
    * @param {Array} strings - Input string literals for es6 template string.
    * @param {...Array} [values] - Template string filler values.

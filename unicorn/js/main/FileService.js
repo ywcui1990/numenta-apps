@@ -22,15 +22,13 @@
 // NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
 /* eslint-disable no-var, object-shorthand, prefer-arrow-callback */
 
-// externals
 
 import csv from 'csv-streamify';
 import filesystem from 'fs';
+import newline from 'newline';
 import path from 'path';
 import TimeAggregator from './TimeAggregator';
 import Utils from './Utils';
-
-// internals
 
 const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
 
@@ -120,6 +118,8 @@ FileService.prototype.getFields = function (filename, options, callback) {
   var fields = [];
   var fieldName, stream;
 
+  console.error('getFields NEWLINE!!!');
+
   // "options" is optional
   if (typeof callback == 'undefined' && typeof options == 'function') {
     callback = options;
@@ -129,8 +129,9 @@ FileService.prototype.getFields = function (filename, options, callback) {
   if (!('columns' in options)) {
     options.columns = true;
   }
-
   options.objectMode = true;
+  options.newline = Utils.mapNewline(newline.detect(path.resolve(filename)));
+
   stream = filesystem.createReadStream(path.resolve(filename));
   stream.pipe(csv(options))
     .once('data', function (data) {
@@ -213,6 +214,7 @@ FileService.prototype.getData = function (filename, options, callback) {
   if (!('limit' in options)) {
     options.limit = Number.MAX_SAFE_INTEGER;
   }
+  options.newline = Utils.mapNewline(newline.detect(path.resolve(filename)));
 
   let limit = options.limit;
   let fileStream = filesystem.createReadStream(path.resolve(filename));

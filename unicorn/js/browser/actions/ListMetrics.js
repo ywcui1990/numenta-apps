@@ -65,8 +65,11 @@ export default function (actionContext, files) {
         let fileCount = 0;
 
         files.forEach((file) => {
+          console.error('file', file);
           fileClient.getFields(file.filename, (error, fields) => {
+            console.error('fields', file.filename, error, fields);
             if (error) {
+              console.error(error);
               actionContext.dispatch(
                 ACTIONS.LIST_METRICS_FAILURE,
                 new FilesystemGetError(error)
@@ -83,6 +86,7 @@ export default function (actionContext, files) {
                 log.debug('got files from fs, saving to db for next runs');
                 databaseClient.putMetricBatch(fieldsList, (error) => {
                   if (error) {
+                    console.error(error);
                     actionContext.dispatch(
                       ACTIONS.LIST_METRICS_FAILURE,
                       new DatabasePutError(error)
