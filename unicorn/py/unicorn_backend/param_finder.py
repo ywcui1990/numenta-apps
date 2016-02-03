@@ -417,6 +417,7 @@ def _determineAggregationWindow(timeScale,
   cutoffTimeScale = timeScale[numpy.where(cumulativeCwtVar >= thresh)[0][0]]
 
   aggregationTimeScale = cutoffTimeScale / 10.0
+  aggregationTimeScale = aggregationTimeScale.astype('float64')
   if aggregationTimeScale < samplingInterval * 4:
     aggregationTimeScale = samplingInterval * 4
 
