@@ -22,15 +22,13 @@
 // NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
 /* eslint-disable no-var, object-shorthand, prefer-arrow-callback */
 
-// externals
 
 import csv from 'csv-streamify';
 import filesystem from 'fs';
+import convertNewline from 'convert-newline';
 import path from 'path';
 import TimeAggregator from './TimeAggregator';
 import Utils from './Utils';
-
-// internals
 
 const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
 
@@ -118,7 +116,7 @@ FileService.prototype.getUploadedFiles = function (file, callback) {
  */
 FileService.prototype.getFields = function (filename, options, callback) {
   var fields = [];
-  var fieldName, stream;
+  var fieldName, newliner, stream;
 
   // "options" is optional
   if (typeof callback == 'undefined' && typeof options == 'function') {
@@ -129,10 +127,15 @@ FileService.prototype.getFields = function (filename, options, callback) {
   if (!('columns' in options)) {
     options.columns = true;
   }
-
   options.objectMode = true;
-  stream = filesystem.createReadStream(path.resolve(filename));
-  stream.pipe(csv(options))
+
+  stream = filesystem.createReadStream(
+    path.resolve(filename),
+    {encoding: 'utf8'}
+  );
+  newliner = convertNewline('lf').stream();
+  stream.pipe(newliner)
+    .pipe(csv(options))
     .once('data', function (data) {
       if (data) {
         for (fieldName in data) {
@@ -168,7 +171,7 @@ FileService.prototype.getFields = function (filename, options, callback) {
  *                    ```
  *                     {
  *                        delimiter: ',', // comma, semicolon, whatever
- *                        newline: 'n', // newline character
+ *                        newline: '\n', // newline delimiter
  *                        quote: '"', // what's considered a quote
  *                        empty: '', // empty fields are replaced by this,
  *
@@ -215,7 +218,11 @@ FileService.prototype.getData = function (filename, options, callback) {
   }
 
   let limit = options.limit;
-  let fileStream = filesystem.createReadStream(path.resolve(filename));
+  let fileStream = filesystem.createReadStream(
+    path.resolve(filename),
+    {encoding: 'utf8'}
+  );
+  let newliner = convertNewline('lf').stream();
   let csvParser = csv(options);
   let lastStream = csvParser;
   let aggregator;
@@ -240,9 +247,9 @@ FileService.prototype.getData = function (filename, options, callback) {
     .once('end', callback);
 
   if (aggregator) {
-    fileStream.pipe(csvParser).pipe(aggregator);
+    fileStream.pipe(newliner).pipe(csvParser).pipe(aggregator);
   } else {
-    fileStream.pipe(csvParser);
+    fileStream.pipe(newliner).pipe(csvParser);
   }
 };
 
@@ -253,7 +260,7 @@ FileService.prototype.getData = function (filename, options, callback) {
  *                    <code>
  *                     {
  *                       delimiter: ',', // comma, semicolon, whatever
- *                       newline: 'n', // newline character
+ *                       newline: '\n', // newline delimiter
  *                       quote: '"', // what's considered a quote
  *                       empty: '', // empty fields are replaced by this,
  *
