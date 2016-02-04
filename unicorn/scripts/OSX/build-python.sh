@@ -26,18 +26,18 @@
 # nupic and nupic.bindings installed.
 
 set -o errexit
+set -o xtrace
 
 OSX_VERSION=$(sw_vers -productVersion | awk -F '.' '{print $1 "." $2}')
 echo "==> System version: $OSX_VERSION"
-CWD=$(pwd)
 PYTHON_SH="Miniconda-latest-MacOSX-x86_64.sh"
 CAPNP="capnproto-c++-0.5.3"
-NUPIC_CORE=${CWD}/nupic.core
-NUPIC=${CWD}/nupic
-PREFIX=${CWD}/miniconda
+NUPIC_CORE=${PWD}/nupic.core
+NUPIC=${PWD}/nupic
+PREFIX=${PWD}/miniconda
 PATH_VALUE=${PREFIX}/bin:${PREFIX}/include
 
-echo "==> Current working directory: $CWD"
+echo "==> Current working directory: $PWD"
 echo "==> Python will be installed in: $PREFIX"
 echo "==> Setting up environment variables ..."
 # The env variable PATH has to be extended otherwise
@@ -46,17 +46,17 @@ export PATH=$PATH_VALUE:$PATH
 echo "--> PATH: $PATH"
 
 echo "==> Cleaning up ..."
-rm -rf $PYTHON_SH
+rm $PYTHON_SH || true
 echo "--> Removed: $PYTHON_SH"
 rm -rf $PREFIX
 echo "--> Removed: $PREFIX"
-rm -rf $CAPNP
+rm -rf $CAPNP || true
 echo "--> Removed: $CAPNP"
-rm -rf $CAPNP.tar.gz
+rm $CAPNP.tar.gz || true
 echo "--> Removed: $CAPNP.tar.gz"
-rm -rf $NUPIC_CORE
+rm -rf $NUPIC_CORE || true
 echo "--> Removed: $NUPIC_CORE"
-rm -rf $NUPIC
+rm -rf $NUPIC || true
 echo "--> Removed: $NUPIC"
 
 echo "==> Downloading Miniconda ..."
@@ -74,10 +74,10 @@ curl -O https://capnproto.org/$CAPNP.tar.gz
 
 echo "==> Installing Capnp ..."
 tar zxf $CAPNP.tar.gz
-cd $CAPNP
+pushd $CAPNP
 ./configure --disable-shared --prefix=$PREFIX
 make -j6 check && make install
-cd $CWD
+popd
 
 echo "==> Cloning nupic.core ..."
 git clone https://github.com/numenta/nupic.core.git
@@ -93,29 +93,29 @@ export MACOSX_DEPLOYMENT_TARGET=$OSX_VERSION
 $PREFIX/bin/pip install pycapnp
 
 echo "==> Building nupic.core ..."
-cd $NUPIC_CORE/build/scripts
+pushd $NUPIC_CORE/build/scripts
 BUILD_CMD="cmake $NUPIC_CORE -DCMAKE_INCLUDE_PATH=${PREFIX}/include -DCMAKE_LIBRARY_PATH=${PREFIX}/lib -DCMAKE_PREFIX_PATH=${PREFIX} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DPY_EXTENSIONS_DIR=${NUPIC_CORE}/bindings/py/nupic/bindings -DPYTHON_EXECUTABLE:FILEPATH=${PREFIX}/bin/python2.7 -DPYTHON_INCLUDE_DIR:PATH=${PREFIX}/include/python2.7 -DPYTHON_LIBRARY:FILEPATH=${PREFIX}/lib/libpython2.7.dylib"
-
-echo "--> Executing cmd: $BUILD_CMD"
 $BUILD_CMD
 
-echo "--> Building nupic.core"
-make -j6
+echo "==> Installing nupic.core ..."
+make
 make install
+popd
 
 echo "==> Installing nupic.core python bindings ..."
-cd $NUPIC_CORE/bindings/py
+pushd $NUPIC_CORE/bindings/py
 export ARCHFLAGS="-arch x86_64"
 $PREFIX/bin/python setup.py install
+popd
 
 echo "==> Cloning nupic ..."
-cd $CWD
 git clone https://github.com/numenta/nupic.git
 
 echo "==> Installing nupic ..."
-cd $NUPIC
+pushd $NUPIC
 $PREFIX/bin/pip install -r external/common/requirements.txt
 $PREFIX/bin/python setup.py install
+popd
 
 echo "==> Cleaning up ..."
 rm $PYTHON_SH
