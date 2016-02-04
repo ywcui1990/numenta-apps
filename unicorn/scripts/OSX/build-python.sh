@@ -130,3 +130,6 @@ echo "--> Removed: $NUPIC"
 # Check that it worked
 $PREFIX/bin/python -c "import nupic.algorithms.anomaly_likelihood"
 $PREFIX/bin/python -c "import nupic.bindings.math"
+
+# Create the artifact
+zip -r ${PREFIX}.zip $PREFIX
