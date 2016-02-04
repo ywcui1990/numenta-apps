@@ -40,19 +40,19 @@ PATH_VALUE=${PREFIX}/bin:${PREFIX}/include
 echo "==> Current working directory: $CWD"
 echo "==> Python will be installed in: $PREFIX"
 echo "==> Setting up environment variables ..."
-# The env variable PATH has to be extended otherwise 
+# The env variable PATH has to be extended otherwise
 # nupic.bindings won't be installed properly.
 export PATH=$PATH_VALUE:$PATH
 echo "--> PATH: $PATH"
 
 echo "==> Cleaning up ..."
-rm $PYTHON_SH
+rm -rf $PYTHON_SH
 echo "--> Removed: $PYTHON_SH"
 rm -rf $PREFIX
 echo "--> Removed: $PREFIX"
 rm -rf $CAPNP
 echo "--> Removed: $CAPNP"
-rm $CAPNP.tar.gz
+rm -rf $CAPNP.tar.gz
 echo "--> Removed: $CAPNP.tar.gz"
 rm -rf $NUPIC_CORE
 echo "--> Removed: $NUPIC_CORE"
@@ -65,11 +65,15 @@ curl -O https://repo.continuum.io/miniconda/$PYTHON_SH
 echo "==> Installing Miniconda ..."
 bash $PYTHON_SH -b -p $PREFIX
 
+echo "--> Updating 'libpython' shared library search path"
+install_name_tool -id  @executable_path/../lib/libpython2.7.dylib $PREFIX/lib/libpython2.7.dylib 
+
+
 echo "==> Downloading Capnp ..."
 curl -O https://capnproto.org/$CAPNP.tar.gz
 
 echo "==> Installing Capnp ..."
-tar zxf $CAPNP.tar.gz 
+tar zxf $CAPNP.tar.gz
 cd $CAPNP
 ./configure --disable-shared --prefix=$PREFIX
 make -j6 check && make install
@@ -85,14 +89,19 @@ $PREFIX/bin/pip install -r $NUPIC_CORE/bindings/py/requirements.txt
 # Install pycapnp since it is not in nupic.core requirements.txt.
 # Note: to install pycapnpn on Yosemite you have to set MACOSX_DEPLOYMENT_TARGET.
 # More on this issue: https://github.com/numenta/nupic/issues/2061
-export MACOSX_DEPLOYMENT_TARGET=$OSX_VERSION 
+export MACOSX_DEPLOYMENT_TARGET=$OSX_VERSION
 $PREFIX/bin/pip install pycapnp
 
 echo "==> Building nupic.core ..."
 cd $NUPIC_CORE/build/scripts
-BUILD_CMD="cmake $NUPIC_CORE -DCMAKE_INCLUDE_PATH=${PREFIX}/include -DCMAKE_LIBRARY_PATH=${PREFIX}/lib -DCMAKE_PREFIX_PATH=${PREFIX} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DPY_EXTENSIONS_DIR=${NUPIC_CORE}/bindings/py/nupic/bindings -DPYTHON_EXECUTABLE:FILEPATH=${PREFIX}/bin/python2.7 -DPYTHON_INCLUDE_DIR:PATH=${PREFIX}/include/2.7 -DPYTHON_LIBRARY:FILEPATH=${PREFIX}/lib/libpython2.7.dylib"
+BUILD_CMD="cmake $NUPIC_CORE -DCMAKE_INCLUDE_PATH=${PREFIX}/include -DCMAKE_LIBRARY_PATH=${PREFIX}/lib -DCMAKE_PREFIX_PATH=${PREFIX} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DPY_EXTENSIONS_DIR=${NUPIC_CORE}/bindings/py/nupic/bindings -DPYTHON_EXECUTABLE:FILEPATH=${PREFIX}/bin/python2.7 -DPYTHON_INCLUDE_DIR:PATH=${PREFIX}/include/python2.7 -DPYTHON_LIBRARY:FILEPATH=${PREFIX}/lib/libpython2.7.dylib"
+
 echo "--> Executing cmd: $BUILD_CMD"
 $BUILD_CMD
+
+echo "--> Building nupic.core"
+make -j6
+make install
 
 echo "==> Installing nupic.core python bindings ..."
 cd $NUPIC_CORE/bindings/py
@@ -104,9 +113,9 @@ cd $CWD
 git clone https://github.com/numenta/nupic.git
 
 echo "==> Installing nupic ..."
-cd $NUPIC
+cd $NUPIC
 $PREFIX/bin/pip install -r external/common/requirements.txt
-$PREFIX/bin/python setup.py install
+$PREFIX/bin/python setup.py install
 
 echo "==> Cleaning up ..."
 rm $PYTHON_SH
@@ -119,5 +128,5 @@ rm -rf $NUPIC
 echo "--> Removed: $NUPIC"
 
 # Check that it worked
-DYLD_LIBRARY_PATH=$PREFIX/lib $PREFIX/bin/python -c "import nupic.algorithms.anomaly_likelihood"
-DYLD_LIBRARY_PATH=$PREFIX/lib $PREFIX/bin/python -c "import nupic.bindings.math"
+$PREFIX/bin/python -c "import nupic.algorithms.anomaly_likelihood"
+$PREFIX/bin/python -c "import nupic.bindings.math"
