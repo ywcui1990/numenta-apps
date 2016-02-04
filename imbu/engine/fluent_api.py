@@ -126,8 +126,6 @@ class FluentAPIHandler(object):
   def OPTIONS(self, modelName=ImbuModels.defaultModelType): # pylint: disable=R0201,C0103
     addStandardHeaders()
     addCORSHeaders()
-    if modelName not in ClassificationModelTypes.getTypes():
-      raise web.notfound("%s Model not found" % modelName)
 
 
   def GET(self, *args):
@@ -148,9 +146,6 @@ class FluentAPIHandler(object):
 
     data = web.data()
     if data:
-      if modelName not in ClassificationModelTypes.getTypes():
-        raise web.notfound("%s Model not found" % modelName)
-
       if isinstance(data, basestring):
         response = g_fluent.query(modelName, data)
       else:
