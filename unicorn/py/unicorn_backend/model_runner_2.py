@@ -116,8 +116,7 @@ def _parseArgs():
     "--model",
     type=str,
     dest="modelSpec",
-    required=False,
-    default=None,
+    required=True,
     help=("REQUIRED: JSON object describing the model per "
           "model_opt_schema.json."))
 

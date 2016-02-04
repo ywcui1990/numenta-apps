@@ -229,7 +229,7 @@ class _ModelRunner(object):
   )
 
 
-  def __init__(self, modelId, stats, replaceParams):
+  def __init__(self, modelId, stats, replaceParams=()):
     """
     :param str modelId: model identifier
     :param dict stats: Metric data stats per stats_schema.json in the
