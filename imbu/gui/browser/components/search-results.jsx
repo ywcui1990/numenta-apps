@@ -170,7 +170,8 @@ export default class SearchResultsComponent extends React.Component {
           <option value="CioDocumentFingerprint">Cortical.io document-level fingerprints</option>
           <option value="CioWordFingerprint">Cortical.io word-level fingerprints</option>
           <option value="Keywords">Keywords (random encodings)</option>
-          <option value="HTMNetwork">HTM Network (sensor-kNN)</option>
+          <option value="HTM_sensor_knn">HTM Network (sensor-kNN)</option>
+          <option value="HTM_sensor_simple_tp_knn">HTM Network (sensor-simple TP-kNN)</option>
         </select>
 
         <Table selectable={false} fixedHeader={true}
