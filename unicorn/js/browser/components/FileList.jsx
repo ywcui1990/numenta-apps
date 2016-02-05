@@ -19,6 +19,7 @@ import Checkbox from 'material-ui/lib/checkbox';
 import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
+import FlatButton from 'material-ui/lib/flat-button';
 import IconButton from 'material-ui/lib/icon-button';
 import IconClose from 'material-ui/lib/svg-icons/hardware/keyboard-arrow-down';
 import IconMenu from 'material-ui/lib/menus/icon-menu';
@@ -92,6 +93,9 @@ export default class FileList extends React.Component {
         textTransform: 'capitalize',
         whiteSpace: 'nowrap'
       },
+      fileToggle: {
+        margin: 0
+      },
       more: {
         width: 40
       },
@@ -103,6 +107,7 @@ export default class FileList extends React.Component {
       },
       status: {
         height: 15,
+        margin: 0,
         padding: 0,
         right: 13,
         top: 16,
@@ -269,7 +274,9 @@ export default class FileList extends React.Component {
             key={file.name}
             leftIcon={
               <IconButton
-                onTouchTap={this._handleFileToggle.bind(this, fileId)}>
+                onTouchTap={this._handleFileToggle.bind(this, fileId)}
+                style={this._styles.fileToggle}
+                >
                   {toggleIcon}
               </IconButton>
             }
@@ -287,17 +294,18 @@ export default class FileList extends React.Component {
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let dialogOpen = this.state.deleteConfirmDialog !== null;
     let dialogActions = [
-      {
-        text: 'Cancel',
-        secondary: true
-      },
-      {
-        text: 'Delete',
-        keyboardFocused: true,
-        onTouchTap: deleteConfirmDialog.callback,
-        primary: true,
-        ref: 'submit'
-      }
+      <FlatButton
+        label="Cancel"
+        onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
+        secondary={true}
+        />,
+      <FlatButton
+        label="Delete"
+        keyboardFocused={true}
+        onTouchTap={deleteConfirmDialog.callback}
+        primary={true}
+        ref="submit"
+        />
     ];
     let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
     let uploadCount = uploaded.length || 0;

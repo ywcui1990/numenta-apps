@@ -20,7 +20,6 @@ import path from 'path';
 import React from 'react';
 import remote from 'remote';
 
-import Avatar from 'material-ui/lib/avatar';
 import Card from 'material-ui/lib/card/card';
 import CardActions from 'material-ui/lib/card/card-actions';
 import CardHeader from 'material-ui/lib/card/card-header';
@@ -77,9 +76,6 @@ export default class Model extends React.Component {
       root: {
         marginBottom: '1rem',
         width: '100%'
-      },
-      avatar: {
-        textTransform: 'capitalize'
       },
       title: {
         overflow: 'hidden',
@@ -164,24 +160,23 @@ export default class Model extends React.Component {
     let modelId = model.modelId;
     let filename = path.basename(model.filename);
     let title = model.metric;
-    let avatarColor = Colors.red400;
-    let avatarContents = model.metric.charAt(0);
     let isModelActive = (model && ('active' in model) && model.active);
     let hasModelRun = (model && ('ran' in model) && model.ran);
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let dialogOpen = false;
     let dialogActions = [
-      {
-        text: 'Cancel',
-        secondary: true
-      },
-      {
-        text: 'Delete',
-        keyboardFocused: true,
-        onTouchTap: deleteConfirmDialog.callback,
-        primary: true,
-        ref: 'submit'
-      }
+      <FlatButton
+        label="Cancel"
+        onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
+        secondary={true}
+        />,
+      <FlatButton
+        keyboardFocused={true}
+        label="Delete"
+        onTouchTap={deleteConfirmDialog.callback}
+        primary={true}
+        ref="submit"
+        />
     ];
     let actions = (
       <CardActions style={this._styles.actions}>
@@ -214,10 +209,7 @@ export default class Model extends React.Component {
 
     if (model.error) {
       titleColor = Colors.red400;
-      avatarContents = '!';
       title = `${model.metric} | ${model.error.message}`;
-    } else if (model.ran) {
-      avatarColor = Colors.green400;
     }
 
     if (this.state.deleteConfirmDialog) {
@@ -227,11 +219,6 @@ export default class Model extends React.Component {
     return (
       <Card initiallyExpanded={true} style={this._styles.root}>
         <CardHeader
-          avatar={
-            <Avatar backgroundColor={avatarColor} style={this._styles.avatar}>
-              {avatarContents}
-            </Avatar>
-          }
           showExpandableButton={true}
           subtitle={<div style={this._styles.title}>{filename}</div>}
           title={<div style={this._styles.title}>{title}</div>}
