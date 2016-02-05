@@ -1,4 +1,10 @@
-﻿# Make the script fail on cmlets errors
+﻿# See README.md for instructions about prerequisites and how to run this script.
+
+param (
+    [string]$nupic_version = "0.3.6"
+)
+
+# Make the script fail on cmlets errors
 $ErrorActionPreference = "Stop"
 
 $script_path = split-path -parent $MyInvocation.MyCommand.Definition
@@ -12,9 +18,6 @@ $python_msi = "python-$python_version.amd64.msi"
 # Pip
 $get_pip_url = "https://bootstrap.pypa.io/get-pip.py"
 $get_pip = "get-pip.py"
-
-# nupic
-$nupic_version = "0.3.6"
 
 # Utility function to unzip files
 Add-Type -AssemblyName System.IO.Compression.FileSystem
