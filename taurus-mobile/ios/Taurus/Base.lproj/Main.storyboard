@@ -3,7 +3,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
     </dependencies>
@@ -32,7 +31,7 @@
                                                 <rect key="frame" x="0.0" y="28" width="555" height="44"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="6v4-U1-Can" id="oUy-fX-vnT">
-                                                    <rect key="frame" x="0.0" y="0.0" width="555" height="44"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="555" height="43.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="U99-AS-f4T" customClass="AnomalyChartView" customModule="Taurus" customModuleProvider="target">
@@ -180,25 +179,20 @@
                         <viewControllerLayoutGuide type="top" id="mjx-0t-hE8"/>
                         <viewControllerLayoutGuide type="bottom" id="A7q-z1-JJl"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="8bS-gq-6MO">
+                    <view key="view" contentMode="redraw" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" id="8bS-gq-6MO">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FB6-0o-aU1">
-                                <rect key="frame" x="0.0" y="0.0" width="334" height="560"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" secondItem="FB6-0o-aU1" secondAttribute="width" multiplier="16:9" id="7Oi-gp-GQJ"/>
-                                    <constraint firstAttribute="width" secondItem="FB6-0o-aU1" secondAttribute="height" multiplier="167:280" id="HBu-0s-2Ap"/>
-                                    <constraint firstAttribute="width" constant="720" id="gWz-8i-ml6"/>
-                                    <constraint firstAttribute="height" constant="1280" id="hTV-HQ-Y4q"/>
-                                </constraints>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="FB6-0o-aU1">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="FB6-0o-aU1" firstAttribute="leading" secondItem="8bS-gq-6MO" secondAttribute="leading" id="Vo1-w8-3fk"/>
-                            <constraint firstItem="FB6-0o-aU1" firstAttribute="top" secondItem="8bS-gq-6MO" secondAttribute="top" id="eam-7C-nFm"/>
-                            <constraint firstItem="FB6-0o-aU1" firstAttribute="trailing" secondItem="8bS-gq-6MO" secondAttribute="trailing" id="mcZ-o5-Lub"/>
+                            <constraint firstItem="FB6-0o-aU1" firstAttribute="bottom" secondItem="A7q-z1-JJl" secondAttribute="top" id="6l3-aP-nxe"/>
+                            <constraint firstItem="FB6-0o-aU1" firstAttribute="leading" secondItem="8bS-gq-6MO" secondAttribute="leading" id="N9F-6J-7qL"/>
+                            <constraint firstItem="FB6-0o-aU1" firstAttribute="top" secondItem="8bS-gq-6MO" secondAttribute="top" id="RE0-0S-gmd"/>
+                            <constraint firstItem="FB6-0o-aU1" firstAttribute="trailing" secondItem="8bS-gq-6MO" secondAttribute="trailing" id="Vv7-lA-eYN"/>
                         </constraints>
                     </view>
                     <connections>
@@ -285,7 +279,7 @@
                                                 <rect key="frame" x="0.0" y="28" width="600" height="110"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="jsl-09-AbJ" id="uPg-NB-TLV">
-                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="110"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="600" height="109.5"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="saD-0L-y6o" customClass="LineChartView" customModule="Taurus" customModuleProvider="target">
@@ -643,7 +637,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                         <rect key="frame" x="0.0" y="28" width="559" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="kii-vU-4tL" id="30o-oY-NTE">
-                                            <rect key="frame" x="0.0" y="0.0" width="559" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="559" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2DG-9k-22h">
@@ -696,7 +690,7 @@ Contact us at feedback@numenta.com with comments or feedback.</string>
                                         <rect key="frame" x="0.0" y="72" width="559" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="828-9j-fVl" id="7wm-vy-hEX">
-                                            <rect key="frame" x="0.0" y="0.0" width="559" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="559" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Label" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ew7-Z9-kUi" userLabel="date">
