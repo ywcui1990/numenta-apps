@@ -102,6 +102,7 @@ class InstanceDetailsViewController: UIViewController, UITableViewDataSource, UI
 
         // on iOS 8+ need to make sure table background is clear
         instanceTable.backgroundColor = UIColor.clearColor()
+        instanceTable.rowHeight = 100
 
         let menuIcon = UIImage(named: "menu")
 

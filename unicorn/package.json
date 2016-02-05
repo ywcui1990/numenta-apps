@@ -72,6 +72,7 @@
   "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
     "bunyan": "1.5.1",
+    "convert-newline": "0.0.5",
     "csv-streamify": "3.0.3",
     "dygraphs": "1.1.1",
     "fbjs": "0.7.1",

@@ -215,6 +215,7 @@ export default function (actionContext, file) {
     log.debug('NO file is not already in DB, get from upload');
     fileFormatted = yield csp.take(getFileFromUpload(opts));
     if (fileFormatted instanceof Error) {
+      console.error(fileFormatted);
       actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
         error: fileFormatted,
         filename: file.name
