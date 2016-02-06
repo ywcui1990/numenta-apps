@@ -197,7 +197,7 @@ def find_parameters(data):
       corresponding to the metric value (string)
   """
   (timeStamps, values) = data
-  numRecords = len(data)
+  numRecords = len(data[0])
 
   if type(timeStamps[0]) is not datetime.datetime:
     raise TypeError('timeStamps must be datetime type')
@@ -366,7 +366,7 @@ def _calculateContinuousWaveletTransform(samplingInterval, values):
     'timeScale' (numpy array) Stores the corresponding time scales
   """
 
-  widths = numpy.logspace(0, numpy.log10(len(values) / 20), 50)
+  widths = numpy.logspace(0, numpy.log10(len(values) / 10), 50)
   timeScale = widths * samplingInterval * 4
 
   # continuous wavelet transformation with ricker wavelet
