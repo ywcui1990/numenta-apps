@@ -37,10 +37,11 @@ from dateutil import tz
 import validictory
 
 from param_finder import find_parameters
+from param_finder import MAX_NUM_ROWS
 
 g_log = logging.getLogger(__name__)
 
-_MAX_ROW_NUMBER = 20000
+
 
 class _CommandLineArgError(Exception):
   """ Error parsing command-line options """
@@ -135,6 +136,17 @@ def _parseArgs():
                   valueIndex=inputSpec['valueIndex'],
                   datetimeFormat=inputSpec['datetimeFormat'])
 
+
+def _createCsvReader(fileObj):
+  # We'll be operating on csvs with arbitrarily long fields
+  csv.field_size_limit(2**27)
+
+  # Make sure readline() works on windows too
+  os.linesep = "\n"
+
+  return csv.reader(fileObj, dialect="excel")
+
+
 def _readCSVFile(fileName,
                  rowOffset,
                  timestampIndex,
@@ -156,8 +168,7 @@ def _readCSVFile(fileName,
   """
 
   with open(fileName, 'rU') as csvFile:
-    csv.field_size_limit(2 ** 27)
-    fileReader = csv.reader(csvFile)
+    fileReader = _createCsvReader(csvFile)
     for _ in xrange(rowOffset):
       fileReader.next()  # skip header line
 
@@ -176,7 +187,7 @@ def _readCSVFile(fileName,
       values.append(float(row[valueIndex]))
 
       numRow += 1
-      if numRow >= _MAX_ROW_NUMBER:
+      if numRow >= MAX_NUM_ROWS:
         break
 
     return timeStamps, values
@@ -187,8 +198,7 @@ def main():
   # message from logger on stderr "No handlers could be found for logger".
   g_log.addHandler(logging.NullHandler())
   try:
-    (timeStamps, values) = _readCSVFile(**vars(_parseArgs()))
-    outputInfo = find_parameters(timeStamps, values)
+    outputInfo = find_parameters(_readCSVFile(**vars(_parseArgs())))
 
     sys.stdout.write(json.dumps(outputInfo))
     sys.stdout.flush()
