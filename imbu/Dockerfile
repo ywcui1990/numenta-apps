@@ -64,3 +64,4 @@ VOLUME cache
 CMD ./start_imbu.sh
 
 VOLUME /opt/numenta/nupic.research
+VOLUME /opt/numenta/imbu/gui

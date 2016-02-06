@@ -91,6 +91,8 @@ export default class SearchStore extends BaseStore {
             let record = payload.results[id];
             let text = record.text;
             let scores = record.scores;
+            let windowSize = record.windowSize;
+
             // Find max
             let maxScore = record.scores.reduce((prev, current) => {
               return prev > current ? prev : current;
@@ -99,7 +101,7 @@ export default class SearchStore extends BaseStore {
               return prev + current ;
             });
             return {
-              text, maxScore, sumScore, scores
+              text, maxScore, sumScore, scores, windowSize
             };
           })
           .sort((a, b) => {
