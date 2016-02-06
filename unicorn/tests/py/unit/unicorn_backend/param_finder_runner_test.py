@@ -91,23 +91,25 @@ class ParamFinderRunnerTestCase(unittest.TestCase):
     """
     Verify CSV file can be correctly read via  _readCSVFile function
     """
-    tmpfilepath = os.path.join(tempfile.gettempdir(), "tmp-testfile.csv")
-    with open(tmpfilepath, "wb") as file:
-      fileWriter = csv.writer(file)
-      fileWriter.writerow(['timeStamps', 'values'])
-      fileWriter.writerow(['2014-04-01 00:00:00', 20.0])
+    csvFd, csvPath = tempfile.mkstemp()
+    self.addCleanup(os.unlink, csvPath)
+
+    with open(csvPath, "wb") as csvFile:
+      csvWriter = csv.writer(csvFile)
+      csvWriter.writerow(['timeStamps', 'values'])
+      csvWriter.writerow(['2014-04-01 00:00:00', 20.0])
 
     (timeStamps, values) = param_finder_runner._readCSVFile(
-      fileName=tmpfilepath,
+      fileName=csvPath,
       rowOffset=1,
       timestampIndex=0,
       valueIndex=1,
       datetimeFormat="%Y-%m-%d %H:%M:%S"
     )
+
     self.assertAlmostEqual(values[0], 20.0)
     self.assertAlmostEqual(str(timeStamps[0]),
                            '2014-04-01 00:00:00+00:00')
-    os.remove(tmpfilepath)
 
 if __name__ == "__main__":
   unittest.main()
