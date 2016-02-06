@@ -29,7 +29,7 @@ Implements param finder, which automatically
 """
 
 import datetime
-
+import sys
 import numpy
 
 from nupic.frameworks.opf.common_models.cluster_params import (
@@ -42,7 +42,11 @@ _CORRELATION_MODE_FULL = 2
 _AGGREGATION_WINDOW_THRESH = 0.2
 
 # Maximum number of rows param_finder will process
+# If the input data exceeds MAX_NUM_ROWS, the first MAX_NUM_ROWS will be used
 MAX_NUM_ROWS = 20000
+# Minimum number of rows. If the number of record in the input data is
+# less than MIN_NUM_ROWS, the param_finder will return the default parameters
+MIN_NUM_ROWS = 100
 MIN_ROW_AFTER_AGGREGATION = 1000
 
 
@@ -193,15 +197,21 @@ def find_parameters(data):
       corresponding to the metric value (string)
   """
   (timeStamps, values) = data
+  numRecords = len(data)
 
   if type(timeStamps[0]) is not datetime.datetime:
     raise TypeError('timeStamps must be datetime type')
 
-  if len(timeStamps) > MAX_NUM_ROWS:
+  if numRecords > MAX_NUM_ROWS:
     timeStamps = timeStamps[:MAX_NUM_ROWS]
-
-  if len(values) > MAX_NUM_ROWS:
     values = values[:MAX_NUM_ROWS]
+
+  if numRecords < MIN_NUM_ROWS:
+    outputInfo = {
+      "aggInfo": None,
+      "modelInfo": _getModelParams(True, False, values),
+    }
+    return outputInfo
 
   timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
 
