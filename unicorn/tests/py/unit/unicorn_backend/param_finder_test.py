@@ -232,6 +232,37 @@ class ParamFinderTestCase(unittest.TestCase):
                        ['sensorParams']['encoders']['c0_dayOfWeek'] == None)
 
 
+  def testGetModelParams(self):
+    values = numpy.linspace(0, 10, 10)
+    modelParams = param_finder._getModelParams(
+      useTimeOfDay=False, useDayOfWeek=False, values=values)
 
-if __name__ == "__main__":
-  unittest.main()
+    self.assertTrue(modelParams['modelConfig']['modelParams'] \
+                       ['sensorParams']['encoders']['c0_timeOfDay'] is None)
+    self.assertTrue(modelParams['modelConfig']['modelParams'] \
+                       ['sensorParams']['encoders']['c0_dayOfWeek'] is None)
+
+
+    modelParams = param_finder._getModelParams(
+      useTimeOfDay=True, useDayOfWeek=False, values=values)
+    self.assertTrue(modelParams['modelConfig']['modelParams'] \
+                       ['sensorParams']['encoders']['c0_timeOfDay'] is not None)
+    self.assertTrue(modelParams['modelConfig']['modelParams'] \
+                       ['sensorParams']['encoders']['c0_dayOfWeek'] is None)
+
+
+    modelParams = param_finder._getModelParams(
+      useTimeOfDay=False, useDayOfWeek=True, values=values)
+    self.assertTrue(modelParams['modelConfig']['modelParams'] \
+                       ['sensorParams']['encoders']['c0_timeOfDay'] is None)
+    self.assertTrue(modelParams['modelConfig']['modelParams'] \
+                       ['sensorParams']['encoders']['c0_dayOfWeek'] is not None)
+
+
+    modelParams = param_finder._getModelParams(
+      useTimeOfDay=True, useDayOfWeek=True, values=values)
+    self.assertTrue(modelParams['modelConfig']['modelParams'] \
+                       ['sensorParams']['encoders']['c0_timeOfDay'] is not None)
+    self.assertTrue(modelParams['modelConfig']['modelParams'] \
+                       ['sensorParams']['encoders']['c0_dayOfWeek'] is not None)
+

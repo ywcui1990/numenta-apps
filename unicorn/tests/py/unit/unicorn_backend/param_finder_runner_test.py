@@ -46,8 +46,7 @@ def setUpModule():
 
 class ParamFinderRunnerTestCase(unittest.TestCase):
   def testParseArgs(self):
-    """ Invalid CLI arguments are rejected
-    """
+    """ Invalid CLI arguments are rejected """
 
 
     def _assertArgumentPatternFails(argumentPattern=None):

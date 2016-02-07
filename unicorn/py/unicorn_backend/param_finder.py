@@ -29,7 +29,6 @@ Implements param finder, which automatically
 """
 
 import datetime
-import sys
 import numpy
 
 from nupic.frameworks.opf.common_models.cluster_params import (
