@@ -33,7 +33,7 @@ import ModelServiceIPC from './ModelServiceIPC';
 
 const config = new Config();
 const log = bunyan.createLogger({
-  company: 'Numenta',
+  companyName: 'Numenta',
   level: 'debug',  // @TODO higher for Production
   name: 'Unicorn:Main'
 });
