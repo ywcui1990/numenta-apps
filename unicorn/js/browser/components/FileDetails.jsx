@@ -15,11 +15,22 @@
 //
 // http://numenta.org/licenses/
 
+import Checkbox from 'material-ui/lib/checkbox';
 import connectToStores from 'fluxible-addons-react/connectToStores';
+import Dialog from 'material-ui/lib/dialog';
+import FlatButton from 'material-ui/lib/flat-button';
 import fs from 'fs';
-import Material from 'material-ui';
+import List from 'material-ui/lib/lists/list';
+import ListItem from 'material-ui/lib/lists/list-item';
 import moment from 'moment';
 import React from 'react';
+import Table from 'material-ui/lib/table/table';
+import TableBody from 'material-ui/lib/table/table-body';
+import TableHeader from 'material-ui/lib/table/table-header';
+import TableHeaderColumn from 'material-ui/lib/table/table-header-column';
+import TableRow from 'material-ui/lib/table/table-row';
+import TableRowColumn from 'material-ui/lib/table/table-row-column';
+import TextField from 'material-ui/lib/text-field';
 
 import FileStore from '../stores/FileStore';
 import FileDetailsStore from '../stores/FileDetailsStore';
@@ -27,11 +38,6 @@ import FileDetailsSaveAction from '../actions/FileDetailsSave';
 import HideFileDetailsAction from '../actions/HideFileDetails';
 import Utils from '../../main/Utils';
 import {TIMESTAMP_FORMATS} from '../lib/Constants';
-
-const {
-  Dialog, TextField, List, ListItem, Checkbox,
-  Table, TableHeader, TableRow, TableHeaderColumn, TableBody, TableRowColumn
-} = Material;
 
 
 /**
@@ -159,7 +165,7 @@ export default class FileDetails extends React.Component {
       // Update File
       this.context.executeAction(FileDetailsSaveAction, {file, metrics});
     }
-    this.refs.dialog.dismiss();
+    this.context.executeAction(HideFileDetailsAction);
   }
 
   _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
@@ -290,9 +296,19 @@ export default class FileDetails extends React.Component {
 
   render() {
     let body, title;
-    let actions=[
-      {text: 'Cancel'},
-      {text: 'Save', onTouchTap: this._onSave.bind(this), ref: 'submit'}
+    let actions = [
+      <FlatButton
+        label="Cancel"
+        onRequestClose={this._onRequestClose.bind(this)}
+        onTouchTap={this._onSave.bind(this)}
+        secondary={true}
+        />,
+      <FlatButton
+        label="Save"
+        onTouchTap={this._onSave.bind(this)}
+        primary={true}
+        ref="submit"
+        />
     ];
 
     if (this.state.file) {
@@ -303,7 +319,6 @@ export default class FileDetails extends React.Component {
     return (
       <Dialog
         open={this.props.visible}
-        actionFocus="submit"
         actions={actions}
         onRequestClose={this._onRequestClose.bind(this)}
         ref="dialog"
