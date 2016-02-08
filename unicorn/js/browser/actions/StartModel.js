@@ -43,7 +43,7 @@ function getMetricFromDatabase(options) {
   let metricId = Utils.generateMetricId(model.filename, model.metric);
 
   databaseClient.getMetric(metricId, (error, results) => {
-    if (error && (!('notFound' in error))) {
+    if (error && (error.name !== databaseClient.ERRORS.NOT_FOUND)) {
       csp.putAsync(channel, new DatabaseGetError(error));
     } else {
       csp.putAsync(channel, results);
