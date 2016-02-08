@@ -2,7 +2,7 @@
   "name": "unicorn",
   "version": "0.0.1",
   "description": "Numenta Unicorn Cross-platform HTM Example Desktop Application",
-  "main": "js/main/loader.js",
+  "main": "js/main/index.js",
   "browser": {
     "source-map-support": false
   },

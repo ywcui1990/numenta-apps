@@ -21,7 +21,7 @@ module.exports = {
       // style
       {
         test: /\.css$/,
-        loaders: ['style', 'css']
+        loaders: ['style-loader', 'css-loader']
       },
 
       // script
@@ -32,7 +32,7 @@ module.exports = {
       },
       {
         test: /\.json$/,
-        loader: 'json'
+        loader: 'json-loader'
       }
     ]
   },
@@ -41,7 +41,6 @@ module.exports = {
     path: destination,
     publicPath: destination + '/'
   },
-  profile: true,
   resolve: {
     extensions: [
       '',

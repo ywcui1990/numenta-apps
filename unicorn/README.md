@@ -60,8 +60,7 @@ js/                 # Frontend+GUI that exposes NuPIC HTM functionality to the U
     schema/         # Database definition schemas in JSON
   docs/             # Output dir for generated JS docs (not saved in src)
   main/             # JS from electron's "Main Process" (i.e. engine services)
-    loader.js       # Electron App entry point loader for main.js ES5 => ES6
-    index.js        # ES6 Electron App main entry, creates browser GUI window and model runner engine
+    index.js        # ES6 Electron App main entry point, init GUI + model runner
   samples/          # Sample .CSV data files to pre-load for user in GUI
 node_modules/       # Where `npm` installs packages to, not in source control
 tests/              # Unicorn project tests
