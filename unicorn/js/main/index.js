@@ -33,8 +33,9 @@ import ModelServiceIPC from './ModelServiceIPC';
 
 const config = new Config();
 const log = bunyan.createLogger({
-  name: 'Unicorn:Main',
-  level: 'debug'  // @TODO higher for Production
+  company: 'Numenta',
+  level: 'debug',  // @TODO higher for Production
+  name: 'Unicorn:Main'
 });
 const initialPage = path.join(__dirname, '..', 'browser', 'index.html');
 
@@ -73,7 +74,7 @@ app.on('ready', () => {
     // @TODO fill out options
     //  https://github.com/atom/electron/blob/master/docs/api/browser-window.md
   });
-  mainWindow.loadUrl(`file://${initialPage}`);
+  mainWindow.loadURL(`file://${initialPage}`);
   mainWindow.center();
   mainWindow.openDevTools();
 

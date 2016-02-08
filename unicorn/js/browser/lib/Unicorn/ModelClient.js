@@ -18,7 +18,7 @@
 // http://numenta.org/licenses/
 
 
-import ipc from 'ipc';
+import {ipcMain as ipc} from 'electron';
 
 import ModelErrorAction from '../../actions/ModelError';
 import ReceiveModelDataAction from '../../actions/ReceiveModelData';

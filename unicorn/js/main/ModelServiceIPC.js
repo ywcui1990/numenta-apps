@@ -16,7 +16,8 @@
 // http://numenta.org/licenses/
 
 
-import ipc from 'ipc';
+import {ipcMain as ipc} from 'electron';
+
 import {ModelService} from './ModelService';
 import UserError from './UserError';
 

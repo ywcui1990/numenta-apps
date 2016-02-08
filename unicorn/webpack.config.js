@@ -5,7 +5,7 @@ var destination = path.join(__dirname, 'js', 'browser', 'assets', 'bundle');
 module.exports = {
   bail: true,
   devtool: 'source-map',
-  entry: ['babel-polyfill', source],
+  entry: [source],
   module: {
     loaders: [
       // fonts
