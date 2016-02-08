@@ -33,9 +33,8 @@ import ModelServiceIPC from './ModelServiceIPC';
 
 const config = new Config();
 const log = bunyan.createLogger({
-  companyName: 'Numenta',
   level: 'debug',  // @TODO higher for Production
-  name: 'Unicorn:Main'
+  name: config.get('title'),
 });
 const initialPage = path.join(__dirname, '..', 'browser', 'index.html');
 
@@ -51,8 +50,8 @@ let modelService = null;
  */
 
 crashReporter.start({
-  product_name: config.get('title'),
-  company_name: config.get('company')
+  companyName: config.get('company')
+  productName: config.get('title')
 });
 
 app.on('window-all-closed', () => {
