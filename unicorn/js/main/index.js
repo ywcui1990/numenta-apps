@@ -47,7 +47,8 @@ let modelService = null;
 
 crashReporter.start({
   companyName: config.get('company'),
-  productName: config.get('title')
+  productName: config.get('title'),
+  submitURL: '' // @TODO https://discuss.atom.io/t/electron-crash-report-server/20563
 });
 
 app.on('window-all-closed', () => {

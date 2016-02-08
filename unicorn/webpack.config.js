@@ -5,7 +5,7 @@ var destination = path.join(__dirname, 'js', 'browser', 'assets', 'bundle');
 module.exports = {
   bail: true,
   devtool: 'source-map',
-  entry: [source],
+  entry: ['babel-polyfill', source],
   module: {
     loaders: [
       // fonts
@@ -41,6 +41,7 @@ module.exports = {
     path: destination,
     publicPath: destination + '/'
   },
+  profile: true,
   resolve: {
     extensions: [
       '',
@@ -55,6 +56,5 @@ module.exports = {
       '.woff2'
     ]
   },
-  target: 'atom',
-  verbose: true
+  target: 'electron'
 }
