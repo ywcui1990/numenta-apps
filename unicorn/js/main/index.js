@@ -17,8 +17,6 @@
 // http://numenta.org/licenses/
 
 
-// externals
-
 import app from 'app';
 import BrowserWindow from 'browser-window';
 import bunyan from 'bunyan';
@@ -26,15 +24,13 @@ import crashReporter from 'crash-reporter';
 import dialog from 'dialog';
 import path from 'path';
 
-// internals
-
 import Config from './ConfigService';
 import ModelServiceIPC from './ModelServiceIPC';
 
 const config = new Config();
 const log = bunyan.createLogger({
   level: 'debug',  // @TODO higher for Production
-  name: config.get('title'),
+  name: config.get('title')
 });
 const initialPage = path.join(__dirname, '..', 'browser', 'index.html');
 
@@ -50,7 +46,7 @@ let modelService = null;
  */
 
 crashReporter.start({
-  companyName: config.get('company')
+  companyName: config.get('company'),
   productName: config.get('title')
 });
 
