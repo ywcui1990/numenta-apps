@@ -21,7 +21,7 @@ module.exports = {
       // style
       {
         test: /\.css$/,
-        loaders: ['style', 'css']
+        loaders: ['style-loader', 'css-loader']
       },
 
       // script
@@ -32,7 +32,7 @@ module.exports = {
       },
       {
         test: /\.json$/,
-        loader: 'json'
+        loader: 'json-loader'
       }
     ]
   },
@@ -55,6 +55,5 @@ module.exports = {
       '.woff2'
     ]
   },
-  target: 'atom',
-  verbose: true
+  target: 'electron'
 }

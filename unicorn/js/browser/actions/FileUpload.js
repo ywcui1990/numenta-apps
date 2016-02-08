@@ -67,7 +67,7 @@ function getFileFromDB(options) {
   let fileId = Utils.generateFileId(file.path);
 
   databaseClient.getFile(fileId, (error, results) => {
-    if (error && (!('notFound' in error))) {
+    if (error && (error.name !== databaseClient.ERRORS.NOT_FOUND)) {
       csp.putAsync(channel, new DatabaseGetError(error));
     } else {
       csp.putAsync(channel, results);
@@ -93,7 +93,7 @@ function getMetricsFromDB(options) {
   let fileId = Utils.generateFileId(file.path);
 
   databaseClient.getMetricsByFile(fileId, (error, results) => {
-    if (error && (!('notFound' in error))) {
+    if (error && (error.name !== databaseClient.ERRORS.NOT_FOUND)) {
       csp.putAsync(channel, new DatabaseGetError(error));
     } else {
       csp.putAsync(channel, results);
@@ -183,6 +183,7 @@ export default function (actionContext, file) {
     log.debug('see if uploaded file is already in DB');
     fileHandle = yield csp.take(getFileFromDB(opts));
     if (fileHandle instanceof Error) {
+      console.error(fileHandle);
       actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
         error: fileHandle,
         filename: file.name
@@ -193,6 +194,7 @@ export default function (actionContext, file) {
       log.debug('yes file is already in DB, load metrics');
       fileMetrics = yield csp.take(getMetricsFromDB(opts));
       if (fileMetrics instanceof Error) {
+        console.error(fileMetrics);
         actionContext.dispatch(ACTIONS.UPLOADED_FILE_FAILED, {
           error: fileMetrics,
           filename: file.name

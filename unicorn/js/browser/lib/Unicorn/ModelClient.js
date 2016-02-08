@@ -18,6 +18,7 @@
 // http://numenta.org/licenses/
 
 
+// @TODO import {ipcRenderer as ipc} from 'electron';
 import ipc from 'ipc';
 
 import ModelErrorAction from '../../actions/ModelError';

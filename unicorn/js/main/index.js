@@ -17,8 +17,6 @@
 // http://numenta.org/licenses/
 
 
-// externals
-
 import app from 'app';
 import BrowserWindow from 'browser-window';
 import bunyan from 'bunyan';
@@ -26,15 +24,13 @@ import crashReporter from 'crash-reporter';
 import dialog from 'dialog';
 import path from 'path';
 
-// internals
-
 import Config from './ConfigService';
 import ModelServiceIPC from './ModelServiceIPC';
 
 const config = new Config();
 const log = bunyan.createLogger({
-  name: 'Unicorn:Main',
-  level: 'debug'  // @TODO higher for Production
+  level: 'debug',  // @TODO higher for Production
+  name: config.get('title')
 });
 const initialPage = path.join(__dirname, '..', 'browser', 'index.html');
 
@@ -50,8 +46,9 @@ let modelService = null;
  */
 
 crashReporter.start({
-  product_name: config.get('title'),
-  company_name: config.get('company')
+  companyName: config.get('company'),
+  productName: config.get('title'),
+  submitURL: '' // @TODO https://discuss.atom.io/t/electron-crash-report-server/20563
 });
 
 app.on('window-all-closed', () => {
@@ -73,7 +70,7 @@ app.on('ready', () => {
     // @TODO fill out options
     //  https://github.com/atom/electron/blob/master/docs/api/browser-window.md
   });
-  mainWindow.loadUrl(`file://${initialPage}`);
+  mainWindow.loadURL(`file://${initialPage}`);
   mainWindow.center();
   mainWindow.openDevTools();
 

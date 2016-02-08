@@ -43,6 +43,7 @@ if (! isElectronRenderer) {
     location = path.join(app.getPath('userData'), 'database');
   } catch (error) { /* no-op */ }
 }
+
 const DB_FILE_PATH = location;
 
 
@@ -64,6 +65,11 @@ function DatabaseService(path) {
   this._files = this._root.sublevel('File');
   this._metrics = this._root.sublevel('Metric');
   this._metricData = this._root.sublevel('MetricData');
+
+  // "static" error constants
+  this.ERRORS = {
+    NOT_FOUND: 'NotFoundError'
+  };
 }
 
 
