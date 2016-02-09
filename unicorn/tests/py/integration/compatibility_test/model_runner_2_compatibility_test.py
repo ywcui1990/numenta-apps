@@ -1,0 +1,209 @@
+#!/usr/bin/env python
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Affero Public License for more details.
+#
+# You should have received a copy of the GNU Affero Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
+"""
+Compatibility test of the unicorn_backend.model_runner_2 module
+
+To add data for tests, follow these steps
+1. Copy NAB datasets (from NAB/data/) to data/
+2. Run param_finder_runner to get the suggested model parameters,
+3. Run model_runner_2 with suggested model parameters to get aggregated data
+4. Run NAB numenta detector on the aggregated data with suggested data
+5. Copy output of NAB detector to results/
+"""
+
+import csv
+import json
+import logging
+import os
+import subprocess
+import sys
+import unittest
+
+
+from nta.utils.logging_support_raw import LoggingSupport
+from nta.utils import test_utils
+
+
+
+_LOGGER = logging.getLogger("unicorn_model_runner_test")
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
+
+
+
+def setUpModule():
+  LoggingSupport.initTestApp()
+
+
+
+class ModelRunnerCompatibilityTest(unittest.TestCase):
+
+
+  @staticmethod
+  def _startParamFinderRunnerSubprocess(inputSpec):
+    """Start the unicorn param_finder subprocess
+
+    :param str inputSpec: JSON object describing the input petric data
+      per input_opt_schema.json
+    :returns: the started subprocess.Popen object wrapped in
+      ManagedSubprocessTerminator
+    :rtype: nta.utils.test_utils.ManagedSubprocessTerminator
+    """
+    process = subprocess.Popen(
+      args=[sys.executable,
+            "-m", "unicorn_backend.param_finder_runner",
+            "--input=%s" % inputSpec],
+      stdin=subprocess.PIPE,
+      stdout=subprocess.PIPE,
+      stderr=subprocess.PIPE,
+      close_fds=True)
+
+    _LOGGER.info("Started unicorn model_runner subprocess=%s", process)
+    return test_utils.ManagedSubprocessTerminator(process)
+
+
+  @staticmethod
+  def _startModelRunnerSubprocess(inputSpec, aggSpec, modelSpec):
+    """Start the unicorn model_runner subprocess
+
+    :param str inputSpec: JSON object describing the input petric data
+      per input_opt_schema.json
+    :param str aggSpec: JSON object describing agregation of the input
+      metric per agg_opt_schema.json
+    :param str modelSpec: JSON object describing the model per
+      model_opt_schema.json
+    :returns: the started subprocess.Popen object wrapped in
+      ManagedSubprocessTerminator
+    :rtype: nta.utils.test_utils.ManagedSubprocessTerminator
+    """
+    argumentPattern = [sys.executable,
+                       "-m", "unicorn_backend.model_runner_2",
+                       "--input=%s" % inputSpec,
+                       "--model=%s" % modelSpec]
+    if aggSpec is not None:
+      argumentPattern += ["--agg=%s" % aggSpec]
+
+    process = subprocess.Popen(
+      args=argumentPattern,
+      stdin=subprocess.PIPE,
+      stdout=subprocess.PIPE,
+      stderr=subprocess.PIPE,
+      close_fds=True)
+
+    _LOGGER.info("Started unicorn model_runner subprocess=%s", process)
+    return test_utils.ManagedSubprocessTerminator(process)
+
+
+  @staticmethod
+  def _load(path):
+    data = []
+
+    with open(path, 'r') as infile:
+      csvReader = csv.reader(infile)
+      csvReader.next()
+      for line in csvReader:
+        data.append(line)
+
+    return data
+
+
+  def _testParamFinderRunner(self, name, inputSpec):
+
+    with self._startParamFinderRunnerSubprocess(inputSpec) as mrProcess:
+      outputInfo = mrProcess.stdout.readline()
+      outputInfo = json.loads(outputInfo)
+
+    with open(os.path.join(RESULTS_DIR, name+'_model_params.json')) as infile:
+      expectedOutputInfo = json.loads(infile.read())
+      self.assertEqual(outputInfo, expectedOutputInfo)
+    return outputInfo
+
+
+  def _testModelRunner(self, name, inputSpec, aggSpec, modelSpec):
+    with self._startModelRunnerSubprocess(
+            inputSpec, aggSpec, modelSpec) as mrProcess:
+
+      stdoutData, stderrData = mrProcess.communicate()
+      out = stdoutData.splitlines()
+      self.assertEqual(stderrData, "")
+
+      with open(os.path.join(DATA_DIR, name+'aggregate.csv'), 'wb') as csvFile:
+        csvWriter = csv.writer(csvFile)
+        csvWriter.writerow(['timestamp', 'value'])
+        for _ in xrange(len(out)):
+          row = json.loads(out[_])
+          timeStamp = str(row[0])
+          timeStamp = timeStamp[:10]+' '+timeStamp[11:]
+          row[0] = timeStamp
+          csvWriter.writerow(row[:3])
+
+      results = self._load(os.path.join(RESULTS_DIR, name+'.csv'))
+      with open(os.path.join(RESULTS_DIR, name+'.csv'), 'rb') as csvFile:
+        for i in xrange(len(out)):
+          outputRecord = json.loads(out[i])
+
+          trueDataValue = float(results[i][1])
+          trueAnomalyLikelihood = float(results[i][2])
+          self.assertAlmostEqual(outputRecord[1], trueDataValue)
+          self.assertAlmostEqual(outputRecord[2], trueAnomalyLikelihood)
+
+      self.assertEqual(mrProcess.returncode, 0)
+
+
+  def _testParamFinderAndModelRunner(self, name):
+    inputSpec = {"datetimeFormat": "%Y-%m-%d %H:%M:%S",
+                 "timestampIndex": 0,
+                 "csv": os.path.join(DATA_DIR, name+".csv"),
+                 "rowOffset": 4,
+                 "valueIndex": 1}
+    inputSpec = json.dumps(inputSpec)
+
+    outputInfo = self._testParamFinderRunner(name, inputSpec)
+
+    with open(os.path.join(RESULTS_DIR, name+'_model_params.json'), 'wb') as outfile:
+      print "outputInfo: "
+      print outputInfo
+      json.dump(outputInfo, outfile, indent=4)
+
+    aggSpec = json.dumps(outputInfo["aggInfo"])
+    modelSpec = outputInfo['modelInfo']
+    modelSpec['modelId'] = 'test'
+
+    print json.dumps(modelSpec)
+    # print "modelSpec: "
+    # print json.dumps(modelSpec["modelConfig"], indent=4, sort_keys=True)
+    modelSpec = json.dumps(modelSpec)
+
+    print "aggSpec: ", aggSpec
+
+    self._testModelRunner(name, inputSpec, aggSpec, modelSpec)
+
+  def testAmbientTemperatureSystemFailure(self):
+    self._testParamFinderAndModelRunner('ambient_temperature_system_failure')
+
+  def testNYCTaxi(self):
+    self._testParamFinderAndModelRunner('nyc_taxi')
+
+
+if __name__ == "__main__":
+  unittest.main()
