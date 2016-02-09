@@ -325,7 +325,6 @@ The resulting `.app` can be found in `unicorn/Unicorn-darwin-x64/`
 
 TODO
 
-
 ## Release
 
 ### Signing
