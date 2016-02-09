@@ -1,0 +1,7 @@
+{
+  "datetimeFormat": "%m\/%d\/%y %H:%M",
+  "timestampIndex": 0,
+  "csv": "../../tests/js/fixtures/rec-center-15.csv",
+  "rowOffset": 4,
+  "valueIndex": 1
+}

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
@@ -19,20 +20,14 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
-"""
-Send mock data to ModelRunner by running:
-
-$ python mock_data_generator.py | python model_runner.py 
-  --model "1" --stats '{"max": 10, "min": 0}' 
-
-"""
 import json
 import sys
-import argparse
 
-message = [1438649711, 835.93679]
-data = "%s\n" % (json.dumps(message))
+NUM_RECORDS = 1
 
-sys.stdout.write(data)
-sys.stdout.flush()
+for i in range(NUM_RECORDS):
+  
+  message = ["2016-01-01 00:00:%02d" % i, i, 0.5]
+  data = "%s\n" % (json.dumps(message))
+  sys.stdout.write(data)
+  sys.stdout.flush()
