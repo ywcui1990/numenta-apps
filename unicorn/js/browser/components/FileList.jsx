@@ -297,7 +297,6 @@ export default class FileList extends React.Component {
       <FlatButton
         label="Cancel"
         onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
-        secondary={true}
         />,
       <FlatButton
         label="Delete"
