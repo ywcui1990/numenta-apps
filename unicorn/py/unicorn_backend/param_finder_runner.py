@@ -36,8 +36,8 @@ import traceback
 from dateutil import tz
 import validictory
 
-from param_finder import find_parameters
-from param_finder import MAX_NUM_ROWS
+from unicorn_backend.param_finder import findParameters
+from unicorn_backend.param_finder import MAX_NUM_ROWS
 
 g_log = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class _Options(object):
     """
     :param fileName: str path to input csv file
     :param rowOffset: int, zero-based index of first data row in csv
-    :param timestampIndex: int, zero-based column index of the timeStamp
+    :param timestampIndex: int, zero-based column index of the timestamp
     :param valueIndex: int, zero-based column index of the value
     :param datetimeFormat: str, datetime format string for python's
                           datetime.strptime
@@ -121,8 +121,8 @@ def _parseArgs():
     g_log.exception("JSON parsing of --input value failed")
     parser.error("--input option value failed JSON parsing: {}".format(exc))
 
-  with pkg_resources.resource_stream(__name__,
-                                     "input_opt_schema_param_finder.json") as schemaFile:
+  with pkg_resources.resource_stream(
+    __name__, "input_opt_schema_param_finder.json") as schemaFile:
     try:
       validictory.validate(inputSpec, json.load(schemaFile))
     except validictory.ValidationError as exc:
@@ -130,11 +130,11 @@ def _parseArgs():
       parser.error("JSON schema validation of --input value failed: {}"
                    .format(exc))
 
-  return _Options(fileName=inputSpec['csv'],
-                  rowOffset=inputSpec['rowOffset'],
-                  timestampIndex=inputSpec['timestampIndex'],
-                  valueIndex=inputSpec['valueIndex'],
-                  datetimeFormat=inputSpec['datetimeFormat'])
+  return _Options(fileName=inputSpec["csv"],
+                  rowOffset=inputSpec["rowOffset"],
+                  timestampIndex=inputSpec["timestampIndex"],
+                  valueIndex=inputSpec["valueIndex"],
+                  datetimeFormat=inputSpec["datetimeFormat"])
 
 
 def _createCsvReader(fileObj):
@@ -156,41 +156,38 @@ def _readCSVFile(fileName,
   Read csv data file, the data file must have two columns
   that contains time stamps and data values
 
-  :param fileName: str, path to input csv file
-  :param rowOffset: int, index of first data row in csv
-  :param timestampIndex: int, column index of the timeStamp
-  :param valueIndex: int, column index of the value
-  :param datetimeFormat: str, datetime format string for python's
-                        datetime.strptime
-  :return: A two-tuple (timestamps, values), where
-           timeStamps is a list of datetime
-           values is a list of float data values
+  :param str fileName: path to input csv file
+  :param int rowOffset: index of first data row in csv
+  :param int timestampIndex: column index of the timestamp
+  :param int valueIndex: column index of the value
+  :param str datetimeFormat: datetime format string for python's
+    datetime.strptime
+  :returns: Sequence of two tuples (timestamp, value), where
+    timestamp of type datetime.datetime and value is a number (int of float)
   """
 
-  with open(fileName, 'rU') as csvFile:
+  with open(fileName, "rU") as csvFile:
     fileReader = _createCsvReader(csvFile)
     for _ in xrange(rowOffset):
       fileReader.next()  # skip header line
 
-    timeStamps = []
-    values = []
-
-    numRow = 0
+    samples = []
+    numRows = 0
     for row in fileReader:
-      timeStamp = datetime.datetime.strptime(row[timestampIndex],
+      timestamp = datetime.datetime.strptime(row[timestampIndex],
                                              datetimeFormat)
 
-      # use local timezone to be consistent with the default assumption
-      # in numpy datetime64 object
-      timeStamp = timeStamp.replace(tzinfo=tz.tzutc())
-      timeStamps.append(timeStamp)
-      values.append(float(row[valueIndex]))
+      # use utc timezone if timezone information is not provided
+      if timestamp.tzinfo is None:
+        timestamp = timestamp.replace(tzinfo=tz.tzutc())
 
-      numRow += 1
-      if numRow >= MAX_NUM_ROWS:
+      samples.append((timestamp, float(row[valueIndex])))
+
+      numRows += 1
+      if numRows >= MAX_NUM_ROWS:
         break
 
-    return timeStamps, values
+    return samples
 
 
 def main():
@@ -198,7 +195,7 @@ def main():
   # message from logger on stderr "No handlers could be found for logger".
   g_log.addHandler(logging.NullHandler())
   try:
-    outputInfo = find_parameters(_readCSVFile(**vars(_parseArgs())))
+    outputInfo = findParameters(_readCSVFile(**vars(_parseArgs())))
 
     sys.stdout.write(json.dumps(outputInfo))
     sys.stdout.flush()

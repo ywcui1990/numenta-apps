@@ -46,6 +46,9 @@ MAX_NUM_ROWS = 20000
 # Minimum number of rows. If the number of record in the input data is
 # less than MIN_NUM_ROWS, the param_finder will return the default parameters
 MIN_NUM_ROWS = 100
+# Minimum number of rows after the data aggregation. The suggested aggInfo will
+# make sure more than MIN_ROW_AFTER_AGGREGATION number of records after
+# aggregation
 MIN_ROW_AFTER_AGGREGATION = 1000
 
 
@@ -86,16 +89,16 @@ def _convolve(vector1, vector2, mode):
         for points where the signals overlap completely.  Values outside
         the signal boundary have no effect.
 
-  @returns (ndarray) Discrete, linear convolution of `vector1` and `vector2`
+  @return (ndarray) Discrete, linear convolution of `vector1` and `vector2`
 
   """
   vector1 = numpy.array(vector1, ndmin=1)
   vector2 = numpy.array(vector2, ndmin=1)
 
   if len(vector1) == 0:
-    raise ValueError('vector1 cannot be empty')
+    raise ValueError("vector1 cannot be empty")
   if len(vector2) == 0:
-    raise ValueError('vector2 cannot be empty')
+    raise ValueError("vector2 cannot be empty")
 
   if len(vector2) > len(vector1):
     vector1, vector2 = vector2, vector1
@@ -118,7 +121,7 @@ def _rickerWavelet(numPoints, waveletWidth):
 
   @param waveletWidth (scalar) Width parameter of the wavelet
 
-  @returns (ndarray) Array of length `points` in shape of ricker curve
+  @return (ndarray) Array of length `points` in shape of ricker curve
 
   """
   normalizeFactor = 2 / (numpy.sqrt(3 * waveletWidth) * (numpy.pi ** 0.25))
@@ -152,7 +155,7 @@ def _cwt(data, wavelet, widths):
 
   @param widths (sequence) Widths to use for transform
 
-  @returns (ndarray) Will have shape of (len(data), len(widths))
+  @return (ndarray) Will have shape of (len(data), len(widths))
 
   """
   output = numpy.zeros([len(widths), len(data)])
@@ -163,15 +166,14 @@ def _cwt(data, wavelet, widths):
 
 
 
-def find_parameters(data):
+def findParameters(samples):
   """
   Find parameters for a given time series dataset with heuristics.
 
-  @param data (tuple) Contains:
-    'timeStamps' (sequence) Each entry is an datetime.datetime instance
-    'values' (sequence) Each entry is a float number
+  @param samples Sequence of two tuples (timestamp, value), where
+    timestamp of type datetime.datetime and value is a number (int of float)
 
-  @returns: JSON object with the following properties:
+  @return: JSON object with the following properties:
 
     "aggInfo" aggregation information, JSON null if no aggregation is needed
       otherwise, a JSON object contains the folowing properties:
@@ -182,8 +184,8 @@ def find_parameters(data):
     "modelInfo": JSON object describing the model configuration that
     contains the following properties:
       "modelConfig": OPF Model Configuration parameters (JSON object) for
-      passing to the OPF 'ModelFactory.create()' method as the
-      'modelConfig' parameter.
+      passing to the OPF "ModelFactory.create()" method as the
+      "modelConfig" parameter.
 
       "inferenceArgs": OPF Model Inference parameters (JSON object) for
       passing to the resulting model's `enableInference()` method as the
@@ -195,14 +197,14 @@ def find_parameters(data):
       "valueFieldName": The name of the field in 'modelConfig'
       corresponding to the metric value (string)
   """
-  (timeStamps, values) = data
-  numRecords = len(data[0])
+  (timestamps, values) = zip(*samples)
+  numRecords = len(timestamps)
 
-  if type(timeStamps[0]) is not datetime.datetime:
-    raise TypeError('timeStamps must be datetime type')
+  if not isinstance(timestamps[0], datetime.datetime):
+    raise TypeError("timestamps must be datetime type")
 
   if numRecords > MAX_NUM_ROWS:
-    timeStamps = timeStamps[:MAX_NUM_ROWS]
+    timestamps = timestamps[:MAX_NUM_ROWS]
     values = values[:MAX_NUM_ROWS]
 
   if numRecords < MIN_NUM_ROWS:
@@ -212,46 +214,46 @@ def find_parameters(data):
     }
     return outputInfo
 
-  timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
+  timestamps = numpy.array(timestamps, dtype="datetime64[s]")
 
   try:
-    values = numpy.array(values).astype('float64')
-  except:
-    raise TypeError('values must be an array with float numbers')
+    values = numpy.array(values).astype("float64")
+  except TypeError:
+    print "values must be an array with float numbers"
 
   numDataPts = len(values)
 
   (medianSamplingInterval,
-   medianAbsoluteDevSamplingInterval) = _getMedianSamplingInterval(timeStamps)
+   medianAbsoluteDevSamplingInterval) = _getMedianSamplingInterval(timestamps)
 
-  (timeStamps, values) = _resampleData(timeStamps,
+  (timestamps, values) = _resampleData(timestamps,
                                        values,
                                        medianSamplingInterval)
 
-  (_cwtVar, _timeScale) = _calculateContinuousWaveletTransform(
-      medianSamplingInterval, values)
+  (cwtVar, timeScale) = _calculateContinuousWaveletTransform(
+    medianSamplingInterval, values)
 
   suggestedSamplingInterval = _determineAggregationWindow(
-      timeScale=_timeScale,
-      cwtVar=_cwtVar,
-      thresh=_AGGREGATION_WINDOW_THRESH,
-      samplingInterval=medianSamplingInterval,
-      numDataPts=numDataPts)
+    timeScale=timeScale,
+    cwtVar=cwtVar,
+    thresh=_AGGREGATION_WINDOW_THRESH,
+    samplingInterval=medianSamplingInterval,
+    numDataPts=numDataPts)
 
   # decide whether to use TimeOfDay and DayOfWeek encoders
-  (useTimeOfDay, useDayOfWeek) = _determineEncoderTypes(_cwtVar, _timeScale)
+  (useTimeOfDay, useDayOfWeek) = _determineEncoderTypes(cwtVar, timeScale)
 
   # decide the aggregation function ("mean" or "sum")
   aggFunc = _getAggregationFunction(medianSamplingInterval,
-                                    medianAbsoluteDevSamplingInterval)
+                                    medianAbsoluteDevSamplingInterval,
+                                    _AGGREGATION_WINDOW_THRESH)
 
-  outputInfo = {
+  return {
     "aggInfo": _getAggInfo(medianSamplingInterval,
                            suggestedSamplingInterval,
                            aggFunc),
     "modelInfo": _getModelParams(useTimeOfDay, useDayOfWeek, values),
   }
-  return outputInfo
 
 
 
@@ -272,7 +274,7 @@ def _getAggInfo(medianSamplingInterval, suggestedSamplingInterval, aggFunc):
     aggInfo = None
   else:
     aggInfo = {
-      "windowSize": suggestedSamplingInterval.astype('int'),
+      "windowSize": suggestedSamplingInterval.astype("int"),
       "func": aggFunc
     }
   return aggInfo
@@ -289,29 +291,29 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
 
   @param values (numpy array) data values, used to compute min/max values
 
-  @returns (dict) A dictionary of model parameters
+  @return (dict) A dictionary of model parameters
   """
   modelParams = getScalarMetricWithTimeOfDayAnomalyParams(metricData=values)
 
   if useTimeOfDay:
-    modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
-      ['c0_timeOfDay'] = dict(fieldname='c0',
-                              name='c0',
-                              type='DateEncoder',
+    modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
+      ["c0_timeOfDay"] = dict(fieldname="c0",
+                              name="c0",
+                              type="DateEncoder",
                               timeOfDay=(21, 9))
   else:
-    modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
-      ['c0_timeOfDay'] = None
+    modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
+      ["c0_timeOfDay"] = None
 
   if useDayOfWeek:
-    modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
-      ['c0_dayOfWeek'] = dict(fieldname='c0',
-                              name='c0',
-                              type='DateEncoder',
+    modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
+      ["c0_dayOfWeek"] = dict(fieldname="c0",
+                              name="c0",
+                              type="DateEncoder",
                               dayOfWeek=(21, 3))
   else:
-    modelParams['modelConfig']['modelParams']['sensorParams']['encoders'] \
-      ['c0_dayOfWeek'] = None
+    modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
+      ["c0_dayOfWeek"] = None
 
   modelParams["timestampFieldName"] = "c0"
   modelParams["valueFieldName"] = "c1"
@@ -319,33 +321,33 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
 
 
 
-def _resampleData(timeStamps, values, newSamplingInterval):
+def _resampleData(timestamps, values, newSamplingInterval):
   """
   Resample data at new sampling interval using linear interpolation
   Note: the resampling function is using interpolation,
   it may not be appropriate for aggregation purpose.
 
-  @param timeStamps numpy array of timeStamp in datetime64 type
+  @param timestamps numpy array of timestamp in datetime64 type
 
   @param values numpy array of float64 values
 
   @param newSamplingInterval numpy timedelta64 format
 
-  @returns (tuple) Contains:
-          'newTimeStamps' (numpy array) time stamps after resampling
-          'newValues' (numpy array) data values after resamplings
+  @return (tuple) Contains:
+          "newTimeStamps" (numpy array) time stamps after resampling
+          "newValues" (numpy array) data values after resamplings
   """
-  totalDuration = (timeStamps[-1] - timeStamps[0])
+  totalDuration = (timestamps[-1] - timestamps[0])
   nSampleNew = numpy.floor(totalDuration / newSamplingInterval) + 1
-  nSampleNew = nSampleNew.astype('int')
+  nSampleNew = nSampleNew.astype("int")
 
-  newTimeStamps = numpy.empty(nSampleNew, dtype='datetime64[s]')
+  newTimeStamps = numpy.empty(nSampleNew, dtype="datetime64[s]")
   for sampleI in xrange(nSampleNew):
-    newTimeStamps[sampleI] = timeStamps[0] + sampleI * newSamplingInterval
+    newTimeStamps[sampleI] = timestamps[0] + sampleI * newSamplingInterval
 
-  newValues = numpy.interp((newTimeStamps - timeStamps[0]).astype('float32'),
-                          (timeStamps - timeStamps[0]).astype('float32'),
-                          values)
+  newValues = numpy.interp((newTimeStamps - timestamps[0]).astype("float32"),
+                           (timestamps - timestamps[0]).astype("float32"),
+                           values)
 
   return newTimeStamps, newValues
 
@@ -360,9 +362,9 @@ def _calculateContinuousWaveletTransform(samplingInterval, values):
 
   @param values: numpy array of float64 values
 
-  @returns (tuple) Contains
-    'cwtVar' (numpy array) Stores variance of the wavelet coefficents
-    'timeScale' (numpy array) Stores the corresponding time scales
+  @return (tuple) Contains
+    "cwtVar" (numpy array) Stores variance of the wavelet coefficents
+    "timeScale" (numpy array) Stores the corresponding time scales
   """
 
   widths = numpy.logspace(0, numpy.log10(len(values) / 10), 50)
@@ -382,21 +384,21 @@ def _calculateContinuousWaveletTransform(samplingInterval, values):
 
 
 
-def _getMedianSamplingInterval(timeStamps):
+def _getMedianSamplingInterval(timestamps):
   """
   Calculate median and median absolute deviation of sampling interval.
 
-  @param timeStamps numpy array of timestamps in datetime64 format
+  @param timestamps numpy array of timestamps in datetime64 format
 
-  @returns: (tuple) Contains:
-    'medianSamplingInterval' (datetime64) in unit of seconds
-    'medianAbsoluteDev' (timedelta64) the median absolute deviation of
+  @return: (tuple) Contains:
+    "medianSamplingInterval" (datetime64) in unit of seconds
+    "medianAbsoluteDev" (timedelta64) the median absolute deviation of
            sampling intervals
   """
-  if timeStamps.dtype != numpy.dtype('<M8[s]'):
-    timeStamps = timeStamps.astype('datetime64[s]')
+  if timestamps.dtype != numpy.dtype("<M8[s]"):
+    timestamps = timestamps.astype("datetime64[s]")
 
-  samplingIntervals = numpy.diff(timeStamps)
+  samplingIntervals = numpy.diff(timestamps)
 
   medianSamplingInterval = numpy.median(samplingIntervals)
   medianAbsoluteDev = numpy.median(
@@ -424,14 +426,14 @@ def _determineAggregationWindow(timeScale,
 
   @param numDataPts (float) number of data points
 
-  @returns aggregationTimeScale (timedelta64) suggested sampling interval
+  @return aggregationTimeScale (timedelta64) suggested sampling interval
   """
-  samplingInterval = samplingInterval.astype('float64')
+  samplingInterval = samplingInterval.astype("float64")
   cumulativeCwtVar = numpy.cumsum(cwtVar)
   cutoffTimeScale = timeScale[numpy.where(cumulativeCwtVar >= thresh)[0][0]]
 
   aggregationTimeScale = cutoffTimeScale / 10.0
-  aggregationTimeScale = aggregationTimeScale.astype('float64')
+  aggregationTimeScale = aggregationTimeScale.astype("float64")
   if aggregationTimeScale < samplingInterval * 4:
     aggregationTimeScale = samplingInterval * 4
 
@@ -444,7 +446,7 @@ def _determineAggregationWindow(timeScale,
     if aggregationTimeScale > maxSamplingInterval > samplingInterval:
       aggregationTimeScale = maxSamplingInterval
 
-  aggregationTimeScale = numpy.timedelta64(int(aggregationTimeScale), 's')
+  aggregationTimeScale = numpy.timedelta64(int(aggregationTimeScale), "s")
   return aggregationTimeScale
 
 
@@ -465,9 +467,9 @@ def _determineEncoderTypes(cwtVar, timeScale):
 
   @param timeScale (numpy array) corresponding time scales for wavelet coeffs
 
-  @returns (tuple) Contains:
-          'useTimeOfDay' (bool) indicating whether to use timeOfDay encoder
-          'useDayOfWeek' (bool) indicating whether to use dayOfWeek encoder
+  @return (tuple) Contains:
+          "useTimeOfDay" (bool) indicating whether to use timeOfDay encoder
+          "useDayOfWeek" (bool) indicating whether to use dayOfWeek encoder
   """
 
   # Detect all local minima and maxima when the first difference reverse sign
@@ -475,11 +477,11 @@ def _determineEncoderTypes(cwtVar, timeScale):
   localMin = (numpy.diff(signOfFirstDifference) > 0).nonzero()[0] + 1
   localMax = (numpy.diff(signOfFirstDifference) < 0).nonzero()[0] + 1
 
-  baseline_value = 1.0 / len(cwtVar)
+  baselineValue = 1.0 / len(cwtVar)
 
   dayPeriod = 86400.0
   weekPeriod = 604800.0
-  timeScale = timeScale.astype('float32')
+  timeScale = timeScale.astype("float32")
 
   cwtVarAtDayPeriod = numpy.interp(dayPeriod, timeScale, cwtVar)
   cwtVarAtWeekPeriod = numpy.interp(weekPeriod, timeScale, cwtVar)
@@ -508,8 +510,8 @@ def _determineEncoderTypes(cwtVar, timeScale):
     localMaxValue = cwtVar[localMax[i]]
     nearestLocalMinValue = numpy.max(leftLocalMinValue, rightLocalMinValue)
 
-    if ((localMaxValue - nearestLocalMinValue) / localMaxValue
-          > 0.1 and localMaxValue > baseline_value):
+    if ((localMaxValue - nearestLocalMinValue) / localMaxValue > 0.1 and
+        localMaxValue > baselineValue):
       strongLocalMax.append(localMax[i])
 
       if (timeScale[leftLocalMin] < dayPeriod < timeScale[rightLocalMin]
@@ -526,7 +528,7 @@ def _determineEncoderTypes(cwtVar, timeScale):
 
 def _getAggregationFunction(medianSamplingInterval,
                             medianAbsoluteDevSamplingInterval,
-                            aggregationFuncThresh=0.2):
+                            aggregationFuncThresh):
   """
   Return the aggregation function type:
     ("sum" for transactional data types
@@ -543,7 +545,7 @@ def _getAggregationFunction(medianSamplingInterval,
         threshold between transactional and non-transactional data types
         A higher threshold will lead to a bias towards non-transactional data
 
-  @returns aggFunc (string) "sum" or "mean"
+  @return aggFunc (string) "sum" or "mean"
   """
   dataTypeIndicator = (medianAbsoluteDevSamplingInterval /
                        medianSamplingInterval)
