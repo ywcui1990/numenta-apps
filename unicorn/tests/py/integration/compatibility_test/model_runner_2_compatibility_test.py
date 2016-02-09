@@ -23,12 +23,6 @@
 """
 Compatibility test of the unicorn_backend.model_runner_2 module
 
-To add data for tests, follow these steps
-1. Copy NAB datasets (from NAB/data/) to data/
-2. Run param_finder_runner to get the suggested model parameters,
-3. Run model_runner_2 with suggested model parameters to get aggregated data
-4. Run NAB numenta detector on the aggregated data with suggested data
-5. Copy output of NAB detector to results/
 """
 
 import csv
@@ -147,16 +141,6 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
       out = stdoutData.splitlines()
       self.assertEqual(stderrData, "")
 
-      with open(os.path.join(DATA_DIR, name+'aggregate.csv'), 'wb') as csvFile:
-        csvWriter = csv.writer(csvFile)
-        csvWriter.writerow(['timestamp', 'value'])
-        for _ in xrange(len(out)):
-          row = json.loads(out[_])
-          timeStamp = str(row[0])
-          timeStamp = timeStamp[:10]+' '+timeStamp[11:]
-          row[0] = timeStamp
-          csvWriter.writerow(row[:3])
-
       results = self._load(os.path.join(RESULTS_DIR, name+'.csv'))
       with open(os.path.join(RESULTS_DIR, name+'.csv'), 'rb') as csvFile:
         for i in xrange(len(out)):
@@ -180,26 +164,17 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
     outputInfo = self._testParamFinderRunner(name, inputSpec)
 
-    with open(os.path.join(RESULTS_DIR, name+'_model_params.json'), 'wb') as outfile:
-      print "outputInfo: "
-      print outputInfo
-      json.dump(outputInfo, outfile, indent=4)
-
     aggSpec = json.dumps(outputInfo["aggInfo"])
     modelSpec = outputInfo['modelInfo']
     modelSpec['modelId'] = 'test'
-
-    print json.dumps(modelSpec)
-    # print "modelSpec: "
-    # print json.dumps(modelSpec["modelConfig"], indent=4, sort_keys=True)
     modelSpec = json.dumps(modelSpec)
-
-    print "aggSpec: ", aggSpec
 
     self._testModelRunner(name, inputSpec, aggSpec, modelSpec)
 
+
   def testAmbientTemperatureSystemFailure(self):
     self._testParamFinderAndModelRunner('ambient_temperature_system_failure')
+
 
   def testNYCTaxi(self):
     self._testParamFinderAndModelRunner('nyc_taxi')
