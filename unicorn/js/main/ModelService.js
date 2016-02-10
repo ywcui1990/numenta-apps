@@ -19,14 +19,23 @@ import childProcess from 'child_process';
 import EventEmitter from 'events';
 import path from 'path';
 import system from 'os';
+import process from 'process';
 import UserError from './UserError';
 
-// @todo https://bitbucket.org/anthony_tuininga/cx_freeze/issues/161
+// Get platform specific python.
+// See 'optionalDependencies' in 'package.json' for available platforms
+let PYTHON_EXECUTABLE;
+try {
+  PYTHON_EXECUTABLE = require(`portable_python_${process.platform}`).EXECUTABLE;
+} catch (err) {
+  throw new Error(`${process.platform} platform is not supported.`, err);
+}
+
+/** Model Runner script location */
 const MODEL_RUNNER_PATH = path.join(
   //  __dirname, '..', '..', 'dist', 'model_runner'
   __dirname, '..', '..', 'py', 'unicorn_backend', 'model_runner.py'
 );
-
 
 /**
  * Thrown when attempting to create more models than allowed by the system.
@@ -102,8 +111,8 @@ export class ModelService extends EventEmitter {
 
     // const params = [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats];
     // const child = childProcess.spawn('python', params);
-    const params = ['--model', modelId, '--stats', stats];
-    const child = childProcess.spawn(MODEL_RUNNER_PATH, params);
+    const params = [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats];
+    const child = childProcess.spawn(PYTHON_EXECUTABLE, params);
 
     child.stdout.setEncoding('utf8');
     child.stdin.setDefaultEncoding('utf8');

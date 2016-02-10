@@ -32,12 +32,14 @@ OSX_VERSION=$(sw_vers -productVersion | awk -F '.' '{print $1 "." $2}')
 echo "==> System version: $OSX_VERSION"
 PYTHON_SH="Miniconda-latest-MacOSX-x86_64.sh"
 CAPNP="capnproto-c++-0.5.3"
-NUPIC_CORE=${PWD}/nupic.core
-NUPIC=${PWD}/nupic
-PREFIX=${PWD}/miniconda
+WORKING_DIR=${PWD}
+SCRIPT_PATH=$(cd "$(dirname "$0")"; pwd)
+NUPIC_CORE=${WORKING_DIR}/nupic.core
+NUPIC=${WORKING_DIR}/nupic
+PREFIX=${WORKING_DIR}/portable_python
 PATH_VALUE=${PREFIX}/bin:${PREFIX}/include
 
-echo "==> Current working directory: $PWD"
+echo "==> Current working directory: $WORKING_DIR"
 echo "==> Python will be installed in: $PREFIX"
 echo "==> Setting up environment variables ..."
 # The env variable PATH has to be extended otherwise
@@ -66,7 +68,7 @@ echo "==> Installing Miniconda ..."
 bash $PYTHON_SH -b -p $PREFIX
 
 echo "--> Updating 'libpython' shared library search path"
-install_name_tool -id  @executable_path/../lib/libpython2.7.dylib $PREFIX/lib/libpython2.7.dylib 
+install_name_tool -id  @executable_path/../lib/libpython2.7.dylib $PREFIX/lib/libpython2.7.dylib
 
 
 echo "==> Downloading Capnp ..."
@@ -132,7 +134,21 @@ $PREFIX/bin/python -c "import nupic.algorithms.anomaly_likelihood"
 $PREFIX/bin/python -c "import nupic.bindings.math"
 
 # Create the artifact
-pushd $PREFIX
-zip -r miniconda.zip .
+echo "--> Creating artifact: ${WORKING_DIR}/portable_python.tar.gz"
+
+# Package for NPM consumption. Just call 'npm install portable_python.tar.gz'
+
+# Remove symbolic links. NPM does not support symbolic links
+cp -RL $PREFIX $PREFIX.npm
+rm -rf $PREFIX
+
+pushd $PREFIX.npm
+# Copy NPM package information
+cp ${SCRIPT_PATH}/index.js .
+cp ${SCRIPT_PATH}/package.json .
+
+tar -chzf ${WORKING_DIR}/portable_python.tar.gz .
 popd
 
+# Clean up
+rm -rf $PREFIX.npm

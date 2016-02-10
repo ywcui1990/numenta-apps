@@ -19,24 +19,11 @@ $python_msi = "python-$python_version.amd64.msi"
 $get_pip_url = "https://bootstrap.pypa.io/get-pip.py"
 $get_pip = "get-pip.py"
 
-# Utility function to unzip files
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-function Unzip
-{
-    param([string]$zipfile, [string]$outpath)
-
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
-}
-
-# Utility function to zip files
-function ZipFiles( $zipfilename, $sourcedir )
-{
-   Add-Type -Assembly System.IO.Compression.FileSystem
-   $compressionLevel = [System.IO.Compression.CompressionLevel]::Optimal
-   [System.IO.Compression.ZipFile]::CreateFromDirectory($sourcedir,
-        $zipfilename, $compressionLevel, $false)
-}
-
+# Installing PowerShell Community Extensions (PSCX): Write-Tar, Write-GZip
+Write-Host "==> Installing PowerShell Community Extensions (PSCX)"
+Get-PackageProvider -Name NuGet -ForceBootstrap
+Install-Module -Name Pscx -Force
+Import-Module Pscx
 
 Write-Host "==> Uninstalling Python ..."
 Start-Process  -Wait -FilePath msiexec -ArgumentList /x, $python_msi, /passive, /norestart
@@ -54,7 +41,7 @@ Write-Host "==> Downloading Python ..."
 Invoke-WebRequest -Uri $python_msi_url -OutFile $script_path\$python_msi
 
 Write-Host "==> Installing Python ..."
-Start-Process  -Wait -FilePath msiexec -ArgumentList /a, $python_msi, ALLUSERS=0, TARGETDIR=$script_path\$portable_python_dir, /passive, /norestart
+Start-Process -Wait -FilePath msiexec -ArgumentList /a, $python_msi, ALLUSERS=0, TARGETDIR=$script_path\$portable_python_dir, /passive, /norestart
 
 Write-Host "==> Downloading get-pip.py ..."
 Invoke-WebRequest -Uri $get_pip_url -OutFile $get_pip
@@ -73,10 +60,14 @@ Write-Host $test_nupic_import
 Invoke-Expression $test_nupic_bindings_import
 Invoke-Expression $test_nupic_import
 
-Write-Host "==> Zipping python ..."
-ZipFiles "$script_path/$portable_python_dir.zip" $script_path/$portable_python_dir
+Write-Host "==> Packaging portable_python artifact ..."
+Copy-Item "$script_path\index.js" -destination "$script_path/$portable_python_dir"
+Copy-Item "$script_path\package.json" -destination "$script_path/$portable_python_dir"
+Write-Tar -path "$script_path/$portable_python_dir" -output "$script_path/$portable_python_dir.tar"
+Write-Gzip -level 9 "$script_path/$portable_python_dir.tar"
 
 Write-Host "==> Cleaning up ..."
+Remove-Item -Force -ErrorAction Ignore "$script_path/$portable_python_dir.tar"
 Remove-Item -Force -ErrorAction Ignore $python_msi
 Remove-Item -Force -ErrorAction Ignore $get_pip
 Remove-Item -Force -ErrorAction Ignore $portable_python_dir -Recurse
