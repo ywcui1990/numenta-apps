@@ -17,11 +17,11 @@
 // http://numenta.org/licenses/
 
 
-import app from 'app';
-import BrowserWindow from 'browser-window';
+import {app} from 'electron';
+import {BrowserWindow} from 'electron';
 import bunyan from 'bunyan';
-import crashReporter from 'crash-reporter';
-import dialog from 'dialog';
+import {crashReporter} from 'electron';
+import {dialog} from 'electron';
 import path from 'path';
 
 import Config from './ConfigService';

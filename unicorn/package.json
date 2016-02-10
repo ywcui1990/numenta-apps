@@ -19,7 +19,7 @@
     "x64"
   ],
   "scripts": {
-    "build": "UNICORN_TARGET=desktop npm run clean && npm install && npm run prepare && npm run prepare:python && npm run electron:packager",
+    "build": "npm run clean && npm install && npm run prepare && npm run prepare:python && npm run electron:packager",
     "check": "npm install && npm prune && npm outdated -depth 0",
     "clean": "npm run clean:npm && npm run clean:db && npm run clean:docs && npm run clean:build && npm run clean:webpack",
     "clean:build": "rm -Rf dist/ && rm -Rf backend/unicorn_backend/nupic/",
@@ -27,8 +27,9 @@
     "clean:docs": "rm -Rf js/docs/",
     "clean:npm": "rm -Rf node_modules/",
     "clean:webpack": "rm -Rf js/browser/assets/bundle/*",
-    "desktop": "UNICORN_TARGET=desktop npm run prepare && npm run electron",
-    "desktop:debug": "UNICORN_TARGET=desktop npm run prepare && npm run electron:debug",
+    "desktop": "npm run dev",
+    "dev": "npm run prepare && npm run electron",
+    "dev:debug": "npm run prepare && npm run electron:debug",
     "docs": "npm run docs:build && npm run docs:open",
     "docs:build": "esdoc -c js/config/ESDoc.json",
     "docs:open": "open-url file://${PWD}/js/docs/index.html",
@@ -125,6 +126,7 @@
     "source-map-support": "0.4.0",
     "style-loader": "0.13.0",
     "url-loader": "0.5.7",
-    "webpack": "1.12.13"
+    "webpack": "1.12.13",
+    "webpack-dev-server": "1.14.1"
   }
 }

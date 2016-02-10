@@ -28,7 +28,6 @@
 import bunyan from 'bunyan';
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
-import React from 'react';
 import ReactDOM from 'react-dom';
 import remote from 'remote';
 import tapEventInject from 'react-tap-event-plugin';
@@ -74,11 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // verify web target
   if (!(document && ('body' in document))) {
     dialog.showErrorBox('Document Error', 'No document body found');
-  }
-
-  // expose React to dev tools
-  if (config.get('NODE_ENV') !== 'production') {
-    window.React = React; // expose dev tools to browser
   }
 
   tapEventInject(); // @TODO remove when >= React 1.0
