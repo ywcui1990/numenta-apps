@@ -71,11 +71,11 @@ export default class Logo extends React.Component {
         <Avatar
           size={65}
           style={this._styles.avatar}
-          src="assets/images/unicorn-logo-300.png">
-            <span style={this._styles.title}>
-              Unicorn
-            </span>
-        </Avatar>
+          src="assets/images/unicorn-logo-300.png"
+          />
+        <span style={this._styles.title}>
+          Unicorn
+        </span>
       </header>
     );
   }

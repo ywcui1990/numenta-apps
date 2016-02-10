@@ -19,19 +19,14 @@
  * -------------------------------------------------------------------------- */
 
 
-// externals
-
 import nconf from 'nconf';
 import path from 'path';
-
-// internals
 
 const CONFIG_FILE = 'default.json';
 const CONFIG_PATH = path.join('js', 'config');
 
 const Defaults = {
   NODE_ENV: 'development',
-  UNICORN_TARGET: 'desktop',
   TEST_HOST: 'http://localhost',
   TEST_PATH: '',
   TEST_PORT: 8008
@@ -51,10 +46,6 @@ function ConfigService() {
   config.file(
     'environment',
     path.join(CONFIG_PATH, `environment.${config.get('NODE_ENV')}.json`)
-  );
-  config.file(
-    'target',
-    path.join(CONFIG_PATH, `target.${config.get('UNICORN_TARGET')}.json`)
   );
 
   return config;
