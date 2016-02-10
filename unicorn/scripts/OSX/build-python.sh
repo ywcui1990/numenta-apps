@@ -132,4 +132,7 @@ $PREFIX/bin/python -c "import nupic.algorithms.anomaly_likelihood"
 $PREFIX/bin/python -c "import nupic.bindings.math"
 
 # Create the artifact
-zip -r ${PREFIX}.zip $PREFIX
+pushd $PREFIX
+zip -r miniconda.zip .
+popd
+

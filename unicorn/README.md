@@ -29,8 +29,6 @@ goal to demo to the user.
 DEPENDENCIES.md     # Module dependency overview file
 LICENSE.txt         # Dual: Commercial and AGPLv3
 README.md           # This file, a project overview
-gulpfile.babel.js   # Babel.js ES6 Config file for the Gulp build tool
-npm-debug.log       # NPM/node run output logs, not in source control
 package.json        # Node.js `npm` packages, dependencies, and App config
 py/                 # Unicorn ModelRunner and support Python/C++ code here!
   README.md         # Overview for HTM/NuPIC part of project
@@ -65,7 +63,6 @@ js/                 # Frontend+GUI that exposes NuPIC HTM functionality to the U
     loader.js       # Electron App entry point loader for main.js ES5 => ES6
     index.js        # ES6 Electron App main entry, creates browser GUI window and model runner engine
   samples/          # Sample .CSV data files to pre-load for user in GUI
-logs/               # Logfile output of all kinds should end up here
 node_modules/       # Where `npm` installs packages to, not in source control
 tests/              # Unicorn project tests
   js/               # Javascript tests
@@ -112,7 +109,6 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Flow Control for A/Synchronous code:
       [js-csp](https://github.com/ubolonton/js-csp),
       [Learn More!](http://jlongster.com/Taming-the-Asynchronous-Beast-with-CSP-in-JavaScript)
-    * Facebook [Flow](http://flowtype.org/) JS Typing
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS)
 * Framework: [Electron](https://github.com/atom/electron)
@@ -136,11 +132,8 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Graphing and Charting: [DyGraphs](http://dygraphs.com/)
       * @TODO Alternatives? [react-chartjs](https://github.com/jhudson8/react-chartjs)
         Canvas, [react-d3](https://github.com/esbullington/react-d3) SVG
-* Testing:
-  * Test Runner, Unit Tests: [Mocha](https://github.com/mochajs/mocha)
-* Tooling:
-  * Streaming task runner: [Gulp](https://github.com/gulpjs/gulp)
-  * Linting: [eslint](http://eslint.org/)
+* Testing: [Mocha](https://github.com/mochajs/mocha)
+* Linting: [eslint](http://eslint.org/)
 
 #### Description
 
@@ -195,7 +188,6 @@ cd numenta-apps/unicorn
 pip install -r py/requirements.txt
 npm install
 npm run prepare:python # to freeze model_runner.py so that it can be used in Unicorn.
-export APPLICATION_LOG_DIR=logs  # to change to model_runner.py param?
 ```
 
 
@@ -333,19 +325,17 @@ The resulting `.app` can be found in `unicorn/Unicorn-darwin-x64/`
 
 TODO
 
-
 ## Release
 
 ### Signing
 
-* You need a certificate type of “Developer ID Application” from Apple. This certificate usually has a common name in the form of `Developer ID Application: YourCompany, Inc. (ABCDEFGHIJK)`.
+* You need a certificate type of “Developer ID Application” from Apple. This
+  certificate usually has a common name in the form of
+  `Developer ID Application: YourCompany, Inc. (ABCDEFGHIJK)`.
 * Set the environment variable `UNICORN_CERT_DEV_APPLE` and sign the app:
-```
-export UNICORN_CERT_DEV_APPLE="Developer ID Application: Numenta, Inc. (ABCDEFGHIJK)"
-```
-* Now when you package Unicorn with `npm run electron:packager`, the app will be signed.
-
-
+  `export UNICORN_CERT_DEV_APPLE="Developer ID Application: Numenta, Inc. (ABCDEFGHIJK)"`
+* Now when you package Unicorn with `npm run electron:packager`, the app will
+  be signed.
 * Useful blog post about signing Electron apps:
   http://jbavari.github.io/blog/2015/08/14/codesigning-electron-applications
 
@@ -387,12 +377,3 @@ NEED `npm run blah` examples here @TODO
 ### Other
 
 * [Electron and Windows Debug Symbol Server](http://electron.atom.io/docs/v0.31.0/development/setting-up-symbol-server/)
-
-
-## @TODO
-
-* Spread global config around! `nconf` work
-* New Electron/Node4 doesn't need babel bundle anymore? (node5 for sure)
-* Add in Flow type checking
-* i18n l10n setup (es6 template strings? react intl? es6/7 solution?)
-* Electron integration test skeleton

@@ -18,7 +18,7 @@
 // http://numenta.org/licenses/
 
 
-import ipc from 'ipc';
+import {ipcRenderer as ipc} from 'electron';
 
 import ModelErrorAction from '../../actions/ModelError';
 import ReceiveModelDataAction from '../../actions/ReceiveModelData';
@@ -64,7 +64,7 @@ export default class ModelClient {
     });
   }
 
-  _handleIPCEvent(modelId, command, payload) {
+  _handleIPCEvent(event, modelId, command, payload) {
     if (this._context) {
       if (command === 'data') {
         setTimeout(() => this._handleModelData(modelId, payload));
