@@ -215,11 +215,7 @@ def findParameters(samples):
     return outputInfo
 
   timestamps = numpy.array(timestamps, dtype="datetime64[s]")
-
-  try:
-    values = numpy.array(values).astype("float64")
-  except TypeError:
-    print "values must be an array with float numbers"
+  values = numpy.array(values).astype("float64")
 
   numDataPts = len(values)
 
