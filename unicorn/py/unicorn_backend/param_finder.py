@@ -219,11 +219,7 @@ def find_parameters(timeStamps, values):
     values = values[:MAX_ROW_NUMBER]
 
   timeStamps = numpy.array(timeStamps, dtype='datetime64[s]')
-
-  try:
-    values = numpy.array(values).astype('float64')
-  except:
-    raise TypeError('values must be an array with float numbers')
+  values = numpy.array(values).astype('float64')
 
   numDataPts = len(values)
 

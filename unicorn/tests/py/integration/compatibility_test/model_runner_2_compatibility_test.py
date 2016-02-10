@@ -135,32 +135,32 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
   def _testModelRunner(self, name, inputSpec, aggSpec, modelSpec):
     with self._startModelRunnerSubprocess(
-            inputSpec, aggSpec, modelSpec) as mrProcess:
+      inputSpec, aggSpec, modelSpec) as mrProcess:
 
       stdoutData, stderrData = mrProcess.communicate()
       out = stdoutData.splitlines()
       self.assertEqual(stderrData, "")
 
       results = self._load(os.path.join(RESULTS_DIR, name+'.csv'))
-      with open(os.path.join(RESULTS_DIR, name+'.csv'), 'rb') as csvFile:
-        for i in xrange(len(out)):
-          outputRecord = json.loads(out[i])
 
-          trueDataValue = float(results[i][1])
-          trueAnomalyLikelihood = float(results[i][2])
-          self.assertAlmostEqual(outputRecord[1], trueDataValue)
-          self.assertAlmostEqual(outputRecord[2], trueAnomalyLikelihood)
+      for i in xrange(len(out)):
+        outputRecord = json.loads(out[i])
+
+        trueDataValue = float(results[i][1])
+        trueAnomalyLikelihood = float(results[i][2])
+        self.assertAlmostEqual(outputRecord[1], trueDataValue)
+        self.assertAlmostEqual(outputRecord[2], trueAnomalyLikelihood)
 
       self.assertEqual(mrProcess.returncode, 0)
 
 
   def _testParamFinderAndModelRunner(self, name):
-    inputSpec = {"datetimeFormat": "%Y-%m-%d %H:%M:%S",
-                 "timestampIndex": 0,
-                 "csv": os.path.join(DATA_DIR, name+".csv"),
-                 "rowOffset": 4,
-                 "valueIndex": 1}
-    inputSpec = json.dumps(inputSpec)
+    inputSpec = json.dumps(
+      {"datetimeFormat": "%Y-%m-%d %H:%M:%S",
+       "timestampIndex": 0,
+       "csv": os.path.join(DATA_DIR, name+".csv"),
+       "rowOffset": 4,
+       "valueIndex": 1})
 
     outputInfo = self._testParamFinderRunner(name, inputSpec)
 
