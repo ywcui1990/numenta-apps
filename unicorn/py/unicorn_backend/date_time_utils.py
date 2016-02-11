@@ -127,8 +127,8 @@ def parseDatetime(dateString, dateFormat):
           "out of bounds; must be in -{} .. +{}"
           .format(originalDateString, originalDateFormat,
                   sign, hours, minutes,
-                  ":".join(_MAX_UTC_OFFSET_PARTS),
-                  ":".join(_MAX_UTC_OFFSET_PARTS)))
+                  ":".join(str(i) for i in _MAX_UTC_OFFSET_PARTS),
+                  ":".join(str(i) for i in _MAX_UTC_OFFSET_PARTS)))
 
 
     tzinfo = tz.tzoffset(name=tzname, offset=offsetInSeconds)
