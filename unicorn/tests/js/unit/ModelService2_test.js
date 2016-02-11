@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------------
- * Copyright © 2015, Numenta, Inc. Unless you have purchased from
+ * Copyright © 2016, Numenta, Inc. Unless you have purchased from
  * Numenta, Inc. a separate commercial license for this software code, the
  * following terms and conditions apply:
  *
@@ -24,7 +24,7 @@ const assert = require('assert');
 
 const MODEL_ID = '1';
 const CSV_FILE = path.join(__dirname, 'fixtures', 'rec-center.csv');
-const MODEL_EXPECTED_RESULTS = '["2010-07-02T01:00:00", 7.6, 0.0301029996658834]\n';
+const MODEL_EXPECTED_RESULTS = require('./fixtures/model_runner_output.json');
 const MODEL_RUNNER_INPUT = require('./fixtures/model_runner_input.json');
 MODEL_RUNNER_INPUT['csv'] = CSV_FILE;
 const MODEL_RUNNER_AGG = require('./fixtures/model_runner_agg.json');
@@ -62,9 +62,9 @@ describe('ModelService2', () => {
 
     it('Read data from model', (done) => {
       service.on(MODEL_ID, (type, data) => {
-        assert(type !== 'error', data);
+        assert.notEqual(type, 'error', data);
         if (type === 'data') {
-          assert.equal(data, MODEL_EXPECTED_RESULTS);
+          assert.deepEqual(JSON.parse(data), MODEL_EXPECTED_RESULTS);
           service.removeAllListeners(MODEL_ID);
           done();
         }
@@ -78,28 +78,28 @@ describe('ModelService2', () => {
     it('Create models up to max concurrency', (done) => {
       let max = service.availableSlots();
       // The first model was created in 'beforeEach'
-      for (let i=1; i<=max; i++) {
-        service.createModel(MODEL_ID+i, inputOpt, aggregationOpt, modelOpt);
+      for (let i = 1; i <= max; i++) {
+        service.createModel(MODEL_ID + i, inputOpt, aggregationOpt, modelOpt);
       }
       // Cleanup
-      for (let i=1; i<=max; i++) {
-        service.removeModel(MODEL_ID+i);
+      for (let i = 1; i <= max; i++) {
+        service.removeModel(MODEL_ID + i);
       }
       done();
     });
-    it ('Create models past max concurrency', (done) => {
+    it('Create models past max concurrency', (done) => {
       let max = service.availableSlots();
       // The first model was created in 'beforeEach'
-      for (let i=1; i<=max; i++) {
-        service.createModel(MODEL_ID+i, inputOpt, aggregationOpt, modelOpt);
+      for (let i = 1; i <= max; i++) {
+        service.createModel(MODEL_ID + i, inputOpt, aggregationOpt, modelOpt);
       }
       // Extra model
       assert.throws(() => {
         service.createModel('extra', inputOpt, aggregationOpt, modelOpt);
       }, /Too many models/);
       // Cleanup
-      for (let i=1; i<=max; i++) {
-        service.removeModel(MODEL_ID+i);
+      for (let i = 1; i <= max; i++) {
+        service.removeModel(MODEL_ID + i);
       }
       done();
     });
