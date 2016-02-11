@@ -51,6 +51,8 @@ from nupic.data import fieldmeta
 from nupic.data import record_stream
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
+from unicorn_backend import date_time_utils
+
 
 
 g_log = logging.getLogger(__name__)
@@ -319,7 +321,8 @@ class _ModelRunner(object):
       # NOTE: the order must match the `inputFields` that we passed to the
       # Aggregator constructor
       fields = [
-        datetime.strptime(inputRow[inputRowTimestampIndex], datetimeFormat),
+        date_time_utils.parseDatetime(inputRow[inputRowTimestampIndex],
+                                      datetimeFormat),
         float(inputRow[inputRowValueIndex])
       ]
 
