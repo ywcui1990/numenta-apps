@@ -187,30 +187,11 @@ git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/unicorn
 pip install -r py/requirements.txt
 npm install
-npm run prepare:python  # to freeze model_runner.py so that it can be used
 ```
 
 
 ## Develop
 
-### Prepare
-
-**Important note:** when running `npm run dev` the application will fail to find
-`dist/model_runner` if `model_runner.py` was never frozen before. Make sure
-to run `npm run prepare:python` beforehand, if any of the following applies:
-
-* The script `model_runner.py` has never been frozen (i.e. neither
-  `npm run build` nor `npm run prepare:python` have been run before).
-* Changes were made to the the code under `unicon/py`.
-* Changes to NuPIC were made.
-
-```shell
-# Freeze the model runner if:
-# - It was never frozen before
-# - Changes were made to the the code under unicon/py
-# - Changes to NuPIC were made.
-npm run prepare:python
-```
 
 ### Run
 
@@ -236,7 +217,7 @@ npm run docs  # generate and open documentation
 
 ### Problems?
 
-* Maybe the DB stored bad data? `npm run clean:db`.
+* Maybe the DB stored bad data? `npm run clean:db:osx`.
 * Sometimes `node_modules/` directory can become corrupted, try cleaning and
   reinstalling (*slow*): `npm run clean ; npm run check`.
 * Local Git repo can get stuck with out-of-date JS somehow, so back up your
@@ -349,6 +330,36 @@ npm run dev:debug  # open http://localhost:5858 in browser
 * Manual access to LevelDB file database from
   [Lev](https://github.com/hij1nx/lev) command-line tool (Mac OS/X):
   * `` `npm bin`/lev $HOME/Library/Application\ Support/unicorn/database/ ``
+
+
+### NPM scripts
+
+Here are the `npm` scripts available via `npm run <scrip-name>`:
+
+* `build`: Run all steps required to build the application
+* `check`: Check `npm` installation, cleaning up old packages and installing new ones
+* `clean`: Clean all Unicorn build an runtime artifacts
+  * `clean:build`: Delete Unicorn build artifacts
+  * `clean:db:osx`: Delete Unicorn database files (OSX)
+  * `clean:docs`: Delete Unicorn documentation
+  * `clean:npm`: Delete `npm` installed packages installed locally
+  * `clean:webpack`: Clean compiled/packaged JS code
+* `desktop`: Launch Unicorn Desktop application
+* `desktop:debug`: Launch Unicorn in debug mode. See [Electron Documentation]( https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md) for instructions on how to use the debugger
+* `docs`: Build Unicorn documentation (esdoc)
+* `electron`: Launch Electron
+* `electron:debug`: Launch Electron in debug mode. See [Electron Documentation]( https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md) for instructions on how to use the debugger
+* `electron:packager`: Build Unicorn installable packages
+* `esfmt`: Format JS code (esformatter)
+* `lint`: Lint JS code (eslint)
+* `prepare`: Prepare Unicorn code for packaging
+* `node-inspector`: Launch `node-inspector` used to debug Electron application. See [Electron Documentation]( https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md) for detailed instructions on how to use the debugger
+* `test`: Run all JS tests using developer options. See [mocha.opts](tests/js/mocha.opts)
+  * `test:integration`: Run all JS integration tests
+  * `test:unit`: Run all JS unit tests
+* `test:pipeline`:Run all JS tests using pipeline options. See [mocha.opts](tests/js/mocha.pipeline.opts)
+  * `test:pipeline:integration`:  Run all JS integration tests
+  * `test:pipeline:unit`: Run all JS unit tests
 
 ### Frontend + Browser
 
