@@ -18,12 +18,15 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
+import getPortablePython from './PortablePython';
 import childProcess from 'child_process';
 import EventEmitter from 'events';
 import path from 'path';
 import UserError from './UserError';
 
 export const PARAM_FINDER_EVENT_TYPE = 'PARAM_FINDER_EVENT_TYPE';
+
+const PYTHON_EXECUTABLE = getPortablePython();
 const PARAM_FINDER_PATH = path.join(
   __dirname, '..', '..', 'py', 'unicorn_backend', 'param_finder_runner.py'
 );
@@ -64,10 +67,10 @@ export class ParamFinderService extends EventEmitter {
       throw MaximumConcurrencyError
     }
 
-    const params = [
+    const params = [PARAM_FINDER_PATH,
       '--input', JSON.stringify(inputOpt)
     ];
-    const child = childProcess.spawn(PARAM_FINDER_PATH, params);
+    const child = childProcess.spawn(PYTHON_EXECUTABLE, params);
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
 
@@ -111,9 +114,11 @@ export class ParamFinderService extends EventEmitter {
    * Stop param finder .
    */
   stopParamFinder() {
-    this._paramFinder.child.kill();
-    this._paramFinder = null;
-    this.removeAllListeners(PARAM_FINDER_EVENT_TYPE);
+    if (this.isRunning()) {
+      this._paramFinder.child.kill();
+      this._paramFinder = null;
+      this.removeAllListeners(PARAM_FINDER_EVENT_TYPE);
+    }
   }
 
 }

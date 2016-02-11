@@ -301,7 +301,6 @@ export default class FileDetails extends React.Component {
         label="Cancel"
         onRequestClose={this._onRequestClose.bind(this)}
         onTouchTap={this._onSave.bind(this)}
-        secondary={true}
         />,
       <FlatButton
         label="Save"

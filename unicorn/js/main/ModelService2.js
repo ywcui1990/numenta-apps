@@ -18,12 +18,14 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
+import getPortablePython from './PortablePython';
 import childProcess from 'child_process';
 import EventEmitter from 'events';
 import path from 'path';
 import system from 'os';
 import UserError from './UserError';
 
+const PYTHON_EXECUTABLE = getPortablePython();
 const MODEL_RUNNER_PATH = path.join(
   __dirname, '..', '..', 'py', 'unicorn_backend', 'model_runner_2.py'
 );
@@ -88,9 +90,11 @@ export class ModelService extends EventEmitter {
 
   /**
    * Creates new HTM model.
-   * @param  {String} modelId - Unique identifier for the model. Updates modelOpt.modelId property.
+   * @param  {String} modelId - Unique identifier for the model.
+   *  Updates modelOpt.modelId property.
    * @param  {Object} inputOpt - Input options. See 'input_opt_schema.json'
-   * @param  {Object} aggregationOpt - Aggregation options. See 'agg_opt_schema.json'
+   * @param  {Object} aggregationOpt - Aggregation options.
+   *  See 'agg_opt_schema.json'
    * @param  {Object} modelOpt - Model options. See 'model_opt_schema.json'
    * @throws {@link MaximumConcurrencyError}, {@link DuplicateIDError}
    */
@@ -105,12 +109,12 @@ export class ModelService extends EventEmitter {
       throw new DuplicateIDError();
     }
 
-    const params = [
+    const params = [MODEL_RUNNER_PATH,
       '--input', JSON.stringify(inputOpt),
       '--agg', JSON.stringify(aggregationOpt),
       '--model', JSON.stringify(modelOpt)
     ];
-    const child = childProcess.spawn(MODEL_RUNNER_PATH, params);
+    const child = childProcess.spawn(PYTHON_EXECUTABLE, params);
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
 

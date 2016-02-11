@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------------------
- * Copyright © 2015, Numenta, Inc. Unless you have purchased from
+ * Copyright © 2016, Numenta, Inc. Unless you have purchased from
  * Numenta, Inc. a separate commercial license for this software code, the
  * following terms and conditions apply:
  *
@@ -18,39 +18,28 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-
-import nconf from 'nconf';
-import path from 'path';
-
-const CONFIG_FILE = 'default.json';
-const CONFIG_PATH = path.join('js', 'config');
-
-const Defaults = {
-  NODE_ENV: 'development',
-  TEST_HOST: 'http://localhost',
-  TEST_PATH: '',
-  TEST_PORT: 8008
-};
-
+import process from 'process';
+import UserError from './UserError'
 
 /**
- * Unicorn: ConfigService - Respond to a ConfigClient over IPC, sharing our
- *  access to the Node-layer config settings.
- *  NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
- * @return {Object} - Configuration data handler object
+ * Thrown when portable python distribution is not found for this platform.
  */
-function ConfigService() {
-  const config = nconf.env().argv().defaults(Defaults);
-
-  config.file(path.join(CONFIG_PATH, CONFIG_FILE));
-  config.file(
-    'environment',
-    path.join(CONFIG_PATH, `environment.${config.get('NODE_ENV')}.json`)
-  );
-
-  return config;
+export class PortablePythonNotFoundError extends UserError {
+  constructor() {
+    super(`${process.platform} platform is not supported.`);
+  }
 }
 
-
-// EXPORTS
-module.exports = ConfigService;
+/**
+ * Get path to platform specific portable python distribution.
+ * See 'optionalDependencies' in 'package.json' for available platforms.
+ * @throws {@link PortablePythonNotFoundError}
+ * @returns {String} Path to portable python distribution
+ */
+export default function getPortablePython() {
+  try {
+    return require(`portable_python_${process.platform}`).EXECUTABLE;
+  } catch (err) {
+    throw new PortablePythonNotFoundError();
+  }
+}
