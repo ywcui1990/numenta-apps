@@ -105,7 +105,11 @@ export default class SearchStore extends BaseStore {
             };
           })
           .sort((a, b) => {
-            return b.sumScore - a.sumScore;
+            let res = b.maxScore - a.maxScore;
+            if (res === 0) {
+              res = b.sumScore - a.sumScore;
+            }
+            return res;
           });
         this.results.set(model, records);
       } else {
