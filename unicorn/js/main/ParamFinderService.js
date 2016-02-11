@@ -40,8 +40,8 @@ export class MaximumConcurrencyError extends UserError {
 
 
 /**
- * Unicorn: ParamFinderService - Respond to a ParamFinderClient over IPC, sharing
- * our access to Unicorn Backend Param Finder Runner python.
+ * Unicorn: ParamFinderService - Respond to a ParamFinderClient over IPC,
+ * sharing our access to Unicorn Backend Param Finder Runner python.
  */
 export class ParamFinderService extends EventEmitter {
   constructor(...args) {
@@ -54,7 +54,8 @@ export class ParamFinderService extends EventEmitter {
 
   /**
    * Start the param finder.
-   * @param  {Object} inputOpt - Input options. See 'input_opt_schema_param_finder.json'
+   * @param  {Object} inputOpt - Input options.
+   *  See 'input_opt_schema_param_finder.json'
    * @throws {@link MaximumConcurrencyError}
    */
   startParamFinder(inputOpt) {
@@ -91,7 +92,7 @@ export class ParamFinderService extends EventEmitter {
   }
 
   /**
-   * Returns if the param finder is running or not.
+   * Return whether the param finder is running or not.
    * @return {Boolean} - True if param finder is running. False otherwise.
    */
   isRunning() {
@@ -99,7 +100,7 @@ export class ParamFinderService extends EventEmitter {
   }
 
   /**
-   * Returns the param finder currently running.
+   * Return the param finder currently running.
    * @return {Object} - The param finder and its runtime params.
    */
   getParamFinder() {
@@ -107,7 +108,7 @@ export class ParamFinderService extends EventEmitter {
   }
 
   /**
-   * Stops param finder .
+   * Stop param finder .
    */
   stopParamFinder() {
     this._paramFinder.child.kill();

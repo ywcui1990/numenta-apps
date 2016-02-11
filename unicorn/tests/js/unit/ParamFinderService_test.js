@@ -81,7 +81,6 @@ describe('ParamFinderService', () => {
     });
   });
 
-
   describe('Param Finder concurrency', () => {
     it('Should not start another param finder process', (done) => {
       assert.throws(() => {
