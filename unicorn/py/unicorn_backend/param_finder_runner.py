@@ -36,8 +36,8 @@ import traceback
 from dateutil import tz
 import validictory
 
-from unicorn_backend.param_finder import findParameters
-from unicorn_backend.param_finder import MAX_NUM_ROWS
+from param_finder import findParameters
+from param_finder import MAX_NUM_ROWS
 
 g_log = logging.getLogger(__name__)
 
