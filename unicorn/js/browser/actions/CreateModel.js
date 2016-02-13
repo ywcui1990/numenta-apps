@@ -33,5 +33,6 @@ import {ACTIONS} from '../lib/Constants';
  * @todo Persist model reference
  */
 export default function (actionContext, payload) {
+  console.log(payload);
   return actionContext.dispatch(ACTIONS.ADD_MODEL, payload);
 }

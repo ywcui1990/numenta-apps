@@ -34,6 +34,7 @@ import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
 import StartModelAction from '../actions/StartModel';
 import StopModelAction from '../actions/StopModel';
+import CreateModelDialog from '../components/CreateModelDialog'
 
 const dialog = remote.require('dialog');
 
@@ -41,7 +42,7 @@ const DIALOG_STRINGS = {
   model: {
     title: 'Delete Model',
     message: 'Deleting this model will delete the associated model results.' +
-              ' Are you sure you want to delete this model?'
+    ' Are you sure you want to delete this model?'
   }
 };
 
@@ -125,7 +126,11 @@ export default class Model extends React.Component {
   }
 
   _createModel(modelId) {
-    this.context.executeAction(StartModelAction, modelId);
+    this.refs.createModelWindow.setState({
+      open: true,
+      fileName: this.state.filename,
+      metricName: this.state.metric
+    });
   }
 
   _deleteModel(modelId) {
@@ -168,14 +173,14 @@ export default class Model extends React.Component {
       <FlatButton
         label="Cancel"
         onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
-        />,
+      />,
       <FlatButton
         keyboardFocused={true}
         label="Delete"
         onTouchTap={deleteConfirmDialog.callback}
         primary={true}
         ref="submit"
-        />
+      />
     ];
     let actions = (
       <CardActions style={this._styles.actions}>
@@ -184,25 +189,25 @@ export default class Model extends React.Component {
           label="Create Model"
           labelPosition="after"
           onTouchTap={this._createModel.bind(this, modelId)}
-          />
+        />
         <FlatButton
           disabled={!isModelActive}
           label="Stop Model"
           labelPosition="after"
           onTouchTap={this._onStopButtonClick.bind(this, modelId)}
-          />
+        />
         <FlatButton
           disabled={!hasModelRun}
           label="Delete Model"
           labelPosition="after"
           onTouchTap={this._deleteModel.bind(this, modelId)}
-          />
+        />
         <FlatButton
           disabled={!hasModelRun}
           label="Export Results"
           labelPosition="after"
           onTouchTap={this._exportModelResults.bind(this, modelId)}
-          />
+        />
       </CardActions>
     );
 
@@ -222,10 +227,10 @@ export default class Model extends React.Component {
           subtitle={<div style={this._styles.title}>{filename}</div>}
           title={<div style={this._styles.title}>{title}</div>}
           titleColor={titleColor}
-          />
+        />
         <CardText expandable={true}>
           {actions}
-          <ModelData modelId={modelId} />
+          <ModelData modelId={modelId}/>
         </CardText>
         <Dialog
           actions={dialogActions}
@@ -233,9 +238,10 @@ export default class Model extends React.Component {
           open={dialogOpen}
           ref="deleteConfirmDialog"
           title={deleteConfirmDialog.title}
-          >
-            {deleteConfirmDialog.message}
+        >
+          {deleteConfirmDialog.message}
         </Dialog>
+        <CreateModelDialog ref="createModelWindow" initialOpenState={false}/>
       </Card>
     );
   }
