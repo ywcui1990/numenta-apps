@@ -11,6 +11,7 @@ echo
 echo "HTM_sensor_simple_tp_knn..."
 python ~/nta/nupic.research/htmresearch/frameworks/nlp/imbu.py \
   --dataPath engine/data.csv \
+  --cacheRoot cache \
   -c ~/nta/nupic.research/projects/nlp/data/network_configs/imbu_sensor_simple_tp_knn.json \
   -m HTM_sensor_simple_tp_knn \
   --savePath engine/HTM_sensor_simple_tp_knn \
@@ -20,6 +21,7 @@ echo
 echo "HTM_sensor_knn..."
 python ~/nta/nupic.research/htmresearch/frameworks/nlp/imbu.py \
   --dataPath engine/data.csv \
+  --cacheRoot cache \
   -c ~/nta/nupic.research/projects/nlp/data/network_configs/imbu_sensor_knn.json \
   -m HTM_sensor_knn \
   --savePath engine/HTM_sensor_knn \
@@ -29,6 +31,7 @@ echo
 echo "CioWordFingerprint..."
 python ~/nta/nupic.research/htmresearch/frameworks/nlp/imbu.py \
   --dataPath engine/data.csv \
+  --cacheRoot cache \
   -m CioWordFingerprint \
   --savePath engine/CioWordFingerprint \
   --noQueries
@@ -37,6 +40,7 @@ echo
 echo "CioDocumentFingerprint..."
 python ~/nta/nupic.research/htmresearch/frameworks/nlp/imbu.py \
   --dataPath engine/data.csv \
+  --cacheRoot cache \
   -m CioDocumentFingerprint \
   --savePath engine/CioDocumentFingerprint \
   --noQueries
@@ -45,6 +49,7 @@ echo
 echo "Keywords..."
 python ~/nta/nupic.research/htmresearch/frameworks/nlp/imbu.py \
   --dataPath engine/data.csv \
+  --cacheRoot cache \
   -m Keywords \
   --savePath engine/Keywords \
   --noQueries
