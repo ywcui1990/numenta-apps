@@ -18,7 +18,7 @@
 
 import csp from 'js-csp';
 
-import {ACTIONS} from '../lib/Constants';
+import {ACTIONS, DATABASE_ERRORS} from '../lib/Constants';
 import Utils from '../../main/Utils';
 import {
   DatabaseGetError, DatabasePutError, FilesystemGetError
@@ -67,7 +67,7 @@ function getFileFromDB(options) {
   let fileId = Utils.generateFileId(file.path);
 
   databaseClient.getFile(fileId, (error, results) => {
-    if (error && (error.name !== databaseClient.ERRORS.NOT_FOUND)) {
+    if (error && (error.name !== DATABASE_ERRORS.NOT_FOUND)) {
       csp.putAsync(channel, new DatabaseGetError(error));
     } else {
       csp.putAsync(channel, results);
@@ -93,7 +93,7 @@ function getMetricsFromDB(options) {
   let fileId = Utils.generateFileId(file.path);
 
   databaseClient.getMetricsByFile(fileId, (error, results) => {
-    if (error && (error.name !== databaseClient.ERRORS.NOT_FOUND)) {
+    if (error && (error.name !== DATABASE_ERRORS.NOT_FOUND)) {
       csp.putAsync(channel, new DatabaseGetError(error));
     } else {
       csp.putAsync(channel, results);

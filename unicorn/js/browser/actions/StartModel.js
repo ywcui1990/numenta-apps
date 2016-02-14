@@ -24,7 +24,7 @@
 
 import csp from 'js-csp';
 
-import {ACTIONS} from '../lib/Constants';
+import {ACTIONS, DATABASE_ERRORS} from '../lib/Constants';
 import ModelStore from '../stores/ModelStore';
 import SendMetricDataAction from '../actions/SendMetricData';
 import StopModelAction from '../actions/StopModel';
@@ -43,7 +43,7 @@ function getMetricFromDatabase(options) {
   let metricId = Utils.generateMetricId(model.filename, model.metric);
 
   databaseClient.getMetric(metricId, (error, results) => {
-    if (error && (error.name !== databaseClient.ERRORS.NOT_FOUND)) {
+    if (error && (error.name !== DATABASE_ERRORS.NOT_FOUND)) {
       csp.putAsync(channel, new DatabaseGetError(error));
     } else {
       csp.putAsync(channel, results);

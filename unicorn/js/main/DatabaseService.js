@@ -16,9 +16,7 @@
 //
 // http://numenta.org/licenses/
 
-
 // NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
-
 
 import fs from 'fs';
 import isElectronRenderer from 'is-electron-renderer';
@@ -35,7 +33,7 @@ import MetricSchema from '../database/schema/Metric.json';
 import FileSchema from '../database/schema/File.json';
 
 let location = path.join('js', 'database', 'data');
-if (! isElectronRenderer) {
+if (!isElectronRenderer) {
   try {
     // This module is only available inside 'Electron' main process
     // See https://github.com/atom/electron/blob/master/docs/api/app.md
@@ -43,9 +41,7 @@ if (! isElectronRenderer) {
     location = path.join(app.getPath('userData'), 'database');
   } catch (error) { /* no-op */ }
 }
-
 const DB_FILE_PATH = location;
-
 
 /**
  * Unicorn: DatabaseService - Respond to a DatabaseClient over IPC.
@@ -65,15 +61,7 @@ function DatabaseService(path) {
   this._files = this._root.sublevel('File');
   this._metrics = this._root.sublevel('Metric');
   this._metricData = this._root.sublevel('MetricData');
-
-  // "static" error constants
-  this.ERRORS = {
-    NOT_FOUND: 'NotFoundError'
-  };
 }
-
-
-// GETTERS
 
 /**
  * Get a single File.
@@ -167,9 +155,6 @@ DatabaseService.prototype.getMetricData = function (metricId, callback) {
     callback(null, results);
   });
 };
-
-
-// SETTERS
 
 /**
  * Put a single File to DB.
@@ -332,7 +317,6 @@ DatabaseService.prototype.close = function (callback) {
   this.levelup.db.close(callback);
 };
 
-
 /**
  * Exports model results into a CSV file
  * @param  {string}   metricId The metric from which to export results
@@ -448,5 +432,4 @@ DatabaseService.prototype.deleteFile = function (fileId, callback) {
   });
 }
 
-// EXPORTS
 export default DatabaseService;
