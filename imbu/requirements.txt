@@ -1,14 +1,8 @@
-supervisor==3.1.3
-uwsgi==2.0.4
-web.py==0.37
-
-# Nupic
-numpy==1.9.2
-pytest==2.5.1
-nupic==0.4.5
-
-# Fluent
-enum34==1.0.4
-pandas==0.17.0
--e git+https://github.com/numenta/cortipy.git#egg=cortipy-0.1.0
+# nupic.research
 -e git+https://github.com/numenta/nupic.research.git#egg=htmresearch-0.0.1
+
+paste
+pytest
+supervisor
+uwsgi
+web.py

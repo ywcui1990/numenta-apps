@@ -19,32 +19,18 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import contextlib
-import importlib
-import sys
 import unittest
 import json
 from paste.fixture import TestApp
 
+import fluent_api
 
-@contextlib.contextmanager
-def _tempsyspath(path):
-  sys.path.append(path)
-  yield
-  sys.path.remove(path)
 
 
 class TestFluentAPI(unittest.TestCase):
 
   def setUp(self):
-    loadPath="/Users/amarshall/nta/numenta-apps/imbu/engine"
-    with _tempsyspath(loadPath):
-      import os
-      os.environ["MODEL_CACHE_DIR"] = "/Users/amarshall/nta/numenta-apps/imbu/cache"
-      os.environ["IMBU_LOAD_PATH_PREFIX"] = loadPath
-      api = importlib.import_module("fluent_api")
-
-    self.app = TestApp(api.app.wsgifunc())
+    self.app = TestApp(fluent_api.app.wsgifunc())
 
 
   def _assertCORSHeaders(self, response):
@@ -70,7 +56,7 @@ class TestFluentAPI(unittest.TestCase):
     body = json.loads(response.body)
 
     # Assert structure of response matches expected pattern
-    for textId, result in body.iteritems():
+    for _, result in body.iteritems():
       self.assertIn("text", result)
       self.assertIn("scores", result)
       self.assertEqual(result["scores"], [0])
@@ -89,7 +75,7 @@ class TestFluentAPI(unittest.TestCase):
     body = json.loads(response.body)
 
     # Assert structure of response matches expected pattern
-    for textId, result in body.iteritems():
+    for _, result in body.iteritems():
       self.assertIn("text", result)
       self.assertIn("scores", result)
       self.assertIn("windowSize", result)
