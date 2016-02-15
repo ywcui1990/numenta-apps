@@ -20,7 +20,17 @@ import CreateModel from '../actions/CreateModel';
 import FlatButton from 'material-ui/lib/flat-button';
 import Dialog from 'material-ui/lib/dialog';
 import CircularProgress from 'material-ui/lib/circular-progress';
+import connectToStores from 'fluxible-addons-react/connectToStores';
+import CreateModelDialogStore from '../stores/CreateModelDialogStore';
+import UpdateParamFinderResults from '../actions/UpdateParamFinderResults';
+import HideCreateModelDialog from '../actions/HideCreateModelDialog';
 
+@connectToStores([CreateModelDialogStore], (context) => ({
+  fileName: context.getStore(CreateModelDialogStore).fileName,
+  metricName: context.getStore(CreateModelDialogStore).metricName,
+  open: context.getStore(CreateModelDialogStore).open,
+  paramFinderResults: context.getStore(CreateModelDialogStore).paramFinderResults
+}))
 export default class CreateModelDialog extends React.Component {
 
   static contextTypes = {
@@ -33,25 +43,17 @@ export default class CreateModelDialog extends React.Component {
 
   componentDidMount() {
     setTimeout(() => {
-      this.setState(
-        {
-          paramFinderResults: {
-            aggInfo: {
-              windowSize: 10
-            }
-          }
-        })
+      this.context.executeAction(UpdateParamFinderResults, {aggInfo: {windowSize: 10}})
     }, 5000);
   }
 
   constructor(props, context) {
     super(props, context);
-    this.state = {
-      paramFinderResults: null,
-      fileName: null,
-      metricName: null,
-      open: props.initialOpenState
-    };
+    this.state = Object.assign({}, this.props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.state = Object.assign({}, nextProps);
   }
 
   _resetState() {
@@ -65,12 +67,12 @@ export default class CreateModelDialog extends React.Component {
   }
 
   _onOK() {
-    this.context.executeAction(CreateModel, {aggregate: true});
+    this.context.executeAction(HideCreateModelDialog);
     this._resetState()
   }
 
   _onNO() {
-    this.context.executeAction(CreateModel, {aggregate: false});
+    this.context.executeAction(HideCreateModelDialog);
     this._resetState()
   }
 

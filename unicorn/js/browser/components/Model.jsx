@@ -35,6 +35,7 @@ import ModelStore from '../stores/ModelStore';
 import StartModelAction from '../actions/StartModel';
 import StopModelAction from '../actions/StopModel';
 import CreateModelDialog from '../components/CreateModelDialog'
+import ShowCreateModelDialog from '../actions/ShowCreateModelDialog';
 
 const dialog = remote.require('dialog');
 
@@ -126,11 +127,10 @@ export default class Model extends React.Component {
   }
 
   _createModel(modelId) {
-    this.refs.createModelWindow.setState({
-      open: true,
+    this.context.executeAction(ShowCreateModelDialog, {
       fileName: this.state.filename,
       metricName: this.state.metric
-    });
+    })
   }
 
   _deleteModel(modelId) {
