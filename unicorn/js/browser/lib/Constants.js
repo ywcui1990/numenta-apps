@@ -87,6 +87,16 @@ export const ACTIONS = Object.freeze({
 });
 
 /**
+ * Database Errors. Use to check database error names returned by callbacks.
+ * 	- NOT_FOUND: Record not found
+ *
+ * @type {string}
+ */
+export const DATABASE_ERRORS = {
+  NOT_FOUND: 'NotFoundError'
+};
+
+/**
  * Supported timestamp formats
  * @type {Array}
  */

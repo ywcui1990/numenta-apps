@@ -9,7 +9,7 @@ $ErrorActionPreference = "Stop"
 
 $script_path = split-path -parent $MyInvocation.MyCommand.Definition
 
-# Python 
+# Python
 $python_version = "2.7.11"
 $portable_python_dir = "portable_python"
 $python_msi_url = "https://www.python.org/ftp/python/$python_version/python-$python_version.amd64.msi"
@@ -19,12 +19,6 @@ $python_msi = "python-$python_version.amd64.msi"
 $get_pip_url = "https://bootstrap.pypa.io/get-pip.py"
 $get_pip = "get-pip.py"
 
-# Installing PowerShell Community Extensions (PSCX): Write-Tar, Write-GZip
-Write-Host "==> Installing PowerShell Community Extensions (PSCX)"
-Get-PackageProvider -Name NuGet -ForceBootstrap
-Install-Module -Name Pscx -Force
-Import-Module Pscx
-
 Write-Host "==> Uninstalling Python ..."
 Start-Process  -Wait -FilePath msiexec -ArgumentList /x, $python_msi, /passive, /norestart
 
@@ -33,7 +27,7 @@ Write-Host "==> Cleaning up files and directories ..."
 Remove-Item -Force -ErrorAction Ignore $python_msi
 Remove-Item -Force -ErrorAction Ignore $get_pip
 Remove-Item -Force -ErrorAction Ignore $portable_python_dir -Recurse
-Remove-Item -Force -ErrorAction Ignore "$portable_python_dir.zip" 
+Remove-Item -Force -ErrorAction Ignore "$portable_python_dir.zip"
 
 New-Item $portable_python_dir -type Directory | Out-Null
 
@@ -60,14 +54,26 @@ Write-Host $test_nupic_import
 Invoke-Expression $test_nupic_bindings_import
 Invoke-Expression $test_nupic_import
 
+# PowerShell Community Extensions (PSCX): Write-Tar, Write-GZip
+if (Get-Module -ListAvailable -Name Pscx) {
+    Import-Module Pscx
+} else {
+    Write-Host "Installing PowerShell Community Extensions (PSCX)"
+    Invoke-WebRequest -Uri https://pscx.codeplex.com/downloads/get/923562 -OutFile "$script_path/pscx.msi"
+    Start-Process -Wait -FilePath msiexec -ArgumentList /i, "$script_path\pscx.msi", /qn, /passive, ALLUSERS=0
+    Remove-Item -Force -ErrorAction Ignore "$script_path\pscx.msi"
+    $env:psmodulepath = $env:psmodulepath + ";${env:ProgramFiles(x86)}\PowerShell Community Extensions\Pscx3"
+    Import-Module Pscx
+}
+
 Write-Host "==> Packaging portable_python artifact ..."
-Copy-Item "$script_path\index.js" -destination "$script_path/$portable_python_dir"
-Copy-Item "$script_path\package.json" -destination "$script_path/$portable_python_dir"
-Write-Tar -path "$script_path/$portable_python_dir" -output "$script_path/$portable_python_dir.tar"
-Write-Gzip -level 9 "$script_path/$portable_python_dir.tar"
+Copy-Item $script_path\index.js -destination $script_path/$portable_python_dir
+Copy-Item $script_path\package.json -destination $script_path/$portable_python_dir
+Write-Tar -path $script_path/$portable_python_dir -output $script_path/$portable_python_dir.tar
+Write-Gzip -level 9 $script_path/$portable_python_dir.tar
 
 Write-Host "==> Cleaning up ..."
-Remove-Item -Force -ErrorAction Ignore "$script_path/$portable_python_dir.tar"
+Remove-Item -Force -ErrorAction Ignore $script_path/$portable_python_dir.tar
 Remove-Item -Force -ErrorAction Ignore $python_msi
 Remove-Item -Force -ErrorAction Ignore $get_pip
 Remove-Item -Force -ErrorAction Ignore $portable_python_dir -Recurse
