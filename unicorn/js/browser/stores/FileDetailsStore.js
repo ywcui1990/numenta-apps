@@ -26,6 +26,7 @@ export default class FileDetailsStore extends BaseStore {
   static get storeName() {
     return 'FileDetailsStore';
   }
+
   static get handlers() {
     return {
       SHOW_FILE_DETAILS: '_showFileDetails',

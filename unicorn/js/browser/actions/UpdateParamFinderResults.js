@@ -19,20 +19,11 @@ import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Create new model
- *
- * @param {FluxibleContext} actionContext -
- * @param {Object} payload - Action payload object
- * @param {string} payload.modelId - Model Unique ID.
- *                                	See {@link Utls.generateModelId}
- * @param {string} payload.filename - File full path name
- * @param {string} payload.timestampField - Timestamp field name
- * @param {string} payload.metric - Metric field name
- *
- * @return {Promise}
- * @todo Persist model reference
+ * Update Param Finder results.
+ * @param  {FluxibleContext} actionContext - The action context
+ * @param  {string} paramFinderResults - Param finder results.
  */
-export default function (actionContext, payload) {
-  console.log(payload);
-  return actionContext.dispatch(ACTIONS.ADD_MODEL, payload);
+export default function (actionContext, paramFinderResults) {
+  actionContext.dispatch(ACTIONS.UPDATE_PARAM_FINDER_RESULTS,
+    paramFinderResults);
 }

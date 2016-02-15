@@ -35,6 +35,7 @@ import FileDetails from '../components/FileDetails';
 import LeftNav from '../components/LeftNav';
 import ModelList from '../components/ModelList';
 import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
+import CreateModelDialog from '../components/CreateModelDialog'
 
 
 /**
