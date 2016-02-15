@@ -10,7 +10,7 @@
     },
     "file_uid": {
       "type": "string",
-      "maxLength": 40,
+      "maxLength": 50,
       "minLength": 1
     },
     "name": {
@@ -21,8 +21,15 @@
       "enum": ["date", "number", "string"],
       "type": "string"
     },
-    "aggregation": {"$ref": "/py/agg_opt_schema" },
-    "model_options": {"$ref": "/py/model_opt_schema" }
+    "input_options": {
+      "$ref": "/py/input_opt_schema_param_finder"
+    },
+    "aggregation_options": {
+      "$ref": "/py/agg_opt_schema"
+    },
+    "model_options": {
+      "$ref": "/py/model_opt_schema"
+    }
   },
   "additionalProperties": false,
   "required": ["uid", "file_uid", "name", "type"]

@@ -451,44 +451,66 @@ DatabaseService.prototype.deleteFile = function (fileId, callback) {
 }
 
 /**
- * Update aggregation info for the given metric. Usually this value is obtained
- * via the {@link ParamFinderService}
+ * Update aggregation options for the given metric. Usually this value is
+ * obtained via the {@link ParamFinderService}
+ *
  * @param {[type]} metricId  Metric to update
- * @param {[type]} aggregation Aggregation details, usually obtained via
+ * @param {[type]} options   Aggregation options, usually obtained via
  *                             {@link ParamFinderService}
  * @param  {Function} callback called when the operation is complete,
  *                             with a possible error argument
  */
-DatabaseService.prototype.setMetricAggregation = function (metricId, aggregation, callback) {
+DatabaseService.prototype.setMetricAggregationOptions = function (metricId, options, callback) {
   this._metrics.get(metricId, (error, metric) => {
     if (error) {
       callback(error);
       return;
     }
-    metric['aggregation'] = aggregation;
+    metric['aggregation_options'] = options;
     this.putMetric(metric, callback);
   });
 }
 
 /**
- * Update metric model parameters for the given metric. Usually this value is
- *  obtained via the {@link ParamFinderService}
+ * Update model options for the given metric. Usually this value is
+ * obtained via the {@link ParamFinderService}
+ *
  * @param {[type]}   metricId    Metric to update
- * @param {[type]}   params      Model parameters to use for the given metric.
+ * @param {[type]}   options     Model option to use for the given metric.
  *                               Usually obtained via {@link ParamFinderService}
  * @param  {Function} callback called when the operation is complete,
  *                             with a possible error argument
  */
-DatabaseService.prototype.setMetricModelParameters = function (metricId, params, callback) {
+DatabaseService.prototype.setMetricModelOptions = function (metricId, options, callback) {
   this._metrics.get(metricId, (error, metric) => {
     if (error) {
       callback(error);
       return;
     }
-    metric['model_options'] = params;
+    metric['model_options'] = options;
     this.putMetric(metric, callback);
   });
 }
 
+/**
+ * Update input options for the given metric. Usually this value is
+ * obtained via the {@link ParamFinderService}
+ *
+ * @param {[type]}   metricId    Metric to update
+ * @param {[type]}   options     Input option to use for the given metric.
+ *                               Usually obtained via {@link ParamFinderService}
+ * @param  {Function} callback called when the operation is complete,
+ *                             with a possible error argument
+ */
+DatabaseService.prototype.setMetricInputOptions = function (metricId, options, callback) {
+  this._metrics.get(metricId, (error, metric) => {
+    if (error) {
+      callback(error);
+      return;
+    }
+    metric['input_options'] = options;
+    this.putMetric(metric, callback);
+  });
+}
 
 export default DatabaseService;

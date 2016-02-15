@@ -31,6 +31,7 @@ const assert = require('assert');
 
 const MODEL_OPTIONS = require('./fixtures/model_runner_model.json');
 const AGG_OPTIONS = require('./fixtures/model_runner_agg.json');
+const INPUT_OPTIONS = require('./fixtures/param_finder_input.json');
 
 const EXPECTED_FILE = {
   uid: 'file1',
@@ -44,6 +45,23 @@ const EXPECTED_METRIC = {
   name: 'metric1',
   type: 'number'
 };
+
+const EXPECTED_METRIC_WITH_INPUT = {
+  uid: 'file1!metric1',
+  file_uid: 'file1',
+  name: 'metric1',
+  type: 'number',
+  input_options: INPUT_OPTIONS
+};
+
+const EXPECTED_METRIC_WITH_AGGREGATION = {
+  uid: 'file1!metric1',
+  file_uid: 'file1',
+  name: 'metric1',
+  type: 'number',
+  aggregation_options: AGG_OPTIONS
+};
+
 const EXPECTED_METRIC_WITH_MODEL = {
   uid: 'file1!metric1',
   file_uid: 'file1',
@@ -52,20 +70,13 @@ const EXPECTED_METRIC_WITH_MODEL = {
   model_options: MODEL_OPTIONS
 };
 
-const EXPECTED_METRIC_WITH_AGGREGATION = {
+const EXPECTED_METRIC_WITH_INPUT_AGG_MODEL = {
   uid: 'file1!metric1',
   file_uid: 'file1',
   name: 'metric1',
   type: 'number',
-  aggregation: AGG_OPTIONS
-};
-
-const EXPECTED_METRIC_WITH_AGG_MODEL = {
-  uid: 'file1!metric1',
-  file_uid: 'file1',
-  name: 'metric1',
-  type: 'number',
-  aggregation: AGG_OPTIONS,
+  input_options: INPUT_OPTIONS,
+  aggregation_options: AGG_OPTIONS,
   model_options: MODEL_OPTIONS
 };
 
@@ -119,13 +130,8 @@ describe('DatabaseService:', () => {
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
-    it('should validate "Metric" with model', (done) => {
-      let results = service.validator.validate(EXPECTED_METRIC_WITH_MODEL, DBMetricSchema);
-      assert(results.errors.length === 0, JSON.stringify(results.errors));
-      done();
-    });
-    it('should validate "Metric" with aggregation and model', (done) => {
-      let results = service.validator.validate(EXPECTED_METRIC_WITH_AGG_MODEL, DBMetricSchema);
+    it('should validate "Metric" with input, aggregation and model options', (done) => {
+      let results = service.validator.validate(EXPECTED_METRIC_WITH_INPUT_AGG_MODEL, DBMetricSchema);
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
@@ -318,7 +324,7 @@ describe('DatabaseService:', () => {
       // Add metric
       service.putMetric(EXPECTED_METRIC, (error) => {
         assert.ifError(error);
-        service.setMetricAggregation(EXPECTED_METRIC.uid, AGG_OPTIONS, (error) => {
+        service.setMetricAggregationOptions(EXPECTED_METRIC.uid, AGG_OPTIONS, (error) => {
           assert.ifError(error);
           service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
             assert.deepStrictEqual(actual, EXPECTED_METRIC_WITH_AGGREGATION);
@@ -327,15 +333,27 @@ describe('DatabaseService:', () => {
         });
       });
     });
-
     it('should update model options for metric', (done) => {
       // Add metric
       service.putMetric(EXPECTED_METRIC, (error) => {
         assert.ifError(error);
-        service.setMetricModelParameters(EXPECTED_METRIC.uid, MODEL_OPTIONS, (error) => {
+        service.setMetricModelOptions(EXPECTED_METRIC.uid, MODEL_OPTIONS, (error) => {
           assert.ifError(error);
           service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
             assert.deepStrictEqual(actual, EXPECTED_METRIC_WITH_MODEL);
+            done();
+          });
+        })
+      });
+    });
+    it('should update input options for metric', (done) => {
+      // Add metric
+      service.putMetric(EXPECTED_METRIC, (error) => {
+        assert.ifError(error);
+        service.setMetricInputOptions(EXPECTED_METRIC.uid, INPUT_OPTIONS, (error) => {
+          assert.ifError(error);
+          service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
+            assert.deepStrictEqual(actual, EXPECTED_METRIC_WITH_INPUT);
             done();
           });
         })
