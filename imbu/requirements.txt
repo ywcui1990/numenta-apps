@@ -1,6 +1,7 @@
 # nupic.research
 -e git+https://github.com/numenta/nupic.research.git#egg=htmresearch-0.0.1
 
+enum34
 paste
 pytest
 supervisor
