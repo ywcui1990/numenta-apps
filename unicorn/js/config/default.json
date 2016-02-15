@@ -5,13 +5,29 @@
   "button": {
     "add": "Add File",
     "cancel": "Cancel",
-    "delete": "Delete"
+    "delete": "Delete",
+    "model": {
+      "create": "Create Model",
+      "delete": "Delete Model",
+      "export": "Export Results",
+      "stop": "Stop Model"
+    }
   },
   "dialog": {
     "file": {
       "delete": {
         "title": "Delete File",
         "message": "Deleting this dataset will delete the associated models. Are you sure you want to delete this file?"
+      }
+    },
+    "model": {
+      "delete": {
+        "title": "Delete Model",
+        "message": "Deleting this model will delete the associated model results. Are you sure you want to delete this model?"
+      },
+      "export": {
+        "title": "Export Model Results",
+        "path": "Untitled.csv"
       }
     }
   },

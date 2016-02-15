@@ -16,23 +16,22 @@
 // http://numenta.org/licenses/
 
 import Colors from 'material-ui/lib/styles/colors';
-import ColorManipulator from 'material-ui/lib/utils/color-manipulator';
 import Spacing from 'material-ui/lib/styles/spacing';
 
 export default {
   spacing: Spacing,
   fontFamily: 'Roboto, sans-serif',
   palette: {
-    primary1Color: '#095c80', // darkened numenta blue : header
-    primary2Color: Colors.grey400,
+    primary1Color: '#29aae2', // numenta blue : actions
+    primary2Color: '#095c80', // darkened numenta blue : header
     primary3Color: Colors.lightBlack,
     accent1Color: '#29aae2', // numenta blue : actions
     accent2Color: Colors.lightBlue800,
-    accent3Color: Colors.grey500,
+    accent3Color: Colors.grey500, // neutral gray for small menu headings
     textColor: Colors.darkBlack,
     alternateTextColor: Colors.white,
     canvasColor: Colors.white,
     borderColor: Colors.grey300,
-    disabledColor: ColorManipulator.fade(Colors.darkBlack, 0.3)
+    disabledColor: Colors.grey300 // disabled light gray
   }
 };

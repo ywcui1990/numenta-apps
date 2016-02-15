@@ -188,18 +188,19 @@ export default class FileList extends React.Component {
     if (timestampField) {
       return file.metrics.map((metric) => {
         if (metric.type !== 'date') {
+          let muiTheme = this.context.muiTheme;
           let modelId = Utils.generateMetricId(file.filename, metric.name);
           let models = this.props.models;
           let model = models.find((m) => m.modelId === modelId);
           let isModelVisible = false;
-          let statusColor = Colors.red400;
+          let statusColor = muiTheme.rawTheme.palette.disabledColor;
 
           if (model) {
             if (model.visible) {
               isModelVisible = true;
             }
             if (model.ran) {
-              statusColor = Colors.green400;
+              statusColor = muiTheme.rawTheme.palette.primary2Color;
             }
           }
 
@@ -220,9 +221,11 @@ export default class FileList extends React.Component {
                   }
                   />
               }
-              primaryText={<div style={this._styles.metric}>{metric.name}</div>}
-              rightIcon={
-                <IconStatus color={statusColor} style={this._styles.status} />
+              primaryText={
+                <div style={this._styles.metric}>
+                  <IconStatus color={statusColor} style={this._styles.status} />
+                  {metric.name}
+                </div>
               }
               />
           );
