@@ -1,6 +1,30 @@
 {
-  "title": "Unicorn",
-  "desc": "HTM Example Application",
+  "title": "HTM Studio",
+  "desc": "Cross-platform Desktop HTM Example Application",
   "company": "Numenta",
-  "entryHtml": "/browser/index.html"
+  "button": {
+    "add": "Add File",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "dialog": {
+    "file": {
+      "delete": {
+        "title": "Delete File",
+        "message": "Deleting this dataset will delete the associated models. Are you sure you want to delete this file?"
+      }
+    }
+  },
+  "heading": {
+    "data": {
+      "sample": "Sample Data",
+      "user": "Your Data"
+    }
+  },
+  "menu": {
+    "file": {
+      "delete": "Delete File",
+      "details": "File Details"
+    }
+  }
 }

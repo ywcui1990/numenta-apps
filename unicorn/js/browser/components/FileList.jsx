@@ -40,14 +40,6 @@ import ShowFileDetailsAction from '../actions/ShowFileDetails';
 import ShowModelAction from '../actions/ShowModel';
 import Utils from '../../main/Utils';
 
-const DIALOG_STRINGS = {
-  file: {
-    title: 'Delete File',
-    message: 'Deleting this dataset will delete the associated models.' +
-              ' Are you sure you want to delete this file?'
-  }
-};
-
 
 /**
  * Component used to display a list of files
@@ -61,6 +53,7 @@ export default class FileList extends React.Component {
   static get contextTypes() {
     return {
       executeAction: React.PropTypes.func,
+      getConfigClient: React.PropTypes.func,
       getStore: React.PropTypes.func,
       muiTheme: React.PropTypes.object
     };
@@ -71,6 +64,8 @@ export default class FileList extends React.Component {
 
     let showNested = {};
     let muiTheme = this.context.muiTheme;
+
+    this._config = this.context.getConfigClient();
 
     // prep visibility toggle nested file contents
     props.files.forEach((file) => {
@@ -85,7 +80,8 @@ export default class FileList extends React.Component {
 
     this._styles = {
       list: {
-        color: muiTheme.rawTheme.palette.primary1Color
+        color: muiTheme.rawTheme.palette.accent3Color,
+        fontWeight: 400
       },
       file: {
         overflow: 'hidden',
@@ -175,8 +171,8 @@ export default class FileList extends React.Component {
       this.context.executeAction(ShowFileDetailsAction, filename);
     } else if (action === 'delete') {
       this._showDeleteConfirmDialog(
-        DIALOG_STRINGS.file.title,
-        DIALOG_STRINGS.file.message,
+        this._config.get('dialog:file:delete:title'),
+        this._config.get('dialog:file:delete:message'),
         () => {
           this.context.executeAction(DeleteFileAction, filename);
           this._dismissDeleteConfirmDialog();
@@ -250,12 +246,12 @@ export default class FileList extends React.Component {
             style={this._styles.more}
             >
               <MenuItem index={1}
-                primaryText="File Details"
+                primaryText={this._config.get('menu:file:details')}
                 value="detail"
                 />
               <MenuItem index={2}
                 disabled={filetype === 'sample'}
-                primaryText="Delete File"
+                primaryText={this._config.get('menu:file:delete')}
                 value="delete"
                 />
           </IconMenu>
@@ -295,23 +291,23 @@ export default class FileList extends React.Component {
     let dialogOpen = this.state.deleteConfirmDialog !== null;
     let dialogActions = [
       <FlatButton
-        label="Cancel"
+        label={this._config.get('button:cancel')}
         onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
         />,
       <FlatButton
-        label="Delete"
+        label={this._config.get('button:delete')}
         keyboardFocused={true}
         onTouchTap={deleteConfirmDialog.callback}
         primary={true}
         ref="submit"
         />
     ];
-    let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
-    let uploadCount = uploaded.length || 0;
+    // let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
+    // let uploadCount = uploaded.length || 0;
     let userFiles = (
       <List
         key="uploaded"
-        subheader="Your Data"
+        subheader={this._config.get('heading:data:user')}
         subheaderStyle={this._styles.list}
         >
           {this._renderFiles('uploaded')}
@@ -320,17 +316,13 @@ export default class FileList extends React.Component {
     let sampleFiles = (
       <List
         key="sample"
-        subheader="Sample Data"
+        subheader={this._config.get('heading:data:sample')}
         subheaderStyle={this._styles.list}
         >
           {this._renderFiles('sample')}
       </List>
     );
-    let filesList = [sampleFiles];
-
-    if (uploadCount > 0) {
-      filesList.unshift(userFiles);
-    }
+    let filesList = [userFiles, sampleFiles];
 
     return (
       <nav>
