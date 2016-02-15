@@ -1,4 +1,5 @@
 # nupic.research
+-e git+https://github.com/numenta/cortipy.git#egg=cortipy-0.1.0
 -e git+https://github.com/numenta/nupic.research.git#egg=htmresearch-0.0.1
 
 enum34
