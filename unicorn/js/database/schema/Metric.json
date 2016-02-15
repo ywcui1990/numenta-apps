@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "id": "/Metric",
+  "id": "/db/Metric",
   "type": "object",
   "properties": {
     "uid": {
@@ -13,10 +13,6 @@
       "maxLength": 40,
       "minLength": 1
     },
-    "model_uid": {
-      "type": ["string", "null"],
-      "maxLength": 40
-    },
     "name": {
       "type": "string",
       "maxLength": 255
@@ -25,12 +21,9 @@
       "enum": ["date", "number", "string"],
       "type": "string"
     },
-    "min": {
-      "type": "number"
-    },
-    "max": {
-      "type": "number"
-    }
+    "aggregation": {"$ref": "/py/agg_opt_schema" },
+    "model_options": {"$ref": "/py/model_opt_schema" }
   },
+  "additionalProperties": false,
   "required": ["uid", "file_uid", "name", "type"]
 }

@@ -19,15 +19,18 @@
 
 /* eslint-disable max-len, prefer-reflect */
 
-import DatabaseService from '../../../js/main/DatabaseService';
-import FileSchema from '../../../js/database/schema/File.json';
 import fs from 'fs';
-import MetricDataSchema from '../../../js/database/schema/MetricData.json';
-import MetricSchema from '../../../js/database/schema/Metric.json';
 import os from 'os';
 import path from 'path';
+import DatabaseService from '../../../js/main/DatabaseService';
+import {
+  DBFileSchema, DBMetricSchema, DBMetricDataSchema
+} from '../../../js/schemas';
 
 const assert = require('assert');
+
+const MODEL_OPTIONS = require('./fixtures/model_runner_model.json');
+const AGG_OPTIONS = require('./fixtures/model_runner_agg.json');
 
 const EXPECTED_FILE = {
   uid: 'file1',
@@ -38,25 +41,36 @@ const EXPECTED_FILE = {
 const EXPECTED_METRIC = {
   uid: 'file1!metric1',
   file_uid: 'file1',
-  model_uid: 'file1!metric1',
+  name: 'metric1',
+  type: 'number'
+};
+const EXPECTED_METRIC_WITH_MODEL = {
+  uid: 'file1!metric1',
+  file_uid: 'file1',
   name: 'metric1',
   type: 'number',
-  min: 0,
-  max: 100
+  model_options: MODEL_OPTIONS
 };
+
+const EXPECTED_METRIC_WITH_AGG_MODEL = {
+  uid: 'file1!metric1',
+  file_uid: 'file1',
+  name: 'metric1',
+  type: 'number',
+  aggregation: AGG_OPTIONS,
+  model_options: MODEL_OPTIONS
+};
+
 const EXPECTED_METRIC_DATA = {
   uid: 'file1!metric1!1420070400',
   metric_uid: 'file1!metric1',
-  rowid: 1,
   timestamp: '2015-01-01 00:00:00Z',
   metric_value: 1,
-  display_value: 1,
-  anomaly_score: 1,
-  anomaly_likelihood: 1
+  anomaly_score: 1
 };
 
 const EXPECTED_EXPORTED_RESULTS =
-`timestamp,metric_value,anomaly_likelihood
+`timestamp,metric_value,anomaly_score
 2015-01-01 00:00:00Z,1,1
 2015-01-01 00:00:00Z,1,1
 2015-01-01 00:00:00Z,1,1
@@ -82,25 +96,33 @@ describe('DatabaseService:', () => {
     let batch = db.batch();
     db.createReadStream()
       .on('data', (value) => batch.del(value.key))
-      .on('error', (error) => assert.ifError(error))
-      .on('end', () => {
-        batch.write((error) => assert.ifError(error))
-      });
+      .on('error', assert.ifError)
+      .on('end', () => batch.write(assert.ifError));
   });
 
   describe('Schema Validation:', () => {
     it('should validate "File"', (done) => {
-      let results = service.validator.validate(EXPECTED_FILE, FileSchema);
+      let results = service.validator.validate(EXPECTED_FILE, DBFileSchema);
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
     it('should validate "Metric"', (done) => {
-      let results = service.validator.validate(EXPECTED_METRIC, MetricSchema);
+      let results = service.validator.validate(EXPECTED_METRIC, DBMetricSchema);
+      assert(results.errors.length === 0, JSON.stringify(results.errors));
+      done();
+    });
+    it('should validate "Metric" with model', (done) => {
+      let results = service.validator.validate(EXPECTED_METRIC_WITH_MODEL, DBMetricSchema);
+      assert(results.errors.length === 0, JSON.stringify(results.errors));
+      done();
+    });
+    it('should validate "Metric" with aggregation and model', (done) => {
+      let results = service.validator.validate(EXPECTED_METRIC_WITH_AGG_MODEL, DBMetricSchema);
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
     it('should validate "MetricData"', (done) => {
-      let results = service.validator.validate(EXPECTED_METRIC_DATA, MetricDataSchema);
+      let results = service.validator.validate(EXPECTED_METRIC_DATA, DBMetricDataSchema);
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
@@ -224,8 +246,8 @@ describe('DatabaseService:', () => {
         `${EXPECTED_METRIC.uid}!1420070401`,
         `${EXPECTED_METRIC.uid}!1420070402`,
         `${EXPECTED_METRIC.uid}!1420070403`
-      ], (uid, idx) => {
-        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, rowid: idx});
+      ], (uid) => {
+        return Object.assign({}, EXPECTED_METRIC_DATA, {uid});
       });
 
       // Add metric
@@ -259,8 +281,8 @@ describe('DatabaseService:', () => {
         `${EXPECTED_METRIC.uid}!1420070401`,
         `${EXPECTED_METRIC.uid}!1420070402`,
         `${EXPECTED_METRIC.uid}!1420070403`
-      ], (uid, idx) => {
-        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, rowid: idx});
+      ], (uid) => {
+        return Object.assign({}, EXPECTED_METRIC_DATA, {uid});
       });
 
       // Add metric
@@ -318,8 +340,8 @@ describe('DatabaseService:', () => {
         `${EXPECTED_METRIC_DATA.metric_uid}!1420070400`,
         `${EXPECTED_METRIC_DATA.metric_uid}!1420070401`,
         `${EXPECTED_METRIC_DATA.metric_uid}!1420070402`
-      ], (uid, idx) => {
-        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, rowid: idx});
+      ], (uid) => {
+        return Object.assign({}, EXPECTED_METRIC_DATA, {uid});
       });
       service.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
@@ -340,8 +362,8 @@ describe('DatabaseService:', () => {
         `${EXPECTED_METRIC_DATA.metric_uid}!1420070401`,
         `${EXPECTED_METRIC_DATA.metric_uid}!1420070402`,
         `${EXPECTED_METRIC_DATA.metric_uid}!1420070403`
-      ], (uid, idx) => {
-        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, rowid: idx});
+      ], (uid) => {
+        return Object.assign({}, EXPECTED_METRIC_DATA, {uid});
       });
       service.putMetricDataBatch(batch, (error) => {
         assert.ifError(error);
@@ -361,8 +383,8 @@ describe('DatabaseService:', () => {
         `${EXPECTED_METRIC_DATA.metric_uid}!1420070401`,
         `${EXPECTED_METRIC_DATA.metric_uid}!1420070402`,
         `${EXPECTED_METRIC_DATA.metric_uid}!1420070403`
-      ], (uid, idx) => {
-        return Object.assign({}, EXPECTED_METRIC_DATA, {uid, rowid: idx});
+      ], (uid) => {
+        return Object.assign({}, EXPECTED_METRIC_DATA, {uid});
       });
 
       // Add data
