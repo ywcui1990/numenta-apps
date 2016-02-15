@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 import unittest
-import json
+import simplejson as json
 from paste.fixture import TestApp
 
 import fluent_api
