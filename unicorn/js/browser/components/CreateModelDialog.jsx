@@ -16,7 +16,6 @@
 // http://numenta.org/licenses/
 
 import React from 'react';
-import CreateModel from '../actions/CreateModel';
 import FlatButton from 'material-ui/lib/flat-button';
 import Dialog from 'material-ui/lib/dialog';
 import CircularProgress from 'material-ui/lib/circular-progress';

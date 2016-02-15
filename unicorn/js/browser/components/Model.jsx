@@ -32,7 +32,6 @@ import DeleteModelAction from '../actions/DeleteModel';
 import ExportModelResultsAction from '../actions/ExportModelResults';
 import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
-import StartModelAction from '../actions/StartModel';
 import StopModelAction from '../actions/StopModel';
 import CreateModelDialog from '../components/CreateModelDialog'
 import ShowCreateModelDialog from '../actions/ShowCreateModelDialog';
