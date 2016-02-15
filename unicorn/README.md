@@ -197,7 +197,7 @@ npm install
 
 ```shell
 # clear any old path env vars that might confuse our custom internal Python
-export PYTHONPATH=  
+unset PYTHONPATH
 
 npm run dev
 
