@@ -41,7 +41,7 @@ export default class Logo extends React.Component {
     let muiTheme = this.context.muiTheme;
     this._styles = {
       root: {
-        backgroundColor: muiTheme.rawTheme.palette.primary1Color,
+        backgroundColor: muiTheme.rawTheme.palette.primary2Color,
         borderBottom: '5px solid #29aae2',
         color: muiTheme.appBar.textColor,
         height: muiTheme.appBar.height * 1.2,
