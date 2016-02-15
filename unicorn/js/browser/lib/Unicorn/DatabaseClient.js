@@ -27,4 +27,5 @@
  */
 let remote = require('remote'); // eslint-disable-line
 let client = remote.require('./DatabaseService'); // pseduo-DBClientIPC
+
 export default client;

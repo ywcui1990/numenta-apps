@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "id": "/MetricData",
+  "id": "/db/MetricData",
   "type": "object",
   "properties": {
     "uid": {
@@ -13,10 +13,6 @@
       "maxLength": 40,
       "minLength": 1
     },
-    "rowid": {
-      "type": "integer",
-      "default": 0
-    },
     "timestamp": {
       "type": "string",
       "format": "date-time"
@@ -24,15 +20,10 @@
     "metric_value": {
       "type": "number"
     },
-    "display_value": {
-      "type": "number"
-    },
     "anomaly_score": {
-      "type": "number"
-    },
-    "anomaly_likelihood": {
       "type": "number"
     }
   },
-  "required": ["uid", "metric_uid", "rowid", "timestamp", "metric_value", "display_value"]
+  "additionalProperties": false,
+  "required": ["uid", "metric_uid", "timestamp", "metric_value"]
 }

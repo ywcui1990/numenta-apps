@@ -100,8 +100,6 @@ export class ModelService extends EventEmitter {
    */
   createModel(modelId, inputOpt, aggregationOpt, modelOpt) {
 
-    modelOpt['modelId'] = modelId;
-
     if (this.availableSlots() <= 0) {
       throw new MaximumConcurrencyError();
     }
