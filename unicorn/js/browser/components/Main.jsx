@@ -15,19 +15,13 @@
 //
 // http://numenta.org/licenses/
 
-
-// externals
-
 import 'roboto-fontface/css/roboto-fontface.css';
 
-import FloatingActionButton from 'material-ui/lib/floating-action-button';
-import IconAdd from 'material-ui/lib/svg-icons/content/add';
 import provideContext from 'fluxible-addons-react/provideContext';
+import RaisedButton from 'material-ui/lib/raised-button';
 import React from 'react';
 import ThemeDecorator from 'material-ui/lib/styles/theme-decorator';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
-
-// internals
 
 import FileUploadAction from '../actions/FileUpload';
 import FileList from '../components/FileList';
@@ -52,19 +46,21 @@ export default class Main extends React.Component {
 
   static get contextTypes() {
     return {
-      executeAction: React.PropTypes.func.isRequired
+      executeAction: React.PropTypes.func.isRequired,
+      getConfigClient: React.PropTypes.func
     };
   }
 
   constructor(props, context) {
     super(props, context);
 
+    this._config = this.context.getConfigClient();
+
     this._styles = {
       root: {},
       add: {
-        position: 'fixed',
-        top: 96,
-        left: 225
+        float: 'right',
+        margin: '0.5rem'
       },
       input: {
         display: 'none'
@@ -119,11 +115,12 @@ export default class Main extends React.Component {
     return (
       <main style={this._styles.root}>
         <LeftNav>
-          <FloatingActionButton
+          <RaisedButton
+            label={this._config.get('button:add')}
             onClick={this._onClick.bind(this)}
-            style={this._styles.add}>
-              <IconAdd viewBox="5 5 14 13" />
-          </FloatingActionButton>
+            primary={true}
+            style={this._styles.add}
+            />
           <input
             onChange={this._onFileSelect.bind(this)}
             ref="fileInput"

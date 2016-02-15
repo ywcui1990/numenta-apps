@@ -22,12 +22,11 @@
   "scripts": {
     "prebuild": "npm run clean && npm install && npm run prepare",
     "build": "npm run electron:packager",
-    "check": "npm install && npm outdated -depth 0",
     "clean": "npm run clean:docs && npm run clean:build && npm run clean:webpack && npm run clean:npm",
     "clean:build": "rimraf dist/ && rimraf backend/unicorn_backend/nupic/",
     "clean:db:osx": "rm -f $HOME/Library/Application\\ Support/unicorn/database/*",
     "clean:docs": "rimraf js/docs/",
-    "clean:npm": "rimraf node_modules/",
+    "clean:npm": "rimraf node_modules/ && npm cache clean",
     "clean:webpack": "rimraf js/browser/assets/bundle/*",
     "desktop": "npm run dev",
     "dev": "npm run prepare && npm run electron",
@@ -75,7 +74,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
-    "bunyan": "1.5.1",
+    "bunyan": "1.6.0",
     "convert-newline": "0.0.5",
     "csv-streamify": "3.0.3",
     "dygraphs": "1.1.1",
@@ -98,14 +97,14 @@
     "react-addons-update": "0.14.7",
     "react-dom": "0.14.7",
     "react-tap-event-plugin": "0.2.2",
-    "roboto-fontface": "0.4.2"
+    "roboto-fontface": "0.4.3"
   },
   "optionalDependencies": {
     "portable_python_darwin": "https://ci.numenta.com/browse/UN-UN/latestSuccessful/artifact/BOX/portable_python/portable_python.tar.gz",
     "portable_python_win32": "https://ci.numenta.com/browse/UN-UN/latestSuccessful/artifact/JOB1/portable_python/portable_python.tar.gz"
   },
   "devDependencies": {
-    "babel-core": "6.5.1",
+    "babel-core": "6.5.2",
     "babel-eslint": "4.1.8",
     "babel-loader": "6.2.2",
     "babel-plugin-add-module-exports": "0.1.2",
@@ -119,7 +118,7 @@
     "electron-packager": "5.2.1",
     "electron-prebuilt": "0.36.7",
     "escope": "3.4.0",
-    "esdoc": "0.4.4",
+    "esdoc": "0.4.5",
     "esdoc-es7-plugin": "0.0.3",
     "eslint": "1.10.3",
     "eslint-plugin-react": "3.16.1",

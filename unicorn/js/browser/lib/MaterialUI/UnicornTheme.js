@@ -23,10 +23,10 @@ export default {
   spacing: Spacing,
   fontFamily: 'Roboto, sans-serif',
   palette: {
-    primary1Color: Colors.lightBlue700,
-    primary2Color: Colors.cyan700,
+    primary1Color: '#095c80', // darkened numenta blue : header
+    primary2Color: Colors.grey400,
     primary3Color: Colors.lightBlack,
-    accent1Color: Colors.lightBlue400,
+    accent1Color: '#29aae2', // numenta blue : actions
     accent2Color: Colors.lightBlue800,
     accent3Color: Colors.grey500,
     textColor: Colors.darkBlack,
