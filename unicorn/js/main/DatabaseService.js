@@ -450,4 +450,45 @@ DatabaseService.prototype.deleteFile = function (fileId, callback) {
   });
 }
 
+/**
+ * Update aggregation info for the given metric. Usually this value is obtained
+ * via the {@link ParamFinderService}
+ * @param {[type]} metricId  Metric to update
+ * @param {[type]} aggregation Aggregation details, usually obtained via
+ *                             {@link ParamFinderService}
+ * @param  {Function} callback called when the operation is complete,
+ *                             with a possible error argument
+ */
+DatabaseService.prototype.setMetricAggregation = function (metricId, aggregation, callback) {
+  this._metrics.get(metricId, (error, metric) => {
+    if (error) {
+      callback(error);
+      return;
+    }
+    metric['aggregation'] = aggregation;
+    this.putMetric(metric, callback);
+  });
+}
+
+/**
+ * Update metric model parameters for the given metric. Usually this value is
+ *  obtained via the {@link ParamFinderService}
+ * @param {[type]}   metricId    Metric to update
+ * @param {[type]}   params      Model parameters to use for the given metric.
+ *                               Usually obtained via {@link ParamFinderService}
+ * @param  {Function} callback called when the operation is complete,
+ *                             with a possible error argument
+ */
+DatabaseService.prototype.setMetricModelParameters = function (metricId, params, callback) {
+  this._metrics.get(metricId, (error, metric) => {
+    if (error) {
+      callback(error);
+      return;
+    }
+    metric['model_options'] = params;
+    this.putMetric(metric, callback);
+  });
+}
+
+
 export default DatabaseService;

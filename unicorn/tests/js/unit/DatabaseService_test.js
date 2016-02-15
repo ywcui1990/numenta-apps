@@ -52,6 +52,14 @@ const EXPECTED_METRIC_WITH_MODEL = {
   model_options: MODEL_OPTIONS
 };
 
+const EXPECTED_METRIC_WITH_AGGREGATION = {
+  uid: 'file1!metric1',
+  file_uid: 'file1',
+  name: 'metric1',
+  type: 'number',
+  aggregation: AGG_OPTIONS
+};
+
 const EXPECTED_METRIC_WITH_AGG_MODEL = {
   uid: 'file1!metric1',
   file_uid: 'file1',
@@ -304,6 +312,33 @@ describe('DatabaseService:', () => {
             });
           });
         });
+      });
+    });
+    it('should update metric aggregation options for metric', (done) => {
+      // Add metric
+      service.putMetric(EXPECTED_METRIC, (error) => {
+        assert.ifError(error);
+        service.setMetricAggregation(EXPECTED_METRIC.uid, AGG_OPTIONS, (error) => {
+          assert.ifError(error);
+          service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
+            assert.deepStrictEqual(actual, EXPECTED_METRIC_WITH_AGGREGATION);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should update model options for metric', (done) => {
+      // Add metric
+      service.putMetric(EXPECTED_METRIC, (error) => {
+        assert.ifError(error);
+        service.setMetricModelParameters(EXPECTED_METRIC.uid, MODEL_OPTIONS, (error) => {
+          assert.ifError(error);
+          service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
+            assert.deepStrictEqual(actual, EXPECTED_METRIC_WITH_MODEL);
+            done();
+          });
+        })
       });
     });
   });
