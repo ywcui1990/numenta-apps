@@ -1,5 +1,6 @@
 {
-  "name": "unicorn",
+  "name": "htm-studio",
+  "productName": "HTM Studio",
   "version": "0.0.1",
   "description": "Numenta Unicorn Cross-platform HTM Example Desktop Application",
   "main": "js/main/loader.js",
