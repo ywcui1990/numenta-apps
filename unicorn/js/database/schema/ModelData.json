@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema#",
-  "id": "/db/MetricData",
+  "id": "/db/ModelData",
   "type": "object",
   "properties": {
     "metric_uid": {
@@ -14,8 +14,11 @@
     },
     "metric_value": {
       "type": "number"
+    },
+    "anomaly_score": {
+      "type": "number"
     }
   },
   "additionalProperties": false,
-  "required": ["metric_uid", "timestamp", "metric_value"]
+  "required": ["metric_uid", "timestamp", "metric_value", "anomaly_score"]
 }

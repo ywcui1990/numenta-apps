@@ -27,12 +27,29 @@ import path from 'path';
 import sublevel from 'level-sublevel';
 import Batch from 'level-sublevel/batch';
 import {Validator} from 'jsonschema';
+import Utils from './Utils';
+
 
 // Schemas
-import {DBFileSchema, DBMetricSchema, DBMetricDataSchema,
-        MRAggregationSchema, MRModelSchema, MRInputSchema,
-        PFInputSchema, PFOutputSchema} from '../schemas';
+import {
+  DBFileSchema,
+  DBMetricSchema,
+  DBMetricDataSchema,
+  DBModelDataSchema,
 
+  MRAggregationSchema,
+  MRModelSchema,
+  MRInputSchema,
+
+  PFInputSchema,
+  PFOutputSchema
+} from '../schemas';
+
+const SCHEMAS = [
+  DBFileSchema, DBMetricSchema, DBMetricDataSchema, DBModelDataSchema,
+  MRAggregationSchema, MRModelSchema, MRInputSchema,
+  PFInputSchema, PFOutputSchema
+];
 
 /**
  * Calculate default database location. If running inside `Electron` then use
@@ -63,13 +80,9 @@ function DatabaseService(path) {
 
   // Configure schema validator
   this.validator = new Validator();
-
-  [DBFileSchema, DBMetricSchema, DBMetricDataSchema,
-    MRAggregationSchema, MRModelSchema, MRInputSchema,
-    PFInputSchema, PFOutputSchema]
-    .forEach((schema) => {
-      this.validator.addSchema(schema);
-    });
+  SCHEMAS.forEach((schema) => {
+    this.validator.addSchema(schema);
+  });
 
   this.levelup = levelup(location, {
     db: leveldown,
@@ -79,6 +92,7 @@ function DatabaseService(path) {
   this._files = this._root.sublevel('File');
   this._metrics = this._root.sublevel('Metric');
   this._metricData = this._root.sublevel('MetricData');
+  this._modelData = this._root.sublevel('ModelData');
 }
 
 /**
@@ -141,7 +155,29 @@ DatabaseService.prototype.getMetricsByFile = function (fileId, callback) {
   // Metric UID is based on file Id. See Util.generateMetricId
   this._metrics.createValueStream({
     gte: `${fileId}`,
-    lt:  `${fileId}\xff`
+    lt: `${fileId}\xff`
+  })
+  .on('data', (metric) => {
+    results.push(metric);
+  })
+  .on('error', callback)
+  .on('end', () => {
+    callback(null, results);
+  });
+};
+
+/**
+ * Get all/queried ModelData records.
+ * @callback
+ * @param {string} metricId Metric ID
+ * @param {Function} callback - Async callback: function (error, results)
+ */
+DatabaseService.prototype.getModelData = function (metricId, callback) {
+  let results = [];
+  // Metric Data ID is based on metricId. See Util.generateMetricDataId
+  this._modelData.createValueStream({
+    gte: `${metricId}`,
+    lt: `${metricId}\xff`
   })
   .on('data', (metric) => {
     results.push(metric);
@@ -163,7 +199,7 @@ DatabaseService.prototype.getMetricData = function (metricId, callback) {
   // Metric Data ID is based on metricId. See Util.generateMetricDataId
   this._metricData.createValueStream({
     gte: `${metricId}`,
-    lt:  `${metricId}\xff`
+    lt: `${metricId}\xff`
   })
   .on('data', (metric) => {
     results.push(metric);
@@ -197,8 +233,8 @@ DatabaseService.prototype.putFile = function (file, callback) {
  * @param {Function} callback - Async result handler: function (error, results)
  */
 DatabaseService.prototype.putFileBatch = function (files, callback) {
-  // validate
-  for (let i=0; i<files.length; i++) {
+
+  for (let i = 0; i < files.length; i++) {
     const validation = this.validator.validate(files[i], DBFileSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
@@ -206,7 +242,6 @@ DatabaseService.prototype.putFileBatch = function (files, callback) {
     }
   }
 
-  // prepare
   let ops = files.map((file) => {
     return {
       type: 'put',
@@ -215,7 +250,6 @@ DatabaseService.prototype.putFileBatch = function (files, callback) {
     };
   });
 
-  // execute
   this._files.batch(ops, callback);
 };
 
@@ -226,7 +260,6 @@ DatabaseService.prototype.putFileBatch = function (files, callback) {
  */
 DatabaseService.prototype.putMetric = function (metric, callback) {
   const validation = this.validator.validate(metric, DBMetricSchema);
-
   if (validation.errors.length) {
     callback(validation.errors, null);
     return;
@@ -241,8 +274,8 @@ DatabaseService.prototype.putMetric = function (metric, callback) {
  * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseService.prototype.putMetricBatch = function (metrics, callback) {
-  // validate
-  for (let i=0; i<metrics.length; i++) {
+
+  for (let i = 0; i < metrics.length; i++) {
     const validation = this.validator.validate(metrics[i], DBMetricSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
@@ -250,7 +283,6 @@ DatabaseService.prototype.putMetricBatch = function (metrics, callback) {
     }
   }
 
-  // prepare
   let ops = metrics.map((metric) => {
     return {
       type: 'put',
@@ -259,8 +291,59 @@ DatabaseService.prototype.putMetricBatch = function (metrics, callback) {
     };
   });
 
-  // execute
   this._metrics.batch(ops, callback);
+};
+
+/**
+ * Put a single ModelData record to DB.
+ * @param {Object} data - ModelData object to save
+ * @param {Function} callback - Async callback on done: function(error, results)
+ */
+DatabaseService.prototype.putModelData = function (data, callback) {
+  const validation = this.validator.validate(data, DBModelDataSchema);
+
+  if (typeof data === 'string') {
+    // JSONify here to get around Electron IPC remote() memory leaks
+    data = JSON.parse(data);
+  }
+
+  if (validation.errors.length) {
+    callback(validation.errors, null);
+    return;
+  }
+  let {metric_uid, timestamp} = data;
+  let key = Utils.generateMetricDataId(metric_uid, timestamp);
+  this._modelData.put(key, data, callback);
+};
+
+/**
+ * Put multiple ModelData records into DB.
+ * @param {Array} data - List of ModelData objects to save
+ * @param {Function} callback - Async callback on done: function(error, results)
+ */
+DatabaseService.prototype.putModelDataBatch = function (data, callback) {
+  if (typeof data === 'string') {
+    // JSONify here to get around Electron IPC remote() memory leaks
+    data = JSON.parse(data);
+  }
+
+  for (let i = 0; i < data.length; i++) {
+    const validation = this.validator.validate(data[i], DBModelDataSchema);
+    if (validation.errors.length) {
+      callback(validation.errors, null);
+      return;
+    }
+  }
+
+  let ops = data.map((value) => {
+    let {metric_uid, timestamp} = value;
+    let key = Utils.generateMetricDataId(metric_uid, timestamp);
+    return {
+      type: 'put', key, value
+    };
+  });
+
+  this._modelData.batch(ops, callback);
 };
 
 /**
@@ -280,8 +363,9 @@ DatabaseService.prototype.putMetricData = function (metricData, callback) {
     callback(validation.errors, null);
     return;
   }
-
-  this._metricData.put(metricData.uid, metricData, callback);
+  let {metric_uid, timestamp} = metricData;
+  let key = Utils.generateMetricDataId(metric_uid, timestamp);
+  this._metricData.put(key, metricData, callback);
 };
 
 /**
@@ -295,8 +379,7 @@ DatabaseService.prototype.putMetricDataBatch = function (data, callback) {
     data = JSON.parse(data);
   }
 
-  // validate
-  for (let i=0; i<data.length; i++) {
+  for (let i = 0; i < data.length; i++) {
     const validation = this.validator.validate(data[i], DBMetricDataSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
@@ -304,16 +387,14 @@ DatabaseService.prototype.putMetricDataBatch = function (data, callback) {
     }
   }
 
-  // prepare
-  let ops = data.map((metricData) => {
+  let ops = data.map((value) => {
+    let {metric_uid, timestamp} = value;
+    let key = Utils.generateMetricDataId(metric_uid, timestamp);
     return {
-      type: 'put',
-      key: metricData.uid,
-      value: metricData
+      type: 'put', key, value
     };
   });
 
-  // execute
   this._metricData.batch(ops, callback);
 };
 
@@ -342,8 +423,7 @@ DatabaseService.prototype.close = function (callback) {
  * @param  {Function} callback called when the export operation is complete,
  *                             with a possible error argument
  */
-DatabaseService.prototype.exportMetricData =
-function (metricId, filename, callback) {
+DatabaseService.prototype.exportModelData = function (metricId, filename, callback) {
   const output = fs.createWriteStream(filename);
   const parser = json2csv({
     keys: ['timestamp', 'metric_value', 'anomaly_score']
@@ -351,9 +431,9 @@ function (metricId, filename, callback) {
   parser.pipe(output);
 
   // Metric Data id is based on metric Id. See Util.generateMetricDataId
-  this._metricData.createValueStream({
+  this._modelData.createValueStream({
     gte: `${metricId}`,
-    lt:  `${metricId}\xff`
+    lt: `${metricId}\xff`
   })
   .on('error', (error) => {
     parser.destroy();
@@ -369,7 +449,7 @@ function (metricId, filename, callback) {
 }
 
 /**
- * Delete all data for the given metric
+ * Delete raw data for the given metric
  * @param  {string}   metricId Metric to delete data
  * @param  {Function} callback called when the operation is complete,
  *                             with a possible error argument
@@ -378,12 +458,33 @@ DatabaseService.prototype.deleteMetricData = function (metricId, callback) {
   let batch = new Batch(this._metricData);
   this._metricData.createKeyStream({
     gte: `${metricId}`,
-    lt:  `${metricId}\xff`
+    lt: `${metricId}\xff`
   })
   .on('data', (uid) => {
     batch.del(uid);
   })
-  .on('error',callback)
+  .on('error', callback)
+  .on('end', () => {
+    batch.write(callback);
+  });
+}
+
+/**
+ * Delete model data for the given metric
+ * @param  {string}   metricId Metric to delete model data
+ * @param  {Function} callback called when the operation is complete,
+ *                             with a possible error argument
+ */
+DatabaseService.prototype.deleteModelData = function (metricId, callback) {
+  let batch = new Batch(this._modelData);
+  this._modelData.createKeyStream({
+    gte: `${metricId}`,
+    lt: `${metricId}\xff`
+  })
+  .on('data', (uid) => {
+    batch.del(uid);
+  })
+  .on('error', callback)
   .on('end', () => {
     batch.write(callback);
   });
@@ -401,7 +502,13 @@ DatabaseService.prototype.deleteMetric = function (metricId, callback) {
       callback(error);
       return;
     }
-    this.deleteMetricData(metricId, callback);
+    this.deleteMetricData(metricId, (error) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      this.deleteModelData(metricId, callback);
+    });
   })
 }
 
@@ -415,14 +522,14 @@ DatabaseService.prototype.deleteMetricsByFile = function (fileId, callback) {
   let metrics = [];
   this._metrics.createKeyStream({
     gte: `${fileId}`,
-    lt:  `${fileId}\xff`
+    lt: `${fileId}\xff`
   })
   .on('data', (id) => {
     metrics.push(id);
   })
   .on('error', callback)
   .on('end', () => {
-    for (let i=0; i<metrics.length; i++) {
+    for (let i = 0; i < metrics.length; i++) {
       this.deleteMetric(metrics[i], (error) => {
         if (error) {
           callback(error);
