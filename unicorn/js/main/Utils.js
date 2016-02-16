@@ -56,21 +56,17 @@ export default class Utils {
   }
 
   /**
-   * Genereate unique metric data row uid based on the filename, metric name,
-   *  and row timestamp, via hashing.
-   * @param  {string} filename - The absolute path
-   * @param  {string} metric - Metric name
-   * @param  {Date} timestamp - timestamp for the data record
+   * Genereate unique metric data id based on the metric id and timestamp
+   * @param  {string} metricId - Metric ID
+   * @param  {Date} timestamp  - timestamp for the data record
    * @return {string} Unique id
    */
-  static generateMetricDataId(filename, metric, timestamp) {
-    let metricId = Utils.generateMetricId(filename, metric);
+  static generateMetricDataId(metricId, timestamp) {
     if (!(timestamp instanceof Date)) {
       timestamp = new Date(timestamp);
     }
     return `${metricId}!${timestamp.getTime()}`;
   }
-
   /**
    * Template String to trim extra spaces from multiline es6 strings.
    * @param {Array} strings - Input string literals for es6 template string.

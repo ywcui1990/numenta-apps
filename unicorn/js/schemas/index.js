@@ -21,6 +21,7 @@
  * - Database Schemas
  * 	- DBFileSchema: Represents `File` in the database
  * 	- DBMetricSchema: Represents `Metric` in the database
+ * 	- DBModelDataSchema: Represents 'ModelData' in the database
  * 	- DBMetricDataSchema: Represents 'MetricData' in the database
  *
  * - Model Runner Schemas
@@ -30,9 +31,11 @@
  *
  * - Param Finder Schemas:
  * 	- PFInputSchema: param_finder input argument option
- * 	- PFOutputSchema: param_finder output results 
+ * 	- PFOutputSchema: param_finder output results
  */
+
 import DBMetricDataSchema from '../database/schema/MetricData.json';
+import DBModelDataSchema from '../database/schema/ModelData.json';
 import DBMetricSchema from '../database/schema/Metric.json';
 import DBFileSchema from '../database/schema/File.json';
 
@@ -43,6 +46,16 @@ import MRInputSchema from '../../py/unicorn_backend/input_opt_schema.json';
 import PFInputSchema from '../../py/unicorn_backend/input_opt_schema_param_finder.json';
 import PFOutputSchema from '../../py/unicorn_backend/param_finder_output_schema.json';
 
-export {DBFileSchema, DBMetricSchema, DBMetricDataSchema,
-        MRAggregationSchema, MRModelSchema, MRInputSchema,
-        PFInputSchema, PFOutputSchema};
+export {
+  DBFileSchema,
+  DBMetricSchema,
+  DBMetricDataSchema,
+  DBModelDataSchema,
+
+  MRAggregationSchema,
+  MRModelSchema,
+  MRInputSchema,
+
+  PFInputSchema,
+  PFOutputSchema
+};
