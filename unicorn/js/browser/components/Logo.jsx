@@ -15,7 +15,6 @@
 //
 // http://numenta.org/licenses/
 
-
 import Avatar from 'material-ui/lib/avatar';
 import React from 'react';
 
@@ -57,10 +56,14 @@ export default class Logo extends React.Component {
       },
       title: {
         fontSize: '160%',
+        fontWeight: muiTheme.rawTheme.font.weight.light,
         letterSpacing: '0.33px',
         position: 'relative',
         left: '0.666rem',
         top: '-5px'
+      },
+      titleStrong: {
+        fontWeight: muiTheme.rawTheme.font.weight.medium
       }
     };
   }
@@ -70,7 +73,7 @@ export default class Logo extends React.Component {
    * @return {object} Abstracted React/JSX DOM representation to render to HTML
    */
   render() {
-    let title = this._config.get('title');
+    let titles = this._config.get('title').split(' ');
 
     return (
       <header style={this._styles.root}>
@@ -80,7 +83,7 @@ export default class Logo extends React.Component {
           src="assets/images/numenta-mark.svg"
           />
         <span style={this._styles.title}>
-          {title}
+          <span style={this._styles.titleStrong}>{titles[0]}</span> {titles[1]}
         </span>
       </header>
     );

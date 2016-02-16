@@ -84,7 +84,7 @@ export default class FileList extends React.Component {
       },
       list: {
         color: muiTheme.rawTheme.palette.accent3Color,
-        fontWeight: 400
+        fontWeight: muiTheme.rawTheme.font.weight.normal
       },
       file: {
         marginLeft: '-1.4rem',
@@ -106,9 +106,10 @@ export default class FileList extends React.Component {
         textTransform: 'capitalize',
         whiteSpace: 'nowrap'
       },
-      none: {
+      empty: {
         color: muiTheme.rawTheme.palette.primary2Color,
-        fontSize: '85%'
+        fontSize: '82.5%',
+        marginLeft: 3
       },
       status: {
         height: 12,
@@ -140,7 +141,7 @@ export default class FileList extends React.Component {
 
   _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
     let models = this.props.models;
-    let model = models.find((m) => m.modelId === modelId);
+    let model = models.find((model) => model.modelId === modelId);
 
     if (checked && model) {
       // show: already known
@@ -190,16 +191,14 @@ export default class FileList extends React.Component {
   }
 
   _renderMetrics(file) {
-    let timestampField = file.metrics.find((metric) => {
-      return metric.type === 'date';
-    });
+    let timestampField = file.metrics.find((metric) => metric.type === 'date');
     if (timestampField) {
       return file.metrics.map((metric) => {
         if (metric.type !== 'date') {
           let muiTheme = this.context.muiTheme;
           let modelId = Utils.generateMetricId(file.filename, metric.name);
           let models = this.props.models;
-          let model = models.find((m) => m.modelId === modelId);
+          let model = models.find((model) => model.modelId === modelId);
           let isModelVisible = false;
           let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
           let statusColor = muiTheme.rawTheme.palette.disabledColor;
@@ -247,13 +246,13 @@ export default class FileList extends React.Component {
   _renderFiles(filetype) {
     let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
     let uploadCount = uploaded.length || 0;
-    let noneMessage = this._config.get('menu:leftnav:none');
+    let emptyMessage = this._config.get('heading:data:empty');
 
     if ((filetype === 'uploaded') && (uploadCount <= 0)) {
       return (
         <ListItem
           initiallyOpen={true}
-          primaryText={<div style={this._styles.none}>{noneMessage}</div>}
+          primaryText={<div style={this._styles.empty}>{emptyMessage}</div>}
           />
       );
     }
