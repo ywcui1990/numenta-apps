@@ -15,24 +15,24 @@
 //
 // http://numenta.org/licenses/
 
-import {app} from 'electron';
+import defaultMenu from 'electron-default-menu';
 
 
 /**
  * Main top system menu (File/Open.., etc) for application
  */
-export default [
-  {
-    label: app.getName()
-  },
-  {
-    label: 'File',
-    submenu: [
-      {
-        label: 'Open File...',
-        accelerator: 'Command+O',
-        role: 'open'
-      }
-    ]
-  }
-];
+
+let menu = defaultMenu();
+
+menu.splice(1, 0, {
+  label: 'File',
+  submenu: [
+    {
+      label: 'Open File...',
+      accelerator: 'Command+O',
+      role: 'open'
+    }
+  ]
+});
+
+export default menu;

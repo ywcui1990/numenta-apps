@@ -16,7 +16,7 @@
 // http://numenta.org/licenses/
 
 import Checkbox from 'material-ui/lib/checkbox';
-import Colors from 'material-ui/lib/styles/colors';
+import CheckboxOutline from 'material-ui/lib/svg-icons/toggle/check-box-outline-blank';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
@@ -79,11 +79,15 @@ export default class FileList extends React.Component {
     }, props);
 
     this._styles = {
+      root: {
+        paddingTop: '0.5rem'
+      },
       list: {
         color: muiTheme.rawTheme.palette.accent3Color,
         fontWeight: 400
       },
       file: {
+        marginLeft: '-1.4rem',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         textTransform: 'capitalize',
@@ -96,18 +100,22 @@ export default class FileList extends React.Component {
         width: 40
       },
       metric: {
+        marginLeft: '-1.4rem',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         textTransform: 'capitalize',
         whiteSpace: 'nowrap'
       },
+      none: {
+        color: muiTheme.rawTheme.palette.primary2Color,
+        fontSize: '85%'
+      },
       status: {
-        height: 15,
+        height: 12,
         margin: 0,
+        marginRight: '0.5rem',
         padding: 0,
-        right: 13,
-        top: 16,
-        width: 15
+        width: 12
       }
     };
   }
@@ -193,6 +201,7 @@ export default class FileList extends React.Component {
           let models = this.props.models;
           let model = models.find((m) => m.modelId === modelId);
           let isModelVisible = false;
+          let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
           let statusColor = muiTheme.rawTheme.palette.disabledColor;
 
           if (model) {
@@ -219,6 +228,7 @@ export default class FileList extends React.Component {
                       metric.name
                     )
                   }
+                  unCheckedIcon={<CheckboxOutline color={checkboxColor} />}
                   />
               }
               primaryText={
@@ -235,15 +245,28 @@ export default class FileList extends React.Component {
   }
 
   _renderFiles(filetype) {
+    let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
+    let uploadCount = uploaded.length || 0;
+    let noneMessage = this._config.get('menu:leftnav:none');
+
+    if ((filetype === 'uploaded') && (uploadCount <= 0)) {
+      return (
+        <ListItem
+          initiallyOpen={true}
+          primaryText={<div style={this._styles.none}>{noneMessage}</div>}
+          />
+      );
+    }
+
     return this.props.files.map((file) => {
       if (file.type === filetype) {
+        let color = this.context.muiTheme.rawTheme.palette.primary1Color;
         let fileId = file.uid;
         let filename = file.filename;
-        let toggleIcon;
         let contextMenu = (
           <IconMenu
             iconButtonElement={
-              <IconButton><IconMore color={Colors.grey500} /></IconButton>
+              <IconButton><IconMore color={color} /></IconButton>
             }
             onChange={this._handleFileContextMenu.bind(this, filename)}
             style={this._styles.more}
@@ -259,26 +282,28 @@ export default class FileList extends React.Component {
                 />
           </IconMenu>
         );
+        let leftIconButton, toggleIcon;
 
         // choose file visibility toggle icon
         if (this.state.showNested[fileId]) {
-          toggleIcon = (<IconOpen />);
+          toggleIcon = (<IconOpen color={color} />);
         } else {
-          toggleIcon = (<IconClose />);
+          toggleIcon = (<IconClose color={color} />);
         }
+        leftIconButton = (
+          <IconButton
+            onTouchTap={this._handleFileToggle.bind(this, fileId)}
+            style={this._styles.fileToggle}
+            >
+              {toggleIcon}
+          </IconButton>
+        );
 
         return (
           <ListItem
             initiallyOpen={true}
             key={file.name}
-            leftIcon={
-              <IconButton
-                onTouchTap={this._handleFileToggle.bind(this, fileId)}
-                style={this._styles.fileToggle}
-                >
-                  {toggleIcon}
-              </IconButton>
-            }
+            leftIcon={leftIconButton}
             nestedItems={this._renderMetrics(file)}
             primaryText={<div style={this._styles.file}>{file.name}</div>}
             ref={`file-toggle-${fileId}`}
@@ -305,8 +330,6 @@ export default class FileList extends React.Component {
         ref="submit"
         />
     ];
-    // let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
-    // let uploadCount = uploaded.length || 0;
     let userFiles = (
       <List
         key="uploaded"
@@ -328,7 +351,7 @@ export default class FileList extends React.Component {
     let filesList = [userFiles, sampleFiles];
 
     return (
-      <nav>
+      <nav style={this._styles.root}>
         {filesList}
         <Dialog
           actions={dialogActions}
