@@ -51,7 +51,7 @@ from nupic.data import fieldmeta
 from nupic.data import record_stream
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
-from unicorn_backend import date_time_utils
+import date_time_utils
 
 
 
