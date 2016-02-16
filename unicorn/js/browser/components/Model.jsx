@@ -18,7 +18,7 @@
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import path from 'path';
 import React from 'react';
-import remote from 'remote';
+import {remote} from 'electron';
 
 import Card from 'material-ui/lib/card/card';
 import CardActions from 'material-ui/lib/card/card-actions';
