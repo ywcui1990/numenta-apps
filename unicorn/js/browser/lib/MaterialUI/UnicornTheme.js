@@ -17,10 +17,20 @@
 
 import Colors from 'material-ui/lib/styles/colors';
 import Spacing from 'material-ui/lib/styles/spacing';
+import Typography from 'material-ui/lib/styles/typography';
+import zIndex from 'material-ui/lib/styles/zIndex';
 
+
+/**
+ * Unicorn Material-UI Theme
+ *
+ */
 export default {
-  spacing: Spacing,
+
+  // MUI standard
   fontFamily: 'Roboto, sans-serif',
+  spacing: Spacing,
+  zIndex,
   palette: {
     primary1Color: '#29aae2', // numenta blue : actions
     primary2Color: '#095c80', // darkened numenta blue : header
@@ -33,5 +43,15 @@ export default {
     canvasColor: Colors.white,
     borderColor: Colors.grey300,
     disabledColor: Colors.grey300 // disabled light gray
+  },
+
+  // Custom augmentation
+  font: {
+    weight: {
+      light: Typography.fontWeightLight,
+      normal: Typography.fontWeightNormal,
+      medium: Typography.fontWeightMedium
+    }
   }
+
 };

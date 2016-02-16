@@ -36,17 +36,18 @@
   },
   "heading": {
     "data": {
+      "none": "You have not added any data yet.",
       "sample": "Sample Data",
       "user": "Your Data"
+    },
+    "chart": {
+      "empty": "Select a metric from the left menu."
     }
   },
   "menu": {
     "file": {
       "delete": "Delete File",
       "details": "File Details"
-    },
-    "leftnav": {
-      "none": "You have not added any data yet."
     }
   }
 }

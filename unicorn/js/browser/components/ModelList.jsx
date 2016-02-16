@@ -35,7 +35,9 @@ export default class ModelList extends React.Component {
   static get contextTypes() {
     return {
       executeAction: React.PropTypes.func,
-      getStore: React.PropTypes.func
+      getConfigClient: React.PropTypes.func,
+      getStore: React.PropTypes.func,
+      muiTheme: React.PropTypes.object
     };
   }
 
@@ -53,19 +55,37 @@ export default class ModelList extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-  }
 
-  _getStyles() {
-    return {
+    this._config = this.context.getConfigClient();
+
+    let muiTheme = this.context.muiTheme;
+    this._styles = {
       root: {
         backgroundColor: 'transparent',
         boxShadow: 'none',
+        width: '100%'
+      },
+      none: {
+        marginLeft: (0 - (muiTheme.leftNav.width / 2)),
+        position: 'fixed',
+        textAlign: 'center',
+        top: '43%',
+        transform: 'translateY(-43%)',
         width: '100%'
       }
     };
   }
 
   _renderModels() {
+    let visibleModels = this.props.models.find((model) => model.visible);
+    let emptyMessage = this._config.get('heading:chart:empty');
+
+    if (! visibleModels) {
+      return (
+        <div style={this._styles.none}>{emptyMessage}</div>
+      );
+    }
+
     return this.props.models
       .filter((model) => model.visible)
       .map((model) => {
@@ -76,9 +96,8 @@ export default class ModelList extends React.Component {
   }
 
   render() {
-    let styles = this._getStyles();
     return (
-      <Paper style={styles.root} zDepth={this.props.zDepth}>
+      <Paper style={this._styles.root} zDepth={this.props.zDepth}>
         {this._renderModels()}
       </Paper>
     );

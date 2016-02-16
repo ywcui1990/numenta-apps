@@ -108,7 +108,7 @@ export default class FileList extends React.Component {
       },
       none: {
         color: muiTheme.rawTheme.palette.primary2Color,
-        fontSize: '85%'
+        fontSize: '82.5%'
       },
       status: {
         height: 12,
@@ -140,7 +140,7 @@ export default class FileList extends React.Component {
 
   _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
     let models = this.props.models;
-    let model = models.find((m) => m.modelId === modelId);
+    let model = models.find((model) => model.modelId === modelId);
 
     if (checked && model) {
       // show: already known
@@ -190,16 +190,14 @@ export default class FileList extends React.Component {
   }
 
   _renderMetrics(file) {
-    let timestampField = file.metrics.find((metric) => {
-      return metric.type === 'date';
-    });
+    let timestampField = file.metrics.find((metric) => metric.type === 'date');
     if (timestampField) {
       return file.metrics.map((metric) => {
         if (metric.type !== 'date') {
           let muiTheme = this.context.muiTheme;
           let modelId = Utils.generateMetricId(file.filename, metric.name);
           let models = this.props.models;
-          let model = models.find((m) => m.modelId === modelId);
+          let model = models.find((model) => model.modelId === modelId);
           let isModelVisible = false;
           let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
           let statusColor = muiTheme.rawTheme.palette.disabledColor;
@@ -247,7 +245,7 @@ export default class FileList extends React.Component {
   _renderFiles(filetype) {
     let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
     let uploadCount = uploaded.length || 0;
-    let noneMessage = this._config.get('menu:leftnav:none');
+    let noneMessage = this._config.get('menu:heading:data:none');
 
     if ((filetype === 'uploaded') && (uploadCount <= 0)) {
       return (
