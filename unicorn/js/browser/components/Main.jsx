@@ -65,7 +65,11 @@ export default class Main extends React.Component {
       root: {},
       add: {
         float: 'right',
-        margin: '0.5rem'
+        marginRight: '0.75rem',
+        marginTop: '0.75rem'
+      },
+      addLabel: {
+        fontWeight: 400
       },
       models: {
         marginLeft: 256,
@@ -106,6 +110,7 @@ export default class Main extends React.Component {
         <LeftNav>
           <RaisedButton
             label={this._config.get('button:add')}
+            labelStyle={this._styles.addLabel}
             onClick={this._onClick.bind(this)}
             primary={true}
             style={this._styles.add}

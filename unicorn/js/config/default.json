@@ -44,6 +44,9 @@
     "file": {
       "delete": "Delete File",
       "details": "File Details"
+    },
+    "leftnav": {
+      "none": "You have not added any data yet."
     }
   }
 }
