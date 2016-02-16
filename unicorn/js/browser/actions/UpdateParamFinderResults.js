@@ -17,13 +17,55 @@
 
 import {ACTIONS} from '../lib/Constants';
 
-
 /**
  * Update Param Finder results.
  * @param  {FluxibleContext} actionContext - The action context
  * @param  {string} paramFinderResults - Param finder results.
  */
 export default function (actionContext, paramFinderResults) {
-  actionContext.dispatch(ACTIONS.UPDATE_PARAM_FINDER_RESULTS,
-    paramFinderResults);
+  return new Promise((resolve, reject) => {
+    let databaseClient = actionContext.getDatabaseClient();
+
+    let metricId = paramFinderResults.metricId;
+    let inputInfo = paramFinderResults.inputInfo;
+    let aggInfo = paramFinderResults.aggInfo;
+    let modelInfo = paramFinderResults.modelInfo;
+
+    console.log(paramFinderResults);
+    databaseClient.setMetricAggregationOptions(metricId, aggInfo, (error) => {
+      console.log(aggInfo);
+      if (error) {
+        // TODO: do something to handle the error. Something like:
+        // actionContext.dispatch(ACTIONS.SAVE_METRIC_AGG_OPTS_FAILURE, new
+        // DatabaseGetError(error));
+        reject(error);
+      } else {
+
+        databaseClient.setMetricModelOptions(metricId, modelInfo, (error) => {
+          console.log(modelInfo);
+
+          if (error) {
+            // TODO: do something to handle the error. Something like:
+            // actionContext.dispatch(ACTIONS.SAVE_METRIC_MODEL_OPTS_FAILURE, new
+            // DatabaseGetError(error));
+            reject(error);
+          } else {
+
+            databaseClient.setMetricInputOptions(metricId, inputInfo, (error) => {
+              console.log(inputInfo);
+              if (error) {
+                // TODO: do something to handle the error. Something like:
+                // actionContext.dispatch(ACTIONS.SAVE_METRIC_INPUT_OPTS_FAILURE, new
+                // DatabaseGetError(error));
+                reject(error);
+              } else {
+                actionContext.dispatch(ACTIONS.UPDATE_PARAM_FINDER_RESULTS, paramFinderResults);
+                resolve(paramFinderResults);
+              }
+            }); // databaseClient.setMetricInputOptions()
+          }
+        });// databaseClient.setMetricModelOptions()
+      }
+    });// databaseClient.setMetricAggregationOptions()
+  });
 }

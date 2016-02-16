@@ -18,10 +18,10 @@
 
 import BaseStore from 'fluxible/addons/BaseStore';
 
-export default class CreateModelDialogStore extends BaseStore {
+export default class MetricStore extends BaseStore {
 
   static get storeName() {
-    return 'CreateModelDialogStore';
+    return 'MetricStore';
   }
 
   static get handlers() {

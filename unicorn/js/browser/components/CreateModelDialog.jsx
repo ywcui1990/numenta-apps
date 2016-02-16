@@ -20,7 +20,7 @@ import FlatButton from 'material-ui/lib/flat-button';
 import Dialog from 'material-ui/lib/dialog';
 import CircularProgress from 'material-ui/lib/circular-progress';
 import connectToStores from 'fluxible-addons-react/connectToStores';
-import CreateModelDialogStore from '../stores/CreateModelDialogStore';
+import CreateModelDialogStore from '../stores/MetricStore';
 import UpdateParamFinderResults from '../actions/UpdateParamFinderResults';
 import HideCreateModelDialog from '../actions/HideCreateModelDialog';
 
@@ -42,7 +42,7 @@ export default class CreateModelDialog extends React.Component {
 
   componentDidMount() {
     setTimeout(() => {
-      this.context.executeAction(UpdateParamFinderResults, {aggInfo: {windowSize: 10}})
+      this.context.executeAction(UpdateParamFinderResults, {metricId: null , inputInfo: {}, aggInfo: {windowSize: 10}, modelInfo: {}})
     }, 5000);
   }
 

@@ -36,7 +36,7 @@ import ConfigClient from './lib/Unicorn/ConfigClient';
 import DatabaseClient from './lib/Unicorn/DatabaseClient';
 import FileClient from './lib/Unicorn/FileClient';
 import FileDetailsStore from './stores/FileDetailsStore';
-import CreateModelDialogStore from './stores/CreateModelDialogStore';
+import CreateModelDialogStore from './stores/MetricStore';
 import FileStore from './stores/FileStore';
 import ListFilesAction from './actions/ListFiles';
 import ListMetricsAction from './actions/ListMetrics';

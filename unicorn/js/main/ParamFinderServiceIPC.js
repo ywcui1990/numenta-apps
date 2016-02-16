@@ -64,7 +64,7 @@ export default class ParamFinderServiceIPC {
    * @param {Event} event - IPC Event Object.
    *                        Any error will be returned via 'returnValue.error'
    * @param {Object} payload - Event payload
-   * @param {string} command -  'start' | 'stop'
+   * @param {string} command -  'start'
    * @param {Object} [params] - Command parameters
    */
   _handleIPCEvent(event, payload) {
@@ -72,8 +72,6 @@ export default class ParamFinderServiceIPC {
     try {
       if (command === 'start') {
         this._onStart(payload.params);
-      } else if (command === 'stop') {
-        this._onStop();
       } else {
         throw new UserError(`Unknown param finder command ${command}`);
       }
@@ -128,14 +126,5 @@ export default class ParamFinderServiceIPC {
         }
       }
     });
-  }
-
-  /**
-   * Stop the param finder
-   */
-  _stop() {
-    if (this._service.isRunning) {
-      this._service.removeAllListeners(PARAM_FINDER_EVENT_TYPE);
-    }
   }
 }

@@ -131,7 +131,7 @@ export default class ModelServiceIPC {
    * Close down a running model.
    * @param {string} modelId - ID of existing Model to shut down
    */
-  _dettach(modelId) {
+  _detach(modelId) {
     if (this._attached.has(modelId)) {
       this._attached.delete(modelId);
       this._service.removeAllListeners(modelId);
@@ -163,7 +163,7 @@ export default class ModelServiceIPC {
    * @param {string} modelId - ID of existing Model to shut down
    */
   _onRemove(modelId) {
-    this._dettach(modelId);
+    this._detach(modelId);
     this._service.removeModel(modelId);
   }
 
