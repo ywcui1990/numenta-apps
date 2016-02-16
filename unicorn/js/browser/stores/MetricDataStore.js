@@ -46,6 +46,10 @@ export default class MetricDataStore extends BaseStore {
     return 'MetricDataStore';
   }
 
+  /**
+   * @listens {LOAD_METRIC_DATA}
+   * @listens {UNLOAD_METRIC_DATA}
+   */
   static get handlers() {
     return {
       LOAD_METRIC_DATA: '_handLoadData',

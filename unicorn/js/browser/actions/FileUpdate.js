@@ -23,6 +23,7 @@ import {ACTIONS} from '../lib/Constants';
  * Update file properties
  * @param  {FluxContext} actionContext The context to use
  * @param  {File} file File Object
+ * @emits {UPDATE_FILE}
  * @return {Promise}
  */
 export default function (actionContext, file) {

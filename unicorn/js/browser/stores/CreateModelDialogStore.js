@@ -24,6 +24,11 @@ export default class CreateModelDialogStore extends BaseStore {
     return 'CreateModelDialogStore';
   }
 
+  /**
+   * @listens {SHOW_CREATE_MODEL_DIALOG}
+   * @listens {HIDE_CREATE_MODEL_DIALOG}
+   * @listens {UPDATE_PARAM_FINDER_RESULTS}
+   */
   static get handlers() {
     return {
       SHOW_CREATE_MODEL_DIALOG: '_handleShowCreateModelDialog',
@@ -38,7 +43,6 @@ export default class CreateModelDialogStore extends BaseStore {
   }
 
   _handleShowCreateModelDialog(payload) {
-    console.log(payload);
     this.fileName = payload.fileName;
     this.metricName = payload.metricName;
     this.open = true;

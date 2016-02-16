@@ -27,6 +27,10 @@ export default class ModelDataStore extends BaseStore {
     return 'ModelDataStore';
   }
 
+  /**
+   * @listens {RECEIVE_MODEL_DATA}
+   * @listens {DELETE_MODEL}
+   */
   static get handlers() {
     return {
       RECEIVE_MODEL_DATA: '_handReceiveModelData',

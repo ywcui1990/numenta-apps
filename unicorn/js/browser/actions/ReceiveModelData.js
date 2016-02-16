@@ -26,6 +26,7 @@ import {ACTIONS} from '../lib/Constants';
  * @param {Object} payload - The action payload
  * @param {String} payload.modelId - Required model id
  * @param {Object[]} payload.data - New data to be appended
+ * @emits {RECEIVE_MODEL_DATA}
  */
 export default function (actionContext, payload) {
   actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, payload);

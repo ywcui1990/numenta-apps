@@ -26,6 +26,8 @@ import {
 
 /**
  * Get List of files from py
+ * @emits {LIST_FILES}
+ * @emits {LIST_FILES_FAILURE}
  */
 export default function (actionContext) {
   return new Promise((resolve, reject) => {

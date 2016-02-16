@@ -22,6 +22,7 @@ import {ACTIONS} from '../lib/Constants';
  * Update Param Finder results.
  * @param  {FluxibleContext} actionContext - The action context
  * @param  {string} paramFinderResults - Param finder results.
+ * @emits {UPDATE_PARAM_FINDER_RESULTS}
  */
 export default function (actionContext, paramFinderResults) {
   actionContext.dispatch(ACTIONS.UPDATE_PARAM_FINDER_RESULTS,

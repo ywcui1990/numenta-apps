@@ -18,72 +18,97 @@
 
 /**
  * Fluxible Action keys
- * - ADD_FILE: {@link FileAdd}
- * - ADD_MODEL : {@link StartModel}
- * - DELETE_MODEL : {@link DeleteModel}
- * - EXPORT_MODEL_RESULTS : {@link ExportModelResults}
- * - HIDE_FILE_DETAILS : {@link HideFileDetails}
- * - HIDE_METRIC_DETAILS : {@link HideMetricDetails}
- * - HIDE_MODEL : {@link HideModel}
- * - LIST_FILES : {@link ListFiles}
- * - LIST_FILES_FAILURE : {@link ListFiles}
- * - LIST_METRICS : {@link ListMetrics}
- * - LIST_METRICS_FAILURE : {@link ListMetrics}
- * - LOAD_METRIC_DATA: {@link LoadMetricData}
- * - RECEIVE_MODEL_DATA : {@link ReceiveModelData}
- * - SEND_METRIC_DATA : {@link SendMetricData}
- * - SEND_METRIC_DATA_FAILED : {@link ModelError}
- * - SHOW_FILE_DETAILS : {@link ShowFileDetails}
- * - SHOW_METRIC_DETAILS : {@link ShowMetricDetails}
- * - SHOW_MODEL : {@linl ShowModel}
- * - START_MODEL_FAILED : {@link ModelError}
- * - START_MODEL: {@link StartModel}
- * - STOP_MODEL : {@link StopModel}
- * - STOP_MODEL_FAILED : {@link ModelError}
- * - UNKNOWN_MODEL_FAILURE : {@link ModelError}
- * - UNLOAD_METRIC_DATA: 'UnloadMetricData',
- * - UPDATE_FILE : {@link FileUpdate}
- * - UPDATE_FILE_FAILED : {@link FileUpdate}
- * - UPLOADED_FILE : {@link FileUpload}
- * - UPLOADED_FILE_FAILED : {@link FileUpload}
- * - SHOW_CREATE_MODEL_DIALOG: {@link }
- * - HIDE_CREATE_MODEL_DIALOG: {@link
- * - UPDATE_PARAM_FINDER_RESULTS: {@link}
+ * - File
+ *  - DELETE_FILE: {@link DeleteFile}
+ *  - LIST_FILES: {@link ListFiles}
+ *  - UPLOADED_FILE: {@link FileUpload}
+ *  - UPDATE_FILE: {@link FileUpdate}
+ *
+ * - File Errors
+ *  - LIST_FILES_FAILURE
+ *  - UPLOADED_FILE_FAILED
+ *  - UPDATE_FILE_FAILED
+ *
+ * - Model
+ *  - ADD_MODEL: {@link AddModel}
+ *  - DELETE_MODEL: {@link DeleteModel}
+ *  - START_MODEL: {@link StartModel}
+ *  - STOP_MODEL: {@link StopModel}
+ *  - SHOW_MODEL: {@link ShowModel}
+ *  - HIDE_MODEL: {@link HideModel}
+ *  - EXPORT_MODEL_RESULTS: {@link ExportModelResults}
+ *
+ * - Model Data
+ *  - RECEIVE_MODEL_DATA: {@link ReceiveModelData}
+ *
+ * - Model Errors
+ *  - START_MODEL_FAILED
+ *  - STOP_MODEL_FAILED
+ *  - DELETE_MODEL_FAILED
+ *  - UNKNOWN_MODEL_FAILURE
+ *
+ * - File Detail
+ *  - SHOW_FILE_DETAILS: {@link ShowFileDetails}
+ *  - HIDE_FILE_DETAILS: {@link HideFileDetails}
+ *
+ * - Create Model Dialog
+ *  - SHOW_CREATE_MODEL_DIALOG: {@link ShowCreateModelDialog}
+ *  - HIDE_CREATE_MODEL_DIALOG: {@link HideCreateModelDialog}
+ *  - UPDATE_PARAM_FINDER_RESULTS: {@link UpdateParamFinderResults}
+ *
+ * - Metric
+ *  - LIST_METRICS: {@link ListMetrics}
+ *  - LIST_METRICS_FAILURE
+ *
+ * - Metric Data
+ *  - LOAD_METRIC_DATA: {@link LoadMetricData}
+ *  - UNLOAD_METRIC_DATA: {@link UnloadMetricData}
  */
 export const ACTIONS = Object.freeze({
-  ADD_FILE: 'ADD_FILE',
-  ADD_MODEL: 'ADD_MODEL',
+  // File
   DELETE_FILE: 'DELETE_FILE',
-  DELETE_MODEL: 'DELETE_MODEL',
-  DELETE_MODEL_FAILED: 'DELETE_MODEL_FAILED',
-  EXPORT_MODEL_RESULTS: 'EXPORT_MODEL_RESULTS',
-  HIDE_FILE_DETAILS: 'HIDE_FILE_DETAILS',
-  HIDE_METRIC_DETAILS: 'HIDE_METRIC_DETAILS',
-  HIDE_MODEL: 'HIDE_MODEL',
-  LIST_FILES_FAILURE: 'LIST_FILES_FAILURE',
   LIST_FILES: 'LIST_FILES',
-  LIST_METRICS_FAILURE: 'LIST_METRICS_FAILURE',
-  LIST_METRICS: 'LIST_METRICS',
-  LOAD_METRIC_DATA: 'LOAD_METRIC_DATA',
-  RECEIVE_MODEL_DATA: 'RECEIVE_MODEL_DATA',
-  SEND_METRIC_DATA_FAILED: 'SEND_METRIC_DATA_FAILED',
-  SEND_METRIC_DATA: 'SEND_METRIC_DATA',
-  SHOW_FILE_DETAILS: 'SHOW_FILE_DETAILS',
-  SHOW_METRIC_DETAILS: 'SHOW_METRIC_DETAILS',
-  SHOW_MODEL: 'SHOW_MODEL',
-  START_MODEL_FAILED: 'START_MODEL_FAILED',
-  START_MODEL: 'START_MODEL',
-  STOP_MODEL_FAILED: 'STOP_MODEL_FAILED',
-  STOP_MODEL: 'STOP_MODEL',
-  UNKNOWN_MODEL_FAILURE: 'UNKNOWN_MODEL_FAILURE',
-  UNLOAD_METRIC_DATA: 'UNLOAD_METRIC_DATA',
-  UPDATE_FILE_FAILED: 'UPDATE_FILE_FAILED',
-  UPDATE_FILE: 'UPDATE_FILE',
-  UPLOADED_FILE_FAILED: 'UPLOADED_FILE_FAILED',
   UPLOADED_FILE: 'UPLOADED_FILE',
+  UPDATE_FILE: 'UPDATE_FILE',
+
+  LIST_FILES_FAILURE: 'LIST_FILES_FAILURE',
+  UPLOADED_FILE_FAILED: 'UPLOADED_FILE_FAILED',
+  UPDATE_FILE_FAILED: 'UPDATE_FILE_FAILED',
+
+  // Model
+  ADD_MODEL: 'ADD_MODEL',
+  DELETE_MODEL: 'DELETE_MODEL',
+  START_MODEL: 'START_MODEL',
+  STOP_MODEL: 'STOP_MODEL',
+  SHOW_MODEL: 'SHOW_MODEL',
+  HIDE_MODEL: 'HIDE_MODEL',
+  EXPORT_MODEL_RESULTS: 'EXPORT_MODEL_RESULTS',
+
+  // Model Data
+  RECEIVE_MODEL_DATA: 'RECEIVE_MODEL_DATA',
+
+  // Model Errors
+  START_MODEL_FAILED: 'START_MODEL_FAILED',
+  STOP_MODEL_FAILED: 'STOP_MODEL_FAILED',
+  DELETE_MODEL_FAILED: 'DELETE_MODEL_FAILED',
+  UNKNOWN_MODEL_FAILURE: 'UNKNOWN_MODEL_FAILURE',
+
+  // File Detail
+  SHOW_FILE_DETAILS: 'SHOW_FILE_DETAILS',
+  HIDE_FILE_DETAILS: 'HIDE_FILE_DETAILS',
+
+  // Create Model Dialog
   SHOW_CREATE_MODEL_DIALOG: 'SHOW_CREATE_MODEL_DIALOG',
   HIDE_CREATE_MODEL_DIALOG: 'HIDE_CREATE_MODEL_DIALOG',
-  UPDATE_PARAM_FINDER_RESULTS: 'UPDATE_PARAM_FINDER_RESULTS'
+  UPDATE_PARAM_FINDER_RESULTS: 'UPDATE_PARAM_FINDER_RESULTS',
+
+  // Metric
+  LIST_METRICS: 'LIST_METRICS',
+  LIST_METRICS_FAILURE: 'LIST_METRICS_FAILURE',
+
+  // Metric Data
+  LOAD_METRIC_DATA: 'LOAD_METRIC_DATA',
+  UNLOAD_METRIC_DATA: 'UNLOAD_METRIC_DATA'
 });
 
 /**

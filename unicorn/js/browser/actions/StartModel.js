@@ -212,6 +212,7 @@ function streamData(actionContext, modelId) {
  *  results become available.
  * @param {FluxibleContext} actionContext - Fluxible action context object
  * @param {string} model - An object with model+data to start
+ * @emits {START_MODEL}
  * @return {Promise} - Promise object to stream data in on, resolves when done
  */
 export default function (actionContext, modelId) {

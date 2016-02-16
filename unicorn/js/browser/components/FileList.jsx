@@ -31,7 +31,7 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import React from 'react';
 
-import CreateModelAction from '../actions/CreateModel';
+import AddModelAction from '../actions/AddModel';
 import DeleteFileAction from '../actions/DeleteFile';
 import FileStore from '../stores/FileStore';
 import HideModelAction from '../actions/HideModel';
@@ -143,7 +143,7 @@ export default class FileList extends React.Component {
       this.context.executeAction(ShowModelAction, modelId);
     } else if (checked) {
       // show: unknown, so know it first
-      this.context.executeAction(CreateModelAction, {
+      this.context.executeAction(AddModelAction, {
         modelId, filename, timestampField, metric
       });
       this.context.executeAction(ShowModelAction, modelId);
