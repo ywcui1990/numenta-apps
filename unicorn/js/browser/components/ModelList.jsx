@@ -15,8 +15,8 @@
 //
 // http://numenta.org/licenses/
 
-
 import connectToStores from 'fluxible-addons-react/connectToStores';
+import IconCheckbox from 'material-ui/lib/svg-icons/toggle/check-box';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
 
@@ -65,24 +65,37 @@ export default class ModelList extends React.Component {
         boxShadow: 'none',
         width: '100%'
       },
-      none: {
-        marginLeft: (0 - (muiTheme.leftNav.width / 2)),
+      empty: {
+        marginLeft: (0 - (muiTheme.leftNav.width / 2)) - 33,
         position: 'fixed',
         textAlign: 'center',
         top: '43%',
         transform: 'translateY(-43%)',
         width: '100%'
+      },
+      emptyMessage: {
+        color: muiTheme.rawTheme.palette.accent4Color,
+        fontWeight: muiTheme.rawTheme.font.weight.normal,
+        left: 8,
+        position: 'relative',
+        top: -5
       }
     };
   }
 
   _renderModels() {
     let visibleModels = this.props.models.find((model) => model.visible);
-    let emptyMessage = this._config.get('heading:chart:empty');
+    let checkboxColor, emptyMessage;
 
     if (! visibleModels) {
+      emptyMessage = this._config.get('heading:chart:empty');
+      checkboxColor = this.context.muiTheme.rawTheme.palette.primary1Color;
+
       return (
-        <div style={this._styles.none}>{emptyMessage}</div>
+        <div style={this._styles.empty}>
+          <IconCheckbox color={checkboxColor} />
+          <span style={this._styles.emptyMessage}>{emptyMessage}</span>
+        </div>
       );
     }
 

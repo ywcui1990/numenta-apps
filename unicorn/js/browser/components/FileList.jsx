@@ -84,7 +84,7 @@ export default class FileList extends React.Component {
       },
       list: {
         color: muiTheme.rawTheme.palette.accent3Color,
-        fontWeight: 400
+        fontWeight: muiTheme.rawTheme.font.weight.normal
       },
       file: {
         marginLeft: '-1.4rem',
@@ -106,9 +106,10 @@ export default class FileList extends React.Component {
         textTransform: 'capitalize',
         whiteSpace: 'nowrap'
       },
-      none: {
+      empty: {
         color: muiTheme.rawTheme.palette.primary2Color,
-        fontSize: '82.5%'
+        fontSize: '82.5%',
+        marginLeft: 3
       },
       status: {
         height: 12,
@@ -245,13 +246,13 @@ export default class FileList extends React.Component {
   _renderFiles(filetype) {
     let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
     let uploadCount = uploaded.length || 0;
-    let noneMessage = this._config.get('menu:heading:data:none');
+    let emptyMessage = this._config.get('heading:data:empty');
 
     if ((filetype === 'uploaded') && (uploadCount <= 0)) {
       return (
         <ListItem
           initiallyOpen={true}
-          primaryText={<div style={this._styles.none}>{noneMessage}</div>}
+          primaryText={<div style={this._styles.empty}>{emptyMessage}</div>}
           />
       );
     }

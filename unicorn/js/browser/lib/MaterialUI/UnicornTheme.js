@@ -38,7 +38,8 @@ export default {
     accent1Color: '#29aae2', // numenta blue : actions
     accent2Color: Colors.lightBlue800,
     accent3Color: Colors.grey500, // neutral gray for small menu headings
-    textColor: Colors.darkBlack,
+    accent4Color: Colors.grey700, // slightly less dark than textColor Black
+    textColor: Colors.darkBlack, // main text color
     alternateTextColor: Colors.white,
     canvasColor: Colors.white,
     borderColor: Colors.grey300,

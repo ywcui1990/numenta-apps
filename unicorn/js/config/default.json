@@ -36,7 +36,7 @@
   },
   "heading": {
     "data": {
-      "none": "You have not added any data yet.",
+      "empty": "You have not added any data yet.",
       "sample": "Sample Data",
       "user": "Your Data"
     },
