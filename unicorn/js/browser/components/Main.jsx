@@ -17,9 +17,11 @@
 
 import 'roboto-fontface/css/roboto-fontface.css';
 
+import {File} from 'file-api';
 import provideContext from 'fluxible-addons-react/provideContext';
 import RaisedButton from 'material-ui/lib/raised-button';
 import React from 'react';
+import {remote} from 'electron';
 import ThemeDecorator from 'material-ui/lib/styles/theme-decorator';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
@@ -29,6 +31,9 @@ import FileDetails from '../components/FileDetails';
 import LeftNav from '../components/LeftNav';
 import ModelList from '../components/ModelList';
 import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
+
+const app = remote.app;
+const dialog = remote.require('dialog');
 
 
 /**
@@ -62,9 +67,6 @@ export default class Main extends React.Component {
         float: 'right',
         margin: '0.5rem'
       },
-      input: {
-        display: 'none'
-      },
       models: {
         marginLeft: 256,
         padding: '1rem'
@@ -73,35 +75,22 @@ export default class Main extends React.Component {
   }
 
   /**
-   * Add "+" upload new data/CSV file button onClick event handler
+   * Add/Upload new data/CSV file button onClick event handler
    */
   _onClick() {
-    /* open file upload window */
-    this.refs.fileInput.value = null;
-    this.refs.fileInput.click();
-  }
-
-  _onFileSelect(e) {
-    let selectedFiles = e.dataTransfer ? e.dataTransfer.files : e.target.files;
-    let max = this.props.multiple ? selectedFiles.length : 1;
-    let files = [];
-    let file;
-
-    e.preventDefault();
-
-    for (let i = 0; i < max; i++) {
-      let file = selectedFiles[i];
-      file.preview = URL.createObjectURL(file);
-      files.push(file);
+    let file = {};
+    let selected = dialog.showOpenDialog({
+      title: this._config.get('dialog:file:add:title'),
+      defaultPath: app.getPath('desktop'),
+      filters: [
+        {name: 'CSV', extensions: ['csv']}
+      ],
+      properties: ['openFile']
+    });
+    if (selected && selected.length > 0) {
+      file = new File({path: selected[0]});
+      this.context.executeAction(FileUploadAction, file);
     }
-
-    if (this.props._onFileSelect) {
-      this.props._onFileSelect(files, e);
-    }
-
-    /* The file input is limited to 1 file only, so files.length is always 1 */
-    file = files[0];
-    this.context.executeAction(FileUploadAction, file);
   }
 
   /**
@@ -120,12 +109,6 @@ export default class Main extends React.Component {
             onClick={this._onClick.bind(this)}
             primary={true}
             style={this._styles.add}
-            />
-          <input
-            onChange={this._onFileSelect.bind(this)}
-            ref="fileInput"
-            style={this._styles.input}
-            type="file"
             />
           <FileList/>
         </LeftNav>
