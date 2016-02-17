@@ -21,7 +21,8 @@ import {ACTIONS} from '../lib/Constants';
 /**
  * Show {CreateModelDialog} page
  * @param  {FluxibleContext} actionContext - The action context
-  */
+ * @emits {SHOW_CREATE_MODEL_DIALOG}
+ */
 export default function (actionContext, payload) {
   actionContext.dispatch(ACTIONS.SHOW_CREATE_MODEL_DIALOG, payload);
 }

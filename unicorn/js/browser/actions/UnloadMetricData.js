@@ -18,6 +18,13 @@
 
 import {ACTIONS} from '../lib/Constants';
 
+/**
+ * [description]
+ * @param  {[type]} actionContext [description]
+ * @param  {[type]} metricId      [description]
+ * @emits {UNLOAD_METRIC_DATA}
+ * @return {[type]}               [description]
+ */
 export default function (actionContext, metricId) {
   return actionContext.dispatch(ACTIONS.UNLOAD_METRIC_DATA, metricId);
 }

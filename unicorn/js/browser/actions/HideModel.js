@@ -24,6 +24,7 @@ import UnloadMetricDataAction from './UnloadMetricData';
  * @param  {FluxibleContext} actionContext - The action context
  * @param  {string} modelId - The model to hide.
  *                            Must be in the {@link ModelStore}
+ * @emits {HIDE_MODEL}
  * @returns {Promise} - Fluxible resolves with return value
  * @see http://fluxible.io/api/actions.html#api-code-actions-code-
  */

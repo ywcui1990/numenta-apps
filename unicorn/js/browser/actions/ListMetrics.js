@@ -27,6 +27,8 @@ import {
 
 /**
  * List all available metrics of the given file
+ * @emits {LIST_METRICS}
+ * @emots {LIST_METRICS_FAILURE}
  */
 export default function (actionContext, files) {
   return new Promise((resolve, reject) => {

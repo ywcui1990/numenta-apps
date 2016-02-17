@@ -25,6 +25,8 @@ import Utils from '../../main/Utils';
  * @param  {FluxibleContext} actionContext -
  * @param  {string} filename - The name of the file to delete.
  *                             Must be in the {@link FileStore
+ * @emits {DELETE_FILE}
+ * @emits {DELETE_FILE_FAILED}
  * @return {Promise}
  */
 export default function (actionContext, filename) {

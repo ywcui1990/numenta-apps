@@ -173,6 +173,8 @@ function putMetricsIntoDB(options) {
 
 /**
  * Get uploaded file
+ * @emits {UPLOADED_FILE}
+ * @emits {UPLOADED_FILE_FAILED}
  */
 export default function (actionContext, file) {
   return csp.go(function* () {

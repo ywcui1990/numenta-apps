@@ -15,7 +15,7 @@
 //
 // http://numenta.org/licenses/
 
-import CreateModelAction from '../actions/CreateModel';
+import AddModelAction from '../actions/AddModel';
 import FileUpdateAction from '../actions/FileUpdate';
 import StartModelAction from '../actions/StartModel';
 
@@ -28,6 +28,9 @@ import StartModelAction from '../actions/StartModel';
  * @param {FileStore.File} payload.file  The file to be update
  * @param {FileStore.Metric[]} [payload.metrics]  Optional List of metrics to
  *                                                automatically create models
+ * @emits {FileUpdate}
+ * @emits {AddModel}
+ * @emits {StartModel}
  * @return {Promise}  Promise
  */
 export default function (actionContext, payload) {
@@ -41,7 +44,7 @@ export default function (actionContext, payload) {
           if (metric) {
             metric.visible = true; // make sure to show new "auto-created" model
             promises.push(
-              actionContext.executeAction(CreateModelAction, metric)
+              actionContext.executeAction(AddModelAction, metric)
             );
           }
         }

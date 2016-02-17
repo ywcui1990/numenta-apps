@@ -28,6 +28,13 @@ export default class FileStore extends BaseStore {
     return 'FileStore';
   }
 
+  /**
+   * @listens {DELETE_FILE}
+   * @listens {UPDATE_FILE}
+   * @listens {UPLOADED_FILE}
+   * @listens {LIST_FILES}
+   * @listens {LIST_METRICS}
+   */
   static get handlers() {
     return {
       DELETE_FILE: '_handleDeleteFile',

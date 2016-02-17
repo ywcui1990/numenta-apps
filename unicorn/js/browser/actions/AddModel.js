@@ -15,23 +15,23 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Action used to send metric data to models
+ * Add new model to the {@link ModelStore}
  *
- * @param {FluxibleContext} actionContext - Fluxible action context object
- * @param {Object} payload - Action payload
- * @param {string} payload.modelId - Model to send data
- * @param {Array} payload.data - Data to send in the following format:
- *                             `[timestamp, value]`
+ * @param {FluxibleContext} actionContext -
+ * @param {Object} payload - Action payload object
+ * @param {string} payload.modelId - Model Unique ID.
+ *                                	See {@link Utls.generateModelId}
+ * @param {string} payload.filename - File full path name
+ * @param {string} payload.timestampField - Timestamp field name
+ * @param {string} payload.metric - Metric field name
+ * @emits {ADD_MODEL}
  *
+ * @return {Promise}
  */
 export default function (actionContext, payload) {
-  let modelClient = actionContext.getModelClient();
-  let {modelId, data} = payload;
-  actionContext.dispatch(ACTIONS.SEND_METRIC_DATA, modelId);
-  modelClient.sendData(modelId, data);
+  return actionContext.dispatch(ACTIONS.ADD_MODEL, payload);
 }
