@@ -18,7 +18,7 @@
 
 import {ACTIONS} from '../lib/Constants';
 import {
-  DatabaseGetError, DatabasePutError, FilesystemGetError
+  DatabaseGetError
 } from '../../main/UserError';
 
 
@@ -32,48 +32,19 @@ import {
 export default function (actionContext) {
   return new Promise((resolve, reject) => {
 
-    let databaseClient = actionContext.getDatabaseClient();
-    let fileClient = actionContext.getFileClient();
+    let db = actionContext.getDatabaseClient();
 
-    // load existing files from db, from previous execution
-    databaseClient.getAllFiles((error, files) => {
+    db.getAllFiles((error, files) => {
       if (error) {
         actionContext.dispatch(
           ACTIONS.LIST_FILES_FAILURE,
           new DatabaseGetError(error)
         );
         reject(error);
-      } else if (files.length) {
-        // files in db already, not first run, straight to UI
+      } else {
         actionContext.dispatch(ACTIONS.LIST_FILES, files);
         resolve(files);
-      } else {
-        // no files in db, first run, so load them from fs
-        fileClient.getSampleFiles((error, files) => {
-          if (error) {
-            actionContext.dispatch(
-              ACTIONS.LIST_FILES_FAILURE,
-              new FilesystemGetError(error)
-            );
-            reject(error);
-          } else {
-            // got file list from fs, saving to db for next runs
-            databaseClient.putFileBatch(files, (error) => {
-              if (error) {
-                actionContext.dispatch(
-                  ACTIONS.LIST_FILES_FAILURE,
-                  new DatabasePutError(error)
-                );
-                reject(error);
-              } else {
-                // DB now has Files, on to UI.
-                actionContext.dispatch(ACTIONS.LIST_FILES, files);
-                resolve(files);
-              }
-            }); // databaseClient.putFiles()
-          }
-        }); // fileClient.getSampleFiles()
       }
-    }); // databaseClient.getAllFiles()
-  }); // Promise
+    });
+  });
 }

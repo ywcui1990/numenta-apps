@@ -18,6 +18,8 @@
 
 /**
  * Fluxible Action keys
+ * - Application
+ *  - START_APPLICATION: {@StartApplication}
  * - File
  *  - DELETE_FILE: {@link DeleteFile}
  *  - LIST_FILES: {@link ListFiles}
@@ -65,6 +67,9 @@
  *  - UNLOAD_METRIC_DATA: {@link UnloadMetricData}
  */
 export const ACTIONS = Object.freeze({
+  // Application
+  START_APPLICATION: 'START_APPLICATION',
+  
   // File
   DELETE_FILE: 'DELETE_FILE',
   LIST_FILES: 'LIST_FILES',
