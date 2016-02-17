@@ -18,30 +18,8 @@
 import {ACTIONS} from '../lib/Constants';
 import ListFilesAction from '../actions/ListFiles';
 import ListMetricsAction from '../actions/ListMetrics';
-
-function _promiseLoadSampleFilesFromDisk(fs) {
-  return new Promise((resolve, reject) => {
-    // Load sample files
-    fs.getSampleFiles((error, files) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(files);
-      }
-    });
-  });
-}
-function _promiseSaveFilesIntoDB(db, files) {
-  return new Promise((resolve, reject) => {
-    db.putFileBatch(files, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(files);
-      }
-    });
-  });
-}
+import {promiseLoadSampleFilesFromDisk} from '../lib/Unicorn/FileClient';
+import {promiseSaveFilesIntoDB} from '../lib/Unicorn/DatabaseClient';
 
 /**
  * Start Application performing all data initializations when necessary
@@ -54,8 +32,6 @@ function _promiseSaveFilesIntoDB(db, files) {
 export default function (actionContext) {
   let fs = actionContext.getFileClient();
   let db = actionContext.getDatabaseClient();
-
-
   return new Promise((resolve, reject) => {
     // Allow stores to initialze
     resolve(actionContext.dispatch(ACTIONS.START_APPLICATION));
@@ -69,8 +45,8 @@ export default function (actionContext) {
       return files;
     }
     // On first run, load sample files
-    return _promiseLoadSampleFilesFromDisk(fs)
-      .then((files) => _promiseSaveFilesIntoDB(db, files))
+    return promiseLoadSampleFilesFromDisk(fs)
+      .then((files) => promiseSaveFilesIntoDB(db, files))
       .then((files) => {
         // Update store with sample files
         actionContext.dispatch(ACTIONS.LIST_FILES, files);
