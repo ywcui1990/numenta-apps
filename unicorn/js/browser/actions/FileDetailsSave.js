@@ -26,8 +26,8 @@ import StartModelAction from '../actions/StartModel';
  * @param {FluxibleContext} actionContext FluxibleContext
  * @param {Object} payload Action payload
  * @param {FileStore.File} payload.file  The file to be update
- * @param {FileStore.Metric[]} [payload.metrics]  Optional List of metrics to
- *                                                automatically create models
+ * @param {MetricStore.Metric[]} [payload.metrics]  Optional List of metrics to
+ *                                                  automatically create models
  * @emits {FileUpdate}
  * @emits {AddModel}
  * @emits {StartModel}

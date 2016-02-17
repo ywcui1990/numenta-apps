@@ -41,6 +41,7 @@ import FileStore from './stores/FileStore';
 import StartApplicationAction from './actions/StartApplication';
 import loggerConfig from '../config/logger';
 import MainComponent from './components/Main';
+import MetricStore from './stores/MetricStore';
 import MetricDataStore from './stores/MetricDataStore';
 import ModelClient from './lib/Unicorn/ModelClient';
 import ModelDataStore from './stores/ModelDataStore';
@@ -82,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     component: MainComponent,
     stores: [
       FileStore, ModelStore, ModelDataStore, MetricDataStore, FileDetailsStore,
-      CreateModelDialogStore]
+      MetricStore, CreateModelDialogStore]
   });
 
   // Plug Unicorn plugin giving access to Unicorn clients
