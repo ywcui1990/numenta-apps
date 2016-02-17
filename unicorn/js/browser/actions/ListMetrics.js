@@ -15,105 +15,39 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
-import Utils from '../../main/Utils';
+import {promiseMetricsFromFiles} from '../lib/Unicorn/FileClient';
 import {
-  DatabaseGetError, DatabasePutError, FilesystemGetError
-} from '../../main/UserError';
-
-
-// MAIN
+  promiseMetricsFromDB,
+  promiseSaveMetricsToDB
+} from '../lib/Unicorn/DatabaseClient';
 
 /**
  * List all available metrics of the given file
+ * @param  {FluxibleContext} actionContext - The action context
+ * @param  {Array<string>} files - Array of file names to get metrics
  * @emits {LIST_METRICS}
- * @emots {LIST_METRICS_FAILURE}
+ * @emits {LIST_METRICS_FAILURE}
+ * @returns {Promise} - A Promise to be resolved with return value
  */
 export default function (actionContext, files) {
+  let db = actionContext.getDatabaseClient();
+  let fs = actionContext.getFileClient();
+
   return new Promise((resolve, reject) => {
-
-    let databaseClient = actionContext.getDatabaseClient();
-    let fileClient = actionContext.getFileClient();
-    let log = actionContext.getLoggerClient();
-    let payload = [];
-
-    log.debug('load existing metrics from db, from previous runs');
-    databaseClient.getAllMetrics((error, metrics) => {
-      if (error) {
-        actionContext.dispatch(
-          ACTIONS.LIST_METRICS_FAILURE,
-          new DatabaseGetError(error)
-        );
-        reject(error);
-      } else if (metrics.length) {
-        log.debug('metrics in db already, not first run, straight to UI.');
-        files.forEach((file) => {
-          payload.push({
-            filename: file.filename,
-            metrics: metrics.filter((value) => {
-              return value['file_uid'] === Utils.generateFileId(file.filename);
-            })
-          });
-        });
-
-        log.debug('DB already had Metrics, now to UI');
-        actionContext.dispatch(ACTIONS.LIST_METRICS, payload);
-        resolve(payload);
-      } else {
-        log.debug('no metrics in db, is first run, so load them from fs');
-        let fieldsFileMap = {};
-        let fieldsList = [];
-        let fileCount = 0;
-
-        files.forEach((file) => {
-          fileClient.getFields(file.filename, (error, fields) => {
-            if (error) {
-              console.error(error);
-              actionContext.dispatch(
-                ACTIONS.LIST_METRICS_FAILURE,
-                new FilesystemGetError(error)
-              );
-              reject(error);
-            } else {
-              fieldsFileMap[file.filename] = fields;
-              fieldsList = fieldsList.concat(fields);
-
-              // @TODO better async flow than "poor persons parallel"
-              fileCount++;
-              if (fileCount >= files.length) {
-
-                log.debug('got files from fs, saving to db for next runs');
-                databaseClient.putMetricBatch(fieldsList, (error) => {
-                  if (error) {
-                    console.error(error);
-                    actionContext.dispatch(
-                      ACTIONS.LIST_METRICS_FAILURE,
-                      new DatabasePutError(error)
-                    );
-                    reject(error);
-                  } else {
-                    log.debug('DB has Metrics, now to UI');
-                    Object.keys(fieldsFileMap).forEach((file) => {
-                      payload.push({
-                        filename: file,
-                        metrics: fieldsFileMap[file]
-                      });
-                    });
-                    actionContext.dispatch(
-                      ACTIONS.LIST_METRICS,
-                      payload
-                    );
-                    resolve(payload);
-                  }
-                }); // databaseClient.putMetrics()
-
-              } // fileCount
-            }
-          }); // fileClient.getFields()
-        }); // files.forEach()
-      }
-    }); // databaseClient.getMetrics()
-
-  }); // Promise
+    return promiseMetricsFromDB(db)
+      .then((metrics) => {
+        if (metrics.length > 0) {
+          return metrics;
+        }
+        return promiseMetricsFromFiles(fs, files)
+          .then((metrics) => {
+            return promiseSaveMetricsToDB(db, metrics);
+          }, reject);
+      }, reject)
+      .then((metrics) => {
+        actionContext.dispatch(ACTIONS.LIST_METRICS, metrics);
+        resolve(metrics);
+      }, reject);
+  })
 }
