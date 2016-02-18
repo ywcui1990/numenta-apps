@@ -96,12 +96,14 @@ export default class ModelData extends React.Component {
     let metricData = metricDataStore.getData(this.props.modelId);
     let {anomaly, options} = this._chartOptions;
     let {axes, labels, series} = this._chartOptions.value;
+    let metaData = {length: {metric: 0, model: 0}};
     let data = [];
     let modelData, modelDataStore;
 
     if (metricData.length) {
       // Copy raw data and timestamp
       data = Array.from(metricData);
+      metaData.length.metric = metricData.length;
 
       // Get model data
       modelDataStore = this.context.getStore(ModelDataStore);
@@ -109,6 +111,7 @@ export default class ModelData extends React.Component {
       if (modelData && modelData.data.length > 0) {
         // Initialize Anomaly values to NaN
         data.forEach((item) => item[2] = Number.NaN);
+        metaData.length.model = modelData.data.length;
 
         // Update anomaly values
         modelData.data.forEach((item) => {
@@ -128,7 +131,7 @@ export default class ModelData extends React.Component {
     } // if metricData
 
     return (
-      <Chart data={data} options={options} />
+      <Chart data={data} metaData={metaData} options={options} />
     );
   }
 }

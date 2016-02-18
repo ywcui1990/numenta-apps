@@ -34,6 +34,7 @@ export default class Chart extends React.Component {
   static get propTypes() {
     return {
       data: React.PropTypes.array.isRequired,
+      metaData: React.PropTypes.object,
       options: React.PropTypes.object,
       zDepth: React.PropTypes.number
     };
@@ -42,6 +43,7 @@ export default class Chart extends React.Component {
   static get defaultProps() {
     return {
       data: [],
+      metaData: {},
       options: {},
       zDepth: 1
     };
@@ -125,7 +127,7 @@ export default class Chart extends React.Component {
     this._chartBusy = true;
 
     // determine each value datapoint time unit and chart width based on that
-    this._chartRangeWidth = unit * this._displayPointCount; // # to display
+    this._chartRangeWidth = unit * this._displayPointCount;
     this._chartRange = [first, first + this._chartRangeWidth]; // float left
 
     // init chart
@@ -155,33 +157,30 @@ export default class Chart extends React.Component {
    * DyGrpahs Chart Update and Re-Render
    */
   _chartUpdate() {
-    let options = {};
-    // let graphXmax = null;
-    // let first, second, unit;
+    let {data, options} = this.props;
+    let anomalyCount = Math.abs(this.props.metaData.length.model - 1);
+    let first = new Date(data[0][0]).getTime();
+    let rangeMax, rangeMin;
 
-    // determine each datapoint time unit and chart width based on that
-    /*
-    if (this._chartRangeWidth === null) {
-      first = this._dygraph.getValue(0, 0);
-      second = this._dygraph.getValue(1, 0);
-      if (first !== null && second !== null) {
-        unit = second - first; // each datapoint
-        this._chartRangeWidth = unit * this._displayPointCount; // # to display
+    if (anomalyCount % 2 === 0) {
+      return; // filter out half of calls to redraw update
+    }
+
+    // if range scroll is locked, we're far left, so stay far left on chart
+    if (/* this._chartScrollLock && */ !this._chartBusy) {
+      rangeMax = new Date(data[anomalyCount][0]).getTime();
+      rangeMin = rangeMax - this._chartRangeWidth;
+      if (rangeMin < first) {
+        rangeMin = first;
+        rangeMax = rangeMin + this._chartRangeWidth;
       }
+      this._chartRange = [rangeMin, rangeMax];
     }
-
-    // if range scroll is locked, we're far right, so stay far right on chart
-    if (this._chartScrollLock && !this._chartBusy) {
-      graphXmax = this._dygraph.xAxisExtremes()[1];
-      this._chartRange = [(graphXmax - this._chartRangeWidth), graphXmax];
-    }
-    */
 
     // update chart
     this._chartBusy = true;
-    // options.dateWindow = this._chartRange; // fixed width
-    options.file = this.props.data; // new data
-    Object.assign(options, this.props.options);
+    options.dateWindow = this._chartRange; // fixed width
+    options.file = data; // new data
     this._dygraph.updateOptions(options);
     this._chartBusy = false;
   }
@@ -251,7 +250,7 @@ export default class Chart extends React.Component {
   render() {
     return (
       <Paper ref="chart" style={this._styles.root} zDepth={this.props.zDepth}>
-        <br/>This Metric does not yet have a Model.
+        <br/>Loading data...
       </Paper>
     );
   }
