@@ -31,7 +31,8 @@ import MetricDataStore from '../stores/MetricDataStore';
 export default class ModelData extends React.Component {
   static get contextTypes() {
     return {
-      getStore: React.PropTypes.func
+      getStore: React.PropTypes.func,
+      muiTheme: React.PropTypes.object
     };
   }
 
@@ -43,37 +44,68 @@ export default class ModelData extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-  }
+
+    let muiTheme = this.context.muiTheme;
+
+    this._chartOptions = {
+      // dygraphs global chart options
+      options: {
+        showRangeSelector: true
+      },
+
+      // main value data chart line
+      value: {
+        labels: ['Time', 'Value'],
+        axes: {
+          x: {drawGrid: false},
+          y: {drawGrid: false}
+        },
+        series: {
+          Value: {
+            strokeWidth: 2,
+            color: muiTheme.rawTheme.palette.primary2Color
+          }
+        }
+      },
+
+      // anomaly value chart line
+      anomaly: {
+        labels: ['Anomaly'],
+        axes: {
+          y2: {
+            axisLabelWidth: 0,
+            drawGrid: false,
+            valueRange: [0, 4]
+          }
+        },
+        series: {
+          Anomaly: {
+            axis: 'y2',
+            color: 'red',
+            fillGraph: true,
+            stepPlot: true,
+            strokeWidth: 2
+          }
+        }
+      }
+    }; // chartOptions
+  } // constructor
 
   render() {
-    let options = {};
-    let data = [];
     let metricDataStore = this.context.getStore(MetricDataStore);
     let metricData = metricDataStore.getData(this.props.modelId);
+    let {anomaly, options} = this._chartOptions;
+    let {axes, labels, series} = this._chartOptions.value;
+    let data = [];
+    let modelData, modelDataStore;
+
     if (metricData.length) {
       // Copy raw data and timestamp
       data = Array.from(metricData);
 
-      // Format raw data series
-      let labels = ['Time', 'Value'];
-      let series = {
-        Value: {
-          strokeWidth: 2,
-          color: 'blue'
-        }
-      };
-      let axes = {
-        x: {
-          drawGrid: false
-        },
-        y: {
-          drawGrid: false
-        }
-      };
-
       // Get model data
-      let modelDataStore = this.context.getStore(ModelDataStore);
-      let modelData = modelDataStore.getData(this.props.modelId);
+      modelDataStore = this.context.getStore(ModelDataStore);
+      modelData = modelDataStore.getData(this.props.modelId);
       if (modelData && modelData.data.length > 0) {
         // Initialize Anomaly values to NaN
         data.forEach((item) => item[2] = Number.NaN);
@@ -87,32 +119,16 @@ export default class ModelData extends React.Component {
         });
 
         // Format anomaly series
-        labels.push('Anomaly');
-        series['Anomaly'] = {
-          strokeWidth: 2,
-          color: 'red',
-          fillGraph: true,
-          stepPlot: true,
-          axis: 'y2'
-        };
-        axes['y2'] = {
-          valueRange: [0, 4],
-          axisLabelWidth: 0,
-          drawGrid: false
-        };
+        labels = labels.concat(anomaly.labels);
+        Object.assign(axes, anomaly.axes);
+        Object.assign(series, anomaly.series);
       }
-      options = {
-        labels,
-        series,
-        axes,
-        showRangeSelector: true
-      };
-    }
+
+      Object.assign(options, {axes, labels, series});
+    } // if metricData
+
     return (
-      <Chart
-        data={data}
-        options={options}
-        />
+      <Chart data={data} options={options} />
     );
   }
 }

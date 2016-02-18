@@ -13,6 +13,9 @@
       "stop": "Stop Model"
     }
   },
+  "chart": {
+    "points": 100
+  },
   "dialog": {
     "file": {
       "add": {

@@ -73,6 +73,7 @@ export default class Model extends React.Component {
         width: '100%'
       },
       title: {
+        marginTop: -3,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
@@ -80,8 +81,8 @@ export default class Model extends React.Component {
       },
       actions: {
         textAlign: 'right',
-        marginRight: '2rem',
-        marginTop: '-5rem'
+        marginRight: 0,
+        marginTop: '-5.5rem'
       }
     };
 
@@ -217,12 +218,12 @@ export default class Model extends React.Component {
     return (
       <Card initiallyExpanded={true} style={this._styles.root}>
         <CardHeader
-          showExpandableButton={true}
+          showExpandableButton={false}
           subtitle={<div style={this._styles.title}>{filename}</div>}
           title={<div style={this._styles.title}>{title}</div>}
           titleColor={titleColor}
           />
-        <CardText expandable={true}>
+        <CardText expandable={false}>
           {actions}
           <ModelData modelId={modelId} />
         </CardText>
