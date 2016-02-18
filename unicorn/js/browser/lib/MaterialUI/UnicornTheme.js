@@ -26,8 +26,6 @@ import zIndex from 'material-ui/lib/styles/zIndex';
  *
  */
 export default {
-
-  // MUI standard
   fontFamily: 'Roboto, sans-serif',
   spacing: Spacing,
   zIndex,
@@ -43,10 +41,11 @@ export default {
     alternateTextColor: Colors.white,
     canvasColor: Colors.white,
     borderColor: Colors.grey300,
-    disabledColor: Colors.grey300 // disabled light gray
+    disabledColor: Colors.grey300, // disabled light gray
+    dangerColor: '#cb0000',  // Numenta Anomaly Red
+    warnColor: '#d6ce03',  // Numenta Anomaly Yellow
+    safeColor: '#0f8300'  // Numenta Anomaly Green
   },
-
-  // Custom augmentation
   font: {
     weight: {
       light: Typography.fontWeightLight,
@@ -54,5 +53,4 @@ export default {
       medium: Typography.fontWeightMedium
     }
   }
-
 };

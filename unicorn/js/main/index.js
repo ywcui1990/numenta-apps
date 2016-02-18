@@ -26,11 +26,12 @@ import MainMenu from './MainMenu';
 import ModelServiceIPC from './ModelServiceIPC';
 
 const config = new Config();
+const DEV = config.get('NODE_ENV') !== 'production';
 const log = bunyan.createLogger({
   level: 'debug',  // @TODO higher for Production
   name: config.get('title')
 });
-const initialPage = path.join(__dirname, '..', 'browser', 'index.html');
+const initialPage = path.join(__dirname, config.get('browser:entry'));
 
 let mainWindow = null; // global ref to keep window object from JS GC
 let modelService;
@@ -73,7 +74,9 @@ app.on('ready', () => {
   });
   mainWindow.loadURL(`file://${initialPage}`);
   mainWindow.center();
-  mainWindow.openDevTools();
+  if (DEV) {
+    // mainWindow.openDevTools();
+  }
 
   // browser window events
   mainWindow.on('closed', () => {

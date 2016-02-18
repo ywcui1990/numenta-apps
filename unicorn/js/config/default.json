@@ -2,6 +2,9 @@
   "title": "HTM Studio",
   "desc": "Cross-platform Desktop HTM Example Application",
   "company": "Numenta",
+  "browser": {
+    "entry": "../browser/index.html"
+  },
   "button": {
     "add": "Add File",
     "cancel": "Cancel",
