@@ -42,11 +42,10 @@ ENV PYTHONPATH=/opt/numenta/nupic.research:${PYTHONPATH}
 
 EXPOSE 80
 
+COPY . /opt/numenta/imbu
 WORKDIR /opt/numenta/imbu
 
 # Install python packages
-COPY requirements.txt /opt/numenta/imbu/requirements.txt
-COPY setup.py /opt/numenta/imbu/setup.py
 RUN python setup.py develop
 
 # Install javascript packages
@@ -54,7 +53,6 @@ COPY package.json /opt/numenta/imbu/package.json
 RUN npm install
 
 # Build javascript app
-COPY . /opt/numenta/imbu
 RUN npm run build
 
 # Setup persistent model cache
