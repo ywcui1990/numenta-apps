@@ -18,20 +18,23 @@
 
 import {ACTIONS} from '../lib/Constants';
 
-
 export default function (actionContext, payload) {
-  let {command, modelId, error} = payload;
 
-  if (command === 'start') {
+  console.log('DEBUG: ParamFinderErrorAction', payload);
+  let {command, metricId, error} = payload;
+
+
+  if (command === 'create') {
     return actionContext.dispatch(ACTIONS.START_PARAM_FINDER_FAILED, {
-      modelId, error
+      metricId, error
     });
-  } else if (command === 'stop') {
-    return actionContext.dispatch(ACTIONS.STOP_MODEL_FAILED, {
-      modelId, error
+  } else if (command === 'remove') {
+    return actionContext.dispatch(ACTIONS.STOP_PARAM_FINDER_FAILED, {
+      metricId, error
     });
   }
-  return actionContext.dispatch(ACTIONS.UNKNOWN_MODEL_FAILURE, {
-    modelId, error
+
+  return actionContext.dispatch(ACTIONS.UNKNOWN_PARAM_FINDER_FAILURE, {
+    metricId, error
   });
 }

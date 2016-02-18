@@ -24,10 +24,11 @@ import {ACTIONS} from '../lib/Constants';
  *
  * @param {FluxibleContext} actionContext - Fluxible action context object
  * @param {Object} payload - The action payload
- * @param {String} payload.modelId - Required model id
- * @param {Object[]} payload.data - New data to be appended
+ * @param {String} payload.metricId - Required metric id
+ * @param {Object[]} payload.paramFinderResults - param finder results
  */
 export default function (actionContext, payload) {
-  console.log('DEBUG: ReceiveModelData', payload);
-  actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, payload);
+  // Todo: store param finder results here
+  console.log('DEBUG: ReceiveParamFinderDataAction', payload);
+  actionContext.dispatch(ACTIONS.RECEIVE_PARAM_FINDER_DATA, payload);
 }

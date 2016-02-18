@@ -20,16 +20,18 @@
 
 import {ipcRenderer as ipc} from 'electron';
 
-import ParamFinderErrorAction from '../../actions/ParamFinderError';
-import StartParamFinderAction from '../../actions/StartParamFinder';
-
 const PARAM_FINDER_IPC_CHANNEL = 'PARAM_FINDER_IPC_CHANNEL';
+
+import ParamFinderErrorAction from '../../actions/ParamFinderError';
+import StopParamFinderAction from '../../actions/StopParamFinder';
+import ReceiveParamFinderData from '../../actions/ReceiveParamFinderData'
 
 /**
  * Unicorn: ParamFinderClient - Talk to a ParamFinderService over IPC, gaining
- *  access to the Backend NuPIC Param Finder. Connects via IPC adapter.
+ *  access to the Backend NuPIC Param Finder Runner. Connects via IPC adapter.
  */
 export default class ParamFinderClient {
+
   constructor() {
     this._context = null;
   }
@@ -39,26 +41,66 @@ export default class ParamFinderClient {
     ipc.on(PARAM_FINDER_IPC_CHANNEL, this._handleIPCEvent.bind(this));
   }
 
-  startParamFinder(params) {
+  createParamFinder(metricId, params) {
     ipc.send(PARAM_FINDER_IPC_CHANNEL, {
-      command: 'start',
+      metricId,
+      command: 'create',
       params: JSON.stringify(params)
     });
   }
 
-  _handleIPCEvent(event, modelId, command, payload) {
+  removeParamFinder(metricId) {
+    ipc.send(PARAM_FINDER_IPC_CHANNEL, {
+      metricId,
+      command: 'remove'
+    });
+  }
+
+  _handleIPCEvent(event, metricId, command, payload) {
+    console.log('DEBUG: ParamFinderClient:_handleIPCEvent', metricId, command, payload);
     if (this._context) {
       if (command === 'data') {
-        setTimeout(() => this._handleModelData(modelId, payload));
+        setTimeout(() => this._handleParamFinderData(metricId, payload));
       } else if (command === 'error') {
         let {error, ipcevent} = payload;
-        setTimeout(() => this._handleIPCError(modelId, error, ipcevent));
+        console.log('DEBUG: ParamFinderClient:_handleIPCEvent:error', error, ipcevent);
+        setTimeout(() => this._handleIPCError(metricId, error, ipcevent));
       } else if (command === 'close') {
-        setTimeout(() => this._handleCloseModel(modelId ,payload));
+        setTimeout(() => this._handleCloseParamFinder(metricId ,payload));
       } else {
         console.error(`Unknown command: ${command} ${payload}`); // eslint-disable-line
       }
     }
+  }
+
+  _handleIPCError(error, ipcevent) {
+    let command, metricId;
+
+    if (ipcevent) {
+      if ('command' in ipcevent) {
+        command = ipcevent.command;
+      }
+      if ('metricId' in ipcevent) {
+        metricId = ipcevent.metricId;
+      }
+    }
+    this._context.executeAction(ParamFinderErrorAction, {command, metricId, error});
+  }
+
+  _handleCloseParamFinder(metricId, error) {
+    if (error !== 0) {
+      this._context.executeAction(ParamFinderErrorAction, {
+        metricId,
+        command: 'close',
+        error: `Error closing param finder ${error}`
+      });
+    } else {
+      this._context.executeAction(StopParamFinderAction, metricId);
+    }
+  }
+
+  _handleParamFinderData(metricId, paramFinderResults) {
+    this._context.executeAction(ReceiveParamFinderData, {metricId, paramFinderResults});
   }
 
 }

@@ -36,7 +36,7 @@ import ConfigClient from './lib/Unicorn/ConfigClient';
 import DatabaseClient from './lib/Unicorn/DatabaseClient';
 import FileClient from './lib/Unicorn/FileClient';
 import FileDetailsStore from './stores/FileDetailsStore';
-import CreateModelDialogStore from './stores/MetricStore';
+import MetricStore from './stores/MetricStore';
 import FileStore from './stores/FileStore';
 import ListFilesAction from './actions/ListFiles';
 import ListMetricsAction from './actions/ListMetrics';
@@ -44,6 +44,7 @@ import loggerConfig from '../config/logger';
 import MainComponent from './components/Main';
 import MetricDataStore from './stores/MetricDataStore';
 import ModelClient from './lib/Unicorn/ModelClient';
+import ParamFinderClient from './lib/Unicorn/ParamFinderClient';
 import ModelDataStore from './stores/ModelDataStore';
 import ModelStore from './stores/ModelStore';
 import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
@@ -56,6 +57,7 @@ const logger = bunyan.createLogger(loggerConfig);
 let databaseClient = new DatabaseClient();
 let fileClient = new FileClient();
 let modelClient = new ModelClient();
+let paramFinderClient = new ParamFinderClient();
 
 
 /**
@@ -83,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     component: MainComponent,
     stores: [
       FileStore, ModelStore, ModelDataStore, MetricDataStore, FileDetailsStore,
-      CreateModelDialogStore]
+      MetricStore]
   });
 
   // Plug Unicorn plugin giving access to Unicorn clients
@@ -95,11 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
     loggerClient: logger,
     databaseClient,
     fileClient,
-    modelClient
+    modelClient,
+    paramFinderClient
   });
 
   // Start listening for model events
   modelClient.start(context.getActionContext());
+
+  console.log('DEBUG: app.js - start paramFinderClient');
+  paramFinderClient.start(context.getActionContext());
 
   // app exit handler
   window.onbeforeunload = (event) => {

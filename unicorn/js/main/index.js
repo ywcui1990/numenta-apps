@@ -26,6 +26,7 @@ import path from 'path';
 
 import Config from './ConfigService';
 import ModelServiceIPC from './ModelServiceIPC';
+import ParamFinderServiceIPC from './ParamFinderServiceIPC';
 
 const config = new Config();
 const log = bunyan.createLogger({
@@ -36,7 +37,7 @@ const initialPage = path.join(__dirname, '..', 'browser', 'index.html');
 
 let mainWindow = null; // global ref to keep window object from JS GC
 let modelService = null;
-
+let paramFinderService = null;
 
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
@@ -93,4 +94,8 @@ app.on('ready', () => {
   // Handle IPC commuication for the ModelService
   modelService = new ModelServiceIPC();
   modelService.start(mainWindow.webContents);
+
+  // Handle IPC commuication for the ModelService
+  paramFinderService = new ParamFinderServiceIPC();
+  paramFinderService.start(mainWindow.webContents);
 });

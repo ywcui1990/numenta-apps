@@ -21,11 +21,18 @@ import {ACTIONS} from '../lib/Constants';
 /**
  * Start param finder
  * @param {FluxibleContext} actionContext - Fluxible action context object
- * @returns {Promise} - Fluxible resolves with return value
- * @see http://fluxible.io/api/actions.html#api-code-actions-code-
+ * @param payload
+ * @param payload.metricId: Id of the metric against which the param finder will be run
+ * @param payload.inputOpts: input options to start the param finder.
  */
-export default function (actionContext) {
-  let modelClient = actionContext.getParamFinderClient();
-  modelClient.removeModel();
-  return actionContext.dispatch(ACTIONS.START_PARAM_FINDER);
+export default function (actionContext, payload) {
+
+  // TODO: store input Opts here
+
+  console.log('DEBUG: StartParamFinder', payload);
+  let paramFinderClient = actionContext.getParamFinderClient();
+  let metricId = payload.metricId;
+  let inputOpts = payload.inputOpts;
+  paramFinderClient.createParamFinder(metricId, inputOpts);
+  actionContext.dispatch(ACTIONS.START_PARAM_FINDER, payload);
 }
