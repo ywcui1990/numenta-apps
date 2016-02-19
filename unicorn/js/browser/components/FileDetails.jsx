@@ -15,7 +15,8 @@
 //
 // http://numenta.org/licenses/
 
-// import Checkbox from 'material-ui/lib/checkbox'; //  FIXME: UNI-323
+// import Checkbox from 'material-ui/lib/checkbox'; // @TODO @FIXME: UNI-323
+
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
@@ -31,11 +32,11 @@ import TableRow from 'material-ui/lib/table/table-row';
 import TableRowColumn from 'material-ui/lib/table/table-row-column';
 import TextField from 'material-ui/lib/text-field';
 
-import FileStore from '../stores/FileStore';
-import MetricStore from '../stores/MetricStore';
 import FileDetailsStore from '../stores/FileDetailsStore';
+import FileStore from '../stores/FileStore';
 import FileUpdateAction from '../actions/FileUpdate';
 import HideFileDetailsAction from '../actions/HideFileDetails';
+import MetricStore from '../stores/MetricStore';
 import Utils from '../../main/Utils';
 
 
@@ -184,12 +185,13 @@ export default class FileDetails extends React.Component {
 
     if (this.props.newFile && timestampField) {
       items = fileMetrics.map((metric) => {
-        // let checked; FIXME: UNI-323
+        // let checked; @TODO @FIXME: UNI-323
         let modelId;
 
         if (metric.type !== 'date') {
           modelId = Utils.generateMetricId(file.filename, metric.name);
-          // FIXME: UNI-323 Disable multiple model creation until new "multiple models creation" flow is implemented
+          // @TODO @FIXME: UNI-323 Disable multiple model creation until new
+          //  "multiple models creation" flow is implemented.
           // checked = metrics.get(modelId) ? true : false; // eslint-disable-line
           // let metrics = this.state.metrics;
           /*
@@ -219,7 +221,7 @@ export default class FileDetails extends React.Component {
         }
       });
       return (
-        // FIXME: UNI-323
+        // @TODO @FIXME: UNI-323
         // <List subheader="Create Models" height="50px">
         <List subheader="Metrics" height="50px">
           {items}

@@ -21,22 +21,19 @@ import {ACTIONS} from '../lib/Constants';
 /**
  * Start model
  * @param {FluxibleContext} actionContext - Fluxible action context object
- * @param payload
- * @param payload.metricId: Id of the metric against which the model will be run
- * @param payload.inputOpts: input options to start the model
- * @param payload.aggOpts: aggregation options
- * @param payload.modelOpts: model params options
+ * @param {Object} payload -
+ * @param {Object} payload.aggOpts - aggregation options
+ * @param {Object} payload.inputOpts - input options to start the model
+ * @param {String} payload.metricId - ID of the metric to start model for
+ * @param {Object} payload.modelOpts - model params options
  */
 export default function (actionContext, payload) {
-
-  // TODO: store input Opts here
-
+  // @TODO: store input Opts here
   console.log('DEBUG: StartModel', payload);
+
   let modelClient = actionContext.getModelClient();
-  let metricId = payload.metricId;
-  let inputOpts = payload.inputOpts;
-  let aggOpts = payload.aggOpts;
-  let modelOpts = payload.modelOpts;
+  let {aggOpts, inputOpts, metricId, modelOpts} = payload;
+
   modelClient.createModel(metricId, inputOpts, aggOpts, modelOpts);
   actionContext.dispatch(ACTIONS.START_MODEL, payload);
 }

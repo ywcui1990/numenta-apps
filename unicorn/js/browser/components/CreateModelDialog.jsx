@@ -15,15 +15,17 @@
 //
 // http://numenta.org/licenses/
 
-import path from 'path';
-import React from 'react';
-import FlatButton from 'material-ui/lib/flat-button';
-import Dialog from 'material-ui/lib/dialog';
 import CircularProgress from 'material-ui/lib/circular-progress';
 import connectToStores from 'fluxible-addons-react/connectToStores';
-import MetricStore from '../stores/MetricStore';
+import Dialog from 'material-ui/lib/dialog';
+import FlatButton from 'material-ui/lib/flat-button';
+import path from 'path';
+import React from 'react';
+
 import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
+import MetricStore from '../stores/MetricStore';
 import StartModelAction from '../actions/StartModel';
+
 
 @connectToStores([MetricStore], (context) => ({
   fileName: context.getStore(MetricStore).fileName,
@@ -73,7 +75,6 @@ export default class CreateModelDialog extends React.Component {
   }
 
   render() {
-
     let body = null;
     let actions = [];
     let title = `Create model for ${this.state.metricName}
@@ -94,8 +95,8 @@ export default class CreateModelDialog extends React.Component {
       if (paramFinderResults) {
 
         let modelPayload = {
-          metricId: metricId,
-          inputOpts: inputOpts,
+          metricId,
+          inputOpts,
           aggOpts: paramFinderResults.aggInfo,
           modelOpts: paramFinderResults.modelInfo
         };
@@ -131,4 +132,5 @@ export default class CreateModelDialog extends React.Component {
       </Dialog>
     );
   }
+
 }

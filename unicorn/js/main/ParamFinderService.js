@@ -69,6 +69,7 @@ export class ParamFinderService extends EventEmitter {
 
   /**
    * Returns the number of slots available to run new param finders.
+   * @param {String} metricId - ID string for Metric to use
    * @return {number} - Maximum available number of param finders allowed to run at the same time for one metric
    */
   availableSlots(metricId) {

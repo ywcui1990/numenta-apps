@@ -35,7 +35,8 @@ import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
 const app = remote.app;
 const dialog = remote.require('dialog');
 
-// TODO: remove (DEBUG)
+
+// @TODO: remove (DEBUG)
 const INPUT_OPTS = {
   csv: '/Users/mleborgne/_git/numenta-apps/unicorn/js/samples/gym.csv',
   datetimeFormat: '%m-%d-%y %H:%M',
@@ -43,7 +44,6 @@ const INPUT_OPTS = {
   rowOffset: 4,
   valueIndex: 1
 };
-
 
 const AGG_OPTS = {
   windowSize: 14400,
@@ -189,7 +189,6 @@ export default class Main extends React.Component {
     };
   }
 
-
   constructor(props, context) {
     super(props, context);
 
@@ -212,7 +211,6 @@ export default class Main extends React.Component {
     };
   }
 
-
   _onClickDebug() {
     let pfClient = this.context.getParamFinderClient();
     console.log('DEBUG: Main.jsx:paramFinderInput', INPUT_OPTS);
@@ -220,7 +218,8 @@ export default class Main extends React.Component {
 
     let modelClient = this.context.getModelClient();
     console.log('DEBUG: Main.jsx:InfoOpts', INPUT_OPTS, AGG_OPTS, MODEL_OPTS);
-    modelClient.createModel('!Metric!f0ac44078ffbe4ce!0b8fd68132e02146', INPUT_OPTS, AGG_OPTS, MODEL_OPTS);
+    modelClient.createModel('!Metric!f0ac44078ffbe4ce!0b8fd68132e02146',
+                            INPUT_OPTS, AGG_OPTS, MODEL_OPTS);
   }
 
   /**
