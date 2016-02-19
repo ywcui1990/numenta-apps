@@ -28,8 +28,21 @@ export default class MetricStore extends BaseStore {
     return {
       SHOW_CREATE_MODEL_DIALOG: '_handleShowCreateModelDialog',
       HIDE_CREATE_MODEL_DIALOG: '_handleHideCreateModelDialog',
-      UPDATE_PARAM_FINDER_RESULTS: '_handleUpdateParamFinderResults'
+      START_PARAM_FINDER: '_handleStartParamFinder',
+      RECEIVE_PARAM_FINDER_DATA: '_handleReceiveParamFinderData'
     }
+  }
+
+  _reset() {
+
+    // CreateModelDialog Store
+    this.fileName = null;
+    this.metricName = null;
+    this.open = false;
+
+    // MetricsStore
+    this.paramFinderResults = new Map();
+    this.inputOpts = new Map();
   }
 
   constructor(dispatcher) {
@@ -37,8 +50,16 @@ export default class MetricStore extends BaseStore {
     this._reset();
   }
 
+  _handleStartParamFinder(payload) {
+    console.log('DEBUG: MetricStore:_handleStartParamFinder:payload', payload);
+    let metricId = payload.metricId;
+    let inputOpts = payload.inputOpts;
+    this.inputOpts.set(metricId, inputOpts);
+    console.log('DEBUG: MetricStore:_handleStartParamFinder:this.inputOpts', this.inputOpts);
+    this.emitChange();
+  }
+
   _handleShowCreateModelDialog(payload) {
-    console.log(payload);
     this.fileName = payload.fileName;
     this.metricName = payload.metricName;
     this.open = true;
@@ -50,15 +71,11 @@ export default class MetricStore extends BaseStore {
     this.emitChange();
   }
 
-  _handleUpdateParamFinderResults(paramFinderResults) {
-    this.paramFinderResults = paramFinderResults;
+  _handleReceiveParamFinderData(payload) {
+    let paramFinderResults = JSON.parse(payload.paramFinderResults);
+    let metricId = payload.metricId;
+    this.paramFinderResults.set(metricId, paramFinderResults);
+    console.log('DEBUG: MetricStore', this.paramFinderResults);
     this.emitChange();
-  }
-
-  _reset() {
-    this.paramFinderResults = null;
-    this.fileName = null;
-    this.metricName = null;
-    this.open = false;
   }
 }

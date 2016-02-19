@@ -32,10 +32,12 @@ import DeleteModelAction from '../actions/DeleteModel';
 import ExportModelResultsAction from '../actions/ExportModelResults';
 import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
+import FileStore from '../stores/FileStore';
 import StopModelAction from '../actions/StopModel';
 import CreateModelDialog from '../components/CreateModelDialog'
-import ShowCreateModelDialog from '../actions/ShowCreateModelDialog';
-
+import ShowCreateModelDialogAction from '../actions/ShowCreateModelDialog';
+import StartParamFinderAction from '../actions/StartParamFinder';
+const MOMENTS_TO_DATETIME = require('../../config/momentjs_to_datetime_strptime.json');
 const dialog = remote.require('dialog');
 
 const DIALOG_STRINGS = {
@@ -50,7 +52,9 @@ const DIALOG_STRINGS = {
 /**
  * Model component, contains Chart details, actions, and Chart Graph itself.
  */
-@connectToStores([ModelStore], () => ({}))
+@connectToStores([ModelStore, FileStore], (context) => ({
+  files: context.getStore(FileStore).getFiles()
+}))
 export default class Model extends React.Component {
 
   static get contextTypes() {
@@ -125,10 +129,25 @@ export default class Model extends React.Component {
     this.context.executeAction(StopModelAction, modelId);
   }
 
-  _createModel(modelId) {
-    this.context.executeAction(ShowCreateModelDialog, {
-      fileName: this.state.filename,
-      metricName: this.state.metric
+  _createModel(metricName, csvPath, rowOffset, timestampIndex, valueIndex,
+               datetimeFormat) {
+
+    let inputOpts = {
+      csv: csvPath,
+      rowOffset: rowOffset,
+      timestampIndex: timestampIndex,
+      valueIndex: valueIndex,
+      datetimeFormat: datetimeFormat
+    };
+
+    this.context.executeAction(ShowCreateModelDialogAction, {
+      fileName: path.basename(csvPath),
+      metricName: metricName
+    });
+
+    this.context.executeAction(StartParamFinderAction, {
+      metricId: metricName,
+      inputOpts: inputOpts
     })
   }
 
@@ -159,7 +178,7 @@ export default class Model extends React.Component {
   }
 
   render() {
-    let titleColor;
+    let titleColor, valueIndex, timestampIndex, metric;
     let model = this.state;
     let modelId = model.modelId;
     let filename = path.basename(model.filename);
@@ -168,6 +187,41 @@ export default class Model extends React.Component {
     let hasModelRun = (model && ('ran' in model) && model.ran);
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let dialogOpen = false;
+
+    let file = this.props.files.find((file) => {
+      return file.name === path.basename(this.state.filename);
+    });
+    let tsFormat = file.timestampFormat;
+
+    let datetimeFormatCategory = MOMENTS_TO_DATETIME.find((category) => {
+      return category.mappings[tsFormat];
+    });
+    let datetimeFormat = datetimeFormatCategory.mappings[tsFormat];
+
+    for (let [index, value] of file.metrics.entries()) {
+      if (value.type === 'date') {
+        timestampIndex = index;
+      }
+      if (value.name === this.state.metric) {
+        valueIndex = index;
+        metric = value
+      }
+    }
+
+    // TODO: we need to make sure metrics are being stored in the array in
+    // the same order as the CSV file columns to get the actual indices.
+    // For now we are assuming 2 columns CSV files with timestampIndex=0 and valueIndex=1
+    timestampIndex = 0;
+    valueIndex = 1;
+    if (file.metrics.length > 2) {
+      throw new Error('Only CSV files with 2 columns (timestamp, value) are allowed for now');
+    }
+
+
+    let csvPath = file.filename;
+    let metricName = metric.name;
+    let rowOffset = 1; // TODO; should be replaced by user define selection (check use first row as headers) at file upload time
+
     let dialogActions = [
       <FlatButton
         label="Cancel"
@@ -187,7 +241,8 @@ export default class Model extends React.Component {
           disabled={hasModelRun}
           label="Create Model"
           labelPosition="after"
-          onTouchTap={this._createModel.bind(this, modelId)}
+          onTouchTap={this._createModel.bind(this, metricName, csvPath, rowOffset, timestampIndex, valueIndex,
+               datetimeFormat)}
         />
         <FlatButton
           disabled={!isModelActive}
