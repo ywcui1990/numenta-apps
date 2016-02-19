@@ -270,8 +270,8 @@ class _ModelRunner(object):
       the float scalar value
     :param float anomalyProbability: computed anomaly probability value
     """
-    message = "{}\n".format(
-      json.dumps([dataRow[0].isoformat(), dataRow[1], anomalyProbability]))
+
+    message = "%s\n" % (json.dumps([dataRow[0].isoformat(), dataRow[1], anomalyProbability]),)
 
     sys.stdout.write(message)
     sys.stdout.flush()
