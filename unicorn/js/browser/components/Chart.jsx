@@ -161,11 +161,8 @@ export default class Chart extends React.Component {
     let {data, options} = this.props;
     let anomalyCount = Math.abs(this.props.metaData.length.model - 1);
     let first = new Date(data[0][0]).getTime();
+    let blockRedraw = anomalyCount % 2 === 0; // filter out some redrawing
     let rangeMax, rangeMin;
-
-    if (anomalyCount % 2 === 0) {
-      return; // filter out half of calls to redraw update
-    }
 
     // if range scroll is locked, we're far left, so stay far left on chart
     if (/* this._chartScrollLock && */ !this._chartBusy) {
@@ -182,7 +179,7 @@ export default class Chart extends React.Component {
     this._chartBusy = true;
     options.dateWindow = this._chartRange; // fixed width
     options.file = data; // new data
-    this._dygraph.updateOptions(options);
+    this._dygraph.updateOptions(options, blockRedraw);
     this._chartBusy = false;
   }
 

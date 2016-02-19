@@ -54,7 +54,7 @@ export default class ModelDataStore extends BaseStore {
    *                          </code>
    */
   _handReceiveModelData(payload) {
-    console.log('DEBUG: ModelDataStores:payload', payload);
+    // console.log('DEBUG: ModelDataStores:payload', payload);
     if (payload && 'modelId' in payload) {
       let model = this._models.get(payload.modelId);
       if (model) {
@@ -71,7 +71,7 @@ export default class ModelDataStore extends BaseStore {
           modified: new Date()
         });
       }
-      console.log('DEBUG: ModelDataStores:model', model);
+      // console.log('DEBUG: ModelDataStores:model', model);
       this.emitChange();
     }
   }

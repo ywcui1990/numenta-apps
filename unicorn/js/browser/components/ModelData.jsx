@@ -190,8 +190,8 @@ export default class ModelData extends React.Component {
         data.forEach((item) => item[2] = Number.NaN);
         metaData.length.model = modelData.data.length;
         // Update anomaly values
-        modelData.data.forEach((item) => {
-          let [rowid, score] = item;
+        modelData.data.forEach((item, rowid) => {
+          let score = item[2];
           if (rowid < data.length) {
             data[rowid][2] = score;
           }
