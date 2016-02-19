@@ -22,7 +22,8 @@ import Dialog from 'material-ui/lib/dialog';
 import CircularProgress from 'material-ui/lib/circular-progress';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import MetricStore from '../stores/MetricStore';
-import HideCreateModelDialog from '../actions/HideCreateModelDialog';
+import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
+import StartModelAction from '../actions/StartModel';
 
 @connectToStores([MetricStore], (context) => ({
   fileName: context.getStore(MetricStore).fileName,
@@ -33,18 +34,13 @@ import HideCreateModelDialog from '../actions/HideCreateModelDialog';
 export default class CreateModelDialog extends React.Component {
 
   static contextTypes = {
-    executeAction: React.PropTypes.func
+    executeAction: React.PropTypes.func,
+    getStore: React.PropTypes.func
   };
 
   static propTypes = {
     initialOpenState: React.PropTypes.bool.isRequired
   };
-
-  componentDidMount() {
-    setTimeout(() => {
-      // this.context.executeAction(UpdateParamFinderResults, PARAM_FINDER_OUTPUT)
-    }, 5);
-  }
 
   constructor(props, context) {
     super(props, context);
@@ -64,42 +60,66 @@ export default class CreateModelDialog extends React.Component {
 
   }
 
-  _onOK() {
-    this.context.executeAction(HideCreateModelDialog);
+  _onOK(modelPayload) {
+    this.context.executeAction(HideCreateModelDialogAction);
+    this.context.executeAction(StartModelAction, modelPayload);
     this._resetState()
   }
 
-  _onNO() {
-    this.context.executeAction(HideCreateModelDialog);
+  _onNO(modelPayload) {
+    this.context.executeAction(HideCreateModelDialogAction);
+    this.context.executeAction(StartModelAction, modelPayload);
     this._resetState()
   }
 
   render() {
+
     let body = null;
     let actions = [];
     let title = `Create model for ${this.state.metricName}
     (${path.basename(this.state.fileName)})`;
-    if (this.state.paramFinderResults.has(this.state.metricName)) {
-      let paramFinderResults = this.state.paramFinderResults.get(
-        this.state.metricName);
 
-      body = `We determined that you will get the best results if we aggregate
-      your data to ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
-      actions.push(
-        <FlatButton
-          label="OK"
-          onTouchTap={this._onOK.bind(this)}
-        />);
-      actions.push(
-        <a href="#" onClick={this._onNO.bind(this)}>No, please use original
-          data.</a>
-      );
-    } else {
-      body = (
-        <div>
-          <CircularProgress size={0.5}/> Preparing to create an HTM model. This
-          might take a few seconds.
-        </div>)
+    if (this.state.fileName && this.state.metricName) {
+      let metricStore = this.context.getStore(MetricStore);
+      let metrics = metricStore.getMetrics();
+      let metricId = null;
+      for (let metric of metrics.values()) {
+        if (metric.name === this.state.metricName) {
+          metricId = metric.uid;
+        }
+      }
+
+      let inputOpts = metricStore.getInputOpts(metricId);
+      let paramFinderResults = metricStore.getParamFinderResults(metricId);
+      if (paramFinderResults) {
+
+        let modelPayload = {
+          metricId: metricId,
+          inputOpts: inputOpts,
+          aggOpts: paramFinderResults.aggInfo,
+          modelOpts: paramFinderResults.modelInfo
+        };
+        body = `We determined that you will get the best results if we aggregate
+        your data to ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
+        actions.push(
+          <FlatButton
+            label="OK"
+            onTouchTap={this._onOK.bind(this, modelPayload)}
+          />);
+        actions.push(
+          <a href="#" onClick={this._onNO.bind(this, modelPayload)}>No, please
+            use
+            original
+            data.</a>
+        );
+      } else {
+        body = (
+          <div>
+            <CircularProgress size={0.5}/> Preparing to create an HTM model.
+            This
+            might take a few seconds.
+          </div>)
+      }
     }
     return (
       <Dialog
