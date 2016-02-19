@@ -20,21 +20,21 @@
 
 import {ipcMain as ipc} from 'electron';
 
-import {ParamFinderService} from './ParamFinderService';
+import {ModelService} from './ModelService';
 import UserError from './UserError';
 
-export const PARAM_FINDER_IPC_CHANNEL = 'PARAM_FINDER_IPC_CHANNEL';
+export const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 
 
 /**
- * IPC interface to ParamFinderService.
+ * IPC interface to ModelService.
  */
-export default class ParamFinderServiceIPC {
+export default class ModelServiceIPC {
 
   constructor() {
     this._webContents = null;
     this._attached = new Set();
-    this._service = new ParamFinderService();
+    this._service = new ModelService();
   }
 
   /**
@@ -43,7 +43,7 @@ export default class ParamFinderServiceIPC {
    */
   start(webContents) {
     // Initialize IPC events
-    ipc.on(PARAM_FINDER_IPC_CHANNEL, this._handleIPCEvent.bind(this));
+    ipc.on(MODEL_SERVER_IPC_CHANNEL, this._handleIPCEvent.bind(this));
     // Attach to renderer process
     this._webContents = webContents;
   }
@@ -52,45 +52,46 @@ export default class ParamFinderServiceIPC {
    * Stop listening for IPC Events.
    */
   stop() {
-    ipc.removeAllListeners(PARAM_FINDER_IPC_CHANNEL);
+    ipc.removeAllListeners(MODEL_SERVER_IPC_CHANNEL);
     this._webContents = null;
   }
 
   /**
    * Handle IPC calls from renderer process.
    * The supported commands are:
-   *  - 'create': Create new Param Finder.
-   *  						See 'ParamFinderService#createParamFinder' for 'params' format.
-   *  - 'remove': Stops and remove the paramFinder
-   *  - 'list':   List running param finders as Array of IDs
+   *  - 'create': Create new HTM model.
+   *  						See 'ModelService#createModel' for 'params' format.
+   *  - 'remove': Stops and remove the model
+   *  - 'list':   List running models as Array of IDs in `returnValue['models']`
+   *  - 'sendData': Send data to the model. See 'sendData' for 'params' format
    *
    * @param {Event} event - IPC Event Object.
    *                        Any error will be returned via 'returnValue.error'
    * @param {Object} payload - Event payload
-   * @param {string} metricId - Metric Id
-   * @param {string} command -  'create' | 'remove' | 'list'
+   * @param {string} modelId - Model Id
+   * @param {string} command -  'create' | 'remove' | 'list' | 'sendData'
    * @param {Object} [params] - Command parameters
    */
   _handleIPCEvent(event, payload) {
-    const {metricId, command} = payload;
-    console.log('DEBUG: ParamFinderServiceIPC:_handleIPCEvent', payload);
+    const {modelId, command} = payload;
     try {
       if (command === 'create') {
-        this._onCreate(metricId, payload.params);
+        this._onCreate(modelId, payload.params);
       } else if (command === 'remove') {
-        this._onRemove(metricId);
+        this._onRemove(modelId);
       } else if (command === 'list') {
         event.returnValue = this._onList();
+      } else if (command === 'sendData') {
+        this._onSendData(modelId, payload.params);
       } else {
-
-        throw new UserError(`Unknown param finder command ${command}`);
+        throw new UserError(`Unknown model command ${command}`);
       }
     } catch (error) {
       if (this._webContents) {
         // Forward error to browser
         this._webContents.send(
-          PARAM_FINDER_IPC_CHANNEL,
-          metricId,
+          MODEL_SERVER_IPC_CHANNEL,
+          modelId,
           'error',
           {error, ipcevent: payload}
         );
@@ -99,30 +100,30 @@ export default class ParamFinderServiceIPC {
   }
 
   /**
-   * Start up a new param finder.
-   * @param {string} metricId - ID of the param finder to start up.
+   * Start up a new model.
+   * @param {string} modelId - New ID of New Model to start up
    */
-  _attach(metricId) {
-    if (this._attached.has(metricId)) {
+  _attach(modelId) {
+    if (this._attached.has(modelId)) {
       return;
     }
-    this._attached.add(metricId);
-    this._service.on(metricId, (command, payload) => {
-      if (!this._attached.has(metricId)) {
+    this._attached.add(modelId);
+    this._service.on(modelId, (command, payload) => {
+      if (!this._attached.has(modelId)) {
         return;
       }
       // forward event to BrowserWindow
       if (this._webContents) {
         if (command === 'error') {
           this._webContents.send(
-            PARAM_FINDER_IPC_CHANNEL,
-            metricId,
+            MODEL_SERVER_IPC_CHANNEL,
+            modelId,
             'error',
             {error: new UserError(payload)}
           );
         } else {
           this._webContents.send(
-            PARAM_FINDER_IPC_CHANNEL, metricId, command, payload
+            MODEL_SERVER_IPC_CHANNEL, modelId, command, payload
           );
         }
       }
@@ -130,43 +131,53 @@ export default class ParamFinderServiceIPC {
   }
 
   /**
-   * Close down a running param finder.
-   * @param {string} metricId - ID of existing param finder to shut down
+   * Close down a running model.
+   * @param {string} modelId - ID of existing Model to shut down
    */
-  _detach(metricId) {
-    if (this._attached.has(metricId)) {
-      this._attached.delete(metricId);
-      this._service.removeAllListeners(metricId);
+  _detach(modelId) {
+    if (this._attached.has(modelId)) {
+      this._attached.delete(modelId);
+      this._service.removeAllListeners(modelId);
     }
   }
 
   /**
+   * Event callback handler for sending data to client.
+   * @param {string} modelId - ID of Model to transmit data for
+   * @param {string} data - JSON-encoded string of data to send
+   */
+  _onSendData(modelId, data) {
+    const input = JSON.parse(data);
+    this._service.sendData(modelId, input);
+  }
+
+  /**
    * Event callback handler for listing data.
-   * @return {Object} - Current Param Finder + State
+   * @return {Object} - Current Models + State
    */
   _onList() {
     return {
-      paramFinders: this._service.getParamFinders()
+      models: this._service.getModels()
     };
   }
 
   /**
-   * Event callback handler for creating a new param finder.
-   * @param {string} metricId -  ID of New Param Finder to create
-   * @param {Object} params - ParamFinder parameters
+   * Event callback handler for creating a new model.
+   * @param {string} modelId - New ID of New Model to create
+   * @param {Object} params - Model Parameters to use in model creation
    */
-  _onCreate(metricId, params) {
-    this._attach(metricId);
-    this._service.createParamFinder(metricId, JSON.parse(params));
+  _onCreate(modelId, params) {
+    this._attach(modelId);
+    this._service.createModel(modelId, params);
   }
 
   /**
-   * Event callback handler for removing an existing param finder.
-   * @param {string} metricId - ID of existing param finder to shut down
+   * Event callback handler for removing an existing model.
+   * @param {string} modelId - ID of existing Model to shut down
    */
-  _onRemove(metricId) {
-    this._detach(metricId);
-    this._service.removeParamFinder(metricId);
+  _onRemove(modelId) {
+    this._detach(modelId);
+    this._service.removeModel(modelId);
   }
 
 }

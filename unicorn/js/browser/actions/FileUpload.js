@@ -20,12 +20,14 @@ import {
   promiseSaveFilesIntoDB, promiseSaveMetricsToDB
 } from '../lib/Unicorn/DatabaseClient';
 import {promiseMetricsFromFiles} from '../lib/Unicorn/FileClient';
+import {TIMESTAMP_FORMATS} from '../lib/Constants';
+import moment from 'moment';
 
 /**
  * Upload File Action.
- * 	1. Save file metadata {@link FileStore.File}
- * 	2. Load metrics from file {@link MetricStore.Metric}
- * 	3. Save metrics to DB {@link MetricStore.Metric}
+ *  1. Save file metadata {@link FileStore.File}
+ *  2. Load metrics from file {@link MetricStore.Metric}
+ *  3. Save metrics to DB {@link MetricStore.Metric}
  *
  * @param {FluxibleContext} actionContext FluxibleContext
  * @param {Object} payload  Action payload object
@@ -40,6 +42,7 @@ export default function (actionContext, payload) {
   let fs = actionContext.getFileClient();
 
   return new Promise((resolve, reject) => {
+
     let file = {
       uid: Utils.generateFileId(payload.path),
       name: payload.name,
@@ -58,10 +61,36 @@ export default function (actionContext, payload) {
         return promiseSaveMetricsToDB(db, metrics);
       }, reject)
       .then((metrics) => {
+
+        // Set the file timestampFormat value (2 steps)
+
+        // 1. Get the timestamp field
+        let timestampField = metrics.find((metric) => {
+          return metric.type === 'date';
+        });
+
+        // 2. Get 1 row of data to get the timestamp format
+        let data = [];
+        fs.getData(payload.filename, {limit: 1}, (error, buffer) => {
+          if (error) {
+            throw new Error(error);
+          } else if (buffer) {
+            // Guess timestamp format based the first row
+            if (timestampField && data.length === 1) {
+              file.timestampFormat = TIMESTAMP_FORMATS.find((format) => {
+                return moment(data[0][timestampField], format, true).isValid();
+              });
+            }
+            data.push(JSON.parse(buffer));
+          }
+        });
+
+        console.log('DEBUG: FileUpload:file', file)
         // Update stores
         actionContext.dispatch(ACTIONS.UPLOADED_FILE, file);
         actionContext.dispatch(ACTIONS.LIST_METRICS, metrics);
         resolve(file);
+
       }, reject);
   });
 }

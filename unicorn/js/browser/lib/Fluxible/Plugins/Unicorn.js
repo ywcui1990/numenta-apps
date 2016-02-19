@@ -27,8 +27,9 @@ export default {
 
   plugContext(options, context, app) {
     let {
-      configClient, loggerClient, databaseClient, fileClient, modelClient
-    } = options;
+      configClient, loggerClient, databaseClient, fileClient, modelClient,
+      paramFinderClient
+      } = options;
 
     return {
       plugActionContext(actionContext, context, app) {
@@ -47,6 +48,9 @@ export default {
         actionContext.getModelClient = function () {
           return modelClient;
         };
+        actionContext.getParamFinderClient = function () {
+          return paramFinderClient;
+        };
       },
       plugComponentContext(componentContext, context, app) {
         componentContext.getConfigClient = function () {
@@ -64,6 +68,9 @@ export default {
         componentContext.getModelClient = function () {
           return modelClient;
         };
+        componentContext.getParamFinderClient = function () {
+          return paramFinderClient;
+        };
       },
       plugStoreContext(storeContext, context, app) {
         storeContext.getConfigClient = function () {
@@ -80,6 +87,9 @@ export default {
         };
         storeContext.getModelClient = function () {
           return modelClient;
+        };
+        storeContext.getParamFinderClient = function () {
+          return paramFinderClient;
         };
       }
     };

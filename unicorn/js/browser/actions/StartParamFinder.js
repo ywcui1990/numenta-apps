@@ -15,20 +15,24 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Receive model data
- *
+ * Start param finder
  * @param {FluxibleContext} actionContext - Fluxible action context object
- * @param {Object} payload - The action payload
- * @param {String} payload.modelId - Required model id
- * @param {Object[]} payload.data - New data to be appended
- * @emits {RECEIVE_MODEL_DATA}
+ * @param payload
+ * @param payload.metricId: Id of the metric against which the param finder will be run
+ * @param payload.inputOpts: input options to start the param finder.
  */
 export default function (actionContext, payload) {
-  // console.log('DEBUG: ReceiveModelData', payload);
-  actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, payload);
+
+  // TODO: store input Opts here
+
+  console.log('DEBUG: StartParamFinder', payload);
+  let paramFinderClient = actionContext.getParamFinderClient();
+  let metricId = payload.metricId;
+  let inputOpts = payload.inputOpts;
+  paramFinderClient.createParamFinder(metricId, inputOpts);
+  actionContext.dispatch(ACTIONS.START_PARAM_FINDER, payload);
 }

@@ -19,12 +19,24 @@ import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Update Param Finder results.
- * @param  {FluxibleContext} actionContext - The action context
- * @param  {string} paramFinderResults - Param finder results.
- * @emits {UPDATE_PARAM_FINDER_RESULTS}
+ * Start model
+ * @param {FluxibleContext} actionContext - Fluxible action context object
+ * @param payload
+ * @param payload.metricId: Id of the metric against which the model will be run
+ * @param payload.inputOpts: input options to start the model
+ * @param payload.aggOpts: aggregation options
+ * @param payload.modelOpts: model params options
  */
-export default function (actionContext, paramFinderResults) {
-  actionContext.dispatch(ACTIONS.UPDATE_PARAM_FINDER_RESULTS,
-    paramFinderResults);
+export default function (actionContext, payload) {
+
+  // TODO: store input Opts here
+
+  console.log('DEBUG: StartModel', payload);
+  let modelClient = actionContext.getModelClient();
+  let metricId = payload.metricId;
+  let inputOpts = payload.inputOpts;
+  let aggOpts = payload.aggOpts;
+  let modelOpts = payload.modelOpts;
+  modelClient.createModel(metricId, inputOpts, aggOpts, modelOpts);
+  actionContext.dispatch(ACTIONS.START_MODEL, payload);
 }

@@ -15,20 +15,18 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Receive model data
- *
+ * Stop running model
  * @param {FluxibleContext} actionContext - Fluxible action context object
- * @param {Object} payload - The action payload
- * @param {String} payload.modelId - Required model id
- * @param {Object[]} payload.data - New data to be appended
- * @emits {RECEIVE_MODEL_DATA}
+ * @param {string} metricId - metric ID
+ * @returns {Promise} - Fluxible resolves with return value
+ * @see http://fluxible.io/api/actions.html#api-code-actions-code-
  */
-export default function (actionContext, payload) {
-  // console.log('DEBUG: ReceiveModelData', payload);
-  actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, payload);
+export default function (actionContext, metricId) {
+  let paramFinderClient = actionContext.getParamFinderClient();
+  paramFinderClient.removeParamFinder(metricId);
+  return actionContext.dispatch(ACTIONS.STOP_PARAM_FINDER, metricId);
 }

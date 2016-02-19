@@ -28,6 +28,8 @@ import {ACTIONS} from '../lib/Constants';
  * @return {Promise}               [description]
  */
 export default function (actionContext, payload) {
+  console.log('DEBUG: ModelErrorAction:payload', payload);
+
   let {command, modelId, error} = payload;
 
   if (command === 'create') {

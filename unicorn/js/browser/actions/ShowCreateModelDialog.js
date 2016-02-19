@@ -21,8 +21,12 @@ import {ACTIONS} from '../lib/Constants';
 /**
  * Show {CreateModelDialog} page
  * @param  {FluxibleContext} actionContext - The action context
+ * @param payload - {fileName, metricName}
  * @emits {SHOW_CREATE_MODEL_DIALOG}
  */
 export default function (actionContext, payload) {
+
+  console.log('DEBUG: ShowCreateModelDialog');
+  console.log(payload);
   actionContext.dispatch(ACTIONS.SHOW_CREATE_MODEL_DIALOG, payload);
 }

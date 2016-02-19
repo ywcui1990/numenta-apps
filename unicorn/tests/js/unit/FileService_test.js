@@ -74,7 +74,7 @@ const EXPECTED_MIN_PARTIAL = 17;
 const EXPECTED_MAX_PARTIAL = 21;
 
 // Keep this list up to date with file names in "js/samples"
-const EXPECTED_SAMPLE_FILES = ['file1.csv', 'gym.csv'];
+const EXPECTED_SAMPLE_FILES = ['gym.csv'];
 
 const FILENAME_SMALL = path.resolve(__dirname, 'fixtures/file.csv');
 const FILENAME_LARGE = path.resolve(__dirname, 'fixtures/rec-center-15.csv');

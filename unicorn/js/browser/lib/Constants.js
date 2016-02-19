@@ -42,13 +42,25 @@
  *
  * - Model Data
  *  - RECEIVE_MODEL_DATA: {@link ReceiveModelData}
- *
+ *  - 
  * - Model Errors
  *  - START_MODEL_FAILED
  *  - STOP_MODEL_FAILED
  *  - DELETE_MODEL_FAILED
  *  - UNKNOWN_MODEL_FAILURE
  *
+ * - Param Finder
+ *   - START_PARAM_FINDER: {@link StartParamFinder}
+ *   - STOP_PARAM_FINDER: {@link StopParamFinder}
+ * 
+ * - Param Finder Data
+ *   - RECEIVE_PARAM_FINDER_DATA: {@link ReceiveParamFinderData}
+ * 
+ * - Param Finder Errors
+ *   - START_PARAM_FINDER_FAILED {@link ParamFinderError}
+ *   - STOP_PARAM_FINDER_FAILED {@link ParamFinderError}
+ *   - UNKNOWN_PARAM_FINDER_FAILURE {@link ParamFinderError}
+ * 
  * - File Detail
  *  - SHOW_FILE_DETAILS: {@link ShowFileDetails}
  *  - HIDE_FILE_DETAILS: {@link HideFileDetails}
@@ -56,7 +68,6 @@
  * - Create Model Dialog
  *  - SHOW_CREATE_MODEL_DIALOG: {@link ShowCreateModelDialog}
  *  - HIDE_CREATE_MODEL_DIALOG: {@link HideCreateModelDialog}
- *  - UPDATE_PARAM_FINDER_RESULTS: {@link UpdateParamFinderResults}
  *
  * - Metric
  *  - LIST_METRICS: {@link ListMetrics}
@@ -98,14 +109,25 @@ export const ACTIONS = Object.freeze({
   DELETE_MODEL_FAILED: 'DELETE_MODEL_FAILED',
   UNKNOWN_MODEL_FAILURE: 'UNKNOWN_MODEL_FAILURE',
 
-  // File Detail
-  SHOW_FILE_DETAILS: 'SHOW_FILE_DETAILS',
-  HIDE_FILE_DETAILS: 'HIDE_FILE_DETAILS',
+  // Param Finder
+  START_PARAM_FINDER: 'START_PARAM_FINDER',
+  STOP_PARAM_FINDER: 'STOP_PARAM_FINDER',
+
+  // Param Finder Data
+  RECEIVE_PARAM_FINDER_DATA: 'RECEIVE_PARAM_FINDER_DATA',
+  
+  // Param Finder Errors
+  START_PARAM_FINDER_FAILED: 'START_PARAM_FINDER_FAILED',
+  STOP_PARAM_FINDER_FAILED: 'STOP_PARAM_FINDER_FAILED',
+  UNKNOWN_PARAM_FINDER_FAILURE: 'UNKNOWN_PARAM_FINDER_FAILURE',
 
   // Create Model Dialog
   SHOW_CREATE_MODEL_DIALOG: 'SHOW_CREATE_MODEL_DIALOG',
   HIDE_CREATE_MODEL_DIALOG: 'HIDE_CREATE_MODEL_DIALOG',
-  UPDATE_PARAM_FINDER_RESULTS: 'UPDATE_PARAM_FINDER_RESULTS',
+
+  // File Detail
+  SHOW_FILE_DETAILS: 'SHOW_FILE_DETAILS',
+  HIDE_FILE_DETAILS: 'HIDE_FILE_DETAILS',
 
   // Metric
   LIST_METRICS: 'LIST_METRICS',

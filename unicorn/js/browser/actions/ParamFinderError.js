@@ -18,17 +18,23 @@
 
 import {ACTIONS} from '../lib/Constants';
 
-
-/**
- * Receive model data
- *
- * @param {FluxibleContext} actionContext - Fluxible action context object
- * @param {Object} payload - The action payload
- * @param {String} payload.modelId - Required model id
- * @param {Object[]} payload.data - New data to be appended
- * @emits {RECEIVE_MODEL_DATA}
- */
 export default function (actionContext, payload) {
-  // console.log('DEBUG: ReceiveModelData', payload);
-  actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, payload);
+
+  console.log('DEBUG: ParamFinderErrorAction', payload);
+  let {command, metricId, error} = payload;
+
+
+  if (command === 'create') {
+    return actionContext.dispatch(ACTIONS.START_PARAM_FINDER_FAILED, {
+      metricId, error
+    });
+  } else if (command === 'remove') {
+    return actionContext.dispatch(ACTIONS.STOP_PARAM_FINDER_FAILED, {
+      metricId, error
+    });
+  }
+
+  return actionContext.dispatch(ACTIONS.UNKNOWN_PARAM_FINDER_FAILURE, {
+    metricId, error
+  });
 }

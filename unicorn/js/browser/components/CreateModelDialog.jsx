@@ -15,20 +15,20 @@
 //
 // http://numenta.org/licenses/
 
+import path from 'path';
 import React from 'react';
 import FlatButton from 'material-ui/lib/flat-button';
 import Dialog from 'material-ui/lib/dialog';
 import CircularProgress from 'material-ui/lib/circular-progress';
 import connectToStores from 'fluxible-addons-react/connectToStores';
-import CreateModelDialogStore from '../stores/CreateModelDialogStore';
-import UpdateParamFinderResults from '../actions/UpdateParamFinderResults';
+import MetricStore from '../stores/MetricStore';
 import HideCreateModelDialog from '../actions/HideCreateModelDialog';
 
-@connectToStores([CreateModelDialogStore], (context) => ({
-  fileName: context.getStore(CreateModelDialogStore).fileName,
-  metricName: context.getStore(CreateModelDialogStore).metricName,
-  open: context.getStore(CreateModelDialogStore).open,
-  paramFinderResults: context.getStore(CreateModelDialogStore).paramFinderResults
+@connectToStores([MetricStore], (context) => ({
+  fileName: context.getStore(MetricStore).fileName,
+  metricName: context.getStore(MetricStore).metricName,
+  open: context.getStore(MetricStore).open,
+  paramFinderResults: context.getStore(MetricStore).paramFinderResults
 }))
 export default class CreateModelDialog extends React.Component {
 
@@ -42,8 +42,8 @@ export default class CreateModelDialog extends React.Component {
 
   componentDidMount() {
     setTimeout(() => {
-      this.context.executeAction(UpdateParamFinderResults, {aggInfo: {windowSize: 10}})
-    }, 5000);
+      // this.context.executeAction(UpdateParamFinderResults, PARAM_FINDER_OUTPUT)
+    }, 5);
   }
 
   constructor(props, context) {
@@ -58,7 +58,6 @@ export default class CreateModelDialog extends React.Component {
   _resetState() {
     this.setState({
       open: false,
-      paramFinderResults: null,
       fileName: null,
       metricName: null
     });
@@ -78,23 +77,29 @@ export default class CreateModelDialog extends React.Component {
   render() {
     let body = null;
     let actions = [];
-    let title = `Create model for ${this.state.fileName} > ${this.state.metricName}`
-    if (this.state.paramFinderResults) {
-      body = `We determined that you would get the best results with an aggregation window of ${this.state.paramFinderResults.aggInfo.windowSize} s.`
+    let title = `Create model for ${this.state.metricName}
+    (${path.basename(this.state.fileName)})`;
+    if (this.state.paramFinderResults.has(this.state.metricName)) {
+      let paramFinderResults = this.state.paramFinderResults.get(
+        this.state.metricName);
+
+      body = `We determined that you will get the best results if we aggregate
+      your data to ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
       actions.push(
         <FlatButton
           label="OK"
           onTouchTap={this._onOK.bind(this)}
         />);
       actions.push(
-        <a href="#" onClick={this._onNO.bind(this)}>No, use original data.</a>
+        <a href="#" onClick={this._onNO.bind(this)}>No, please use original
+          data.</a>
       );
     } else {
-
       body = (
-        <div><CircularProgress size={0.5}/> Determining the best HTM params.
+        <div>
+          <CircularProgress size={0.5}/> Preparing to create an HTM model. This
+          might take a few seconds.
         </div>)
-
     }
     return (
       <Dialog

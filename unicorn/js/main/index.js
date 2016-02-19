@@ -24,17 +24,19 @@ import path from 'path';
 import Config from './ConfigService';
 import MainMenu from './MainMenu';
 import ModelServiceIPC from './ModelServiceIPC';
+import ParamFinderServiceIPC from './ParamFinderServiceIPC';
 
 const config = new Config();
+const DEV = config.get('NODE_ENV') !== 'production';
 const log = bunyan.createLogger({
   level: 'debug',  // @TODO higher for Production
   name: config.get('title')
 });
-const initialPage = path.join(__dirname, '..', 'browser', 'index.html');
+const initialPage = path.join(__dirname, config.get('browser:entry'));
 
 let mainWindow = null; // global ref to keep window object from JS GC
-let modelService;
-
+let modelService = null;
+let paramFinderService = null;
 
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
@@ -73,7 +75,9 @@ app.on('ready', () => {
   });
   mainWindow.loadURL(`file://${initialPage}`);
   mainWindow.center();
-  mainWindow.openDevTools();
+  if (DEV) {
+    // mainWindow.openDevTools();
+  }
 
   // browser window events
   mainWindow.on('closed', () => {
@@ -91,7 +95,11 @@ app.on('ready', () => {
     log.info('Electron Main: Renderer DOM is now ready!');
   });
 
-  // Handle IPC commuication for the ModelService
+  // Handle IPC communication for the ModelService
   modelService = new ModelServiceIPC();
   modelService.start(mainWindow.webContents);
+
+  // Handle IPC communication for the ParamFinderService
+  paramFinderService = new ParamFinderServiceIPC();
+  paramFinderService.start(mainWindow.webContents);
 });
