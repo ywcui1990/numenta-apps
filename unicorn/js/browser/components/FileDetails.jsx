@@ -22,7 +22,6 @@ import FlatButton from 'material-ui/lib/flat-button';
 import fs from 'fs';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
-import moment from 'moment';
 import React from 'react';
 import Table from 'material-ui/lib/table/table';
 import TableBody from 'material-ui/lib/table/table-body';
@@ -38,7 +37,6 @@ import FileDetailsStore from '../stores/FileDetailsStore';
 import FileUpdateAction from '../actions/FileUpdate';
 import HideFileDetailsAction from '../actions/HideFileDetails';
 import Utils from '../../main/Utils';
-import {TIMESTAMP_FORMATS} from '../lib/Constants';
 
 
 /**
@@ -101,7 +99,7 @@ export default class FileDetails extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let file, fileMetrics, stats, timestampField;
+    let file, fileMetrics, stats;
     let fileStore = this.context.getStore(FileStore);
     let metricStore = this.context.getStore(MetricStore);
     let fileClient = this.context.getFileClient();
@@ -120,8 +118,6 @@ export default class FileDetails extends React.Component {
           if (metric.type !== 'date') {
             let modelId = Utils.generateMetricId(file.filename, metric.name);
             metrics.set(modelId, null);
-          } else {
-            timestampField = metric.name;
           }
         });
 
@@ -135,12 +131,6 @@ export default class FileDetails extends React.Component {
             throw new Error(error);
           } else if (buffer) {
             data.push(JSON.parse(buffer));
-            // Guess timestamp format based the first row
-            if (timestampField && data.length === 1) {
-              file.timestampFormat = TIMESTAMP_FORMATS.find((format) => {
-                return moment(data[0][timestampField], format, true).isValid();
-              });
-            }
           } else {
             // Initialize State
             this.setState({file, fileSize, data, metrics});
@@ -202,29 +192,29 @@ export default class FileDetails extends React.Component {
           // FIXME: UNI-323 Disable multiple model creation until new "multiple models creation" flow is implemented
           // checked = metrics.get(modelId) ? true : false; // eslint-disable-line
           // let metrics = this.state.metrics;
-/*
+          /*
+           return (
+           <ListItem
+           key={modelId}
+           leftCheckbox={
+           <Checkbox
+           checked={checked}
+           name={modelId}
+           onCheck={
+           this._onMetricCheck.bind(this, modelId, file.filename,
+           timestampField.name, metric.name)
+           }
+           />
+           }
+           primaryText={<div style={this._styles.metric}>{metric.name}</div>}
+           />
+           );
+           */
           return (
             <ListItem
               key={modelId}
-              leftCheckbox={
-                <Checkbox
-                  checked={checked}
-                  name={modelId}
-                  onCheck={
-                    this._onMetricCheck.bind(this, modelId, file.filename,
-                      timestampField.name, metric.name)
-                  }
-                  />
-              }
               primaryText={<div style={this._styles.metric}>{metric.name}</div>}
-              />
-          );
-*/
-          return (
-            <ListItem
-              key={modelId}
-              primaryText={<div style={this._styles.metric}>{metric.name}</div>}
-              />
+            />
           );
         }
       });
@@ -263,7 +253,7 @@ export default class FileDetails extends React.Component {
       return (
         <Table selectable={false} fixedHeader={true} height="300">
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}
-              enableSelectAll={false}>
+                       enableSelectAll={false}>
             <TableRow>
               {columnHeader}
             </TableRow>
@@ -291,7 +281,7 @@ export default class FileDetails extends React.Component {
             ref="description"
             rowsMax={1}
             value={file.description}
-            />
+          />
           <TextField
             floatingLabelText="File Size (bytes)"
             name="fileSize"
@@ -301,7 +291,7 @@ export default class FileDetails extends React.Component {
             underlineFocusStyle={{display:'none'}}
             underlineStyle={{display:'none'}}
             value={fileSize.toString()}
-            />
+          />
           {this._renderMetrics()}
         </div>
         <div style={this._styles.data}>
@@ -318,13 +308,13 @@ export default class FileDetails extends React.Component {
         label="Cancel"
         onRequestClose={this._onRequestClose.bind(this)}
         onTouchTap={this._onSave.bind(this)}
-        />,
+      />,
       <FlatButton
         label="Save"
         onTouchTap={this._onSave.bind(this)}
         primary={true}
         ref="submit"
-        />
+      />
     ];
 
     if (this.state.file) {
@@ -339,8 +329,8 @@ export default class FileDetails extends React.Component {
         onRequestClose={this._onRequestClose.bind(this)}
         ref="dialog"
         title={title}
-        >
-          {body}
+      >
+        {body}
       </Dialog>
     );
   }
