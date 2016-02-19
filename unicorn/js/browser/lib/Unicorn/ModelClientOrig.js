@@ -41,13 +41,11 @@ export default class ModelClient {
     ipc.on(MODEL_SERVER_IPC_CHANNEL, this._handleIPCEvent.bind(this));
   }
 
-  createModel(modelId, inputOpts, aggOpts, modelOpts) {
+  createModel(modelId, params) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      modelId: modelId,
+      modelId,
       command: 'create',
-      inputOpts: JSON.stringify(inputOpts),
-      aggOpts: JSON.stringify(aggOpts),
-      modelOpts: JSON.stringify(modelOpts)
+      params: JSON.stringify(params)
     });
   }
 

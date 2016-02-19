@@ -20,7 +20,7 @@
 
 import {ipcMain as ipc} from 'electron';
 
-import {ModelService} from './ModelService2';
+import {ModelService} from './ModelService';
 import UserError from './UserError';
 
 export const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
@@ -63,30 +63,26 @@ export default class ModelServiceIPC {
    *  						See 'ModelService#createModel' for 'params' format.
    *  - 'remove': Stops and remove the model
    *  - 'list':   List running models as Array of IDs in `returnValue['models']`
+   *  - 'sendData': Send data to the model. See 'sendData' for 'params' format
    *
    * @param {Event} event - IPC Event Object.
    *                        Any error will be returned via 'returnValue.error'
    * @param {Object} payload - Event payload
-   * @param {string} payload.modelId - Model Id
-   * @param {string} payload.command -  'create' | 'remove' | 'list'
-   * @param {string} payload.inputOpts: input options to start the model runner
-   * @param {string} payload.aggOpts: aggregation options
-   * @param {string} payload.modelOpts: model params
+   * @param {string} modelId - Model Id
+   * @param {string} command -  'create' | 'remove' | 'list' | 'sendData'
+   * @param {Object} [params] - Command parameters
    */
   _handleIPCEvent(event, payload) {
-    console.log('DEBUG: ModelServiceIPC:_handleIPCEvent:payload', payload);
-    const modelId = payload.modelId;
-    const command = payload.command;
+    const {modelId, command} = payload;
     try {
       if (command === 'create') {
-        const inputOpts = JSON.parse(payload.inputOpts);
-        const aggOpts = JSON.parse(payload.aggOpts);
-        const modelOpts = JSON.parse(payload.modelOpts);
-        this._onCreate(modelId, inputOpts, aggOpts, modelOpts);
+        this._onCreate(modelId, payload.params);
       } else if (command === 'remove') {
         this._onRemove(modelId);
       } else if (command === 'list') {
         event.returnValue = this._onList();
+      } else if (command === 'sendData') {
+        this._onSendData(modelId, payload.params);
       } else {
         throw new UserError(`Unknown model command ${command}`);
       }
@@ -146,6 +142,16 @@ export default class ModelServiceIPC {
   }
 
   /**
+   * Event callback handler for sending data to client.
+   * @param {string} modelId - ID of Model to transmit data for
+   * @param {string} data - JSON-encoded string of data to send
+   */
+  _onSendData(modelId, data) {
+    const input = JSON.parse(data);
+    this._service.sendData(modelId, input);
+  }
+
+  /**
    * Event callback handler for listing data.
    * @return {Object} - Current Models + State
    */
@@ -158,13 +164,11 @@ export default class ModelServiceIPC {
   /**
    * Event callback handler for creating a new model.
    * @param {string} modelId - New ID of New Model to create
-   * @param {Object} inputOpts: input options to start the model runner
-   * @param {Object} aggOpts: aggregation options
-   * @param {Object} modelOpts: model params
+   * @param {Object} params - Model Parameters to use in model creation
    */
-  _onCreate(modelId, inputOpts, aggOpts, modelOpts) {
+  _onCreate(modelId, params) {
     this._attach(modelId);
-    this._service.createModel(modelId, inputOpts, aggOpts, modelOpts);
+    this._service.createModel(modelId, params);
   }
 
   /**

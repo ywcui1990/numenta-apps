@@ -29,6 +29,6 @@ import {ACTIONS} from '../lib/Constants';
  * @emits {RECEIVE_MODEL_DATA}
  */
 export default function (actionContext, payload) {
-  console.log('DEBUG: ReceiveModelData', payload);
+  // console.log('DEBUG: ReceiveModelData', payload);
   actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, payload);
 }
