@@ -20,13 +20,14 @@
 
 
 // NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
+
 /* eslint-disable no-var, object-shorthand, prefer-arrow-callback */
 
-
+import convertNewline from 'convert-newline';
 import csv from 'csv-streamify';
 import filesystem from 'fs';
-import convertNewline from 'convert-newline';
 import path from 'path';
+
 import TimeAggregator from './TimeAggregator';
 import Utils from './Utils';
 

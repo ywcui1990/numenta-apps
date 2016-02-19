@@ -17,14 +17,12 @@
 // http://numenta.org/licenses/
 
 
-import {app} from 'electron';
-import {BrowserWindow} from 'electron';
+import {app, BrowserWindow, crashReporter, dialog, Menu} from 'electron';
 import bunyan from 'bunyan';
-import {crashReporter} from 'electron';
-import {dialog} from 'electron';
 import path from 'path';
 
 import Config from './ConfigService';
+import MainMenu from './MainMenu';
 import ModelServiceIPC from './ModelServiceIPC';
 
 const config = new Config();
@@ -35,7 +33,7 @@ const log = bunyan.createLogger({
 const initialPage = path.join(__dirname, '..', 'browser', 'index.html');
 
 let mainWindow = null; // global ref to keep window object from JS GC
-let modelService = null;
+let modelService;
 
 
 /**
@@ -63,6 +61,9 @@ app.on('window-all-closed', () => {
 
 // Electron finished init and ready to create browser window
 app.on('ready', () => {
+  // set main menu
+  Menu.setApplicationMenu(Menu.buildFromTemplate(MainMenu));
+
   // create browser window
   mainWindow = new BrowserWindow({
     width: 1200,

@@ -101,8 +101,6 @@ export class ModelService extends EventEmitter {
       throw new DuplicateIDError();
     }
 
-    // const params = [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats];
-    // const child = childProcess.spawn('python', params);
     const params = [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats];
     const child = childProcess.spawn(PYTHON_EXECUTABLE, params);
 
