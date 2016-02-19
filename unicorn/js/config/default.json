@@ -5,6 +5,11 @@
   "browser": {
     "entry": "../browser/index.html"
   },
+  "bundle": {
+    "destination": "js/browser/assets/bundle",
+    "public": "js/browser/assets/bundle/",
+    "source": "js/browser/app"
+  },
   "button": {
     "add": "Add File",
     "cancel": "Cancel",

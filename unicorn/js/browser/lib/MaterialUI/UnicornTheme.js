@@ -31,6 +31,7 @@ export default {
   zIndex,
   palette: {
     primary1Color: '#29aae2', // numenta blue : actions
+    primary1FadeColor: '#b7d5e2', // faded numenta blue
     primary2Color: '#095c80', // darkened numenta blue : header
     primary3Color: Colors.lightBlack,
     accent1Color: '#29aae2', // numenta blue : actions

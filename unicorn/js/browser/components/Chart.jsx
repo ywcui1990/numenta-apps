@@ -122,7 +122,8 @@ export default class Chart extends React.Component {
     let first = new Date(data[0][0]).getTime();
     let second = new Date(data[1][0]).getTime();
     let unit = second - first; // each datapoint
-    let options, selector;
+    let options;
+    // let selector;
 
     this._chartBusy = true;
 
@@ -132,23 +133,23 @@ export default class Chart extends React.Component {
 
     // init chart
     options = {
-      clickCallback: this._chartClickCallback.bind(this),
-      dateWindow: this._chartRange,
-      zoomCallback: this._chartZoomCallback.bind(this)
+      dateWindow: this._chartRange // ,
+      // clickCallback: this._chartClickCallback.bind(this),
+      // zoomCallback: this._chartZoomCallback.bind(this)
     };
     Object.assign(options, this.props.options);
     this._dygraph = new Dygraph(el, data, options);
 
     // range selector custom events
-    selector = el.getElementsByClassName('dygraph-rangesel-fgcanvas')[0];
-    selector.addEventListener(
-      'mousedown',
-      this._rangeMouseDownCallback.bind(this)
-    );
-    selector.addEventListener(
-      'mouseup',
-      this._rangeMouseUpCallback.bind(this)
-    );
+    // selector = el.getElementsByClassName('dygraph-rangesel-fgcanvas')[0];
+    // selector.addEventListener(
+    //   'mousedown',
+    //   this._rangeMouseDownCallback.bind(this)
+    // );
+    // selector.addEventListener(
+    //   'mouseup',
+    //   this._rangeMouseUpCallback.bind(this)
+    // );
 
     this._chartBusy = false;
   }

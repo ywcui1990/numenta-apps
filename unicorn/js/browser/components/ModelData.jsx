@@ -61,6 +61,8 @@ export default class ModelData extends React.Component {
     this._chartOptions = {
       // dygraphs global chart options
       options: {
+        rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
+        rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
         showRangeSelector: true
       },
 
