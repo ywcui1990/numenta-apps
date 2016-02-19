@@ -33,6 +33,7 @@ import TableRowColumn from 'material-ui/lib/table/table-row-column';
 import TextField from 'material-ui/lib/text-field';
 
 import FileStore from '../stores/FileStore';
+import MetricStore from '../stores/MetricStore';
 import FileDetailsStore from '../stores/FileDetailsStore';
 import FileDetailsSaveAction from '../actions/FileDetailsSave';
 import HideFileDetailsAction from '../actions/HideFileDetails';
@@ -100,8 +101,9 @@ export default class FileDetails extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let file, stats, timestampField;
+    let file, fileMetrics, stats, timestampField;
     let fileStore = this.context.getStore(FileStore);
+    let metricStore = this.context.getStore(MetricStore);
     let fileClient = this.context.getFileClient();
     let metrics = new Map();
     let data = [];
@@ -110,10 +112,11 @@ export default class FileDetails extends React.Component {
     if (nextProps.visible && nextProps.filename) {
       // Initialize file
       file = fileStore.getFile(nextProps.filename);
+      fileMetrics = metricStore.getMetricsByFileId(file.uid);
 
       // Initialize metrics
       if (file) {
-        file.metrics.forEach((metric) => {
+        fileMetrics.forEach((metric) => {
           if (metric.type !== 'date') {
             let modelId = Utils.generateMetricId(file.filename, metric.name);
             metrics.set(modelId, null);
@@ -183,12 +186,14 @@ export default class FileDetails extends React.Component {
   _renderMetrics() {
     let items;
     let {file, metrics} = this.state;
-    let timestampField = file.metrics.find((metric) => {
+    let metricStore = this.context.getStore(MetricStore);
+    let fileMetrics = metricStore.getMetricsByFileId(file.uid);
+    let timestampField = fileMetrics.find((metric) => {
       return metric.type === 'date';
     });
 
     if (this.props.newFile && timestampField) {
-      items = file.metrics.map((metric) => {
+      items = fileMetrics.map((metric) => {
         let checked, modelId;
 
         if (metric.type !== 'date') {

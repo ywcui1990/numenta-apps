@@ -28,4 +28,57 @@
 let remote = require('remote'); // eslint-disable-line
 let client = remote.require('./DatabaseService'); // pseduo-DBClientIPC
 
+/**
+ * Get all metrics from the database as a {@link Promise}
+ * @param {DatabaseClient} db instance to {DatabaseClient} object
+ * @return {Promise}   A promise resolving to all metrics
+ */
+export function promiseMetricsFromDB(db) {
+  return new Promise((resolve, reject) => {
+    db.getAllMetrics((error, metrics) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(metrics);
+      }
+    });
+  });
+}
+
+/**
+ * Creates a {@link Promise} used to save the given metrics to the database
+ * @param {DatabaseClient} db instance to {DatabaseClient} object
+ * @param  {Array<MetricStore.Metric>} metrics Metrics to save
+ * @return {Promise}   A promise resolving to all saved metrics
+ */
+export function promiseSaveMetricsToDB(db, metrics) {
+  return new Promise((resolve, reject) => {
+    db.putMetricBatch(metrics, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(metrics);
+      }
+    });
+  });
+}
+
+/**
+ * Creates a {@link Promise} used to save the given files to the database
+ * @param {DatabaseClient} db instance to {DatabaseClient} object
+ * @param  {Array<FilesStore.File>} files Files to save
+ * @return {Promise}   A promise resolving to all saved files
+ */
+export function promiseSaveFilesIntoDB(db, files) {
+  return new Promise((resolve, reject) => {
+    db.putFileBatch(files, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(files);
+      }
+    });
+  });
+}
+
 export default client;

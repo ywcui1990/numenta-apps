@@ -18,7 +18,15 @@
 
 import {ACTIONS} from '../lib/Constants';
 
-
+/**
+ * Dispatches model errors
+ * @param  {FluxActionContext} actionContext [description]
+ * @param  {object} payload       [description]
+ * @emits {START_MODEL_FAILED}
+ * @emits {STOP_MODEL_FAILED}
+ * @emits {UNKNOWN_MODEL_FAILURE}
+ * @return {Promise}               [description]
+ */
 export default function (actionContext, payload) {
   let {command, modelId, error} = payload;
 
@@ -28,10 +36,6 @@ export default function (actionContext, payload) {
     });
   } else if (command === 'remove') {
     return actionContext.dispatch(ACTIONS.STOP_MODEL_FAILED, {
-      modelId, error
-    });
-  } else if (command === 'sendData') {
-    return actionContext.dispatch(ACTIONS.SEND_METRIC_DATA_FAILED, {
       modelId, error
     });
   }

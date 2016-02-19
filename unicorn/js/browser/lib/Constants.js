@@ -18,82 +18,124 @@
 
 /**
  * Fluxible Action keys
- * - ADD_FILE: {@link FileAdd}
- * - ADD_MODEL : {@link StartModel}
- * - DELETE_MODEL : {@link DeleteModel}
- * - EXPORT_MODEL_RESULTS : {@link ExportModelResults}
- * - HIDE_FILE_DETAILS : {@link HideFileDetails}
- * - HIDE_METRIC_DETAILS : {@link HideMetricDetails}
- * - HIDE_MODEL : {@link HideModel}
- * - LIST_FILES : {@link ListFiles}
- * - LIST_FILES_FAILURE : {@link ListFiles}
- * - LIST_METRICS : {@link ListMetrics}
- * - LIST_METRICS_FAILURE : {@link ListMetrics}
- * - LOAD_METRIC_DATA: {@link LoadMetricData}
- * - RECEIVE_MODEL_DATA : {@link ReceiveModelData}
- * - RECEIVE_PARAM_FINDER_DATA: {@link ReceiveParamFinderData}
- * - SEND_METRIC_DATA : {@link SendMetricData}
- * - SEND_METRIC_DATA_FAILED : {@link ModelError}
- * - SHOW_FILE_DETAILS : {@link ShowFileDetails}
- * - SHOW_METRIC_DETAILS : {@link ShowMetricDetails}
- * - SHOW_MODEL : {@linl ShowModel}
- * - START_MODEL_FAILED : {@link ModelError}
- * - START_MODEL: {@link StartModel}
- * - STOP_MODEL : {@link StopModel}
- * - STOP_PARAM_FINDER {@link StopParamFinder}
- * - STOP_MODEL_FAILED : {@link ModelError}
- * - UNKNOWN_MODEL_FAILURE : {@link ModelError}
- * - START_PARAM_FINDER {@link StartParamFinder}
- * - START_PARAM_FINDER_FAILED {@link ParamFinderError}
- * - STOP_PARAM_FINDER_FAILED {@link ParamFinderError]
- * - UNKNOWN_PARAM_FINDER_FAILURE {@link ParamFinderError}
- * - UNLOAD_METRIC_DATA: 'UnloadMetricData',
- * - UPDATE_FILE : {@link FileUpdate}
- * - UPDATE_FILE_FAILED : {@link FileUpdate}
- * - UPLOADED_FILE : {@link FileUpload}
- * - UPLOADED_FILE_FAILED : {@link FileUpload}
- * - SHOW_CREATE_MODEL_DIALOG: {@link ShowCreateModelDialog}
- * - HIDE_CREATE_MODEL_DIALOG: {@link HideCreateModelDialog}
+ * - Application
+ *  - START_APPLICATION: {@StartApplication}
+ * - File
+ *  - DELETE_FILE: {@link DeleteFile}
+ *  - LIST_FILES: {@link ListFiles}
+ *  - UPLOADED_FILE: {@link FileUpload}
+ *  - UPDATE_FILE: {@link FileUpdate}
+ *
+ * - File Errors
+ *  - LIST_FILES_FAILURE
+ *  - UPLOADED_FILE_FAILED
+ *  - UPDATE_FILE_FAILED
+ *
+ * - Model
+ *  - ADD_MODEL: {@link AddModel}
+ *  - DELETE_MODEL: {@link DeleteModel}
+ *  - START_MODEL: {@link StartModel}
+ *  - STOP_MODEL: {@link StopModel}
+ *  - SHOW_MODEL: {@link ShowModel}
+ *  - HIDE_MODEL: {@link HideModel}
+ *  - EXPORT_MODEL_RESULTS: {@link ExportModelResults}
+ *
+ * - Model Data
+ *  - RECEIVE_MODEL_DATA: {@link ReceiveModelData}
+ *  - 
+ * - Model Errors
+ *  - START_MODEL_FAILED
+ *  - STOP_MODEL_FAILED
+ *  - DELETE_MODEL_FAILED
+ *  - UNKNOWN_MODEL_FAILURE
+ *
+ * - Param Finder
+ *   - START_PARAM_FINDER: {@link StartParamFinder}
+ *   - STOP_PARAM_FINDER: {@link StopParamFinder}
+ * 
+ * - Param Finder Data
+ *   - RECEIVE_PARAM_FINDER_DATA: {@link ReceiveParamFinderData}
+ * 
+ * - Param Finder Errors
+ *   - START_PARAM_FINDER_FAILED {@link ParamFinderError}
+ *   - STOP_PARAM_FINDER_FAILED {@link ParamFinderError}
+ *   - UNKNOWN_PARAM_FINDER_FAILURE {@link ParamFinderError}
+ * 
+ * - File Detail
+ *  - SHOW_FILE_DETAILS: {@link ShowFileDetails}
+ *  - HIDE_FILE_DETAILS: {@link HideFileDetails}
+ *
+ * - Create Model Dialog
+ *  - SHOW_CREATE_MODEL_DIALOG: {@link ShowCreateModelDialog}
+ *  - HIDE_CREATE_MODEL_DIALOG: {@link HideCreateModelDialog}
+ *
+ * - Metric
+ *  - LIST_METRICS: {@link ListMetrics}
+ *  - LIST_METRICS_FAILURE
+ *
+ * - Metric Data
+ *  - LOAD_METRIC_DATA: {@link LoadMetricData}
+ *  - UNLOAD_METRIC_DATA: {@link UnloadMetricData}
  */
 export const ACTIONS = Object.freeze({
-  ADD_FILE: 'ADD_FILE',
-  ADD_MODEL: 'ADD_MODEL',
+  // Application
+  START_APPLICATION: 'START_APPLICATION',
+  
+  // File
   DELETE_FILE: 'DELETE_FILE',
-  DELETE_MODEL: 'DELETE_MODEL',
-  DELETE_MODEL_FAILED: 'DELETE_MODEL_FAILED',
-  EXPORT_MODEL_RESULTS: 'EXPORT_MODEL_RESULTS',
-  HIDE_FILE_DETAILS: 'HIDE_FILE_DETAILS',
-  HIDE_METRIC_DETAILS: 'HIDE_METRIC_DETAILS',
-  HIDE_MODEL: 'HIDE_MODEL',
-  LIST_FILES_FAILURE: 'LIST_FILES_FAILURE',
   LIST_FILES: 'LIST_FILES',
-  LIST_METRICS_FAILURE: 'LIST_METRICS_FAILURE',
-  LIST_METRICS: 'LIST_METRICS',
-  LOAD_METRIC_DATA: 'LOAD_METRIC_DATA',
-  RECEIVE_MODEL_DATA: 'RECEIVE_MODEL_DATA',
-  RECEIVE_PARAM_FINDER_DATA: 'RECEIVE_PARAM_FINDER_DATA',
-  SEND_METRIC_DATA_FAILED: 'SEND_METRIC_DATA_FAILED',
-  SEND_METRIC_DATA: 'SEND_METRIC_DATA',
-  SHOW_FILE_DETAILS: 'SHOW_FILE_DETAILS',
-  SHOW_METRIC_DETAILS: 'SHOW_METRIC_DETAILS',
-  SHOW_MODEL: 'SHOW_MODEL',
-  START_MODEL_FAILED: 'START_MODEL_FAILED',
+  UPLOADED_FILE: 'UPLOADED_FILE',
+  UPDATE_FILE: 'UPDATE_FILE',
+
+  LIST_FILES_FAILURE: 'LIST_FILES_FAILURE',
+  UPLOADED_FILE_FAILED: 'UPLOADED_FILE_FAILED',
+  UPDATE_FILE_FAILED: 'UPDATE_FILE_FAILED',
+
+  // Model
+  ADD_MODEL: 'ADD_MODEL',
+  DELETE_MODEL: 'DELETE_MODEL',
   START_MODEL: 'START_MODEL',
-  STOP_MODEL_FAILED: 'STOP_MODEL_FAILED',
   STOP_MODEL: 'STOP_MODEL',
-  STOP_PARAM_FINDER: 'STOP_PARAM_FINDER',
+  SHOW_MODEL: 'SHOW_MODEL',
+  HIDE_MODEL: 'HIDE_MODEL',
+  EXPORT_MODEL_RESULTS: 'EXPORT_MODEL_RESULTS',
+
+  // Model Data
+  RECEIVE_MODEL_DATA: 'RECEIVE_MODEL_DATA',
+
+  // Model Errors
+  START_MODEL_FAILED: 'START_MODEL_FAILED',
+  STOP_MODEL_FAILED: 'STOP_MODEL_FAILED',
+  DELETE_MODEL_FAILED: 'DELETE_MODEL_FAILED',
   UNKNOWN_MODEL_FAILURE: 'UNKNOWN_MODEL_FAILURE',
+
+  // Param Finder
   START_PARAM_FINDER: 'START_PARAM_FINDER',
+  STOP_PARAM_FINDER: 'STOP_PARAM_FINDER',
+
+  // Param Finder Data
+  RECEIVE_PARAM_FINDER_DATA: 'RECEIVE_PARAM_FINDER_DATA',
+  
+  // Param Finder Errors
   START_PARAM_FINDER_FAILED: 'START_PARAM_FINDER_FAILED',
   STOP_PARAM_FINDER_FAILED: 'STOP_PARAM_FINDER_FAILED',
   UNKNOWN_PARAM_FINDER_FAILURE: 'UNKNOWN_PARAM_FINDER_FAILURE',
-  UNLOAD_METRIC_DATA: 'UNLOAD_METRIC_DATA',
-  UPDATE_FILE_FAILED: 'UPDATE_FILE_FAILED',
-  UPDATE_FILE: 'UPDATE_FILE',
-  UPLOADED_FILE_FAILED: 'UPLOADED_FILE_FAILED',
-  UPLOADED_FILE: 'UPLOADED_FILE',
+
+  // Create Model Dialog
   SHOW_CREATE_MODEL_DIALOG: 'SHOW_CREATE_MODEL_DIALOG',
-  HIDE_CREATE_MODEL_DIALOG: 'HIDE_CREATE_MODEL_DIALOG'
+  HIDE_CREATE_MODEL_DIALOG: 'HIDE_CREATE_MODEL_DIALOG',
+
+  // File Detail
+  SHOW_FILE_DETAILS: 'SHOW_FILE_DETAILS',
+  HIDE_FILE_DETAILS: 'HIDE_FILE_DETAILS',
+
+  // Metric
+  LIST_METRICS: 'LIST_METRICS',
+  LIST_METRICS_FAILURE: 'LIST_METRICS_FAILURE',
+
+  // Metric Data
+  LOAD_METRIC_DATA: 'LOAD_METRIC_DATA',
+  UNLOAD_METRIC_DATA: 'UNLOAD_METRIC_DATA'
 });
 
 /**

@@ -22,6 +22,7 @@ import {ACTIONS} from '../lib/Constants';
  * Stop running model
  * @param {FluxibleContext} actionContext - Fluxible action context object
  * @param {string} modelId - Model ID
+ * @emits {STOP_MODEL}
  * @returns {Promise} - Fluxible resolves with return value
  * @see http://fluxible.io/api/actions.html#api-code-actions-code-
  */

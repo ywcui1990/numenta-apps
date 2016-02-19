@@ -19,8 +19,9 @@ import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Hide {CreateModelDialog} page
+ * Hide {@link CreateModelDialog} page
  * @param  {FluxibleContext} actionContext - The action context
+ * @emits {HIDE_CREATE_MODEL_DIALOG}
  */
 export default function (actionContext) {
   actionContext.dispatch(ACTIONS.HIDE_CREATE_MODEL_DIALOG);

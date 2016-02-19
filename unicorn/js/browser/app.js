@@ -38,8 +38,7 @@ import FileClient from './lib/Unicorn/FileClient';
 import FileDetailsStore from './stores/FileDetailsStore';
 import MetricStore from './stores/MetricStore';
 import FileStore from './stores/FileStore';
-import ListFilesAction from './actions/ListFiles';
-import ListMetricsAction from './actions/ListMetrics';
+import StartApplicationAction from './actions/StartApplication';
 import loggerConfig from '../config/logger';
 import MainComponent from './components/Main';
 import MetricDataStore from './stores/MetricDataStore';
@@ -135,10 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // fire initial app action to load all files
-  context.executeAction(ListFilesAction, {})
-    .then((files) => {
-      return context.executeAction(ListMetricsAction, files);
-    })
+  context.executeAction(StartApplicationAction)
     .then(() => {
       let contextEl = FluxibleReact.createElementWithContext(context);
       let container = document.getElementById('main');

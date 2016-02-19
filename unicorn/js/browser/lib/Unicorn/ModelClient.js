@@ -56,14 +56,6 @@ export default class ModelClient {
     });
   }
 
-  sendData(modelId, data) {
-    ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      modelId,
-      command: 'sendData',
-      params: JSON.stringify(data)
-    });
-  }
-
   _handleIPCEvent(event, modelId, command, payload) {
     if (this._context) {
       if (command === 'data') {

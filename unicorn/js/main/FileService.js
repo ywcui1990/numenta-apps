@@ -78,34 +78,6 @@ FileService.prototype.getSampleFiles = function (callback) {
 };
 
 /**
- * Get a list of uploaded files.
- * @param {Object} file - File getting uploaded
- * @param {Function} callback - Async callback: function (error, results)
- */
-FileService.prototype.getUploadedFiles = function (file, callback) {
-  var formattedFile = {
-    uid: Utils.generateFileId(file.path),
-    name: file.name,
-    filename: file.path,
-    type: 'uploaded',
-    metrics: []
-  };
-
-  this.getFields(formattedFile.filename, {}, (error, fields) => {
-    if (error) {
-      callback(error);
-      return;
-    }
-    if (fields) {
-      formattedFile.metrics = fields;
-      callback(null, formattedFile);
-      return;
-    }
-    callback(`Failed to parse file ${formattedFile.filename}`);
-  });
-};
-
-/**
  * Get all field definitions for the give file guessing data types based on
  *  first record.
  * @param {string} filename - The absolute path of the CSV file
