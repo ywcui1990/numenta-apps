@@ -25,7 +25,6 @@ Implements Unicorn's param_finder interface.
 """
 from argparse import ArgumentParser
 import csv
-import datetime
 import json
 import logging
 import os
@@ -36,8 +35,10 @@ import traceback
 from dateutil import tz
 import validictory
 
-from param_finder import findParameters
-from param_finder import MAX_NUM_ROWS
+from unicorn_backend.param_finder import findParameters
+from unicorn_backend.param_finder import MAX_NUM_ROWS
+
+from unicorn_backend import date_time_utils
 
 g_log = logging.getLogger(__name__)
 
@@ -174,8 +175,8 @@ def _readCSVFile(fileName,
     samples = []
     numRows = 0
     for row in fileReader:
-      timestamp = datetime.datetime.strptime(row[timestampIndex],
-                                             datetimeFormat)
+      timestamp = date_time_utils.parseDatetime(row[timestampIndex],
+                                                datetimeFormat)
 
       # use utc timezone if timezone information is not provided
       if timestamp.tzinfo is None:
