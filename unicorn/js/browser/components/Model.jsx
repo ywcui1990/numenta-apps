@@ -126,7 +126,7 @@ export default class Model extends React.Component {
     this.context.executeAction(StopModelAction, modelId);
   }
 
-  _createModel(metricName, csvPath, rowOffset, timestampIndex, valueIndex,
+  _createModel(metricName, metricId, csvPath, rowOffset, timestampIndex, valueIndex,
                datetimeFormat) {
 
     let inputOpts = {
@@ -143,7 +143,7 @@ export default class Model extends React.Component {
     });
 
     this.context.executeAction(StartParamFinderAction, {
-      metricId: metricName,
+      metricId: metricId,
       inputOpts: inputOpts
     })
   }
@@ -209,6 +209,10 @@ export default class Model extends React.Component {
       }
     }
 
+    // TODO: FIXME - UNI-324
+    valueIndex = 1;
+    timestampIndex = 0;
+
     let csvPath = file.filename;
     let metricName = metric.name;
     let rowOffset = 1; // TODO; should be replaced by user defined selection (if check use first row as headers) at file upload time
@@ -232,7 +236,7 @@ export default class Model extends React.Component {
           disabled={hasModelRun}
           label={this._config.get('button:model:create')}
           labelPosition="after"
-          onTouchTap={this._createModel.bind(this, metricName, csvPath, rowOffset, timestampIndex, valueIndex,
+          onTouchTap={this._createModel.bind(this, metricName, metric.uid, csvPath, rowOffset, timestampIndex, valueIndex,
                datetimeFormat)}
         />
         <FlatButton

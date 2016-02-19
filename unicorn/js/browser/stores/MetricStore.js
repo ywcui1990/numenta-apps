@@ -79,6 +79,32 @@ export default class MetricStore extends BaseStore {
   }
 
   /**
+   * Get input opts
+   * @param  {string} metricId The metric id
+   * @return {MetricStore.Metric} The metric object or `null`
+   */
+  getInputOpts(metricId) {
+    return this.inputOpts.get(metricId);
+  }
+
+  /**
+   * Get param finder results
+   * @param  {string} metricId The metric id
+   * @return {MetricStore.Metric} The metric object or `null`
+   */
+  getParamFinderResults(metricId) {
+    return this.paramFinderResults.get(metricId);
+  }
+
+  /**
+   * Get all metrics
+   * @return {MetricStore.Metric} The metric object or `null`
+   */
+  getMetrics() {
+    return this._metrics;
+  }
+
+  /**
    * Get metric by Id
    * @param  {string} metricId The metric id
    * @return {MetricStore.Metric} The metric object or `null`
@@ -141,10 +167,15 @@ export default class MetricStore extends BaseStore {
 
   _handleStartParamFinder(payload) {
     console.log('DEBUG: MetricStore:_handleStartParamFinder:payload', payload);
+    console.log('DEBUG: MetricStore:_handleStartParamFinder:this.inputOpts', this.inputOpts);
+    console.log('DEBUG: MetricStore:_handleStartParamFinder:this.paramFinderResults', this.paramFinderResults);
+
     let metricId = payload.metricId;
+
+    console.log('DEBUG: METRIC ID start', metricId, Utils.generateMetricId(this.fileName, this.metricName));
     let inputOpts = payload.inputOpts;
     this.inputOpts.set(metricId, inputOpts);
-    console.log('DEBUG: MetricStore:_handleStartParamFinder:this.inputOpts', this.inputOpts);
+
     this.emitChange();
   }
 
@@ -161,10 +192,15 @@ export default class MetricStore extends BaseStore {
   }
 
   _handleReceiveParamFinderData(payload) {
+    console.log('DEBUG: MetricStore:_handleReceiveParamFinderData:payload', payload)
     let paramFinderResults = JSON.parse(payload.paramFinderResults);
     let metricId = payload.metricId;
+
+    console.log('DEBUG: METRIC ID receive', metricId);
     this.paramFinderResults.set(metricId, paramFinderResults);
-    console.log('DEBUG: MetricStore', this.paramFinderResults);
+    console.log('DEBUG: MetricStore:paramFinderResults', this.paramFinderResults);
+    console.log('DEBUG: MetricStore:inputOpts', this.inputOpts);
+    console.log('DEBUG: MetricStore:inputOpts', this.inputOpts);
     this.emitChange();
   }
 

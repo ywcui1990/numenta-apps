@@ -213,7 +213,7 @@ export default class Main extends React.Component {
   }
 
 
-  _onClick() {
+  _onClickDebug() {
     let pfClient = this.context.getParamFinderClient();
     console.log('DEBUG: Main.jsx:paramFinderInput', INPUT_OPTS);
     pfClient.createParamFinder(1, INPUT_OPTS);
@@ -226,7 +226,7 @@ export default class Main extends React.Component {
   /**
    * Add/Upload new data/CSV file button onClick event handler
    */
-  _onClickOrig() {
+  _onClick() {
     let file = {};
     let selected = dialog.showOpenDialog({
       title: this._config.get('dialog:file:add:title'),
