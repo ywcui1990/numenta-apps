@@ -34,6 +34,7 @@ export default class Chart extends React.Component {
   static get propTypes() {
     return {
       data: React.PropTypes.array.isRequired,
+      metaData: React.PropTypes.object,
       options: React.PropTypes.object,
       zDepth: React.PropTypes.number
     };
@@ -42,6 +43,7 @@ export default class Chart extends React.Component {
   static get defaultProps() {
     return {
       data: [],
+      metaData: {},
       options: {},
       zDepth: 1
     };
@@ -49,6 +51,7 @@ export default class Chart extends React.Component {
 
   static get contextTypes() {
     return {
+      getConfigClient: React.PropTypes.func,
       muiTheme: React.PropTypes.object
     };
   }
@@ -56,8 +59,11 @@ export default class Chart extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    this._config = this.context.getConfigClient();
+
     // DyGraphs chart container
     this._dygraph = null;
+    this._displayPointCount = this._config.get('chart:points');
 
     // Chart Range finder values: For Fixed-width-chart & auto-scroll-to-right
     this._chartBusy = null;
@@ -70,7 +76,7 @@ export default class Chart extends React.Component {
     this._styles = {
       root: {
         boxShadow: 'none',
-        height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 3.5,
+        height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 2.75,
         width: '100%'
       }
     };
@@ -78,8 +84,9 @@ export default class Chart extends React.Component {
 
   componentDidMount() {
     this._chartBusy = false;
-    this._chartRange = [0, this._chartRangeWidth]; // hold current range window
-    this._chartScrollLock = true; // if chart far-right, stay floated right
+    this._chartRange = [0, 0];
+    this._chartRangeWidth = null;
+    this._chartScrollLock = true;  // if chart far-right, stay floated right
 
     if (this.props.data.length) {
       this._chartInitalize();
@@ -110,28 +117,39 @@ export default class Chart extends React.Component {
    * DyGrpahs Chart Initalize and Render
    */
   _chartInitalize() {
-    let options = {
-      clickCallback: this._chartClickCallback.bind(this),
-      zoomCallback: this._chartZoomCallback.bind(this)
-    };
+    let data = this.props.data;
     let el = ReactDOM.findDOMNode(this.refs.chart);
-    let selector;
+    let first = new Date(data[0][0]).getTime();
+    let second = new Date(data[1][0]).getTime();
+    let unit = second - first; // each datapoint
+    let options;
+    // let selector;
 
     this._chartBusy = true;
 
+    // determine each value datapoint time unit and chart width based on that
+    this._chartRangeWidth = unit * this._displayPointCount;
+    this._chartRange = [first, first + this._chartRangeWidth]; // float left
+
+    // init chart
+    options = {
+      dateWindow: this._chartRange // ,
+      // clickCallback: this._chartClickCallback.bind(this),
+      // zoomCallback: this._chartZoomCallback.bind(this)
+    };
     Object.assign(options, this.props.options);
-    this._dygraph = new Dygraph(el, this.props.data, options);
+    this._dygraph = new Dygraph(el, data, options);
 
     // range selector custom events
-    selector = el.getElementsByClassName('dygraph-rangesel-fgcanvas')[0];
-    selector.addEventListener(
-      'mousedown',
-      this._rangeMouseDownCallback.bind(this)
-    );
-    selector.addEventListener(
-      'mouseup',
-      this._rangeMouseUpCallback.bind(this)
-    );
+    // selector = el.getElementsByClassName('dygraph-rangesel-fgcanvas')[0];
+    // selector.addEventListener(
+    //   'mousedown',
+    //   this._rangeMouseDownCallback.bind(this)
+    // );
+    // selector.addEventListener(
+    //   'mouseup',
+    //   this._rangeMouseUpCallback.bind(this)
+    // );
 
     this._chartBusy = false;
   }
@@ -140,20 +158,30 @@ export default class Chart extends React.Component {
    * DyGrpahs Chart Update and Re-Render
    */
   _chartUpdate() {
-    let options = {};
-    let graphXmax;
+    let {data, options} = this.props;
+    let anomalyCount = Math.abs(this.props.metaData.length.model - 1);
+    let first = new Date(data[0][0]).getTime();
+    let rangeMax, rangeMin;
 
-    if (this._chartScrollLock && !this._chartBusy) {
-      // if range scroll is locked, we're far right, so stay far right on chart
-      graphXmax = this._dygraph.xAxisExtremes()[1];
-      this._chartRange = [(graphXmax - this._chartRangeWidth), graphXmax];
+    if (anomalyCount % 2 === 0) {
+      return; // filter out half of calls to redraw update
+    }
+
+    // if range scroll is locked, we're far left, so stay far left on chart
+    if (/* this._chartScrollLock && */ !this._chartBusy) {
+      rangeMax = new Date(data[anomalyCount][0]).getTime();
+      rangeMin = rangeMax - this._chartRangeWidth;
+      if (rangeMin < first) {
+        rangeMin = first;
+        rangeMax = rangeMin + this._chartRangeWidth;
+      }
+      this._chartRange = [rangeMin, rangeMax];
     }
 
     // update chart
     this._chartBusy = true;
     options.dateWindow = this._chartRange; // fixed width
-    options.file = this.props.data; // new data
-    Object.assign(options, this.props.options);
+    options.file = data; // new data
     this._dygraph.updateOptions(options);
     this._chartBusy = false;
   }
@@ -223,7 +251,7 @@ export default class Chart extends React.Component {
   render() {
     return (
       <Paper ref="chart" style={this._styles.root} zDepth={this.props.zDepth}>
-        <br/>This Metric does not yet have a Model.
+        <br/>Loading data...
       </Paper>
     );
   }

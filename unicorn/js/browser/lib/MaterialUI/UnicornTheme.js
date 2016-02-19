@@ -26,13 +26,12 @@ import zIndex from 'material-ui/lib/styles/zIndex';
  *
  */
 export default {
-
-  // MUI standard
   fontFamily: 'Roboto, sans-serif',
   spacing: Spacing,
   zIndex,
   palette: {
     primary1Color: '#29aae2', // numenta blue : actions
+    primary1FadeColor: '#b7d5e2', // faded numenta blue
     primary2Color: '#095c80', // darkened numenta blue : header
     primary3Color: Colors.lightBlack,
     accent1Color: '#29aae2', // numenta blue : actions
@@ -43,10 +42,11 @@ export default {
     alternateTextColor: Colors.white,
     canvasColor: Colors.white,
     borderColor: Colors.grey300,
-    disabledColor: Colors.grey300 // disabled light gray
+    disabledColor: Colors.grey300, // disabled light gray
+    dangerColor: '#cb0000',  // Numenta Anomaly Red
+    warnColor: '#d6ce03',  // Numenta Anomaly Yellow
+    safeColor: '#0f8300'  // Numenta Anomaly Green
   },
-
-  // Custom augmentation
   font: {
     weight: {
       light: Typography.fontWeightLight,
@@ -54,5 +54,4 @@ export default {
       medium: Typography.fontWeightMedium
     }
   }
-
 };
