@@ -15,7 +15,7 @@
 //
 // http://numenta.org/licenses/
 
-import Checkbox from 'material-ui/lib/checkbox';
+// import Checkbox from 'material-ui/lib/checkbox'; //  FIXME: UNI-323
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
@@ -35,7 +35,7 @@ import TextField from 'material-ui/lib/text-field';
 import FileStore from '../stores/FileStore';
 import MetricStore from '../stores/MetricStore';
 import FileDetailsStore from '../stores/FileDetailsStore';
-import FileDetailsSaveAction from '../actions/FileDetailsSave';
+import FileUpdateAction from '../actions/FileUpdate';
 import HideFileDetailsAction from '../actions/HideFileDetails';
 import Utils from '../../main/Utils';
 import {TIMESTAMP_FORMATS} from '../lib/Constants';
@@ -163,10 +163,10 @@ export default class FileDetails extends React.Component {
   }
 
   _onSave() {
-    let {file, metrics} = this.state;
+    let {file} = this.state;
     if (file) {
       // Update File
-      this.context.executeAction(FileDetailsSaveAction, {file, metrics});
+      this.context.executeAction(FileUpdateAction, file);
     }
     this.context.executeAction(HideFileDetailsAction);
   }
@@ -185,7 +185,7 @@ export default class FileDetails extends React.Component {
 
   _renderMetrics() {
     let items;
-    let {file, metrics} = this.state;
+    let file = this.state.file;
     let metricStore = this.context.getStore(MetricStore);
     let fileMetrics = metricStore.getMetricsByFileId(file.uid);
     let timestampField = fileMetrics.find((metric) => {
@@ -194,12 +194,15 @@ export default class FileDetails extends React.Component {
 
     if (this.props.newFile && timestampField) {
       items = fileMetrics.map((metric) => {
-        let checked, modelId;
+        // let checked; FIXME: UNI-323
+        let modelId;
 
         if (metric.type !== 'date') {
           modelId = Utils.generateMetricId(file.filename, metric.name);
-          checked = metrics.get(modelId) ? true : false; // eslint-disable-line
-
+          // FIXME: UNI-323 Disable multiple model creation until new "multiple models creation" flow is implemented
+          // checked = metrics.get(modelId) ? true : false; // eslint-disable-line
+          // let metrics = this.state.metrics;
+/*
           return (
             <ListItem
               key={modelId}
@@ -216,10 +219,19 @@ export default class FileDetails extends React.Component {
               primaryText={<div style={this._styles.metric}>{metric.name}</div>}
               />
           );
+*/
+          return (
+            <ListItem
+              key={modelId}
+              primaryText={<div style={this._styles.metric}>{metric.name}</div>}
+              />
+          );
         }
       });
       return (
-        <List subheader="Create Models" height="50px">
+        // FIXME: UNI-323
+        // <List subheader="Create Models" height="50px">
+        <List subheader="Metrics" height="50px">
           {items}
         </List>
       );

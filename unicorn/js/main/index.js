@@ -17,14 +17,12 @@
 // http://numenta.org/licenses/
 
 
-import {app} from 'electron';
-import {BrowserWindow} from 'electron';
+import {app, BrowserWindow, crashReporter, dialog, Menu} from 'electron';
 import bunyan from 'bunyan';
-import {crashReporter} from 'electron';
-import {dialog} from 'electron';
 import path from 'path';
 
 import Config from './ConfigService';
+import MainMenu from './MainMenu';
 import ModelServiceIPC from './ModelServiceIPC';
 import ParamFinderServiceIPC from './ParamFinderServiceIPC';
 
@@ -64,6 +62,9 @@ app.on('window-all-closed', () => {
 
 // Electron finished init and ready to create browser window
 app.on('ready', () => {
+  // set main menu
+  Menu.setApplicationMenu(Menu.buildFromTemplate(MainMenu));
+
   // create browser window
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -91,11 +92,11 @@ app.on('ready', () => {
     log.info('Electron Main: Renderer DOM is now ready!');
   });
 
-  // Handle IPC commuication for the ModelService
+  // Handle IPC communication for the ModelService
   modelService = new ModelServiceIPC();
   modelService.start(mainWindow.webContents);
 
-  // Handle IPC commuication for the ModelService
+  // Handle IPC communication for the ParamFinderService
   paramFinderService = new ParamFinderServiceIPC();
   paramFinderService.start(mainWindow.webContents);
 });

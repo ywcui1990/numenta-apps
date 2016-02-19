@@ -18,7 +18,7 @@
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import path from 'path';
 import React from 'react';
-import remote from 'remote';
+import {remote} from 'electron';
 
 import Card from 'material-ui/lib/card/card';
 import CardActions from 'material-ui/lib/card/card-actions';
@@ -40,14 +40,6 @@ import StartParamFinderAction from '../actions/StartParamFinder';
 const MOMENTS_TO_DATETIME = require('../../config/momentjs_to_datetime_strptime.json');
 const dialog = remote.require('dialog');
 
-const DIALOG_STRINGS = {
-  model: {
-    title: 'Delete Model',
-    message: 'Deleting this model will delete the associated model results.' +
-    ' Are you sure you want to delete this model?'
-  }
-};
-
 
 /**
  * Model component, contains Chart details, actions, and Chart Graph itself.
@@ -60,6 +52,7 @@ export default class Model extends React.Component {
   static get contextTypes() {
     return {
       executeAction: React.PropTypes.func,
+      getConfigClient: React.PropTypes.func,
       getStore: React.PropTypes.func,
       muiTheme: React.PropTypes.object
     };
@@ -76,6 +69,8 @@ export default class Model extends React.Component {
 
     let store = this.context.getStore(ModelStore);
     let model = store.getModel(this.props.modelId);
+
+    this._config = this.context.getConfigClient();
 
     this._styles = {
       root: {
@@ -153,8 +148,8 @@ export default class Model extends React.Component {
 
   _deleteModel(modelId) {
     this._showDeleteConfirmDialog(
-      DIALOG_STRINGS.model.title,
-      DIALOG_STRINGS.model.message,
+      this._config.get('dialog:model:delete:title'),
+      this._config.get('dialog:model:delete:message'),
       () => {
         this.context.executeAction(DeleteModelAction, modelId);
         this._dismissDeleteConfirmDialog();
@@ -164,8 +159,8 @@ export default class Model extends React.Component {
 
   _exportModelResults(modelId) {
     dialog.showSaveDialog({
-      title: 'Export Model Results',
-      defaultPath: 'Untitled.csv'
+      title: this._config.get('dialog:model:export:title'),
+      defaultPath: this._config.get('dialog:model:export:path')
     }, (filename) => {
       if (filename) {
         this.context.executeAction(
@@ -224,44 +219,47 @@ export default class Model extends React.Component {
 
     let dialogActions = [
       <FlatButton
-        label="Cancel"
+        label={this._config.get('button:cancel')}
         onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
-      />,
+        />,
       <FlatButton
         keyboardFocused={true}
-        label="Delete"
+        label={this._config.get('button:delete')}
         onTouchTap={deleteConfirmDialog.callback}
         primary={true}
         ref="submit"
-      />
+        />
     ];
     let actions = (
       <CardActions style={this._styles.actions}>
         <FlatButton
           disabled={hasModelRun}
-          label="Create Model"
+          label={this._config.get('button:model:create')}
           labelPosition="after"
           onTouchTap={this._createModel.bind(this, metricName, csvPath, rowOffset, timestampIndex, valueIndex,
                datetimeFormat)}
         />
         <FlatButton
           disabled={!isModelActive}
-          label="Stop Model"
+          label={this._config.get('button:model:stop')}
           labelPosition="after"
           onTouchTap={this._onStopButtonClick.bind(this, modelId)}
-        />
+          primary={hasModelRun}
+          />
         <FlatButton
           disabled={!hasModelRun}
-          label="Delete Model"
+          label={this._config.get('button:model:delete')}
           labelPosition="after"
           onTouchTap={this._deleteModel.bind(this, modelId)}
-        />
+          primary={hasModelRun}
+          />
         <FlatButton
           disabled={!hasModelRun}
-          label="Export Results"
+          label={this._config.get('button:model:export')}
           labelPosition="after"
           onTouchTap={this._exportModelResults.bind(this, modelId)}
-        />
+          primary={hasModelRun}
+          />
       </CardActions>
     );
 
@@ -281,10 +279,10 @@ export default class Model extends React.Component {
           subtitle={<div style={this._styles.title}>{filename}</div>}
           title={<div style={this._styles.title}>{title}</div>}
           titleColor={titleColor}
-        />
+          />
         <CardText expandable={true}>
           {actions}
-          <ModelData modelId={modelId}/>
+          <ModelData modelId={modelId} />
         </CardText>
         <Dialog
           actions={dialogActions}
@@ -292,8 +290,8 @@ export default class Model extends React.Component {
           open={dialogOpen}
           ref="deleteConfirmDialog"
           title={deleteConfirmDialog.title}
-        >
-          {deleteConfirmDialog.message}
+          >
+            {deleteConfirmDialog.message}
         </Dialog>
         <CreateModelDialog ref="createModelWindow" initialOpenState={false}/>
       </Card>

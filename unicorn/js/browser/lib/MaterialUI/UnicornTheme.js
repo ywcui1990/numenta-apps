@@ -16,23 +16,43 @@
 // http://numenta.org/licenses/
 
 import Colors from 'material-ui/lib/styles/colors';
-import ColorManipulator from 'material-ui/lib/utils/color-manipulator';
 import Spacing from 'material-ui/lib/styles/spacing';
+import Typography from 'material-ui/lib/styles/typography';
+import zIndex from 'material-ui/lib/styles/zIndex';
 
+
+/**
+ * Unicorn Material-UI Theme
+ *
+ */
 export default {
-  spacing: Spacing,
+
+  // MUI standard
   fontFamily: 'Roboto, sans-serif',
+  spacing: Spacing,
+  zIndex,
   palette: {
-    primary1Color: Colors.lightBlue700,
-    primary2Color: Colors.cyan700,
+    primary1Color: '#29aae2', // numenta blue : actions
+    primary2Color: '#095c80', // darkened numenta blue : header
     primary3Color: Colors.lightBlack,
-    accent1Color: Colors.lightBlue400,
+    accent1Color: '#29aae2', // numenta blue : actions
     accent2Color: Colors.lightBlue800,
-    accent3Color: Colors.grey500,
-    textColor: Colors.darkBlack,
+    accent3Color: Colors.grey500, // neutral gray for small menu headings
+    accent4Color: Colors.grey700, // slightly less dark than textColor Black
+    textColor: Colors.darkBlack, // main text color
     alternateTextColor: Colors.white,
     canvasColor: Colors.white,
     borderColor: Colors.grey300,
-    disabledColor: ColorManipulator.fade(Colors.darkBlack, 0.3)
+    disabledColor: Colors.grey300 // disabled light gray
+  },
+
+  // Custom augmentation
+  font: {
+    weight: {
+      light: Typography.fontWeightLight,
+      normal: Typography.fontWeightNormal,
+      medium: Typography.fontWeightMedium
+    }
   }
+
 };

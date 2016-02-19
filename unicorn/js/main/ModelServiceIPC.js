@@ -63,12 +63,13 @@ export default class ModelServiceIPC {
    *  						See 'ModelService#createModel' for 'params' format.
    *  - 'remove': Stops and remove the model
    *  - 'list':   List running models as Array of IDs in `returnValue['models']`
+   *  - 'sendData': Send data to the model. See 'sendData' for 'params' format
    *
    * @param {Event} event - IPC Event Object.
    *                        Any error will be returned via 'returnValue.error'
    * @param {Object} payload - Event payload
    * @param {string} modelId - Model Id
-   * @param {string} command -  'create' | 'remove' | 'list'
+   * @param {string} command -  'create' | 'remove' | 'list' | 'sendData'
    * @param {Object} [params] - Command parameters
    */
   _handleIPCEvent(event, payload) {
@@ -80,6 +81,8 @@ export default class ModelServiceIPC {
         this._onRemove(modelId);
       } else if (command === 'list') {
         event.returnValue = this._onList();
+      } else if (command === 'sendData') {
+        this._onSendData(modelId, payload.params);
       } else {
         throw new UserError(`Unknown model command ${command}`);
       }
@@ -136,6 +139,16 @@ export default class ModelServiceIPC {
       this._attached.delete(modelId);
       this._service.removeAllListeners(modelId);
     }
+  }
+
+  /**
+   * Event callback handler for sending data to client.
+   * @param {string} modelId - ID of Model to transmit data for
+   * @param {string} data - JSON-encoded string of data to send
+   */
+  _onSendData(modelId, data) {
+    const input = JSON.parse(data);
+    this._service.sendData(modelId, input);
   }
 
   /**
