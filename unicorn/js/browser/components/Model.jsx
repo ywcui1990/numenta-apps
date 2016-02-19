@@ -15,31 +15,32 @@
 //
 // http://numenta.org/licenses/
 
-import connectToStores from 'fluxible-addons-react/connectToStores';
-import path from 'path';
-import React from 'react';
-import {remote} from 'electron';
-
 import Card from 'material-ui/lib/card/card';
 import CardActions from 'material-ui/lib/card/card-actions';
 import CardHeader from 'material-ui/lib/card/card-header';
 import CardText from 'material-ui/lib/card/card-text';
 import Colors from 'material-ui/lib/styles/colors';
+import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
+import path from 'path';
+import React from 'react';
+import {remote} from 'electron';
 
+import CreateModelDialog from '../components/CreateModelDialog'
 import DeleteModelAction from '../actions/DeleteModel';
 import ExportModelResultsAction from '../actions/ExportModelResults';
+import FileStore from '../stores/FileStore';
+import MetricStore from '../stores/MetricStore';
 import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
-import MetricStore from '../stores/MetricStore';
-import FileStore from '../stores/FileStore';
-import StopModelAction from '../actions/StopModel';
-import CreateModelDialog from '../components/CreateModelDialog'
 import ShowCreateModelDialogAction from '../actions/ShowCreateModelDialog';
 import StartParamFinderAction from '../actions/StartParamFinder';
-const MOMENTS_TO_DATETIME = require('../../config/momentjs_to_datetime_strptime.json');
+import StopModelAction from '../actions/StopModel';
+
 const dialog = remote.require('dialog');
+const MOMENTS_TO_DATETIME =
+  require('../../config/momentjs_to_datetime_strptime.json');
 
 
 /**
@@ -126,26 +127,18 @@ export default class Model extends React.Component {
     this.context.executeAction(StopModelAction, modelId);
   }
 
-  _createModel(metricName, metricId, csvPath, rowOffset, timestampIndex, valueIndex,
-               datetimeFormat) {
-
+  _createModel(metricName, metricId, csvPath, rowOffset, timestampIndex,
+                valueIndex, datetimeFormat) {
     let inputOpts = {
-      csv: csvPath,
-      rowOffset: rowOffset,
-      timestampIndex: timestampIndex,
-      valueIndex: valueIndex,
-      datetimeFormat: datetimeFormat
+      csv: csvPath, rowOffset, timestampIndex, valueIndex, datetimeFormat
     };
 
     this.context.executeAction(ShowCreateModelDialogAction, {
       fileName: path.basename(csvPath),
-      metricName: metricName
+      metricName
     });
 
-    this.context.executeAction(StartParamFinderAction, {
-      metricId: metricId,
-      inputOpts: inputOpts
-    })
+    this.context.executeAction(StartParamFinderAction, {metricId, inputOpts});
   }
 
   _deleteModel(modelId) {
@@ -175,7 +168,7 @@ export default class Model extends React.Component {
   }
 
   render() {
-    let titleColor, valueIndex, timestampIndex, metric;
+    let metric, timestampIndex, titleColor, valueIndex;
     let model = this.state;
     let modelId = model.modelId;
     let filename = path.basename(model.filename);
@@ -209,13 +202,13 @@ export default class Model extends React.Component {
       }
     }
 
-    // TODO: FIXME - UNI-324
+    // @TODO: FIXME - UNI-324
     valueIndex = 1;
     timestampIndex = 0;
 
     let csvPath = file.filename;
     let metricName = metric.name;
-    let rowOffset = 1; // TODO; should be replaced by user defined selection (if check use first row as headers) at file upload time
+    let rowOffset = 1; // @TODO; should be replaced by user defined selection (if check use first row as headers) at file upload time
 
     let dialogActions = [
       <FlatButton
@@ -236,8 +229,11 @@ export default class Model extends React.Component {
           disabled={hasModelRun}
           label={this._config.get('button:model:create')}
           labelPosition="after"
-          onTouchTap={this._createModel.bind(this, metricName, metric.uid, csvPath, rowOffset, timestampIndex, valueIndex,
-               datetimeFormat)}
+          onTouchTap={
+            this._createModel.bind(this, metricName, metric.uid, csvPath,
+                                    rowOffset, timestampIndex, valueIndex,
+                                    datetimeFormat)
+          }
         />
         <FlatButton
           disabled={!isModelActive}

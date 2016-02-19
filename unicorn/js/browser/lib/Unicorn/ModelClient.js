@@ -43,7 +43,7 @@ export default class ModelClient {
 
   createModel(modelId, inputOpts, aggOpts, modelOpts) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      modelId: modelId,
+      modelId,
       command: 'create',
       inputOpts: JSON.stringify(inputOpts),
       aggOpts: JSON.stringify(aggOpts),
