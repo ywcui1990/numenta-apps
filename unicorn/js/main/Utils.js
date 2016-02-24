@@ -16,11 +16,8 @@
 // http://numenta.org/licenses/
 
 import crypto from 'crypto';
-import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
-import UnicornTheme from '../browser/lib/MaterialUI/UnicornTheme';
-
-const muiTheme = ThemeManager.getMuiTheme(UnicornTheme);
+import muiTheme from '../browser/lib/MaterialUI/UnicornTheme';
 
 
 export default class Utils {
@@ -79,12 +76,12 @@ export default class Utils {
    * @returns {String} - String for Color to use
    */
   static mapAnomalyColor(index, total) {
-    let color = muiTheme.rawTheme.palette.safeColor;
+    let color = muiTheme.palette.safeColor;
     if (index > (total/4)) {
-      color = muiTheme.rawTheme.palette.warnColor;
+      color = muiTheme.palette.warnColor;
     }
     if (index > (total/2)) {
-      color = muiTheme.rawTheme.palette.dangerColor;
+      color = muiTheme.palette.dangerColor;
     }
     return color;
   }

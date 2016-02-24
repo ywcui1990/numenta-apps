@@ -22,7 +22,8 @@ import Utils from '../../../main/Utils';
 
 
 /**
- * DyGraph Plugin - RangeSelectorBarChart overlay for HTM Anomalies
+ * DyGraph Plugin - RangeSelectorBarChart overlay for HTM Anomalies. Small clone
+ *  and repurposing of the stock RangeSelector Dygraph plugin. Full ES6.
  * @requries Dygraphs
  * @see https://github.com/danvk/dygraphs/tree/master/src/plugins
  * @see https://github.com/danvk/dygraphs/blob/master/src/plugins/range-selector.js
@@ -273,7 +274,7 @@ export default class {
    */
   _xValueToPixel(x, xMax, xFactor) {
     if (x !== null) {
-      return parseInt((x - xMax) * xFactor, 10);
+      return Math.round((x - xMax) * xFactor, 10);
     }
     return NaN;
   }
@@ -283,7 +284,7 @@ export default class {
    */
   _yValueToPixel(y, yMin, yMax, yFactor) {
     if (y !== null) {
-      return parseInt(yMax - ((y - yMin) * yFactor), 10);
+      return Math.round(yMax - ((y - yMin) * yFactor), 10);
     }
     return NaN;
   }

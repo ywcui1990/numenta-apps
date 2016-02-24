@@ -54,7 +54,7 @@ export default class ModelData extends React.Component {
     let muiTheme = this.context.muiTheme;
     let displayPointCount = this._config.get('chart:points');
 
-    this._anomalyBarWidth = parseInt(displayPointCount / 16, 10);
+    this._anomalyBarWidth = Math.round(displayPointCount / 16, 10);
     this._anomalyValueHeight = 1.0;
 
     this._chartOptions = {

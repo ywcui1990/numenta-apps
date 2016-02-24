@@ -30,5 +30,6 @@ body {
 /* DyGraphs overrides */
 
 img.dygraph-rangesel-zoomhandle {
+  cursor: move !important;
   opacity: 0;
 }
