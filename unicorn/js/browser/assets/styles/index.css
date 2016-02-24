@@ -29,6 +29,20 @@ body {
 
 /* DyGraphs overrides */
 
+.dygraph-rangesel-bgcanvas {
+  z-index: 10 !important;
+}
+
+.dygraph-rangesel-fgcanvas {
+  z-index: 30 !important;
+}
+
+.dygraph-rangeselbarchart-canvas {
+  opacity: 0.66;
+  z-index: 20 !important;
+}
+
 img.dygraph-rangesel-zoomhandle {
+  cursor: move !important;
   opacity: 0;
 }
