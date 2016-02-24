@@ -64,7 +64,6 @@ export default class {
     }
 
     return {
-      layout: this._reserveSpace,
       predraw: this._renderStaticLayer
     };
   }
@@ -98,7 +97,7 @@ export default class {
     this._canvas = Dygraph.createCanvas();
     this._canvas.className = 'dygraph-rangeselbarchart-canvas';
     this._canvas.style.position = 'absolute';
-    this._canvas.style.zIndex = 100; // @TODO was 9
+    this._canvas.style.zIndex = 20;
     this._canvas_context = Dygraph.getContext(this._canvas);
   }
 
@@ -196,30 +195,22 @@ export default class {
   }
 
   /**
-   * Called by Layout to allow range selector bar charts to reserve its space.
-   */
-  _reserveSpace(event) {
-    if (this._getOption('showRangeSelector')) {
-      event.reserveSpaceBottom(this._getOption('rangeSelectorHeight') + 4);
-    }
-  }
-
-  /**
    * Resizes the range selector bar charts
    */
   _resize() {
     let plotArea = this._dygraph.layout_.getPlotArea();
-    let xAxisLabelHeight = 0;
+    let xAxisLabelHeight;
 
     if (this._dygraph.getOptionForAxis('drawAxis', 'x')) {
-      xAxisLabelHeight = this._getOption('xAxisHeight') || (
-        (this._getOption('axisLabelFontSize') + 2) *
-          this._getOption('axisTickSize')
-      );
+      xAxisLabelHeight = this._getOption('xAxisHeight') || 0;
+      if (xAxisLabelHeight <= 0) {
+        xAxisLabelHeight = (this._getOption('axisLabelFontSize') *
+                            this._getOption('axisTickSize')) / 2;
+      }
     }
     this._canvasRect = {
       x: plotArea.x,
-      y: plotArea.y + plotArea.h + xAxisLabelHeight + 4,
+      y: plotArea.y + plotArea.h + xAxisLabelHeight + 3,
       w: plotArea.w,
       h: this._getOption('rangeSelectorHeight')
     };
