@@ -213,11 +213,11 @@ export default class Main extends React.Component {
 
   _onClickDebug() {
     let pfClient = this.context.getParamFinderClient();
-    console.log('DEBUG: Main.jsx:paramFinderInput', INPUT_OPTS);
+    // console.log('DEBUG: Main.jsx:paramFinderInput', INPUT_OPTS);
     pfClient.createParamFinder(1, INPUT_OPTS);
 
     let modelClient = this.context.getModelClient();
-    console.log('DEBUG: Main.jsx:InfoOpts', INPUT_OPTS, AGG_OPTS, MODEL_OPTS);
+    // console.log('DEBUG: Main.jsx:InfoOpts', INPUT_OPTS, AGG_OPTS, MODEL_OPTS);
     modelClient.createModel('!Metric!f0ac44078ffbe4ce!0b8fd68132e02146',
                             INPUT_OPTS, AGG_OPTS, MODEL_OPTS);
   }

@@ -22,14 +22,17 @@ import RGBColor from 'rgbcolor';
 import Chart from '../components/Chart';
 import ModelDataStore from '../stores/ModelDataStore';
 import MetricDataStore from '../stores/MetricDataStore';
+import RangeSelectorBarChart from '../lib/Dygraphs/RangeSelectorBarChartPlugin';
+import Utils from '../../main/Utils';
 
 
 /**
- *
- * @requries RGBColor
+ * React Component for sending Model Data from Model component to
+ *  Chart component.
  */
 @connectToStores([ModelDataStore, MetricDataStore], () => ({}))
 export default class ModelData extends React.Component {
+
   static get contextTypes() {
     return {
       getConfigClient: React.PropTypes.func,
@@ -46,22 +49,18 @@ export default class ModelData extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+    this._config = this.context.getConfigClient();
 
     let muiTheme = this.context.muiTheme;
+    let displayPointCount = this._config.get('chart:points');
 
-    this._config = this.context.getConfigClient();
-    this._displayAnomalyColors = {
-      green: muiTheme.rawTheme.palette.safeColor,
-      red: muiTheme.rawTheme.palette.dangerColor,
-      yellow: muiTheme.rawTheme.palette.warnColor
-    };
-    this._displayPointCount = this._config.get('chart:points');
-    this._anomalyBarWidth = parseInt(this._displayPointCount / 16, 10);
+    this._anomalyBarWidth = parseInt(displayPointCount / 16, 10);
     this._anomalyValueHeight = 1.0;
 
     this._chartOptions = {
       // dygraphs global chart options
       options: {
+        plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
         showRangeSelector: true
@@ -76,8 +75,9 @@ export default class ModelData extends React.Component {
         },
         series: {
           Value: {
-            strokeWidth: 2,
-            color: muiTheme.rawTheme.palette.primary2Color
+            color: muiTheme.rawTheme.palette.primary2Color,
+            showInRangeSelector: true,
+            strokeWidth: 2
           }
         }
       },
@@ -95,7 +95,7 @@ export default class ModelData extends React.Component {
         series: {
           Anomaly: {
             axis: 'y2',
-            plotter: this._anomalyBarPlotter.bind(this)
+            plotter: this._anomalyBarChartPlotter.bind(this)
           }
         }
       }
@@ -103,11 +103,11 @@ export default class ModelData extends React.Component {
   } // constructor
 
   /**
-    * DyGraphs custom plotter function to draw Anomaly bar charts
-    * @param {Object} event - Dygraph event object reference
-    * @requires RGBColor
-    */
-  _anomalyBarPlotter(event) {
+   * DyGraphs custom plotter function to draw Anomaly bar charts
+   * @param {Object} event - Dygraph event object reference
+   * @requires RGBColor
+   */
+  _anomalyBarChartPlotter(event) {
     let context = event.drawingContext;
     let points = event.points;
     let yBottom = event.dygraph.toDomYCoord(0);
@@ -117,7 +117,7 @@ export default class ModelData extends React.Component {
       let xCenter = point.canvasx;
       let xStart = (xCenter - this._anomalyBarWidth / 2);
       let xEnd = (xCenter + this._anomalyBarWidth / 2);
-      let startColor = new RGBColor(this._mapAnomalyColor(0, yBottom)).toRGB();
+      let startColor = new RGBColor(Utils.mapAnomalyColor(0, yBottom)).toRGB();
       let color, index;
 
       // every bar has a basic 2px placeholder green line
@@ -125,7 +125,7 @@ export default class ModelData extends React.Component {
       this._drawLine(context, xStart, xEnd, yBottom-1, startColor);
 
       // draw vertical bar with several horizontal lines in column
-      color = new RGBColor(this._mapAnomalyColor(height, yBottom));
+      color = new RGBColor(Utils.mapAnomalyColor(height, yBottom));
       if (color && 'toRGB' in color) {
         for (index=0; index<height; index++) {
           let y = yBottom - index;
@@ -151,29 +151,13 @@ export default class ModelData extends React.Component {
     context.stroke();
   }
 
-  /**
-   * Map Anomaly value/height to bar color (Red/Yellow/Green)
-   * @param {Number} index - Integer for current count of anomaly height
-   * @param {Number} total - Integer for max possible anomaly height
-   * @returns {String} - String for Color to use
-   */
-  _mapAnomalyColor(index, total) {
-    let color = 'green';
-    if (index > (total/4)) {
-      color = 'yellow';
-    }
-    if (index > (total/2)) {
-      color = 'red';
-    }
-    return this._displayAnomalyColors[color];
-  }
-
   render() {
     let metricDataStore = this.context.getStore(MetricDataStore);
     let metricData = metricDataStore.getData(this.props.modelId);
     let {anomaly, options} = this._chartOptions;
     let {axes, labels, series} = this._chartOptions.value;
     let metaData = {length: {metric: 0, model: 0}};
+    let anomalyIndex = 2;
     let data = [];
     let modelData, modelDataStore;
 
@@ -187,13 +171,13 @@ export default class ModelData extends React.Component {
       modelData = modelDataStore.getData(this.props.modelId);
       if (modelData && modelData.data.length > 0) {
         // Initialize Anomaly values to NaN
-        data.forEach((item) => item[2] = Number.NaN);
+        data.forEach((item) => item[anomalyIndex] = Number.NaN);
         metaData.length.model = modelData.data.length;
         // Update anomaly values
         modelData.data.forEach((item, rowid) => {
-          let score = item[2];
+          let score = item[anomalyIndex];
           if (rowid < data.length) {
-            data[rowid][2] = score;
+            data[rowid][anomalyIndex] = score;
           }
         });
 
@@ -210,4 +194,5 @@ export default class ModelData extends React.Component {
       <Chart data={data} metaData={metaData} options={options} />
     );
   }
+
 }

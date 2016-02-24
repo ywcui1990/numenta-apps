@@ -58,7 +58,6 @@ export default class Chart extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-
     this._config = this.context.getConfigClient();
 
     // DyGraphs chart container
@@ -86,7 +85,7 @@ export default class Chart extends React.Component {
     this._chartBusy = false;
     this._chartRange = [0, 0];
     this._chartRangeWidth = null;
-    this._chartScrollLock = true;  // if chart far-right, stay floated right
+    this._chartScrollLock = true;  // auto-scroll with new model+anomaly data
 
     if (this.props.data.length) {
       this._chartInitalize();
@@ -133,8 +132,8 @@ export default class Chart extends React.Component {
 
     // init chart
     options = {
-      dateWindow: this._chartRange // ,
-      // clickCallback: this._chartClickCallback.bind(this),
+      clickCallback: this._chartClickCallback.bind(this),
+      dateWindow: this._chartRange
       // zoomCallback: this._chartZoomCallback.bind(this)
     };
     Object.assign(options, this.props.options);
@@ -165,7 +164,7 @@ export default class Chart extends React.Component {
     let rangeMax, rangeMin;
 
     // if range scroll is locked, we're far left, so stay far left on chart
-    if (/* this._chartScrollLock && */ !this._chartBusy) {
+    if (this._chartScrollLock && !this._chartBusy) {
       rangeMax = new Date(data[anomalyCount][0]).getTime();
       rangeMin = rangeMax - this._chartRangeWidth;
       if (rangeMin < first) {
@@ -199,12 +198,12 @@ export default class Chart extends React.Component {
    */
   _chartZoomCallback(rangeXmin, rangeXmax, yRanges) {
     // chart range finder, far-right scroll lock
-    let [graphXmin, graphXmax] = this._dygraph.xAxisExtremes();
-    let graphXrange = graphXmax - graphXmin;
-    let graphXdiff = graphXmax - rangeXmax;
+    // let [graphXmin, graphXmax] = this._dygraph.xAxisExtremes();
+    // let graphXrange = graphXmax - graphXmin;
+    // let graphXdiff = graphXmax - rangeXmax;
 
-    // if range slider is moved far to the right, re-enable auto scroll
-    this._chartScrollLock = this._isScrollLockActive(graphXdiff, graphXrange);
+    // @TODO if range slider is moved far to the right, re-enable auto scroll
+    // this._chartScrollLock = this._isScrollLockActive(graphXdiff, graphXrange);
   }
 
   /**
@@ -220,25 +219,14 @@ export default class Chart extends React.Component {
    * @param {Object} event - Event handler object
    */
   _rangeMouseUpCallback(event) {
-    let [graphXmin, graphXmax] = this._dygraph.xAxisExtremes();
-    let graphXrange = graphXmax - graphXmin;
-    let graphXdiff = graphXmax - this._chartRange[1];
+    // let [graphXmin, graphXmax] = this._dygraph.xAxisExtremes();
+    // let graphXrange = graphXmax - graphXmin;
+    // let graphXdiff = graphXmax - this._chartRange[1];
 
     this._chartBusy = false;
 
-    // if range slider is moved far to the right, re-enable auto scroll
-    this._chartScrollLock = this._isScrollLockActive(graphXdiff, graphXrange);
-  }
-
-  /**
-   * Should scroll lock be turned on? (Is chart range slider far-to-the-right?)
-   * @param {Number} xDiff - Current width of range slider selection
-   * @param {Number} xRange - Full width of range slider possible values
-   * @return {Boolean} - Should range slider "scroll lock" be considered active
-   *  based on current position/range?
-   */
-  _isScrollLockActive(xDiff, xRange) {
-    return (xDiff < (xRange * 0.1));  // near right edge ~10%
+    // @TODO if range slider is moved far to the right, re-enable auto scroll
+    // this._chartScrollLock = this._isScrollLockActive(graphXdiff, graphXrange);
   }
 
   /**

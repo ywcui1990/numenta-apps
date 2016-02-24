@@ -15,8 +15,12 @@
 //
 // http://numenta.org/licenses/
 
-
 import crypto from 'crypto';
+import ThemeManager from 'material-ui/lib/styles/theme-manager';
+
+import UnicornTheme from '../browser/lib/MaterialUI/UnicornTheme';
+
+const muiTheme = ThemeManager.getMuiTheme(UnicornTheme);
 
 
 export default class Utils {
@@ -67,6 +71,24 @@ export default class Utils {
     }
     return `${metricId}!${timestamp.getTime()}`;
   }
+
+  /**
+   * Map Anomaly value/height to bar color (Red/Yellow/Green)
+   * @param {Number} index - Integer for current count of anomaly height
+   * @param {Number} total - Integer for max possible anomaly height
+   * @returns {String} - String for Color to use
+   */
+  static mapAnomalyColor(index, total) {
+    let color = muiTheme.rawTheme.palette.safeColor;
+    if (index > (total/4)) {
+      color = muiTheme.rawTheme.palette.warnColor;
+    }
+    if (index > (total/2)) {
+      color = muiTheme.rawTheme.palette.dangerColor;
+    }
+    return color;
+  }
+
   /**
    * Template String to trim extra spaces from multiline es6 strings.
    * @param {Array} strings - Input string literals for es6 template string.

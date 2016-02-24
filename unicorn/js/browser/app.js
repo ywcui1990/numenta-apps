@@ -46,7 +46,7 @@ import ModelClient from './lib/Unicorn/ModelClient';
 import ParamFinderClient from './lib/Unicorn/ParamFinderClient';
 import ModelDataStore from './stores/ModelDataStore';
 import ModelStore from './stores/ModelStore';
-import UnicornPlugin from './lib/Fluxible/Plugins/Unicorn';
+import UnicornPlugin from './lib/Fluxible/UnicornPlugin';
 import Utils from '../main/Utils';
 
 const config = new ConfigClient();
