@@ -69,19 +69,23 @@ export default function (actionContext, payload) {
             throw new Error(error);
           }
           if (buffer) {
-            datum = JSON.parse(buffer);
 
-            // Infer timestamp format based the first row
+            datum = JSON.parse(buffer);
+            // Infer timestamp format based the first rows
             if (tsField && datum) {
+
               file.timestampFormat = TIMESTAMP_FORMATS.find((format) => {
                 return moment(datum[tsField], format, true).isValid();
               });
-            } else {
-              throw new Error('Could not find data to process.');
-            }
 
-            if (!(file.timestampFormat)) {
-              throw new Error('Could not find Timestamp Format for this data');
+              if (!(file.timestampFormat)) {
+                throw new Error(`The file that you are trying to upload has a timestamp format that is not supported: ${datum[tsField]}`);
+              }
+
+            } else if (!tsField) {
+              throw new Error('This file does not have a column with datetime values.');
+            } else if (!datum) {
+              throw new Error('This file does not have data.');
             }
 
             // Update stores
