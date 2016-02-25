@@ -1,19 +1,22 @@
-// Copyright © 2015, Numenta, Inc.  Unless you have purchased from
-// Numenta, Inc. a separate commercial license for this software code, the
-// following terms and conditions apply:
-//
-// This program is free software: you can redistribute it and/or modify it under
-// the terms of the GNU Affero Public License version 3 as published by the Free
-// Software Foundation.
-//
-// This program is distributed in the hope that it will be useful, but WITHOUT
-// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
-//
-// You should have received a copy of the GNU Affero Public License along with
-// this program.  If not, see http://www.gnu.org/licenses.
-//
-// http://numenta.org/licenses/
+/* -----------------------------------------------------------------------------
+ * Copyright © 2016, Numenta, Inc. Unless you have purchased from
+ * Numenta, Inc. a separate commercial license for this software code, the
+ * following terms and conditions apply:
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Affero Public License version 3 as published by
+ * the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU Affero Public License along with
+ * this program. If not, see http://www.gnu.org/licenses.
+ *
+ * http://numenta.org/licenses/
+ * -------------------------------------------------------------------------- */
 
 import getPortablePython from './PortablePython';
 import childProcess from 'child_process';
@@ -22,11 +25,9 @@ import path from 'path';
 import system from 'os';
 import UserError from './UserError';
 
-let PYTHON_EXECUTABLE = getPortablePython();
-
-/** Model Runner script location */
+const PYTHON_EXECUTABLE = getPortablePython();
 const MODEL_RUNNER_PATH = path.join(
-  __dirname, '..', '..', 'py', 'unicorn_backend', 'model_runner.py'
+  __dirname, '..', '..', 'py', 'unicorn_backend', 'model_runner_2.py'
 );
 
 /**
@@ -89,11 +90,15 @@ export class ModelService extends EventEmitter {
 
   /**
    * Creates new HTM model.
-   * @param  {string} modelId - Unique identifier for the model
-   * @param  {Object} stats - HTM Model parameters. See model_runner.py
+   * @param  {String} modelId - Unique identifier for the model.
+   *  Updates modelOpt.modelId property.
+   * @param  {Object} inputOpt - Input options. See 'input_opt_schema.json'
+   * @param  {Object} aggregationOpt - Aggregation options.
+   *  See 'agg_opt_schema.json'
+   * @param  {Object} modelOpt - Model options. See 'model_opt_schema.json'
    * @throws {@link MaximumConcurrencyError}, {@link DuplicateIDError}
    */
-  createModel(modelId, stats) {
+  createModel(modelId, inputOpt, aggregationOpt, modelOpt) {
     if (this.availableSlots() <= 0) {
       throw new MaximumConcurrencyError();
     }
@@ -101,11 +106,13 @@ export class ModelService extends EventEmitter {
       throw new DuplicateIDError();
     }
 
-    const params = [MODEL_RUNNER_PATH, '--model', modelId, '--stats', stats];
+    const params = [MODEL_RUNNER_PATH,
+      '--input', JSON.stringify(inputOpt),
+      '--agg', JSON.stringify(aggregationOpt),
+      '--model', JSON.stringify(modelOpt)
+    ];
     const child = childProcess.spawn(PYTHON_EXECUTABLE, params);
-
     child.stdout.setEncoding('utf8');
-    child.stdin.setDefaultEncoding('utf8');
     child.stderr.setEncoding('utf8');
 
     child.on('error', (error) => {
@@ -125,24 +132,9 @@ export class ModelService extends EventEmitter {
       this.emit(modelId, 'close', code);
     });
 
-    this._models.set(modelId, {modelId, stats, child});
-  }
-
-  /**
-   * Sends data to the model.
-   * @param {string} modelId - The model to send data
-   * @param {Array} inputData - The data values to be sent to the model, usually
-   *  in the following format: '[timestamp, value]'
-   * @throws {@link ModelNotFoundError}
-   */
-  sendData(modelId, inputData) {
-    if (!this._models.has(modelId)) {
-      throw new ModelNotFoundError();
-    }
-
-    const model = this._models.get(modelId);
-    const value = [JSON.stringify(inputData), '\n'].join('');
-    model.child.stdin.write(value);
+    this._models.set(modelId, {
+      inputOpt, aggregationOpt, modelOpt, child
+    });
   }
 
   /**
