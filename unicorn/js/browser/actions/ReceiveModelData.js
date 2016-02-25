@@ -27,8 +27,11 @@ import {ACTIONS} from '../lib/Constants';
  * @param {String} payload.modelId - Required model id
  * @param {Object[]} payload.data - New data to be appended
  * @emits {RECEIVE_MODEL_DATA}
+ * @TODO {@link ModelService} should save model results to database
  */
 export default function (actionContext, payload) {
-  // console.log('DEBUG: ReceiveModelData', payload);
-  actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, payload);
+  let {modelId, data} = payload;
+  actionContext.dispatch(ACTIONS.RECEIVE_MODEL_DATA, {
+    modelId, data
+  });
 }

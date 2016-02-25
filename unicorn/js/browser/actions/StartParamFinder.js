@@ -24,14 +24,14 @@ import {ACTIONS} from '../lib/Constants';
  * @param {Object} payload - Data to send to Param Finder
  * @param {String} payload.metricId - ID of the metric for param finder
  * @param {Object} payload.inputOpts - Input options to start the param finder.
+ * @TODO: {@ParamFinderService} should save `modelOpts` to database
  */
 export default function (actionContext, payload) {
-  // @TODO: store input Opts here
-  console.log('DEBUG: StartParamFinder', payload);
-
   let paramFinderClient = actionContext.getParamFinderClient();
   let {inputOpts, metricId} = payload;
 
   paramFinderClient.createParamFinder(metricId, inputOpts);
-  actionContext.dispatch(ACTIONS.START_PARAM_FINDER, payload);
+  actionContext.dispatch(ACTIONS.START_PARAM_FINDER, {
+    inputOpts, metricId
+  });
 }

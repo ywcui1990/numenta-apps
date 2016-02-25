@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Start listening for model events
   modelClient.start(context.getActionContext());
 
-  console.log('DEBUG: app.js - start paramFinderClient');
+  // Start listening for paramFinder events
   paramFinderClient.start(context.getActionContext());
 
   // app exit handler
@@ -141,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ReactDOM.render(contextEl, container);
     })
     .catch((error) => {
+      console.log(error); // eslint-disable-line
       dialog.showErrorBox('Startup Error', `Startup Error: ${error}`);
     });
 }); // DOMContentLoaded

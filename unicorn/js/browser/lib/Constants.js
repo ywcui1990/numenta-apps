@@ -30,6 +30,7 @@
  *  - LIST_FILES_FAILURE
  *  - UPLOADED_FILE_FAILED
  *  - UPDATE_FILE_FAILED
+ *  - DELETE_FILE_FAILED
  *
  * - Model
  *  - ADD_MODEL: {@link AddModel}
@@ -39,10 +40,11 @@
  *  - SHOW_MODEL: {@link ShowModel}
  *  - HIDE_MODEL: {@link HideModel}
  *  - EXPORT_MODEL_RESULTS: {@link ExportModelResults}
+ *  - EXPORT_MODEL_RESULTS_FAILED: {@link ExportModelResults}
  *
  * - Model Data
  *  - RECEIVE_MODEL_DATA: {@link ReceiveModelData}
- *  - 
+ *
  * - Model Errors
  *  - START_MODEL_FAILED
  *  - STOP_MODEL_FAILED
@@ -52,15 +54,15 @@
  * - Param Finder
  *   - START_PARAM_FINDER: {@link StartParamFinder}
  *   - STOP_PARAM_FINDER: {@link StopParamFinder}
- * 
+ *
  * - Param Finder Data
  *   - RECEIVE_PARAM_FINDER_DATA: {@link ReceiveParamFinderData}
- * 
+ *
  * - Param Finder Errors
  *   - START_PARAM_FINDER_FAILED {@link ParamFinderError}
  *   - STOP_PARAM_FINDER_FAILED {@link ParamFinderError}
  *   - UNKNOWN_PARAM_FINDER_FAILURE {@link ParamFinderError}
- * 
+ *
  * - File Detail
  *  - SHOW_FILE_DETAILS: {@link ShowFileDetails}
  *  - HIDE_FILE_DETAILS: {@link HideFileDetails}
@@ -75,12 +77,13 @@
  *
  * - Metric Data
  *  - LOAD_METRIC_DATA: {@link LoadMetricData}
+ *  - LOAD_METRIC_DATA_FAILED: {@link LoadMetricData}
  *  - UNLOAD_METRIC_DATA: {@link UnloadMetricData}
  */
 export const ACTIONS = Object.freeze({
   // Application
   START_APPLICATION: 'START_APPLICATION',
-  
+
   // File
   DELETE_FILE: 'DELETE_FILE',
   LIST_FILES: 'LIST_FILES',
@@ -90,6 +93,7 @@ export const ACTIONS = Object.freeze({
   LIST_FILES_FAILURE: 'LIST_FILES_FAILURE',
   UPLOADED_FILE_FAILED: 'UPLOADED_FILE_FAILED',
   UPDATE_FILE_FAILED: 'UPDATE_FILE_FAILED',
+  DELETE_FILE_FAILED: 'DELETE_FILE_FAILED',
 
   // Model
   ADD_MODEL: 'ADD_MODEL',
@@ -108,6 +112,7 @@ export const ACTIONS = Object.freeze({
   STOP_MODEL_FAILED: 'STOP_MODEL_FAILED',
   DELETE_MODEL_FAILED: 'DELETE_MODEL_FAILED',
   UNKNOWN_MODEL_FAILURE: 'UNKNOWN_MODEL_FAILURE',
+  EXPORT_MODEL_RESULTS_FAILED: 'EXPORT_MODEL_RESULTS_FAILED',
 
   // Param Finder
   START_PARAM_FINDER: 'START_PARAM_FINDER',
@@ -115,7 +120,7 @@ export const ACTIONS = Object.freeze({
 
   // Param Finder Data
   RECEIVE_PARAM_FINDER_DATA: 'RECEIVE_PARAM_FINDER_DATA',
-  
+
   // Param Finder Errors
   START_PARAM_FINDER_FAILED: 'START_PARAM_FINDER_FAILED',
   STOP_PARAM_FINDER_FAILED: 'STOP_PARAM_FINDER_FAILED',
@@ -135,6 +140,7 @@ export const ACTIONS = Object.freeze({
 
   // Metric Data
   LOAD_METRIC_DATA: 'LOAD_METRIC_DATA',
+  LOAD_METRIC_DATA_FAILED: 'LOAD_METRIC_DATA_FAILED',
   UNLOAD_METRIC_DATA: 'UNLOAD_METRIC_DATA'
 });
 

@@ -18,23 +18,32 @@
 
 import {ACTIONS} from '../lib/Constants';
 
+/**
+ * Dispatches `param_finder` errors
+ * @param {FluxibleContext} actionContext  FluxibleContext
+ * @param {object} payload       Error payload
+ * @param {string} payload.metricId The metric that generate the error
+ * @param {string} payload.command The command that generate the error
+ * @param {string} payload.error The error description
+ * @emits {START_PARAM_FINDER_FAILED}
+ * @emits {STOP_PARAM_FINDER_FAILED}
+ * @emits {UNKNOWN_PARAM_FINDER_FAILURE}
+*/
 export default function (actionContext, payload) {
-
-  console.log('DEBUG: ParamFinderErrorAction', payload);
   let {command, metricId, error} = payload;
-
-
   if (command === 'create') {
-    return actionContext.dispatch(ACTIONS.START_PARAM_FINDER_FAILED, {
+    actionContext.dispatch(ACTIONS.START_PARAM_FINDER_FAILED, {
       metricId, error
     });
+    return;
   } else if (command === 'remove') {
-    return actionContext.dispatch(ACTIONS.STOP_PARAM_FINDER_FAILED, {
+    actionContext.dispatch(ACTIONS.STOP_PARAM_FINDER_FAILED, {
       metricId, error
     });
+    return;
   }
 
-  return actionContext.dispatch(ACTIONS.UNKNOWN_PARAM_FINDER_FAILURE, {
+  actionContext.dispatch(ACTIONS.UNKNOWN_PARAM_FINDER_FAILURE, {
     metricId, error
   });
 }

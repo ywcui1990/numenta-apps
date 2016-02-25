@@ -21,13 +21,17 @@ import {ACTIONS} from '../lib/Constants';
 
 /**
  * Receive model data
+ *
  * @param {FluxibleContext} actionContext - Fluxible action context object
  * @param {Object} payload - The action payload
  * @param {String} payload.metricId - Required metric id
  * @param {Object[]} payload.paramFinderResults - param finder results
+ * @emits {RECEIVE_PARAM_FINDER_DATA}
+ * @TODO {@link ParamFinderService} should save param finder results to database
  */
 export default function (actionContext, payload) {
-  // @TODO: store param finder results here
-  console.log('DEBUG: ReceiveParamFinderDataAction', payload);
-  actionContext.dispatch(ACTIONS.RECEIVE_PARAM_FINDER_DATA, payload);
+  let {metricId, paramFinderResults} = payload;
+  actionContext.dispatch(ACTIONS.RECEIVE_PARAM_FINDER_DATA, {
+    metricId, paramFinderResults
+  });
 }

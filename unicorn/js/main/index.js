@@ -44,7 +44,6 @@ let paramFinderService = null;
  *
  * Main Electron code Application entry point, initializes browser app.
  */
-
 crashReporter.start({
   companyName: config.get('company'),
   productName: config.get('title'),
@@ -52,14 +51,8 @@ crashReporter.start({
 });
 
 app.on('window-all-closed', () => {
-  // OS X apps stay active until the user quits explicitly Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  app.quit();
 });
-
-
-// MAIN
 
 // Electron finished init and ready to create browser window
 app.on('ready', () => {

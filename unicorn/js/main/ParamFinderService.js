@@ -87,8 +87,6 @@ export class ParamFinderService extends EventEmitter {
    * @throws {@link MaximumConcurrencyError}, {@link DuplicateIDError}
    */
   createParamFinder(metricId, inputOpt) {
-
-    console.log('DEBUG: ParamFinderService:createParamFinder', inputOpt);
     if (this.availableSlots(metricId) <= 0) {
       throw new MaximumConcurrencyError();
     }
@@ -100,7 +98,6 @@ export class ParamFinderService extends EventEmitter {
     const params = [PARAM_FINDER_PATH,
       '--input', JSON.stringify(inputOpt)
     ];
-    console.log('DEBUG: ParamFinderService: ', PYTHON_EXECUTABLE, params);
     const child = childProcess.spawn(PYTHON_EXECUTABLE, params);
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
@@ -125,8 +122,6 @@ export class ParamFinderService extends EventEmitter {
     this._paramFinders.set(metricId, {
       inputOpt, child
     });
-
-    console.log('DEBUG: ParamFinderService:createParamFinder:_paramFinders', this._paramFinders);
   }
 
   /**

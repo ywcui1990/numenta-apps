@@ -15,7 +15,7 @@
 //
 // http://numenta.org/licenses/
 
-// import Checkbox from 'material-ui/lib/checkbox'; // @TODO @FIXME: UNI-323
+// import Checkbox from 'material-ui/lib/checkbox'; // @FIXME: UNI-323
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';

@@ -57,13 +57,11 @@ export default class ParamFinderClient {
   }
 
   _handleIPCEvent(event, metricId, command, payload) {
-    console.log('DEBUG: ParamFinderClient:_handleIPCEvent', metricId, command, payload);
     if (this._context) {
       if (command === 'data') {
         setTimeout(() => this._handleParamFinderData(metricId, payload));
       } else if (command === 'error') {
         let {error, ipcevent} = payload;
-        console.log('DEBUG: ParamFinderClient:_handleIPCEvent:error', error, ipcevent);
         setTimeout(() => this._handleIPCError(metricId, error, ipcevent));
       } else if (command === 'close') {
         setTimeout(() => this._handleCloseParamFinder(metricId ,payload));
@@ -84,7 +82,9 @@ export default class ParamFinderClient {
         metricId = ipcevent.metricId;
       }
     }
-    this._context.executeAction(ParamFinderErrorAction, {command, metricId, error});
+    this._context.executeAction(ParamFinderErrorAction, {
+      command, metricId, error
+    });
   }
 
   _handleCloseParamFinder(metricId, error) {
@@ -100,7 +100,8 @@ export default class ParamFinderClient {
   }
 
   _handleParamFinderData(metricId, paramFinderResults) {
-    this._context.executeAction(ReceiveParamFinderData, {metricId, paramFinderResults});
+    this._context.executeAction(ReceiveParamFinderData, {
+      metricId, paramFinderResults
+    });
   }
-
 }

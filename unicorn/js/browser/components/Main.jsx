@@ -36,136 +36,6 @@ const app = remote.app;
 const dialog = remote.require('dialog');
 
 
-// @TODO: remove (DEBUG)
-const INPUT_OPTS = {
-  csv: '/Users/mleborgne/_git/numenta-apps/unicorn/js/samples/gym.csv',
-  datetimeFormat: '%m-%d-%y %H:%M',
-  timestampIndex: 0,
-  rowOffset: 4,
-  valueIndex: 1
-};
-
-const AGG_OPTS = {
-  windowSize: 14400,
-  func: 'mean'
-};
-
-const MODEL_OPTS = {
-  inferenceArgs: {
-    predictionSteps: [
-      1
-    ],
-    predictedField: 'c1',
-    inputPredictedField: 'auto'
-  },
-  modelConfig: {
-    aggregationInfo: {
-      seconds: 0,
-      fields: [
-
-      ],
-      months: 0,
-      days: 0,
-      years: 0,
-      hours: 0,
-      microseconds: 0,
-      weeks: 0,
-      minutes: 0,
-      milliseconds: 0
-    },
-    model: 'CLA',
-    version: 1,
-    predictAheadTime: null,
-    modelParams: {
-      sensorParams: {
-        verbosity: 0,
-        encoders: {
-          c0_dayOfWeek: {
-            dayOfWeek: [
-              21,
-              3
-            ],
-            fieldname: 'c0',
-            type: 'DateEncoder',
-            name: 'c0'
-          },
-          c0_timeOfDay: {
-            fieldname: 'c0',
-            timeOfDay: [
-              21,
-              9
-            ],
-            type: 'DateEncoder',
-            name: 'c0'
-          },
-          c1: {
-            fieldname: 'c1',
-            seed: 42,
-            resolution: 1.1032878900316,
-            name: 'c1',
-            type: 'RandomDistributedScalarEncoder'
-          },
-          c0_weekend: null
-        },
-        sensorAutoReset: null
-      },
-      anomalyParams: {
-        anomalyCacheRecords: null,
-        autoDetectThreshold: null,
-        autoDetectWaitRecords: 5030
-      },
-      spParams: {
-        columnCount: 2048,
-        synPermInactiveDec: 0.0005,
-        maxBoost: 1,
-        spatialImp: 'cpp',
-        inputWidth: 0,
-        spVerbosity: 0,
-        synPermConnected: 0.1,
-        synPermActiveInc: 0.0015,
-        seed: 1956,
-        numActiveColumnsPerInhArea: 40,
-        globalInhibition: 1,
-        potentialPct: 0.8
-      },
-      trainSPNetOnlyIfRequested: false,
-      clParams: {
-        alpha: 0.035828933612158,
-        regionName: 'CLAClassifierRegion',
-        steps: '1',
-        clVerbosity: 0
-      },
-      tpParams: {
-        columnCount: 2048,
-        activationThreshold: 13,
-        pamLength: 3,
-        cellsPerColumn: 32,
-        permanenceInc: 0.1,
-        minThreshold: 10,
-        verbosity: 0,
-        maxSynapsesPerSegment: 32,
-        outputType: 'normal',
-        globalDecay: 0,
-        initialPerm: 0.21,
-        permanenceDec: 0.1,
-        seed: 1960,
-        maxAge: 0,
-        newSynapseCount: 20,
-        maxSegmentsPerCell: 128,
-        temporalImp: 'cpp',
-        inputWidth: 2048
-      },
-      clEnable: false,
-      spEnable: true,
-      inferenceType: 'TemporalAnomaly',
-      tpEnable: true
-    }
-  },
-  valueFieldName: 'c1',
-  timestampFieldName: 'c0'
-};
-
-
 /**
  * React Main View Component
  */
@@ -211,17 +81,6 @@ export default class Main extends React.Component {
     };
   }
 
-  _onClickDebug() {
-    let pfClient = this.context.getParamFinderClient();
-    // console.log('DEBUG: Main.jsx:paramFinderInput', INPUT_OPTS);
-    pfClient.createParamFinder(1, INPUT_OPTS);
-
-    let modelClient = this.context.getModelClient();
-    // console.log('DEBUG: Main.jsx:InfoOpts', INPUT_OPTS, AGG_OPTS, MODEL_OPTS);
-    modelClient.createModel('!Metric!f0ac44078ffbe4ce!0b8fd68132e02146',
-                            INPUT_OPTS, AGG_OPTS, MODEL_OPTS);
-  }
-
   /**
    * Add/Upload new data/CSV file button onClick event handler
    */
@@ -244,8 +103,8 @@ export default class Main extends React.Component {
   /**
    * Render
    * @return {object} Abstracted React/JSX DOM representation to render to HTML
-   * @todo refactor to better sub-components with individuated styles
-   * @todo check up zIndex and zDepths
+   * @TODO refactor to better sub-components with individuated styles
+   * @TODO check up zIndex and zDepths
    * @TODO Tooltip on + ADD icon - "Upload new CSV file" or something
    */
   render() {

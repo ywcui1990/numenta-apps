@@ -74,7 +74,6 @@ export default class ModelServiceIPC {
    * @param {string} payload.modelOpts: model params
    */
   _handleIPCEvent(event, payload) {
-    console.log('DEBUG: ModelServiceIPC:_handleIPCEvent:payload', payload);
     const modelId = payload.modelId;
     const command = payload.command;
     try {

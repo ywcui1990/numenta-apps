@@ -106,10 +106,8 @@ export default class Utils {
       if (i < values.length) {
         result += values[i];
       }
-
       i++;
     }
-
     return result;
   }
 

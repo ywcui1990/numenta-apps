@@ -19,15 +19,17 @@ import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Show {CreateModelDialog} page
+ * Show {@link CreateModelDialog} page
  * @emits {SHOW_CREATE_MODEL_DIALOG}
  * @param {FluxibleContext} actionContext - The action context
  * @param {Object} payload - Payload data object
  * @param {String} payload.fileName - Filename path of metric
  * @param {String} payload.metricName - Name to use for Metric
+ * @emits {SHOW_CREATE_MODEL_DIALOG}
  */
 export default function (actionContext, payload) {
-  console.log('DEBUG: ShowCreateModelDialog');
-  console.log(payload);
-  actionContext.dispatch(ACTIONS.SHOW_CREATE_MODEL_DIALOG, payload);
+  let {fileName, metricName} = payload;
+  actionContext.dispatch(ACTIONS.SHOW_CREATE_MODEL_DIALOG, {
+    fileName, metricName
+  });
 }

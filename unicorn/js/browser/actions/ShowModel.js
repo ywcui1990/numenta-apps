@@ -24,7 +24,7 @@ import LoadMetricDataAction from './LoadMetricData';
  * @param  {FluxibleContext} actionContext - The action context
  * @param  {string} modelId - The model to show.
  *                            Must be in the {@link ModelStore}
- * @emits {SHOW_MODEL}                           
+ * @emits {SHOW_MODEL}
  * @returns {Promise} - A Promise to be resolved with return value
  */
 export default function (actionContext, modelId) {

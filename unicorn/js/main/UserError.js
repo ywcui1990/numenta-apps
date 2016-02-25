@@ -19,7 +19,7 @@
 /**
  * Base UserError class
  * Overcomes the fact babel have problems inheriting from builtin objects:
- * @todo http://stackoverflow.com/questions/3108980
+ * @TODO http://stackoverflow.com/questions/3108980
  */
 export default class UserError extends Error {
   /**

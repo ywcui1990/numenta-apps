@@ -26,14 +26,14 @@ import {ACTIONS} from '../lib/Constants';
  * @param {Object} payload.inputOpts - input options to start the model
  * @param {String} payload.metricId - ID of the metric to start model for
  * @param {Object} payload.modelOpts - model params options
+ * @TODO: {@ParamFinderService} should save `modelOpts` to database
  */
 export default function (actionContext, payload) {
-  // @TODO: store input Opts here
-  console.log('DEBUG: StartModel', payload);
-
   let modelClient = actionContext.getModelClient();
   let {aggOpts, inputOpts, metricId, modelOpts} = payload;
 
   modelClient.createModel(metricId, inputOpts, aggOpts, modelOpts);
-  actionContext.dispatch(ACTIONS.START_MODEL, payload);
+  actionContext.dispatch(ACTIONS.START_MODEL, {
+    aggOpts, inputOpts, metricId, modelOpts
+  });
 }
