@@ -17,13 +17,7 @@
 //
 // http://numenta.org/licenses/
 
-
-// internals
-
 import FileStore from '../../../js/browser/stores/FileStore';
-
-
-// SETUP
 
 const assert = require('assert');
 
@@ -43,14 +37,6 @@ const EXPECTED_MULTIPLE_FILES = [{
   type: 'sample'
 }];
 
-const EXPECTED_METRICS = [
-  {name: 'timestamp', type: 'date'},
-  {name: 'metric', type: 'number'}
-];
-
-
-// MAIN
-
 describe('FileStore', () => {
   let store;
 
@@ -67,19 +53,6 @@ describe('FileStore', () => {
   it('#_handleListFiles', (done) => {
     store._handleListFiles(EXPECTED_MULTIPLE_FILES);
     assert.deepEqual(store.getFiles(), EXPECTED_MULTIPLE_FILES);
-    done();
-  });
-
-  it('#_handleListMetrics', (done) => {
-    let payloads = [];
-    store._handleListFiles(EXPECTED_MULTIPLE_FILES);
-    let filename = EXPECTED_MULTIPLE_FILES[0].filename;
-    payloads.push({
-      filename, metrics: EXPECTED_METRICS
-    });
-    store._handleListMetrics(payloads);
-    let files = store.getFiles();
-    assert.deepEqual(files[0].metrics, EXPECTED_METRICS);
     done();
   });
 });

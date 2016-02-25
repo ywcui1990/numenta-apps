@@ -24,6 +24,7 @@ import {ACTIONS} from '../lib/Constants';
  * @param  {FluxibleContext} actionContext - The action context
  * @param  {string} filename - The name of the file to show.
  *                             Must be in the {@link FileStore}
+ * @emits {SHOW_FILE_DETAILS}                            
  */
 export default function (actionContext, filename) {
   actionContext.dispatch(ACTIONS.SHOW_FILE_DETAILS, filename);

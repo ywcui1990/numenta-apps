@@ -20,18 +20,20 @@
 
 import {ipcMain as ipc} from 'electron';
 
-import {ParamFinderService, PARAM_FINDER_EVENT_TYPE} from './ParamFinderService';
+import {ParamFinderService} from './ParamFinderService';
 import UserError from './UserError';
 
-export const PARAM_FINDER_SERVICE_IPC_CHANNEL = 'PARAM_FINDER_SERVICE_IPC_CHANNEL';
+export const PARAM_FINDER_IPC_CHANNEL = 'PARAM_FINDER_IPC_CHANNEL';
+
 
 /**
- * IPC interface to Param Finder Service.
+ * IPC interface to ParamFinderService.
  */
 export default class ParamFinderServiceIPC {
 
   constructor() {
     this._webContents = null;
+    this._attached = new Set();
     this._service = new ParamFinderService();
   }
 
@@ -41,7 +43,7 @@ export default class ParamFinderServiceIPC {
    */
   start(webContents) {
     // Initialize IPC events
-    ipc.on(PARAM_FINDER_SERVICE_IPC_CHANNEL, this._handleIPCEvent.bind(this));
+    ipc.on(PARAM_FINDER_IPC_CHANNEL, this._handleIPCEvent.bind(this));
     // Attach to renderer process
     this._webContents = webContents;
   }
@@ -50,38 +52,45 @@ export default class ParamFinderServiceIPC {
    * Stop listening for IPC Events.
    */
   stop() {
-    ipc.removeAllListeners(PARAM_FINDER_SERVICE_IPC_CHANNEL);
+    ipc.removeAllListeners(PARAM_FINDER_IPC_CHANNEL);
     this._webContents = null;
   }
-
 
   /**
    * Handle IPC calls from renderer process.
    * The supported commands are:
-   *  - 'start': Start the param finder.
-   *              See 'ParamFinderService#startParamFinder' for 'params' format.
+   *  - 'create': Create new Param Finder.
+   *  						See 'ParamFinderService#createParamFinder' for 'params' format.
+   *  - 'remove': Stops and remove the paramFinder
+   *  - 'list':   List running param finders as Array of IDs
    *
    * @param {Event} event - IPC Event Object.
    *                        Any error will be returned via 'returnValue.error'
    * @param {Object} payload - Event payload
-   * @param {string} command -  'start' | 'stop'
+   * @param {string} metricId - Metric Id
+   * @param {string} command -  'create' | 'remove' | 'list'
    * @param {Object} [params] - Command parameters
    */
   _handleIPCEvent(event, payload) {
-    const {command} = payload;
+    const {metricId, command} = payload;
+    console.log('DEBUG: ParamFinderServiceIPC:_handleIPCEvent', payload);
     try {
-      if (command === 'start') {
-        this._onStart(payload.params);
-      } else if (command === 'stop') {
-        this._onStop();
+      if (command === 'create') {
+        this._onCreate(metricId, payload.params);
+      } else if (command === 'remove') {
+        this._onRemove(metricId);
+      } else if (command === 'list') {
+        event.returnValue = this._onList();
       } else {
+
         throw new UserError(`Unknown param finder command ${command}`);
       }
     } catch (error) {
       if (this._webContents) {
         // Forward error to browser
         this._webContents.send(
-          PARAM_FINDER_SERVICE_IPC_CHANNEL,
+          PARAM_FINDER_IPC_CHANNEL,
+          metricId,
           'error',
           {error, ipcevent: payload}
         );
@@ -89,41 +98,31 @@ export default class ParamFinderServiceIPC {
     }
   }
 
-
   /**
-   * Event callback handler for starting the param finder.
-   * @param {Object} params - Parameters to pass to run the param finder
+   * Start up a new param finder.
+   * @param {string} metricId - ID of the param finder to start up.
    */
-  _onStart(params) {
-    this._attach();
-    this._service.startParamFinder(params);
-  }
-
-  /**
-   * Start up .
-   */
-  _attach() {
-    if (this._service.isRunning()) {
+  _attach(metricId) {
+    if (this._attached.has(metricId)) {
       return;
     }
-
-    this._service.on(PARAM_FINDER_EVENT_TYPE, (command, payload) => {
-      if (this._service.isRunning()) {
+    this._attached.add(metricId);
+    this._service.on(metricId, (command, payload) => {
+      if (!this._attached.has(metricId)) {
         return;
       }
       // forward event to BrowserWindow
       if (this._webContents) {
         if (command === 'error') {
           this._webContents.send(
-            PARAM_FINDER_SERVICE_IPC_CHANNEL,
-            PARAM_FINDER_EVENT_TYPE,
+            PARAM_FINDER_IPC_CHANNEL,
+            metricId,
             'error',
             {error: new UserError(payload)}
           );
         } else {
           this._webContents.send(
-            PARAM_FINDER_SERVICE_IPC_CHANNEL,
-            PARAM_FINDER_EVENT_TYPE, command, payload
+            PARAM_FINDER_IPC_CHANNEL, metricId, command, payload
           );
         }
       }
@@ -131,11 +130,43 @@ export default class ParamFinderServiceIPC {
   }
 
   /**
-   * Stop the param finder
+   * Close down a running param finder.
+   * @param {string} metricId - ID of existing param finder to shut down
    */
-  _stop() {
-    if (this._service.isRunning) {
-      this._service.removeAllListeners(PARAM_FINDER_EVENT_TYPE);
+  _detach(metricId) {
+    if (this._attached.has(metricId)) {
+      this._attached.delete(metricId);
+      this._service.removeAllListeners(metricId);
     }
   }
+
+  /**
+   * Event callback handler for listing data.
+   * @return {Object} - Current Param Finder + State
+   */
+  _onList() {
+    return {
+      paramFinders: this._service.getParamFinders()
+    };
+  }
+
+  /**
+   * Event callback handler for creating a new param finder.
+   * @param {string} metricId -  ID of New Param Finder to create
+   * @param {Object} params - ParamFinder parameters
+   */
+  _onCreate(metricId, params) {
+    this._attach(metricId);
+    this._service.createParamFinder(metricId, JSON.parse(params));
+  }
+
+  /**
+   * Event callback handler for removing an existing param finder.
+   * @param {string} metricId - ID of existing param finder to shut down
+   */
+  _onRemove(metricId) {
+    this._detach(metricId);
+    this._service.removeParamFinder(metricId);
+  }
+
 }

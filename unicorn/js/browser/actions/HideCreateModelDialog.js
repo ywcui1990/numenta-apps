@@ -19,19 +19,10 @@ import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Create new model
- *
- * @param {FluxibleContext} actionContext -
- * @param {Object} payload - Action payload object
- * @param {string} payload.modelId - Model Unique ID.
- *                                	See {@link Utls.generateModelId}
- * @param {string} payload.filename - File full path name
- * @param {string} payload.timestampField - Timestamp field name
- * @param {string} payload.metric - Metric field name
- *
- * @return {Promise}
- * @todo Persist model reference
+ * Hide {@link CreateModelDialog} page
+ * @param  {FluxibleContext} actionContext - The action context
+ * @emits {HIDE_CREATE_MODEL_DIALOG}
  */
-export default function (actionContext, payload) {
-  return actionContext.dispatch(ACTIONS.ADD_MODEL, payload);
+export default function (actionContext) {
+  actionContext.dispatch(ACTIONS.HIDE_CREATE_MODEL_DIALOG);
 }

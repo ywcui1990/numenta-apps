@@ -2,6 +2,14 @@
   "title": "HTM Studio",
   "desc": "Cross-platform Desktop HTM Example Application",
   "company": "Numenta",
+  "browser": {
+    "entry": "../browser/index.html"
+  },
+  "bundle": {
+    "destination": "js/browser/assets/bundle",
+    "public": "js/browser/assets/bundle/",
+    "source": "js/browser/app"
+  },
   "button": {
     "add": "Add File",
     "cancel": "Cancel",
@@ -12,6 +20,9 @@
       "export": "Export Results",
       "stop": "Stop Model"
     }
+  },
+  "chart": {
+    "points": 100
   },
   "dialog": {
     "file": {

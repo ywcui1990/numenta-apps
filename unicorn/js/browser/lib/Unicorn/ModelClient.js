@@ -41,11 +41,13 @@ export default class ModelClient {
     ipc.on(MODEL_SERVER_IPC_CHANNEL, this._handleIPCEvent.bind(this));
   }
 
-  createModel(modelId, params) {
+  createModel(modelId, inputOpts, aggOpts, modelOpts) {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
       modelId,
       command: 'create',
-      params: JSON.stringify(params)
+      inputOpts: JSON.stringify(inputOpts),
+      aggOpts: JSON.stringify(aggOpts),
+      modelOpts: JSON.stringify(modelOpts)
     });
   }
 
@@ -53,14 +55,6 @@ export default class ModelClient {
     ipc.send(MODEL_SERVER_IPC_CHANNEL, {
       modelId,
       command: 'remove'
-    });
-  }
-
-  sendData(modelId, data) {
-    ipc.send(MODEL_SERVER_IPC_CHANNEL, {
-      modelId,
-      command: 'sendData',
-      params: JSON.stringify(data)
     });
   }
 

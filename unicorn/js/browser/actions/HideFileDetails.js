@@ -20,8 +20,9 @@ import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Hide {FileDetails} page
+ * Hide {@link FileDetails} page
  * @param  {FluxibleContext} actionContext The action context
+ * @emits {HIDE_FILE_DETAILS}
  */
 export default function (actionContext) {
   actionContext.dispatch(ACTIONS.HIDE_FILE_DETAILS);

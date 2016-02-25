@@ -66,8 +66,8 @@ FileService.prototype.getSampleFiles = function (callback) {
       var filename = path.resolve(SAMPLES_FILE_PATH, item);
       return {
         uid: Utils.generateFileId(filename),
-        description: `Sample File: ${path.basename(item)}`,
-        timestampFormat: 'YYYY-MM-DDTHH:mm:ss.sss',
+        description: '',
+        timestampFormat: 'MM-DD-YY HH:mm',
         name: path.basename(item),
         filename: filename,
         type: 'sample'
@@ -75,34 +75,6 @@ FileService.prototype.getSampleFiles = function (callback) {
     });
 
     callback(null, files);
-  });
-};
-
-/**
- * Get a list of uploaded files.
- * @param {Object} file - File getting uploaded
- * @param {Function} callback - Async callback: function (error, results)
- */
-FileService.prototype.getUploadedFiles = function (file, callback) {
-  var formattedFile = {
-    uid: Utils.generateFileId(file.path),
-    name: file.name,
-    filename: file.path,
-    type: 'uploaded',
-    metrics: []
-  };
-
-  this.getFields(formattedFile.filename, {}, (error, fields) => {
-    if (error) {
-      callback(error);
-      return;
-    }
-    if (fields) {
-      formattedFile.metrics = fields;
-      callback(null, formattedFile);
-      return;
-    }
-    callback(`Failed to parse file ${formattedFile.filename}`);
   });
 };
 

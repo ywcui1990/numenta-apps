@@ -18,20 +18,23 @@
 
 import {ACTIONS} from '../lib/Constants';
 
-
-/**
- * Action used to send metric data to models
- *
- * @param {FluxibleContext} actionContext - Fluxible action context object
- * @param {Object} payload - Action payload
- * @param {string} payload.modelId - Model to send data
- * @param {Array} payload.data - Data to send in the following format:
- *                             `[timestamp, value]`
- *
- */
 export default function (actionContext, payload) {
-  let modelClient = actionContext.getModelClient();
-  let {modelId, data} = payload;
-  actionContext.dispatch(ACTIONS.SEND_METRIC_DATA, modelId);
-  modelClient.sendData(modelId, data);
+
+  console.log('DEBUG: ParamFinderErrorAction', payload);
+  let {command, metricId, error} = payload;
+
+
+  if (command === 'create') {
+    return actionContext.dispatch(ACTIONS.START_PARAM_FINDER_FAILED, {
+      metricId, error
+    });
+  } else if (command === 'remove') {
+    return actionContext.dispatch(ACTIONS.STOP_PARAM_FINDER_FAILED, {
+      metricId, error
+    });
+  }
+
+  return actionContext.dispatch(ACTIONS.UNKNOWN_PARAM_FINDER_FAILURE, {
+    metricId, error
+  });
 }

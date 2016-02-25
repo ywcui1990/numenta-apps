@@ -25,6 +25,7 @@ import {ACTIONS} from '../lib/Constants';
  * @param {Object} payload Action payload
  * @param {string} payload.modelId - Model to export results from
  * @param {string} payload.filename - The destination csv file to store model results
+ * @emits {EXPORT_MODEL_RESULTS}
  * @return {Promise} - Promise to resolve when data is loaded
  */
 export default function (actionContext, payload) {

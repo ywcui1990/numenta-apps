@@ -26,7 +26,7 @@ import UserError from './UserError'
  */
 export class PortablePythonNotFoundError extends UserError {
   constructor() {
-    super(`${process.platform} platform is not supported.`);
+    super(`No portable python found for platform: ${process.platform}.`);
   }
 }
 

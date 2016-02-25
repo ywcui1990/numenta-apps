@@ -100,6 +100,13 @@ function loadMetricDataFromFile(actionContext, metricId) {
   });
 }
 
+/**
+ * Load metric data
+ * @param  {FluxibleContext} actionContext [description]
+ * @param  {string} metricId      [description]
+ * @emits {LOAD_METRIC_DATA}
+ * @return {Promise}               [description]
+ */
 export default function (actionContext, metricId) {
   return new Promise((resolve, reject) => {
     // Try to load metric data from database

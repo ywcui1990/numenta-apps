@@ -24,101 +24,131 @@ import EventEmitter from 'events';
 import path from 'path';
 import UserError from './UserError';
 
-export const PARAM_FINDER_EVENT_TYPE = 'PARAM_FINDER_EVENT_TYPE';
-
 const PYTHON_EXECUTABLE = getPortablePython();
 const PARAM_FINDER_PATH = path.join(
   __dirname, '..', '..', 'py', 'unicorn_backend', 'param_finder_runner.py'
 );
 
-
 /**
- * Thrown when attempting to start more than one param finder process.
+ * Thrown when attempting to create more than 1 param finder per metric
  */
 export class MaximumConcurrencyError extends UserError {
   constructor() {
-    super('Param finder process is already running.');
+    super('More than 1 param finder process is running');
+  }
+}
+
+/**
+ * Thrown when attempting to create a param finder with a metric ID already taken.
+ */
+export class DuplicateIDError extends UserError {
+  constructor() {
+    super('Duplicate metric ID');
+  }
+}
+
+/**
+ * Thrown when attempting to perform an operation on an unknown param finder.
+ */
+export class ParamFinderNotFoundError extends UserError {
+  constructor() {
+    super('Param Finder not found');
   }
 }
 
 
 /**
- * Unicorn: ParamFinderService - Respond to a ParamFinderClient over IPC,
- * sharing our access to Unicorn Backend Param Finder Runner python.
+ * Unicorn: ParamFinderService - Respond to a ParamFinderService over IPC,
+ * sharing our access to Unicorn Backend Param Finder Runner python and NuPIC processes.
  */
 export class ParamFinderService extends EventEmitter {
   constructor(...args) {
     super(...args);
+    this._paramFinders = new Map();
+  }
 
-    this._paramFinder = null;
-
+  /**
+   * Returns the number of slots available to run new param finders.
+   * @param {String} metricId - ID string for Metric to use
+   * @return {number} - Maximum available number of param finders allowed to run at the same time for one metric
+   */
+  availableSlots(metricId) {
+    if (this._paramFinders.has(metricId)) {
+      return 0; // only one param finder allowed per metric
+    }
+    return 1;
   }
 
 
   /**
-   * Start the param finder.
-   * @param  {Object} inputOpt - Input options.
-   *  See 'input_opt_schema_param_finder.json'
-   * @throws {@link MaximumConcurrencyError}
+   * Creates new Param Finder.
+   * @param  {String} metricId - ID of the metric the param finder will be run against.
+   * @param  {Object} inputOpt - Input options. See 'input_opt_schema_param_finder.json'
+   * @throws {@link MaximumConcurrencyError}, {@link DuplicateIDError}
    */
-  startParamFinder(inputOpt) {
+  createParamFinder(metricId, inputOpt) {
 
-    if (this.isRunning()) {
-      throw MaximumConcurrencyError
+    console.log('DEBUG: ParamFinderService:createParamFinder', inputOpt);
+    if (this.availableSlots(metricId) <= 0) {
+      throw new MaximumConcurrencyError();
+    }
+
+    if (this._paramFinders.has(metricId)) {
+      throw new DuplicateIDError();
     }
 
     const params = [PARAM_FINDER_PATH,
       '--input', JSON.stringify(inputOpt)
     ];
+    console.log('DEBUG: ParamFinderService: ', PYTHON_EXECUTABLE, params);
     const child = childProcess.spawn(PYTHON_EXECUTABLE, params);
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
 
     child.on('error', (error) => {
-      this.emit(PARAM_FINDER_EVENT_TYPE, 'error', error);
+      this.emit(metricId, 'error', error);
     });
 
     child.stderr.on('data', (error) => {
-      this.emit(PARAM_FINDER_EVENT_TYPE, 'error', error);
+      this.emit(metricId, 'error', error);
     });
 
     child.stdout.on('data', (data) => {
-      this.emit(PARAM_FINDER_EVENT_TYPE, 'data', data);
+      this.emit(metricId, 'data', data);
     });
 
     child.once('close', (code) => {
-      this._paramFinder = null;
-      this.emit(PARAM_FINDER_EVENT_TYPE, 'close', code);
+      this._paramFinders.delete(metricId);
+      this.emit(metricId, 'close', code);
     });
 
-    this._paramFinder = {inputOpt, child};
+    this._paramFinders.set(metricId, {
+      inputOpt, child
+    });
+
+    console.log('DEBUG: ParamFinderService:createParamFinder:_paramFinders', this._paramFinders);
   }
 
   /**
-   * Return whether the param finder is running or not.
-   * @return {Boolean} - True if param finder is running. False otherwise.
+   * Returns a list of active param finders.
+   * @return {Array} - List of metric IDs with the active param finders
    */
-  isRunning() {
-    return this._paramFinder !== null;
+  getParamFinders() {
+    return Array.from(this._paramFinders.keys());
   }
 
   /**
-   * Return the param finder currently running.
-   * @return {Object} - The param finder and its runtime params.
+   * Stops and remove the param finder.
+   * @param {string} metricId - The ID of the param finder to stop
    */
-  getParamFinder() {
-    return this._paramFinder;
-  }
-
-  /**
-   * Stop param finder .
-   */
-  stopParamFinder() {
-    if (this.isRunning()) {
-      this._paramFinder.child.kill();
-      this._paramFinder = null;
-      this.removeAllListeners(PARAM_FINDER_EVENT_TYPE);
+  removeParamFinder(metricId) {
+    if (!this._paramFinders.has(metricId)) {
+      throw new ParamFinderNotFoundError();
     }
-  }
 
+    const paramFinder = this._paramFinders.get(metricId);
+    this._paramFinders.delete(metricId);
+    paramFinder.child.kill();
+    this.removeAllListeners(metricId);
+  }
 }

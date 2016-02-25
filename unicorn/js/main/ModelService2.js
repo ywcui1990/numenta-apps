@@ -100,8 +100,6 @@ export class ModelService extends EventEmitter {
    */
   createModel(modelId, inputOpt, aggregationOpt, modelOpt) {
 
-    modelOpt['modelId'] = modelId;
-
     if (this.availableSlots() <= 0) {
       throw new MaximumConcurrencyError();
     }
@@ -118,6 +116,7 @@ export class ModelService extends EventEmitter {
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
 
+    console.log('DEBUG: ModelService2:createModel:child', child);
     child.on('error', (error) => {
       this.emit(modelId, 'error', error);
     });
@@ -127,6 +126,7 @@ export class ModelService extends EventEmitter {
     });
 
     child.stdout.on('data', (data) => {
+      console.log('DEBUG: ModelService2:emit:data', data);
       this.emit(modelId, 'data', data);
     });
 

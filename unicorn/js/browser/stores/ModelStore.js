@@ -41,9 +41,6 @@ const DEFAULT_VALUES = {
 };
 
 
-/**
- * Manages nupic models UI properties
- */
 export default class ModelStore extends BaseStore {
 
   /**
@@ -53,6 +50,19 @@ export default class ModelStore extends BaseStore {
     return 'ModelStore';
   }
 
+  /**
+   * @listens {ADD_MODEL}
+   * @listens {DELETE_MODEL}
+   * @listens {LIST_MODELS}
+   * @listens {STOP_MODEL}
+   * @listens {START_MODEL}
+   * @listens {SHOW_MODEL}
+   * @listens {HIDE_MODEL}
+   * @listens {DELETE_MODEL_FAILED}
+   * @listens {STOP_MODEL_FAILED}
+   * @listens {START_MODEL_FAILED}
+   * @listens {UNKNOWN_MODEL_FAILURE}
+   */
   static get handlers() {
     return {
       ADD_MODEL: '_addModels',

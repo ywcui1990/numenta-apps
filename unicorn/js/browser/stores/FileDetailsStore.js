@@ -26,6 +26,12 @@ export default class FileDetailsStore extends BaseStore {
   static get storeName() {
     return 'FileDetailsStore';
   }
+
+  /**
+   * @listens {SHOW_FILE_DETAILS}
+   * @listens {HIDE_FILE_DETAILS}
+   * @listens {UPLOADED_FILE}
+   */
   static get handlers() {
     return {
       SHOW_FILE_DETAILS: '_showFileDetails',

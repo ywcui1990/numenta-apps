@@ -49,6 +49,12 @@
       "MM-DD-YYYY": "%m-%d-%Y",
       "MM-DD-YY": "%m-%d-%y"
     }
+  },
+  {
+    "category": "DEBUG",
+    "mappings": {
+      "MM-DD-YY HH:mm": "%m-%d-%y %H:%M"
+    }
   }
 
 ]

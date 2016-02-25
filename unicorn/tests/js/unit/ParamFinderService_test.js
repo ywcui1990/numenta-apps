@@ -19,62 +19,58 @@
  * -------------------------------------------------------------------------- */
 
 import path from 'path';
-import {
-  ParamFinderService, PARAM_FINDER_EVENT_TYPE
-} from '../../../js/main/ParamFinderService';
+import {ParamFinderService} from '../../../js/main/ParamFinderService';
 const assert = require('assert');
 
-const PARAM_FINDER_RUNNER_INPUT = require('./fixtures/param_finder_input.json');
-PARAM_FINDER_RUNNER_INPUT['csv'] = path.join(__dirname, 'fixtures',
-  'rec-center.csv');
+const METRIC_ID = '1';
+const CSV_FILE = path.join(__dirname, 'fixtures', 'rec-center.csv');
+const PARAM_FINDER_INPUT = require('./fixtures/param_finder_input.json');
 const PARAM_FINDER_OUTPUT = require('./fixtures/param_finder_output.json');
+
+PARAM_FINDER_INPUT['csv'] = CSV_FILE;
 
 /* eslint-disable max-nested-callbacks */
 
-describe('ParamFinderService', () => {
+describe('ParamFinderService2', () => {
 
   let service = new ParamFinderService();
-  let inputOpt = PARAM_FINDER_RUNNER_INPUT;
+  let metricId = METRIC_ID;
+  let inputOpt = PARAM_FINDER_INPUT;
   beforeEach(() => {
-    service.startParamFinder(inputOpt);
+    service.createParamFinder(metricId, inputOpt);
   });
-
   afterEach(() => {
     try {
-      service.stopParamFinder();
+      service.removeParamFinder(metricId);
     } catch (ignore) {
+      console.log(`INFO: tried to remove param finder with metricId ${metricId}
+      but got exception`, ignore.name);
       /* It may be closed by the test itself */
     }
   });
 
-  describe('#isRunning()', () => {
-    it('Should return true', (done) => {
-      let paramFinderIsRunning = service.isRunning();
-      assert(paramFinderIsRunning, 'Param Finder is not running');
-      done();
-    });
-
+  after(() => {
+    assert.equal(service.getParamFinders().length, 0, 'No param finder should be running');
   });
 
-  describe('#getParamFinder()', () => {
-    it('Should return a non-null value', (done) => {
-      let paramFinder = service.getParamFinder();
-      assert.notEqual(paramFinder, null,
-        'Param finder process was not started');
+  describe('#getParamFinders()', () => {
+    it('Check param finder exists', (done) => {
+      let paramFinders = service.getParamFinders();
+      assert(paramFinders.find((id) => (id) === metricId),
+        'Param Finder not found');
       done();
     });
   });
 
   describe('Param Finder Events', () => {
 
-    it('Should read data from Param Finder', (done) => {
-      service.on(PARAM_FINDER_EVENT_TYPE, (type, data) => {
-
-        assert.notEqual(type, 'error', 'Event type should be data');
+    it('Param Finder Runner should expected results', (done) => {
+      service.on(metricId, (type, data) => {
+        assert.notEqual(type, 'error', data);
         if (type === 'data') {
           assert.deepEqual(JSON.parse(data), PARAM_FINDER_OUTPUT,
             'Param finder is not retuning the right result.');
-          service.removeAllListeners(PARAM_FINDER_EVENT_TYPE);
+          service.removeAllListeners(metricId);
           done();
         }
       });
@@ -82,11 +78,28 @@ describe('ParamFinderService', () => {
   });
 
   describe('Param Finder concurrency', () => {
-    it('Should not start another param finder process', (done) => {
+    it('Create param finder past max concurrency', (done) => {
+      assert.equal(service.availableSlots(metricId), 0, 'No more slots available for this metric');
+      // Extra param finder
       assert.throws(() => {
-        service.startParamFinder(PARAM_FINDER_RUNNER_INPUT);
-      }, /Param finder process is already running./);
+        service.createParamFinder(metricId, inputOpt);
+      }, /More than 1 param finder/);
       done();
+    });
+  });
+
+
+  describe('Param Finder error handler', () => {
+    it('Should return an error', (done) => {
+      let badDataMetricId = 'badDataMetric';
+      service.createParamFinder(badDataMetricId, {blah: 'blah'});
+      service.on(badDataMetricId, (type, data) => {
+        assert.equal(type, 'error', data);
+        // cleanup
+        service.removeParamFinder(badDataMetricId);
+        done();
+      });
+
     });
   });
 

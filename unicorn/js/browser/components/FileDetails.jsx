@@ -15,14 +15,12 @@
 //
 // http://numenta.org/licenses/
 
-import Checkbox from 'material-ui/lib/checkbox';
+// import Checkbox from 'material-ui/lib/checkbox'; // @TODO @FIXME: UNI-323
+
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
 import fs from 'fs';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import moment from 'moment';
 import React from 'react';
 import Table from 'material-ui/lib/table/table';
 import TableBody from 'material-ui/lib/table/table-body';
@@ -32,12 +30,12 @@ import TableRow from 'material-ui/lib/table/table-row';
 import TableRowColumn from 'material-ui/lib/table/table-row-column';
 import TextField from 'material-ui/lib/text-field';
 
-import FileStore from '../stores/FileStore';
 import FileDetailsStore from '../stores/FileDetailsStore';
-import FileDetailsSaveAction from '../actions/FileDetailsSave';
+import FileStore from '../stores/FileStore';
+import FileUpdateAction from '../actions/FileUpdate';
 import HideFileDetailsAction from '../actions/HideFileDetails';
+import MetricStore from '../stores/MetricStore';
 import Utils from '../../main/Utils';
-import {TIMESTAMP_FORMATS} from '../lib/Constants';
 
 
 /**
@@ -100,8 +98,9 @@ export default class FileDetails extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let file, stats, timestampField;
+    let file, fileMetrics, stats;
     let fileStore = this.context.getStore(FileStore);
+    let metricStore = this.context.getStore(MetricStore);
     let fileClient = this.context.getFileClient();
     let metrics = new Map();
     let data = [];
@@ -110,15 +109,14 @@ export default class FileDetails extends React.Component {
     if (nextProps.visible && nextProps.filename) {
       // Initialize file
       file = fileStore.getFile(nextProps.filename);
+      fileMetrics = metricStore.getMetricsByFileId(file.uid);
 
       // Initialize metrics
       if (file) {
-        file.metrics.forEach((metric) => {
+        fileMetrics.forEach((metric) => {
           if (metric.type !== 'date') {
             let modelId = Utils.generateMetricId(file.filename, metric.name);
             metrics.set(modelId, null);
-          } else {
-            timestampField = metric.name;
           }
         });
 
@@ -132,12 +130,6 @@ export default class FileDetails extends React.Component {
             throw new Error(error);
           } else if (buffer) {
             data.push(JSON.parse(buffer));
-            // Guess timestamp format based the first row
-            if (timestampField && data.length === 1) {
-              file.timestampFormat = TIMESTAMP_FORMATS.find((format) => {
-                return moment(data[0][timestampField], format, true).isValid();
-              });
-            }
           } else {
             // Initialize State
             this.setState({file, fileSize, data, metrics});
@@ -160,10 +152,10 @@ export default class FileDetails extends React.Component {
   }
 
   _onSave() {
-    let {file, metrics} = this.state;
+    let {file} = this.state;
     if (file) {
       // Update File
-      this.context.executeAction(FileDetailsSaveAction, {file, metrics});
+      this.context.executeAction(FileUpdateAction, file);
     }
     this.context.executeAction(HideFileDetailsAction);
   }
@@ -178,47 +170,6 @@ export default class FileDetails extends React.Component {
       state.metrics.delete(modelId);
     }
     this.setState(state);
-  }
-
-  _renderMetrics() {
-    let items;
-    let {file, metrics} = this.state;
-    let timestampField = file.metrics.find((metric) => {
-      return metric.type === 'date';
-    });
-
-    if (this.props.newFile && timestampField) {
-      items = file.metrics.map((metric) => {
-        let checked, modelId;
-
-        if (metric.type !== 'date') {
-          modelId = Utils.generateMetricId(file.filename, metric.name);
-          checked = metrics.get(modelId) ? true : false; // eslint-disable-line
-
-          return (
-            <ListItem
-              key={modelId}
-              leftCheckbox={
-                <Checkbox
-                  checked={checked}
-                  name={modelId}
-                  onCheck={
-                    this._onMetricCheck.bind(this, modelId, file.filename,
-                      timestampField.name, metric.name)
-                  }
-                  />
-              }
-              primaryText={<div style={this._styles.metric}>{metric.name}</div>}
-              />
-          );
-        }
-      });
-      return (
-        <List subheader="Create Models" height="50px">
-          {items}
-        </List>
-      );
-    }
   }
 
   _renderDataTable() {
@@ -246,7 +197,7 @@ export default class FileDetails extends React.Component {
       return (
         <Table selectable={false} fixedHeader={true} height="300">
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}
-              enableSelectAll={false}>
+                       enableSelectAll={false}>
             <TableRow>
               {columnHeader}
             </TableRow>
@@ -274,7 +225,7 @@ export default class FileDetails extends React.Component {
             ref="description"
             rowsMax={1}
             value={file.description}
-            />
+          />
           <TextField
             floatingLabelText="File Size (bytes)"
             name="fileSize"
@@ -284,8 +235,7 @@ export default class FileDetails extends React.Component {
             underlineFocusStyle={{display:'none'}}
             underlineStyle={{display:'none'}}
             value={fileSize.toString()}
-            />
-          {this._renderMetrics()}
+          />
         </div>
         <div style={this._styles.data}>
           {this._renderDataTable()}
@@ -301,13 +251,13 @@ export default class FileDetails extends React.Component {
         label="Cancel"
         onRequestClose={this._onRequestClose.bind(this)}
         onTouchTap={this._onSave.bind(this)}
-        />,
+      />,
       <FlatButton
         label="Save"
         onTouchTap={this._onSave.bind(this)}
         primary={true}
         ref="submit"
-        />
+      />
     ];
 
     if (this.state.file) {
@@ -322,8 +272,8 @@ export default class FileDetails extends React.Component {
         onRequestClose={this._onRequestClose.bind(this)}
         ref="dialog"
         title={title}
-        >
-          {body}
+      >
+        {body}
       </Dialog>
     );
   }

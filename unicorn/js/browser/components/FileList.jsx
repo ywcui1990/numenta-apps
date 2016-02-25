@@ -31,11 +31,12 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import React from 'react';
 
-import CreateModelAction from '../actions/CreateModel';
+import AddModelAction from '../actions/AddModel';
 import DeleteFileAction from '../actions/DeleteFile';
 import FileStore from '../stores/FileStore';
 import HideModelAction from '../actions/HideModel';
 import ModelStore from '../stores/ModelStore';
+import MetricStore from '../stores/MetricStore';
 import ShowFileDetailsAction from '../actions/ShowFileDetails';
 import ShowModelAction from '../actions/ShowModel';
 import Utils from '../../main/Utils';
@@ -44,7 +45,7 @@ import Utils from '../../main/Utils';
 /**
  * Component used to display a list of files
  */
-@connectToStores([FileStore, ModelStore], (context) => ({
+@connectToStores([FileStore, ModelStore, MetricStore], (context) => ({
   files: context.getStore(FileStore).getFiles(),
   models: context.getStore(ModelStore).getModels()
 }))
@@ -141,14 +142,14 @@ export default class FileList extends React.Component {
 
   _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
     let models = this.props.models;
-    let model = models.find((model) => model.modelId === modelId);
+    let model = models.find((m) => m.modelId === modelId);
 
     if (checked && model) {
       // show: already known
       this.context.executeAction(ShowModelAction, modelId);
     } else if (checked) {
       // show: unknown, so know it first
-      this.context.executeAction(CreateModelAction, {
+      this.context.executeAction(AddModelAction, {
         modelId, filename, timestampField, metric
       });
       this.context.executeAction(ShowModelAction, modelId);
@@ -191,14 +192,19 @@ export default class FileList extends React.Component {
   }
 
   _renderMetrics(file) {
-    let timestampField = file.metrics.find((metric) => metric.type === 'date');
+    let metricStore = this.context.getStore(MetricStore);
+
+    let fileMetrics = metricStore.getMetricsByFileId(file.uid);
+    let timestampField = fileMetrics.find((metric) => {
+      return metric.type === 'date';
+    });
     if (timestampField) {
-      return file.metrics.map((metric) => {
+      return fileMetrics.map((metric) => {
         if (metric.type !== 'date') {
           let muiTheme = this.context.muiTheme;
           let modelId = Utils.generateMetricId(file.filename, metric.name);
           let models = this.props.models;
-          let model = models.find((model) => model.modelId === modelId);
+          let model = models.find((m) => m.modelId === modelId);
           let isModelVisible = false;
           let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
           let statusColor = muiTheme.rawTheme.palette.disabledColor;

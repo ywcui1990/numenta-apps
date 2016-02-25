@@ -27,6 +27,10 @@ export default class ModelDataStore extends BaseStore {
     return 'ModelDataStore';
   }
 
+  /**
+   * @listens {RECEIVE_MODEL_DATA}
+   * @listens {DELETE_MODEL}
+   */
   static get handlers() {
     return {
       RECEIVE_MODEL_DATA: '_handReceiveModelData',
@@ -50,6 +54,7 @@ export default class ModelDataStore extends BaseStore {
    *                          </code>
    */
   _handReceiveModelData(payload) {
+    // console.log('DEBUG: ModelDataStores:payload', payload);
     if (payload && 'modelId' in payload) {
       let model = this._models.get(payload.modelId);
       if (model) {
@@ -66,6 +71,7 @@ export default class ModelDataStore extends BaseStore {
           modified: new Date()
         });
       }
+      // console.log('DEBUG: ModelDataStores:model', model);
       this.emitChange();
     }
   }

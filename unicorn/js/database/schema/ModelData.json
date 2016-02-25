@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "id": "/db/ModelData",
+  "type": "object",
+  "properties": {
+    "metric_uid": {
+      "type": "string",
+      "maxLength": 50,
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metric_value": {
+      "type": "number"
+    },
+    "anomaly_score": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": false,
+  "required": ["metric_uid", "timestamp", "metric_value", "anomaly_score"]
+}
