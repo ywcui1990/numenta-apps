@@ -22,16 +22,16 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import DatabaseService from '../../../js/main/DatabaseService';
+import DatabaseService from '../../../../js/main/DatabaseService';
 import {
   DBFileSchema, DBMetricSchema, DBMetricDataSchema, DBModelDataSchema
-} from '../../../js/schemas';
+} from '../../../../js/schemas';
 
 const assert = require('assert');
 
-const MODEL_OPTIONS = require('./fixtures/model_runner_model.json');
-const AGG_OPTIONS = require('./fixtures/model_runner_agg.json');
-const INPUT_OPTIONS = require('./fixtures/param_finder_input.json');
+const MODEL_OPTIONS = require('../fixtures/model_runner_model.json');
+const AGG_OPTIONS = require('../fixtures/model_runner_agg.json');
+const INPUT_OPTIONS = require('../fixtures/param_finder_input.json');
 
 const EXPECTED_FILE = {
   uid: 'file1',

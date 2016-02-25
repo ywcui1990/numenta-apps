@@ -22,7 +22,7 @@ const assert = require('assert');
 
 import path from 'path';
 
-import FileService from '../../../js/main/FileService';
+import FileService from '../../../../js/main/FileService';
 
 
 // Contents of 'fixture/file.csv'
@@ -76,8 +76,8 @@ const EXPECTED_MAX_PARTIAL = 21;
 // Keep this list up to date with file names in "js/samples"
 const EXPECTED_SAMPLE_FILES = ['gym.csv'];
 
-const FILENAME_SMALL = path.resolve(__dirname, 'fixtures/file.csv');
-const FILENAME_LARGE = path.resolve(__dirname, 'fixtures/rec-center-15.csv');
+const FILENAME_SMALL = path.resolve(__dirname, '../fixtures/file.csv');
+const FILENAME_LARGE = path.resolve(__dirname, '../fixtures/rec-center-15.csv');
 
 /* eslint-disable max-nested-callbacks */
 describe('FileService', () => {

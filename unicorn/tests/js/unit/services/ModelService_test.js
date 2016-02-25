@@ -19,21 +19,20 @@
  * -------------------------------------------------------------------------- */
 
 import path from 'path';
-import {ModelService} from '../../../js/main/ModelService2';
+import {ModelService} from '../../../../js/main/ModelService';
 const assert = require('assert');
 
 const MODEL_ID = '1';
-const CSV_FILE = path.join(__dirname, 'fixtures', 'rec-center.csv');
+const CSV_FILE = path.join(__dirname, '../fixtures', 'rec-center.csv');
 
-const MODEL_RUNNER_INPUT = require('./fixtures/model_runner_input.json');
+const MODEL_RUNNER_INPUT = require('../fixtures/model_runner_input.json');
 MODEL_RUNNER_INPUT['csv'] = CSV_FILE;
-const MODEL_RUNNER_AGG = require('./fixtures/model_runner_agg.json');
-const MODEL_RUNNER_MODEL = require('./fixtures/model_runner_model.json');
+const MODEL_RUNNER_AGG = require('../fixtures/model_runner_agg.json');
+const MODEL_RUNNER_MODEL = require('../fixtures/model_runner_model.json');
 
 /* eslint-disable max-nested-callbacks */
 
-describe('ModelService2', () => {
-
+describe('ModelService', () => {
   let service = new ModelService();
   let modelId = MODEL_ID;
   let inputOpt = MODEL_RUNNER_INPUT;
@@ -59,7 +58,6 @@ describe('ModelService2', () => {
   });
 
   describe('Model Events', () => {
-
     it('Model Runner should return a list with 3 values', (done) => {
       service.on(MODEL_ID, (type, data) => {
         assert.notEqual(type, 'error', data);
