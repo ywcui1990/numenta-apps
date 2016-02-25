@@ -19,38 +19,40 @@
  * -------------------------------------------------------------------------- */
 
 import path from 'path';
-import {ParamFinderService} from '../../../js/main/ParamFinderService';
+import {ParamFinderService} from '../../../../js/main/ParamFinderService';
 const assert = require('assert');
 
 const METRIC_ID = '1';
-const CSV_FILE = path.join(__dirname, 'fixtures', 'rec-center.csv');
-const PARAM_FINDER_INPUT = require('./fixtures/param_finder_input.json');
-const PARAM_FINDER_OUTPUT = require('./fixtures/param_finder_output.json');
+const CSV_FILE = path.join(__dirname, '../fixtures', 'rec-center.csv');
+const PARAM_FINDER_INPUT = require('../fixtures/param_finder_input.json');
+const PARAM_FINDER_OUTPUT = require('../fixtures/param_finder_output.json');
 
 PARAM_FINDER_INPUT['csv'] = CSV_FILE;
 
-/* eslint-disable max-nested-callbacks */
+/* eslint-disable max-nested-callbacks, no-console */
 
 describe('ParamFinderService2', () => {
-
   let service = new ParamFinderService();
   let metricId = METRIC_ID;
   let inputOpt = PARAM_FINDER_INPUT;
+
   beforeEach(() => {
     service.createParamFinder(metricId, inputOpt);
   });
+
   afterEach(() => {
     try {
       service.removeParamFinder(metricId);
     } catch (ignore) {
-      console.log(`INFO: tried to remove param finder with metricId ${metricId}
-      but got exception`, ignore.name);
+      console.log(`INFO: tried to remove param finder with
+        metricId ${metricId} but got exception`, ignore.name);
       /* It may be closed by the test itself */
     }
   });
 
   after(() => {
-    assert.equal(service.getParamFinders().length, 0, 'No param finder should be running');
+    assert.equal(service.getParamFinders().length, 0,
+                 'No param finder should be running');
   });
 
   describe('#getParamFinders()', () => {
@@ -63,7 +65,6 @@ describe('ParamFinderService2', () => {
   });
 
   describe('Param Finder Events', () => {
-
     it('Param Finder Runner should expected results', (done) => {
       service.on(metricId, (type, data) => {
         assert.notEqual(type, 'error', data);
@@ -79,7 +80,8 @@ describe('ParamFinderService2', () => {
 
   describe('Param Finder concurrency', () => {
     it('Create param finder past max concurrency', (done) => {
-      assert.equal(service.availableSlots(metricId), 0, 'No more slots available for this metric');
+      assert.equal(service.availableSlots(metricId), 0,
+        'No more slots available for this metric');
       // Extra param finder
       assert.throws(() => {
         service.createParamFinder(metricId, inputOpt);
@@ -87,7 +89,6 @@ describe('ParamFinderService2', () => {
       done();
     });
   });
-
 
   describe('Param Finder error handler', () => {
     it('Should return an error', (done) => {
@@ -99,8 +100,6 @@ describe('ParamFinderService2', () => {
         service.removeParamFinder(badDataMetricId);
         done();
       });
-
     });
   });
-
 });

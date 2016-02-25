@@ -16,43 +16,41 @@
 // along with this program.  If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
-
-import FileStore from '../../../js/browser/stores/FileStore';
+import FileDetailsStore from '../../../../js/browser/stores/FileDetailsStore';
 
 const assert = require('assert');
 
 const EXPECTED_SINGLE_FILE = [{
   name: 'file.csv',
-  filename: 'fixtures/file.csv',
+  filename: '../fixtures/file.csv',
   type: 'uploaded'
 }];
 
-const EXPECTED_MULTIPLE_FILES = [{
-  name: 'file1.csv',
-  filename: 'fixtures/file1.csv',
-  type: 'sample'
-},{
-  name: 'file2.csv',
-  filename: 'fixtures/file2.csv',
-  type: 'sample'
-}];
-
-describe('FileStore', () => {
+describe('FileDetailsStore', () => {
   let store;
 
   beforeEach(() => {
-    store = new FileStore();
+    store = new FileDetailsStore();
   });
-
-  it('#_handleSetFile', (done) => {
-    store._handleSetFile(EXPECTED_SINGLE_FILE[0]);
-    assert.deepEqual(store.getFiles(), EXPECTED_SINGLE_FILE);
+  it('#_showFileDetails', (done) => {
+    store._showFileDetails('expected');
+    assert.equal('expected', store.getFileName());
+    assert.equal(true, store.isVisible());
+    assert.equal(false, store.isNewFile());
     done();
   });
-
-  it('#_handleListFiles', (done) => {
-    store._handleListFiles(EXPECTED_MULTIPLE_FILES);
-    assert.deepEqual(store.getFiles(), EXPECTED_MULTIPLE_FILES);
+  it('#_hideFileDetails', (done) => {
+    store._hideFileDetails();
+    assert.equal(null, store.getFileName());
+    assert.equal(false, store.isVisible());
+    assert.equal(false, store.isNewFile());
+    done();
+  });
+  it('#_handleFileUpload', (done) => {
+    store._handleFileUpload(EXPECTED_SINGLE_FILE);
+    assert.equal(EXPECTED_SINGLE_FILE.filename, store.getFileName());
+    assert.equal(true, store.isVisible());
+    assert.equal(true, store.isNewFile());
     done();
   });
 });

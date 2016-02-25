@@ -233,7 +233,6 @@ DatabaseService.prototype.putFile = function (file, callback) {
  * @param {Function} callback - Async result handler: function (error, results)
  */
 DatabaseService.prototype.putFileBatch = function (files, callback) {
-
   for (let i = 0; i < files.length; i++) {
     const validation = this.validator.validate(files[i], DBFileSchema);
     if (validation.errors.length) {
@@ -274,7 +273,6 @@ DatabaseService.prototype.putMetric = function (metric, callback) {
  * @param {Function} callback - Async callback on done: function(error, results)
  */
 DatabaseService.prototype.putMetricBatch = function (metrics, callback) {
-
   for (let i = 0; i < metrics.length; i++) {
     const validation = this.validator.validate(metrics[i], DBMetricSchema);
     if (validation.errors.length) {
@@ -423,7 +421,7 @@ DatabaseService.prototype.close = function (callback) {
  * @param  {Function} callback called when the export operation is complete,
  *                             with a possible error argument
  */
-DatabaseService.prototype.exportModelData = function (metricId, filename, callback) {
+DatabaseService.prototype.exportModelData = function (metricId, filename, callback) { // eslint-disable-line
   const output = fs.createWriteStream(filename);
   const parser = json2csv({
     keys: ['timestamp', 'metric_value', 'anomaly_score']
@@ -561,13 +559,13 @@ DatabaseService.prototype.deleteFile = function (fileId, callback) {
  * Update aggregation options for the given metric. Usually this value is
  * obtained via the {@link ParamFinderService}
  *
- * @param {[type]} metricId  Metric to update
- * @param {[type]} options   Aggregation options, usually obtained via
+ * @param {string} metricId  Metric to update
+ * @param {object} options   Aggregation options, usually obtained via
  *                             {@link ParamFinderService}
  * @param  {Function} callback called when the operation is complete,
  *                             with a possible error argument
  */
-DatabaseService.prototype.setMetricAggregationOptions = function (metricId, options, callback) {
+DatabaseService.prototype.setMetricAggregationOptions = function (metricId, options, callback) { // eslint-disable-line
   this._metrics.get(metricId, (error, metric) => {
     if (error) {
       callback(error);
@@ -582,13 +580,13 @@ DatabaseService.prototype.setMetricAggregationOptions = function (metricId, opti
  * Update model options for the given metric. Usually this value is
  * obtained via the {@link ParamFinderService}
  *
- * @param {[type]}   metricId    Metric to update
- * @param {[type]}   options     Model option to use for the given metric.
+ * @param {string}   metricId    Metric to update
+ * @param {object}   options     Model option to use for the given metric.
  *                               Usually obtained via {@link ParamFinderService}
  * @param  {Function} callback called when the operation is complete,
  *                             with a possible error argument
  */
-DatabaseService.prototype.setMetricModelOptions = function (metricId, options, callback) {
+DatabaseService.prototype.setMetricModelOptions = function (metricId, options, callback) { // eslint-disable-line
   this._metrics.get(metricId, (error, metric) => {
     if (error) {
       callback(error);
@@ -603,13 +601,13 @@ DatabaseService.prototype.setMetricModelOptions = function (metricId, options, c
  * Update input options for the given metric. Usually this value is
  * obtained via the {@link ParamFinderService}
  *
- * @param {[type]}   metricId    Metric to update
- * @param {[type]}   options     Input option to use for the given metric.
+ * @param {string}   metricId    Metric to update
+ * @param {object}   options     Input option to use for the given metric.
  *                               Usually obtained via {@link ParamFinderService}
  * @param  {Function} callback called when the operation is complete,
  *                             with a possible error argument
  */
-DatabaseService.prototype.setMetricInputOptions = function (metricId, options, callback) {
+DatabaseService.prototype.setMetricInputOptions = function (metricId, options, callback) { // eslint-disable-line
   this._metrics.get(metricId, (error, metric) => {
     if (error) {
       callback(error);

@@ -38,7 +38,7 @@ export class PortablePythonNotFoundError extends UserError {
  */
 export default function getPortablePython() {
   try {
-    return require(`portable_python_${process.platform}`).EXECUTABLE;
+    return require(`portable_python_${process.platform}`).EXECUTABLE; // eslint-disable-line
   } catch (err) {
     throw new PortablePythonNotFoundError();
   }

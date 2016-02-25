@@ -26,17 +26,21 @@ import {ACTIONS} from '../lib/Constants';
  * @param {string} payload.modelId - Model to export results from
  * @param {string} payload.filename - The destination csv file to store model results
  * @emits {EXPORT_MODEL_RESULTS}
+ * @emits {EXPORT_MODEL_RESULTS_FAILED}
  * @return {Promise} - Promise to resolve when data is loaded
  */
 export default function (actionContext, payload) {
-  let {modelId, filename} = payload;
   return new Promise((resolve, reject) => {
-    let databaseClient = actionContext.getDatabaseClient();
-    databaseClient.exportMetricData(modelId, filename, (error) => {
+    let {modelId, filename} = payload;
+    let database = actionContext.getDatabaseClient();
+    database.exportModelData(modelId, filename, (error) => {
       if (error) {
+        actionContext.dispatch(ACTIONS.EXPORT_MODEL_RESULTS_FAILED, error);
         reject(error);
       } else {
-        actionContext.dispatch(ACTIONS.EXPORT_MODEL_RESULTS, modelId, filename);
+        actionContext.dispatch(ACTIONS.EXPORT_MODEL_RESULTS, {
+          modelId, filename
+        });
         resolve();
       }
     });

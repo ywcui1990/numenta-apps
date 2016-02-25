@@ -24,7 +24,7 @@ import ReactDOM from 'react-dom';
 /**
  * Chart Widget.
  *  Wraps http://dygraphs.com/ as a React Component.
- * @todo The local variables (this._chart*) should be refactored to React state.
+ * @TODO The local variables (this._chart*) should be refactored to React state.
  *  And, React's `render()` should be overrided with DyGraphs `updateOptions()`,
  *  possibly using Reacts's `shouldComponentUpdate()` method to skip React's
  *  state change => render cycle for DyGraphs to not have it's DOM node reset.

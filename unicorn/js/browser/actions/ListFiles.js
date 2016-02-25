@@ -17,29 +17,21 @@
 
 
 import {ACTIONS} from '../lib/Constants';
-import {
-  DatabaseGetError
-} from '../../main/UserError';
 
-
-// MAIN
 
 /**
  * Get List of files from py
+ * @param  {FluxibleContext} actionContext - The action context
+ * @returns {Promise}
  * @emits {LIST_FILES}
  * @emits {LIST_FILES_FAILURE}
  */
 export default function (actionContext) {
   return new Promise((resolve, reject) => {
-
     let db = actionContext.getDatabaseClient();
-
     db.getAllFiles((error, files) => {
       if (error) {
-        actionContext.dispatch(
-          ACTIONS.LIST_FILES_FAILURE,
-          new DatabaseGetError(error)
-        );
+        actionContext.dispatch(ACTIONS.LIST_FILES_FAILURE, error);
         reject(error);
       } else {
         actionContext.dispatch(ACTIONS.LIST_FILES, files);

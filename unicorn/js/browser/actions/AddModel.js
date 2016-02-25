@@ -29,9 +29,10 @@ import {ACTIONS} from '../lib/Constants';
  * @param {string} payload.timestampField - Timestamp field name
  * @param {string} payload.metric - Metric field name
  * @emits {ADD_MODEL}
- *
- * @return {Promise}
  */
 export default function (actionContext, payload) {
-  return actionContext.dispatch(ACTIONS.ADD_MODEL, payload);
+  let {modelId, filename, timestampField, metric} = payload;
+  actionContext.dispatch(ACTIONS.ADD_MODEL, {
+    modelId, filename, timestampField, metric
+  });
 }

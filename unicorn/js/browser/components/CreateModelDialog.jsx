@@ -59,7 +59,6 @@ export default class CreateModelDialog extends React.Component {
       fileName: null,
       metricName: null
     });
-
   }
 
   _onOK(modelPayload) {
@@ -93,7 +92,6 @@ export default class CreateModelDialog extends React.Component {
       let inputOpts = metricStore.getInputOpts(metricId);
       let paramFinderResults = metricStore.getParamFinderResults(metricId);
       if (paramFinderResults) {
-
         let modelPayload = {
           metricId,
           inputOpts,
@@ -132,5 +130,4 @@ export default class CreateModelDialog extends React.Component {
       </Dialog>
     );
   }
-
 }

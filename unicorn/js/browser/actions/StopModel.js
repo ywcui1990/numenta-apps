@@ -23,11 +23,9 @@ import {ACTIONS} from '../lib/Constants';
  * @param {FluxibleContext} actionContext - Fluxible action context object
  * @param {string} modelId - Model ID
  * @emits {STOP_MODEL}
- * @returns {Promise} - Fluxible resolves with return value
- * @see http://fluxible.io/api/actions.html#api-code-actions-code-
  */
 export default function (actionContext, modelId) {
   let modelClient = actionContext.getModelClient();
   modelClient.removeModel(modelId);
-  return actionContext.dispatch(ACTIONS.STOP_MODEL, modelId);
+  actionContext.dispatch(ACTIONS.STOP_MODEL, modelId);
 }

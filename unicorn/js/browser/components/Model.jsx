@@ -202,7 +202,7 @@ export default class Model extends React.Component {
       }
     }
 
-    // @TODO: FIXME - UNI-324
+    // @FIXME - UNI-324
     valueIndex = 1;
     timestampIndex = 0;
 
@@ -293,5 +293,4 @@ export default class Model extends React.Component {
       </Card>
     );
   }
-
 }

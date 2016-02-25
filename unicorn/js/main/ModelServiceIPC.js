@@ -20,7 +20,7 @@
 
 import {ipcMain as ipc} from 'electron';
 
-import {ModelService} from './ModelService2';
+import {ModelService} from './ModelService';
 import UserError from './UserError';
 
 export const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
@@ -74,7 +74,6 @@ export default class ModelServiceIPC {
    * @param {string} payload.modelOpts: model params
    */
   _handleIPCEvent(event, payload) {
-    console.log('DEBUG: ModelServiceIPC:_handleIPCEvent:payload', payload);
     const modelId = payload.modelId;
     const command = payload.command;
     try {

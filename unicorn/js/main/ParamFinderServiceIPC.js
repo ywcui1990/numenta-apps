@@ -73,7 +73,6 @@ export default class ParamFinderServiceIPC {
    */
   _handleIPCEvent(event, payload) {
     const {metricId, command} = payload;
-    console.log('DEBUG: ParamFinderServiceIPC:_handleIPCEvent', payload);
     try {
       if (command === 'create') {
         this._onCreate(metricId, payload.params);
@@ -82,7 +81,6 @@ export default class ParamFinderServiceIPC {
       } else if (command === 'list') {
         event.returnValue = this._onList();
       } else {
-
         throw new UserError(`Unknown param finder command ${command}`);
       }
     } catch (error) {
@@ -168,5 +166,4 @@ export default class ParamFinderServiceIPC {
     this._detach(metricId);
     this._service.removeParamFinder(metricId);
   }
-
 }

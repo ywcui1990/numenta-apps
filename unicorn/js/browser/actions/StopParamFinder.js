@@ -22,11 +22,10 @@ import {ACTIONS} from '../lib/Constants';
  * Stop running model
  * @param {FluxibleContext} actionContext - Fluxible action context object
  * @param {string} metricId - metric ID
- * @returns {Promise} - Fluxible resolves with return value
- * @see http://fluxible.io/api/actions.html#api-code-actions-code-
+ * @emits {STOP_PARAM_FINDER}
  */
 export default function (actionContext, metricId) {
   let paramFinderClient = actionContext.getParamFinderClient();
   paramFinderClient.removeParamFinder(metricId);
-  return actionContext.dispatch(ACTIONS.STOP_PARAM_FINDER, metricId);
+  actionContext.dispatch(ACTIONS.STOP_PARAM_FINDER, metricId);
 }
