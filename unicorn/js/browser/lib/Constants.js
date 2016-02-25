@@ -154,10 +154,6 @@ export const DATABASE_ERRORS = {
  */
 export const TIMESTAMP_FORMATS = [
   // ISO 8601
-  'YYYY-MM-DDTHH:mm:ss.SSSZ',
-  'YYYY-MM-DDTHH:mm:ss.SSS',
-  'YYYY-MM-DDTHH:mm:ss.SSZ',
-  'YYYY-MM-DDTHH:mm:ss.SS',
   'YYYY-MM-DDTHH:mm:ss.SZ',
   'YYYY-MM-DDTHH:mm:ss.S',
   'YYYY-MM-DDTHH:mm:ssZ',
@@ -166,10 +162,6 @@ export const TIMESTAMP_FORMATS = [
   'YYYY-MM-DDTHH:mm',
 
   // ISO 8601 no 'T'
-  'YYYY-MM-DD HH:mm:ss.SSSZ',
-  'YYYY-MM-DD HH:mm:ss.SSS',
-  'YYYY-MM-DD HH:mm:ss.SSZ',
-  'YYYY-MM-DD HH:mm:ss.SS',
   'YYYY-MM-DD HH:mm:ss.SZ',
   'YYYY-MM-DD HH:mm:ss.S',
   'YYYY-MM-DD HH:mm:ssZ',
@@ -179,45 +171,24 @@ export const TIMESTAMP_FORMATS = [
   'YYYY-MM-DD',
 
   // US Date, 12h AM/PM time
-  'MM-DD-YYYY hh:mm:ss.SSS A',
-  'MM-DD-YYYY HH:mm:ss.SS A',
   'MM-DD-YYYY HH:mm:ss.S A',
   'MM-DD-YYYY hh:mm:ss A',
   'MM-DD-YYYY hh:mm A',
 
   // US Date, 24h time
-  'MM-DD-YYYY HH:mm:ss.SSS',
-  'MM-DD-YYYY HH:mm:ss.SS',
   'MM-DD-YYYY HH:mm:ss.S',
   'MM-DD-YYYY HH:mm:ss',
   'MM-DD-YYYY HH:mm',
 
-  // US Date
+  // US Date, no time
   'MM-DD-YYYY',
   'MM-DD-YY',
 
-  // EU Date and time
-  'DD-MM-YYYY HH:mm:ss.SSS',
-  'DD-MM-YYYY HH:mm:ss.SS',
-  'DD-MM-YYYY HH:mm:ss.S',
-  'DD-MM-YYYY HH:mm:ss',
-  'DD-MM-YYYY HH:mm',
-
-  // EU Date
-  'DD-MM-YYYY',
-  'DD-MM-YY',
+  // DEBUG
+  'MM-DD-YY HH:mm'
 
   // US 12h AM/PM time
-  'hh:mm:ss.SSS A',
-  'hh:mm:ss.SS A',
-  'hh:mm:ss.S A',
-  'hh:mm:ss A',
-  'hh:mm A',
-
-  // EU 24h
-  'HH:mm:ss.SSS',
-  'HH:mm:ss.SS',
-  'HH:mm:ss.S',
-  'HH:mm:ss',
-  'HH:mm'
+  // 'hh:mm:ss.S A',
+  // 'hh:mm:ss A',
+  // 'hh:mm A'
 ];

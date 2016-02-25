@@ -53,7 +53,7 @@
   {
     "category": "DEBUG",
     "mappings": {
-      "YYYY-MM-DDTHH:mm:ss.sss": "%m-%d-%y %H:%M"
+      "MM-DD-YY HH:mm": "%m-%d-%y %H:%M"
     }
   }
 
