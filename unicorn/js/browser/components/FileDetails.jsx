@@ -174,6 +174,7 @@ export default class FileDetails extends React.Component {
     this.setState(state);
   }
 
+  // Not called anymore. Fixes UNI-323.
   _renderMetrics() {
     let items;
     let file = this.state.file;
@@ -190,11 +191,9 @@ export default class FileDetails extends React.Component {
 
         if (metric.type !== 'date') {
           modelId = Utils.generateMetricId(file.filename, metric.name);
-          // @TODO @FIXME: UNI-323 Disable multiple model creation until new
-          //  "multiple models creation" flow is implemented.
-          // checked = metrics.get(modelId) ? true : false; // eslint-disable-line
-          // let metrics = this.state.metrics;
-          /*
+           checked = metrics.get(modelId) ? true : false; // eslint-disable-line
+           let metrics = this.state.metrics;
+
            return (
            <ListItem
            key={modelId}
@@ -211,7 +210,7 @@ export default class FileDetails extends React.Component {
            primaryText={<div style={this._styles.metric}>{metric.name}</div>}
            />
            );
-           */
+
           return (
             <ListItem
               key={modelId}
@@ -221,9 +220,7 @@ export default class FileDetails extends React.Component {
         }
       });
       return (
-        // @TODO @FIXME: UNI-323
-        // <List subheader="Create Models" height="50px">
-        <List subheader="Metrics" height="50px">
+        <List subheader="Create Models" height="50px">
           {items}
         </List>
       );
@@ -294,7 +291,6 @@ export default class FileDetails extends React.Component {
             underlineStyle={{display:'none'}}
             value={fileSize.toString()}
           />
-          {this._renderMetrics()}
         </div>
         <div style={this._styles.data}>
           {this._renderDataTable()}
