@@ -21,8 +21,6 @@ import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
 import fs from 'fs';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
 import React from 'react';
 import Table from 'material-ui/lib/table/table';
 import TableBody from 'material-ui/lib/table/table-body';
@@ -174,62 +172,6 @@ export default class FileDetails extends React.Component {
     this.setState(state);
   }
 
-  _renderMetrics() {
-    let items;
-    let file = this.state.file;
-    let metricStore = this.context.getStore(MetricStore);
-    let fileMetrics = metricStore.getMetricsByFileId(file.uid);
-    let timestampField = fileMetrics.find((metric) => {
-      return metric.type === 'date';
-    });
-
-    if (this.props.newFile && timestampField) {
-      items = fileMetrics.map((metric) => {
-        // let checked; @TODO @FIXME: UNI-323
-        let modelId;
-
-        if (metric.type !== 'date') {
-          modelId = Utils.generateMetricId(file.filename, metric.name);
-          // @TODO @FIXME: UNI-323 Disable multiple model creation until new
-          //  "multiple models creation" flow is implemented.
-          // checked = metrics.get(modelId) ? true : false; // eslint-disable-line
-          // let metrics = this.state.metrics;
-          /*
-           return (
-           <ListItem
-           key={modelId}
-           leftCheckbox={
-           <Checkbox
-           checked={checked}
-           name={modelId}
-           onCheck={
-           this._onMetricCheck.bind(this, modelId, file.filename,
-           timestampField.name, metric.name)
-           }
-           />
-           }
-           primaryText={<div style={this._styles.metric}>{metric.name}</div>}
-           />
-           );
-           */
-          return (
-            <ListItem
-              key={modelId}
-              primaryText={<div style={this._styles.metric}>{metric.name}</div>}
-            />
-          );
-        }
-      });
-      return (
-        // @TODO @FIXME: UNI-323
-        // <List subheader="Create Models" height="50px">
-        <List subheader="Metrics" height="50px">
-          {items}
-        </List>
-      );
-    }
-  }
-
   _renderDataTable() {
     let columnHeader;
     let data = this.state.data;
@@ -294,7 +236,6 @@ export default class FileDetails extends React.Component {
             underlineStyle={{display:'none'}}
             value={fileSize.toString()}
           />
-          {this._renderMetrics()}
         </div>
         <div style={this._styles.data}>
           {this._renderDataTable()}

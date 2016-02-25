@@ -24,7 +24,7 @@
     },
     "timestampFormat": {
       "type": "string",
-      "default": "YYYY-MM-DDTHH:mm:ss.sssZ",
+      "default": "MM-DD-YY HH:mm",
       "description": "Timestamp format. Default ISO 8601"
     },
     "type": {

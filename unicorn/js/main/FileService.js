@@ -66,8 +66,8 @@ FileService.prototype.getSampleFiles = function (callback) {
       var filename = path.resolve(SAMPLES_FILE_PATH, item);
       return {
         uid: Utils.generateFileId(filename),
-        description: `Sample File: ${path.basename(item)}`,
-        timestampFormat: 'YYYY-MM-DDTHH:mm:ss.sss',
+        description: '',
+        timestampFormat: 'MM-DD-YY HH:mm',
         name: path.basename(item),
         filename: filename,
         type: 'sample'
