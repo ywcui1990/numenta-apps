@@ -42,6 +42,8 @@
     "lint": "eslint --ext=js --ext=jsx js/ tests/js/",
     "prepare": "npm run lint && webpack",
     "pretest": "npm run prepare",
+    "install:backend": "python py/setup.py install",
+    "postinstall": "npm run install:backend",
     "test": "npm run test:unit && npm run test:integration",
     "test:integration": "mocha --opts tests/js/mocha.opts tests/js/integration",
     "pretest:pipeline": "npm run prepare",
