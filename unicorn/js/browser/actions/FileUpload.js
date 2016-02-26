@@ -62,28 +62,26 @@ export default function (actionContext, payload) {
       }, reject)
       .then((metrics) => {
         let tsField = metrics.find((metric) => metric.type === 'date').name;
-
         fs.getData(file.filename, {limit: 1}, (error, buffer) => {
           let datum = null;
           if (error) {
             throw new Error(error);
           }
           if (buffer) {
-
             datum = JSON.parse(buffer);
             // Infer timestamp format based the first rows
             if (tsField && datum) {
-
               file.timestampFormat = TIMESTAMP_FORMATS.find((format) => {
                 return moment(datum[tsField], format, true).isValid();
               });
-
               if (!(file.timestampFormat)) {
-                throw new Error(`The file that you are trying to upload has a timestamp format that is not supported: ${datum[tsField]}`);
+                throw new Error(Utils.trims`The file that you are trying to
+                                  upload has a timestamp format that is not
+                                  supported: ${datum[tsField]}`);
               }
-
             } else if (!tsField) {
-              throw new Error('This file does not have a column with datetime values.');
+              throw new Error(Utils.trims`This file does not have a column with
+                                datetime values.`);
             } else if (!datum) {
               throw new Error('This file does not have data.');
             }
@@ -92,7 +90,7 @@ export default function (actionContext, payload) {
             actionContext.dispatch(ACTIONS.UPLOADED_FILE, file);
             actionContext.dispatch(ACTIONS.LIST_METRICS, metrics);
             resolve(file);
-          }
+          } // if (buffer)
         }); // fs.getData()
       }, reject);
   });

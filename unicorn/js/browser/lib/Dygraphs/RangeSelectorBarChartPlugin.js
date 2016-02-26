@@ -25,8 +25,7 @@ import Utils from '../../../main/Utils';
  * DyGraph Plugin - RangeSelectorBarChart overlay for HTM Anomalies. Small clone
  *  and repurposing of the stock RangeSelector Dygraph plugin. Full ES6.
  * @requries Dygraphs
- * @see https://github.com/danvk/dygraphs/tree/master/src/plugins
- * @see https://github.com/danvk/dygraphs/blob/master/src/plugins/range-selector.js
+ * @see github.com/danvk/dygraphs/blob/master/src/plugins/range-selector.js
  */
 export default class {
 
@@ -114,7 +113,25 @@ export default class {
   }
 
   /**
-   * Draws the mini plot in the background canvas.
+   * Draws a mini bar on the canvas.
+   * @param {Object} context - Dygraph drawing context object
+   * @param {Number} x - X Coordinate of bar to draw
+   * @param {Number} height - Max height of line
+   * @param {String} color - String of color to use for bar draw
+   * @param {String} stroke - Bar stroke width
+   */
+  _drawMiniBar(context, x, height, color, stroke) {
+    context.beginPath();
+    context.moveTo(x, height);
+    context.lineTo(x, 0);
+    context.closePath();
+    this._canvas_context.lineWidth = stroke;
+    this._canvas_context.strokeStyle = new RGBColor(color).toRGB();
+    context.stroke();
+  }
+
+  /**
+   * Draws the mini plot on the canvas.
    */
   _drawMiniPlot() {
     let context = this._canvas_context;
@@ -126,10 +143,10 @@ export default class {
     let margin = 0.5;
     let canvasWidth = this._canvasRect.w - margin;
     let canvasHeight = this._canvasRect.h - margin;
-    let strokeWidth = this._getOption('rangeSelectorPlotLineWidth');
     let xFactor = canvasWidth / xRange;
     let barWidth = Math.ceil(data.length / canvasWidth);
     let previous = {x: null, value: null};
+    let stroke = this._getOption('rangeSelectorPlotLineWidth');
     let color, i, j, point, value, x;
 
     for (i=0; i<data.length; i+=barWidth) {
@@ -142,13 +159,11 @@ export default class {
         }
       }
       point = points[maxIndex]; // aggregate to prevent pixel overwriting
-
       value = point[this._seriesIndex];
       x = this._xValueToPixel(point[0], xExtremes[0], xFactor);
 
       if (x === previous.x && value < previous.value) {
-        // skip unwanted repeated pixel drawing overlay
-        continue;
+        continue;  // skip unwanted repeated pixel drawing overlay
       }
 
       previous.x = x;
@@ -156,13 +171,7 @@ export default class {
 
       if (isFinite(x) && (value >= 0.25)) {
         color = Utils.mapAnomalyColor(value, yRange);
-        context.beginPath();
-        context.moveTo(x, canvasHeight);
-        context.lineTo(x, 0);
-        context.closePath();
-        this._canvas_context.strokeStyle = new RGBColor(color).toRGB();
-        this._canvas_context.lineWidth = strokeWidth;
-        context.stroke();
+        this._drawMiniBar(context, x, canvasHeight, color, stroke);
       }
     }
   }

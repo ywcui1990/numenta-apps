@@ -21,12 +21,16 @@ import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
 import path from 'path';
 import React from 'react';
+import Utils from '../../main/Utils';
 
 import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
 import MetricStore from '../stores/MetricStore';
 import StartModelAction from '../actions/StartModel';
 
 
+/**
+ * "Create Model" Dialog
+ */
 @connectToStores([MetricStore], (context) => ({
   fileName: context.getStore(MetricStore).fileName,
   metricName: context.getStore(MetricStore).metricName,
@@ -76,8 +80,8 @@ export default class CreateModelDialog extends React.Component {
   render() {
     let body = null;
     let actions = [];
-    let title = `Create model for ${this.state.metricName}
-    (${path.basename(this.state.fileName)})`;
+    let title = Utils.trims`Create model for ${this.state.metricName}
+                  (${path.basename(this.state.fileName)})`;
 
     if (this.state.fileName && this.state.metricName) {
       let metricStore = this.context.getStore(MetricStore);
@@ -98,26 +102,28 @@ export default class CreateModelDialog extends React.Component {
           aggOpts: paramFinderResults.aggInfo,
           modelOpts: paramFinderResults.modelInfo
         };
-        body = `We determined that you will get the best results if we aggregate
-        your data to ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
+        body = Utils.trims`We determined that you will get the best results if
+                we aggregate your data to
+                ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
+
         actions.push(
           <FlatButton
             label="OK"
             onTouchTap={this._onOK.bind(this, modelPayload)}
-          />);
+            />
+        );
         actions.push(
-          <a href="#" onClick={this._onNO.bind(this, modelPayload)}>No, please
-            use
-            original
-            data.</a>
+          <a href="#" onClick={this._onNO.bind(this, modelPayload)}>
+            No, please use original data.
+          </a>
         );
       } else {
         body = (
           <div>
-            <CircularProgress size={0.5}/> Preparing to create an HTM model.
-            This
-            might take a few seconds.
-          </div>)
+            <CircularProgress size={0.5} />
+            Preparing to create an HTM model. This might take a few seconds.
+          </div>
+        );
       }
     }
     return (

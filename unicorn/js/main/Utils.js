@@ -53,7 +53,7 @@ export default class Utils {
     let fileId = Utils.generateFileId(filename);
     // Use 64 bit hash
     let metricId = Utils.generateId(metric).substr(0,16);
-    return `${fileId}!${metricId}`
+    return `${fileId}!${metricId}`;
   }
 
   /**
