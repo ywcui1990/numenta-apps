@@ -22,7 +22,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import DatabaseService from '../../../../js/main/DatabaseService';
+import {DatabaseService} from '../../../../js/main/DatabaseService';
 import {
   DBFileSchema, DBMetricSchema, DBMetricDataSchema, DBModelDataSchema
 } from '../../../../js/schemas';

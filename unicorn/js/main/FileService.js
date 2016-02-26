@@ -340,5 +340,6 @@ FileService.prototype.getStatistics = function (filename, options, callback) {
 };
 
 
-// EXPORTS
-export default FileService;
+// Returns singleton
+const INSTANCE = new FileService();
+export default INSTANCE;

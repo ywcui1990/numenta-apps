@@ -26,7 +26,6 @@
  *  `remote` module.
  */
 let remote = require('remote'); // eslint-disable-line
-let client = remote.require('./DatabaseService'); // pseduo-DBClientIPC
 
 /**
  * Get all metrics from the database as a {@link Promise}
@@ -81,4 +80,5 @@ export function promiseSaveFilesIntoDB(db, files) {
   });
 }
 
+let client = remote.require('./DatabaseService').default; // Get singleton
 export default client;

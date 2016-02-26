@@ -22,7 +22,7 @@ const assert = require('assert');
 
 import path from 'path';
 
-import FileService from '../../../../js/main/FileService';
+import service from '../../../../js/main/FileService';
 
 
 // Contents of 'fixture/file.csv'
@@ -81,12 +81,6 @@ const FILENAME_LARGE = path.resolve(__dirname, '../fixtures/rec-center-15.csv');
 
 /* eslint-disable max-nested-callbacks */
 describe('FileService', () => {
-  let service;
-
-  beforeEach(() => {
-    service = new FileService();
-  });
-
   describe('#getSampleFiles()', () => {
     it('should list sample files', (done) => {
       service.getSampleFiles((error, files) => {

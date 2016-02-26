@@ -25,4 +25,5 @@
  *  pseudo-library, using the magic of Electron's `remote` module.
  */
 let remote = require('remote'); // eslint-disable-line
-export default remote.require('./ConfigService'); // pseduo-ConfigClientIPC
+let client = remote.require('./ConfigService'); // Get singleton
+export default client;

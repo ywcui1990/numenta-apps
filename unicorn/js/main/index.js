@@ -21,12 +21,11 @@ import {app, BrowserWindow, crashReporter, dialog, Menu} from 'electron';
 import bunyan from 'bunyan';
 import path from 'path';
 
-import Config from './ConfigService';
+import config from './ConfigService';
 import MainMenu from './MainMenu';
 import ModelServiceIPC from './ModelServiceIPC';
 import ParamFinderServiceIPC from './ParamFinderServiceIPC';
 
-const config = new Config();
 const DEV = config.get('NODE_ENV') !== 'production';
 const log = bunyan.createLogger({
   level: 'debug',  // @TODO higher for Production
