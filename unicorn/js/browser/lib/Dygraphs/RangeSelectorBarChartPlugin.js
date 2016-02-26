@@ -48,6 +48,7 @@ export default class {
 
   /**
    * Get Dygraphs Plugin info
+   * @returns {String} - Plugin text description
    */
   toString() {
     return 'RangeSelector BarChart Plugin';
@@ -55,6 +56,8 @@ export default class {
 
   /**
    * Activate Dygraphs Plugin
+   * @param {Object} dygraph - Dygraph object to plug
+   * @returns {Object} - Dygraph Plugin utility hash object
    */
   activate(dygraph) {
     this._dygraph = dygraph;
@@ -126,20 +129,30 @@ export default class {
     let strokeWidth = this._getOption('rangeSelectorPlotLineWidth');
     let xFactor = canvasWidth / xRange;
     let barWidth = Math.ceil(data.length / canvasWidth);
-    let color, i, point, value, x;
+    let previous = {x: null, value: null};
+    let color, i, j, point, value, x;
 
     for (i=0; i<data.length; i+=barWidth) {
-      let points = data.slice(i, i + barWidth - 1);
+      let points = data.slice(i, i + barWidth);
       let maxIndex = 0;
-      points.forEach((point, index) => {
-        if (point[this._seriesIndex] > points[maxIndex][this._seriesIndex]) {
-          maxIndex = index;
+      for (j=0; j<points.length; j++) {
+        let current = points[j];
+        if (current[this._seriesIndex] > points[maxIndex][this._seriesIndex]) {
+          maxIndex = j;
         }
-      });
+      }
       point = points[maxIndex]; // aggregate to prevent pixel overwriting
 
       value = point[this._seriesIndex];
       x = this._xValueToPixel(point[0], xExtremes[0], xFactor);
+
+      if (x === previous.x && value < previous.value) {
+        // skip unwanted repeated pixel drawing overlay
+        continue;
+      }
+
+      previous.x = x;
+      previous.value = value;
 
       if (isFinite(x) && (value >= 0.25)) {
         color = Utils.mapAnomalyColor(value, yRange);
@@ -163,12 +176,15 @@ export default class {
     try {
       this._drawMiniPlot();
     } catch (error) {
-      console.error(error);
+      console.error(error); // eslint-disable-line
     }
   }
 
   /**
    * Helper shortcut to get options from live Dygraphs chart
+   * @param {String} name - Name of dygraph option to get
+   * @param {String} series - Filter options for a specific series
+   * @returns {Number|Object|String} - Resulting Dygrpah option value
    */
   _getOption(name, series) {
     return this._dygraph.getOption(name, series);
@@ -185,6 +201,7 @@ export default class {
 
   /**
    * Renders the static portion of the range selector bar charts at predraw.
+   * @param {Event} event - Dygraph event fired when time to render our own.
    */
   _renderStaticLayer(event) {
     if (! this._updateVisibility()) {
@@ -220,6 +237,9 @@ export default class {
 
   /**
    * Resize/Rescale a DOM element via Dygraphs utils and css
+   * @param {Object} canvas - Actual canvas to draw to
+   * @param {Object} context - Dygraph context object
+   * @param {Object} rect - Rectangle to use as canvas
    */
   _setElementRect(canvas, context, rect) {
     let canvasScale = Dygraph.getContextPixelRatio(context);
@@ -238,6 +258,7 @@ export default class {
 
   /**
    * Check to see if the range selector is en/disabled and update visibility.
+   * @returns {Boolean} - Flag whether to show or not
    */
   _updateVisibility() {
     let enabled = this._getOption('showRangeSelector');
@@ -262,6 +283,10 @@ export default class {
 
   /**
    * Convert X value (ts) to X Pixel Coord
+   * @param {Number} x - X value to map
+   * @param {Number} xMax - Relative X Max value to map against
+   * @param {Number} xFactor - Relative X Scaling factor
+   * @returns {Number|NaN} - X pixel coordinate
    */
   _xValueToPixel(x, xMax, xFactor) {
     if (x !== null) {
@@ -272,6 +297,11 @@ export default class {
 
   /**
    * Convert Y value (data value) to Y Pixel Coord
+   * @param {Number} y - Y value to map
+   * @param {Number} yMin - Relative Y Min value to map against
+   * @param {Number} yMax - Relative Y Max value to map against
+   * @param {Number} yFactor - Relative Y Scaling factor
+   * @returns {Number|NaN} - Y pixel coordinate
    */
   _yValueToPixel(y, yMin, yMax, yFactor) {
     if (y !== null) {

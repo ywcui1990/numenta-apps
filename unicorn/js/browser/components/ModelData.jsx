@@ -60,6 +60,7 @@ export default class ModelData extends React.Component {
     this._chartOptions = {
       // dygraphs global chart options
       options: {
+        clickCallback: this._chartHandleClick,
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
@@ -121,15 +122,18 @@ export default class ModelData extends React.Component {
       let color, index;
 
       // every bar has a basic 2px placeholder green line
-      this._drawLine(context, xStart, xEnd, yBottom, startColor);
-      this._drawLine(context, xStart, xEnd, yBottom-1, startColor);
+      this._chartDrawLine(context, xStart, xEnd, yBottom, startColor);
+      this._chartDrawLine(context, xStart, xEnd, yBottom-1, startColor);
 
       // draw vertical bar with several horizontal lines in column
       color = new RGBColor(Utils.mapAnomalyColor(height, yBottom));
       if (color && 'toRGB' in color) {
+        // @TODO This was originally for anomaly bars that had color gradients
+        //  instead of flat bars. It could probably be optimized to use less
+        //  calls to the <canvas> actually .stroke()ing.
         for (index=0; index<height; index++) {
           let y = yBottom - index;
-          this._drawLine(context, xStart, xEnd, y, color.toRGB());
+          this._chartDrawLine(context, xStart, xEnd, y, color.toRGB());
         }
       }
     });
@@ -143,12 +147,16 @@ export default class ModelData extends React.Component {
    * @param {Number} y - Y coord of line
    * @param {String|Object} color - Color (string or RGBColor object) for line
    */
-  _drawLine(context, xStart, xEnd, y, color) {
+  _chartDrawLine(context, xStart, xEnd, y, color) {
     context.strokeStyle = color;
     context.beginPath();
     context.moveTo(xStart, y);
     context.lineTo(xEnd, y);
     context.stroke();
+  }
+
+  _chartHandleClick(...args) {
+    // console.log('!!! click', args); // eslint-disable-line
   }
 
   render() {

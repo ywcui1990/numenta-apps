@@ -116,12 +116,11 @@ export default class Chart extends React.Component {
    * DyGrpahs Chart Initalize and Render
    */
   _chartInitalize() {
-    let data = this.props.data;
-    let el = ReactDOM.findDOMNode(this.refs.chart);
+    let {data, options} = this.props;
+    let element = ReactDOM.findDOMNode(this.refs.chart);
     let first = new Date(data[0][0]).getTime();
     let second = new Date(data[1][0]).getTime();
     let unit = second - first; // each datapoint
-    let options, selector;
 
     this._chartBusy = true;
 
@@ -130,26 +129,8 @@ export default class Chart extends React.Component {
     this._chartRange = [first, first + this._chartRangeWidth]; // float left
 
     // init chart
-    options = {
-      clickCallback: this._chartClickCallback.bind(this),
-      dateWindow: this._chartRange,
-      zoomCallback: this._chartZoomCallback.bind(this)
-    };
-    Object.assign(options, this.props.options);
-    this._dygraph = new Dygraph(el, data, options);
-
-    // selectors = el.getElementsByClassName('dygraph-rangesel-zoomhandle');
-    // range selector custom events
-    selector = el.getElementsByClassName('dygraph-rangesel-fgcanvas')[0];
-    selector.addEventListener(
-      'mousedown',
-      this._rangeMouseDownCallback.bind(this)
-    );
-    selector.addEventListener(
-      'mouseup',
-      this._rangeMouseUpCallback.bind(this)
-    );
-
+    options.dateWindow = this._chartRange;
+    this._dygraph = new Dygraph(element, data, options);
     this._chartBusy = false;
   }
 
@@ -163,8 +144,8 @@ export default class Chart extends React.Component {
     let blockRedraw = anomalyCount % 2 === 0; // filter out some redrawing
     let rangeMax, rangeMin;
 
-    // if range scroll is locked, we're far left, so stay far left on chart
-    if (this._chartScrollLock && !this._chartBusy) {
+    // scroll along with fresh anomaly model data input
+    if (!this._chartBusy) {
       rangeMax = new Date(data[anomalyCount][0]).getTime();
       rangeMin = rangeMax - this._chartRangeWidth;
       if (rangeMin < first) {
@@ -175,57 +156,9 @@ export default class Chart extends React.Component {
     }
 
     this._chartBusy = true;
-    options.dateWindow = this._chartRange; // fixed width
-    options.file = data; // new data
+    options.dateWindow = this._chartRange;
+    options.file = data;  // new data
     this._dygraph.updateOptions(options, blockRedraw);
-    this._chartBusy = false;
-  }
-
-  /**
-   * DyGrpahs Chart click callback function
-   */
-  _chartClickCallback() {
-    // user touched chart: turn off far-right scroll lock for now
-    this._chartScrollLock = false;
-  }
-
-  /**
-   * DyGrpahs Chart range finder change/zoom callback function
-   * @param {Number} rangeXmin - Minimum X value of chart Range Finder
-   * @param {Number} rangeXmax - Maximum X value of chart Range Finder
-   * @param {Array} [yRanges] - Extra Y value data (unused currently)
-   */
-  _chartZoomCallback(rangeXmin, rangeXmax, yRanges) {
-    // lock range finder into fixed-width behavior
-    /*
-    let [oldMin, oldMax] = this._chartRange;
-    let minChange = Math.abs(rangeXmin - oldMin);
-    let maxChange = Math.abs(rangeXmax - oldMax);
-
-    if (minChange > maxChange) {
-      rangeXmax = rangeXmin + this._chartRangeWidth;
-    } else {
-      rangeXmin = rangeXmax - this._chartRangeWidth;
-    }
-
-    this._chartRange = [rangeXmin, rangeXmax];
-    this._chartUpdate();
-    */
-  }
-
-  /**
-   * DyGrpahs Chart RangeSelector mousedown callback function
-   * @param {Object} event - Event handler object
-   */
-  _rangeMouseDownCallback(event) {
-    this._chartBusy = true;
-  }
-
-  /**
-   * DyGrpahs Chart RangeSelector mouseup callback function
-   * @param {Object} event - Event handler object
-   */
-  _rangeMouseUpCallback(event) {
     this._chartBusy = false;
   }
 
