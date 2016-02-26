@@ -193,6 +193,14 @@ unset PYTHONPATH  # force usage of our custom internal Python
 
 ## Develop
 
+### Lightweight Install
+
+To install without the lengthy python bundle, assuming the desired python bundle
+is already installed:
+
+```shell
+npm install --no-optional
+```
 
 ### Run
 
