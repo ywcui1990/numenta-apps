@@ -23,6 +23,7 @@ const assert = require('assert');
 import path from 'path';
 
 import service from '../../../../js/main/FileService';
+import Utils from '../../../../js/main/Utils';
 
 
 // Contents of 'fixture/file.csv'
@@ -46,16 +47,20 @@ const EXPECTED_DATA = [
   {timestamp: '2015-08-26T19:51:31+17:00', metric: '19'}
 ];
 
+const FILENAME_SMALL = path.resolve(__dirname, '../fixtures/file.csv');
+const FILENAME_LARGE = path.resolve(__dirname, '../fixtures/rec-center-15.csv');
+
 // Expected fields
+const FILENAME_SMALL_ID = Utils.generateFileId(FILENAME_SMALL);
 const EXPECTED_FIELDS = [{
-  uid: 'f620b4fb4f545ab0!a5a01b8fa531faad',
-  file_uid: 'f620b4fb4f545ab0',
+  uid: Utils.generateMetricId(FILENAME_SMALL, 'timestamp'),
+  file_uid: FILENAME_SMALL_ID,
   name: 'timestamp',
   type: 'date',
   format: 'YYYY-MM-DDTHH:mm:ssZ'
 }, {
-  uid: 'f620b4fb4f545ab0!c5a39a3a7b3df7a7',
-  file_uid: 'f620b4fb4f545ab0',
+  uid: Utils.generateMetricId(FILENAME_SMALL, 'metric'),
+  file_uid: FILENAME_SMALL_ID,
   name: 'metric',
   type: 'number'
 }];
@@ -76,8 +81,6 @@ const EXPECTED_MAX_PARTIAL = 21;
 // Keep this list up to date with file names in "js/samples"
 const EXPECTED_SAMPLE_FILES = ['gym.csv'];
 
-const FILENAME_SMALL = path.resolve(__dirname, '../fixtures/file.csv');
-const FILENAME_LARGE = path.resolve(__dirname, '../fixtures/rec-center-15.csv');
 
 /* eslint-disable max-nested-callbacks */
 describe('FileService', () => {
