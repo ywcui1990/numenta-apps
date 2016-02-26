@@ -26,10 +26,12 @@
 import convertNewline from 'convert-newline';
 import csv from 'csv-streamify';
 import filesystem from 'fs';
+import moment from 'moment';
 import path from 'path';
 
 import TimeAggregator from './TimeAggregator';
 import Utils from './Utils';
+import {TIMESTAMP_FORMATS} from '../config/timestamp';
 
 const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
 
@@ -123,6 +125,10 @@ FileService.prototype.getFields = function (filename, options, callback) {
             field.type = 'number';
           } else if (Number.isFinite(Date.parse(val))) {
             field.type = 'date';
+            // Guess timestamp format
+            field['format'] = TIMESTAMP_FORMATS.find((format) => {
+              return moment(val, format, true).isValid();
+            });
           }
           fields.push(field);
         }

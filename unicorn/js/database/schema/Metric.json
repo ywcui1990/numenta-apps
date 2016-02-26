@@ -21,6 +21,10 @@
       "enum": ["date", "number", "string"],
       "type": "string"
     },
+    "format": {
+      "type": "string",
+      "description": "Optional field format string. Usually used by 'date' fields to validate datetime format"
+    },
     "input_options": {
       "$ref": "/py/input_opt_schema_param_finder"
     },

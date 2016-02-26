@@ -48,17 +48,17 @@ const EXPECTED_DATA = [
 
 // Expected fields
 const EXPECTED_FIELDS = [{
-  uid: 'TEST_UID_TS',
-  file_uid: 'TEST_FILE_UID_TS',
+  uid: 'f620b4fb4f545ab0!a5a01b8fa531faad',
+  file_uid: 'f620b4fb4f545ab0',
   name: 'timestamp',
-  type: 'date'
+  type: 'date',
+  format: 'YYYY-MM-DDTHH:mm:ssZ'
 }, {
-  uid: 'TEST_UID_METRIC',
-  file_uid: 'TEST_FILE_UID_METRIC',
+  uid: 'f620b4fb4f545ab0!c5a39a3a7b3df7a7',
+  file_uid: 'f620b4fb4f545ab0',
   name: 'metric',
   type: 'number'
 }];
-const EXPECTED_FIELDS_VALUE_TESTS = ['name', 'type'];
 
 // Expected statistics for the whole file
 const EXPECTED_MIN = 16;
@@ -116,22 +116,7 @@ describe('FileService', () => {
     it('should get fields using default options', (done) => {
       service.getFields(FILENAME_SMALL, (error, fields) => {
         assert.ifError(error);
-        fields.forEach((field, index) => {
-          // match object keys
-          assert.deepEqual(
-            Object.keys(fields[index]),
-            Object.keys(EXPECTED_FIELDS[index]),
-            'Got different Fields keys (all)'
-          );
-          // match certain key-specified values
-          EXPECTED_FIELDS_VALUE_TESTS.forEach((valueTestKey) => {
-            assert.equal(
-              fields[index][valueTestKey],
-              EXPECTED_FIELDS[index][valueTestKey],
-              'Got different Fields values (specific keys only)'
-            );
-          });
-        });
+        assert.deepEqual(fields, EXPECTED_FIELDS);
         done();
       });
     });
