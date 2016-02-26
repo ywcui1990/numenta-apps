@@ -197,6 +197,13 @@ is already installed:
 npm install --no-optional
 ```
 
+### Unicorn backend install
+
+Execute the following command after making changes to `unicorn_backend` code:
+```shell
+npm run install:backend
+```
+
 ### Run
 
 ```shell
