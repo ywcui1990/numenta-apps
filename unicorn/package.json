@@ -25,7 +25,7 @@
     "build": "npm run electron:packager",
     "clean": "npm install rimraf && npm run clean:docs && npm run clean:build && npm run clean:webpack && npm run clean:npm",
     "clean:build": "rimraf dist/ && rimraf backend/unicorn_backend/nupic/",
-    "clean:db:osx": "rm -f $HOME/Library/Application\\ Support/HTM\\ Studio/database/*",
+    "clean:db:osx": "rm -rf $HOME/Library/Application\\ Support/HTM\\ Studio/*",
     "clean:docs": "rimraf js/docs/",
     "clean:npm": "rimraf node_modules/ && npm cache clean",
     "clean:webpack": "rimraf js/browser/assets/bundle/*",
