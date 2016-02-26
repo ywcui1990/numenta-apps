@@ -20,7 +20,7 @@ import {
   promiseSaveFilesIntoDB, promiseSaveMetricsToDB
 } from '../lib/Unicorn/DatabaseClient';
 import {promiseMetricsFromFiles} from '../lib/Unicorn/FileClient';
-import {TIMESTAMP_FORMATS} from '../lib/Constants';
+import {TIMESTAMP_FORMATS} from '../../config/timestamp';
 import moment from 'moment';
 
 
