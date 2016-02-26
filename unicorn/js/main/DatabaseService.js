@@ -548,7 +548,24 @@ export class DatabaseService {
    * @param  {Function} callback called when the operation is complete,
    *                             with a possible error argument
    */
-  deleteFile(fileId, callback) {
+  deleteFileById(fileId, callback) {
+    this._files.del(fileId, (error) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      this.deleteMetricsByFile(fileId, callback);
+    });
+  }
+
+  /**
+   * Delete metric and associated metrics from database.
+   * @param  {string}   filename   File to delete
+   * @param  {Function} callback called when the operation is complete,
+   *                             with a possible error argument
+   */
+  deleteFile(filename, callback) {
+    let fileId = Utils.generateFileId(filename);
     this._files.del(fileId, (error) => {
       if (error) {
         callback(error);
@@ -620,7 +637,6 @@ export class DatabaseService {
       this.putMetric(metric, callback);
     });
   }
-}
 
 /**
  * Upload a new file to the database performing the following steps:
@@ -632,7 +648,7 @@ export class DatabaseService {
  * @param  {Function} callback called when the operation is complete with the
  *                             uploaded file record or error
  */
-DatabaseService.prototype.uploadFile = function (fileToUpload, callback) {
+uploadFile(fileToUpload, callback) {
   let file = fileToUpload;
   if (typeof file === 'string') {
     file = {
@@ -695,6 +711,7 @@ DatabaseService.prototype.uploadFile = function (fileToUpload, callback) {
       }))
     })
     .catch(callback);
+}
 }
 
 // Returns singleton
