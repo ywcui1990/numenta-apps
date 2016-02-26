@@ -125,7 +125,7 @@ export default class {
     context.moveTo(x, height);
     context.lineTo(x, 0);
     context.closePath();
-    this._canvas_context.lineWidth = strokeWidth;
+    this._canvas_context.lineWidth = stroke;
     this._canvas_context.strokeStyle = new RGBColor(color).toRGB();
     context.stroke();
   }
