@@ -106,9 +106,6 @@ on streams of data, predicting future values, and detecting pattern anomalies.
     * Also a few [ECMAScript 7](https://babeljs.io/docs/usage/experimental/)
       features.
     * Some [ECMAScript 5.1](https://es5.github.io/), the Web compile target.
-    * Flow Control for A/Synchronous code:
-      [js-csp](https://github.com/ubolonton/js-csp),
-      [Learn More!](http://jlongster.com/Taming-the-Asynchronous-Beast-with-CSP-in-JavaScript)
   * [HTML5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
   * [CSS3](https://developer.mozilla.org/en-US/docs/Web/CSS)
 * Framework: [Electron](https://github.com/atom/electron)
@@ -144,9 +141,7 @@ own data.
 The GUI for this application is web code. `Javascript`, `HTML`, and `CSS` are
 loaded into a browser. For Desktop, this browser is a bare-bones Chrome window
 opened by the Electron framework. Electron also runs Node.js to connect with the
-host Operating System, allowing for cross-platform native controls. Since web
-code is notoriously asynchronous, we use `js-csp` to handle a/synchronous
-data flow.
+host Operating System, allowing for cross-platform native controls.
 
 In the browser, we run a one-way Uni-directional data flow, an Architecture
 known as "Flux".
