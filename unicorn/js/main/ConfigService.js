@@ -39,7 +39,7 @@ const Defaults = {
  *  NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
  * @return {Object} - Configuration data handler object
  */
-function ConfigService() {
+function createConfigService() {
   const config = nconf.env().argv().defaults(Defaults);
 
   config.file(path.join(CONFIG_PATH, CONFIG_FILE));
@@ -52,5 +52,6 @@ function ConfigService() {
 }
 
 
-// EXPORTS
-module.exports = ConfigService;
+// Returns singleton
+const INSTANCE = createConfigService();
+export default INSTANCE;

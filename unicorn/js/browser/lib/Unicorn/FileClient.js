@@ -25,7 +25,6 @@
  *  pseudo-library, using the magic of Electron's `remote` module.
  */
 let remote = require('remote'); // eslint-disable-line
-let client = remote.require('./FileService'); // pseduo-FileClientIPC
 
 /**
  * Get all metrics from the given files as a {@link Promise}
@@ -69,4 +68,5 @@ export function promiseLoadSampleFilesFromDisk(fs) {
   });
 }
 
+let client = remote.require('./FileService'); // Get singleton
 export default client;

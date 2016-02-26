@@ -32,9 +32,9 @@ import ReactDOM from 'react-dom';
 import remote from 'remote';
 import tapEventInject from 'react-tap-event-plugin';
 
-import ConfigClient from './lib/Unicorn/ConfigClient';
-import DatabaseClient from './lib/Unicorn/DatabaseClient';
-import FileClient from './lib/Unicorn/FileClient';
+import config from './lib/Unicorn/ConfigClient';
+import databaseClient from './lib/Unicorn/DatabaseClient';
+import fileClient from './lib/Unicorn/FileClient';
 import FileDetailsStore from './stores/FileDetailsStore';
 import MetricStore from './stores/MetricStore';
 import FileStore from './stores/FileStore';
@@ -49,12 +49,9 @@ import ModelStore from './stores/ModelStore';
 import UnicornPlugin from './lib/Fluxible/UnicornPlugin';
 import Utils from '../main/Utils';
 
-const config = new ConfigClient();
 const dialog = remote.require('dialog');
 const logger = bunyan.createLogger(loggerConfig);
 
-let databaseClient = new DatabaseClient();
-let fileClient = new FileClient();
 let modelClient = new ModelClient();
 let paramFinderClient = new ParamFinderClient();
 

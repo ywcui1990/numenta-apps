@@ -17,9 +17,8 @@
 
 import path from 'path';
 
-import Config from './js/main/ConfigService';
+import config from './js/main/ConfigService';
 
-const config = new Config();
 
 let destination = path.join(__dirname, config.get('bundle:destination'));
 let publics = path.join(__dirname, config.get('bundle:public'));

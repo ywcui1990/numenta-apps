@@ -19,6 +19,7 @@
 // NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
 
 import fs from 'fs';
+import os from 'os';
 import isElectronRenderer from 'is-electron-renderer';
 import json2csv from 'json2csv-stream';
 import leveldown from 'leveldown';
@@ -58,7 +59,7 @@ const SCHEMAS = [
  * @return {string} Full path name
  */
 function _getDefaultDatabaseLocation() {
-  let location = path.join('js', 'database', 'data');
+  let location = path.join(os.tmpdir());
   if (!isElectronRenderer) {
     try {
       // This module is only available inside 'Electron' main process
@@ -75,7 +76,7 @@ function _getDefaultDatabaseLocation() {
  *  Meant for heavy persistence.
  * @param {string} [path] - Database location path (optional)
  */
-function DatabaseService(path) {
+export function DatabaseService(path) {
   let location = path || _getDefaultDatabaseLocation();
 
   // Configure schema validator
@@ -618,4 +619,6 @@ DatabaseService.prototype.setMetricInputOptions = function (metricId, options, c
   });
 }
 
-export default DatabaseService;
+// Returns singleton
+const INSTANCE = new DatabaseService();
+export default INSTANCE;
