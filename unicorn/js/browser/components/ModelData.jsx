@@ -60,7 +60,6 @@ export default class ModelData extends React.Component {
     this._chartOptions = {
       // dygraphs global chart options
       options: {
-        clickCallback: this._chartHandleClick,
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
@@ -153,10 +152,6 @@ export default class ModelData extends React.Component {
     context.moveTo(xStart, y);
     context.lineTo(xEnd, y);
     context.stroke();
-  }
-
-  _chartHandleClick(...args) {
-    // console.log('!!! click', args); // eslint-disable-line
   }
 
   render() {

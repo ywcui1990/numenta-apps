@@ -18,17 +18,19 @@
  * http://numenta.org/licenses/
  * -------------------------------------------------------------------------- */
 
-import getPortablePython from './PortablePython';
 import childProcess from 'child_process';
 import EventEmitter from 'events';
 import path from 'path';
 import system from 'os';
+
+import getPortablePython from './PortablePython';
 import UserError from './UserError';
 
 const PYTHON_EXECUTABLE = getPortablePython();
 const MODEL_RUNNER_PATH = path.join(
   __dirname, '..', '..', 'py', 'unicorn_backend', 'model_runner_2.py'
 );
+
 
 /**
  * Thrown when attempting to create more models than allowed by the system.
