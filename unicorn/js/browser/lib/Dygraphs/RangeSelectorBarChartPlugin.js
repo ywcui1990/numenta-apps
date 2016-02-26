@@ -25,8 +25,7 @@ import Utils from '../../../main/Utils';
  * DyGraph Plugin - RangeSelectorBarChart overlay for HTM Anomalies. Small clone
  *  and repurposing of the stock RangeSelector Dygraph plugin. Full ES6.
  * @requries Dygraphs
- * @see https://github.com/danvk/dygraphs/tree/master/src/plugins
- * @see https://github.com/danvk/dygraphs/blob/master/src/plugins/range-selector.js
+ * @see github.com/danvk/dygraphs/blob/master/src/plugins/range-selector.js
  */
 export default class {
 
@@ -117,11 +116,11 @@ export default class {
    * Draws a mini bar on the canvas.
    * @param {Object} context - Dygraph drawing context object
    * @param {Number} x - X Coordinate of bar to draw
-   * @param {String} color - String of color to use for bar draw
    * @param {Number} height - Max height of line
+   * @param {String} color - String of color to use for bar draw
+   * @param {String} stroke - Bar stroke width
    */
-  _drawMiniBar(context, x, color, height) {
-    let strokeWidth = this._getOption('rangeSelectorPlotLineWidth');
+  _drawMiniBar(context, x, height, color, stroke) {
     context.beginPath();
     context.moveTo(x, height);
     context.lineTo(x, 0);
@@ -147,6 +146,7 @@ export default class {
     let xFactor = canvasWidth / xRange;
     let barWidth = Math.ceil(data.length / canvasWidth);
     let previous = {x: null, value: null};
+    let stroke = this._getOption('rangeSelectorPlotLineWidth');
     let color, i, j, point, value, x;
 
     for (i=0; i<data.length; i+=barWidth) {
@@ -171,7 +171,7 @@ export default class {
 
       if (isFinite(x) && (value >= 0.25)) {
         color = Utils.mapAnomalyColor(value, yRange);
-        this._drawMiniBar(context, x, color, canvasHeight);
+        this._drawMiniBar(context, x, canvasHeight, color, stroke);
       }
     }
   }
