@@ -19,6 +19,7 @@
 import fs from 'fs';
 import os from 'os';
 import isElectronRenderer from 'is-electron-renderer';
+import fileService from './FileService';
 import json2csv from 'json2csv-stream';
 import leveldown from 'leveldown';
 import levelup from 'levelup';
@@ -619,6 +620,81 @@ export class DatabaseService {
       this.putMetric(metric, callback);
     });
   }
+}
+
+/**
+ * Upload a new file to the database performing the following steps:
+ *  1) Save file metadata
+ *  2) Save fields/metrics metadata
+ *  3) Save metric data
+ *
+ * @param  {string|File}   fileToUpload  Full path name or preconfigured File object. See {@link DBFileSchema}
+ * @param  {Function} callback called when the operation is complete with the
+ *                             uploaded file record or error
+ */
+DatabaseService.prototype.uploadFile = function (fileToUpload, callback) {
+  let file = fileToUpload;
+  if (typeof file === 'string') {
+    file = {
+      filename: fileToUpload,
+      name: path.basename(fileToUpload),
+      type: 'uploaded',
+      uid: Utils.generateFileId(fileToUpload)
+    };
+  } else {
+    // Validate file object
+    const validation = this.validator.validate(file, DBFileSchema);
+    if (validation.errors.length) {
+      callback(validation.errors);
+      return;
+    }
+  }
+  let promisify = Utils.promisify;
+  // Save file
+  promisify(::this.putFile, file)
+    // Load metrics from file
+    .then(() => promisify(::fileService.getFields, file.filename))
+    // Create metrics for each numeric and timestamp fields
+    .then((fields) => {
+      let metrics = fields.filter((field) => ['date', 'number'].includes(field.type)); // eslint-disable-line
+      return promisify(::this.putMetricBatch, metrics).then(() => Promise.resolve(metrics)) // eslint-disable-line
+    })
+    // Load data
+    .then((metrics) => {
+      // Find timestamp field
+      let timestampField = metrics.find((field) => field.type === 'date').name;
+
+      // Load data from file
+      fileService.getData(file.filename, {objectMode: true}, ((error, data) => {
+        if (error) {
+          throw error;
+        }
+        if (data) {
+          metrics.forEach((field) => {
+            // Save metric for each numeric field
+            if (field.type === 'number') {
+              let metridData = {
+                metric_uid: Utils.generateMetricId(file.filename, field.name),
+                timestamp: data[timestampField],
+                metric_value: parseFloat(data[field.name])
+              };
+
+              // Save data
+              this.putMetricData(metridData, (error) => { // eslint-disable-line
+                if (error) {
+                  throw error;
+                }
+              });
+            }
+          });
+        } else {
+          // No more data
+          callback(null, file);
+          return;
+        }
+      }))
+    })
+    .catch(callback);
 }
 
 // Returns singleton

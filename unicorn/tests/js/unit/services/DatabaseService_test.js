@@ -26,6 +26,7 @@ import {DatabaseService} from '../../../../js/main/DatabaseService';
 import {
   DBFileSchema, DBMetricSchema, DBMetricDataSchema, DBModelDataSchema
 } from '../../../../js/schemas';
+import Utils from '../../../../js/main/Utils';
 
 const assert = require('assert');
 
@@ -103,6 +104,36 @@ const EXPECTED_EXPORTED_RESULTS =
 const TEMP_DIR = path.join(os.tmpDir(), 'unicorn_db');
 const FILENAME = path.join(TEMP_DIR, 'file.csv');
 
+const FILENAME_SMALL = path.resolve(__dirname, '../fixtures/file.csv');
+const FILENAME_SMALL_ID = Utils.generateFileId(FILENAME_SMALL);
+const UPLOADED_METRIC_ID = Utils.generateMetricId(FILENAME_SMALL, 'metric');
+const EXPECTED_UPLOADED_METRICS = [{
+  uid: Utils.generateMetricId(FILENAME_SMALL, 'timestamp'),
+  file_uid: FILENAME_SMALL_ID,
+  name: 'timestamp',
+  type: 'date',
+  format: 'YYYY-MM-DDTHH:mm:ssZ'
+}, {
+  uid: UPLOADED_METRIC_ID,
+  file_uid: FILENAME_SMALL_ID,
+  name: 'metric',
+  type: 'number'
+}];
+// Expected data
+const EXPECTED_UPLOADED_DATA = [
+  {metric_uid: UPLOADED_METRIC_ID, timestamp: '2015-08-26T19:46:31+17:00', metric_value: 21},
+  {metric_uid: UPLOADED_METRIC_ID, timestamp: '2015-08-26T19:47:31+17:00', metric_value: 17},
+  {metric_uid: UPLOADED_METRIC_ID, timestamp: '2015-08-26T19:48:31+17:00', metric_value: 22},
+  {metric_uid: UPLOADED_METRIC_ID, timestamp: '2015-08-26T19:49:31+17:00', metric_value: 21},
+  {metric_uid: UPLOADED_METRIC_ID, timestamp: '2015-08-26T19:50:31+17:00', metric_value: 16},
+  {metric_uid: UPLOADED_METRIC_ID, timestamp: '2015-08-26T19:51:31+17:00', metric_value: 19}
+];
+const EXPECTED_UPLOADED_FILE = {
+  filename: FILENAME_SMALL,
+  name: path.basename(FILENAME_SMALL),
+  type: 'uploaded',
+  uid: FILENAME_SMALL_ID
+};
 
 describe('DatabaseService:', () => {
   let service;
@@ -195,6 +226,26 @@ describe('DatabaseService:', () => {
           assert.ifError(error);
           assert.deepStrictEqual(actual, batch[0]);
           done();
+        });
+      });
+    });
+    it('should upload file to the database', (done) => {
+      service.uploadFile(FILENAME_SMALL, (error, file) => {
+        assert.ifError(error);
+        service.getFile(FILENAME_SMALL_ID, (error, actual) => {
+          assert.ifError(error);
+          assert.deepStrictEqual(actual, EXPECTED_UPLOADED_FILE);
+          assert.ifError(error);
+          service.getMetricsByFile(FILENAME_SMALL_ID, (error, actual) => {
+            assert.ifError(error);
+            assert.deepStrictEqual(actual, EXPECTED_UPLOADED_METRICS);
+            service.getMetricData(UPLOADED_METRIC_ID, (error, actual) => {
+              assert.ifError(error);
+              assert.equal(actual.length, EXPECTED_UPLOADED_DATA.length);
+              assert.deepStrictEqual(actual, EXPECTED_UPLOADED_DATA);
+              done();
+            })
+          });
         });
       });
     });
