@@ -163,30 +163,6 @@ export default class Chart extends React.Component {
   }
 
   /**
-   * DyGrpahs Chart range finder change/zoom callback function
-   * @param {Number} rangeXmin - Minimum X value of chart Range Finder
-   * @param {Number} rangeXmax - Maximum X value of chart Range Finder
-   * @param {Array} [yRanges] - Extra Y value data (unused currently)
-   */
-  // _chartZoomCallback(rangeXmin, rangeXmax, yRanges) {
-    // lock range finder into fixed-width behavior
-    /*
-    let [oldMin, oldMax] = this._chartRange;
-    let minChange = Math.abs(rangeXmin - oldMin);
-    let maxChange = Math.abs(rangeXmax - oldMax);
-
-    if (minChange > maxChange) {
-      rangeXmax = rangeXmin + this._chartRangeWidth;
-    } else {
-      rangeXmin = rangeXmax - this._chartRangeWidth;
-    }
-
-    this._chartRange = [rangeXmin, rangeXmax];
-    this._chartUpdate();
-    */
-  // }
-
-  /**
    * React render()
    * @return {Object} - Built React component pseudo-DOM object
    */
