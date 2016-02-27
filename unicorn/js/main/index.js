@@ -22,9 +22,12 @@ import bunyan from 'bunyan';
 import path from 'path';
 
 import config from './ConfigService';
+import database from './DatabaseService';
+import fileService from './FileService';
 import MainMenu from './MainMenu';
 import ModelServiceIPC from './ModelServiceIPC';
 import ParamFinderServiceIPC from './ParamFinderServiceIPC';
+import Utils from './Utils';
 
 const DEV = config.get('NODE_ENV') !== 'production';
 const log = bunyan.createLogger({
@@ -36,6 +39,33 @@ const initialPage = path.join(__dirname, config.get('browser:entry'));
 let mainWindow = null; // global ref to keep window object from JS GC
 let modelService = null;
 let paramFinderService = null;
+
+
+/**
+ * Initialize the application populating local data on first run
+ */
+function initializeApplicationData() {
+  // Check if running for the first time
+  let initialized = config.get('initialized');
+  if (!initialized) {
+    let promisify = Utils.promisify;
+    // Load sample files from the file system
+    promisify(::fileService.getSampleFiles)
+      // Save all sample files to the database
+      .then((files) => Promise.all(
+        files.map((file) => promisify(::database.uploadFile, file)))
+      )
+      .then(() => {
+        // Make sure to only run once
+        config.set('initialized', true);
+        config.save();
+      })
+      .catch((error) => {
+        console.log(error); // eslint-disable-line
+        dialog.showErrorBox('Error', error);
+      });
+  }
+}
 
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
@@ -55,6 +85,9 @@ app.on('window-all-closed', () => {
 
 // Electron finished init and ready to create browser window
 app.on('ready', () => {
+  // Initialize application data
+  initializeApplicationData();
+
   // set main menu
   Menu.setApplicationMenu(Menu.buildFromTemplate(MainMenu));
 
