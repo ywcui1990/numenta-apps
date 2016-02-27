@@ -34,6 +34,7 @@ export default class ModelDataStore extends BaseStore {
   static get handlers() {
     return {
       RECEIVE_MODEL_DATA: '_handReceiveModelData',
+      HIDE_MODEL: '_handleHideModel',
       DELETE_MODEL: '_handleDeleteModel'
     };
   }
@@ -74,6 +75,15 @@ export default class ModelDataStore extends BaseStore {
       // console.log('DEBUG: ModelDataStores:model', model);
       this.emitChange();
     }
+  }
+
+  /**
+   * Hide model
+   * @param {string} modelId - Model to delete
+   */
+  _handleHideModel(modelId) {
+    this._models.delete(modelId);
+    this.emitChange();
   }
 
   /**

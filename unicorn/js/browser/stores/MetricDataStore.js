@@ -33,7 +33,7 @@ export default class MetricDataStore extends BaseStore {
   static get handlers() {
     return {
       LOAD_METRIC_DATA: '_handLoadData',
-      UNLOAD_METRIC_DATA: '_handleUnloadData'
+      HIDE_MODEL: '_handleHideModel'
     };
   }
 
@@ -75,6 +75,9 @@ export default class MetricDataStore extends BaseStore {
     this.emitChange();
   }
 
+  _handleHideModel(metricId) {
+    this._handleUnloadData(metricId);
+  }
   /**
    * Get data for the given metric.
    * @param  {string} metricId - Metric to get data from
