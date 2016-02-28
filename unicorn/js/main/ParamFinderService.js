@@ -1,29 +1,27 @@
-/* -----------------------------------------------------------------------------
- * Copyright © 2016, Numenta, Inc. Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
- * following terms and conditions apply:
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero Public License version 3 as published by
- * the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for
- * more details.
- *
- * You should have received a copy of the GNU Affero Public License along with
- * this program. If not, see http://www.gnu.org/licenses.
- *
- * http://numenta.org/licenses/
- * -------------------------------------------------------------------------- */
+// Copyright © 2016, Numenta, Inc. Unless you have purchased from
+// Numenta, Inc. a separate commercial license for this software code, the
+// following terms and conditions apply:
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the
+// Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
+//
+// You should have received a copy of the GNU Affero Public License along with
+// this program. If not, see http://www.gnu.org/licenses.
+//
+// http://numenta.org/licenses/
 
-import getPortablePython from './PortablePython';
 import childProcess from 'child_process';
 import EventEmitter from 'events';
+import getPortablePython from './PortablePython';
 import UserError from './UserError';
 
 const PYTHON_EXECUTABLE = getPortablePython();
+
 
 /**
  * Thrown when attempting to create more than 1 param finder per metric
@@ -35,7 +33,8 @@ export class MaximumConcurrencyError extends UserError {
 }
 
 /**
- * Thrown when attempting to create a param finder with a metric ID already taken.
+ * Thrown when attempting to create a param finder with a metric ID
+ *  already taken.
  */
 export class DuplicateIDError extends UserError {
   constructor() {
@@ -55,9 +54,11 @@ export class ParamFinderNotFoundError extends UserError {
 
 /**
  * Unicorn: ParamFinderService - Respond to a ParamFinderService over IPC,
- * sharing our access to Unicorn Backend Param Finder Runner python and NuPIC processes.
+ *  sharing our access to Unicorn Backend Param Finder Runner python and
+ *  NuPIC processes.
  */
 export class ParamFinderService extends EventEmitter {
+
   constructor(...args) {
     super(...args);
     this._paramFinders = new Map();
@@ -74,7 +75,6 @@ export class ParamFinderService extends EventEmitter {
     }
     return 1;
   }
-
 
   /**
    * Creates new Param Finder.
@@ -143,4 +143,5 @@ export class ParamFinderService extends EventEmitter {
     paramFinder.child.kill();
     this.removeAllListeners(metricId);
   }
+
 }
