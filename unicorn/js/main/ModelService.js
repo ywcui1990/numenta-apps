@@ -156,3 +156,5 @@ export class ModelService extends EventEmitter {
     this.removeAllListeners(modelId);
   }
 }
+const INSTANCE = new ModelService();
+export default INSTANCE;

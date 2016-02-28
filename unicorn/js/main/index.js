@@ -24,6 +24,8 @@ import path from 'path';
 import config from './ConfigService';
 import database from './DatabaseService';
 import fileService from './FileService';
+import modelService from './ModelService';
+import paramFinderService from './ParamFinderService';
 import MainMenu from './MainMenu';
 import ModelServiceIPC from './ModelServiceIPC';
 import ParamFinderServiceIPC from './ParamFinderServiceIPC';
@@ -37,8 +39,8 @@ const log = bunyan.createLogger({
 const initialPage = path.join(__dirname, config.get('browser:entry'));
 
 let mainWindow = null; // global ref to keep window object from JS GC
-let modelService = null;
-let paramFinderService = null;
+let modelServiceIPC = null;
+let paramFinderServiceIPC = null;
 
 
 /**
@@ -121,10 +123,10 @@ app.on('ready', () => {
   });
 
   // Handle IPC communication for the ModelService
-  modelService = new ModelServiceIPC();
-  modelService.start(mainWindow.webContents);
+  modelServiceIPC = new ModelServiceIPC(modelService);
+  modelServiceIPC.start(mainWindow.webContents);
 
   // Handle IPC communication for the ParamFinderService
-  paramFinderService = new ParamFinderServiceIPC();
-  paramFinderService.start(mainWindow.webContents);
+  paramFinderServiceIPC = new ParamFinderServiceIPC(paramFinderService);
+  paramFinderServiceIPC.start(mainWindow.webContents);
 });
