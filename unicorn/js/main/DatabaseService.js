@@ -1,4 +1,4 @@
-// Copyright © 2015, Numenta, Inc. Unless you have purchased from
+// Copyright © 2016, Numenta, Inc. Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
@@ -34,21 +34,21 @@ import Utils from './Utils';
 // Schemas
 import {
   DBFileSchema,
-  DBMetricSchema,
   DBMetricDataSchema,
+  DBMetricSchema,
   DBModelDataSchema,
 
   MRAggregationSchema,
-  MRModelSchema,
   MRInputSchema,
+  MRModelSchema,
 
   PFInputSchema,
   PFOutputSchema
 } from '../schemas';
 
 const SCHEMAS = [
-  DBFileSchema, DBMetricSchema, DBMetricDataSchema, DBModelDataSchema,
-  MRAggregationSchema, MRModelSchema, MRInputSchema,
+  DBFileSchema, DBMetricDataSchema, DBMetricSchema, DBModelDataSchema,
+  MRAggregationSchema, MRInputSchema, MRModelSchema,
   PFInputSchema, PFOutputSchema
 ];
 

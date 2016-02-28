@@ -1,4 +1,4 @@
-// Copyright © 2015, Numenta, Inc. Unless you have purchased from
+// Copyright © 2016, Numenta, Inc. Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
@@ -14,6 +14,7 @@
 // this program. If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
+
 
 // import Checkbox from 'material-ui/lib/checkbox'; // @FIXME: UNI-323
 
