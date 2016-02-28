@@ -14,14 +14,16 @@
 // this program.  If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
+
+import moment from 'moment';
+
 import {ACTIONS} from '../lib/Constants';
-import Utils from '../../main/Utils';
+import {promiseMetricsFromFiles} from '../lib/Unicorn/FileClient';
 import {
   promiseSaveFilesIntoDB, promiseSaveMetricsToDB
 } from '../lib/Unicorn/DatabaseClient';
-import {promiseMetricsFromFiles} from '../lib/Unicorn/FileClient';
 import {TIMESTAMP_FORMATS} from '../../config/timestamp';
-import moment from 'moment';
+import Utils from '../../main/Utils';
 
 
 /**
