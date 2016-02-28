@@ -3,8 +3,7 @@
 > Cross-platform Desktop Application to demonstrate basic HTM functionality to
 > users using their own data files.
 
-
-## WARNING! CURRENTLY UNDER HEAVY DEVELOPMENT
+**WARNING! UNDER HEAVY DEVELOPMENT.**
 
 
 ## License
@@ -25,50 +24,49 @@ The `py/` directory contains Unicorn ModelRunner and supporting code
 (Python / C++), which drives the main functionality of the app, which it is our
 goal to demo to the user.
 
+### Filesystem Tree
+
+`tree` output last updated `Sun Feb 28 13:47:32 PST 2016`:
+
 ```shell
-DEPENDENCIES.md     # Module dependency overview file
-LICENSE.txt         # Dual: Commercial and AGPLv3
-README.md           # This file, a project overview
-package.json        # Node.js `npm` packages, dependencies, and App config
-py/                 # Unicorn ModelRunner and support Python/C++ code here!
-  README.md         # Overview for HTM/NuPIC part of project
-  requirements.txt  # Python pip package dependencies
-  setup.py          # Backend Python project initialization tooling
-  build/            # Backend build working output
-  dist/             # Packaging and distribution output
-  unicorn_backend/  # Unicorn Backend code, Model Runner, etc.
-js/                 # Frontend+GUI that exposes NuPIC HTM functionality to User
-  README.md         # Overview for Frontend+GUI part of project
-  assets/           # App assets
-    icons/          # App icons (Electron app packaging, etc)
-  browser/          # Javascript, HTML, CSS as GUI in electron's Renderer
-    app.js          # Fluxible GUI Browser Web App entry, compiles to bundle.js
-    index.html      # App main startup browser window contents
-    actions/        # Fluxible Actions JS
-    assets/         # Browser assets
-      bundle/       # Auto-generated WebPack output compiled Web+Map bundle
-      images/       # Browser images for display in UI (logos, etc)
-    components/     # React view components JSX
-    lib/            # Custom JS libs for inside the browser (engine clients)
-      Fluxible/     # Fluxible lib helper code
-        Plugins/    # Fluxbile plugins
-      MaterialUI/   # Material UI lib helper code
-      Unicorn/      # Unicorn lib helper code = Client libraries
-    stores/         # Fluxible Stores JS
-  config/           # JS Config files loaded by nconf
-  database/         # File-based database storage (levelup + leveldown)
-    schema/         # Database definition schemas in JSON
-  docs/             # Output dir for generated JS docs (not saved in src)
-  main/             # JS from electron's "Main Process" (i.e. engine services)
-    loader.js       # Electron App entry point loader for main.js ES5 => ES6
-    index.js        # ES6 Electron App main entry, creates GUI and runs models
-  samples/          # Sample .CSV data files to pre-load for user in GUI
-node_modules/       # Where `npm` installs packages to, not in source control
-tests/              # Unicorn project tests
-  js/               # Javascript tests
-    unit/           # Javascript unit tests
-  py/               # Python tests
-    integration/    # Python integration tests
+./                          # Git Repo Root
+├── .babelrc                # ES7 ES6 => JS transpiler global settings
+├── .eslintrc               # JS/ES lint settings
+├── .pylintrc               # Python lint settings
+├── DEPENDENCIES.md         # Module dependency overview file
+├── LICENSE.txt             # Dual: Commercial and AGPLv3
+├── README.md               # This file. A project overview.
+├── js/                     # Frontend+GUI that exposes NuPIC HTM models to User
+│   ├── assets/             # System/native-level assets, images, icons, etc.
+│   ├── browser/            # JS+HTML+CSS as GUI in electron's Renderer Process
+│   │   ├── actions/        # FLUX Fluxible Actions JS
+│   │   ├── app.js          # Fluxible Web GUI App entry, compiles to bundle.js  
+│   │   ├── assets/         # Browser/GUI images, icons, and other assets
+│   │   │   ├── bundle/     # Auto-generated WebPack output bundle target dir
+│   │   │   ├── images/     # GUI imagery
+│   │   │   └── styles/     # CSS for GUI (global-like styles, overrides, etc).
+│   │   ├── components/     # FLUX React view components JSX
+│   │   ├── index.html      # App main startup browser window contents
+│   │   ├── lib/            # Library code for the browser, extensions, plugins
+│   │   └── stores/         # FLUX Fluxible Stores JS
+│   ├── config/             # JS Config files, both auto-init with nconf, more.
+│   ├── database/           # File-based database storage (levelup + leveldown)
+│   │   └── schema/         # Database definition schemas in JSON
+│   ├── docs/               # Output dir for generated JS docs (not in git)
+│   └── main/               # JS for Electron's "Main Process", App init startup
+│       ├── index.js        # ES6 Electron App main entry, init GUI, run models
+│       └── loader.js       # Electron App entry loader for main.js ES5 => ES6
+├── node_modules/           # Where `npm` installs packages to (not in git)
+├── package.json            # Node.js `npm` packages, dependencies, and config
+├── py/                     # Unicorn ModelRunner and support Python/C++ code
+│   └── README.md           # Python Backend instructions
+├── samples/                # Sample .CSV data files to pre-load for user in GUI
+│   └── unsupported/        # Internal .CSV files to test against
+├── scripts/                # Building and cross-platform Portability scripts
+├── tests/                  # All tests, javascript, python, unit, integration
+│   ├── js/                 # JS tests, config,  unit and integration
+│   └── py/                 # Python tests, config, unit and integration
+└── webpack.config.babel.js # JS build tooling config
 ```
 
 
