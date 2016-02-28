@@ -90,16 +90,11 @@ export default class ModelStore extends BaseStore {
    * @param  {ModelStore.Model|ModelStore.Model[]} models model(s) to add to
    *                                                      the store
    */
-  _addModels(models) {
-    if (Array.isArray(models)) {
-      models.forEach((model) => {
-        this._models.set(model.modelId,
-          Object.assign({}, DEFAULT_VALUES, model));
-      });
-    } else if ('modelId' in models) {
-      this._models.set(models.modelId,
-        Object.assign({}, DEFAULT_VALUES, models));
-    }
+  _addModels(...models) {
+    models.forEach((model) => {
+      this._models.set(model.modelId,
+        Object.assign({}, DEFAULT_VALUES, model));
+    });
     this.emitChange();
   }
 
