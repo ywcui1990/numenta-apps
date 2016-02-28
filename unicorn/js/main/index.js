@@ -42,6 +42,8 @@ let mainWindow = null; // global ref to keep window object from JS GC
 let modelServiceIPC = null;
 let paramFinderServiceIPC = null;
 
+// Active models and their event handlers
+let activeModels = new Map();
 
 /**
  * Initialize the application populating local data on first run
@@ -69,6 +71,58 @@ function initializeApplicationData() {
   }
 }
 
+/**
+ * Handles model data event saving the results to the database
+ * @param  {string} modelId Model receiving data
+ * @param  {Array} data    model data in the following format:
+ *                         [timestamp, metric_value, anomaly_score]
+ */
+function receiveModelData(modelId, data) {
+  let [timestamp, value, score] = data; // eslint-disable-line
+  let metricData = {
+    metric_uid: modelId,
+    timestamp,
+    metric_value: value,
+    anomaly_score: score
+  };
+  database.putModelData(metricData, (error) => {
+    if (error) {
+      log.error('Error saving model data', error, metricData);
+    }
+  });
+}
+
+/**
+ * Handle application wide model services events
+ */
+function handleModelEvents() {
+  // Attach event handler on model creation
+  modelService.on('newListener', (modelId, listener) => {
+    if (!activeModels.has(modelId)) {
+      let listener = (command, data) => { // eslint-disable-line
+        try {
+          if (command === 'data') {
+            // Handle model data
+            receiveModelData(modelId, JSON.parse(data));
+          }
+        } catch (e) {
+          log.error('Model Error', e, modelId, command, data);
+        }
+      };
+      activeModels.set(modelId, listener);
+      modelService.on(modelId, listener);
+    }
+  });
+
+  // Detach event handler on model close
+  modelService.on('removeListener', (modelId, listener) => {
+    if (activeModels.has(modelId)) {
+      let listener = activeModels.get(modelId);
+      activeModels.delete(modelId);
+      modelService.removeListener(modelId, listener);
+    }
+  });
+}
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files.
@@ -121,6 +175,9 @@ app.on('ready', () => {
   mainWindow.webContents.on('dom-ready', () => {
     log.info('Electron Main: Renderer DOM is now ready!');
   });
+
+  // Handle model service events
+  handleModelEvents();
 
   // Handle IPC communication for the ModelService
   modelServiceIPC = new ModelServiceIPC(modelService);

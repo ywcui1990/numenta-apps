@@ -120,7 +120,12 @@ export class ModelService extends EventEmitter {
     });
 
     child.stdout.on('data', (data) => {
-      this.emit(modelId, 'data', data);
+      // Model data chunks are separated by '\n', see 'model_runner_2' for details
+      data.split('\n').forEach((line) => {
+        if (line && line.length > 0) {
+          this.emit(modelId, 'data', line)
+        }
+      });
     });
 
     child.once('close', (code) => {
