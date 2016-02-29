@@ -37,6 +37,7 @@ import PFOutputSchema from '../../../py/unicorn_backend/param_finder_output_sche
  * 	- DBMetricDataSchema: Represents 'MetricData' in the database
  * 	- DBMetricSchema: Represents `Metric` in the database
  * 	- DBModelDataSchema: Represents 'ModelData' in the database
+ * 	- DBModelSchema: Represents 'Model' in the database
  *
  * - Model Runner Schemas
  * 	- MRAggOptSchema: `--agg` command-line option object passed to ModelRunner; describes the aggregation
