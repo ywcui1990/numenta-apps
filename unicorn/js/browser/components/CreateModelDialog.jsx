@@ -21,11 +21,11 @@ import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
 import path from 'path';
 import React from 'react';
-import Utils from '../../main/Utils';
 
 import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
 import MetricStore from '../stores/MetricStore';
 import StartModelAction from '../actions/StartModel';
+import Utils from '../../main/Utils';
 
 
 /**
@@ -41,6 +41,7 @@ export default class CreateModelDialog extends React.Component {
 
   static contextTypes = {
     executeAction: React.PropTypes.func,
+    getConfigClient: React.PropTypes.func,
     getStore: React.PropTypes.func
   };
 
@@ -50,6 +51,7 @@ export default class CreateModelDialog extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+    this._config = this.context.getConfigClient();
     this.state = Object.assign({}, this.props);
   }
 
@@ -65,13 +67,7 @@ export default class CreateModelDialog extends React.Component {
     });
   }
 
-  _onOK(modelPayload) {
-    this.context.executeAction(HideCreateModelDialogAction);
-    this.context.executeAction(StartModelAction, modelPayload);
-    this._resetState()
-  }
-
-  _onNO(modelPayload) {
+  _onClick(modelPayload) {
     this.context.executeAction(HideCreateModelDialogAction);
     this.context.executeAction(StartModelAction, modelPayload);
     this._resetState()
@@ -96,42 +92,42 @@ export default class CreateModelDialog extends React.Component {
       let inputOpts = metricStore.getInputOpts(metricId);
       let paramFinderResults = metricStore.getParamFinderResults(metricId);
       if (paramFinderResults) {
-        let modelPayload = {
+        let rawPayload = {
           metricId,
           inputOpts,
-          aggOpts: paramFinderResults.aggInfo,
-          modelOpts: paramFinderResults.modelInfo
+          modelOpts: paramFinderResults.modelInfo,
+          aggOpts: {}
         };
+        let aggregatePayload = Object.assign({}, rawPayload, {
+          aggOpts: paramFinderResults.aggInfo
+        });
+
         body = Utils.trims`We determined that you will get the best results if
                 we aggregate your data to
                 ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
 
         actions.push(
           <FlatButton
-            label="OK"
-            onTouchTap={this._onOK.bind(this, modelPayload)}
+            label={this._config.get('button:okay')}
+            onTouchTap={this._onClick.bind(this, aggregatePayload)}
             />
         );
         actions.push(
-          <a href="#" onClick={this._onNO.bind(this, modelPayload)}>
-            No, please use original data.
+          <a href="#" onClick={this._onClick.bind(this, rawPayload)}>
+            {this._config.get('dialog:model:create:raw')}
           </a>
         );
       } else {
         body = (
           <div>
             <CircularProgress size={0.5} />
-            Preparing to create an HTM model. This might take a few seconds.
+            {this._config.get('dialog:model:create:loading')}
           </div>
         );
       }
     }
     return (
-      <Dialog
-        actions={actions}
-        open={this.state.open}
-        title={title}
-      >
+      <Dialog actions={actions} open={this.state.open} title={title}>
         {body}
       </Dialog>
     );

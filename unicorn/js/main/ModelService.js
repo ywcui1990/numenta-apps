@@ -101,12 +101,15 @@ export class ModelService extends EventEmitter {
       throw new DuplicateIDError();
     }
 
-    const params = [
+    let params = [
       '-m', 'unicorn_backend.model_runner_2',
       '--input', JSON.stringify(inputOpt),
-      '--agg', JSON.stringify(aggregationOpt),
       '--model', JSON.stringify(modelOpt)
     ];
+    if (Object.keys(aggregationOpt).length >= 1) {
+      params = params.concat('--agg', JSON.stringify(aggregationOpt));
+    }
+
     const child = childProcess.spawn(PYTHON_EXECUTABLE, params);
     child.stdout.setEncoding('utf8');
     child.stderr.setEncoding('utf8');
