@@ -61,9 +61,9 @@ goal to demo to the user.
 ├── py/                     # Unicorn ModelRunner and support Python/C++ code
 │   └── README.md           # Python Backend instructions
 ├── samples/                # Sample .CSV data files to pre-load for user in GUI
-│   └── unsupported/        # Internal .CSV files to test against
 ├── scripts/                # Building and cross-platform Portability scripts
 ├── tests/                  # All tests, javascript, python, unit, integration
+│   ├── data/               # Data tests, bad formats, etc.
 │   ├── js/                 # JS tests, config,  unit and integration
 │   └── py/                 # Python tests, config, unit and integration
 └── webpack.config.babel.js # JS build tooling config

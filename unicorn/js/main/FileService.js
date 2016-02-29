@@ -1,22 +1,19 @@
-/* -----------------------------------------------------------------------------
- * Copyright © 2015, Numenta, Inc. Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
- * following terms and conditions apply:
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Affero Public License version 3 as published by
- * the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for
- * more details.
- *
- * You should have received a copy of the GNU Affero Public License along with
- * this program. If not, see http://www.gnu.org/licenses.
- *
- * http://numenta.org/licenses/
- * -------------------------------------------------------------------------- */
+// Copyright © 2016, Numenta, Inc. Unless you have purchased from
+// Numenta, Inc. a separate commercial license for this software code, the
+// following terms and conditions apply:
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero Public License version 3 as published by the
+// Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
+//
+// You should have received a copy of the GNU Affero Public License along with
+// this program. If not, see http://www.gnu.org/licenses.
+//
+// http://numenta.org/licenses/
 
 
 // NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
@@ -26,14 +23,35 @@
 import convertNewline from 'convert-newline';
 import csv from 'csv-streamify';
 import filesystem from 'fs';
+import instantiator from 'json-schema-instantiator';
 import moment from 'moment';
 import path from 'path';
+import {Validator} from 'jsonschema';
 
+import config from './ConfigService';
+import {
+  DBFileSchema, DBMetricSchema,
+  MRAggregationSchema, MRInputSchema, MRModelSchema,
+  PFInputSchema, PFOutputSchema
+} from '../database/schema';
 import TimeAggregator from './TimeAggregator';
-import Utils from './Utils';
 import {TIMESTAMP_FORMATS} from '../config/timestamp';
+import Utils from './Utils';
 
-const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
+const INSTANCES = {
+  FILE: instantiator.instantiate(DBFileSchema),
+  METRIC: instantiator.instantiate(DBMetricSchema)
+};
+const SAMPLES_FILE_PATH = path.join(__dirname, config.get('samples:path'));
+const SCHEMAS = [
+  DBFileSchema, DBMetricSchema,
+  MRAggregationSchema, MRInputSchema, MRModelSchema,
+  PFInputSchema, PFOutputSchema
+];
+const VALIDATOR = new Validator();
+SCHEMAS.forEach((schema) => {
+  VALIDATOR.addSchema(schema);
+});
 
 
 /**
@@ -42,7 +60,6 @@ const SAMPLES_FILE_PATH = path.join(__dirname, '..', 'samples');
  */
 function FileService() {
 }
-
 
 /**
  * Reads the entire contents of a file.
@@ -66,14 +83,20 @@ FileService.prototype.getSampleFiles = function (callback) {
     }
     files = data.map((item) => {
       var filename = path.resolve(SAMPLES_FILE_PATH, item);
-      return {
+      var record = Object.assign({}, INSTANCES.FILE, {
         uid: Utils.generateFileId(filename),
         description: '',
         timestampFormat: 'MM-DD-YY HH:mm',
         name: path.basename(item),
         filename: filename,
         type: 'sample'
-      };
+      });
+      var validation = VALIDATOR.validate(record, DBFileSchema);
+      if (validation.errors.length) {
+        callback(validation.errors, null);
+        return;
+      }
+      return record;
     });
 
     callback(null, files);
@@ -91,7 +114,7 @@ FileService.prototype.getSampleFiles = function (callback) {
  */
 FileService.prototype.getFields = function (filename, options, callback) {
   var fields = [];
-  var fieldName, newliner, stream;
+  var fieldName, newliner, stream, validation;
 
   // "options" is optional
   if (typeof callback == 'undefined' && typeof options == 'function') {
@@ -115,12 +138,13 @@ FileService.prototype.getFields = function (filename, options, callback) {
       if (data) {
         for (fieldName in data) {
           const val = data[fieldName];
-          const field = {
+          let field = Object.assign({}, INSTANCES.METRIC, {
             uid: Utils.generateMetricId(filename, fieldName),
             file_uid: Utils.generateFileId(filename),
             name: fieldName,
             type: 'string'
-          };
+          });
+
           if (Number.isFinite(Number(val))) {
             field.type = 'number';
           } else if (Number.isFinite(Date.parse(val))) {
@@ -129,6 +153,11 @@ FileService.prototype.getFields = function (filename, options, callback) {
             field['format'] = TIMESTAMP_FORMATS.find((format) => {
               return moment(val, format, true).isValid();
             });
+          }
+          validation = VALIDATOR.validate(field, DBMetricSchema);
+          if (validation.errors.length) {
+            callback(validation.errors, null);
+            return;
           }
           fields.push(field);
         }

@@ -44,7 +44,7 @@ import {
 
   PFInputSchema,
   PFOutputSchema
-} from '../schemas';
+} from '../database/schema';
 
 const SCHEMAS = [
   DBFileSchema, DBMetricDataSchema, DBMetricSchema, DBModelDataSchema,

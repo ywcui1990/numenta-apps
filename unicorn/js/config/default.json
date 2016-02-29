@@ -60,5 +60,8 @@
       "delete": "Delete File",
       "details": "File Details"
     }
+  },
+  "samples": {
+    "path": "../../samples"
   }
 }

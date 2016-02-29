@@ -78,7 +78,7 @@ const EXPECTED_STDEV = 2.422120283277993 ;
 const EXPECTED_MIN_PARTIAL = 17;
 const EXPECTED_MAX_PARTIAL = 21;
 
-// Keep this list up to date with file names in "js/samples"
+// Keep this list up to date with file names in "samples/"
 const EXPECTED_SAMPLE_FILES = ['gym.csv'];
 
 

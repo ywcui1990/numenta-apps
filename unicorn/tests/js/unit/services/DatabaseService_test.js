@@ -1,4 +1,4 @@
-// Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+// Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
@@ -16,21 +16,21 @@
 //
 // http://numenta.org/licenses/
 
-
 /* eslint-disable max-len, prefer-reflect */
 
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
+import os from 'os';
+
 import {DatabaseService} from '../../../../js/main/DatabaseService';
 import {
   DBFileSchema, DBMetricSchema, DBMetricDataSchema, DBModelDataSchema
-} from '../../../../js/schemas';
+} from '../../../../js/database/schema';
 
 const assert = require('assert');
 
-const MODEL_OPTIONS = require('../fixtures/model_runner_model.json');
 const AGG_OPTIONS = require('../fixtures/model_runner_agg.json');
+const MODEL_OPTIONS = require('../fixtures/model_runner_model.json');
 const INPUT_OPTIONS = require('../fixtures/param_finder_input.json');
 
 const EXPECTED_FILE = {
