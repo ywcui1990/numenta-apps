@@ -7,19 +7,23 @@
       "type": "string",
       "maxLength": 50,
       "minLength": 1,
-      "description": "Model Unique ID"
+      "description": "Model Unique ID",
+      "required": true
     },
     "filename": {
       "type": "string",
-      "description": "File full path name"
+      "description": "File full path name",
+      "required": true
     },
     "timestampField": {
       "type": "string",
-      "description": "Timestamp field name"
+      "description": "Timestamp field name",
+      "required": true
     },
     "metric": {
       "type": "string",
-      "description": "Metric field name"
+      "description": "Metric field name",
+      "required": true
     },
     "active": {
       "type": "boolean",
@@ -38,6 +42,5 @@
       "description": "Last known error or null for no error"
     }
   },
-  "additionalProperties": false,
-  "required": ["modelId", "filename", "timestampField", "metric"]
+  "additionalProperties": false
 }

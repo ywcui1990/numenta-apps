@@ -144,16 +144,23 @@ FileService.prototype.getFields = function (filename, options, callback) {
             name: fieldName,
             type: 'string'
           });
+          let format;
 
           if (Number.isFinite(Number(val))) {
             field.type = 'number';
           } else if (Number.isFinite(Date.parse(val))) {
             field.type = 'date';
             // Guess timestamp format
-            field['format'] = TIMESTAMP_FORMATS.find((format) => {
+            format = TIMESTAMP_FORMATS.find((format) => {
               return moment(val, format, true).isValid();
             });
           }
+
+          delete field['format'];
+          if (format) {
+            field['format'] = format;
+          }
+
           validation = VALIDATOR.validate(field, DBMetricSchema);
           if (validation.errors.length) {
             callback(validation.errors, null);
