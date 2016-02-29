@@ -69,5 +69,5 @@ export function promiseLoadSampleFilesFromDisk(fs) {
 }
 
 
-let client = remote.require('./FileService'); // Get singleton
+let client = remote.require('./FileService').default; // Get singleton
 export default client;
