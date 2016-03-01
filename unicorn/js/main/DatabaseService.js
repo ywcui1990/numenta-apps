@@ -20,6 +20,7 @@ import fs from 'fs';
 import os from 'os';
 import isElectronRenderer from 'is-electron-renderer';
 import fileService from './FileService';
+import instantiator from 'json-schema-instantiator';
 import json2csv from 'json2csv-stream';
 import leveldown from 'leveldown';
 import levelup from 'levelup';
@@ -43,7 +44,7 @@ import {
 
   PFInputSchema,
   PFOutputSchema
-} from '../schemas';
+} from '../database/schema';
 
 const SCHEMAS = [
   DBFileSchema, DBMetricDataSchema, DBMetricSchema, DBModelDataSchema,
@@ -696,12 +697,11 @@ export class DatabaseService {
 uploadFile(fileToUpload, callback) {
   let file = fileToUpload;
   if (typeof file === 'string') {
-    file = {
-      filename: fileToUpload,
-      name: path.basename(fileToUpload),
-      type: 'uploaded',
-      uid: Utils.generateFileId(fileToUpload)
-    };
+    file = instantiator.instantiate(DBFileSchema);
+    file.uid = Utils.generateFileId(fileToUpload);
+    file.filename = fileToUpload;
+    file.name = path.basename(fileToUpload);
+    file.type = 'uploaded';
   } else {
     // Validate file object
     const validation = this.validator.validate(file, DBFileSchema);

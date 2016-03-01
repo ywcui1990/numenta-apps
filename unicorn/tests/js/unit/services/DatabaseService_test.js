@@ -1,4 +1,4 @@
-// Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+// Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
@@ -16,22 +16,34 @@
 //
 // http://numenta.org/licenses/
 
-
 /* eslint-disable max-len, prefer-reflect, max-nested-callbacks */
 
 import fs from 'fs';
-import os from 'os';
+import instantiator from 'json-schema-instantiator';
 import path from 'path';
+import os from 'os';
+
 import {DatabaseService} from '../../../../js/main/DatabaseService';
-import {
-  DBFileSchema, DBMetricSchema, DBMetricDataSchema, DBModelDataSchema
-} from '../../../../js/schemas';
 import Utils from '../../../../js/main/Utils';
+import {
+  DBFileSchema,
+  DBMetricSchema, DBMetricDataSchema,
+  DBModelSchema, DBModelDataSchema
+} from '../../../../js/database/schema';
+
 
 const assert = require('assert');
 
-const MODEL_OPTIONS = require('../fixtures/model_runner_model.json');
+const INSTANCES = {
+  File: instantiator.instantiate(DBFileSchema),
+  Metric: instantiator.instantiate(DBMetricSchema),
+  MetricData: instantiator.instantiate(DBMetricDataSchema),
+  Model: instantiator.instantiate(DBModelSchema),
+  ModelData: instantiator.instantiate(DBModelDataSchema)
+};
+
 const AGG_OPTIONS = require('../fixtures/model_runner_agg.json');
+const MODEL_OPTIONS = require('../fixtures/model_runner_model.json');
 const INPUT_OPTIONS = require('../fixtures/param_finder_input.json');
 
 const EXPECTED_FILENAME = path.resolve(__dirname, '../fixtures/file.csv');
@@ -39,27 +51,34 @@ const EXPECTED_FILENAME_ID = Utils.generateFileId(EXPECTED_FILENAME);
 const EXPECTED_METRIC_ID = Utils.generateMetricId(EXPECTED_FILENAME, 'metric');
 const EXPECTED_TIMESTAMP_ID = Utils.generateMetricId(EXPECTED_FILENAME, 'timestamp');
 
-const EXPECTED_FILE = {
+const EXPECTED_FILE = Object.assign({}, INSTANCES.File, {
   filename: EXPECTED_FILENAME,
   name: path.basename(EXPECTED_FILENAME),
   type: 'uploaded',
   uid: EXPECTED_FILENAME_ID
-};
+});
 
-const EXPECTED_METRIC = {
+const EXPECTED_MODEL = Object.assign({}, INSTANCES.Model, {
+  modelId: `${EXPECTED_FILENAME_ID}!${EXPECTED_METRIC_ID}`,
+  filename: EXPECTED_FILENAME,
+  timestampField: 'YYYY-MM-DD HH:MM:ssz',
+  metric: EXPECTED_METRIC_ID
+});
+
+const EXPECTED_METRIC = Object.assign({}, INSTANCES.Metric, {
   uid: EXPECTED_METRIC_ID,
   file_uid: EXPECTED_FILENAME_ID,
   name: 'metric',
   type: 'number'
-};
+});
 
-const EXPECTED_TIMESTAMP = {
+const EXPECTED_TIMESTAMP =  Object.assign({}, INSTANCES.Metric, {
   uid: EXPECTED_TIMESTAMP_ID,
   file_uid: EXPECTED_FILENAME_ID,
   name: 'timestamp',
   type: 'date',
   format: 'YYYY-MM-DDTHH:mm:ssZ'
-};
+});
 
 const EXPECTED_METRICS = [EXPECTED_TIMESTAMP, EXPECTED_METRIC];
 
@@ -90,12 +109,12 @@ const EXPECTED_METRIC_WITH_INPUT_AGG_MODEL = Object.assign({}, EXPECTED_METRIC, 
   model_options: MODEL_OPTIONS
 });
 
-const EXPECTED_MODEL_DATA = {
+const EXPECTED_MODEL_DATA = Object.assign({}, INSTANCES.ModelData, {
   metric_uid: EXPECTED_METRIC_ID,
   timestamp: '2015-01-01 00:00:00Z',
   metric_value: 1,
   anomaly_score: 1
-};
+});
 
 const EXPECTED_EXPORTED_RESULTS =
 `timestamp,metric_value,anomaly_score
@@ -106,6 +125,7 @@ const EXPECTED_EXPORTED_RESULTS =
 
 const TEMP_DIR = path.join(os.tmpDir(), 'unicorn_db');
 const EXPORTED_FILENAME = path.join(TEMP_DIR, 'file.csv');
+
 
 describe('DatabaseService:', () => {
   let service;
@@ -145,6 +165,11 @@ describe('DatabaseService:', () => {
     });
     it('should validate "MetricData"', (done) => {
       let results = service.validator.validate(EXPECTED_METRIC_DATA[0], DBMetricDataSchema);
+      assert(results.errors.length === 0, JSON.stringify(results.errors));
+      done();
+    });
+    it('should validate "Model"', (done) => {
+      let results = service.validator.validate(EXPECTED_MODEL, DBModelSchema);
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });

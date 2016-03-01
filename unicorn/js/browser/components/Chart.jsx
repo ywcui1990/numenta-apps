@@ -15,6 +15,7 @@
 //
 // http://numenta.org/licenses/
 
+import CircularProgress from 'material-ui/lib/circular-progress';
 import Dygraph from 'dygraphs';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
@@ -169,7 +170,8 @@ export default class Chart extends React.Component {
   render() {
     return (
       <Paper ref="chart" style={this._styles.root} zDepth={this.props.zDepth}>
-        <br/>Loading data...
+        <CircularProgress size={0.5} />
+        {this._config.get('chart:loading')}
       </Paper>
     );
   }
