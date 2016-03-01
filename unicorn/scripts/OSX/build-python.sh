@@ -87,12 +87,12 @@ git clone https://github.com/numenta/nupic.core.git
 echo "==> Installing nupic.core requirements ..."
 rm -rf $NUPIC_CORE/build
 mkdir -p $NUPIC_CORE/build/scripts
-$PREFIX/bin/pip install -r $NUPIC_CORE/bindings/py/requirements.txt
+$PREFIX/bin/pip install -r $NUPIC_CORE/bindings/py/requirements.txt --no-cache-dir
 # Install pycapnp since it is not in nupic.core requirements.txt.
 # Note: to install pycapnpn on Yosemite you have to set MACOSX_DEPLOYMENT_TARGET.
 # More on this issue: https://github.com/numenta/nupic/issues/2061
 export MACOSX_DEPLOYMENT_TARGET=$OSX_VERSION
-$PREFIX/bin/pip install pycapnp
+$PREFIX/bin/pip install pycapnp --no-cache-dir
 
 echo "==> Building nupic.core ..."
 pushd $NUPIC_CORE/build/scripts
@@ -115,7 +115,7 @@ git clone https://github.com/numenta/nupic.git
 
 echo "==> Installing nupic ..."
 pushd $NUPIC
-$PREFIX/bin/pip install -r external/common/requirements.txt
+$PREFIX/bin/pip install -r external/common/requirements.txt --no-cache-dir
 $PREFIX/bin/python setup.py install
 popd
 

@@ -16,8 +16,6 @@
 //
 // http://numenta.org/licenses/
 
-// NOTE: Must be ES5 for now, Electron's `remote` does not like ES6 Classes!
-
 import fs from 'fs';
 import os from 'os';
 import isElectronRenderer from 'is-electron-renderer';
@@ -44,7 +42,7 @@ import {
 
   PFInputSchema,
   PFOutputSchema
-} from '../schemas';
+} from '../database/schema';
 
 const SCHEMAS = [
   DBFileSchema, DBMetricDataSchema, DBMetricSchema, DBModelDataSchema,
@@ -76,67 +74,91 @@ function _getDefaultDatabaseLocation() {
  *  Meant for heavy persistence.
  * @param {string} [path] - Database location path (optional)
  */
-export function DatabaseService(path) {
-  let location = path || _getDefaultDatabaseLocation();
 
-  // Configure schema validator
-  this.validator = new Validator();
-  SCHEMAS.forEach((schema) => {
-    this.validator.addSchema(schema);
-  });
+export class DatabaseService {
 
-  this.levelup = levelup(location, {
-    db: leveldown,
-    valueEncoding: 'json'
-  });
-  this._root = sublevel(this.levelup);
-  this._files = this._root.sublevel('File');
-  this._metrics = this._root.sublevel('Metric');
-  this._metricData = this._root.sublevel('MetricData');
-  this._modelData = this._root.sublevel('ModelData');
-}
+  constructor(path) {
+    let location = path || _getDefaultDatabaseLocation();
 
-/**
- * Get a single File.
- * @param {string} uid - Unique ID of file to get
- * @param {Function} callback - Async callback function(error, results)
- */
-DatabaseService.prototype.getFile = function (uid, callback) {
-  this._files.get(uid, callback);
-};
-
-/**
- * Get all Files.
- * @param {Function} callback - Async callback function(error, results)
- */
-DatabaseService.prototype.getAllFiles = function (callback) {
-  let results = [];
-  this._files.createValueStream()
-    .on('data', (file) => {
-      results.push(file);
-    })
-    .on('error', callback)
-    .on('end', () => {
-      callback(null, results);
+    // Configure schema validator
+    this.validator = new Validator();
+    SCHEMAS.forEach((schema) => {
+      this.validator.addSchema(schema);
     });
-};
 
-/**
- * Get a single Metric.
- * @param {string} uid - Unique ID of metric to get
- * @param {Function} callback - Async callback function(error, results)
- */
-DatabaseService.prototype.getMetric = function (uid, callback) {
-  this._metrics.get(uid, callback);
-};
+    this.levelup = levelup(location, {
+      db: leveldown,
+      valueEncoding: 'json'
+    });
+    this._root = sublevel(this.levelup);
+    this._files = this._root.sublevel('File');
+    this._metrics = this._root.sublevel('Metric');
+    this._metricData = this._root.sublevel('MetricData');
+    this._modelData = this._root.sublevel('ModelData');
+  }
 
-/**
- * Get all Metrics.
- * @param {Function} callback - Async callback function(error, results)
- */
-DatabaseService.prototype.getAllMetrics = function (callback) {
-  let results = [];
-  this._metrics.createValueStream()
+  /**
+   * Get a single File.
+   * @param {string} uid - Unique ID of file to get
+   * @param {Function} callback - Async callback function(error, results)
+   */
+  getFile(uid, callback) {
+    this._files.get(uid, callback);
+  }
+
+  /**
+   * Get all Files.
+   * @param {Function} callback - Async callback function(error, results)
+   */
+  getAllFiles(callback) {
+    let results = [];
+    this._files.createValueStream()
+      .on('data', (file) => {
+        results.push(file);
+      })
+      .on('error', callback)
+      .on('end', () => {
+        callback(null, results);
+      });
+  }
+
+  /**
+   * Get a single Metric.
+   * @param {string} uid - Unique ID of metric to get
+   * @param {Function} callback - Async callback function(error, results)
+   */
+  getMetric(uid, callback) {
+    this._metrics.get(uid, callback);
+  }
+
+  /**
+   * Get all Metrics.
+   * @param {Function} callback - Async callback function(error, results)
+   */
+  getAllMetrics(callback) {
+    let results = [];
+    this._metrics.createValueStream()
+      .on('data', (metric) => {
+        results.push(metric);
+      })
+      .on('error', callback)
+      .on('end', () => {
+        callback(null, results);
+      });
+  }
+
+  /**
+   * Get all metrics of the given file Id
+   * @param {string}   fileId    The ID of the file to get metrics
+   * @param {Function} callback - Async callback function(error, results)
+   */
+  getMetricsByFile(fileId, callback) {
+    let results = [];
+    // Metric UID is based on file Id. See Util.generateMetricId
+    this._metrics.createValueStream({
+      gte: `${fileId}`,
+      lt: `${fileId}\xff`
+    })
     .on('data', (metric) => {
       results.push(metric);
     })
@@ -144,479 +166,459 @@ DatabaseService.prototype.getAllMetrics = function (callback) {
     .on('end', () => {
       callback(null, results);
     });
-};
-
-/**
- * Get all metrics of the given file Id
- * @param {string}   fileId    The ID of the file to get metrics
- * @param {Function} callback - Async callback function(error, results)
- */
-DatabaseService.prototype.getMetricsByFile = function (fileId, callback) {
-  let results = [];
-  // Metric UID is based on file Id. See Util.generateMetricId
-  this._metrics.createValueStream({
-    gte: `${fileId}`,
-    lt: `${fileId}\xff`
-  })
-  .on('data', (metric) => {
-    results.push(metric);
-  })
-  .on('error', callback)
-  .on('end', () => {
-    callback(null, results);
-  });
-};
-
-/**
- * Get all/queried ModelData records.
- * @callback
- * @param {string} metricId Metric ID
- * @param {Function} callback - Async callback: function (error, results)
- */
-DatabaseService.prototype.getModelData = function (metricId, callback) {
-  let results = [];
-  // Metric Data ID is based on metricId. See Util.generateMetricDataId
-  this._modelData.createValueStream({
-    gte: `${metricId}`,
-    lt: `${metricId}\xff`
-  })
-  .on('data', (metric) => {
-    results.push(metric);
-  })
-  .on('error', callback)
-  .on('end', () => {
-    callback(null, results);
-  });
-};
-
-/**
- * Get all/queried MetricData records.
- * @callback
- * @param {string} metricId Metric ID
- * @param {Function} callback - Async callback: function (error, results)
- */
-DatabaseService.prototype.getMetricData = function (metricId, callback) {
-  let results = [];
-  // Metric Data ID is based on metricId. See Util.generateMetricDataId
-  this._metricData.createValueStream({
-    gte: `${metricId}`,
-    lt: `${metricId}\xff`
-  })
-  .on('data', (metric) => {
-    results.push(metric);
-  })
-  .on('error', callback)
-  .on('end', () => {
-    callback(null, results);
-  });
-};
-
-/**
- * Put a single File to DB.
- * @param {Object} file - Data object of File info to save
- * @param {Function} callback - Async callback on done: function(error, results)
- */
-DatabaseService.prototype.putFile = function (file, callback) {
-  const validation = this.validator.validate(file, DBFileSchema);
-
-  if (validation.errors.length) {
-    callback(validation.errors, null);
-    return;
   }
 
-  this._files.put(file.uid, file, callback);
-};
+  /**
+   * Get all/queried ModelData records.
+   * @callback
+   * @param {string} metricId Metric ID
+   * @param {Function} callback - Async callback: function (error, results)
+   */
+  getModelData(metricId, callback) {
+    let results = [];
+    // Metric Data ID is based on metricId. See Util.generateMetricDataId
+    this._modelData.createValueStream({
+      gte: `${metricId}`,
+      lt: `${metricId}\xff`
+    })
+    .on('data', (metric) => {
+      results.push(metric);
+    })
+    .on('error', callback)
+    .on('end', () => {
+      callback(null, results);
+    });
+  }
 
-/**
- * Put multiple Files into DB.
- * @callback
- * @param {Array} files - List of File objects to insert
- * @param {Function} callback - Async result handler: function (error, results)
- */
-DatabaseService.prototype.putFileBatch = function (files, callback) {
-  for (let i = 0; i < files.length; i++) {
-    const validation = this.validator.validate(files[i], DBFileSchema);
+  /**
+   * Get all/queried MetricData records.
+   * @callback
+   * @param {string} metricId Metric ID
+   * @param {Function} callback - Async callback: function (error, results)
+   */
+  getMetricData(metricId, callback) {
+    let results = [];
+    // Metric Data ID is based on metricId. See Util.generateMetricDataId
+    this._metricData.createValueStream({
+      gte: `${metricId}`,
+      lt: `${metricId}\xff`
+    })
+    .on('data', (metric) => {
+      results.push(metric);
+    })
+    .on('error', callback)
+    .on('end', () => {
+      callback(null, results);
+    });
+  }
+
+  /**
+   * Put a single File to DB.
+   * @param {Object} file - Data object of File info to save
+   * @param {Function} callback - Async callback on done: function(error, results)
+   */
+  putFile(file, callback) {
+    const validation = this.validator.validate(file, DBFileSchema);
+
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
     }
+
+    this._files.put(file.uid, file, callback);
   }
 
-  let ops = files.map((file) => {
-    return {
-      type: 'put',
-      key: file.uid,
-      value: file
-    };
-  });
+  /**
+   * Put multiple Files into DB.
+   * @callback
+   * @param {Array} files - List of File objects to insert
+   * @param {Function} callback - Async result handler: function (error, results)
+   */
+  putFileBatch(files, callback) {
+    for (let i = 0; i < files.length; i++) {
+      const validation = this.validator.validate(files[i], DBFileSchema);
+      if (validation.errors.length) {
+        callback(validation.errors, null);
+        return;
+      }
+    }
 
-  this._files.batch(ops, callback);
-};
+    let ops = files.map((file) => {
+      return {
+        type: 'put',
+        key: file.uid,
+        value: file
+      };
+    });
 
-/**
- * Put a single Metric to DB.
- * @param {Object} metric - Data object of Metric info to save
- * @param {Function} callback - Async callback on done: function(error, results)
- */
-DatabaseService.prototype.putMetric = function (metric, callback) {
-  const validation = this.validator.validate(metric, DBMetricSchema);
-  if (validation.errors.length) {
-    callback(validation.errors, null);
-    return;
+    this._files.batch(ops, callback);
   }
 
-  this._metrics.put(metric.uid, metric, callback);
-};
-
-/**
- * Put multiple Metrics into DB.
- * @param {Array} metrics - Data objects of Metrics info to save
- * @param {Function} callback - Async callback on done: function(error, results)
- */
-DatabaseService.prototype.putMetricBatch = function (metrics, callback) {
-  for (let i = 0; i < metrics.length; i++) {
-    const validation = this.validator.validate(metrics[i], DBMetricSchema);
+  /**
+   * Put a single Metric to DB.
+   * @param {Object} metric - Data object of Metric info to save
+   * @param {Function} callback - Async callback on done: function(error, results)
+   */
+  putMetric(metric, callback) {
+    const validation = this.validator.validate(metric, DBMetricSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
     }
+
+    this._metrics.put(metric.uid, metric, callback);
   }
 
-  let ops = metrics.map((metric) => {
-    return {
-      type: 'put',
-      key: metric.uid,
-      value: metric
-    };
-  });
+  /**
+   * Put multiple Metrics into DB.
+   * @param {Array} metrics - Data objects of Metrics info to save
+   * @param {Function} callback - Async callback on done: function(error, results)
+   */
+  putMetricBatch(metrics, callback) {
+    for (let i = 0; i < metrics.length; i++) {
+      const validation = this.validator.validate(metrics[i], DBMetricSchema);
+      if (validation.errors.length) {
+        callback(validation.errors, null);
+        return;
+      }
+    }
 
-  this._metrics.batch(ops, callback);
-};
+    let ops = metrics.map((metric) => {
+      return {
+        type: 'put',
+        key: metric.uid,
+        value: metric
+      };
+    });
 
-/**
- * Put a single ModelData record to DB.
- * @param {Object} data - ModelData object to save
- * @param {Function} callback - Async callback on done: function(error, results)
- */
-DatabaseService.prototype.putModelData = function (data, callback) {
-  const validation = this.validator.validate(data, DBModelDataSchema);
-
-  if (typeof data === 'string') {
-    // JSONify here to get around Electron IPC remote() memory leaks
-    data = JSON.parse(data);
+    this._metrics.batch(ops, callback);
   }
 
-  if (validation.errors.length) {
-    callback(validation.errors, null);
-    return;
-  }
-  let {metric_uid, timestamp} = data;
-  let key = Utils.generateMetricDataId(metric_uid, timestamp);
-  this._modelData.put(key, data, callback);
-};
+  /**
+   * Put a single ModelData record to DB.
+   * @param {Object} data - ModelData object to save
+   * @param {Function} callback - Async callback on done: function(error, results)
+   */
+  putModelData(data, callback) {
+    const validation = this.validator.validate(data, DBModelDataSchema);
 
-/**
- * Put multiple ModelData records into DB.
- * @param {Array} data - List of ModelData objects to save
- * @param {Function} callback - Async callback on done: function(error, results)
- */
-DatabaseService.prototype.putModelDataBatch = function (data, callback) {
-  if (typeof data === 'string') {
-    // JSONify here to get around Electron IPC remote() memory leaks
-    data = JSON.parse(data);
-  }
+    if (typeof data === 'string') {
+      // JSONify here to get around Electron IPC remote() memory leaks
+      data = JSON.parse(data);
+    }
 
-  for (let i = 0; i < data.length; i++) {
-    const validation = this.validator.validate(data[i], DBModelDataSchema);
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
     }
-  }
-
-  let ops = data.map((value) => {
-    let {metric_uid, timestamp} = value;
+    let {metric_uid, timestamp} = data;
     let key = Utils.generateMetricDataId(metric_uid, timestamp);
-    return {
-      type: 'put', key, value
-    };
-  });
-
-  this._modelData.batch(ops, callback);
-};
-
-/**
- * Put a single MetricData record to DB.
- * @param {Object} metricData - Data object of MetricData info to save
- * @param {Function} callback - Async callback on done: function(error, results)
- */
-DatabaseService.prototype.putMetricData = function (metricData, callback) {
-  const validation = this.validator.validate(metricData, DBMetricDataSchema);
-
-  if (typeof metricData === 'string') {
-    // JSONify here to get around Electron IPC remote() memory leaks
-    metricData = JSON.parse(metricData);
+    this._modelData.put(key, data, callback);
   }
 
-  if (validation.errors.length) {
-    callback(validation.errors, null);
-    return;
-  }
-  let {metric_uid, timestamp} = metricData;
-  let key = Utils.generateMetricDataId(metric_uid, timestamp);
-  this._metricData.put(key, metricData, callback);
-};
+  /**
+   * Put multiple ModelData records into DB.
+   * @param {Array} data - List of ModelData objects to save
+   * @param {Function} callback - Async callback on done: function(error, results)
+   */
+  putModelDataBatch(data, callback) {
+    if (typeof data === 'string') {
+      // JSONify here to get around Electron IPC remote() memory leaks
+      data = JSON.parse(data);
+    }
 
-/**
- * Put multiple MetricData records into DB.
- * @param {Array} data - List of Metric Data objects of MetricDatas to save
- * @param {Function} callback - Async callback on done: function(error, results)
- */
-DatabaseService.prototype.putMetricDataBatch = function (data, callback) {
-  if (typeof data === 'string') {
-    // JSONify here to get around Electron IPC remote() memory leaks
-    data = JSON.parse(data);
+    for (let i = 0; i < data.length; i++) {
+      const validation = this.validator.validate(data[i], DBModelDataSchema);
+      if (validation.errors.length) {
+        callback(validation.errors, null);
+        return;
+      }
+    }
+
+    let ops = data.map((value) => {
+      let {metric_uid, timestamp} = value;
+      let key = Utils.generateMetricDataId(metric_uid, timestamp);
+      return {
+        type: 'put', key, value
+      };
+    });
+
+    this._modelData.batch(ops, callback);
   }
 
-  for (let i = 0; i < data.length; i++) {
-    const validation = this.validator.validate(data[i], DBMetricDataSchema);
+  /**
+   * Put a single MetricData record to DB.
+   * @param {Object} metricData - Data object of MetricData info to save
+   * @param {Function} callback - Async callback on done: function(error, results)
+   */
+  putMetricData(metricData, callback) {
+    const validation = this.validator.validate(metricData, DBMetricDataSchema);
+
+    if (typeof metricData === 'string') {
+      // JSONify here to get around Electron IPC remote() memory leaks
+      metricData = JSON.parse(metricData);
+    }
+
     if (validation.errors.length) {
       callback(validation.errors, null);
       return;
     }
+    let {metric_uid, timestamp} = metricData;
+    let key = Utils.generateMetricDataId(metric_uid, timestamp);
+    this._metricData.put(key, metricData, callback);
   }
 
-  let ops = data.map((value) => {
-    let {metric_uid, timestamp} = value;
-    let key = Utils.generateMetricDataId(metric_uid, timestamp);
-    return {
-      type: 'put', key, value
-    };
-  });
+  /**
+   * Put multiple MetricData records into DB.
+   * @param {Array} data - List of Metric Data objects of MetricDatas to save
+   * @param {Function} callback - Async callback on done: function(error, results)
+   */
+  putMetricDataBatch(data, callback) {
+    if (typeof data === 'string') {
+      // JSONify here to get around Electron IPC remote() memory leaks
+      data = JSON.parse(data);
+    }
 
-  this._metricData.batch(ops, callback);
-};
+    for (let i = 0; i < data.length; i++) {
+      const validation = this.validator.validate(data[i], DBMetricDataSchema);
+      if (validation.errors.length) {
+        callback(validation.errors, null);
+        return;
+      }
+    }
 
-/**
- * Completely remove an existing database directory.
- * @param  {Function} callback called when the destroy operation is complete,
- *                             with a possible error argument
- */
-DatabaseService.prototype.destroy = function (callback) {
-  leveldown.destroy(this.levelup.location, callback);
-};
+    let ops = data.map((value) => {
+      let {metric_uid, timestamp} = value;
+      let key = Utils.generateMetricDataId(metric_uid, timestamp);
+      return {
+        type: 'put', key, value
+      };
+    });
 
-/**
- * Closes the underlying LevelDB store.
- * @param {Function} callback - Receive any error encountered during closing as
- *  the first argument.
- */
-DatabaseService.prototype.close = function (callback) {
-  this.levelup.db.close(callback);
-};
+    this._metricData.batch(ops, callback);
+  }
 
-/**
- * Exports model results into a CSV file
- * @param  {string}   metricId The metric from which to export results
- * @param  {string}   filename Full path name for the destination file (.csv)
- * @param  {Function} callback called when the export operation is complete,
- *                             with a possible error argument
- */
-DatabaseService.prototype.exportModelData = function (metricId, filename, callback) { // eslint-disable-line
-  const output = fs.createWriteStream(filename);
-  const parser = json2csv({
-    keys: ['timestamp', 'metric_value', 'anomaly_score']
-  });
-  parser.pipe(output);
+  /**
+   * Completely remove an existing database directory.
+   * @param  {Function} callback called when the destroy operation is complete,
+   *                             with a possible error argument
+   */
+  destroy(callback) {
+    leveldown.destroy(this.levelup.location, callback);
+  }
 
-  // Metric Data id is based on metric Id. See Util.generateMetricDataId
-  this._modelData.createValueStream({
-    gte: `${metricId}`,
-    lt: `${metricId}\xff`
-  })
-  .on('error', (error) => {
-    parser.destroy();
-    callback(error);
-  })
-  .on('data', (result) => {
-    parser.write(JSON.stringify(result));
-  })
-  .on('end', () => {
-    parser.end();
-    callback();
-  });
-}
+  /**
+   * Closes the underlying LevelDB store.
+   * @param {Function} callback - Receive any error encountered during closing as
+   *  the first argument.
+   */
+  close(callback) {
+    this.levelup.db.close(callback);
+  }
 
-/**
- * Delete raw data for the given metric
- * @param  {string}   metricId Metric to delete data
- * @param  {Function} callback called when the operation is complete,
- *                             with a possible error argument
- */
-DatabaseService.prototype.deleteMetricData = function (metricId, callback) {
-  let batch = new Batch(this._metricData);
-  this._metricData.createKeyStream({
-    gte: `${metricId}`,
-    lt: `${metricId}\xff`
-  })
-  .on('data', (uid) => {
-    batch.del(uid);
-  })
-  .on('error', callback)
-  .on('end', () => {
-    batch.write(callback);
-  });
-}
+  /**
+   * Exports model results into a CSV file
+   * @param  {string}   metricId The metric from which to export results
+   * @param  {string}   filename Full path name for the destination file (.csv)
+   * @param  {Function} callback called when the export operation is complete,
+   *                             with a possible error argument
+   */
+  exportModelData(metricId, filename, callback) { // eslint-disable-line
+    const output = fs.createWriteStream(filename);
+    const parser = json2csv({
+      keys: ['timestamp', 'metric_value', 'anomaly_score']
+    });
+    parser.pipe(output);
 
-/**
- * Delete model data for the given metric
- * @param  {string}   metricId Metric to delete model data
- * @param  {Function} callback called when the operation is complete,
- *                             with a possible error argument
- */
-DatabaseService.prototype.deleteModelData = function (metricId, callback) {
-  let batch = new Batch(this._modelData);
-  this._modelData.createKeyStream({
-    gte: `${metricId}`,
-    lt: `${metricId}\xff`
-  })
-  .on('data', (uid) => {
-    batch.del(uid);
-  })
-  .on('error', callback)
-  .on('end', () => {
-    batch.write(callback);
-  });
-}
-
-/**
- * Delete metric and associated data from database.
- * @param  {string}   metricId Metric to delete
- * @param  {Function} callback called when the operation is complete,
- *                             with a possible error argument
- */
-DatabaseService.prototype.deleteMetric = function (metricId, callback) {
-  this._metrics.del(metricId, (error) => {
-    if (error) {
+    // Metric Data id is based on metric Id. See Util.generateMetricDataId
+    this._modelData.createValueStream({
+      gte: `${metricId}`,
+      lt: `${metricId}\xff`
+    })
+    .on('error', (error) => {
+      parser.destroy();
       callback(error);
-      return;
-    }
-    this.deleteMetricData(metricId, (error) => {
+    })
+    .on('data', (result) => {
+      parser.write(JSON.stringify(result));
+    })
+    .on('end', () => {
+      parser.end();
+      callback();
+    });
+  }
+
+  /**
+   * Delete raw data for the given metric
+   * @param  {string}   metricId Metric to delete data
+   * @param  {Function} callback called when the operation is complete,
+   *                             with a possible error argument
+   */
+  deleteMetricData(metricId, callback) {
+    let batch = new Batch(this._metricData);
+    this._metricData.createKeyStream({
+      gte: `${metricId}`,
+      lt: `${metricId}\xff`
+    })
+    .on('data', (uid) => {
+      batch.del(uid);
+    })
+    .on('error', callback)
+    .on('end', () => {
+      batch.write(callback);
+    });
+  }
+
+  /**
+   * Delete model data for the given metric
+   * @param  {string}   metricId Metric to delete model data
+   * @param  {Function} callback called when the operation is complete,
+   *                             with a possible error argument
+   */
+  deleteModelData(metricId, callback) {
+    let batch = new Batch(this._modelData);
+    this._modelData.createKeyStream({
+      gte: `${metricId}`,
+      lt: `${metricId}\xff`
+    })
+    .on('data', (uid) => {
+      batch.del(uid);
+    })
+    .on('error', callback)
+    .on('end', () => {
+      batch.write(callback);
+    });
+  }
+
+  /**
+   * Delete metric and associated data from database.
+   * @param  {string}   metricId Metric to delete
+   * @param  {Function} callback called when the operation is complete,
+   *                             with a possible error argument
+   */
+  deleteMetric(metricId, callback) {
+    this._metrics.del(metricId, (error) => {
       if (error) {
         callback(error);
         return;
       }
-      this.deleteModelData(metricId, callback);
-    });
-  })
-}
-
-/**
- * Delete all metrics for the given file
- * @param {string}   fileId    The ID of the file to delete the metrics from
- * @param  {Function} callback called when the operation is complete,
- *                             with a possible error argument
- */
-DatabaseService.prototype.deleteMetricsByFile = function (fileId, callback) {
-  let metrics = [];
-  this._metrics.createKeyStream({
-    gte: `${fileId}`,
-    lt: `${fileId}\xff`
-  })
-  .on('data', (id) => {
-    metrics.push(id);
-  })
-  .on('error', callback)
-  .on('end', () => {
-    for (let i = 0; i < metrics.length; i++) {
-      this.deleteMetric(metrics[i], (error) => {
+      this.deleteMetricData(metricId, (error) => {
         if (error) {
           callback(error);
           return;
         }
+        this.deleteModelData(metricId, callback);
       });
-    }
-    callback();
-  });
-}
+    })
+  }
 
-/**
- * Delete metric and associated metrics from database.
- * @param  {string}   fileId   File to delete
- * @param  {Function} callback called when the operation is complete,
- *                             with a possible error argument
- */
-DatabaseService.prototype.deleteFile = function (fileId, callback) {
-  this._files.del(fileId, (error) => {
-    if (error) {
-      callback(error);
-      return;
-    }
-    this.deleteMetricsByFile(fileId, callback);
-  });
-}
+  /**
+   * Delete all metrics for the given file
+   * @param {string}   fileId    The ID of the file to delete the metrics from
+   * @param  {Function} callback called when the operation is complete,
+   *                             with a possible error argument
+   */
+  deleteMetricsByFile(fileId, callback) {
+    let metrics = [];
+    this._metrics.createKeyStream({
+      gte: `${fileId}`,
+      lt: `${fileId}\xff`
+    })
+    .on('data', (id) => {
+      metrics.push(id);
+    })
+    .on('error', callback)
+    .on('end', () => {
+      for (let i = 0; i < metrics.length; i++) {
+        this.deleteMetric(metrics[i], (error) => {
+          if (error) {
+            callback(error);
+            return;
+          }
+        });
+      }
+      callback();
+    });
+  }
 
-/**
- * Update aggregation options for the given metric. Usually this value is
- * obtained via the {@link ParamFinderService}
- *
- * @param {string} metricId  Metric to update
- * @param {object} options   Aggregation options, usually obtained via
- *                             {@link ParamFinderService}
- * @param  {Function} callback called when the operation is complete,
- *                             with a possible error argument
- */
-DatabaseService.prototype.setMetricAggregationOptions = function (metricId, options, callback) { // eslint-disable-line
-  this._metrics.get(metricId, (error, metric) => {
-    if (error) {
-      callback(error);
-      return;
-    }
-    metric['aggregation_options'] = options;
-    this.putMetric(metric, callback);
-  });
-}
+  /**
+   * Delete metric and associated metrics from database.
+   * @param  {string}   fileId   File to delete
+   * @param  {Function} callback called when the operation is complete,
+   *                             with a possible error argument
+   */
+  deleteFile(fileId, callback) {
+    this._files.del(fileId, (error) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      this.deleteMetricsByFile(fileId, callback);
+    });
+  }
 
-/**
- * Update model options for the given metric. Usually this value is
- * obtained via the {@link ParamFinderService}
- *
- * @param {string}   metricId    Metric to update
- * @param {object}   options     Model option to use for the given metric.
- *                               Usually obtained via {@link ParamFinderService}
- * @param  {Function} callback called when the operation is complete,
- *                             with a possible error argument
- */
-DatabaseService.prototype.setMetricModelOptions = function (metricId, options, callback) { // eslint-disable-line
-  this._metrics.get(metricId, (error, metric) => {
-    if (error) {
-      callback(error);
-      return;
-    }
-    metric['model_options'] = options;
-    this.putMetric(metric, callback);
-  });
-}
+  /**
+   * Update aggregation options for the given metric. Usually this value is
+   * obtained via the {@link ParamFinderService}
+   *
+   * @param {string} metricId  Metric to update
+   * @param {object} options   Aggregation options, usually obtained via
+   *                             {@link ParamFinderService}
+   * @param  {Function} callback called when the operation is complete,
+   *                             with a possible error argument
+   */
+  setMetricAggregationOptions(metricId, options, callback) { // eslint-disable-line
+    this._metrics.get(metricId, (error, metric) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      metric['aggregation_options'] = options;
+      this.putMetric(metric, callback);
+    });
+  }
 
-/**
- * Update input options for the given metric. Usually this value is
- * obtained via the {@link ParamFinderService}
- *
- * @param {string}   metricId    Metric to update
- * @param {object}   options     Input option to use for the given metric.
- *                               Usually obtained via {@link ParamFinderService}
- * @param  {Function} callback called when the operation is complete,
- *                             with a possible error argument
- */
-DatabaseService.prototype.setMetricInputOptions = function (metricId, options, callback) { // eslint-disable-line
-  this._metrics.get(metricId, (error, metric) => {
-    if (error) {
-      callback(error);
-      return;
-    }
-    metric['input_options'] = options;
-    this.putMetric(metric, callback);
-  });
+  /**
+   * Update model options for the given metric. Usually this value is
+   * obtained via the {@link ParamFinderService}
+   *
+   * @param {string}   metricId    Metric to update
+   * @param {object}   options     Model option to use for the given metric.
+   *                               Usually obtained via {@link ParamFinderService}
+   * @param  {Function} callback called when the operation is complete,
+   *                             with a possible error argument
+   */
+  setMetricModelOptions(metricId, options, callback) { // eslint-disable-line
+    this._metrics.get(metricId, (error, metric) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      metric['model_options'] = options;
+      this.putMetric(metric, callback);
+    });
+  }
+
+  /**
+   * Update input options for the given metric. Usually this value is
+   * obtained via the {@link ParamFinderService}
+   *
+   * @param {string}   metricId    Metric to update
+   * @param {object}   options     Input option to use for the given metric.
+   *                               Usually obtained via {@link ParamFinderService}
+   * @param  {Function} callback called when the operation is complete,
+   *                             with a possible error argument
+   */
+  setMetricInputOptions(metricId, options, callback) { // eslint-disable-line
+    this._metrics.get(metricId, (error, metric) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      metric['input_options'] = options;
+      this.putMetric(metric, callback);
+    });
+  }
 }
 
 // Returns singleton
