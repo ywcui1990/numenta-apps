@@ -145,6 +145,10 @@ export default class Chart extends React.Component {
     let blockRedraw = anomalyCount % 2 === 0; // filter out some redrawing
     let rangeMax, rangeMin;
 
+    //
+    // @TODO if new aggregated anomaly chart, need to kill and re-create chart!
+    //
+
     // scroll along with fresh anomaly model data input
     if (!this._chartBusy) {
       rangeMax = new Date(data[anomalyCount][0]).getTime();
