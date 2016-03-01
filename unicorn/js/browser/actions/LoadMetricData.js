@@ -15,8 +15,8 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
+
 
 /**
  * Load metric data directly from the file.
@@ -99,6 +99,7 @@ function loadMetricDataFromFile(actionContext, metricId) {
     });
   });
 }
+
 
 /**
  * Load metric data

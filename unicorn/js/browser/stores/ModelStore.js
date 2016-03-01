@@ -35,6 +35,7 @@ const DEFAULT_VALUES = {
   timestampField: null,
   metric: null,
   active: false,
+  aggregated: false,
   ran: false,
   visible: false,
   error: null
@@ -138,14 +139,19 @@ export default class ModelStore extends BaseStore {
 
   /**
    * Mark the model as active.
-   * @param {string} modelId - The model to update
+   * @param {Object} payload - Model info to start with
+   * @param {String} payload.modelId - The model to update
+   * @param {Boolean} [payload.aggregated=false] - Model flag for if data
+   *  is aggregated
    */
-  _startModel(modelId) {
+  _startModel(payload) {
+    let {modelId, aggregated} = payload;
     let model = this._models.get(modelId);
     if (model) {
       model.active = true;
-      model.ran = true;
+      model.aggregated = aggregated;
       model.error = null;
+      model.ran = true;
       this.emitChange();
     }
   }

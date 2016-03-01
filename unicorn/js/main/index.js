@@ -16,7 +16,6 @@
 //
 // http://numenta.org/licenses/
 
-
 import {app, BrowserWindow, crashReporter, dialog, Menu} from 'electron';
 import bunyan from 'bunyan';
 import path from 'path';
@@ -37,12 +36,14 @@ let mainWindow = null; // global ref to keep window object from JS GC
 let modelService = null;
 let paramFinderService = null;
 
+
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files.
  *
  * Main Electron code Application entry point, initializes browser app.
  */
+
 crashReporter.start({
   companyName: config.get('company'),
   productName: config.get('title'),
@@ -68,7 +69,7 @@ app.on('ready', () => {
   mainWindow.loadURL(`file://${initialPage}`);
   mainWindow.center();
   if (DEV) {
-    // mainWindow.openDevTools();
+    mainWindow.openDevTools();
   }
 
   // browser window events
