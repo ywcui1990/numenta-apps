@@ -17,8 +17,7 @@
     "model": {
       "create": "Create Model",
       "delete": "Delete Model",
-      "export": "Export Results",
-      "stop": "Stop Model"
+      "export": "Export Results"
     },
     "okay": "OK"
   },
