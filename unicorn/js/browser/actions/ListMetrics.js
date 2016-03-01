@@ -32,6 +32,7 @@ export default function (actionContext) {
         actionContext.dispatch(ACTIONS.LIST_METRICS_FAILURE, error);
         reject(error);
       } else {
+        metrics = JSON.parse(metrics);
         actionContext.dispatch(ACTIONS.LIST_METRICS, metrics);
         resolve(metrics);
       }

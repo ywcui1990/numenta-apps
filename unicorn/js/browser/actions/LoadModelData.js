@@ -35,6 +35,7 @@ export default function (actionContext, metricId) {
         reject(error);
       } else {
         // Extract data from record
+        modelData = JSON.parse(modelData);
         let data = modelData.map((record) => [
           record.timestamp, record.metric_value, record.anomaly_score
         ]);

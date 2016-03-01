@@ -161,7 +161,7 @@ describe('DatabaseService:', () => {
         assert.ifError(error);
         service.getFile(EXPECTED_FILE.uid, (error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, EXPECTED_FILE);
+          assert.deepStrictEqual(JSON.parse(actual), EXPECTED_FILE);
           done();
         });
       });
@@ -182,7 +182,7 @@ describe('DatabaseService:', () => {
         assert.ifError(error);
         service.getAllFiles((error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, batch);
+          assert.deepStrictEqual(JSON.parse(actual), batch);
           done();
         });
       });
@@ -195,7 +195,7 @@ describe('DatabaseService:', () => {
         assert.ifError(error);
         service.getFile(batch[0].uid, (error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, batch[0]);
+          assert.deepStrictEqual(JSON.parse(actual), batch[0]);
           done();
         });
       });
@@ -205,15 +205,16 @@ describe('DatabaseService:', () => {
         assert.ifError(error);
         service.getFile(EXPECTED_FILENAME_ID, (error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, EXPECTED_FILE);
+          assert.deepStrictEqual(JSON.parse(actual), EXPECTED_FILE);
           assert.ifError(error);
           service.getMetricsByFile(EXPECTED_FILENAME_ID, (error, actual) => {
             assert.ifError(error);
-            assert.deepStrictEqual(actual, EXPECTED_METRICS);
+            assert.deepStrictEqual(JSON.parse(actual), EXPECTED_METRICS);
             service.getMetricData(EXPECTED_METRIC_ID, (error, actual) => {
               assert.ifError(error);
-              assert.equal(actual.length, EXPECTED_METRIC_DATA.length);
-              assert.deepStrictEqual(actual, EXPECTED_METRIC_DATA);
+              let metric =  JSON.parse(actual);
+              assert.equal(metric.length, EXPECTED_METRIC_DATA.length);
+              assert.deepStrictEqual(metric, EXPECTED_METRIC_DATA);
               done();
             })
           });
@@ -230,10 +231,10 @@ describe('DatabaseService:', () => {
               'File was not deleted');
             service.getMetricsByFile(EXPECTED_FILENAME_ID, (error, actual) => {
               assert.ifError(error);
-              assert.equal(actual.length, 0);
+              assert.equal(JSON.parse(actual).length, 0);
               service.getMetricData(EXPECTED_METRIC_ID, (error, actual) => {
                 assert.ifError(error);
-                assert.equal(actual.length, 0);
+                assert.equal(JSON.parse(actual).length, 0);
                 done();
               });
             });
@@ -252,10 +253,10 @@ describe('DatabaseService:', () => {
                 'File was not deleted');
               service.getMetricsByFile(EXPECTED_FILENAME_ID, (error, actual) => {
                 assert.ifError(error);
-                assert.equal(actual.length, 0);
+                assert.equal(JSON.parse(actual).length, 0);
                 service.getMetricData(EXPECTED_METRIC_ID, (error, actual) => {
                   assert.ifError(error);
-                  assert.equal(actual.length, 0);
+                  assert.equal(JSON.parse(actual).length, 0);
                   done();
                 });
               });
@@ -272,7 +273,7 @@ describe('DatabaseService:', () => {
         assert.ifError(error);
         service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, EXPECTED_METRIC);
+          assert.deepStrictEqual(JSON.parse(actual), EXPECTED_METRIC);
           done();
         });
       });
@@ -293,7 +294,7 @@ describe('DatabaseService:', () => {
         assert.ifError(error);
         service.getAllMetrics((error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, batch);
+          assert.deepStrictEqual(JSON.parse(actual), batch);
           done();
         });
       });
@@ -306,7 +307,7 @@ describe('DatabaseService:', () => {
         assert.ifError(error);
         service.getMetric(batch[0].uid, (error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, batch[0]);
+          assert.deepStrictEqual(JSON.parse(actual), batch[0]);
           done();
         });
       });
@@ -325,7 +326,7 @@ describe('DatabaseService:', () => {
         assert.ifError(error);
         service.getMetricsByFile('file1', (error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, expected);
+          assert.deepStrictEqual(JSON.parse(actual), expected);
           done();
         });
       });
@@ -348,7 +349,7 @@ describe('DatabaseService:', () => {
               );
               // Make sure data was deleted
               service.getMetricData(EXPECTED_METRIC.uid, (error, actual) => {
-                assert(actual.length === 0, 'MetricData was not deleted');
+                assert(JSON.parse(actual).length === 0, 'MetricData was not deleted');
                 done();
               });
             });
@@ -385,7 +386,7 @@ describe('DatabaseService:', () => {
         service.setMetricAggregationOptions(EXPECTED_METRIC.uid, AGG_OPTIONS, (error) => {
           assert.ifError(error);
           service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
-            assert.deepStrictEqual(actual, EXPECTED_METRIC_WITH_AGGREGATION);
+            assert.deepStrictEqual(JSON.parse(actual), EXPECTED_METRIC_WITH_AGGREGATION);
             done();
           });
         });
@@ -398,7 +399,7 @@ describe('DatabaseService:', () => {
         service.setMetricModelOptions(EXPECTED_METRIC.uid, MODEL_OPTIONS, (error) => {
           assert.ifError(error);
           service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
-            assert.deepStrictEqual(actual, EXPECTED_METRIC_WITH_MODEL);
+            assert.deepStrictEqual(JSON.parse(actual), EXPECTED_METRIC_WITH_MODEL);
             done();
           });
         })
@@ -411,7 +412,7 @@ describe('DatabaseService:', () => {
         service.setMetricInputOptions(EXPECTED_METRIC.uid, INPUT_OPTIONS, (error) => {
           assert.ifError(error);
           service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
-            assert.deepStrictEqual(actual, EXPECTED_METRIC_WITH_INPUT);
+            assert.deepStrictEqual(JSON.parse(actual), EXPECTED_METRIC_WITH_INPUT);
             done();
           });
         })
@@ -445,7 +446,7 @@ describe('DatabaseService:', () => {
         assert.ifError(error);
         service.getMetricData(EXPECTED_METRIC_ID, (error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, EXPECTED_METRIC_DATA);
+          assert.deepStrictEqual(JSON.parse(actual), EXPECTED_METRIC_DATA);
           done();
         });
       });
@@ -457,14 +458,14 @@ describe('DatabaseService:', () => {
         // Make sure data exist
         service.getMetricData(EXPECTED_METRIC_ID, (error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, EXPECTED_METRIC_DATA);
+          assert.deepStrictEqual(JSON.parse(actual), EXPECTED_METRIC_DATA);
           // Delete data
           service.deleteMetricData(EXPECTED_METRIC_ID, (error) => {
             assert.ifError(error);
             // Make sure data was deleted
             service.getMetricData(EXPECTED_METRIC_ID, (error, actual) => {
               assert.ifError(error);
-              assert.equal(actual.length, 0);
+              assert.equal(JSON.parse(actual).length, 0);
               done();
             });
           });
@@ -515,7 +516,7 @@ describe('DatabaseService:', () => {
         assert.ifError(error);
         service.getModelData(EXPECTED_MODEL_DATA.metric_uid, (error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, batch);
+          assert.deepStrictEqual(JSON.parse(actual), batch);
           done();
         });
       });
@@ -561,14 +562,14 @@ describe('DatabaseService:', () => {
         // Make sure data exist
         service.getModelData(EXPECTED_MODEL_DATA.metric_uid, (error, actual) => {
           assert.ifError(error);
-          assert.deepStrictEqual(actual, batch);
+          assert.deepStrictEqual(JSON.parse(actual), batch);
           // Delete data
           service.deleteModelData(EXPECTED_MODEL_DATA.metric_uid, (error) => {
             assert.ifError(error);
             // Make sure data was deleted
             service.getModelData(EXPECTED_MODEL_DATA.metric_uid, (error, actual) => {
               assert.ifError(error);
-              assert.equal(actual.length, 0);
+              assert.equal(JSON.parse(actual).length, 0);
               done();
             });
           });

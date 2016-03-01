@@ -34,6 +34,7 @@ export default function (actionContext, metricId) {
         actionContext.dispatch(ACTIONS.LOAD_METRIC_DATA_FAILED, error);
         reject(error);
       } else {
+        metricData = JSON.parse(metricData);
         let data = metricData.map((row) => {
           return [new Date(row.timestamp), row.metric_value];
         });
