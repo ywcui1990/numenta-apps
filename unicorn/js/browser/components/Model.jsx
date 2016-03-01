@@ -168,7 +168,6 @@ export default class Model extends React.Component {
     let modelId = model.modelId;
     let filename = path.basename(model.filename);
     let title = model.metric;
-    let isModelActive = (model && ('active' in model) && model.active);
     let hasModelRun = (model && ('ran' in model) && model.ran);
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let dialogOpen = false;
