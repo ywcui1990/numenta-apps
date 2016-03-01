@@ -1,4 +1,4 @@
-// Copyright (C) 2015, Numenta, Inc.  Unless you have purchased from
+// Copyright (C) 2016, Numenta, Inc.  Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
@@ -16,82 +16,94 @@
 //
 // http://numenta.org/licenses/
 
-
 /* eslint-disable max-len, prefer-reflect */
 
 import fs from 'fs';
-import os from 'os';
+import instantiator from 'json-schema-instantiator';
 import path from 'path';
+import os from 'os';
+
 import {DatabaseService} from '../../../../js/main/DatabaseService';
 import {
-  DBFileSchema, DBMetricSchema, DBMetricDataSchema, DBModelDataSchema
-} from '../../../../js/schemas';
+  DBFileSchema,
+  DBMetricSchema, DBMetricDataSchema,
+  DBModelSchema, DBModelDataSchema
+} from '../../../../js/database/schema';
 
 const assert = require('assert');
 
-const MODEL_OPTIONS = require('../fixtures/model_runner_model.json');
+const INSTANCES = {
+  File: instantiator.instantiate(DBFileSchema),
+  Metric: instantiator.instantiate(DBMetricSchema),
+  MetricData: instantiator.instantiate(DBMetricDataSchema),
+  Model: instantiator.instantiate(DBModelSchema),
+  ModelData: instantiator.instantiate(DBModelDataSchema)
+};
 const AGG_OPTIONS = require('../fixtures/model_runner_agg.json');
+const MODEL_OPTIONS = require('../fixtures/model_runner_model.json');
 const INPUT_OPTIONS = require('../fixtures/param_finder_input.json');
 
-const EXPECTED_FILE = {
+const EXPECTED_FILE = Object.assign({}, INSTANCES.File, {
   uid: 'file1',
   name: 'file1',
   filename: '/tmp/file1',
   type: 'uploaded'
-};
-const EXPECTED_METRIC = {
+});
+const EXPECTED_METRIC = Object.assign({}, INSTANCES.Metric, {
   uid: 'file1!metric1',
   file_uid: 'file1',
   name: 'metric1',
   type: 'number'
-};
-
-const EXPECTED_METRIC_WITH_INPUT = {
+});
+const EXPECTED_METRIC_WITH_INPUT = Object.assign({}, INSTANCES.Metric, {
   uid: 'file1!metric1',
   file_uid: 'file1',
   name: 'metric1',
   type: 'number',
   input_options: INPUT_OPTIONS
-};
-
-const EXPECTED_METRIC_WITH_AGGREGATION = {
+});
+const EXPECTED_METRIC_WITH_AGGREGATION = Object.assign({}, INSTANCES.Metric, {
   uid: 'file1!metric1',
   file_uid: 'file1',
   name: 'metric1',
   type: 'number',
   aggregation_options: AGG_OPTIONS
-};
-
-const EXPECTED_METRIC_WITH_MODEL = {
+});
+const EXPECTED_METRIC_WITH_MODEL = Object.assign({}, INSTANCES.Metric, {
   uid: 'file1!metric1',
   file_uid: 'file1',
   name: 'metric1',
   type: 'number',
   model_options: MODEL_OPTIONS
-};
-
-const EXPECTED_METRIC_WITH_INPUT_AGG_MODEL = {
-  uid: 'file1!metric1',
-  file_uid: 'file1',
-  name: 'metric1',
-  type: 'number',
-  input_options: INPUT_OPTIONS,
-  aggregation_options: AGG_OPTIONS,
-  model_options: MODEL_OPTIONS
-};
-
-const EXPECTED_METRIC_DATA = {
+});
+const EXPECTED_METRIC_WITH_INPUT_AGG_MODEL = Object.assign({}, INSTANCES.Metric,
+  {
+    uid: 'file1!metric1',
+    file_uid: 'file1',
+    name: 'metric1',
+    type: 'number',
+    input_options: INPUT_OPTIONS,
+    aggregation_options: AGG_OPTIONS,
+    model_options: MODEL_OPTIONS
+  }
+);
+const EXPECTED_METRIC_DATA = Object.assign({}, INSTANCES.MetricData, {
   metric_uid: 'file1!metric1',
   timestamp: '2015-01-01 00:00:00Z',
   metric_value: 1
-};
-
-const EXPECTED_MODEL_DATA = {
+});
+const EXPECTED_MODEL = Object.assign({}, INSTANCES.Model, {
+  modelId: 'file1!metric1',
+  filename: 'file1',
+  timestampField: 'YYYY-MM-DD HH:MM:ssz',
+  metric: 'metric1'
+});
+const EXPECTED_MODEL_DATA = Object.assign({}, INSTANCES.ModelData, {
   metric_uid: 'file1!metric1',
   timestamp: '2015-01-01 00:00:00Z',
   metric_value: 1,
   anomaly_score: 1
-};
+});
 
 const EXPECTED_EXPORTED_RESULTS =
 `timestamp,metric_value,anomaly_score
@@ -142,6 +154,11 @@ describe('DatabaseService:', () => {
     });
     it('should validate "MetricData"', (done) => {
       let results = service.validator.validate(EXPECTED_METRIC_DATA, DBMetricDataSchema);
+      assert(results.errors.length === 0, JSON.stringify(results.errors));
+      done();
+    });
+    it('should validate "Model"', (done) => {
+      let results = service.validator.validate(EXPECTED_MODEL, DBModelSchema);
       assert(results.errors.length === 0, JSON.stringify(results.errors));
       done();
     });
@@ -449,7 +466,6 @@ describe('DatabaseService:', () => {
       });
     });
   });
-
 
   describe('ModelData:', () => {
     it('should add a single ModelData record to the database', (done) => {
