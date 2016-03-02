@@ -23,6 +23,7 @@
     "type": {
       "enum": ["date", "number", "string"],
       "type": "string",
+      "default": "string",
       "required": true
     },
     "format": {
