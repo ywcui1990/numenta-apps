@@ -30,8 +30,6 @@ import ModelServiceIPC from './ModelServiceIPC';
 import ParamFinderServiceIPC from './ParamFinderServiceIPC';
 import Utils from './Utils';
 
-
-const DEV = config.get('NODE_ENV') !== 'production';
 const log = bunyan.createLogger({
   level: 'debug',  // @TODO higher for Production
   name: config.get('title')
@@ -158,9 +156,6 @@ app.on('ready', () => {
   });
   mainWindow.loadURL(`file://${initialPage}`);
   mainWindow.center();
-  if (DEV) {
-    mainWindow.openDevTools();
-  }
 
   // browser window events
   mainWindow.on('closed', () => {
