@@ -101,14 +101,12 @@ export default class ModelClient {
   }
 
   _handleModelData(modelId, payload) {
-    let timestampIndex = 0;
-    let result;
     // Multiple data records are separated by `\n`
     let data = payload.trim().split('\n').map((row) => {
       if (row) {
-        result = JSON.parse(row);
-        result[timestampIndex] = new Date(result[timestampIndex]);
-        return result;
+        row = JSON.parse(row);
+        row[0] = new Date(row[0]); // timestamp => js date
+        return row;
       }
     });
     this._context.executeAction(ReceiveModelDataAction, {modelId, data});
