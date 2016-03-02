@@ -109,7 +109,7 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
 
   @staticmethod
-  def _load(path):
+  def _loadCsvFile(path):
     data = []
 
     with open(path, 'r') as infile:
@@ -122,9 +122,17 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
 
   def _testParamFinderRunner(self, name, inputSpec):
+    """
+    Make sure the paramFinder returns expected aggInfo and modelInfo
 
-    with self._startParamFinderRunnerSubprocess(inputSpec) as mrProcess:
-      outputInfo = mrProcess.stdout.readline()
+    :param str name: dataset name
+    :param str inputSpec: JSON object describing the input petric data
+      per input_opt_schema.json
+    :return: json object that contains aggregation and model info
+    """
+
+    with self._startParamFinderRunnerSubprocess(inputSpec) as pfrProcess:
+      outputInfo = pfrProcess.stdout.readline()
       outputInfo = json.loads(outputInfo)
 
     with open(os.path.join(RESULTS_DIR, name+'_model_params.json')) as infile:
@@ -134,6 +142,17 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
 
   def _testModelRunner(self, name, inputSpec, aggSpec, modelSpec):
+    """
+    Make sure model runner returns correct anomaly likelihood
+
+    :param str name: dataset name
+    :param str inputSpec: JSON object describing the input petric data
+      per input_opt_schema.json
+    :param str aggSpec: JSON object describing agregation of the input
+      metric per agg_opt_schema.json
+    :param str modelSpec: JSON object describing the model per
+      model_opt_schema.json
+    """
     with self._startModelRunnerSubprocess(
       inputSpec, aggSpec, modelSpec) as mrProcess:
 
@@ -141,13 +160,14 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
       out = stdoutData.splitlines()
       self.assertEqual(stderrData, "")
 
-      results = self._load(os.path.join(RESULTS_DIR, name+'.csv'))
+      results = self._loadCsvFile(os.path.join(RESULTS_DIR, name+'.csv'))
+      self.assertEqual(len(out), len(results))
 
-      for i in xrange(len(out)):
-        outputRecord = json.loads(out[i])
+      for computedResult, trueResult in zip(out, results):
+        outputRecord = json.loads(computedResult)
 
-        trueDataValue = float(results[i][1])
-        trueAnomalyLikelihood = float(results[i][2])
+        trueDataValue = float(trueResult[1])
+        trueAnomalyLikelihood = float(trueResult[2])
         self.assertAlmostEqual(outputRecord[1], trueDataValue)
         self.assertAlmostEqual(outputRecord[2], trueAnomalyLikelihood)
 
@@ -155,6 +175,10 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
 
   def _testParamFinderAndModelRunner(self, name):
+    """
+    Test paramFinder and modelRunner together
+    :param str name: dataset name
+    """
     inputSpec = json.dumps(
       {"datetimeFormat": "%Y-%m-%d %H:%M:%S",
        "timestampIndex": 0,
@@ -173,10 +197,16 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
 
   def testAmbientTemperatureSystemFailure(self):
+    """
+    Run paramFinder and ModelRunner on ambient_temperature_system_failure
+    """
     self._testParamFinderAndModelRunner('ambient_temperature_system_failure')
 
 
   def testNYCTaxi(self):
+    """
+    Run paramFinder and ModelRunner on nyc_taxi
+    """
     self._testParamFinderAndModelRunner('nyc_taxi')
 
 
