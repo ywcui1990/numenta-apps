@@ -156,32 +156,35 @@ export default class ModelData extends React.Component {
   }
 
   render() {
-    let {anomaly, options} = this._chartOptions;
-    let {axes, labels, series} = this._chartOptions.value;
-    let metaData = {length: {metric: 0, model: 0}};
-    let anomalyIndex = 2;
-    let modelId = this.props.modelId;
-    let data = [];
-
     let metricDataStore = this.context.getStore(MetricDataStore);
     let modelDataStore = this.context.getStore(ModelDataStore);
     let modelStore = this.context.getStore(ModelStore);
 
+    let modelId = this.props.modelId;
     let metricData = metricDataStore.getData(modelId);
     let modelData = modelDataStore.getData(modelId);
     let model = modelStore.getModel(modelId);
 
-    if (metricData && metricData.length) {
+    let {anomaly, options} = this._chartOptions;
+    let {axes, labels, series} = this._chartOptions.value;
+    let anomalyIndex = 2;
+    let metaData = {model, length: {metric: 0, model: 0}};
+    let data = [];
+
+    if (metricData && metricData.length && !model.aggregated) {
+      // using metric data
       data = Array.from(metricData);
       metaData.length.metric = metricData.length;
     }
     if (model && modelData.data && modelData.data.length) {
+      // using model data
       if (model.aggregated) {
         // use only model data in "aggregated data mode"
         data = Array.from(modelData.data);
       } else {
         // append model data to current metric data for "raw data mode"
         data.forEach((item) => item[anomalyIndex] = Number.NaN);  // init
+
         // Update values: ts, value, anomaly
         modelData.data.forEach((item, rowid) => {
           if (rowid < data.length) {
@@ -190,6 +193,7 @@ export default class ModelData extends React.Component {
         });
       }
       metaData.length.model = modelData.data.length;
+
       // Format anomaly series
       labels = labels.concat(anomaly.labels);
       Object.assign(axes, anomaly.axes);
