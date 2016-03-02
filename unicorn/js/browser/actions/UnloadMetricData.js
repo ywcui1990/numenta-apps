@@ -22,9 +22,8 @@ import {ACTIONS} from '../lib/Constants';
  * FLUXible Action Handler to unload Metric data
  * @param {Object} actionContext - FLUXible Dispatcher Action context object
  * @param {String} metricId - Metric hash guid to operate on
- * @param {Boolean} [silent=false] - Optional: Hide event from updating UI
  * @emits {UNLOAD_METRIC_DATA}
  */
-export default function (actionContext, metricId, silent=false) {
-  actionContext.dispatch(ACTIONS.UNLOAD_METRIC_DATA, metricId, silent);
+export default function (actionContext, metricId) {
+  actionContext.dispatch(ACTIONS.UNLOAD_METRIC_DATA, metricId);
 }
