@@ -1,4 +1,4 @@
-// Copyright © 2015, Numenta, Inc.  Unless you have purchased from
+// Copyright © 2016, Numenta, Inc.  Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
@@ -18,6 +18,12 @@
 
 import {ACTIONS} from '../lib/Constants';
 
+/**
+ * [description]
+ * @param  {[type]} actionContext [description]
+ * @param  {[type]} metricId      [description]
+ * @emits {UNLOAD_METRIC_DATA}
+ */
 export default function (actionContext, metricId) {
-  return actionContext.dispatch(ACTIONS.UNLOAD_METRIC_DATA, metricId);
+  actionContext.dispatch(ACTIONS.UNLOAD_METRIC_DATA, metricId);
 }

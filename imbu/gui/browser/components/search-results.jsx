@@ -130,11 +130,8 @@ export default class SearchResultsComponent extends React.Component {
     if (scores.length > 1) {
       let words = text.split(' ');
       let elements = [];
-      let windowStyle = {
-        backgroundColor: Colors.purple100
-      };
-      let maxScoreStyle = {
-        backgroundColor: Colors.purple300
+      let highlightStyle = {
+        backgroundColor: Colors.purple200
       };
 
       for (let i=0; i < words.length; i++) {
@@ -148,11 +145,8 @@ export default class SearchResultsComponent extends React.Component {
 
         if (score > 0 && score === maxScore) {
           // Highlight word or window with maxScore
-          currentElement.style = maxScoreStyle;
           elements.slice(-windowSize).forEach((obj) => {
-            if (obj.score !== maxScore) {
-              obj.style = windowStyle;
-            }
+            obj.style = highlightStyle;
           });
         }
       }
