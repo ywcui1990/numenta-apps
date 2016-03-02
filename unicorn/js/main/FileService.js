@@ -138,26 +138,17 @@ export class FileService {
             let field = Object.assign({}, INSTANCES.METRIC, {
               uid: Utils.generateMetricId(filename, fieldName),
               file_uid: Utils.generateFileId(filename),
-              name: fieldName,
-              type: 'string'
+              name: fieldName
             });
-            let format;
-
             if (Number.isFinite(Number(val))) {
               field.type = 'number';
             } else if (Number.isFinite(Date.parse(val))) {
               field.type = 'date';
               // Guess timestamp format
-              format = TIMESTAMP_FORMATS.find((format) => {
+              field.format = TIMESTAMP_FORMATS.find((format) => {
                 return moment(val, format, true).isValid();
               });
             }
-
-            delete field['format'];
-            if (format) {
-              field['format'] = format;
-            }
-
             validation = VALIDATOR.validate(field, DBMetricSchema);
             if (validation.errors.length) {
               return callback(validation.errors, null);

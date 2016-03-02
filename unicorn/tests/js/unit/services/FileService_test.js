@@ -19,12 +19,13 @@
 
 
 const assert = require('assert');
+import instantiator from 'json-schema-instantiator';
 
 import path from 'path';
 
 import service from '../../../../js/main/FileService';
 import Utils from '../../../../js/main/Utils';
-
+import {DBMetricSchema} from '../../../../js/database/schema';
 
 // Contents of 'fixture/file.csv'
 const EXPECTED_CONTENT =
@@ -52,18 +53,21 @@ const FILENAME_LARGE = path.resolve(__dirname, '../fixtures/rec-center-15.csv');
 
 // Expected fields
 const FILENAME_SMALL_ID = Utils.generateFileId(FILENAME_SMALL);
-const EXPECTED_FIELDS = [{
-  uid: Utils.generateMetricId(FILENAME_SMALL, 'timestamp'),
-  file_uid: FILENAME_SMALL_ID,
-  name: 'timestamp',
-  type: 'date',
-  format: 'YYYY-MM-DDTHH:mm:ssZ'
-}, {
-  uid: Utils.generateMetricId(FILENAME_SMALL, 'metric'),
-  file_uid: FILENAME_SMALL_ID,
-  name: 'metric',
-  type: 'number'
-}];
+const METRIC_INSTANCE = instantiator.instantiate(DBMetricSchema);
+const EXPECTED_FIELDS = [
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(FILENAME_SMALL, 'timestamp'),
+    file_uid: FILENAME_SMALL_ID,
+    name: 'timestamp',
+    type: 'date',
+    format: 'YYYY-MM-DDTHH:mm:ssZ'
+  }),
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(FILENAME_SMALL, 'metric'),
+    file_uid: FILENAME_SMALL_ID,
+    name: 'metric',
+    type: 'number'
+  })];
 
 // Expected statistics for the whole file
 const EXPECTED_MIN = 16;
