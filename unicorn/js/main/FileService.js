@@ -85,7 +85,6 @@ export class FileService {
         let record = Object.assign({}, INSTANCES.FILE, {
           uid: Utils.generateFileId(filename),
           description: '',
-          timestampFormat: 'MM-DD-YY HH:mm',
           name: path.basename(item),
           filename: filename,
           type: 'sample'
@@ -111,7 +110,7 @@ export class FileService {
    */
   getFields(filename, options, callback) {
     let fields = [];
-    let fieldName, newliner, stream, validation;
+    let newliner, stream, validation;
 
     // "options" is optional
     if (typeof callback == 'undefined' && typeof options == 'function') {
@@ -133,12 +132,15 @@ export class FileService {
       .pipe(csv(options))
       .once('data', function (data) {
         if (data) {
-          for (fieldName in data) {
+          let columns = Object.keys(data);
+          for (let index=0; index < columns.length; index++) {
+            const fieldName = columns[index];
             const val = data[fieldName];
-            let field = Object.assign({}, INSTANCES.METRIC, {
+            const field = Object.assign({}, INSTANCES.METRIC, {
               uid: Utils.generateMetricId(filename, fieldName),
               file_uid: Utils.generateFileId(filename),
-              name: fieldName
+              name: columns[index],
+              index
             });
             if (Number.isFinite(Number(val))) {
               field.type = 'number';

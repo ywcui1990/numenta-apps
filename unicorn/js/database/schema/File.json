@@ -21,20 +21,23 @@
       "description": "Sample file from filesystem, or Uploaded file from user?",
       "enum": [ "sample", "uploaded" ],
       "type": "string",
+      "default": "uploaded",
       "required": true
     },
     "description": {
       "type": "string",
       "description": "File description"
     },
-    "timestampFieldName": {
-      "type": "string",
-      "description": "Timestamp field name"
+    "rowOffset": {
+      "description": "index of first data row in CSV file; zero-based",
+      "type": "integer",
+      "default": 1,
+      "required": true
     },
-    "timestampFormat": {
-      "type": "string",
-      "default": "MM-DD-YY HH:mm",
-      "description": "Timestamp format. Default ISO 8601"
+    "records": {
+      "description": "Total number of records in the CSV file",
+      "type": "integer",
+      "required": false
     }
   },
   "additionalProperties": false

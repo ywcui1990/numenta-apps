@@ -59,12 +59,14 @@ const EXPECTED_FIELDS = [
     uid: Utils.generateMetricId(FILENAME_SMALL, 'timestamp'),
     file_uid: FILENAME_SMALL_ID,
     name: 'timestamp',
+    index: 0,
     type: 'date',
     format: 'YYYY-MM-DDTHH:mm:ssZ'
   }),
   Object.assign({}, METRIC_INSTANCE, {
     uid: Utils.generateMetricId(FILENAME_SMALL, 'metric'),
     file_uid: FILENAME_SMALL_ID,
+    index: 1,
     name: 'metric',
     type: 'number'
   })];
