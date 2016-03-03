@@ -15,8 +15,8 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
+
 
 /**
  * Load metric data

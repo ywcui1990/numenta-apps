@@ -228,6 +228,7 @@ export default class Model extends React.Component {
                                     rowOffset, timestampIndex, valueIndex,
                                     datetimeFormat)
           }
+          primary={!hasModelRun}
           />
         <FlatButton
           disabled={!hasModelRun}
