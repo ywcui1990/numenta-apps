@@ -18,6 +18,7 @@
 import CircularProgress from 'material-ui/lib/circular-progress';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
+import FlatButton from 'material-ui/lib/flat-button';
 import RaisedButton from 'material-ui/lib/raised-button';
 import path from 'path';
 import React from 'react';
@@ -56,9 +57,18 @@ export default class CreateModelDialog extends React.Component {
 
     this.state = Object.assign({}, this.props);
 
+    let muiTheme = this.context.muiTheme;
     this._styles = {
+      agg: {
+        marginRight: '1rem'
+      },
       raw: {
-        fontSize: 11
+        color: muiTheme.rawTheme.palette.accent4Color,
+        fontSize: 13,
+        fontWeight: muiTheme.rawTheme.font.weight.normal,
+        marginRight: '0.5rem',
+        textDecoration: 'underline',
+        textTransform: 'none'
       }
     };
   }
@@ -110,24 +120,28 @@ export default class CreateModelDialog extends React.Component {
           aggOpts: paramFinderResults.aggInfo
         });
 
-        body = Utils.trims`We determined that you will get the best results if
-                we aggregate your data to
-                ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
+        body = (
+          <div>
+            We determined that you will get the best results if we aggregate
+            your data to {paramFinderResults.aggInfo.windowSize} seconds
+            intervals.
+          </div>
+        );
 
         actions.push(
           <RaisedButton
             label={this._config.get('button:okay')}
             onTouchTap={this._onClick.bind(this, aggregatePayload)}
             primary={true}
+            style={this._styles.agg}
             />
         );
         actions.push(
-          <a href="#"
-            onClick={this._onClick.bind(this, rawPayload)}
-            styles={this._styles.raw}
-            >
-              {this._config.get('dialog:model:create:raw')}
-          </a>
+          <FlatButton
+            label={this._config.get('dialog:model:create:raw')}
+            onTouchTap={this._onClick.bind(this, rawPayload)}
+            labelStyle={this._styles.raw}
+            />
         );
       } else {
         body = (
