@@ -19,6 +19,8 @@ import Card from 'material-ui/lib/card/card';
 import CardActions from 'material-ui/lib/card/card-actions';
 import CardHeader from 'material-ui/lib/card/card-header';
 import CardText from 'material-ui/lib/card/card-text';
+import Checkbox from 'material-ui/lib/checkbox';
+import CheckboxOutline from 'material-ui/lib/svg-icons/toggle/check-box-outline-blank';
 import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
@@ -163,14 +165,18 @@ export default class Model extends React.Component {
   }
 
   render() {
-    let metric, timestampIndex, titleColor, valueIndex;
+    let muiTheme = this.context.muiTheme;
+    let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
     let model = this.state;
-    let modelId = model.modelId;
+    let {modelId, metric: title} = model;
+
+
+
     let filename = path.basename(model.filename);
-    let title = model.metric;
     let hasModelRun = (model && ('ran' in model) && model.ran);
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let dialogOpen = false;
+    let metric, timestampIndex, titleColor, valueIndex;
 
     let file = this.props.files.find((file) => {
       return file.name === path.basename(this.state.filename);
@@ -266,6 +272,13 @@ export default class Model extends React.Component {
           />
         <CardText expandable={false}>
           {actions}
+          <Checkbox
+            checked={null}
+            label={this._config.get('chart:showNonAgg')}
+            onCheck={null}
+            style={{float:'right'}}
+            unCheckedIcon={<CheckboxOutline color={checkboxColor} />}
+            />
           <ModelData modelId={modelId}/>
         </CardText>
         <Dialog
