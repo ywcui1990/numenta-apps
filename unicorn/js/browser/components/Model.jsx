@@ -75,6 +75,13 @@ export default class Model extends React.Component {
 
     this._config = this.context.getConfigClient();
 
+    // init state
+    this.state = Object.assign({
+      deleteConfirmDialog: null,
+      showNonAgg: false  // show raw data overlay on top of aggregate chart?
+    }, model);
+
+    // style
     this._styles = {
       root: {
         marginBottom: '1rem',
@@ -91,13 +98,16 @@ export default class Model extends React.Component {
         textAlign: 'right',
         marginRight: 0,
         marginTop: '-5.5rem'
+      },
+      showNonAgg: {
+        root: {
+          width: '100%'
+        },
+        checkbox: {
+          marginRight: 7
+        }
       }
     };
-
-    // init state
-    this.state = Object.assign({
-      deleteConfirmDialog: null
-    }, model);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -108,9 +118,9 @@ export default class Model extends React.Component {
 
   /**
    * Opens a modal confirmation dialog
-   * @param  {string}   title    Dialog title
-   * @param  {string}   message  Dialog Message
-   * @param  {Function} callback Function to be called on confirmation
+   * @param {String} title - Dialog title
+   * @param {String} message - Dialog Message
+   * @param {Function} callback - Function to be called on confirmation
    */
   _showDeleteConfirmDialog(title, message, callback) {
     this.setState({
@@ -129,12 +139,10 @@ export default class Model extends React.Component {
     let inputOpts = {
       csv: csvPath, rowOffset, timestampIndex, valueIndex, datetimeFormat
     };
-
     this.context.executeAction(ShowCreateModelDialogAction, {
       fileName: path.basename(csvPath),
       metricName
     });
-
     this.context.executeAction(StartParamFinderAction, {metricId, inputOpts});
   }
 
@@ -164,53 +172,60 @@ export default class Model extends React.Component {
     });
   }
 
+  /**
+   * Toggle showing a 3rd series of Raw Metric Data over top of the
+   *  already-charted 2-Series Model results (Aggregated Metric and Anomaly).
+   */
+  _toggleNonAggOverlay() {
+    if(this.state.aggregated) {
+      this.setState({showNonAgg: !this.state.showNonAgg});
+    }
+  }
+
   render() {
+    // prep UI
     let muiTheme = this.context.muiTheme;
     let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
+    let showNonAgg = this.state.showNonAgg === true;
+    let openDialog = this.state.deleteConfirmDialog !== null;
+    let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
+    let actions, dialogActions, showNonAggAction;
+
+    // load and prep data
     let model = this.state;
     let {modelId, metric: title} = model;
-
-
-
     let filename = path.basename(model.filename);
     let hasModelRun = (model && ('ran' in model) && model.ran);
-    let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
-    let dialogOpen = false;
-    let metric, timestampIndex, titleColor, valueIndex;
-
     let file = this.props.files.find((file) => {
-      return file.name === path.basename(this.state.filename);
+      return file.name === path.basename(model.filename);
     });
+    let modelStore = this.context.getStore(MetricStore);
+    let metrics = modelStore.getMetricsByFileId(file.uid);
     let tsFormat = file.timestampFormat;
-
     let datetimeFormatCategory = MOMENTS_TO_DATETIME.find((category) => {
       return category.mappings[tsFormat];
     });
-
     let datetimeFormat = datetimeFormatCategory.mappings[tsFormat];
+    let timestampIndex = 0;
+    let valueIndex = 1;
+    let rowOffset = 1;  // @TODO should be replaced by user defined selection (if check use first row as headers) at file upload time
+    let csvPath, metric, metricName, titleColor; // eslint-disable-line
 
-    let mStore = this.context.getStore(MetricStore);
-    let metrics = mStore.getMetricsByFileId(file.uid);
-
-    for (let [index, value] of metrics.entries()) {
-      if (value.type === 'date') {
-        timestampIndex = index;
-      }
+    for (let [, value] of metrics.entries()) {
+      // @TODO UNI-324
+      // if (value.type === 'date') {
+      //   timestampIndex = index;
+      // }
       if (value.name === this.state.metric) {
-        valueIndex = index;
+        // valueIndex = index;
         metric = value
       }
     }
+    csvPath = file.filename;
+    metricName = metric.name;
 
-    // @FIXME - UNI-324
-    valueIndex = 1;
-    timestampIndex = 0;
-
-    let csvPath = file.filename;
-    let metricName = metric.name;
-    let rowOffset = 1; // @TODO; should be replaced by user defined selection (if check use first row as headers) at file upload time
-
-    let dialogActions = [
+    // prep visual sub-components
+    dialogActions = [
       <FlatButton
         label={this._config.get('button:cancel')}
         onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
@@ -223,7 +238,7 @@ export default class Model extends React.Component {
         ref="submit"
         />
     ];
-    let actions = (
+    actions = (
       <CardActions style={this._styles.actions}>
         <FlatButton
           disabled={hasModelRun}
@@ -231,8 +246,7 @@ export default class Model extends React.Component {
           labelPosition="after"
           onTouchTap={
             this._createModel.bind(this, metricName, metric.uid, csvPath,
-                                    rowOffset, timestampIndex, valueIndex,
-                                    datetimeFormat)
+                rowOffset, timestampIndex, valueIndex, datetimeFormat)
           }
           primary={!hasModelRun}
           />
@@ -252,16 +266,27 @@ export default class Model extends React.Component {
           />
       </CardActions>
     );
+    if (model.aggregated) {
+      showNonAggAction = (
+        <Checkbox
+          checked={showNonAgg}
+          defaultChecked={false}
+          iconStyle={this._styles.showNonAgg.checkbox}
+          label={this._config.get('chart:showNonAgg')}
+          onCheck={this._toggleNonAggOverlay.bind(this)}
+          style={this._styles.showNonAgg.root}
+          unCheckedIcon={<CheckboxOutline color={checkboxColor} />}
+          />
+      );
+    }
 
+    // eror handle
     if (model.error) {
       titleColor = Colors.red400;
-      title = `${model.metric} | ${model.error.message}`;
+      filename = model.error.message;
     }
 
-    if (this.state.deleteConfirmDialog) {
-      dialogOpen = true;
-    }
-
+    // actual render
     return (
       <Card initiallyExpanded={true} style={this._styles.root}>
         <CardHeader
@@ -272,19 +297,13 @@ export default class Model extends React.Component {
           />
         <CardText expandable={false}>
           {actions}
-          <Checkbox
-            checked={null}
-            label={this._config.get('chart:showNonAgg')}
-            onCheck={null}
-            style={{float:'right'}}
-            unCheckedIcon={<CheckboxOutline color={checkboxColor} />}
-            />
-          <ModelData modelId={modelId}/>
+          {showNonAggAction}
+          <ModelData modelId={modelId} />
         </CardText>
         <Dialog
           actions={dialogActions}
           onRequestClose={this._dismissDeleteConfirmDialog.bind(this)}
-          open={dialogOpen}
+          open={openDialog}
           ref="deleteConfirmDialog"
           title={deleteConfirmDialog.title}
           >
@@ -294,4 +313,5 @@ export default class Model extends React.Component {
       </Card>
     );
   }
+
 }

@@ -156,39 +156,101 @@ export default class ModelData extends React.Component {
   }
 
   render() {
+    // load data
+    let modelId = this.props.modelId;
     let metricDataStore = this.context.getStore(MetricDataStore);
     let modelDataStore = this.context.getStore(ModelDataStore);
     let modelStore = this.context.getStore(ModelStore);
-
-    let modelId = this.props.modelId;
     let metricData = metricDataStore.getData(modelId);
     let modelData = modelDataStore.getData(modelId);
     let model = modelStore.getModel(modelId);
 
+    // prep data
     let {anomaly, options} = this._chartOptions;
     let {axes, labels, series} = this._chartOptions.value;
-    let anomalyIndex = 2;
     let metaData = {model, length: {metric: 0, model: 0}};
-    let data = [];
+    let anomalySourceIndex = 2;  // source data = [0=ts, 1=val, 2=ANOM!]
+    let data = [];  // actual matrix of data to plot w/dygraphs
+    let chartSeries = {  // keep track of Display+Data series on the Chart
+      // index: Relate chart series indexes to data types (raw,anom,agg).
+      //  series 0 = <timestamp, invisible, hidden>
+      //  series 1 = dark blue (raw _or_ aggregated)
+      //  series 2 = anomaly plotter (anomalies)
+      //  series 3 = light numenta blue (raw _and_ aggregated)
+      index: {
+        aggregated: null,  // model-aggregated metric data, 1 on (raw+agg)
+        anomaly: null,  // model anomlay data, usually series 2
+        raw: null  // raw metric data, usually series 1. Or, 3 on (raw+agg)
+      },
+      show: {
+        aggregated: false,  // show the Model-Aggregated Data line chart?
+        anomaly: false,  // show the Model Anomaly data bar chart?
+        raw: false  // show the Raw Metric data line chart?
+      },
+      total: 0  // # series: 0=none/ts, 1=raw, 2=anom+(raw|agg), 3=anom+raw+agg.
+    };
 
-    if (metricData && metricData.length && !model.aggregated) {
-      // using metric data
+    // Initialize: Chart Series Display+Data state (3 total, 2 has part A and B)
+    if (metricData.length && !modelData.data.length) {
+      // 1. Metric-provided Raw Data on Series 1, alone by itself
+      chartSeries.index.raw = 1;
+      chartSeries.show.raw = true;
+      chartSeries.total = 1;
+    } else if (modelData.data.length) {
+      // 2. Model-provided Anomaly Data on Series 2. Series 1 is either now the
+      //    Model-provided Aggregated Metric Data, _OR_ is still the
+      //    Metric-provided Raw Metric Data as before.
+      chartSeries.index.anomaly = 2;
+      chartSeries.show.anomaly = true;
+      chartSeries.total = 2;
+      // (2. Raw or Aggregated data?)
+      if (model.aggregated) {
+        // 2a. Now the Model-provided Aggregated Metric Data, along w/Anomlies
+        chartSeries.index.aggregated = 1;
+        chartSeries.show.aggregated = true;
+      } else {
+        // 2b. still the Metric-provided Raw Metric Data, along with Anomalies
+        chartSeries.index.raw = 1;
+        chartSeries.show.raw = true;
+      }
+    } else if (1===2) {
+      // 3. Model-provided Aggregated Metric Data on Series 1, and Anomaly Data
+      //    on Series 2. Series 3 is now the additional Raw Metric Data.
+      chartSeries.index.aggregated = 1;
+      chartSeries.index.anomaly = 2;
+      chartSeries.index.raw = 3;
+      chartSeries.show.anomaly = true;
+      chartSeries.show.aggregated = true;
+      chartSeries.show.raw = true;
+      chartSeries.total = 3;
+    }
+
+    // Use Chart Series Data+Display state to prepare data and charts
+    if (
+      chartSeries.total <= 2 &&
+      chartSeries.show.raw &&
+      chartSeries.index.raw === 1
+    ) {
+      // series 1 => Metric-provided Raw Metric Data
       data = Array.from(metricData);
       metaData.length.metric = metricData.length;
     }
-    if (model && modelData.data && modelData.data.length) {
-      // using model data
+    if (
+      chartSeries.total > 0 &&
+      chartSeries.show.anomaly &&
+      chartSeries.index.anomaly === 2
+    ) {
+      // series 2 => Model-provided Anomaly Data
       if (model.aggregated) {
-        // use only model data in "aggregated data mode"
+        // series 1 => New Model-provided Aggregated Metric Data
         data = Array.from(modelData.data);
       } else {
-        // append model data to current metric data for "raw data mode"
-        data.forEach((item) => item[anomalyIndex] = Number.NaN);  // init
-
-        // Update values: ts, value, anomaly
+        // series 1 => Overwrite Metric-provided Raw Metric Data
+        data.forEach((item) => item[chartSeries.index.anomaly] = Number.NaN);
+        // Update anomaly value
         modelData.data.forEach((item, rowid) => {
           if (rowid < data.length) {
-            data[rowid][anomalyIndex] = item[anomalyIndex];
+            data[rowid][chartSeries.index.anomaly] = item[anomalySourceIndex];
           }
         });
       }
@@ -200,8 +262,8 @@ export default class ModelData extends React.Component {
       Object.assign(series, anomaly.series);
     }
 
+    // render chart
     Object.assign(options, {axes, labels, series});
-
     return (
       <Chart data={data} metaData={metaData} options={options} />
     );
