@@ -15,14 +15,14 @@
 //
 // http://numenta.org/licenses/
 
-import moment from 'moment';
+import instantiator from 'json-schema-instantiator';
+import {DBFileSchema} from '../../database/schema';
 
 import {ACTIONS} from '../lib/Constants';
 import {promiseMetricsFromFiles} from '../lib/Unicorn/FileClient';
 import {
   promiseSaveFilesIntoDB, promiseSaveMetricsToDB
 } from '../lib/Unicorn/DatabaseClient';
-import {TIMESTAMP_FORMATS} from '../../config/timestamp';
 import Utils from '../../main/Utils';
 
 
@@ -45,12 +45,10 @@ export default function (actionContext, payload) {
   let fs = actionContext.getFileClient();
 
   return new Promise((resolve, reject) => {
-    let file = {
-      filename: payload.path,
-      name: payload.name,
-      type: 'uploaded',
-      uid: Utils.generateFileId(payload.path)
-    };
+    let file = instantiator.instantiate(DBFileSchema);
+    file.filename = payload.path,
+    file.name = payload.name,
+    file.uid = Utils.generateFileId(payload.path)
 
     // Save file metadata
     promiseSaveFilesIntoDB(db, [file])
@@ -63,28 +61,26 @@ export default function (actionContext, payload) {
         return promiseSaveMetricsToDB(db, metrics);
       }, reject)
       .then((metrics) => {
-        let tsField = metrics.find((metric) => metric.type === 'date').name;
+        let tsField = metrics.find((metric) => metric.type === 'date');
+        if (!tsField) {
+          reject(Utils.trims`This file does not have a column with
+                             datetime values.`);
+          return;
+        }
+        if (!tsField.format) {
+          reject(Utils.trims`The file that you are trying to
+                             upload has a timestamp format that is not
+                             supported`);
+          return;
+        }
         fs.getData(file.filename, {limit: 1}, (error, buffer) => {
-          let datum = null;
+          let row = null;
           if (error) {
             throw new Error(error);
           }
           if (buffer) {
-            datum = JSON.parse(buffer);
-            // Infer timestamp format based the first rows
-            if (tsField && datum) {
-              file.timestampFormat = TIMESTAMP_FORMATS.find((format) => {
-                return moment(datum[tsField], format, true).isValid();
-              });
-              if (!(file.timestampFormat)) {
-                throw new Error(Utils.trims`The file that you are trying to
-                                  upload has a timestamp format that is not
-                                  supported: ${datum[tsField]}`);
-              }
-            } else if (!tsField) {
-              throw new Error(Utils.trims`This file does not have a column with
-                                datetime values.`);
-            } else if (!datum) {
+            row = JSON.parse(buffer);
+            if (!row) {
               throw new Error('This file does not have data.');
             }
 
