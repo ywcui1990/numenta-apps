@@ -15,32 +15,27 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
 
 /**
  * Load model data
  * @param  {FluxibleContext} actionContext [description]
- * @param  {string} metricId      [description]
+ * @param  {string} modelId      [description]
  * @emits {LOAD_MODEL_DATA_FAILED}
  * @emits {LOAD_MODEL_DATA}
  * @return {Promise}
  */
-export default function (actionContext, metricId) {
+export default function (actionContext, modelId) {
   return new Promise((resolve, reject) => {
     let db = actionContext.getDatabaseClient();
-    db.getModelData(metricId, (error, modelData) => {
+    db.getModelData(modelId, (error, modelData) => {
       if (error) {
         actionContext.dispatch(ACTIONS.LOAD_MODEL_DATA_FAILED, error);
         reject(error);
       } else {
-        // Extract data from record
-        modelData = JSON.parse(modelData);
-        let data = modelData.map((record) => [
-          record.timestamp, record.metric_value, record.anomaly_score
-        ]);
+        let data = JSON.parse(modelData);
         actionContext.dispatch(ACTIONS.LOAD_MODEL_DATA, {
-          modelId: metricId, data
+          modelId, data
         });
         resolve(data);
       }

@@ -51,17 +51,21 @@ export default class ModelDataStore extends BaseStore {
    * @param  {Array} data       New data to be appended
    */
   _appendModelData(modelId, data) {
+    // Convert timestamp to Date
+    let newData = data.map((row) => [
+      new Date(row[0]), row[1], row[2]]);
+
     let model = this._models.get(modelId);
     if (model) {
       // Append payload data to existing model
-      model.data.push(...data);
+      model.data.push(...newData);
       // Record last time this model was modified
       model.modified = new Date();
     } else {
       // New model
       this._models.set(modelId, {
         modelId,
-        data: data || [],
+        data: newData,
         // Record last time this model was modified
         modified: new Date()
       });
