@@ -1,0 +1,12 @@
+  StateID   showRaw   showAnomaly     showAggregated  Series:
+                                                      Total:  IndexNow:               IndexIdeal:
+                                                              Raw:  Anom:  Agg:       Raw:  Anom:   Agg:
+
+  0.        True      -               -               1       0     -      -          1     -       -
+  1a.       True      True            -               2       0     1      -          1     0       -
+  1b.       -         True            True            2       -     1      0          -     0       1
+  1bI.      TRUE      True            True            3       2     1      0          2     0       1
+
+                                                              0=Dark                  0=PLOT
+                                                              1=PLOT                  1=Dark
+                                                              2=Light                 2=Light
