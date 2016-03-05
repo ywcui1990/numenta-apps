@@ -177,7 +177,7 @@ export default class Model extends React.Component {
    *  already-charted 2-Series Model results (Aggregated Metric and Anomaly).
    */
   _toggleNonAggOverlay() {
-    if(this.state.aggregated) {
+    if (this.state.aggregated) {
       this.setState({showNonAgg: !this.state.showNonAgg});
     }
   }
@@ -186,7 +186,7 @@ export default class Model extends React.Component {
     // prep UI
     let muiTheme = this.context.muiTheme;
     let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
-    let showNonAgg = this.state.showNonAgg === true;
+    let showNonAgg = this.state.aggregated && this.state.showNonAgg === true;
     let openDialog = this.state.deleteConfirmDialog !== null;
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let actions, dialogActions, showNonAggAction;
@@ -298,7 +298,7 @@ export default class Model extends React.Component {
         <CardText expandable={false}>
           {actions}
           {showNonAggAction}
-          <ModelData modelId={modelId} />
+          <ModelData modelId={modelId} showNonAgg={showNonAgg} />
         </CardText>
         <Dialog
           actions={dialogActions}

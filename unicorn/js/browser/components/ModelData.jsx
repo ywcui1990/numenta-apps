@@ -44,7 +44,8 @@ export default class ModelData extends React.Component {
 
   static get propTypes() {
     return {
-      modelId: React.PropTypes.string.isRequired
+      modelId: React.PropTypes.string.isRequired,
+      showNonAgg: React.PropTypes.bool
     };
   }
 
@@ -67,7 +68,7 @@ export default class ModelData extends React.Component {
         showRangeSelector: true
       },
 
-      // main value data chart line
+      // main value data chart line (could be either raw/agg)
       value: {
         labels: ['Time', 'Value'],
         axes: {
@@ -76,8 +77,9 @@ export default class ModelData extends React.Component {
         },
         series: {
           Value: {
-            color: muiTheme.rawTheme.palette.primary2Color,
-            showInRangeSelector: true,
+            axis: 'y',
+            color: muiTheme.rawTheme.palette.primary2Color,  // dark blue
+            showInRangeSelector: true,  // plot alone in range selector
             strokeWidth: 2
           }
         }
@@ -96,7 +98,27 @@ export default class ModelData extends React.Component {
         series: {
           Anomaly: {
             axis: 'y2',
-            plotter: this._anomalyBarChartPlotter.bind(this)
+            plotter: this._anomalyBarChartPlotter.bind(this),  // anomaly bars
+            showInRangeSelector: false
+          }
+        }
+      },
+
+      // non-aggregated line chart overlay on top of aggregated data line chart
+      raw: {
+        labels: ['NonAggregated'],
+        axes: {
+          y3: {
+            axisLabelWidth: 0,
+            drawGrid: false
+          }
+        },
+        series: {
+          NonAggregated: {
+            axis: 'y3',
+            color: muiTheme.rawTheme.palette.primary1Color,  // light blue
+            showInRangeSelector: false,
+            strokeWidth: 2
           }
         }
       }
@@ -157,7 +179,7 @@ export default class ModelData extends React.Component {
 
   render() {
     // load data
-    let modelId = this.props.modelId;
+    let {modelId, showNonAgg} = this.props;
     let metricDataStore = this.context.getStore(MetricDataStore);
     let modelDataStore = this.context.getStore(ModelDataStore);
     let modelStore = this.context.getStore(ModelStore);
@@ -166,20 +188,24 @@ export default class ModelData extends React.Component {
     let model = modelStore.getModel(modelId);
 
     // prep data
-    let {anomaly, options} = this._chartOptions;
+    let {anomaly, options, raw} = this._chartOptions;
     let {axes, labels, series} = this._chartOptions.value;
     let metaData = {model, length: {metric: 0, model: 0}};
-    let anomalySourceIndex = 2;  // source data = [0=ts, 1=val, 2=ANOM!]
+    let dataIndexTimestamp = 0;  // source data index = [0=ts]
+    let dataIndexValue = 1;  // source data index = [0=ts, 1=val]
+    let dataIndexAnomaly = 2;  // source data index = [0=ts, 1=val, 2=ANOM]
     let data = [];  // actual matrix of data to plot w/dygraphs
-    let chartSeries = {  // keep track of Display+Data series on the Chart
+
+    // --- keep track of Display+Data series on the Chart ---
+    let chartSeries = {
       // index: Relate chart series indexes to data types (raw,anom,agg).
-      //  series 0 = <timestamp, invisible, hidden>
       //  series 1 = dark blue (raw _or_ aggregated)
       //  series 2 = anomaly plotter (anomalies)
       //  series 3 = light numenta blue (raw _and_ aggregated)
       index: {
+        timestamp: 0,
         aggregated: null,  // model-aggregated metric data, 1 on (raw+agg)
-        anomaly: null,  // model anomlay data, usually series 2
+        anomaly: null,  // model anomaly data, usually series 2
         raw: null  // raw metric data, usually series 1. Or, 3 on (raw+agg)
       },
       show: {
@@ -190,13 +216,13 @@ export default class ModelData extends React.Component {
       total: 0  // # series: 0=none/ts, 1=raw, 2=anom+(raw|agg), 3=anom+raw+agg.
     };
 
-    // Initialize: Chart Series Display+Data state (3 total, 2 has part A and B)
+    // --- Init Chart Series Display+Data state (3 total states, #2 w/parts) ---
     if (metricData.length && !modelData.data.length) {
       // 1. Metric-provided Raw Data on Series 1, alone by itself
       chartSeries.index.raw = 1;
       chartSeries.show.raw = true;
       chartSeries.total = 1;
-    } else if (modelData.data.length) {
+    } else if (modelData.data.length && !showNonAgg) {
       // 2. Model-provided Anomaly Data on Series 2. Series 1 is either now the
       //    Model-provided Aggregated Metric Data, _OR_ is still the
       //    Metric-provided Raw Metric Data as before.
@@ -213,7 +239,7 @@ export default class ModelData extends React.Component {
         chartSeries.index.raw = 1;
         chartSeries.show.raw = true;
       }
-    } else if (1===2) {
+    } else if (modelData.data.length && showNonAgg) {
       // 3. Model-provided Aggregated Metric Data on Series 1, and Anomaly Data
       //    on Series 2. Series 3 is now the additional Raw Metric Data.
       chartSeries.index.aggregated = 1;
@@ -225,32 +251,31 @@ export default class ModelData extends React.Component {
       chartSeries.total = 3;
     }
 
-    // Use Chart Series Data+Display state to prepare data and charts
+    // --- Use Chart Series Data+Display state to prepare data and charts ---
+    // * Series 1 => Metric-provided Raw Metric Data
     if (
       chartSeries.total <= 2 &&
       chartSeries.show.raw &&
       chartSeries.index.raw === 1
     ) {
-      // series 1 => Metric-provided Raw Metric Data
       data = Array.from(metricData);
       metaData.length.metric = metricData.length;
     }
+    // * Series 2 => Model-provided Anomaly Data
     if (
       chartSeries.total > 0 &&
       chartSeries.show.anomaly &&
       chartSeries.index.anomaly === 2
     ) {
-      // series 2 => Model-provided Anomaly Data
       if (model.aggregated) {
         // series 1 => New Model-provided Aggregated Metric Data
         data = Array.from(modelData.data);
       } else {
-        // series 1 => Overwrite Metric-provided Raw Metric Data
-        data.forEach((item) => item[chartSeries.index.anomaly] = Number.NaN);
-        // Update anomaly value
+        // series 1 => Augment raw metric data with new Model-provided Anomalies
         modelData.data.forEach((item, rowid) => {
           if (rowid < data.length) {
-            data[rowid][chartSeries.index.anomaly] = item[anomalySourceIndex];
+            let value = item[dataIndexAnomaly] || Number.NaN;
+            data[rowid][chartSeries.index.anomaly] = value;  // insert anomaly
           }
         });
       }
@@ -261,8 +286,41 @@ export default class ModelData extends React.Component {
       Object.assign(axes, anomaly.axes);
       Object.assign(series, anomaly.series);
     }
+    // * Series 3 => Metric-provided Raw Data overlay over top of Agg data chart
+    if (
+      chartSeries.total === 3 &&
+      chartSeries.show.raw &&
+      chartSeries.index.raw === 3
+    ) {
+      // Merge in Raw Non-Aggregated Metric Data into Chart Data grid for Chart
+      //  overlay (already populated (series 2) with Aggregated Metric Data and
+      //  Anomaly Scores).
+      data.forEach((item, rowid) => {
+        let pointTime = item[chartSeries.index.timestamp].getTime();
+        let pointNext = pointTime;
+        let metricSlice, value;
 
-    // render chart
+        if (data[rowid + 1]) {
+          pointNext = data[rowid+1][chartSeries.index.timestamp].getTime();
+        }
+        metricSlice = metricData.filter((metric) => {
+          let metricTime = metric[dataIndexTimestamp].getTime();
+          return (metricTime >= pointTime && metricTime < pointNext);
+        });
+        value = metricSlice.map((metric) => metric[dataIndexValue] || 0)
+          .sort((a, b) => a - b)
+          .pop();
+
+        data[rowid][chartSeries.index.raw] = value || Math.NaN;
+      });
+
+      // Format non-aggregated overlay series
+      labels = labels.concat(raw.labels);
+      Object.assign(axes, raw.axes);
+      Object.assign(series, raw.series);
+    }
+
+    // RENDER
     Object.assign(options, {axes, labels, series});
     return (
       <Chart data={data} metaData={metaData} options={options} />
