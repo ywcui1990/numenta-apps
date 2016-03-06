@@ -718,8 +718,8 @@ export class DatabaseService {
       // Load metrics from file
       .then(() => promisify(::fileService.getFields, file.filename))
       // Create metrics for each numeric and timestamp fields
-      .then((fields) => {
-        let metrics = fields.filter((field) => ['date', 'number'].includes(field.type)); // eslint-disable-line
+      .then((results) => {
+        let metrics = results.fields.filter((field) => ['date', 'number'].includes(field.type)); // eslint-disable-line
         return promisify(::this.putMetricBatch, metrics)
           .then(() => Promise.resolve(metrics));
       })

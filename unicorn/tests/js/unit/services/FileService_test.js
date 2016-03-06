@@ -69,7 +69,59 @@ const EXPECTED_FIELDS = [
     index: 1,
     name: 'metric',
     type: 'number'
-  })];
+  })
+];
+
+const INVALID_CSV_FILE = path.resolve(__dirname, '../fixtures/invalid.csv');
+const INVALID_DATES_FILE = path.resolve(__dirname, '../fixtures/invalid-date.csv'); // eslint-disable-line
+const TWO_DATES_FILE = path.resolve(__dirname, '../fixtures/two-dates.csv');
+const NO_SCALAR_FILE = path.resolve(__dirname, '../fixtures/no-scalar.csv');
+const NO_HEADER_CSV_FILE = path.resolve(__dirname, '../fixtures/no-header.csv');
+const NO_HEADER_CSV_FILE_ID = Utils.generateFileId(NO_HEADER_CSV_FILE);
+const EXPECTED_FIELDS_NO_HEADER_CSV_FILE = [
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(NO_HEADER_CSV_FILE, 'timestamp'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    name: 'timestamp',
+    index: 0,
+    type: 'date',
+    format: 'YYYY-MM-DDTHH:mm:ssZ'
+  }),
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(NO_HEADER_CSV_FILE, 'metric1'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    index: 1,
+    name: 'metric1',
+    type: 'number'
+  }),
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(NO_HEADER_CSV_FILE, 'metric2'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    index: 2,
+    name: 'metric2',
+    type: 'number'
+  })
+];
+
+const IGNORE_FIELDS_FILE = path.resolve(__dirname, '../fixtures/ignored-fields.csv'); // eslint-disable-line
+const IGNORE_FIELDS_FILE_ID = Utils.generateFileId(IGNORE_FIELDS_FILE);
+const EXPECTED_FIELDS_IGNORED = [
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(IGNORE_FIELDS_FILE, 'timestamp'),
+    file_uid: IGNORE_FIELDS_FILE_ID,
+    name: 'timestamp',
+    index: 1,
+    type: 'date',
+    format: 'YYYY-MM-DDTHH:mm:ssZ'
+  }),
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(IGNORE_FIELDS_FILE, 'metric1'),
+    file_uid: IGNORE_FIELDS_FILE_ID,
+    index: 4,
+    name: 'metric1',
+    type: 'number'
+  })
+];
 
 // Expected statistics for the whole file
 const EXPECTED_MIN = 16;
@@ -116,10 +168,44 @@ describe('FileService', () => {
   });
 
   describe('#getFields', () => {
-    it('should get fields using default options', (done) => {
-      service.getFields(FILENAME_SMALL, (error, fields) => {
+    it('should get fields from file with header fields', (done) => {
+      service.getFields(FILENAME_SMALL, (error, results) => {
         assert.ifError(error);
-        assert.deepEqual(fields, EXPECTED_FIELDS);
+        assert.equal(results.offset, 1);
+        assert.deepEqual(results.fields, EXPECTED_FIELDS);
+        done();
+      });
+    });
+    it('should not get fields from non-csv files', (done) => {
+      service.getFields(INVALID_CSV_FILE, (error, fields) => {
+        assert(error, 'Invalid CSV File was validated');
+        done();
+      });
+    });
+    it('should get fields from file without header fields', (done) => {
+      service.getFields(NO_HEADER_CSV_FILE, (error, results) => {
+        assert.ifError(error);
+        assert.equal(results.offset, 0);
+        assert.deepEqual(results.fields, EXPECTED_FIELDS_NO_HEADER_CSV_FILE);
+        done();
+      });
+    });
+    it('should have one and only one date/time field', (done) => {
+      service.getFields(TWO_DATES_FILE, (error, results) => {
+        assert(error, 'File with more than one date field was validated');
+        done();
+      });
+    });
+    it('should have at least one scalar fields', (done) => {
+      service.getFields(NO_SCALAR_FILE, (error, results) => {
+        assert(error, 'File with no numeric fields was validated');
+        done();
+      });
+    });
+    it('should ignore string fields', (done) => {
+      service.getFields(IGNORE_FIELDS_FILE, (error, results) => {
+        assert.ifError(error);
+        assert.deepEqual(results.fields, EXPECTED_FIELDS_IGNORED);
         done();
       });
     });

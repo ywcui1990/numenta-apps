@@ -35,11 +35,11 @@ let remote = require('remote'); // eslint-disable-line
 export function promiseMetricsFromFiles(fs, files) {
   return Promise.all(files.map((file) => {
     return new Promise((resolve, reject) => {
-      fs.getFields(file.filename, (error, metrics) => {
+      fs.getFields(file.filename, (error, results) => {
         if (error) {
           reject(error);
         } else {
-          resolve(metrics);
+          resolve(results.fields);
         }
       });
     });
