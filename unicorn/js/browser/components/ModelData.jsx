@@ -108,14 +108,11 @@ export default class ModelData extends React.Component {
       raw: {
         labels: ['NonAggregated'],
         axes: {
-          y3: {
-            axisLabelWidth: 0,
-            drawGrid: false
-          }
+          y2: {drawGrid: false}
         },
         series: {
           NonAggregated: {
-            axis: 'y3',
+            axis: 'y2',
             color: muiTheme.rawTheme.palette.primary1Color,  // light blue
             showInRangeSelector: false,
             strokeWidth: 2
@@ -188,7 +185,7 @@ export default class ModelData extends React.Component {
     let model = modelStore.getModel(modelId);
 
     // prep data
-    let {anomaly, options, raw} = this._chartOptions;
+    let {anomaly, options} = this._chartOptions;
     let {axes, labels, series} = this._chartOptions.value;
     let metaData = {model, length: {metric: 0, model: 0}};
     let dataIndexTimestamp = 0;  // source data index = [0=ts]
@@ -292,32 +289,47 @@ export default class ModelData extends React.Component {
       chartSeries.show.raw &&
       chartSeries.index.raw === 3
     ) {
-      // Merge in Raw Non-Aggregated Metric Data into Chart Data grid for Chart
-      //  overlay (already populated (series 2) with Aggregated Metric Data and
-      //  Anomaly Scores).
-      data.forEach((item, rowid) => {
-        let pointTime = item[chartSeries.index.timestamp].getTime();
-        let pointNext = pointTime;
-        let metricSlice, value;
+      // Merge data[] + metricData[], that is, merge Raw Non-Aggregated Metric
+      //  Data with Aggregated Metric Data into output Chart Data grid
+      //  (already populated (series 2) Anomaly Scores).
+      let newData = [];
+      let dataId = 0;
+      let dataStamp = data[dataId][dataIndexTimestamp].getTime();
+      metricData.forEach((item, rowid) => { // increment pointer to metricData[]
+        let metricStamp = item[dataIndexTimestamp].getTime();
+        if (metricStamp < dataStamp) {
+          // merge in raw metric data record
+          newData.push([
+            metricStamp,
+            null,
+            null,
+            item[dataIndexValue]
+          ]);
+        } else {
+          // merge in agg+anom data record
+          newData.push([
+            dataStamp,
+            data[dataId][chartSeries.index.aggregated],
+            data[dataId][chartSeries.index.anomaly],
+            null
+          ]);
 
-        if (data[rowid + 1]) {
-          pointNext = data[rowid+1][chartSeries.index.timestamp].getTime();
+          if (dataId < data.length - 1) {
+            dataId++; // increment pointer to data[]
+            dataStamp = data[dataId][dataIndexTimestamp].getTime();
+          }
         }
-        metricSlice = metricData.filter((metric) => {
-          let metricTime = metric[dataIndexTimestamp].getTime();
-          return (metricTime >= pointTime && metricTime < pointNext);
-        });
-        value = metricSlice.map((metric) => metric[dataIndexValue] || 0)
-          .sort((a, b) => a - b)
-          .pop();
-
-        data[rowid][chartSeries.index.raw] = value || Math.NaN;
       });
 
+      // @TODO No Y3, need a new plan.
+
+      // data = newData; // switch to use merged array
+      // console.log(newData);
+
       // Format non-aggregated overlay series
-      labels = labels.concat(raw.labels);
-      Object.assign(axes, raw.axes);
-      Object.assign(series, raw.series);
+      // labels = labels.concat(raw.labels);
+      // Object.assign(axes, raw.axes);
+      // Object.assign(series, raw.series);
     }
 
     // RENDER
