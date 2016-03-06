@@ -126,8 +126,6 @@ function guessFields(filename, values, names) {
  *  the Node layer of filesystem, so client can CRUD files.
  */
 export class FileService {
-  constructor() {
-  }
 
   /**
    * Reads the entire contents of a file.
@@ -143,17 +141,15 @@ export class FileService {
    * @param {Function} callback - Async callback: function (error, results)
    */
   getSampleFiles(callback) {
-    let files;
     fs.readdir(SAMPLES_FILE_PATH, function (error, data) {
       if (error) {
         callback(error, null);
         return;
       }
-      files = data.map((item) => {
+      let files = data.map((item) => {
         let filename = path.resolve(SAMPLES_FILE_PATH, item);
         let record = Object.assign({}, INSTANCES.FILE, {
           uid: Utils.generateFileId(filename),
-          description: '',
           name: path.basename(item),
           filename: filename,
           type: 'sample'
@@ -263,7 +259,7 @@ export class FileService {
    * @param {string} filename - The absolute path of the CSV file to load
    * @param {Object} options - Optional settings
    *                    See https://github.com/klaemo/csv-stream#options
-   *                    ```
+   *
    *                     {
    *                        delimiter: ',', // comma, semicolon, whatever
    *                        newline: '\n', // newline delimiter
@@ -283,7 +279,7 @@ export class FileService {
    *
    *                        // Aggregation settings. See {TimeAggregator}
    *                        aggregation: {
-   *                       		// Name of the field representing 'time'
+   *                          // Name of the field representing 'time'
    *                          'timefield' : {String},
    *                          // Name of the field containing the 'value'
    *                          'valuefield': {String},
@@ -294,7 +290,7 @@ export class FileService {
    *                          'interval' : {number}
    *                        }
    *                      }
-   *                    ```
+   *
    * @param {Function} callback - This callback to be called on every record.
    *                              `function (error, data)`
    */
@@ -349,7 +345,7 @@ export class FileService {
    * @param {string} filename - The absolute path of the CSV file
    * @param {Object} options - Optional settings
    *                    See https://github.com/klaemo/csv-stream#options
-   *                    <code>
+   *
    *                     {
    *                       delimiter: ',', // comma, semicolon, whatever
    *                       newline: '\n', // newline delimiter
@@ -361,26 +357,24 @@ export class FileService {
    *                       columns: true,
    *                       // Max Number of records to process
    *                       limit: Number.MAX_SAFE_INTEGER
-   *                      }
-   *                    </code>
+   *                     }
+   *
    * @param {Function} callback - This callback will be called with the results in
-   *                              the following format:
-   *                              `function (error, stats)`
-   *                              ```
+   *                              the following format: `function (error, stats)`
+   *
    *                              stats = {
-   *                              	count: '100',
-   *                              	fields: {
-   *                              		fieldName : {
-   *                              		  min: '0',
-   *                              		  max: '10',
-   *                              		  sum: '500',
-   *                              		  mean: '5',
-   *                              		  variance: '4',
-   *                              		  stdev: '2'
-   *                              	  }, ...
-   *                              	}
+   *                                count: '100',
+   *                                fields: {
+   *                                  fieldName : {
+   *                                    min: '0',
+   *                                    max: '10',
+   *                                    sum: '500',
+   *                                    mean: '5',
+   *                                    variance: '4',
+   *                                    stdev: '2'
+   *                                  }, ...
+   *                                }
    *                              }
-   *                              ```
    */
   getStatistics(filename, options, callback) {
     // "options" is optional
@@ -449,6 +443,80 @@ export class FileService {
         callback(null, stats);
         return;
       }
+    });
+  }
+
+  /**
+   *  Validate file making sure scalar and time data fields must be valid
+   *  throughout the whole file returning field definitions with row offset as
+   *  well as the total number of record in the file.
+   * ```
+   * {
+   * 	fields: [metrics],
+   * 	offset: 0 | 1,
+   * 	records: integer
+   * }
+   * ```
+   *
+   * @param  {string}   filename  Full path name
+   * @param  {Function} callback called when the operation is complete with
+   *                             results or error message
+   * @see {@link #getFields}
+   */
+  validate(filename, callback) {
+    // Validate fields
+    this.getFields(filename, (error, validFields) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      // Load data
+      let stream = fs.createReadStream(filename, {
+        encoding: 'utf8'
+      });
+      let csvParser = csv({columns: false, objectMode: true});
+      let newliner = convertNewline('lf').stream();
+      let row = 0;
+      let fields = validFields.fields;
+      let offset = validFields.offset;
+
+      csvParser.on('data', (data) => {
+        row++;
+        // Skip header row offset
+        if (row <= offset) {
+          return;
+        }
+        let error;
+        let valid = fields.every((field, index) => {
+          let value = data[field.index];
+          error = `Invalid ${field.type} at row ${row}: ` +
+                  `Found ${field.name} = '${value}'`;
+          if (field.format) {
+            error += `, expecting ${field.type} matching this` +
+                     `format '${field.format}'`;
+          }
+          switch (field.type) {
+          case 'number':
+            return Number.isFinite(Number(value));
+          case 'date':
+            return moment(value, field.format).isValid();
+          default:
+            return true;
+          }
+        })
+        if (!valid) {
+          csvParser.removeAllListeners();
+          stream.destroy();
+          callback(error);
+          return;
+        }
+      })
+      .once('error', callback)
+      .once('end', () => callback(null, {
+        fields, offset,
+        records: row - offset
+      }));
+      stream.pipe(newliner).pipe(csvParser);
     });
   }
 }

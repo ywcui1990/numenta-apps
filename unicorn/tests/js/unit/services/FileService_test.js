@@ -75,6 +75,9 @@ const EXPECTED_FIELDS = [
 const INVALID_CSV_FILE = path.resolve(__dirname, '../fixtures/invalid.csv');
 const INVALID_DATES_FILE = path.resolve(__dirname, '../fixtures/invalid-date.csv'); // eslint-disable-line
 const TWO_DATES_FILE = path.resolve(__dirname, '../fixtures/two-dates.csv');
+const INVALID_DATE_CONTENT_FILE = path.resolve(__dirname, '../fixtures/invalid-date-content.csv'); // eslint-disable-line
+const INVALID_DATE_FORMAT_FILE = path.resolve(__dirname, '../fixtures/invalid-date-format.csv'); // eslint-disable-line
+const INVALID_NUMBER_FILE = path.resolve(__dirname, '../fixtures/invalid-number.csv'); // eslint-disable-line
 const NO_SCALAR_FILE = path.resolve(__dirname, '../fixtures/no-scalar.csv');
 const NO_HEADER_CSV_FILE = path.resolve(__dirname, '../fixtures/no-header.csv');
 const NO_HEADER_CSV_FILE_ID = Utils.generateFileId(NO_HEADER_CSV_FILE);
@@ -206,6 +209,36 @@ describe('FileService', () => {
       service.getFields(IGNORE_FIELDS_FILE, (error, results) => {
         assert.ifError(error);
         assert.deepEqual(results.fields, EXPECTED_FIELDS_IGNORED);
+        done();
+      });
+    });
+  });
+
+  describe('#validate', () => {
+    it('should accept valid file', (done) => {
+      service.validate(FILENAME_SMALL, (error, results) => {
+        assert.ifError(error);
+        assert.equal(results.offset, 1);
+        assert.equal(results.records, 6);
+        assert.deepEqual(results.fields, EXPECTED_FIELDS);
+        done();
+      });
+    });
+    it('should reject invalid date', (done) => {
+      service.validate(INVALID_DATE_CONTENT_FILE, (error, results) => {
+        assert(error, 'File with invalid date was validated');
+        done();
+      });
+    });
+    it('should reject invalid format', (done) => {
+      service.validate(INVALID_DATE_FORMAT_FILE, (error, results) => {
+        assert(error, 'File with invalid date was validated');
+        done();
+      });
+    });
+    it('should reject invalid number', (done) => {
+      service.validate(INVALID_NUMBER_FILE, (error, results) => {
+        assert(error, 'File with invalid number was validated');
         done();
       });
     });
