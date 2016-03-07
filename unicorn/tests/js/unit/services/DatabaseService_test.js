@@ -54,7 +54,8 @@ const EXPECTED_TIMESTAMP_ID = Utils.generateMetricId(EXPECTED_FILENAME, 'timesta
 const EXPECTED_FILE = Object.assign({}, INSTANCES.File, {
   filename: EXPECTED_FILENAME,
   name: path.basename(EXPECTED_FILENAME),
-  uid: EXPECTED_FILENAME_ID
+  uid: EXPECTED_FILENAME_ID,
+  records: 7
 });
 
 const EXPECTED_FILE_WITH_OPTIONAL_FIELDS = Object.assign({}, EXPECTED_FILE, {
