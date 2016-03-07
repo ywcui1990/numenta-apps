@@ -96,7 +96,7 @@ export default class Main extends React.Component {
     });
     if (selected && selected.length > 0) {
       file = new File({path: selected[0]});
-      this.context.executeAction(FileUploadAction, file);
+      this.context.executeAction(FileUploadAction, file.path);
     }
   }
 

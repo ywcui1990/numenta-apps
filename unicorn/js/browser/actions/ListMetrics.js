@@ -17,17 +17,20 @@
 
 import {ACTIONS} from '../lib/Constants';
 
+
 /**
- * List all available metrics
+ * List metrics
  * @param  {FluxibleContext} actionContext - The action context
+ * @param {string} [fileId] - Optional file id to get metrics from,
+ *                            if not given this action will load all available
+ *                            metrics
  * @emits {LIST_METRICS}
  * @emits {LIST_METRICS_FAILURE}
  * @returns {Promise} - A Promise to be resolved with return value
  */
-export default function (actionContext) {
+export default function (actionContext, fileId) {
   return new Promise((resolve, reject) => {
-    let db = actionContext.getDatabaseClient();
-    db.getAllMetrics((error, metrics) => {
+    function callback(error, metrics) {
       if (error) {
         actionContext.dispatch(ACTIONS.LIST_METRICS_FAILURE, error);
         reject(error);
@@ -36,6 +39,12 @@ export default function (actionContext) {
         actionContext.dispatch(ACTIONS.LIST_METRICS, metrics);
         resolve(metrics);
       }
-    });
+    }
+    let db = actionContext.getDatabaseClient();
+    if (typeof fileId === 'string') {
+      db.getMetricsByFile(fileId, callback);
+    } else {
+      db.getAllMetrics(callback);
+    }
   });
 }
