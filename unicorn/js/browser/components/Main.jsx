@@ -25,7 +25,7 @@ import {remote} from 'electron';
 import ThemeDecorator from 'material-ui/lib/styles/theme-decorator';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
-import FileUploadAction from '../actions/FileUpload';
+import FileValidateAction from '../actions/FileValidate';
 import FileList from '../components/FileList';
 import FileDetails from '../components/FileDetails';
 import LeftNav from '../components/LeftNav';
@@ -96,7 +96,7 @@ export default class Main extends React.Component {
     });
     if (selected && selected.length > 0) {
       file = new File({path: selected[0]});
-      this.context.executeAction(FileUploadAction, file.path);
+      this.context.executeAction(FileValidateAction, file.path);
     }
   }
 

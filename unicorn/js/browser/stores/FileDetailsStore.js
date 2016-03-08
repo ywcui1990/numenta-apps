@@ -36,43 +36,53 @@ export default class FileDetailsStore extends BaseStore {
     return {
       SHOW_FILE_DETAILS: '_showFileDetails',
       HIDE_FILE_DETAILS: '_hideFileDetails',
-      UPLOADED_FILE: '_handleFileUpload'
+      VALIDATE_FILE_FAILED: '_handleFileValidate',
+      VALIDATE_FILE: '_handleFileValidate'
     }
   }
   constructor(dispatcher) {
     super(dispatcher);
-    this._filename = null;
+    this._file = null;
+    this._error = null;
     this._visible = false;
     this._newFile = false;
   }
 
   /**
-   * The name of the current selected file
-   * @return {string} The current selected file or null
+   * The current selected file
+   * @return {File} The current selected file or null
    */
-  getFileName() {
-    return this._filename;
+  getFile() {
+    return this._file ;
   }
   /**
    * @return {Boolean} Whether or not the Details page should be visible
    */
   isVisible() {
-    return this._filename !== null && this._visible;
+    return this._file !== null && this._visible;
   }
 
+  /**
+   * The current validation error
+   * @return {string} The current validation error or null
+   */
+  getError() {
+    return this._error;
+  }
   /**
    * @return {Boolean} Whether or not showing a new file
    */
   isNewFile() {
-    return this._filename !== null && this._newFile;
+    return this._file !== null && this._newFile;
   }
 
   /**
    * Handle  {ShowFileDetails} action
-   * @param  {string} filename The file name to show
+   * @param  {File} file The file to show
    */
-  _showFileDetails(filename) {
-    this._filename = filename;
+  _showFileDetails(file) {
+    this._file = file;
+    this._error = null;
     this._visible = true;
     this._newFile = false;
     this.emitChange();
@@ -83,18 +93,21 @@ export default class FileDetailsStore extends BaseStore {
   _hideFileDetails() {
     this._visible = false;
     this._newFile = false;
-    this._filename = null;
+    this._file = null;
+    this._error = null;
     this.emitChange();
   }
 
   /**
-   * Handle new {FileUpload} action
-   * @param  {File} file Newly uploaded file
+   * Handle {FileValidate} action
+   * @param  {object} results Validation results.
+   *                          See {@link FileService#validate}
    */
-  _handleFileUpload(file) {
+  _handleFileValidate(results) {
     this._visible = true;
     this._newFile = true;
-    this._filename = file.filename;
+    this._error = results.error;
+    this._file = results.file;
     this.emitChange();
   }
 }

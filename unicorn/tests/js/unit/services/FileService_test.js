@@ -25,7 +25,9 @@ import path from 'path';
 
 import service from '../../../../js/main/FileService';
 import Utils from '../../../../js/main/Utils';
-import {DBMetricSchema} from '../../../../js/database/schema';
+import {
+  DBFileSchema, DBMetricSchema
+} from '../../../../js/database/schema';
 
 // Contents of 'fixture/file.csv'
 const EXPECTED_CONTENT =
@@ -54,6 +56,7 @@ const FILENAME_LARGE = path.resolve(__dirname, '../fixtures/rec-center-15.csv');
 // Expected fields
 const FILENAME_SMALL_ID = Utils.generateFileId(FILENAME_SMALL);
 const METRIC_INSTANCE = instantiator.instantiate(DBMetricSchema);
+const FILE_INSTANCE = instantiator.instantiate(DBFileSchema);
 const EXPECTED_FIELDS = [
   Object.assign({}, METRIC_INSTANCE, {
     uid: Utils.generateMetricId(FILENAME_SMALL, 'timestamp'),
@@ -71,6 +74,13 @@ const EXPECTED_FIELDS = [
     type: 'number'
   })
 ];
+const EXPECTED_FILE_SMALL = Object.assign({}, FILE_INSTANCE, {
+  filename: FILENAME_SMALL,
+  name: path.basename(FILENAME_SMALL),
+  uid: FILENAME_SMALL_ID,
+  rowOffset: 1,
+  records: 7
+});
 
 const INVALID_CSV_FILE = path.resolve(__dirname, '../fixtures/invalid.csv');
 const INVALID_DATES_FILE = path.resolve(__dirname, '../fixtures/invalid-date.csv'); // eslint-disable-line
@@ -218,8 +228,7 @@ describe('FileService', () => {
     it('should accept valid file', (done) => {
       service.validate(FILENAME_SMALL, (error, results) => {
         assert.ifError(error);
-        assert.equal(results.offset, 1);
-        assert.equal(results.records, 6);
+        assert.deepEqual(results.file, EXPECTED_FILE_SMALL);
         assert.deepEqual(results.fields, EXPECTED_FIELDS);
         done();
       });
