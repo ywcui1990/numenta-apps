@@ -292,6 +292,8 @@ Here are the `npm` scripts available via `npm run <script-name>`. Please see
 
 ## Test
 
+### Unit and Integration Tests
+
 Write **Unit** and **Integration** tests using
 [mocha](https://github.com/mochajs/mocha) test framework.
 
@@ -301,7 +303,7 @@ npm run test:unit         # unit tests only
 npm run test:integration  # integration tests only
 ```
 
-### Pipeline
+### Pipeline Tests
 
 To generate reults appropriate for the **pipeline** `mocha` needs to run
 with a different set of options
@@ -311,6 +313,32 @@ with a different set of options
 npm run test:pipeline               # pipeline all
 npm run test:pipeline:unit          # pipeline unit tests only
 npm run test:pipeline:integration   # pipeline integration tests only
+```
+
+### Common Test Problems
+
+#### Python Path
+
+**Problem:**
+```shell
+Uncaught AssertionError: Fatal Python error: PyThreadState_Get: no current thread
+```
+
+**Solution:**
+```shell
+unset PYTHONPATH
+```
+
+#### Temp DB Lock
+
+**Problem:**
+```shell
+Uncaught Error: IO error: lock /var/folders/tp/8m12mvkx06jg4rdtrsdgqgzc0000gn/T/unicorn_db/LOCK: already held by process
+```
+
+**Solution:**
+```shell
+sudo rm -Rf /var/folders/tp/8m12mvkx06jg4rdtrsdgqgzc0000gn/T/unicorn_db
 ```
 
 

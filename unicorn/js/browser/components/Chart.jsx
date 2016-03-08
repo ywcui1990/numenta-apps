@@ -118,8 +118,8 @@ export default class Chart extends React.Component {
    */
   _chartInitalize() {
     let {data, options} = this.props;
-    let timestampIndex = 0;
     let element = ReactDOM.findDOMNode(this.refs.chart);
+    let timestampIndex = 0;
     let first = new Date(data[0][timestampIndex]).getTime();
     let second = new Date(data[1][timestampIndex]).getTime();
     let unit = second - first; // each datapoint

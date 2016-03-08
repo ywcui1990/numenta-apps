@@ -22,8 +22,63 @@ import Utils from '../../../main/Utils';
 
 
 /**
- * DyGraph Plugin - RangeSelectorBarChart overlay for HTM Anomalies. Small clone
- *  and repurposing of the stock RangeSelector Dygraph plugin. Full ES6.
+ * DyGraphs custom plotter function to draw Anomaly bar charts
+ * @param {Object} event - Dygraph event object reference
+ * @requires RGBColor
+ */
+function _anomalyBarChartPlotter(event) {
+  let context = event.drawingContext;
+  let points = event.points;
+  let yBottom = event.dygraph.toDomYCoord(0);
+
+  points.forEach((point) => {
+    let height = yBottom - point.canvasy;
+    let xCenter = point.canvasx;
+    let xStart = (xCenter - this._anomalyBarWidth / 2);
+    let xEnd = (xCenter + this._anomalyBarWidth / 2);
+    let startColor = new RGBColor(Utils.mapAnomalyColor(0, yBottom)).toRGB();
+    let color, index;
+
+    // every bar has a basic 2px placeholder green line
+    this._chartDrawLine(context, xStart, xEnd, yBottom, startColor);
+    this._chartDrawLine(context, xStart, xEnd, yBottom-1, startColor);
+
+    // draw vertical bar with several horizontal lines in column
+    color = new RGBColor(Utils.mapAnomalyColor(height, yBottom));
+    if (color && 'toRGB' in color) {
+      // @TODO This was originally for anomaly bars that had color gradients
+      //  instead of flat bars. It could probably be optimized to use less
+      //  calls to the <canvas> actually .stroke()ing.
+      for (index=0; index<height; index++) {
+        let y = yBottom - index;
+        this._chartDrawLine(context, xStart, xEnd, y, color.toRGB());
+      }
+    }
+  });
+}
+
+/**
+ * DyGraph custom Plotter function to draw a simple horizontal line
+ * @param {Object} context - DyGraph object context
+ * @param {Number} xStart - Starting X coord of line
+ * @param {Number} xEnd - Ending X coord of line
+ * @param {Number} y - Y coord of line
+ * @param {String|Object} color - Color (string or RGBColor object) for line
+ */
+function _chartDrawLine(context, xStart, xEnd, y, color) {
+  context.strokeStyle = color;
+  context.beginPath();
+  context.moveTo(xStart, y);
+  context.lineTo(xEnd, y);
+  context.stroke();
+}
+
+_anomalyBarChartPlotter = _anomalyBarChartPlotter;
+_chartDrawLine = _chartDrawLine;
+
+
+/**
+ * DyGraph Plugin - AnomalyBarChart Plotter-like Plugin for Model Anomaly Result
  * @requries Dygraphs
  * @see github.com/danvk/dygraphs/blob/master/src/plugins/range-selector.js
  */
@@ -33,7 +88,8 @@ export default class {
    * Construct Dygraphs Plugin object
    */
   constructor() {
-    this._seriesIndex = 2;  // 2 for anomaly score field from model
+    this._dataIndexTimestamp = 0;  // 0 for data timestamp field
+    this._dataIndexAnomaly = 2;  // 2 for anomaly score field from model
 
     this._canvas = null;
     this._canvas_context = null;
@@ -50,20 +106,19 @@ export default class {
    * @returns {String} - Plugin text description
    */
   toString() {
-    return 'RangeSelector BarChart Plugin';
+    return 'AnomalyBarChart Plugin';
   }
 
   /**
    * Activate Dygraphs Plugin
    * @param {Object} dygraph - Dygraph object to plug
+   * @param {Object} registerer - Dygraph event handler registerer object
    * @returns {Object} - Dygraph Plugin utility hash object
    */
-  activate(dygraph) {
+  activate(dygraph, registerer) {
     this._dygraph = dygraph;
 
-    if (this._getOption('showRangeSelector')) {
-      this._createInterface();
-    }
+    this._createInterface();
 
     return {
       predraw: this._renderStaticLayer
@@ -85,7 +140,7 @@ export default class {
   // --- private methods ---
 
   /**
-   * Adds the range selector bar charts to the graph.
+   * Adds the anomaly bar charts to the graph.
    */
   _addToGraph() {
     let graphDiv = this._graphDiv = this._dygraph.graphDiv;
@@ -97,14 +152,14 @@ export default class {
    */
   _createCanvases() {
     this._canvas = Dygraph.createCanvas();
-    this._canvas.className = 'dygraph-rangeselbarchart-canvas';
+    this._canvas.className = 'dygraph-anomalybarchart-canvas';
     this._canvas.style.position = 'absolute';
-    this._canvas.style.zIndex = 20;
+    this._canvas.style.zIndex = 50;
     this._canvas_context = Dygraph.getContext(this._canvas);
   }
 
   /**
-   * Creates the range selector bar chart elements and adds them to the graph.
+   * Creates the anomaly bar chart elements and adds them to the graph.
    */
   _createInterface() {
     this._createCanvases();
@@ -113,14 +168,14 @@ export default class {
   }
 
   /**
-   * Draws a mini bar on the canvas.
+   * Draws a bar on the canvas.
    * @param {Object} context - Dygraph drawing context object
    * @param {Number} x - X Coordinate of bar to draw
    * @param {Number} height - Max height of line
    * @param {String} color - String of color to use for bar draw
    * @param {String} stroke - Bar stroke width
    */
-  _drawMiniBar(context, x, height, color, stroke) {
+  _drawBar(context, x, height, color, stroke) {
     context.beginPath();
     context.moveTo(x, height - 1);
     context.lineTo(x, 2);
@@ -131,49 +186,46 @@ export default class {
   }
 
   /**
-   * Draws the mini plot on the canvas.
+   * Draws the plot on the canvas.
    */
-  _drawMiniPlot() {
+  _drawPlot() {
+    let modelData = this._getOption('modelData');
     let context = this._canvas_context;
-    let graph = this._dygraph;
-    let data = graph.rawData_;
-    let xExtremes = this._dygraph.xAxisExtremes();
-    let xRange = Math.max(xExtremes[1] - xExtremes[0], 1.e-30);
+    let xExtremes = this._dygraph.xAxisRange();
     let yRange = 1;
     let margin = 0.5;
-    let canvasWidth = this._canvasRect.w - margin;
+    // let canvasWidth = this._canvasRect.w - margin;
     let canvasHeight = this._canvasRect.h - margin;
-    let xFactor = canvasWidth / xRange;
-    let barWidth = Math.ceil(data.length / canvasWidth);
-    let previous = {x: null, value: null};
-    let stroke = this._getOption('rangeSelectorPlotLineWidth');
-    let color, i, j, point, value, x;
+    let stroke = 1;
+    let yFactor = Math.round(canvasHeight / yRange);
+    // let xFactor;
 
-    for (i=0; i<data.length; i+=barWidth) {
-      let points = data.slice(i, i + barWidth);
-      let maxIndex = 0;
-      for (j=0; j<points.length; j++) {
-        let current = points[j];
-        if (current[this._seriesIndex] > points[maxIndex][this._seriesIndex]) {
-          maxIndex = j;
-        }
+    // pull out data for currently visible chart range
+    modelData = modelData.filter((data) => {
+      let time = data[this._dataIndexTimestamp].getTime();
+      if (time >= xExtremes[0] && time <= xExtremes[1]) {
+        return true;
       }
-      point = points[maxIndex]; // aggregate to prevent pixel overwriting
-      value = point[this._seriesIndex];
-      x = this._xValueToPixel(point[0], xExtremes[0], xFactor);
+      return false;
+    });
 
-      if (x === previous.x && value < previous.value) {
-        continue;  // skip unwanted repeated pixel drawing overlay
-      }
+    // xFactor = Math.round(canvasWidth / modelData.length);
 
-      previous.x = x;
-      previous.value = value;
+    // draw anom bars for currently visible chart range
+    modelData.forEach((data) => {
+      let time = data[this._dataIndexTimestamp].getTime();
+      let value = data[this._dataIndexAnomaly];
+      // let x = this._xValueToPixel(time, xExtremes[0], xFactor);
+      let x = this._dygraph.toDomXCoord(time);
+      let color, y;
 
       if (isFinite(x) && (value >= 0.25)) {
+        y = this._yValueToPixel(value, yFactor);
         color = Utils.mapAnomalyColor(value, yRange);
-        this._drawMiniBar(context, x, canvasHeight, color, stroke);
+        this._drawBar(context, x, y, color, stroke);
+        // console.log('drawBar', x, y, color);
       }
-    }
+    });
   }
 
   /**
@@ -181,9 +233,15 @@ export default class {
    */
   _drawStaticLayer() {
     let context = this._canvas_context;
+
+    if (! this._hasData()) {
+      return;
+    }
+
     context.clearRect(0, 0, this._canvasRect.w, this._canvasRect.h);
+
     try {
-      this._drawMiniPlot();
+      this._drawPlot();
     } catch (error) {
       console.error(error); // eslint-disable-line
     }
@@ -200,7 +258,23 @@ export default class {
   }
 
   /**
-   * Removes the range selector bar charts from the graph.
+   * Detect if we have valid data input
+   * @returns {Boolean} - Flag if actual data was passed in or not
+   */
+  _hasData() {
+    let data = this._getOption('modelData');
+    let hasData = false;
+    let first = NaN;
+
+    if (data && data.length && data[0][this._dataIndexAnomaly]) {
+      first = data[0][this._dataIndexAnomaly];
+    }
+    hasData = !isNaN(first);
+    return hasData;
+  }
+
+  /**
+   * Removes the anomaly bar charts from the graph.
    */
   _removeFromGraph() {
     let graphDiv = this._graphDiv;
@@ -209,19 +283,16 @@ export default class {
   }
 
   /**
-   * Renders the static portion of the range selector bar charts at predraw.
+   * Renders the static portion of the anomaly bar charts at predraw.
    * @param {Event} event - Dygraph event fired when time to render our own.
    */
   _renderStaticLayer(event) {
-    if (! this._updateVisibility()) {
-      return;
-    }
     this._resize();
     this._drawStaticLayer();
   }
 
   /**
-   * Resizes the range selector bar charts
+   * Resizes the anomaly bar charts
    */
   _resize() {
     let plotArea = this._dygraph.layout_.getPlotArea();
@@ -236,11 +307,10 @@ export default class {
     }
     this._canvasRect = {
       x: plotArea.x,
-      y: plotArea.y + plotArea.h + xAxisLabelHeight + 3,
+      y: plotArea.y,
       w: plotArea.w,
-      h: this._getOption('rangeSelectorHeight')
+      h: plotArea.h
     };
-
     this._setElementRect(this._canvas, this._canvas_context, this._canvasRect);
   }
 
@@ -266,32 +336,6 @@ export default class {
   }
 
   /**
-   * Check to see if the range selector is en/disabled and update visibility.
-   * @returns {Boolean} - Flag whether to show or not
-   */
-  _updateVisibility() {
-    let enabled = this._getOption('showRangeSelector');
-    let first = this._dygraph.rawData_[0][this._seriesIndex] || NaN;
-    let hasData = !isNaN(first);
-
-    if (enabled) {
-      if (!this._interfaceCreated) {
-        this._createInterface();
-      } else if (hasData && (!this._graphDiv || !this._graphDiv.parentNode)) {
-        this._addToGraph();
-      }
-    } else if (this._graphDiv) {
-      let dygraph = this._dygraph;
-      this._removeFromGraph();
-      setTimeout(() => {
-        dygraph.width_ = 0;
-        dygraph.resize();
-      }, 1);
-    }
-    return enabled;
-  }
-
-  /**
    * Convert X value (ts) to X Pixel Coord
    * @param {Number} x - X value to map
    * @param {Number} xMax - Relative X Max value to map against
@@ -299,23 +343,24 @@ export default class {
    * @returns {Number|NaN} - X pixel coordinate
    */
   _xValueToPixel(x, xMax, xFactor) {
+    let value = NaN;
     if (x !== null) {
-      return Math.round((x - xMax) * xFactor, 10);
+      value = Math.round((x - xMax) * xFactor, 10);
+      console.log(x, xMax, xFactor, value);
+      console.log('  ', value);
     }
-    return NaN;
+    return value;
   }
 
   /**
    * Convert Y value (data value) to Y Pixel Coord
    * @param {Number} y - Y value to map
-   * @param {Number} yMin - Relative Y Min value to map against
-   * @param {Number} yMax - Relative Y Max value to map against
    * @param {Number} yFactor - Relative Y Scaling factor
    * @returns {Number|NaN} - Y pixel coordinate
    */
-  _yValueToPixel(y, yMin, yMax, yFactor) {
+  _yValueToPixel(y, yFactor) {
     if (y !== null) {
-      return Math.round(yMax - ((y - yMin) * yFactor), 10);
+      return Math.round(y * yFactor);
     }
     return NaN;
   }
