@@ -59,6 +59,10 @@ export default class ModelData extends React.Component {
     this._anomalyBarWidth = Math.round(displayPointCount / 16, 10);
     this._anomalyValueHeight = 1.0;
 
+
+    // @TODO !!!! http://dygraphs.com/tests/underlay-callback.html
+
+
     this._chartOptions = {
       // dygraphs global chart options
       options: {
