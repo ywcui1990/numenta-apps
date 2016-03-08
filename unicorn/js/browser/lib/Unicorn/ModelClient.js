@@ -104,9 +104,7 @@ export default class ModelClient {
     // Multiple data records are separated by `\n`
     let data = payload.trim().split('\n').map((row) => {
       if (row) {
-        row = JSON.parse(row);
-        row[0] = new Date(row[0]); // timestamp => js date
-        return row;
+        return  JSON.parse(row);
       }
     });
     this._context.executeAction(ReceiveModelDataAction, {modelId, data});

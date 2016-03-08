@@ -55,13 +55,16 @@ export default class MetricDataStore extends BaseStore {
    */
   _handLoadData(payload) {
     if (payload && 'metricId' in payload) {
+      // Convert timestamp to Date
+      let newData = payload.data.map((row) => [new Date(row[0]), row[1]]);
+
       let metric = this._metrics.get(payload._metrics);
       if (metric) {
         // Append payload data to existing metric
-        metric.push(...payload.data);
+        metric.push(...newData);
       } else {
         // Load New metric
-        this._metrics.set(payload.metricId, Array.from(payload.data || []));
+        this._metrics.set(payload.metricId, newData);
       }
       this.emitChange();
     }

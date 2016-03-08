@@ -31,7 +31,12 @@ import Utils from '../../main/Utils';
  * React Component for sending Model Data from Model component to
  *  Chart component.
  */
-@connectToStores([MetricDataStore, ModelDataStore, ModelStore], () => ({}))
+@connectToStores([MetricDataStore, ModelDataStore, ModelStore],
+  (context, props) => ({
+    metricData: context.getStore(MetricDataStore).getData(props.modelId),
+    modelData: context.getStore(ModelDataStore).getData(props.modelId),
+    model: context.getStore(ModelStore).getModel(props.modelId)
+  }))
 export default class ModelData extends React.Component {
 
   static get contextTypes() {
@@ -131,7 +136,7 @@ export default class ModelData extends React.Component {
         // @TODO This was originally for anomaly bars that had color gradients
         //  instead of flat bars. It could probably be optimized to use less
         //  calls to the <canvas> actually .stroke()ing.
-        for (index=0; index<height; index++) {
+        for (index=0; index < height; index++) {
           let y = yBottom - index;
           this._chartDrawLine(context, xStart, xEnd, y, color.toRGB());
         }
@@ -156,14 +161,7 @@ export default class ModelData extends React.Component {
   }
 
   render() {
-    let metricDataStore = this.context.getStore(MetricDataStore);
-    let modelDataStore = this.context.getStore(ModelDataStore);
-    let modelStore = this.context.getStore(ModelStore);
-
-    let modelId = this.props.modelId;
-    let metricData = metricDataStore.getData(modelId);
-    let modelData = modelDataStore.getData(modelId);
-    let model = modelStore.getModel(modelId);
+    let {model, metricData, modelData} = this.props;
 
     let {anomaly, options} = this._chartOptions;
     let {axes, labels, series} = this._chartOptions.value;
