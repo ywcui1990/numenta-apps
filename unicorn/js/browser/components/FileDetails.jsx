@@ -30,20 +30,58 @@ import TableHeaderColumn from 'material-ui/lib/table/table-header-column';
 import TableRow from 'material-ui/lib/table/table-row';
 import TableRowColumn from 'material-ui/lib/table/table-row-column';
 import TextField from 'material-ui/lib/text-field';
+import Colors from 'material-ui/lib/styles/colors';
 
 import FileDetailsStore from '../stores/FileDetailsStore';
-import FileStore from '../stores/FileStore';
-import FileUpdateAction from '../actions/FileUpdate';
+import FileUploadAction from '../actions/FileUpload';
 import HideFileDetailsAction from '../actions/HideFileDetails';
-import MetricStore from '../stores/MetricStore';
-import Utils from '../../main/Utils';
 
+const STYLES = {
+  dialog: {
+    margin: '1rem'
+  },
+  error: {
+    color: Colors.red500
+  },
+  container: {
+    display: 'flex',
+    flex: '1 100%',
+    flexDirection: 'column'
+  },
+  fields: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexGrow: 0,
+    flexShrink: 0
+  },
+  data: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexGrow: 1,
+    margin: 'auto',
+    border: '1px solid gray'
+  },
+  tableRow: {
+    height: '2rem'
+  },
+  tableHeader: {
+    overflow: 'hidden',
+    height: '2rem',
+    textOverflow: 'ellipsis'
+  },
+  tableColumn: {
+    overflow: 'hidden',
+    height: '2rem',
+    textOverflow: 'ellipsis'
+  }
+};
 
 /**
  * Show file details page. The file must be available from the {@link FileStore}
  */
 @connectToStores([FileDetailsStore], (context) => ({
-  filename: context.getStore(FileDetailsStore).getFileName(),
+  file: context.getStore(FileDetailsStore).getFile(),
+  error: context.getStore(FileDetailsStore).getError(),
   visible: context.getStore(FileDetailsStore).isVisible(),
   newFile: context.getStore(FileDetailsStore).isNewFile()
 }))
@@ -60,92 +98,32 @@ export default class FileDetails extends React.Component {
     super(props, context);
 
     this.state = {
-      file: null,
       fileSize: 0,
-      data: [],
-      metrics: new Map()
-    };
-
-    this._styles = {
-      container: {
-        display: 'flex',
-        flex: '1 100%',
-        flexDirection: 'row'
-      },
-      fields: {
-        display: 'flex',
-        flexDirection: 'column',
-        flexShrink: 0
-      },
-      metric: {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        width: '10rem'
-      },
-      data: {
-        display: 'flex',
-        flexDirection: 'column',
-        flexGrow: 1,
-        margin: 'auto',
-        marginLeft: 15,
-        border: '1px solid gray'
-      },
-      tableHeader: {
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-      }
+      data: []
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    let file, fileMetrics, stats;
-    let fileStore = this.context.getStore(FileStore);
-    let metricStore = this.context.getStore(MetricStore);
-    let fileClient = this.context.getFileClient();
-    let metrics = new Map();
-    let data = [];
-    let fileSize = 0;
+    if (nextProps.visible && nextProps.file) {
+      let file = nextProps.file;
+      // File size in bytes
+      let stats = fs.statSync(file.filename); // eslint-disable-line no-sync
+      let fileSize = stats.size;
 
-    if (nextProps.visible && nextProps.filename) {
-      // Initialize file
-      file = fileStore.getFile(nextProps.filename);
-      fileMetrics = metricStore.getMetricsByFileId(file.uid);
-
-      // Initialize metrics
-      if (file) {
-        fileMetrics.forEach((metric) => {
-          if (metric.type !== 'date') {
-            let modelId = Utils.generateMetricId(file.filename, metric.name);
-            metrics.set(modelId, null);
-          }
-        });
-
-        // File size in bytes
-        stats = fs.statSync(file.filename); // eslint-disable-line no-sync
-        fileSize = stats.size;
-
-        // Load first 20 records
-        fileClient.getData(file.filename, {limit: 20}, (error, buffer) => {
-          if (error) {
-            throw new Error(error);
-          } else if (buffer) {
-            data.push(JSON.parse(buffer));
-          } else {
-            // Initialize State
-            this.setState({file, fileSize, data, metrics});
-          }
-        });
-      }
+      // Load first 20 records
+      let data = [];
+      let fileClient = this.context.getFileClient();
+      fileClient.getData(file.filename, {limit: 20}, (error, buffer) => {
+        if (error) {
+          throw new Error(error);
+        } else if (buffer) {
+          data.push(JSON.parse(buffer));
+        } else {
+          // Initialize State
+          this.setState({fileSize, data});
+        }
+      });
     }
-  }
-
-  _handleFileInputChange(e) {
-    let name = e.target.name;
-    let value = e.target.value;
-    let state = this.state;
-    state.file[name] = value;
-    this.setState(state);
   }
 
   _onRequestClose() {
@@ -153,35 +131,23 @@ export default class FileDetails extends React.Component {
   }
 
   _onSave() {
-    let {file} = this.state;
+    let file = this.props.file;
     if (file) {
-      // Update File
-      this.context.executeAction(FileUpdateAction, file);
+      this.context.executeAction(FileUploadAction, file.filename);
     }
     this.context.executeAction(HideFileDetailsAction);
-  }
-
-  _onMetricCheck(modelId, filename, timestampField, metric, event, checked) {
-    let state = this.state;
-    if (checked) {
-      state.metrics.set(modelId, {
-        modelId, filename, metric, timestampField
-      });
-    } else {
-      state.metrics.delete(modelId);
-    }
-    this.setState(state);
   }
 
   _renderDataTable() {
     let columnHeader;
     let data = this.state.data;
     let tableRows = [];
+    let tableHeight = this.props.error ? 200 : 250;
 
     if (data.length > 0) {
       columnHeader = Object.keys(data[0]).map((name, idx) => {
         return (
-          <TableHeaderColumn key={idx} style={this._styles.tableHeader}>
+          <TableHeaderColumn key={idx} style={STYLES.tableHeader}>
             {name}
           </TableHeaderColumn>
         );
@@ -190,16 +156,18 @@ export default class FileDetails extends React.Component {
       data.forEach((row, rowIdx) => {
         let columns = [];
         Object.values(row).map((value, colIdx) => {
-          columns.push(<TableRowColumn key={colIdx}>{value}</TableRowColumn>);
+          columns.push(<TableRowColumn key={colIdx}
+            style={STYLES.tableColumn}>{value}</TableRowColumn>);
         });
-        tableRows.push(<TableRow key={rowIdx}>{columns}</TableRow>);
+        tableRows.push(<TableRow style={STYLES.tableRow}
+          key={rowIdx}>{columns}</TableRow>);
       });
 
       return (
-        <Table selectable={false} fixedHeader={true} height="300">
+        <Table selectable={false} fixedHeader={true} height={tableHeight}>
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}
                        enableSelectAll={false}>
-            <TableRow>
+            <TableRow style={STYLES.tableRow}>
               {columnHeader}
             </TableRow>
           </TableHeader>
@@ -212,68 +180,72 @@ export default class FileDetails extends React.Component {
   }
 
   _renderBody() {
-    let file = this.state.file;
+    let file = this.props.file;
     let fileSize = this.state.fileSize;
-
+    let error;
+    if (this.props.error) {
+      error =  (<p style={STYLES.error}>{this.props.error}</p>);
+    }
     return (
-      <div style={this._styles.container}>
-        <div style={this._styles.fields}>
+      <div style={STYLES.container}>
+        {error}
+        <div style={STYLES.fields}>
           <TextField
-            floatingLabelText="Description"
-            multiLine={true}
-            name="description"
-            onChange={this._handleFileInputChange.bind(this)}
-            ref="description"
-            rowsMax={1}
-            value={file.description}
-          />
-          <TextField
-            floatingLabelText="File Size (bytes)"
-            name="fileSize"
+            floatingLabelText="File Size"
+            underlineFocusStyle={{display:'none'}}
+            underlineStyle={{display:'none'}}
             readOnly={true}
+            tabIndex={-1}
+            name="fileSize"
             ref="fileSize"
+            value={fileSize.toString()}/>
+          <TextField
+            floatingLabelText="Number of rows"
+            name="numOfRows"
+            readOnly={true}
+            ref="numOfRows"
             tabIndex={-1}
             underlineFocusStyle={{display:'none'}}
             underlineStyle={{display:'none'}}
-            value={fileSize.toString()}
-          />
+            value={file.records.toString()}/>
         </div>
-        <div style={this._styles.data}>
+        <div style={STYLES.data}>
           {this._renderDataTable()}
         </div>
       </div>
     );
   }
 
+  _renderActions() {
+    if (this.props.newFile) {
+      return [
+        <FlatButton label="Cancel"
+                    onRequestClose={this._onRequestClose.bind(this)}
+                    onTouchTap={this._onRequestClose.bind(this)}/>,
+
+        <FlatButton label="Add File" primary={true} ref="submit"
+                    disabled={this.props.error}
+                    onRequestClose={this._onRequestClose.bind(this)}
+                    onTouchTap={this._onSave.bind(this)}/>
+      ];
+    }
+    return(<FlatButton label="Close" primary={true}
+                       onRequestClose={this._onRequestClose.bind(this)}
+                       onTouchTap={this._onRequestClose.bind(this)}/>);
+  }
+
   render() {
     let body, title;
-    let actions = [
-      <FlatButton
-        label="Cancel"
-        onRequestClose={this._onRequestClose.bind(this)}
-        onTouchTap={this._onSave.bind(this)}
-      />,
-      <FlatButton
-        label="Save"
-        onTouchTap={this._onSave.bind(this)}
-        primary={true}
-        ref="submit"
-      />
-    ];
-
-    if (this.state.file) {
-      title = this.state.file.name;
+    let file = this.props.file;
+    if (file) {
+      title = file.name;
       body = this._renderBody();
     }
-
+    let actions = this._renderActions();
     return (
-      <Dialog
-        open={this.props.visible}
-        actions={actions}
-        onRequestClose={this._onRequestClose.bind(this)}
-        ref="dialog"
-        title={title}
-      >
+      <Dialog actions={actions} title={title} open={this.props.visible}
+              style={STYLES.dialog}
+              onRequestClose={this._onRequestClose.bind(this)}>
         {body}
       </Dialog>
     );

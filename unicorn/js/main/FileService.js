@@ -448,13 +448,12 @@ export class FileService {
 
   /**
    *  Validate file making sure scalar and time data fields must be valid
-   *  throughout the whole file returning field definitions with row offset as
-   *  well as the total number of record in the file.
+   *  throughout the whole file returning field definitions and {@link File}
+   *  object with row offset and the total number of records in the file.
    * ```
    * {
-   * 	fields: [metrics],
-   * 	offset: 0 | 1,
-   * 	records: integer
+   *   file: File,
+   *   fields: [metrics]
    * }
    * ```
    *
@@ -462,14 +461,26 @@ export class FileService {
    * @param  {Function} callback called when the operation is complete with
    *                             results or error message
    * @see {@link #getFields}
+   * @see File.json
+   * @see Metric.json
    */
   validate(filename, callback) {
+    let file = Object.assign({}, INSTANCES.FILE, {
+      uid: Utils.generateFileId(filename),
+      name: path.basename(filename),
+      filename: filename
+    });
+
     // Validate fields
     this.getFields(filename, (error, validFields) => {
       if (error) {
-        callback(error);
+        callback(error, {file});
         return;
       }
+      // Update file and fields
+      let fields = validFields.fields;
+      let offset = validFields.offset;
+
       // Load data
       let stream = fs.createReadStream(filename, {
         encoding: 'utf8'
@@ -477,8 +488,6 @@ export class FileService {
       let csvParser = csv({columns: false, objectMode: true});
       let newliner = convertNewline('lf').stream();
       let row = 0;
-      let fields = validFields.fields;
-      let offset = validFields.offset;
 
       csvParser.on('data', (data) => {
         row++;
@@ -492,8 +501,7 @@ export class FileService {
           error = `Invalid ${field.type} at row ${row}: ` +
                   `Found ${field.name} = '${value}'`;
           if (field.format) {
-            error += `, expecting ${field.type} matching this` +
-                     `format '${field.format}'`;
+            error += `, expecting ${field.type} matching '${field.format}'`;
           }
           switch (field.type) {
           case 'number':
@@ -507,15 +515,16 @@ export class FileService {
         if (!valid) {
           csvParser.removeAllListeners();
           stream.destroy();
-          callback(error);
+          callback(error, {file});
           return;
         }
       })
       .once('error', callback)
-      .once('end', () => callback(null, {
-        fields, offset,
-        records: row - offset
-      }));
+      .once('end', () => {
+        file.records = row;
+        file.rowOffset = offset;
+        callback(null, {file, fields});
+      });
       stream.pipe(newliner).pipe(csvParser);
     });
   }
