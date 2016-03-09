@@ -50,7 +50,10 @@
     "test:pipeline": "npm run test:pipeline:unit && npm run test:pipeline:integration",
     "test:pipeline:integration": "mocha --opts tests/js/mocha.pipeline.opts tests/js/integration",
     "test:pipeline:unit": "mocha --opts tests/js/mocha.pipeline.opts tests/js/unit",
-    "test:unit": "mocha --opts tests/js/mocha.opts tests/js/unit"
+    "test:unit": "mocha --opts tests/js/mocha.opts tests/js/unit",
+    "pretest:functional": "chromedriver --url-base=/wd/hub &",
+    "test:functional": "mocha --opts tests/js/mocha.opts tests/js/functional",
+    "posttest:functional": "killall chromedriver"
   },
   "repository": {
     "type": "git",
@@ -135,6 +138,7 @@
     "source-map-support": "0.4.0",
     "style-loader": "0.13.0",
     "url-loader": "0.5.7",
+    "webdriverio": "4.0.3",
     "webpack": "1.12.14"
   },
   "optionalDependencies": {
