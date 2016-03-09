@@ -24,6 +24,21 @@ const {DATA_INDEX_TIME, DATA_INDEX_ANOMALY} = DATA_FIELD_INDEX;
 
 
 /**
+ * Helper function to Draw a rectangle on a DyGraphs canvas.
+ * @param {Object} canvas - Dygraphs Canvas DOM reference.
+ * @param {Number} xStart - Starting X coordinate of rectangle.
+ * @param {Number} yStart - Starting Y coordinate for rectangle.
+ * @param {Number} width - Width of rectangle.
+ * @param {Number} height - Height of rectangle.
+ * @param {String} color - Color to fill in rectangle.
+ */
+function _drawRectangle(canvas, xStart, yStart, width, height, color) {
+  canvas.fillStyle = new RGBColor(color).toRGB();
+  canvas.fillRect(xStart, yStart, width, height);
+}
+
+
+/**
  * DyGraph Custom Chart Underlay: AnomalyBarChart Plotter-like callback, for
  *  HTM Model Anomaly Result. Instead of using the Dygraph Chart Series rawData
  *  (which is already used and full), we send model data to the chart via
@@ -44,7 +59,7 @@ export default function (context, canvas, area, dygraph) {
   let barWidth = context._anomalyBarWidth;
   let safeColor = context.context.muiTheme.rawTheme.palette.safeColor;
   let yFactor = Math.round(area.h / anomalyMax);
-  let halfBarWidth = Math.round(barWidth / 2);
+  let halfBarWidth = Math.ceil(barWidth / 2);
 
   if (!(modelData.length)) {
     return;  // no anomaly data, no draw bars.
@@ -63,15 +78,13 @@ export default function (context, canvas, area, dygraph) {
       x = Math.round(dygraph.toDomXCoord(time) - halfBarWidth);
 
       // draw: every point has small green marker "bar" by default
-      canvas.fillStyle = new RGBColor(safeColor).toRGB();
-      canvas.fillRect(x, area.h, barWidth, -2);
+      _drawRectangle(canvas, x, area.h - 1, barWidth, -2, safeColor);
 
       if (isFinite(x) && (value >= 0)) {
         // draw: real anomaly bar
         y = 0 - Math.round(value * yFactor) || NaN;
         color = Utils.mapAnomalyColor(value, anomalyMax);
-        canvas.fillStyle = new RGBColor(color).toRGB();
-        canvas.fillRect(x, area.h, barWidth, y);
+        _drawRectangle(canvas, x, area.h - 1, barWidth, y, color);
       }
     }(index));  // help data survive loop closure
   }  // for loop modelData

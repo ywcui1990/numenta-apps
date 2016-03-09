@@ -23,7 +23,7 @@ import ReactDOM from 'react-dom';
 
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 
-const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
+const {DATA_INDEX_TIME, DATA_INDEX_VALUE} = DATA_FIELD_INDEX;
 
 
 /**
@@ -117,11 +117,22 @@ export default class Chart extends React.Component {
     }
   }
 
+  _handleZoom() {
+    console.log('hey!', this);
+    let {data} = this.props;
+    let values = data.map((item) => item[DATA_INDEX_VALUE]);
+
+    this._dygraph.updateOptions({
+      zoomRange: [Math.min(values), Math.max(values)]
+    });
+  }
+
   /**
    * DyGrpahs Chart Initalize and Render
    */
   _chartInitalize() {
     let {data, options} = this.props;
+    let values = data.map((item) => item[DATA_INDEX_VALUE]);
     let element = ReactDOM.findDOMNode(this.refs.chart);
     let first = new Date(data[0][DATA_INDEX_TIME]).getTime();
     let second = new Date(data[1][DATA_INDEX_TIME]).getTime();
@@ -134,6 +145,8 @@ export default class Chart extends React.Component {
     // init chart
     this._chartBusy = true;
     options.dateWindow = this._chartRange;
+    options.valueRange = [Math.min(values), Math.max(values)];
+    options.zoomCallback = this._handleZoom.bind(this);
     this._dygraph = new Dygraph(element, data, options);
     this._chartBusy = false;
   }
@@ -156,8 +169,8 @@ export default class Chart extends React.Component {
       return;
     }
 
-    // scroll along with fresh anomaly model data input
     if (!this._chartBusy) {
+      // scroll along with fresh anomaly model data input
       rangeMax = new Date(data[modelIndex][DATA_INDEX_TIME]).getTime();
       rangeMin = rangeMax - this._chartRangeWidth;
       if (rangeMin < first) {
