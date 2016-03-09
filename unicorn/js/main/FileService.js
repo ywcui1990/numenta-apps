@@ -245,7 +245,7 @@ export class FileService {
           // Unable to guess fields from first 2 lines.
           parser.removeAllListeners();
           stream.destroy();
-          callback('Invalid CSV file');
+          callback('Unable to extract valid data from first 2 lines');
           return;
         }
         // Use first line as headers and wait for the second line

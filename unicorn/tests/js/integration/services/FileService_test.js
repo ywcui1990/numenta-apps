@@ -50,8 +50,9 @@ const EXPECTED_DATA = [
   {timestamp: '2015-08-26T19:51:31+17:00', metric: '19'}
 ];
 
-const FILENAME_SMALL = path.resolve(__dirname, '../fixtures/file.csv');
-const FILENAME_LARGE = path.resolve(__dirname, '../fixtures/rec-center-15.csv');
+const FIXTURES = path.resolve(__dirname, '..', '..', 'fixtures');
+const FILENAME_SMALL = path.join(FIXTURES, 'file.csv');
+const FILENAME_LARGE =  path.join(FIXTURES, 'rec-center-15.csv');
 
 // Expected fields
 const FILENAME_SMALL_ID = Utils.generateFileId(FILENAME_SMALL);
@@ -82,14 +83,13 @@ const EXPECTED_FILE_SMALL = Object.assign({}, FILE_INSTANCE, {
   records: 7
 });
 
-const INVALID_CSV_FILE = path.resolve(__dirname, '../fixtures/invalid.csv');
-const INVALID_DATES_FILE = path.resolve(__dirname, '../fixtures/invalid-date.csv'); // eslint-disable-line
-const TWO_DATES_FILE = path.resolve(__dirname, '../fixtures/two-dates.csv');
-const INVALID_DATE_CONTENT_FILE = path.resolve(__dirname, '../fixtures/invalid-date-content.csv'); // eslint-disable-line
-const INVALID_DATE_FORMAT_FILE = path.resolve(__dirname, '../fixtures/invalid-date-format.csv'); // eslint-disable-line
-const INVALID_NUMBER_FILE = path.resolve(__dirname, '../fixtures/invalid-number.csv'); // eslint-disable-line
-const NO_SCALAR_FILE = path.resolve(__dirname, '../fixtures/no-scalar.csv');
-const NO_HEADER_CSV_FILE = path.resolve(__dirname, '../fixtures/no-header.csv');
+const INVALID_CSV_FILE = path.join(FIXTURES, 'invalid.csv');
+const TWO_DATES_FILE = path.join(FIXTURES, 'two-dates.csv');
+const INVALID_DATE_CONTENT_FILE = path.join(FIXTURES, 'invalid-date-content.csv'); // eslint-disable-line
+const INVALID_DATE_FORMAT_FILE = path.join(FIXTURES, 'invalid-date-format.csv');
+const INVALID_NUMBER_FILE = path.join(FIXTURES, 'invalid-number.csv');
+const NO_SCALAR_FILE = path.join(FIXTURES, 'no-scalar.csv');
+const NO_HEADER_CSV_FILE = path.join(FIXTURES, 'no-header.csv');
 const NO_HEADER_CSV_FILE_ID = Utils.generateFileId(NO_HEADER_CSV_FILE);
 const EXPECTED_FIELDS_NO_HEADER_CSV_FILE = [
   Object.assign({}, METRIC_INSTANCE, {
@@ -116,7 +116,7 @@ const EXPECTED_FIELDS_NO_HEADER_CSV_FILE = [
   })
 ];
 
-const IGNORE_FIELDS_FILE = path.resolve(__dirname, '../fixtures/ignored-fields.csv'); // eslint-disable-line
+const IGNORE_FIELDS_FILE = path.join(FIXTURES, 'ignored-fields.csv'); // eslint-disable-line
 const IGNORE_FIELDS_FILE_ID = Utils.generateFileId(IGNORE_FIELDS_FILE);
 const EXPECTED_FIELDS_IGNORED = [
   Object.assign({}, METRIC_INSTANCE, {

@@ -134,7 +134,7 @@ on streams of data, predicting future values, and detecting pattern anomalies.
 
 #### Description
 
-The Frontend contains code to manage Models on the Backend. It also contians
+The Frontend contains code to manage Models on the Backend. It also contains
 the Graphical User Interface that allows users to explore HTM Models on their
 own data.
 
@@ -177,7 +177,7 @@ runner). If you care about the python only - for example - then change to
 Example of setting up development environment on Mac OS/X:
 
 ```shell
-brew install git node
+brew install git node chromedriver
 git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/unicorn
 pip install -r py/requirements.txt
@@ -258,6 +258,7 @@ Here are the `npm` scripts available via `npm run <script-name>`. Please see
   [mocha.opts](tests/js/mocha.opts)
   * `test:integration`: Run all JS integration tests
   * `test:unit`: Run all JS unit tests
+  * `test:functional`: Run all JS functional tests
 * `test:pipeline`:Run all JS tests using pipeline options. See
   [mocha.opts](tests/js/mocha.pipeline.opts)
   * `test:pipeline:integration`:  Run all JS integration tests
@@ -295,10 +296,15 @@ Here are the `npm` scripts available via `npm run <script-name>`. Please see
 Write **Unit** and **Integration** tests using
 [mocha](https://github.com/mochajs/mocha) test framework.
 
+Write **Functional** or **e2e** tests using
+[selenium](http://docs.seleniumhq.org/) and [webdriverio](http://webdriver.io/)
+test automation frameworks.
+
 ```shell
 npm run test              # all
 npm run test:unit         # unit tests only
 npm run test:integration  # integration tests only
+npm run test:functional   # functional tests only
 ```
 
 ### Pipeline

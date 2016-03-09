@@ -22,10 +22,11 @@ import path from 'path';
 import {ParamFinderService} from '../../../../js/main/ParamFinderService';
 const assert = require('assert');
 
+const FIXTURES = path.resolve(__dirname, '..', '..', 'fixtures');
 const METRIC_ID = '1';
-const CSV_FILE = path.join(__dirname, '../fixtures', 'rec-center.csv');
-const PARAM_FINDER_INPUT = require('../fixtures/param_finder_input.json');
-const PARAM_FINDER_OUTPUT = require('../fixtures/param_finder_output.json');
+const CSV_FILE = path.join(FIXTURES, 'rec-center.csv');
+const PARAM_FINDER_INPUT = require('../../fixtures/param_finder_input.json');
+const PARAM_FINDER_OUTPUT = require('../../fixtures/param_finder_output.json');
 
 PARAM_FINDER_INPUT['csv'] = CSV_FILE;
 
