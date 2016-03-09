@@ -78,9 +78,12 @@ _chartDrawLine = _chartDrawLine;
 
 
 /**
- * DyGraph Plugin - AnomalyBarChart Plotter-like Plugin for Model Anomaly Result
+ * DyGraph Plugin: AnomalyBarChart Plotter-like Plugin for Model Anomaly Result.
+ *  Instead of using the Dygraph Chart Series rawData (already used and full),
+ *  we send model data to the plugin via customzing the Dygraph options with a
+ *  "modelData" key+value.
  * @requries Dygraphs
- * @see github.com/danvk/dygraphs/blob/master/src/plugins/range-selector.js
+ * @see github.com/danvk/dygraphs/blob/master/src/plugins/
  */
 export default class {
 
@@ -88,6 +91,8 @@ export default class {
    * Construct Dygraphs Plugin object
    */
   constructor() {
+    // super(); @TODO SuperClass shared features of DyGraph Plugins
+
     this._dataIndexTimestamp = 0;  // 0 for data timestamp field
     this._dataIndexAnomaly = 2;  // 2 for anomaly score field from model
 
@@ -116,6 +121,7 @@ export default class {
    * @returns {Object} - Dygraph Plugin utility hash object
    */
   activate(dygraph, registerer) {
+    return; /* eslint-disable */
     this._dygraph = dygraph;
 
     this._createInterface();
@@ -192,21 +198,18 @@ export default class {
     let modelData = this._getOption('modelData');
     let context = this._canvas_context;
     let xExtremes = this._dygraph.xAxisRange();
-    let yRange = 1;
     let margin = 0.5;
     // let canvasWidth = this._canvasRect.w - margin;
     let canvasHeight = this._canvasRect.h - margin;
     let stroke = 1;
+    let yRange = 1;
     let yFactor = Math.round(canvasHeight / yRange);
     // let xFactor;
 
     // pull out data for currently visible chart range
     modelData = modelData.filter((data) => {
       let time = data[this._dataIndexTimestamp].getTime();
-      if (time >= xExtremes[0] && time <= xExtremes[1]) {
-        return true;
-      }
-      return false;
+      return (time >= xExtremes[0] && time <= xExtremes[1]);
     });
 
     // xFactor = Math.round(canvasWidth / modelData.length);

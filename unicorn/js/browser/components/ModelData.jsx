@@ -16,8 +16,8 @@
 // http://numenta.org/licenses/
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
-// import Dygraph from 'dygraphs';
 import React from 'react';
+import RGBColor from 'rgbcolor';
 
 import AnomalyBarChart from '../lib/Dygraphs/AnomalyBarChartPlugin';
 import Chart from '../components/Chart';
@@ -25,6 +25,7 @@ import MetricDataStore from '../stores/MetricDataStore';
 import ModelDataStore from '../stores/ModelDataStore';
 import ModelStore from '../stores/ModelStore';
 import RangeSelectorBarChart from '../lib/Dygraphs/RangeSelectorBarChartPlugin';
+import Utils from '../../main/Utils';
 
 
 /**
@@ -59,17 +60,53 @@ export default class ModelData extends React.Component {
     this._anomalyBarWidth = Math.round(displayPointCount / 16, 10);
     this._anomalyValueHeight = 1.0;
 
-
-    // @TODO !!!! http://dygraphs.com/tests/underlay-callback.html
-
-
     this._chartOptions = {
       // dygraphs global chart options
       options: {
         plugins: [RangeSelectorBarChart, AnomalyBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
-        showRangeSelector: true
+        showRangeSelector: true,
+        underlayCallback: function (canvas, area, dygraph) {
+          let modelData = dygraph.getOption('modelData') || [];
+          let xAxisRange = dygraph.xAxisRange();
+          let yFactor = Math.round(area.h / this._anomalyValueHeight);
+          let halfBarWidth = Math.round(this._anomalyBarWidth / 2);
+
+          if (!(modelData.length)) {
+            return;  // no anomaly data, no draw bars.
+          }
+
+          console.log('...', modelData);
+
+          for (let index=0; index<modelData.length; index++) {
+            console.log('!!!', index);
+            let data = modelData[index];
+            let time = data[this._dataIndexTimestamp].getTime();
+            console.log('^^^', time);
+            let color, value, x, y;
+
+            if (time < xAxisRange[0] || time > xAxisRange[1]) {
+              return;  // filter out if not inside the current date range
+            }
+
+            value = data[this._dataIndexAnomaly];
+            x = dygraph.toDomXCoord(time);
+
+            if (isFinite(x) && (value >= 0.25)) {
+              // draw anomaly bar
+              y = this._yValueToPixel(value, yFactor);
+              color = Utils.mapAnomalyColor(value, this._anomalyValueHeight);
+              canvas.fillStyle = new RGBColor(color).toRGB();
+              canvas.fillRect(
+                x - halfBarWidth,
+                area.h,
+                this._anomalyBarWidth,
+                -y
+              );
+            }
+          } // modelData loop
+        }.bind(this) // underlayCallback
       },
 
       // main value data chart line (could be either Raw OR Aggregated data)

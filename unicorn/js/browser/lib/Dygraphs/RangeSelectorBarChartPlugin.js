@@ -24,7 +24,11 @@ import Utils from '../../../main/Utils';
 /**
  * DyGraph Plugin - RangeSelectorBarChart overlay for HTM Anomalies. Small clone
  *  and repurposing of the stock RangeSelector Dygraph plugin. Full ES6.
+ *  Instead of using the Dygraph Chart Series rawData (already used and full),
+ *  we send model data to the plugin via customzing the Dygraph options with a
+ *  "modelData" key+value.
  * @requries Dygraphs
+ * @see github.com/danvk/dygraphs/blob/master/src/plugins/
  * @see github.com/danvk/dygraphs/blob/master/src/plugins/range-selector.js
  */
 export default class {
@@ -33,7 +37,10 @@ export default class {
    * Construct Dygraphs Plugin object
    */
   constructor() {
-    this._seriesIndex = 2;  // 2 for anomaly score field from model
+    // super(); @TODO SuperClass shared features of DyGraph Plugins
+
+    this._dataIndexTimestamp = 0;  // 0 for data timestamp field
+    this._dataIndexAnomaly = 2;  // 2 for anomaly score field from model
 
     this._canvas = null;
     this._canvas_context = null;
@@ -135,8 +142,6 @@ export default class {
    */
   _drawMiniPlot() {
     let context = this._canvas_context;
-    let graph = this._dygraph;
-    let data = graph.rawData_;
     let xExtremes = this._dygraph.xAxisExtremes();
     let xRange = Math.max(xExtremes[1] - xExtremes[0], 1.e-30);
     let yRange = 1;
@@ -144,22 +149,31 @@ export default class {
     let canvasWidth = this._canvasRect.w - margin;
     let canvasHeight = this._canvasRect.h - margin;
     let xFactor = canvasWidth / xRange;
-    let barWidth = Math.ceil(data.length / canvasWidth);
     let previous = {x: null, value: null};
     let stroke = this._getOption('rangeSelectorPlotLineWidth');
-    let color, i, j, point, value, x;
+    let data = this._getOption('modelData') || [];
+    let barWidth, color, point, value, x;
 
-    for (i=0; i<data.length; i+=barWidth) {
+    if (!data.length) {
+      return;  // no data, no draw.
+    }
+
+    barWidth = Math.ceil(data.length / canvasWidth);
+
+    for (let i=0; i<data.length; i+=barWidth) {
       let points = data.slice(i, i + barWidth);
       let maxIndex = 0;
-      for (j=0; j<points.length; j++) {
-        let current = points[j];
-        if (current[this._seriesIndex] > points[maxIndex][this._seriesIndex]) {
+
+      for (let j=0; j<points.length; j++) {
+        let current = points[j][this._dataIndexAnomaly];
+        let max = points[maxIndex][this._dataIndexAnomaly];
+        if (current > max) {
           maxIndex = j;
         }
       }
+
       point = points[maxIndex]; // aggregate to prevent pixel overwriting
-      value = point[this._seriesIndex];
+      value = point[this._dataIndexAnomaly];
       x = this._xValueToPixel(point[0], xExtremes[0], xFactor);
 
       if (x === previous.x && value < previous.value) {
@@ -185,7 +199,7 @@ export default class {
     try {
       this._drawMiniPlot();
     } catch (error) {
-      console.error(error); // eslint-disable-line
+      console.error(error);  // eslint-disable-line
     }
   }
 
@@ -197,6 +211,22 @@ export default class {
    */
   _getOption(name, series) {
     return this._dygraph.getOption(name, series);
+  }
+
+  /**
+   * Detect if we have valid data input
+   * @returns {Boolean} - Flag if actual data was passed in or not
+   */
+  _hasData() {
+    let data = this._getOption('modelData');
+    let hasData = false;
+    let first = NaN;
+
+    if (data && data.length && data[0][this._dataIndexAnomaly]) {
+      first = data[0][this._dataIndexAnomaly];
+    }
+    hasData = !isNaN(first);
+    return hasData;
   }
 
   /**
@@ -271,7 +301,9 @@ export default class {
    */
   _updateVisibility() {
     let enabled = this._getOption('showRangeSelector');
-    let first = this._dygraph.rawData_[0][this._seriesIndex] || NaN;
+    let data = this._getOption('modelData');
+    let first = (data && data[0] && data[0][this._dataIndexAnomaly])
+                  ? data[0][this._dataIndexAnomaly] : NaN;
     let hasData = !isNaN(first);
 
     if (enabled) {
