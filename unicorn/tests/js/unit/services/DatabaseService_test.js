@@ -137,14 +137,17 @@ describe('DatabaseService:', () => {
     service.close((err) => assert.ifError(err));
     service.destroy((err) => assert.ifError(err));
   });
-  afterEach(() => {
+  afterEach((done) => {
     // Delete all records
     let db = service.levelup;
     let batch = db.batch();
     db.createReadStream()
       .on('data', (value) => batch.del(value.key))
       .on('error', assert.ifError)
-      .on('end', () => batch.write(assert.ifError));
+      .on('end', () => {
+        batch.write(assert.ifError);
+        done();
+      });
   });
 
   describe('Schema Validation:', () => {

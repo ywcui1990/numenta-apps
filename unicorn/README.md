@@ -329,18 +329,6 @@ Uncaught AssertionError: Fatal Python error: PyThreadState_Get: no current threa
 unset PYTHONPATH
 ```
 
-#### Temp DB Lock
-
-**Problem:**
-```shell
-Uncaught Error: IO error: lock /var/folders/tp/8m12mvkx06jg4rdtrsdgqgzc0000gn/T/unicorn_db/LOCK: already held by process
-```
-
-**Solution:**
-```shell
-sudo rm -Rf /var/folders/tp/8m12mvkx06jg4rdtrsdgqgzc0000gn/T/unicorn_db
-```
-
 
 ## Build
 
