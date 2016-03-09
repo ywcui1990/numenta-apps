@@ -85,6 +85,7 @@ const EXPECTED_FILE_SMALL = Object.assign({}, FILE_INSTANCE, {
 
 const INVALID_CSV_FILE = path.join(FIXTURES, 'invalid.csv');
 const TWO_DATES_FILE = path.join(FIXTURES, 'two-dates.csv');
+const NO_DATES_FILE = path.join(FIXTURES, 'no-dates.csv');
 const INVALID_DATE_CONTENT_FILE = path.join(FIXTURES, 'invalid-date-content.csv'); // eslint-disable-line
 const INVALID_DATE_FORMAT_FILE = path.join(FIXTURES, 'invalid-date-format.csv');
 const INVALID_NUMBER_FILE = path.join(FIXTURES, 'invalid-number.csv');
@@ -203,9 +204,15 @@ describe('FileService', () => {
         done();
       });
     });
-    it('should have one and only one date/time field', (done) => {
+    it('should not validate files with more than one date/time field', (done) => { // eslint-disable-line
       service.getFields(TWO_DATES_FILE, (error, results) => {
         assert(error, 'File with more than one date field was validated');
+        done();
+      });
+    });
+    it('should have one date/time field', (done) => { // eslint-disable-line
+      service.getFields(NO_DATES_FILE, (error, results) => {
+        assert(error, 'File without date field was validated');
         done();
       });
     });
