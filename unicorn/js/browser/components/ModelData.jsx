@@ -17,15 +17,16 @@
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import React from 'react';
-import RGBColor from 'rgbcolor';
 
-import AnomalyBarChart from '../lib/Dygraphs/AnomalyBarChartPlugin';
+import AnomalyBarChart from '../lib/Dygraphs/AnomalyBarChartUnderlay';
 import Chart from '../components/Chart';
+import {DATA_FIELD_INDEX} from '../lib/Constants';
 import MetricDataStore from '../stores/MetricDataStore';
 import ModelDataStore from '../stores/ModelDataStore';
 import ModelStore from '../stores/ModelStore';
 import RangeSelectorBarChart from '../lib/Dygraphs/RangeSelectorBarChartPlugin';
-import Utils from '../../main/Utils';
+
+const {DATA_INDEX_TIME, DATA_INDEX_VALUE} = DATA_FIELD_INDEX;
 
 
 /**
@@ -63,50 +64,11 @@ export default class ModelData extends React.Component {
     this._chartOptions = {
       // dygraphs global chart options
       options: {
-        plugins: [RangeSelectorBarChart, AnomalyBarChart],
+        plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
         showRangeSelector: true,
-        underlayCallback: function (canvas, area, dygraph) {
-          let modelData = dygraph.getOption('modelData') || [];
-          let xAxisRange = dygraph.xAxisRange();
-          let yFactor = Math.round(area.h / this._anomalyValueHeight);
-          let halfBarWidth = Math.round(this._anomalyBarWidth / 2);
-
-          if (!(modelData.length)) {
-            return;  // no anomaly data, no draw bars.
-          }
-
-          console.log('...', modelData);
-
-          for (let index=0; index<modelData.length; index++) {
-            console.log('!!!', index);
-            let data = modelData[index];
-            let time = data[this._dataIndexTimestamp].getTime();
-            console.log('^^^', time);
-            let color, value, x, y;
-
-            if (time < xAxisRange[0] || time > xAxisRange[1]) {
-              return;  // filter out if not inside the current date range
-            }
-
-            value = data[this._dataIndexAnomaly];
-            x = dygraph.toDomXCoord(time);
-
-            if (isFinite(x) && (value >= 0.25)) {
-              // draw anomaly bar
-              y = this._yValueToPixel(value, yFactor);
-              color = Utils.mapAnomalyColor(value, this._anomalyValueHeight);
-              canvas.fillStyle = new RGBColor(color).toRGB();
-              canvas.fillRect(
-                x - halfBarWidth,
-                area.h,
-                this._anomalyBarWidth,
-                -y
-              );
-            }
-          } // modelData loop
-        }.bind(this) // underlayCallback
+        underlayCallback: AnomalyBarChart.bind(null, this)
       },
 
       // main value data chart line (could be either Raw OR Aggregated data)
@@ -158,9 +120,6 @@ export default class ModelData extends React.Component {
     let {options, raw, value} = this._chartOptions;
     let {axes, labels, series} = value;
     let metaData = {model, length: {metric: 0, model: 0}};
-    let dataIndexTimestamp = 0;  // source data index = [0=ts]
-    let dataIndexValue = 1;  // source data index = [0=ts, 1=val]
-    // let dataIndexAnomaly = 2;  // source data index = [0=ts, 1=val, 2=ANOM]
     let data = [];  // actual matrix of data to plot w/dygraphs
 
     // --- keep track of Display+Data series on the Chart ---
@@ -249,15 +208,15 @@ export default class ModelData extends React.Component {
       //  Data with Aggregated Metric Data into output Chart Data grid.
       let newData = [];
       let dataId = 0;
-      let dataStamp = data[dataId][dataIndexTimestamp].getTime();
+      let dataStamp = data[dataId][DATA_INDEX_TIME].getTime();
       metricData.forEach((item, rowid) => { // increment pointer to metricData[]
-        let metricStamp = item[dataIndexTimestamp].getTime();
+        let metricStamp = item[DATA_INDEX_TIME].getTime();
         if (metricStamp < dataStamp) {
           // merge in raw metric data record
           newData.push([
             metricStamp,
             null,
-            item[dataIndexValue]
+            item[DATA_INDEX_VALUE]
           ]);
         } else {
           // merge in agg+anom data record
@@ -269,7 +228,7 @@ export default class ModelData extends React.Component {
 
           if (dataId < data.length - 1) {
             dataId++; // increment pointer to data[]
-            dataStamp = data[dataId][dataIndexTimestamp].getTime();
+            dataStamp = data[dataId][DATA_INDEX_TIME].getTime();
           }
         }
       });

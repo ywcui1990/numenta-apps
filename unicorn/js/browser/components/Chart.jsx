@@ -21,6 +21,10 @@ import Paper from 'material-ui/lib/paper';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import {DATA_FIELD_INDEX} from '../lib/Constants';
+
+const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
+
 
 /**
  * Chart Widget.
@@ -119,9 +123,8 @@ export default class Chart extends React.Component {
   _chartInitalize() {
     let {data, options} = this.props;
     let element = ReactDOM.findDOMNode(this.refs.chart);
-    let timestampIndex = 0;
-    let first = new Date(data[0][timestampIndex]).getTime();
-    let second = new Date(data[1][timestampIndex]).getTime();
+    let first = new Date(data[0][DATA_INDEX_TIME]).getTime();
+    let second = new Date(data[1][DATA_INDEX_TIME]).getTime();
     let unit = second - first; // each datapoint
 
     // determine each value datapoint time unit and chart width based on that
@@ -140,10 +143,9 @@ export default class Chart extends React.Component {
    */
   _chartUpdate() {
     let {data, options} = this.props;
-    let timestampIndex = 0;
     let model = this.props.metaData.model;
     let modelIndex = Math.abs(this.props.metaData.length.model - 1);
-    let first = new Date(data[0][timestampIndex]).getTime();
+    let first = new Date(data[0][DATA_INDEX_TIME]).getTime();
     let blockRedraw = modelIndex % 2 === 0; // filter out some redrawing
     let rangeMax, rangeMin;
 
@@ -156,7 +158,7 @@ export default class Chart extends React.Component {
 
     // scroll along with fresh anomaly model data input
     if (!this._chartBusy) {
-      rangeMax = new Date(data[modelIndex][timestampIndex]).getTime();
+      rangeMax = new Date(data[modelIndex][DATA_INDEX_TIME]).getTime();
       rangeMin = rangeMax - this._chartRangeWidth;
       if (rangeMin < first) {
         rangeMin = first;
