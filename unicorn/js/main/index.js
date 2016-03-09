@@ -78,7 +78,7 @@ function receiveModelData(modelId, data) {
   let [timestamp, value, score] = data; // eslint-disable-line
   let metricData = {
     metric_uid: modelId,
-    timestamp,
+    timestamp: new Date(timestamp).getTime(),
     metric_value: value,
     anomaly_score: score
   };

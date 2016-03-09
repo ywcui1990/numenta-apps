@@ -17,10 +17,11 @@
 
 
 /* eslint-disable no-var, object-shorthand, prefer-arrow-callback */
+import 'babel-polyfill' // Required  for 'Object.values' (node 5.1.1)
 
 import convertNewline from 'convert-newline';
 import csv from 'csv-streamify';
-import filesystem from 'fs';
+import fs from 'fs';
 import instantiator from 'json-schema-instantiator';
 import moment from 'moment';
 import path from 'path';
@@ -51,14 +52,80 @@ SCHEMAS.forEach((schema) => {
   VALIDATOR.addSchema(schema);
 });
 
+/**
+ * Check if the given value is a valid datetime value and returns the best
+ * matching timestamp format defined in {@link TIMESTAMP_FORMATS}
+ * @param  {string}  timestamp Formatted timestamp string to validate
+ * @return {string}            The best matching datetime format
+ *                             or `null` if value is not a valid date
+ */
+function guessTimestampFormat(timestamp) {
+  return TIMESTAMP_FORMATS.find((format) => {
+    return moment(timestamp, format, true).isValid();
+  });
+}
+
+/**
+ * Guess field definitions from string values
+ * @param  {string}   filename   Full path name
+ * @param  {string[]} values     Array of field values
+ * @param  {string[]} [names]    Optional Array of field names, usually the
+ *                               first row on a CSV file. If not given the names
+ *                               will be based on the data types, where datetime
+ *                               field is named `timestamp` and numeric
+ *                               fields are named `metricX`, ignoring all
+ *                               other fields. Something like this:
+ *
+ *                               	timestamp, metric1, metric2, ...
+ *
+ * @return {Field[]}          Array of valid {@link Field} definitions or an
+ *                            empty array if no valid field was found
+ */
+function guessFields(filename, values, names) {
+  let fields = [];
+  let fileId = Utils.generateFileId(filename);
+  let metricX = 1;
+  for (let index=0; index < values.length; index++) {
+    let field = Object.assign({}, INSTANCES.METRIC, {
+      file_uid: fileId,
+      index
+    });
+
+    // Check for valid field types (date or number)
+    let value = values[index].trim();
+    if (value.length > 0) {
+      let format = guessTimestampFormat(value);
+      if (format) {
+        field.type = 'date';
+        field.format = format;
+        if (names) {
+          field.name = names[index];
+        } else {
+          field.name = 'timestamp';
+        }
+        field.uid = Utils.generateMetricId(filename, field.name);
+        fields.push(field);
+      } else if (Number.isFinite(Number(value))) {
+        field.type = 'number';
+        if (names) {
+          field.name = names[index];
+        } else {
+          field.name = `metric${metricX}`;
+          metricX++;
+        }
+        field.uid = Utils.generateMetricId(filename, field.name);
+        fields.push(field);
+      }
+    }
+  }
+  return fields;
+}
 
 /**
  * Unicorn: FileService - Respond to a FileClient over IPC, sharing our access to
  *  the Node layer of filesystem, so client can CRUD files.
  */
 export class FileService {
-  constructor() {
-  }
 
   /**
    * Reads the entire contents of a file.
@@ -66,7 +133,7 @@ export class FileService {
    * @param {Function} callback - Async callback: function (error, results)
    */
   getContents(filename, callback) {
-    filesystem.readFile(filename, callback);
+    fs.readFile(filename, callback);
   }
 
   /**
@@ -74,18 +141,15 @@ export class FileService {
    * @param {Function} callback - Async callback: function (error, results)
    */
   getSampleFiles(callback) {
-    filesystem.readdir(SAMPLES_FILE_PATH, function (error, data) {
-      let files;
+    fs.readdir(SAMPLES_FILE_PATH, function (error, data) {
       if (error) {
         callback(error, null);
         return;
       }
-      files = data.map((item) => {
+      let files = data.map((item) => {
         let filename = path.resolve(SAMPLES_FILE_PATH, item);
         let record = Object.assign({}, INSTANCES.FILE, {
           uid: Utils.generateFileId(filename),
-          description: '',
-          timestampFormat: 'MM-DD-YY HH:mm',
           name: path.basename(item),
           filename: filename,
           type: 'sample'
@@ -101,67 +165,93 @@ export class FileService {
   }
 
   /**
-   * Get all field definitions for the give file guessing data types based on
-   *  first record.
-   * @param {string} filename - The absolute path of the CSV file
-   * @param {Object} options -  Optional settings. See #getData()
-   * @param {Function} callback - Called with an array of field definitions in the
-   *  following format:
-   *  <code> { name:'fieldName', type:'number', date:'string' } </code>
+   * Get all field definitions for the give file guessing header row and
+   * data types based on first record, validating the file structure based on
+   * the following criteria:
+   * - The file must be valid CSV file
+   * - The file must have one and only one date/time field
+   * - The file must have at least one scalar fields
+   * - Ignore all other fields
+   *
+   * If the first row only contain strings then use it as header row, otherwise
+   * the header should be based on data type, something like this:
+   *
+   * ```
+   *   timestamp, metric1, metric2, ...
+   * ```
+   *
+   * Where the datetime field is named `timestamp` and
+   * numeric values are named `metricX`. All other fields are ignored.
+   *
+   * When the file passes all validations, this method will invoke the
+   * `callback` function with the following results:
+   *
+   * ```
+   * {
+   * 	fields: [metrics], // Array of Metric definitions. See "Metric.json"
+   * 	offset: 0 | 1   // index of first data row in CSV file; zero-based
+   * }
+   * ```
+   *
+   * Otherwise  the `callback` function will be called with the relevant errors
+   * message.
+   *
+   * @param  {string}   filename  Full path name
+   * @param  {Function} callback called when the operation is complete with
+   *                             results or error message
+   * @see Metric.json
    */
-  getFields(filename, options, callback) {
-    let fields = [];
-    let fieldName, newliner, stream, validation;
-
-    // "options" is optional
-    if (typeof callback == 'undefined' && typeof options == 'function') {
-      callback = options;
-      options = {};
-    }
-    // Update default values
-    if (!('columns' in options)) {
-      options.columns = true;
-    }
-    options.objectMode = true;
-
-    stream = filesystem.createReadStream(
-      path.resolve(filename),
-      {encoding: 'utf8'}
-    );
-    newliner = convertNewline('lf').stream();
+  getFields(filename, callback) {
+    let stream = fs.createReadStream(filename , {encoding: 'utf8'});
+    let offset = 0;
+    let headers = null;
+    let parser = csv({
+      objectMode: true,
+      columns: false
+    });
+    let newliner = convertNewline('lf').stream();
     stream.pipe(newliner)
-      .pipe(csv(options))
-      .once('data', function (data) {
-        if (data) {
-          for (fieldName in data) {
-            const val = data[fieldName];
-            let field = Object.assign({}, INSTANCES.METRIC, {
-              uid: Utils.generateMetricId(filename, fieldName),
-              file_uid: Utils.generateFileId(filename),
-              name: fieldName
-            });
-            if (Number.isFinite(Number(val))) {
-              field.type = 'number';
-            } else if (Number.isFinite(Date.parse(val))) {
-              field.type = 'date';
-              // Guess timestamp format
-              field.format = TIMESTAMP_FORMATS.find((format) => {
-                return moment(val, format, true).isValid();
-              });
-            }
-            validation = VALIDATOR.validate(field, DBMetricSchema);
-            if (validation.errors.length) {
-              return callback(validation.errors, null);
-            }
-            fields.push(field);
-          }
-          stream.unpipe();
+      .pipe(parser)
+      .on('data', (line) => {
+        let values = Object.values(line);
+        // Make sure it is a valid CSV file
+        if (values.length <= 1) {
+          // Could not parse any columns out of this file
+          parser.removeAllListeners();
           stream.destroy();
-          return callback(null, fields);
-        } // if data
-      }) // on data
-      .once('error', callback)
-      .once('end', callback);
+          callback('Invalid CSV file');
+          return;
+        }
+
+        let fields = guessFields(filename, values, headers);
+        if (fields.length !== 0) {
+          let error = null;
+
+          // Check if file has only one date field and at least one number
+          let dateFields = fields.filter((field) => {
+            return field.type === 'date';
+          });
+          if (dateFields.length !== 1) {
+            error = 'The file should have one and only one date/time column';
+          } else if (!fields.some((field) => field.type === 'number')) {
+            error = 'The file should have at least one numeric value';
+          }
+
+          parser.removeAllListeners();
+          stream.destroy();
+          callback(error, {fields, offset});
+          return;
+        } else if (offset === 1) {
+          // Unable to guess fields from first 2 lines.
+          parser.removeAllListeners();
+          stream.destroy();
+          callback('Invalid CSV file');
+          return;
+        }
+        // Use first line as headers and wait for the second line
+        headers = values;
+        offset++;
+      });
   }
 
   /**
@@ -169,7 +259,7 @@ export class FileService {
    * @param {string} filename - The absolute path of the CSV file to load
    * @param {Object} options - Optional settings
    *                    See https://github.com/klaemo/csv-stream#options
-   *                    ```
+   *
    *                     {
    *                        delimiter: ',', // comma, semicolon, whatever
    *                        newline: '\n', // newline delimiter
@@ -189,7 +279,7 @@ export class FileService {
    *
    *                        // Aggregation settings. See {TimeAggregator}
    *                        aggregation: {
-   *                       		// Name of the field representing 'time'
+   *                          // Name of the field representing 'time'
    *                          'timefield' : {String},
    *                          // Name of the field containing the 'value'
    *                          'valuefield': {String},
@@ -200,7 +290,7 @@ export class FileService {
    *                          'interval' : {number}
    *                        }
    *                      }
-   *                    ```
+   *
    * @param {Function} callback - This callback to be called on every record.
    *                              `function (error, data)`
    */
@@ -219,10 +309,7 @@ export class FileService {
     }
 
     let limit = options.limit;
-    let fileStream = filesystem.createReadStream(
-      path.resolve(filename),
-      {encoding: 'utf8'}
-    );
+    let fileStream = fs.createReadStream(filename, {encoding: 'utf8'});
     let newliner = convertNewline('lf').stream();
     let csvParser = csv(options);
     let lastStream = csvParser;
@@ -237,7 +324,7 @@ export class FileService {
           callback(null, data); // eslint-disable-line callback-return
         }
         if (limit === 0) {
-          fileStream.unpipe();
+          lastStream.removeAllListeners();
           fileStream.destroy();
           callback(); // eslint-disable-line callback-return
         }
@@ -258,7 +345,7 @@ export class FileService {
    * @param {string} filename - The absolute path of the CSV file
    * @param {Object} options - Optional settings
    *                    See https://github.com/klaemo/csv-stream#options
-   *                    <code>
+   *
    *                     {
    *                       delimiter: ',', // comma, semicolon, whatever
    *                       newline: '\n', // newline delimiter
@@ -270,26 +357,24 @@ export class FileService {
    *                       columns: true,
    *                       // Max Number of records to process
    *                       limit: Number.MAX_SAFE_INTEGER
-   *                      }
-   *                    </code>
+   *                     }
+   *
    * @param {Function} callback - This callback will be called with the results in
-   *                              the following format:
-   *                              `function (error, stats)`
-   *                              ```
+   *                              the following format: `function (error, stats)`
+   *
    *                              stats = {
-   *                              	count: '100',
-   *                              	fields: {
-   *                              		fieldName : {
-   *                              		  min: '0',
-   *                              		  max: '10',
-   *                              		  sum: '500',
-   *                              		  mean: '5',
-   *                              		  variance: '4',
-   *                              		  stdev: '2'
-   *                              	  }, ...
-   *                              	}
+   *                                count: '100',
+   *                                fields: {
+   *                                  fieldName : {
+   *                                    min: '0',
+   *                                    max: '10',
+   *                                    sum: '500',
+   *                                    mean: '5',
+   *                                    variance: '4',
+   *                                    stdev: '2'
+   *                                  }, ...
+   *                                }
    *                              }
-   *                              ```
    */
   getStatistics(filename, options, callback) {
     // "options" is optional
@@ -360,8 +445,90 @@ export class FileService {
       }
     });
   }
-}
 
+  /**
+   *  Validate file making sure scalar and time data fields must be valid
+   *  throughout the whole file returning field definitions and {@link File}
+   *  object with row offset and the total number of records in the file.
+   * ```
+   * {
+   *   file: File,
+   *   fields: [metrics]
+   * }
+   * ```
+   *
+   * @param  {string}   filename  Full path name
+   * @param  {Function} callback called when the operation is complete with
+   *                             results or error message
+   * @see {@link #getFields}
+   * @see File.json
+   * @see Metric.json
+   */
+  validate(filename, callback) {
+    let file = Object.assign({}, INSTANCES.FILE, {
+      uid: Utils.generateFileId(filename),
+      name: path.basename(filename),
+      filename: filename
+    });
+
+    // Validate fields
+    this.getFields(filename, (error, validFields) => {
+      if (error) {
+        callback(error, {file});
+        return;
+      }
+      // Update file and fields
+      let fields = validFields.fields;
+      let offset = validFields.offset;
+
+      // Load data
+      let stream = fs.createReadStream(filename, {
+        encoding: 'utf8'
+      });
+      let csvParser = csv({columns: false, objectMode: true});
+      let newliner = convertNewline('lf').stream();
+      let row = 0;
+
+      csvParser.on('data', (data) => {
+        row++;
+        // Skip header row offset
+        if (row <= offset) {
+          return;
+        }
+        let error;
+        let valid = fields.every((field, index) => {
+          let value = data[field.index];
+          error = `Invalid ${field.type} at row ${row}: ` +
+                  `Found ${field.name} = '${value}'`;
+          if (field.format) {
+            error += `, expecting ${field.type} matching '${field.format}'`;
+          }
+          switch (field.type) {
+          case 'number':
+            return Number.isFinite(Number(value));
+          case 'date':
+            return moment(value, field.format).isValid();
+          default:
+            return true;
+          }
+        })
+        if (!valid) {
+          csvParser.removeAllListeners();
+          stream.destroy();
+          callback(error, {file});
+          return;
+        }
+      })
+      .once('error', callback)
+      .once('end', () => {
+        file.records = row;
+        file.rowOffset = offset;
+        callback(null, {file, fields});
+      });
+      stream.pipe(newliner).pipe(csvParser);
+    });
+  }
+}
 
 // Returns singleton
 const SERVICE = new FileService();

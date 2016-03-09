@@ -33,7 +33,12 @@ const {DATA_INDEX_TIME, DATA_INDEX_VALUE} = DATA_FIELD_INDEX;
  * React Component for sending Model Data from Model component to
  *  Chart component.
  */
-@connectToStores([MetricDataStore, ModelDataStore, ModelStore], () => ({}))
+@connectToStores([MetricDataStore, ModelDataStore, ModelStore],
+  (context, props) => ({
+    metricData: context.getStore(MetricDataStore).getData(props.modelId),
+    modelData: context.getStore(ModelDataStore).getData(props.modelId),
+    model: context.getStore(ModelStore).getModel(props.modelId)
+  }))
 export default class ModelData extends React.Component {
 
   static get contextTypes() {

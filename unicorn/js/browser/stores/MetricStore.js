@@ -111,7 +111,7 @@ export default class MetricStore extends BaseStore {
    * @return {MetricStore.Metric} The metric object or `null`
    */
   getMetric(metricId) {
-    return this._metrics[metricId];
+    return this._metrics.get(metricId);
   }
 
   /**

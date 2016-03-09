@@ -176,15 +176,15 @@ export default class FileList extends React.Component {
     ref.setState({open: !ref.state.open});
   }
 
-  _handleFileContextMenu(filename, event, action) {
+  _handleFileContextMenu(file, event, action) {
     if (action === 'detail') {
-      this.context.executeAction(ShowFileDetailsAction, filename);
+      this.context.executeAction(ShowFileDetailsAction, file);
     } else if (action === 'delete') {
       this._showDeleteConfirmDialog(
         this._config.get('dialog:file:delete:title'),
         this._config.get('dialog:file:delete:message'),
         () => {
-          this.context.executeAction(DeleteFileAction, filename);
+          this.context.executeAction(DeleteFileAction, file.filename);
           this._dismissDeleteConfirmDialog();
         }
       );
@@ -267,13 +267,12 @@ export default class FileList extends React.Component {
       if (file.type === filetype) {
         let color = this.context.muiTheme.rawTheme.palette.primary1Color;
         let fileId = file.uid;
-        let filename = file.filename;
         let contextMenu = (
           <IconMenu
             iconButtonElement={
               <IconButton><IconMore color={color} /></IconButton>
             }
-            onChange={this._handleFileContextMenu.bind(this, filename)}
+            onChange={this._handleFileContextMenu.bind(this, file)}
             style={this._styles.more}
             >
               <MenuItem index={1}

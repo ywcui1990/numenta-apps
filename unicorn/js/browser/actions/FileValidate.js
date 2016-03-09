@@ -1,4 +1,4 @@
-// Copyright © 2015, Numenta, Inc.  Unless you have purchased from
+// Copyright © 2016, Numenta, Inc.  Unless you have purchased from
 // Numenta, Inc. a separate commercial license for this software code, the
 // following terms and conditions apply:
 //
@@ -18,26 +18,22 @@
 import {ACTIONS} from '../lib/Constants';
 
 /**
- * Load model data
- * @param  {FluxibleContext} actionContext [description]
- * @param  {string} modelId      [description]
- * @emits {LOAD_MODEL_DATA_FAILED}
- * @emits {LOAD_MODEL_DATA}
+ * Validate the file
+ *
+ * @param {FluxibleContext} actionContext FluxibleContext
+ * @param  {string} filename      File full path name
  * @return {Promise}
  */
-export default function (actionContext, modelId) {
+export default function (actionContext, filename) {
   return new Promise((resolve, reject) => {
-    let db = actionContext.getDatabaseClient();
-    db.getModelData(modelId, (error, modelData) => {
+    let fs = actionContext.getFileClient();
+    fs.validate(filename, (error, results) => {
       if (error) {
-        actionContext.dispatch(ACTIONS.LOAD_MODEL_DATA_FAILED, error);
-        reject(error);
-      } else {
-        let data = JSON.parse(modelData);
-        actionContext.dispatch(ACTIONS.LOAD_MODEL_DATA, {
-          modelId, data
+        actionContext.dispatch(ACTIONS.VALIDATE_FILE_FAILED, {
+          error, ...results
         });
-        resolve(data);
+      } else {
+        actionContext.dispatch(ACTIONS.VALIDATE_FILE, results);
       }
     });
   });

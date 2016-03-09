@@ -24,50 +24,5 @@
  */
 
 let remote = require('remote'); // eslint-disable-line
-
-
-/**
- * Get all metrics from the given files as a {@link Promise}
- * @param {FileClient} fs instance to {FileClient} object
- * @param  {Array<FileStore.File>} files Array of files
- * @return {Promise}   A promise resolving to all metrics
- */
-export function promiseMetricsFromFiles(fs, files) {
-  return Promise.all(files.map((file) => {
-    return new Promise((resolve, reject) => {
-      fs.getFields(file.filename, (error, metrics) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(metrics);
-        }
-      });
-    });
-  }))
-  .then((arrayOfMetrics) => {
-    // Combine array of metrics created by Promise.all into one single array
-    return [].concat(...arrayOfMetrics);
-  });
-}
-
-/**
- * Get all sameple files as a {@link Promise}
- * @param {FileClient} fs instance to {FileClient} object
- * @return {Promise}   A promise resolving to all sample files
- */
-export function promiseLoadSampleFilesFromDisk(fs) {
-  return new Promise((resolve, reject) => {
-    // Load sample files
-    fs.getSampleFiles((error, files) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(files);
-      }
-    });
-  });
-}
-
-
 let client = remote.require('./FileService').default; // Get singleton
 export default client;

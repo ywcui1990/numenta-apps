@@ -24,6 +24,7 @@ import instantiator from 'json-schema-instantiator';
 import json2csv from 'json2csv-stream';
 import leveldown from 'leveldown';
 import levelup from 'levelup';
+import moment from 'moment';
 import path from 'path';
 import sublevel from 'level-sublevel';
 import Batch from 'level-sublevel/batch';
@@ -50,7 +51,6 @@ const SCHEMAS = [
   MRAggregationSchema, MRInputSchema, MRModelSchema,
   PFInputSchema, PFOutputSchema
 ];
-
 
 /**
  * Calculate default database location. If running inside `Electron` then use
@@ -80,7 +80,6 @@ function _getDefaultDatabaseLocation() {
 function stringifyResultsCallback(callback) {
   return (error, data) => callback(error, JSON.stringify(data));
 }
-
 
 /**
  * Unicorn: DatabaseService - Respond to a DatabaseClient over IPC.
@@ -204,7 +203,9 @@ export class DatabaseService {
       lt: `${metricId}\xff`
     })
     .on('data', (metric) => {
-      results.push(metric);
+      results.push([
+        metric.timestamp, metric.metric_value, metric.anomaly_score
+      ]);
     })
     .on('error', callback)
     .on('end', () => {
@@ -214,8 +215,8 @@ export class DatabaseService {
   }
 
   /**
-   * Get all/queried MetricData records.
    * @callback
+   * Get MetricData values for the given metric.
    * @param {string} metricId Metric ID
    * @param {Function} callback Async callback: function (error, results)
    *                            The results will be JSON.stringified
@@ -228,7 +229,7 @@ export class DatabaseService {
       lt: `${metricId}\xff`
     })
     .on('data', (metric) => {
-      results.push(metric);
+      results.push([metric.timestamp, metric.metric_value]);
     })
     .on('error', callback)
     .on('end', () => {
@@ -475,7 +476,10 @@ export class DatabaseService {
       callback(error);
     })
     .on('data', (result) => {
-      parser.write(JSON.stringify(result));
+      let data = Object.assign({}, result, {
+        timestamp: new Date(result.timestamp)
+      });
+      parser.write(JSON.stringify(data));
     })
     .on('end', () => {
       parser.end();
@@ -684,14 +688,15 @@ export class DatabaseService {
 
   /**
    * Upload a new file to the database performing the following steps:
-   *  1) Save file metadata
-   *  2) Save fields/metrics metadata
-   *  3) Save metric data
+   * - Save file metadata
+   * - Save fields/metrics metadata
+   * - Save metric data
    *
-   * @param {string|File} fileToUpload - Full path name or preconfigured File
-   *                                     object. See {@link DBFileSchema}.
-   * @param {Function} callback - Called when the operation is complete with the
-   *                              uploaded file record or error.
+   * > NOTE: It assumes the file passed validation. See {@link FileService#validate}
+   *
+   * @param  {string|File}   fileToUpload  Full path name or preconfigured File object. See {@link DBFileSchema}
+   * @param  {Function} callback called when the operation is complete with the
+   *                             uploaded file record or error
    */
   uploadFile(fileToUpload, callback) {
     let file = fileToUpload;
@@ -700,7 +705,6 @@ export class DatabaseService {
       file.uid = Utils.generateFileId(fileToUpload);
       file.filename = fileToUpload;
       file.name = path.basename(fileToUpload);
-      file.type = 'uploaded';
     } else {
       // Validate file object
       const validation = this.validator.validate(file, DBFileSchema);
@@ -709,63 +713,60 @@ export class DatabaseService {
         return;
       }
     }
+
     let promisify = Utils.promisify;
-    // Save file
-    promisify(::this.putFile, file)
-      // Load metrics from file
-      .then(() => promisify(::fileService.getFields, file.filename))
-      // Create metrics for each numeric and timestamp fields
-      .then((fields) => {
-        let metrics = fields.filter((field) => {
-          return ['date', 'number'].includes(field.type);
-        });
-        return promisify(::this.putMetricBatch, metrics)
-          .then(() => Promise.resolve(metrics));
+    promisify(::fileService.getFields, file.filename)
+      .then((results) => {
+        let {offset, fields} = results;
+        file.rowOffset = offset;
+        // Save metrics
+        return promisify(::this.putMetricBatch, fields)
+          .then(() => Promise.resolve(fields));
       })
-      // Load data
       .then((metrics) => {
         // Find timestamp field
-        let timestampField = metrics.find((field) => {
-          return field.type === 'date';
-        }).name;
+        let timestampField = metrics.find((field) => field.type === 'date');
 
         // Load data from file
-        fileService.getData(
-          file.filename,
-          {objectMode: true},
-          (error, data) => {
-            if (error) {
-              throw error;
-            }
-            if (data) {
-              metrics.forEach((field) => {
-                // Save metric for each numeric field
-                if (field.type === 'number') {
-                  let mid = Utils.generateMetricId(file.filename, field.name);
-                  let metricData = {
-                    metric_uid: mid,
-                    timestamp: data[timestampField],
-                    metric_value: parseFloat(data[field.name])
-                  };
-                  // Save data
-                  this.putMetricData(metricData, (error) => { // eslint-disable-line
-                    if (error) {
-                      throw error;
-                    }
-                  });
-                }
-              });
-            } else {
-              // No more data
-              callback(null, file);
-              return;
-            }
+        let records = file.rowOffset;
+        let options = {
+          objectMode: true,
+          columns: file.rowOffset === 1
+        };
+        fileService.getData(file.filename, options, ((error, data) => { // eslint-disable-line
+          if (error) {
+            throw error;
           }
-        );
+          if (data) {
+            records++;
+            metrics.forEach((field) => {
+              // Collect data for each numeric field
+              if (field.type === 'number') {
+                let metricData = {
+                  metric_uid: field.uid,
+                  timestamp: moment(data[timestampField.name], timestampField.format).valueOf(), // eslint-disable-line
+                  metric_value: parseFloat(data[field.name])
+                };
+                // Save data
+                this.putMetricData(metricData, (error) => { // eslint-disable-line
+                  if (error) {
+                    throw error;
+                  }
+                });
+              }
+            });
+          } else {
+            // No more data
+            file.records = records;
+            this.putFile(file, (error) => {
+              callback(error, file);
+            })
+            return;
+          }
+        }))
       })
       .catch(callback);
   }
-
 }
 
 // Returns singleton

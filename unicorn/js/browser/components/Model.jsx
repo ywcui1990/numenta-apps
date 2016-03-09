@@ -25,7 +25,6 @@ import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
-import path from 'path';
 import React from 'react';
 import {remote} from 'electron';
 
@@ -38,18 +37,21 @@ import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
 import ShowCreateModelDialogAction from '../actions/ShowCreateModelDialog';
 import StartParamFinderAction from '../actions/StartParamFinder';
+import {TIMESTAMP_FORMAT_PY_MAPPING} from '../../config/timestamp';
 
 const dialog = remote.require('dialog');
-const MOMENTS_TO_DATETIME =
-  require('../../config/momentjs_to_datetime_strptime.json');
-
 
 /**
  * Model component, contains Chart details, actions, and Chart Graph itself.
  */
-@connectToStores([ModelStore, FileStore, MetricStore], (context) => ({
-  files: context.getStore(FileStore).getFiles()
-}))
+@connectToStores([ModelStore, MetricStore], (context, props) => {
+  let model = context.getStore(ModelStore).getModel(props.modelId);
+  let file = context.getStore(FileStore).getFile(model.filename);
+  let valueField = context.getStore(MetricStore).getMetric(props.modelId);
+  let metrics = context.getStore(MetricStore).getMetricsByFileId(file.uid);
+  let timestampField = metrics.find((metric) => metric.type === 'date');
+  return {model, file, valueField, timestampField};
+})
 export default class Model extends React.Component {
 
   static get contextTypes() {
@@ -70,16 +72,13 @@ export default class Model extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    let store = this.context.getStore(ModelStore);
-    let model = store.getModel(this.props.modelId);
-
     this._config = this.context.getConfigClient();
 
     // init state
-    this.state = Object.assign({
+    this.state = {
       deleteConfirmDialog: null,
       showNonAgg: false  // show raw data overlay on top of aggregate chart?
-    }, model);
+    };
 
     // style
     this._styles = {
@@ -108,12 +107,11 @@ export default class Model extends React.Component {
         }
       }
     };
-  }
 
-  componentWillReceiveProps(nextProps) {
-    let store = this.context.getStore(ModelStore);
-    let model = store.getModel(nextProps.modelId);
-    this.setState(Object.assign({}, model));
+    // init state
+    this.state = {
+      deleteConfirmDialog: null
+    };
   }
 
   /**
@@ -134,27 +132,32 @@ export default class Model extends React.Component {
     });
   }
 
-  _createModel(metricName, metricId, csvPath, rowOffset, timestampIndex,
-                valueIndex, datetimeFormat) {
+  _createModel(model, file, valueField, timestampField) {
     let inputOpts = {
-      csv: csvPath, rowOffset, timestampIndex, valueIndex, datetimeFormat
+      csv: file.filename,
+      rowOffset: file.rowOffset,
+      timestampIndex: timestampField.index,
+      valueIndex: valueField.index,
+      datetimeFormat: TIMESTAMP_FORMAT_PY_MAPPING[timestampField.format]
     };
     this.context.executeAction(ShowCreateModelDialogAction, {
-      fileName: path.basename(csvPath),
-      metricName
+      fileName: file.name,
+      metricName: valueField.name
     });
-    this.context.executeAction(StartParamFinderAction, {metricId, inputOpts});
+
+    this.context.executeAction(StartParamFinderAction, {
+      metricId: model.modelId,
+      inputOpts
+    });
   }
 
   _deleteModel(modelId) {
     this._showDeleteConfirmDialog(
       this._config.get('dialog:model:delete:title'),
-      this._config.get('dialog:model:delete:message'),
-      () => {
+      this._config.get('dialog:model:delete:message'), () => {
         this.context.executeAction(DeleteModelAction, modelId);
         this._dismissDeleteConfirmDialog();
-      }
-    );
+      });
   }
 
   _exportModelResults(modelId) {
@@ -163,9 +166,9 @@ export default class Model extends React.Component {
       defaultPath: this._config.get('dialog:model:export:path')
     }, (filename) => {
       if (filename) {
-        this.context.executeAction(
-          ExportModelResultsAction, {modelId, filename}
-        );
+        this.context.executeAction(ExportModelResultsAction, {
+          modelId, filename
+        });
       } else {
         // @TODO trigger error about "bad file"
       }
@@ -183,46 +186,17 @@ export default class Model extends React.Component {
   }
 
   render() {
+    let {model, file, valueField, timestampField} = this.props;
+    let title = model.metric;
+    let hasModelRun = (model && ('ran' in model) && model.ran);
+
     // prep UI
     let muiTheme = this.context.muiTheme;
     let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
     let showNonAgg = this.state.aggregated && this.state.showNonAgg === true;
     let openDialog = this.state.deleteConfirmDialog !== null;
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
-    let actions, dialogActions, showNonAggAction;
-
-    // load and prep data
-    let model = this.state;
-    let {modelId, metric: title} = model;
-    let filename = path.basename(model.filename);
-    let hasModelRun = (model && ('ran' in model) && model.ran);
-    let file = this.props.files.find((file) => {
-      return file.name === path.basename(model.filename);
-    });
-    let modelStore = this.context.getStore(MetricStore);
-    let metrics = modelStore.getMetricsByFileId(file.uid);
-    let tsFormat = file.timestampFormat;
-    let datetimeFormatCategory = MOMENTS_TO_DATETIME.find((category) => {
-      return category.mappings[tsFormat];
-    });
-    let datetimeFormat = datetimeFormatCategory.mappings[tsFormat];
-    let timestampIndex = 0;
-    let valueIndex = 1;
-    let rowOffset = 1;  // @TODO should be replaced by user defined selection (if check use first row as headers) at file upload time
-    let csvPath, metric, metricName, titleColor; // eslint-disable-line
-
-    for (let [, value] of metrics.entries()) {
-      // @TODO UNI-324
-      // if (value.type === 'date') {
-      //   timestampIndex = index;
-      // }
-      if (value.name === this.state.metric) {
-        // valueIndex = index;
-        metric = value
-      }
-    }
-    csvPath = file.filename;
-    metricName = metric.name;
+    let actions, dialogActions, showNonAggAction, titleColor;
 
     // prep visual sub-components
     dialogActions = [
@@ -245,8 +219,8 @@ export default class Model extends React.Component {
           label={this._config.get('button:model:create')}
           labelPosition="after"
           onTouchTap={
-            this._createModel.bind(this, metricName, metric.uid, csvPath,
-                rowOffset, timestampIndex, valueIndex, datetimeFormat)
+            this._createModel.bind(this, model, file, valueField,
+              timestampField)
           }
           primary={!hasModelRun}
           />
@@ -254,14 +228,14 @@ export default class Model extends React.Component {
           disabled={!hasModelRun}
           label={this._config.get('button:model:delete')}
           labelPosition="after"
-          onTouchTap={this._deleteModel.bind(this, modelId)}
+          onTouchTap={this._deleteModel.bind(this, model.modelId)}
           primary={hasModelRun}
           />
         <FlatButton
           disabled={!hasModelRun}
           label={this._config.get('button:model:export')}
           labelPosition="after"
-          onTouchTap={this._exportModelResults.bind(this, modelId)}
+          onTouchTap={this._exportModelResults.bind(this, model.modelId)}
           primary={hasModelRun}
           />
       </CardActions>
@@ -283,7 +257,7 @@ export default class Model extends React.Component {
     // eror handle
     if (model.error) {
       titleColor = Colors.red400;
-      filename = model.error.message;
+      file.name = model.error.message;
     }
 
     // actual render
@@ -291,25 +265,23 @@ export default class Model extends React.Component {
       <Card initiallyExpanded={true} style={this._styles.root}>
         <CardHeader
           showExpandableButton={false}
-          subtitle={<div style={this._styles.title}>{filename}</div>}
+          subtitle={<div style={this._styles.title}>{file.name}</div>}
           title={<div style={this._styles.title}>{title}</div>}
-          titleColor={titleColor}
-          />
+          titleColor={titleColor} />
         <CardText expandable={false}>
           {actions}
           {showNonAggAction}
-          <ModelData modelId={modelId} showNonAgg={showNonAgg} />
+          <ModelData modelId={model.modelId} showNonAgg={showNonAgg} />
         </CardText>
         <Dialog
           actions={dialogActions}
           onRequestClose={this._dismissDeleteConfirmDialog.bind(this)}
           open={openDialog}
           ref="deleteConfirmDialog"
-          title={deleteConfirmDialog.title}
-          >
+          title={deleteConfirmDialog.title}>
             {deleteConfirmDialog.message}
         </Dialog>
-        <CreateModelDialog ref="createModelWindow" initialOpenState={false}/>
+        <CreateModelDialog ref="createModelWindow" initialOpenState={false} />
       </Card>
     );
   }
