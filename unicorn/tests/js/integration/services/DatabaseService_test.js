@@ -42,11 +42,12 @@ const INSTANCES = {
   ModelData: instantiator.instantiate(DBModelDataSchema)
 };
 
-const AGG_OPTIONS = require('../fixtures/model_runner_agg.json');
-const MODEL_OPTIONS = require('../fixtures/model_runner_model.json');
-const INPUT_OPTIONS = require('../fixtures/param_finder_input.json');
+const FIXTURES = path.resolve(__dirname, '..', '..', 'fixtures');
+const AGG_OPTIONS = require('../../fixtures/model_runner_agg.json');
+const MODEL_OPTIONS = require('../../fixtures/model_runner_model.json');
+const INPUT_OPTIONS = require('../../fixtures/param_finder_input.json');
 
-const EXPECTED_FILENAME = path.resolve(__dirname, '..', 'fixtures', 'file.csv');
+const EXPECTED_FILENAME = path.join(FIXTURES, 'file.csv');
 const EXPECTED_FILENAME_ID = Utils.generateFileId(EXPECTED_FILENAME);
 const EXPECTED_METRIC_ID = Utils.generateMetricId(EXPECTED_FILENAME, 'metric');
 const EXPECTED_TIMESTAMP_ID = Utils.generateMetricId(EXPECTED_FILENAME, 'timestamp');

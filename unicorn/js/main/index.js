@@ -62,7 +62,7 @@ function initializeApplicationData() {
         config.save();
       })
       .catch((error) => {
-        console.log(error); // eslint-disable-line
+        log.error(error);
         dialog.showErrorBox('Error', error);
       });
   }
