@@ -23,19 +23,27 @@ import path from 'path';
 import React from 'react';
 
 import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
-import MetricStore from '../stores/MetricStore';
+import CreateModelStore from '../stores/CreateModelStore';
 import StartModelAction from '../actions/StartModel';
 import Utils from '../../main/Utils';
 
 
+const STYLES = {
+  raw: {
+    fontSize: 11
+  }
+};
+
 /**
  * "Create Model" Dialog
  */
-@connectToStores([MetricStore], (context) => ({
-  fileName: context.getStore(MetricStore).fileName,
-  metricName: context.getStore(MetricStore).metricName,
-  open: context.getStore(MetricStore).open,
-  paramFinderResults: context.getStore(MetricStore).paramFinderResults
+@connectToStores([CreateModelStore], (context) => ({
+  fileName: context.getStore(CreateModelStore).fileName,
+  inputOpts: context.getStore(CreateModelStore).inputOpts,
+  metricId: context.getStore(CreateModelStore).metricId,
+  metricName: context.getStore(CreateModelStore).metricName,
+  open: context.getStore(CreateModelStore).open,
+  paramFinderResults: context.getStore(CreateModelStore).paramFinderResults
 }))
 export default class CreateModelDialog extends React.Component {
 
@@ -46,103 +54,66 @@ export default class CreateModelDialog extends React.Component {
     muiTheme: React.PropTypes.object
   };
 
-  static propTypes = {
-    initialOpenState: React.PropTypes.bool.isRequired
-  };
-
   constructor(props, context) {
     super(props, context);
     this._config = this.context.getConfigClient();
-
-    this.state = Object.assign({}, this.props);
-
-    this._styles = {
-      raw: {
-        fontSize: 11
-      }
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.state = Object.assign({}, nextProps);
-  }
-
-  _resetState() {
-    this.setState({
-      open: false,
-      fileName: null,
-      metricName: null
-    });
   }
 
   _onClick(modelPayload) {
     this.context.executeAction(HideCreateModelDialogAction);
     this.context.executeAction(StartModelAction, modelPayload);
-    this._resetState()
   }
 
   render() {
+    let {
+      fileName, inputOpts, metricId,
+      metricName, paramFinderResults
+    } = this.props;
+
     let body = null;
     let actions = [];
-    let title = Utils.trims`Create model for ${this.state.metricName}
-                  (${path.basename(this.state.fileName)})`;
+    let title = Utils.trims`Create model for ${metricName}
+                  (${path.basename(fileName)})`;
 
-    if (this.state.fileName && this.state.metricName) {
-      let metricStore = this.context.getStore(MetricStore);
-      let metrics = metricStore.getMetrics();
-      let metricId = null;
-      for (let metric of metrics.values()) {
-        if (metric.name === this.state.metricName) {
-          metricId = metric.uid;
-        }
-      }
+    if (paramFinderResults) {
+      let rawPayload = {
+        metricId,
+        inputOpts,
+        modelOpts: paramFinderResults.modelInfo,
+        aggOpts: {}
+      };
+      let aggregatePayload = Object.assign({}, rawPayload, {
+        aggOpts: paramFinderResults.aggInfo
+      });
 
-      let inputOpts = metricStore.getInputOpts(metricId);
-      let paramFinderResults = metricStore.getParamFinderResults(metricId);
-      if (paramFinderResults) {
-        let rawPayload = {
-          metricId,
-          inputOpts,
-          modelOpts: paramFinderResults.modelInfo,
-          aggOpts: {}
-        };
-        let aggregatePayload = Object.assign({}, rawPayload, {
-          aggOpts: paramFinderResults.aggInfo
-        });
+      body = Utils.trims`We determined that you will get the best results if
+              we aggregate your data to
+              ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
 
-        body = Utils.trims`We determined that you will get the best results if
-                we aggregate your data to
-                ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
-
-        actions.push(
-          <RaisedButton
-            label={this._config.get('button:okay')}
-            onTouchTap={this._onClick.bind(this, aggregatePayload)}
-            primary={true}
-            />
-        );
-        actions.push(
-          <a href="#"
-            onClick={this._onClick.bind(this, rawPayload)}
-            styles={this._styles.raw}
-            >
-              {this._config.get('dialog:model:create:raw')}
-          </a>
-        );
-      } else {
-        body = (
-          <div>
-            <CircularProgress size={0.5} />
-            {this._config.get('dialog:model:create:loading')}
-          </div>
-        );
-      }
+      actions.push(
+        <RaisedButton
+          label={this._config.get('button:okay')}
+          onTouchTap={this._onClick.bind(this, aggregatePayload)}
+          primary={true}/>
+      );
+      actions.push(
+        <a href="#" styles={STYLES.raw}
+          onClick={this._onClick.bind(this, rawPayload)}>
+            {this._config.get('dialog:model:create:raw')}
+        </a>
+      );
+    } else {
+      body = (
+        <div>
+          <CircularProgress size={0.5} />
+          {this._config.get('dialog:model:create:loading')}
+        </div>
+      );
     }
     return (
-      <Dialog actions={actions} open={this.state.open} title={title}>
+      <Dialog actions={actions} open={this.props.open} title={title}>
         {body}
       </Dialog>
     );
   }
-
 }
