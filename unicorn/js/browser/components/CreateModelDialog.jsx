@@ -57,11 +57,17 @@ export default class CreateModelDialog extends React.Component {
   constructor(props, context) {
     super(props, context);
     this._config = this.context.getConfigClient();
+    this.state = {progress: true};
   }
 
   _onClick(modelPayload) {
     this.context.executeAction(HideCreateModelDialogAction);
     this.context.executeAction(StartModelAction, modelPayload);
+  }
+
+  componentDidMount() {
+    // Show progress for at least 3 secs
+    setTimeout(() => this.setState({progress: false}), 3000);
   }
 
   render() {
@@ -75,7 +81,7 @@ export default class CreateModelDialog extends React.Component {
     let title = Utils.trims`Create model for ${metricName}
                   (${path.basename(fileName)})`;
 
-    if (paramFinderResults) {
+    if (paramFinderResults && !this.state.progress) {
       let rawPayload = {
         metricId,
         inputOpts,
