@@ -39,7 +39,8 @@ import ModelStore from '../stores/ModelStore';
 import MetricStore from '../stores/MetricStore';
 import ShowFileDetailsAction from '../actions/ShowFileDetails';
 import ShowModelAction from '../actions/ShowModel';
-import Utils from '../../main/Utils';
+// Using module from 'main' process, it may infer use of `remote` IPC calls
+import {generateMetricId} from '../../main/generateId';
 
 
 /**
@@ -202,7 +203,7 @@ export default class FileList extends React.Component {
       return fileMetrics.map((metric) => {
         if (metric.type !== 'date') {
           let muiTheme = this.context.muiTheme;
-          let modelId = Utils.generateMetricId(file.filename, metric.name);
+          let modelId = generateMetricId(file.filename, metric.name);
           let models = this.props.models;
           let model = models.find((m) => m.modelId === modelId);
           let isModelVisible = false;
