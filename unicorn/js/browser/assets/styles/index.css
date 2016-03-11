@@ -33,6 +33,10 @@ body {
   cursor: move;
 }
 
+.dygraph-legend {
+  display: none !important;
+}
+
 .dygraph-rangesel-bgcanvas {
   z-index: 10 !important;
 }

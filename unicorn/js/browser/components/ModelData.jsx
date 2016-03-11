@@ -71,6 +71,8 @@ export default class ModelData extends React.Component {
       options: {
         connectSeparatedPoints: true,
         highlightCircleSize: 0,
+        includeZero: true,
+        legend: 'never',
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
@@ -90,6 +92,7 @@ export default class ModelData extends React.Component {
           Value: {
             axis: 'y',
             color: muiTheme.rawTheme.palette.primary2Color,  // dark blue
+            independentTicks: false,
             showInRangeSelector: true,  // plot alone in range selector
             strokeWidth: 2
           }
@@ -106,6 +109,7 @@ export default class ModelData extends React.Component {
           NonAggregated: {
             axis: 'y2',
             color: muiTheme.rawTheme.palette.primary1Color,  // light blue
+            independentTicks: false,
             showInRangeSelector: false,
             strokeWidth: 2
           }
@@ -220,27 +224,21 @@ export default class ModelData extends React.Component {
       //  Data with Aggregated Metric Data into output Chart Data grid.
       let newData = [];
       let dataId = 0;
-      let dataStamp = data[dataId][DATA_INDEX_TIME].getTime();
+      let dataStamp = data[dataId][DATA_INDEX_TIME];
+
       metricData.forEach((item, rowid) => { // increment pointer to metricData[]
-        let metricStamp = item[DATA_INDEX_TIME].getTime();
-        if (metricStamp < dataStamp) {
+        let metricStamp = item[DATA_INDEX_TIME];
+        if (metricStamp.getTime() < dataStamp.getTime()) {
           // merge in raw metric data record
-          newData.push([
-            metricStamp,
-            null,
-            item[DATA_INDEX_VALUE]
-          ]);
+          newData.push([metricStamp, null, item[DATA_INDEX_VALUE]]);
         } else {
           // merge in agg+anom data record
-          newData.push([
-            dataStamp,
-            data[dataId][chartSeries.index.aggregated],
-            null
-          ]);
+          let aggregate = data[dataId][chartSeries.index.aggregated];
+          newData.push([dataStamp, aggregate, null]);
 
           if (dataId < data.length - 1) {
             dataId++; // increment pointer to data[]
-            dataStamp = data[dataId][DATA_INDEX_TIME].getTime();
+            dataStamp = data[dataId][DATA_INDEX_TIME];
           }
         }
       });
