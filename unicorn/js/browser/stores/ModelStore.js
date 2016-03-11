@@ -40,6 +40,7 @@ export default class ModelStore extends BaseStore {
 
   /**
    * @listens {ADD_MODEL}
+   * @listens {ADD_MODEL_FAILED}
    * @listens {DELETE_MODEL}
    * @listens {LIST_MODELS}
    * @listens {STOP_MODEL}
@@ -61,6 +62,7 @@ export default class ModelStore extends BaseStore {
       SHOW_MODEL: '_showModel',
       HIDE_MODEL: '_hideModel',
 
+      ADD_MODEL_FAILED: '_handleModelFailed',
       DELETE_MODEL_FAILED: '_handleModelFailed',
       STOP_MODEL_FAILED: '_handleModelFailed',
       START_MODEL_FAILED: '_handleModelFailed',
@@ -199,5 +201,4 @@ export default class ModelStore extends BaseStore {
   getModels() {
     return Array.from(this._models.values());
   }
-
 }

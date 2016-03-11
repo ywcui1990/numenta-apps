@@ -18,6 +18,7 @@
 import {ACTIONS} from '../lib/Constants';
 import ListFilesAction from '../actions/ListFiles';
 import ListMetricsAction from '../actions/ListMetrics';
+import ListModelsAction from '../actions/ListModels';
 
 /**
  * Start Application performing all data initializations when necessary
@@ -25,6 +26,7 @@ import ListMetricsAction from '../actions/ListMetrics';
  * @emits {START_APPLICATION}
  * @emits {ListFilesAction}
  * @emits {ListMetricsAction}
+ * @emits {ListModelsAction}
  * @returns {Promise} - A Promise to be resolved with return value
  */
 export default function (actionContext) {
@@ -37,5 +39,8 @@ export default function (actionContext) {
   })
   .then((files) => {
     return actionContext.executeAction(ListMetricsAction, {});
+  })
+  .then(() => {
+    return actionContext.executeAction(ListModelsAction, {});
   });
 }
