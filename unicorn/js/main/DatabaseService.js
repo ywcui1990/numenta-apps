@@ -24,12 +24,12 @@ import instantiator from 'json-schema-instantiator';
 import json2csv from 'json2csv-stream';
 import leveldown from 'leveldown';
 import levelup from 'levelup';
+import moment from 'moment';
 import path from 'path';
 import sublevel from 'level-sublevel';
 import Batch from 'level-sublevel/batch';
 import {Validator} from 'jsonschema';
 import Utils from './Utils';
-
 
 // Schemas
 import {
@@ -87,7 +87,6 @@ function stringifyResultsCallback(callback) {
  *  Meant for heavy persistence.
  * @param {string} [path] - Database location path (optional)
  */
-
 export class DatabaseService {
 
   constructor(path) {
@@ -204,7 +203,9 @@ export class DatabaseService {
       lt: `${metricId}\xff`
     })
     .on('data', (metric) => {
-      results.push(metric);
+      results.push([
+        metric.timestamp, metric.metric_value, metric.anomaly_score
+      ]);
     })
     .on('error', callback)
     .on('end', () => {
@@ -214,8 +215,8 @@ export class DatabaseService {
   }
 
   /**
-   * Get all/queried MetricData records.
    * @callback
+   * Get MetricData values for the given metric.
    * @param {string} metricId Metric ID
    * @param {Function} callback Async callback: function (error, results)
    *                            The results will be JSON.stringified
@@ -228,7 +229,7 @@ export class DatabaseService {
       lt: `${metricId}\xff`
     })
     .on('data', (metric) => {
-      results.push(metric);
+      results.push([metric.timestamp, metric.metric_value]);
     })
     .on('error', callback)
     .on('end', () => {
@@ -240,7 +241,7 @@ export class DatabaseService {
   /**
    * Put a single File to DB.
    * @param {Object} file - Data object of File info to save
-   * @param {Function} callback - Async callback on done: function(error, results)
+   * @param {Function} callback - Async done callback: function(error, results)
    */
   putFile(file, callback) {
     if (typeof file === 'string') {
@@ -261,7 +262,7 @@ export class DatabaseService {
    * Put multiple Files into DB.
    * @callback
    * @param {Array} files - List of File objects to insert
-   * @param {Function} callback - Async result handler: function (error, results)
+   * @param {Function} callback - Async done handler: function (error, results)
    */
   putFileBatch(files, callback) {
     if (typeof files === 'string') {
@@ -290,7 +291,7 @@ export class DatabaseService {
   /**
    * Put a single Metric to DB.
    * @param {Object} metric - Data object of Metric info to save
-   * @param {Function} callback - Async callback on done: function(error, results)
+   * @param {Function} callback - Async done callback: function(error, results)
    */
   putMetric(metric, callback) {
     if (typeof metric === 'string') {
@@ -309,7 +310,7 @@ export class DatabaseService {
   /**
    * Put multiple Metrics into DB.
    * @param {Array} metrics - Data objects of Metrics info to save
-   * @param {Function} callback - Async callback on done: function(error, results)
+   * @param {Function} callback - Async done callback: function(error, results)
    */
   putMetricBatch(metrics, callback) {
     if (typeof metrics === 'string') {
@@ -338,7 +339,7 @@ export class DatabaseService {
   /**
    * Put a single ModelData record to DB.
    * @param {Object} data - ModelData object to save
-   * @param {Function} callback - Async callback on done: function(error, results)
+   * @param {Function} callback - Async done callback: function(error, results)
    */
   putModelData(data, callback) {
     if (typeof data === 'string') {
@@ -358,7 +359,7 @@ export class DatabaseService {
   /**
    * Put multiple ModelData records into DB.
    * @param {Array} data - List of ModelData objects to save
-   * @param {Function} callback - Async callback on done: function(error, results)
+   * @param {Function} callback - Async done callback: function(error, results)
    */
   putModelDataBatch(data, callback) {
     if (typeof data === 'string') {
@@ -387,7 +388,7 @@ export class DatabaseService {
   /**
    * Put a single MetricData record to DB.
    * @param {Object} metricData - Data object of MetricData info to save
-   * @param {Function} callback - Async callback on done: function(error, results)
+   * @param {Function} callback - Async done callback: function(error, results)
    */
   putMetricData(metricData, callback) {
     if (typeof metricData === 'string') {
@@ -407,7 +408,7 @@ export class DatabaseService {
   /**
    * Put multiple MetricData records into DB.
    * @param {Array} data - List of Metric Data objects of MetricDatas to save
-   * @param {Function} callback - Async callback on done: function(error, results)
+   * @param {Function} callback - Async done callback: function(error, results)
    */
   putMetricDataBatch(data, callback) {
     if (typeof data === 'string') {
@@ -444,8 +445,8 @@ export class DatabaseService {
 
   /**
    * Closes the underlying LevelDB store.
-   * @param {Function} callback - Receive any error encountered during closing as
-   *  the first argument.
+   * @param {Function} callback - Receive any error encountered during closing
+   *  as the first argument.
    */
   close(callback) {
     this.levelup.db.close(callback);
@@ -475,7 +476,10 @@ export class DatabaseService {
       callback(error);
     })
     .on('data', (result) => {
-      parser.write(JSON.stringify(result));
+      let data = Object.assign({}, result, {
+        timestamp: new Date(result.timestamp)
+      });
+      parser.write(JSON.stringify(data));
     })
     .on('end', () => {
       parser.end();
@@ -637,12 +641,11 @@ export class DatabaseService {
   /**
    * Update model options for the given metric. Usually this value is
    * obtained via the {@link ParamFinderService}
-   *
-   * @param {string}   metricId    Metric to update
-   * @param {object}   options     Model option to use for the given metric.
-   *                               Usually obtained via {@link ParamFinderService}
-   * @param  {Function} callback called when the operation is complete,
-   *                             with a possible error argument
+   * @param {String} metricId - Metric to update
+   * @param {Object} options - Model option to use for the given metric.
+   *                           Usually obtained via {@link ParamFinderService}
+   * @param {Function} callback - Called when the operation is complete,
+   *                              with a possible error argument.
    */
   setMetricModelOptions(metricId, options, callback) {
     if (typeof options === 'string') {
@@ -662,12 +665,11 @@ export class DatabaseService {
   /**
    * Update input options for the given metric. Usually this value is
    * obtained via the {@link ParamFinderService}
-   *
-   * @param {string}   metricId    Metric to update
-   * @param {object}   options     Input option to use for the given metric.
-   *                               Usually obtained via {@link ParamFinderService}
-   * @param  {Function} callback called when the operation is complete,
-   *                             with a possible error argument
+   * @param {String} metricId - Metric to update
+   * @param {Object} options - Input option to use for the given metric.
+   *                           Usually obtained via {@link ParamFinderService}
+   * @param {Function} callback - Called when the operation is complete,
+   *                              with a possible error argument.
    */
   setMetricInputOptions(metricId, options, callback) {
     if (typeof options === 'string') {
@@ -684,79 +686,87 @@ export class DatabaseService {
     });
   }
 
-/**
- * Upload a new file to the database performing the following steps:
- *  1) Save file metadata
- *  2) Save fields/metrics metadata
- *  3) Save metric data
- *
- * @param  {string|File}   fileToUpload  Full path name or preconfigured File object. See {@link DBFileSchema}
- * @param  {Function} callback called when the operation is complete with the
- *                             uploaded file record or error
- */
-uploadFile(fileToUpload, callback) {
-  let file = fileToUpload;
-  if (typeof file === 'string') {
-    file = instantiator.instantiate(DBFileSchema);
-    file.uid = Utils.generateFileId(fileToUpload);
-    file.filename = fileToUpload;
-    file.name = path.basename(fileToUpload);
-    file.type = 'uploaded';
-  } else {
-    // Validate file object
-    const validation = this.validator.validate(file, DBFileSchema);
-    if (validation.errors.length) {
-      callback(validation.errors);
-      return;
+  /**
+   * Upload a new file to the database performing the following steps:
+   * - Save file metadata
+   * - Save fields/metrics metadata
+   * - Save metric data
+   *
+   * > NOTE: It assumes the file passed validation. See {@link FileService#validate}
+   *
+   * @param  {string|File}   fileToUpload  Full path name or preconfigured File object. See {@link DBFileSchema}
+   * @param  {Function} callback called when the operation is complete with the
+   *                             uploaded file record or error
+   */
+  uploadFile(fileToUpload, callback) {
+    let file = fileToUpload;
+    if (typeof file === 'string') {
+      file = instantiator.instantiate(DBFileSchema);
+      file.uid = Utils.generateFileId(fileToUpload);
+      file.filename = fileToUpload;
+      file.name = path.basename(fileToUpload);
+    } else {
+      // Validate file object
+      const validation = this.validator.validate(file, DBFileSchema);
+      if (validation.errors.length) {
+        callback(validation.errors);
+        return;
+      }
     }
+
+    let promisify = Utils.promisify;
+    promisify(::fileService.getFields, file.filename)
+      .then((results) => {
+        let {offset, fields} = results;
+        file.rowOffset = offset;
+        // Save metrics
+        return promisify(::this.putMetricBatch, fields)
+          .then(() => Promise.resolve(fields));
+      })
+      .then((metrics) => {
+        // Find timestamp field
+        let timestampField = metrics.find((field) => field.type === 'date');
+
+        // Load data from file
+        let records = file.rowOffset;
+        let options = {
+          objectMode: true,
+          columns: file.rowOffset === 1
+        };
+        fileService.getData(file.filename, options, ((error, data) => { // eslint-disable-line
+          if (error) {
+            throw error;
+          }
+          if (data) {
+            records++;
+            metrics.forEach((field) => {
+              // Collect data for each numeric field
+              if (field.type === 'number') {
+                let metricData = {
+                  metric_uid: field.uid,
+                  timestamp: moment(data[timestampField.name], timestampField.format).valueOf(), // eslint-disable-line
+                  metric_value: parseFloat(data[field.name])
+                };
+                // Save data
+                this.putMetricData(metricData, (error) => { // eslint-disable-line
+                  if (error) {
+                    throw error;
+                  }
+                });
+              }
+            });
+          } else {
+            // No more data
+            file.records = records;
+            this.putFile(file, (error) => {
+              callback(error, file);
+            })
+            return;
+          }
+        }))
+      })
+      .catch(callback);
   }
-  let promisify = Utils.promisify;
-  // Save file
-  promisify(::this.putFile, file)
-    // Load metrics from file
-    .then(() => promisify(::fileService.getFields, file.filename))
-    // Create metrics for each numeric and timestamp fields
-    .then((fields) => {
-      let metrics = fields.filter((field) => ['date', 'number'].includes(field.type)); // eslint-disable-line
-      return promisify(::this.putMetricBatch, metrics).then(() => Promise.resolve(metrics)) // eslint-disable-line
-    })
-    // Load data
-    .then((metrics) => {
-      // Find timestamp field
-      let timestampField = metrics.find((field) => field.type === 'date').name;
-
-      // Load data from file
-      fileService.getData(file.filename, {objectMode: true}, ((error, data) => {
-        if (error) {
-          throw error;
-        }
-        if (data) {
-          metrics.forEach((field) => {
-            // Save metric for each numeric field
-            if (field.type === 'number') {
-              let metridData = {
-                metric_uid: Utils.generateMetricId(file.filename, field.name),
-                timestamp: data[timestampField],
-                metric_value: parseFloat(data[field.name])
-              };
-
-              // Save data
-              this.putMetricData(metridData, (error) => { // eslint-disable-line
-                if (error) {
-                  throw error;
-                }
-              });
-            }
-          });
-        } else {
-          // No more data
-          callback(null, file);
-          return;
-        }
-      }))
-    })
-    .catch(callback);
-}
 }
 
 // Returns singleton

@@ -29,6 +29,10 @@
       "type": "boolean",
       "description": "Whether or not this model is running"
     },
+    "aggregated": {
+      "type": "boolean",
+      "description": "Whether or not this model is using aggregated data"
+    },
     "ran": {
       "type": "boolean",
       "description": "Whether not this metric model has run once"

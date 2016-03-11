@@ -25,7 +25,9 @@ import path from 'path';
 
 import service from '../../../../js/main/FileService';
 import Utils from '../../../../js/main/Utils';
-import {DBMetricSchema} from '../../../../js/database/schema';
+import {
+  DBFileSchema, DBMetricSchema
+} from '../../../../js/database/schema';
 
 // Contents of 'fixture/file.csv'
 const EXPECTED_CONTENT =
@@ -48,26 +50,92 @@ const EXPECTED_DATA = [
   {timestamp: '2015-08-26T19:51:31+17:00', metric: '19'}
 ];
 
-const FILENAME_SMALL = path.resolve(__dirname, '../fixtures/file.csv');
-const FILENAME_LARGE = path.resolve(__dirname, '../fixtures/rec-center-15.csv');
+const FIXTURES = path.resolve(__dirname, '..', '..', 'fixtures');
+const FILENAME_SMALL = path.join(FIXTURES, 'file.csv');
+const FILENAME_LARGE =  path.join(FIXTURES, 'rec-center-15.csv');
 
 // Expected fields
 const FILENAME_SMALL_ID = Utils.generateFileId(FILENAME_SMALL);
 const METRIC_INSTANCE = instantiator.instantiate(DBMetricSchema);
+const FILE_INSTANCE = instantiator.instantiate(DBFileSchema);
 const EXPECTED_FIELDS = [
   Object.assign({}, METRIC_INSTANCE, {
     uid: Utils.generateMetricId(FILENAME_SMALL, 'timestamp'),
     file_uid: FILENAME_SMALL_ID,
     name: 'timestamp',
+    index: 0,
     type: 'date',
     format: 'YYYY-MM-DDTHH:mm:ssZ'
   }),
   Object.assign({}, METRIC_INSTANCE, {
     uid: Utils.generateMetricId(FILENAME_SMALL, 'metric'),
     file_uid: FILENAME_SMALL_ID,
+    index: 1,
     name: 'metric',
     type: 'number'
-  })];
+  })
+];
+const EXPECTED_FILE_SMALL = Object.assign({}, FILE_INSTANCE, {
+  filename: FILENAME_SMALL,
+  name: path.basename(FILENAME_SMALL),
+  uid: FILENAME_SMALL_ID,
+  rowOffset: 1,
+  records: 7
+});
+
+const INVALID_CSV_FILE = path.join(FIXTURES, 'invalid.csv');
+const TWO_DATES_FILE = path.join(FIXTURES, 'two-dates.csv');
+const NO_DATES_FILE = path.join(FIXTURES, 'no-dates.csv');
+const INVALID_DATE_CONTENT_FILE = path.join(FIXTURES, 'invalid-date-content.csv'); // eslint-disable-line
+const INVALID_DATE_FORMAT_FILE = path.join(FIXTURES, 'invalid-date-format.csv');
+const INVALID_NUMBER_FILE = path.join(FIXTURES, 'invalid-number.csv');
+const NO_SCALAR_FILE = path.join(FIXTURES, 'no-scalar.csv');
+const NO_HEADER_CSV_FILE = path.join(FIXTURES, 'no-header.csv');
+const NO_HEADER_CSV_FILE_ID = Utils.generateFileId(NO_HEADER_CSV_FILE);
+const EXPECTED_FIELDS_NO_HEADER_CSV_FILE = [
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(NO_HEADER_CSV_FILE, 'timestamp'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    name: 'timestamp',
+    index: 0,
+    type: 'date',
+    format: 'YYYY-MM-DDTHH:mm:ssZ'
+  }),
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(NO_HEADER_CSV_FILE, 'metric1'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    index: 1,
+    name: 'metric1',
+    type: 'number'
+  }),
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(NO_HEADER_CSV_FILE, 'metric2'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    index: 2,
+    name: 'metric2',
+    type: 'number'
+  })
+];
+
+const IGNORE_FIELDS_FILE = path.join(FIXTURES, 'ignored-fields.csv'); // eslint-disable-line
+const IGNORE_FIELDS_FILE_ID = Utils.generateFileId(IGNORE_FIELDS_FILE);
+const EXPECTED_FIELDS_IGNORED = [
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(IGNORE_FIELDS_FILE, 'timestamp'),
+    file_uid: IGNORE_FIELDS_FILE_ID,
+    name: 'timestamp',
+    index: 1,
+    type: 'date',
+    format: 'YYYY-MM-DDTHH:mm:ssZ'
+  }),
+  Object.assign({}, METRIC_INSTANCE, {
+    uid: Utils.generateMetricId(IGNORE_FIELDS_FILE, 'metric1'),
+    file_uid: IGNORE_FIELDS_FILE_ID,
+    index: 4,
+    name: 'metric1',
+    type: 'number'
+  })
+];
 
 // Expected statistics for the whole file
 const EXPECTED_MIN = 16;
@@ -114,10 +182,79 @@ describe('FileService', () => {
   });
 
   describe('#getFields', () => {
-    it('should get fields using default options', (done) => {
-      service.getFields(FILENAME_SMALL, (error, fields) => {
+    it('should get fields from file with header fields', (done) => {
+      service.getFields(FILENAME_SMALL, (error, results) => {
         assert.ifError(error);
-        assert.deepEqual(fields, EXPECTED_FIELDS);
+        assert.equal(results.offset, 1);
+        assert.deepEqual(results.fields, EXPECTED_FIELDS);
+        done();
+      });
+    });
+    it('should not get fields from non-csv files', (done) => {
+      service.getFields(INVALID_CSV_FILE, (error, fields) => {
+        assert(error, 'Invalid CSV File was validated');
+        done();
+      });
+    });
+    it('should get fields from file without header fields', (done) => {
+      service.getFields(NO_HEADER_CSV_FILE, (error, results) => {
+        assert.ifError(error);
+        assert.equal(results.offset, 0);
+        assert.deepEqual(results.fields, EXPECTED_FIELDS_NO_HEADER_CSV_FILE);
+        done();
+      });
+    });
+    it('should not validate files with more than one date/time field', (done) => { // eslint-disable-line
+      service.getFields(TWO_DATES_FILE, (error, results) => {
+        assert(error, 'File with more than one date field was validated');
+        done();
+      });
+    });
+    it('should have one date/time field', (done) => { // eslint-disable-line
+      service.getFields(NO_DATES_FILE, (error, results) => {
+        assert(error, 'File without date field was validated');
+        done();
+      });
+    });
+    it('should have at least one scalar fields', (done) => {
+      service.getFields(NO_SCALAR_FILE, (error, results) => {
+        assert(error, 'File with no numeric fields was validated');
+        done();
+      });
+    });
+    it('should ignore string fields', (done) => {
+      service.getFields(IGNORE_FIELDS_FILE, (error, results) => {
+        assert.ifError(error);
+        assert.deepEqual(results.fields, EXPECTED_FIELDS_IGNORED);
+        done();
+      });
+    });
+  });
+
+  describe('#validate', () => {
+    it('should accept valid file', (done) => {
+      service.validate(FILENAME_SMALL, (error, results) => {
+        assert.ifError(error);
+        assert.deepEqual(results.file, EXPECTED_FILE_SMALL);
+        assert.deepEqual(results.fields, EXPECTED_FIELDS);
+        done();
+      });
+    });
+    it('should reject invalid date', (done) => {
+      service.validate(INVALID_DATE_CONTENT_FILE, (error, results) => {
+        assert(error, 'File with invalid date was validated');
+        done();
+      });
+    });
+    it('should reject invalid format', (done) => {
+      service.validate(INVALID_DATE_FORMAT_FILE, (error, results) => {
+        assert(error, 'File with invalid date was validated');
+        done();
+      });
+    });
+    it('should reject invalid number', (done) => {
+      service.validate(INVALID_NUMBER_FILE, (error, results) => {
+        assert(error, 'File with invalid number was validated');
         done();
       });
     });

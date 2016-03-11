@@ -50,7 +50,10 @@
     "test:pipeline": "npm run test:pipeline:unit && npm run test:pipeline:integration",
     "test:pipeline:integration": "mocha --opts tests/js/mocha.pipeline.opts tests/js/integration",
     "test:pipeline:unit": "mocha --opts tests/js/mocha.pipeline.opts tests/js/unit",
-    "test:unit": "mocha --opts tests/js/mocha.opts tests/js/unit"
+    "test:unit": "mocha --opts tests/js/mocha.opts tests/js/unit",
+    "pretest:functional": "chromedriver --url-base=/wd/hub &",
+    "test:functional": "mocha --opts tests/js/mocha.opts tests/js/functional",
+    "posttest:functional": "killall chromedriver"
   },
   "repository": {
     "type": "git",
@@ -106,18 +109,19 @@
     "roboto-fontface": "0.4.5"
   },
   "devDependencies": {
-    "babel-core": "6.5.2",
+    "babel-core": "6.6.4",
     "babel-eslint": "4.1.8",
     "babel-loader": "6.2.4",
     "babel-plugin-add-module-exports": "0.1.2",
     "babel-plugin-array-includes": "2.0.3",
     "babel-plugin-transform-decorators-legacy": "1.3.4",
-    "babel-polyfill": "6.5.0",
+    "babel-polyfill": "6.6.1",
     "babel-preset-es2015-node5": "1.1.2",
     "babel-preset-react": "6.5.0",
     "babel-preset-stage-0": "6.5.0",
+    "babel-register": "6.6.5",
     "css-loader": "0.23.1",
-    "electron-debug": "0.5.1",
+    "electron-debug": "0.5.2",
     "electron-packager": "5.2.1",
     "electron-prebuilt": "0.36.9",
     "esdoc": "0.4.5",
@@ -134,10 +138,11 @@
     "source-map-support": "0.4.0",
     "style-loader": "0.13.0",
     "url-loader": "0.5.7",
+    "webdriverio": "4.0.3",
     "webpack": "1.12.14"
   },
   "optionalDependencies": {
-    "portable_python_darwin": "https://ci.numenta.com/browse/UN-UN/latestSuccessful/artifact/BOX/portable_python/portable_python.tar.gz",
-    "portable_python_win32": "https://ci.numenta.com/browse/UN-UN/latestSuccessful/artifact/JOB1/portable_python/portable_python.tar.gz"
+    "portable_python_darwin": "https://ci.numenta.com/artifact/UN-UN/shared/build-latestSuccessful/portable_python-darwin/portable_python.tar.gz",
+    "portable_python_win32": "https://ci.numenta.com/artifact/UN-UN/shared/build-latestSuccessful/portable_python-win64/portable_python.tar.gz"
   }
 }

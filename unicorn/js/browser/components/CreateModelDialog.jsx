@@ -18,7 +18,7 @@
 import CircularProgress from 'material-ui/lib/circular-progress';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
-import FlatButton from 'material-ui/lib/flat-button';
+import RaisedButton from 'material-ui/lib/raised-button';
 import path from 'path';
 import React from 'react';
 
@@ -42,7 +42,8 @@ export default class CreateModelDialog extends React.Component {
   static contextTypes = {
     executeAction: React.PropTypes.func,
     getConfigClient: React.PropTypes.func,
-    getStore: React.PropTypes.func
+    getStore: React.PropTypes.func,
+    muiTheme: React.PropTypes.object
   };
 
   static propTypes = {
@@ -52,7 +53,14 @@ export default class CreateModelDialog extends React.Component {
   constructor(props, context) {
     super(props, context);
     this._config = this.context.getConfigClient();
+
     this.state = Object.assign({}, this.props);
+
+    this._styles = {
+      raw: {
+        fontSize: 11
+      }
+    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -107,14 +115,18 @@ export default class CreateModelDialog extends React.Component {
                 ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
 
         actions.push(
-          <FlatButton
+          <RaisedButton
             label={this._config.get('button:okay')}
             onTouchTap={this._onClick.bind(this, aggregatePayload)}
+            primary={true}
             />
         );
         actions.push(
-          <a href="#" onClick={this._onClick.bind(this, rawPayload)}>
-            {this._config.get('dialog:model:create:raw')}
+          <a href="#"
+            onClick={this._onClick.bind(this, rawPayload)}
+            styles={this._styles.raw}
+            >
+              {this._config.get('dialog:model:create:raw')}
           </a>
         );
       } else {

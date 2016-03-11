@@ -10,7 +10,7 @@
       "required": true
     },
     "timestamp": {
-      "type": "string",
+      "type": "integer",
       "required": true
     },
     "metric_value": {

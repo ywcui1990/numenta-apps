@@ -22,13 +22,14 @@ import path from 'path';
 import {ModelService} from '../../../../js/main/ModelService';
 const assert = require('assert');
 
+const FIXTURES = path.resolve(__dirname, '..', '..', 'fixtures');
 const MODEL_ID = '1';
-const CSV_FILE = path.join(__dirname, '../fixtures', 'rec-center.csv');
+const CSV_FILE = path.join(FIXTURES, 'rec-center.csv');
 
-const MODEL_RUNNER_INPUT = require('../fixtures/model_runner_input.json');
+const MODEL_RUNNER_INPUT = require('../../fixtures/model_runner_input.json');
 MODEL_RUNNER_INPUT['csv'] = CSV_FILE;
-const MODEL_RUNNER_AGG = require('../fixtures/model_runner_agg.json');
-const MODEL_RUNNER_MODEL = require('../fixtures/model_runner_model.json');
+const MODEL_RUNNER_AGG = require('../../fixtures/model_runner_agg.json');
+const MODEL_RUNNER_MODEL = require('../../fixtures/model_runner_model.json');
 
 /* eslint-disable max-nested-callbacks */
 

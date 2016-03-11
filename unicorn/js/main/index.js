@@ -16,7 +16,6 @@
 //
 // http://numenta.org/licenses/
 
-
 import {app, BrowserWindow, crashReporter, dialog, Menu} from 'electron';
 import bunyan from 'bunyan';
 import path from 'path';
@@ -31,19 +30,17 @@ import ModelServiceIPC from './ModelServiceIPC';
 import ParamFinderServiceIPC from './ParamFinderServiceIPC';
 import Utils from './Utils';
 
-const DEV = config.get('NODE_ENV') !== 'production';
 const log = bunyan.createLogger({
   level: 'debug',  // @TODO higher for Production
   name: config.get('title')
 });
 const initialPage = path.join(__dirname, config.get('browser:entry'));
 
-let mainWindow = null; // global ref to keep window object from JS GC
+let activeModels = new Map();  // Active models and their event handlers
+let mainWindow = null;  // global ref to keep window object from JS GC
 let modelServiceIPC = null;
 let paramFinderServiceIPC = null;
 
-// Active models and their event handlers
-let activeModels = new Map();
 
 /**
  * Initialize the application populating local data on first run
@@ -65,7 +62,7 @@ function initializeApplicationData() {
         config.save();
       })
       .catch((error) => {
-        console.log(error); // eslint-disable-line
+        log.error(error);
         dialog.showErrorBox('Error', error);
       });
   }
@@ -81,7 +78,7 @@ function receiveModelData(modelId, data) {
   let [timestamp, value, score] = data; // eslint-disable-line
   let metricData = {
     metric_uid: modelId,
-    timestamp,
+    timestamp: new Date(timestamp).getTime(),
     metric_value: value,
     anomaly_score: score
   };
@@ -123,12 +120,15 @@ function handleModelEvents() {
     }
   });
 }
+
+
 /**
  * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files.
  *
  * Main Electron code Application entry point, initializes browser app.
  */
+
 crashReporter.start({
   companyName: config.get('company'),
   productName: config.get('title'),
@@ -156,9 +156,6 @@ app.on('ready', () => {
   });
   mainWindow.loadURL(`file://${initialPage}`);
   mainWindow.center();
-  if (DEV) {
-    // mainWindow.openDevTools();
-  }
 
   // browser window events
   mainWindow.on('closed', () => {
