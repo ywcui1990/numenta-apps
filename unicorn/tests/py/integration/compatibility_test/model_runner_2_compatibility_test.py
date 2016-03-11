@@ -146,9 +146,9 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
     Make sure model runner returns correct anomaly likelihood
 
     :param str name: dataset name
-    :param str inputSpec: JSON object describing the input petric data
+    :param str inputSpec: JSON object describing the input metric data
       per input_opt_schema.json
-    :param str aggSpec: JSON object describing agregation of the input
+    :param str aggSpec: JSON object describing aggregation of the input
       metric per agg_opt_schema.json
     :param str modelSpec: JSON object describing the model per
       model_opt_schema.json
@@ -168,8 +168,8 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
         trueDataValue = float(trueResult[1])
         trueAnomalyLikelihood = float(trueResult[2])
-        self.assertAlmostEqual(outputRecord[1], trueDataValue)
-        self.assertAlmostEqual(outputRecord[2], trueAnomalyLikelihood)
+        self.assertAlmostEqual(outputRecord[1], trueDataValue, places=7)
+        self.assertAlmostEqual(outputRecord[2], trueAnomalyLikelihood, places=7)
 
       self.assertEqual(mrProcess.returncode, 0)
 
