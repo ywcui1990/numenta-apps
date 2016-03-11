@@ -110,6 +110,8 @@ export default class ModelDataStore extends BaseStore {
    * @property {Date} modified - Last time the data was modified
    */
   getData(modelId) {
-    return this._models.get(modelId) || {modelId, data:[], modified:0};
+    return Object.assign({
+      modelId, data:[], modified:0
+    }, this._models.get(modelId));
   }
 }
