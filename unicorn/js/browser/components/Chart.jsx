@@ -23,7 +23,7 @@ import ReactDOM from 'react-dom';
 
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 
-const {DATA_INDEX_TIME, DATA_INDEX_VALUE} = DATA_FIELD_INDEX;
+const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
 
 
 /**
@@ -122,7 +122,6 @@ export default class Chart extends React.Component {
    */
   _chartInitalize() {
     let {data, options} = this.props;
-    let values = data.map((item) => item[DATA_INDEX_VALUE]);
     let element = ReactDOM.findDOMNode(this.refs.chart);
     let first = new Date(data[0][DATA_INDEX_TIME]).getTime();
     let second = new Date(data[1][DATA_INDEX_TIME]).getTime();
@@ -135,7 +134,6 @@ export default class Chart extends React.Component {
     // init chart
     this._chartBusy = true;
     options.dateWindow = this._chartRange;
-    options.valueRange = [Math.min(values), Math.max(values)];
     this._dygraph = new Dygraph(element, data, options);
     this._chartBusy = false;
   }

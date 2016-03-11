@@ -134,7 +134,7 @@ export default class ModelData extends React.Component {
       // index: Relate chart series indexes to data types (raw,anom,agg).
       //  series 1 = dark blue (raw _or_ aggregated)
       //  series 2 = light numenta blue (raw _and_ aggregated)
-      //  plugin = anomaly bar charts underlay
+      //  underlay = anomaly bar charts underlay
       index: {
         timestamp: 0,
         aggregated: null,  // model-aggregated metric data, series 1.
@@ -155,11 +155,12 @@ export default class ModelData extends React.Component {
       chartSeries.show.raw = true;
       chartSeries.total = 1;
     } else if (modelData.data.length && !showNonAgg) {
-      // 2. Model-provided Anomaly Data goes into custom Dygraphs Plugin.
+      // 2. Model-provided Anomaly Data goes into custom Dygraphs Underlay.
       //    Series 1 is either still the Metric-provided Raw Metric Data, or may
       //    become the Model-provided Aggregated Metric Data below.
       chartSeries.show.anomaly = true;
       chartSeries.total = 1;
+
       //  (2. Raw or Aggregated data?)
       if (model.aggregated) {
         // 2a. Now the Model-provided Aggregated Metric Data, along w/Anomlies
@@ -191,18 +192,21 @@ export default class ModelData extends React.Component {
       data = Array.from(metricData);
       metaData.length.metric = metricData.length;
     }
-    // * Plugin => Model-provided Anomaly Data
+    // * Underlay => Model-provided Anomaly Data
     if (
       chartSeries.total > 0 &&
       chartSeries.show.anomaly
     ) {
-      // reinit Anomaly Bars plugin bound to fresh model data
+      // reinit Anomaly Bars Overlay bound to fresh model data
       options.modelData = modelData.data;
       metaData.length.model = modelData.data.length;
 
-      if (model.aggregated) {
-        // series 1 => New Model-provided Aggregated Metric Data
-        data = Array.from(modelData.data);
+      if (
+        chartSeries.index.aggregated === 1 &&
+        chartSeries.show.aggregated
+      ) {
+        // series 1 => New Model-provided Aggregated Metric Data, Remove anomaly
+        data = Array.from(modelData.data).map((item) => item.slice(0, 2));
       }
     }
     // * Series 2 => Metric-provided Raw Data overlay over top of Agg data chart
