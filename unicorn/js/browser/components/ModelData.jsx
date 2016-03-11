@@ -69,10 +69,11 @@ export default class ModelData extends React.Component {
     this._chartOptions = {
       // dygraphs global chart options
       options: {
-        legend: false,
+        highlightCircleSize: 0,
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
+        showLabelsOnHighlight: false,
         showRangeSelector: true,
         underlayCallback: AnomalyBarChart.bind(null, this)
       },

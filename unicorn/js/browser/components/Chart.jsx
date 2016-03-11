@@ -117,16 +117,6 @@ export default class Chart extends React.Component {
     }
   }
 
-  _handleZoom() {
-    console.log('hey!', this);
-    let {data} = this.props;
-    let values = data.map((item) => item[DATA_INDEX_VALUE]);
-
-    this._dygraph.updateOptions({
-      zoomRange: [Math.min(values), Math.max(values)]
-    });
-  }
-
   /**
    * DyGrpahs Chart Initalize and Render
    */
@@ -146,7 +136,6 @@ export default class Chart extends React.Component {
     this._chartBusy = true;
     options.dateWindow = this._chartRange;
     options.valueRange = [Math.min(values), Math.max(values)];
-    options.zoomCallback = this._handleZoom.bind(this);
     this._dygraph = new Dygraph(element, data, options);
     this._chartBusy = false;
   }
@@ -193,9 +182,14 @@ export default class Chart extends React.Component {
    */
   render() {
     return (
-      <Paper ref="chart" style={this._styles.root} zDepth={this.props.zDepth}>
-        <CircularProgress size={0.5} />
-        {this._config.get('chart:loading')}
+      <Paper
+        className="dygraph-chart"
+        ref="chart"
+        style={this._styles.root}
+        zDepth={this.props.zDepth}
+        >
+          <CircularProgress size={0.5} />
+          {this._config.get('chart:loading')}
       </Paper>
     );
   }
