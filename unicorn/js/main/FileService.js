@@ -34,8 +34,10 @@ import {
   PFInputSchema, PFOutputSchema
 } from '../database/schema';
 import TimeAggregator from './TimeAggregator';
-import {TIMESTAMP_FORMATS} from '../config/timestamp';
-import Utils from './Utils';
+import {TIMESTAMP_FORMATS} from '../common/timestamp';
+import {
+  generateFileId, generateMetricId
+} from '../main/generateId';
 
 const INSTANCES = {
   FILE: instantiator.instantiate(DBFileSchema),
@@ -83,7 +85,7 @@ function guessTimestampFormat(timestamp) {
  */
 function guessFields(filename, values, names) {
   let fields = [];
-  let fileId = Utils.generateFileId(filename);
+  let fileId = generateFileId(filename);
   let metricX = 1;
   for (let index=0; index < values.length; index++) {
     let field = Object.assign({}, INSTANCES.METRIC, {
@@ -103,7 +105,7 @@ function guessFields(filename, values, names) {
         } else {
           field.name = 'timestamp';
         }
-        field.uid = Utils.generateMetricId(filename, field.name);
+        field.uid = generateMetricId(filename, field.name);
         fields.push(field);
       } else if (Number.isFinite(Number(value))) {
         field.type = 'number';
@@ -113,7 +115,7 @@ function guessFields(filename, values, names) {
           field.name = `metric${metricX}`;
           metricX++;
         }
-        field.uid = Utils.generateMetricId(filename, field.name);
+        field.uid = generateMetricId(filename, field.name);
         fields.push(field);
       }
     }
@@ -149,7 +151,7 @@ export class FileService {
       let files = data.map((item) => {
         let filename = path.resolve(SAMPLES_FILE_PATH, item);
         let record = Object.assign({}, INSTANCES.FILE, {
-          uid: Utils.generateFileId(filename),
+          uid: generateFileId(filename),
           name: path.basename(item),
           filename: filename,
           type: 'sample'
@@ -466,7 +468,7 @@ export class FileService {
    */
   validate(filename, callback) {
     let file = Object.assign({}, INSTANCES.FILE, {
-      uid: Utils.generateFileId(filename),
+      uid: generateFileId(filename),
       name: path.basename(filename),
       filename: filename
     });

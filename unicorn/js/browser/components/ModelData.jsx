@@ -19,12 +19,12 @@ import connectToStores from 'fluxible-addons-react/connectToStores';
 import React from 'react';
 import RGBColor from 'rgbcolor';
 
-import Chart from '../components/Chart';
+import Chart from './Chart';
 import MetricDataStore from '../stores/MetricDataStore';
 import ModelDataStore from '../stores/ModelDataStore';
 import ModelStore from '../stores/ModelStore';
 import RangeSelectorBarChart from '../lib/Dygraphs/RangeSelectorBarChartPlugin';
-import Utils from '../../main/Utils';
+import {mapAnomalyColor} from '../lib/browser-utils';
 
 
 /**
@@ -123,7 +123,7 @@ export default class ModelData extends React.Component {
       let xCenter = point.canvasx;
       let xStart = (xCenter - this._anomalyBarWidth / 2);
       let xEnd = (xCenter + this._anomalyBarWidth / 2);
-      let startColor = new RGBColor(Utils.mapAnomalyColor(0, yBottom)).toRGB();
+      let startColor = new RGBColor(mapAnomalyColor(0, yBottom)).toRGB();
       let color, index;
 
       // every bar has a basic 2px placeholder green line
@@ -131,7 +131,7 @@ export default class ModelData extends React.Component {
       this._chartDrawLine(context, xStart, xEnd, yBottom-1, startColor);
 
       // draw vertical bar with several horizontal lines in column
-      color = new RGBColor(Utils.mapAnomalyColor(height, yBottom));
+      color = new RGBColor(mapAnomalyColor(height, yBottom));
       if (color && 'toRGB' in color) {
         // @TODO This was originally for anomaly bars that had color gradients
         //  instead of flat bars. It could probably be optimized to use less
