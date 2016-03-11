@@ -160,6 +160,14 @@ export default class ModelData extends React.Component {
     context.stroke();
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    // Only updates if the model data has changed
+    if (this.props.modelData.data.length) {
+      return this.props.modelData.modified !== nextProps.modelData.modified;
+    }
+    return true;
+  }
+
   render() {
     let {model, metricData, modelData} = this.props;
 
