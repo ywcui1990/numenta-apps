@@ -122,10 +122,16 @@ export default class ModelData extends React.Component {
   } // constructor
 
   shouldComponentUpdate(nextProps, nextState) {
+    // allow chart to switch between "show non-agg data" toggle states
+    if (this.props.showNonAgg !== nextProps.showNonAgg) {
+      return true;
+    }
+
     // Only updates if the model data has changed
     if (this.props.modelData.data.length) {
       return this.props.modelData.modified !== nextProps.modelData.modified;
     }
+
     return true;
   }
 
