@@ -181,7 +181,8 @@ export default class FileDetails extends React.Component {
 
   _renderBody() {
     let file = this.props.file;
-    let fileSize = this.state.fileSize;
+    // File Size in KB
+    let fileSize = (this.state.fileSize / 1024).toFixed();
     let error;
     if (this.props.error) {
       error =  (<p style={STYLES.error}>{this.props.error}</p>);
@@ -198,7 +199,7 @@ export default class FileDetails extends React.Component {
             tabIndex={-1}
             name="fileSize"
             ref="fileSize"
-            value={fileSize.toString()}/>
+            value={`${fileSize} KB`}/>
           <TextField
             floatingLabelText="Number of rows"
             name="numOfRows"
