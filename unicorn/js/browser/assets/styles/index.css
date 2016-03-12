@@ -30,7 +30,11 @@ body {
 /* DyGraphs overrides */
 
 .dygraph-chart:hover {
-  cursor: move;
+  cursor: move !important;
+}
+
+.dygraph-axis-label-y2 {
+  display: none !important;
 }
 
 .dygraph-legend {

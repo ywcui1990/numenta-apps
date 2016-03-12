@@ -69,7 +69,7 @@ export default class ModelData extends React.Component {
     this._chartOptions = {
       // dygraphs global chart options
       options: {
-        connectSeparatedPoints: true,
+        connectSeparatedPoints: true,  // required for raw+agg overlay
         highlightCircleSize: 0,
         includeZero: true,
         legend: 'never',
@@ -92,7 +92,7 @@ export default class ModelData extends React.Component {
           Value: {
             axis: 'y',
             color: muiTheme.rawTheme.palette.primary2Color,  // dark blue
-            independentTicks: false,
+            independentTicks: true,
             showInRangeSelector: true,  // plot alone in range selector
             strokeWidth: 2
           }
@@ -103,7 +103,10 @@ export default class ModelData extends React.Component {
       raw: {
         labels: ['NonAggregated'],
         axes: {
-          y2: {drawGrid: false}
+          y2: {
+            drawGrid: false,
+            drawAxis: false
+          }
         },
         series: {
           NonAggregated: {
@@ -149,8 +152,7 @@ export default class ModelData extends React.Component {
         aggregated: false,  // show the Model-Aggregated Data line chart?
         anomaly: false,  // show the Model Anomaly data bar chart?
         raw: false  // show the Raw Metric data line chart?
-      },
-      total: 0  // # series: 0=none/ts, 1=raw|agg, 2=raw-overlay
+      }
     };
 
     // --- Init Chart Series Display+Data state (3 total states, #2 w/parts) ---
@@ -158,13 +160,11 @@ export default class ModelData extends React.Component {
       // 1. Metric-provided Raw Data on Series 1, alone by itself.
       chartSeries.index.raw = 1;
       chartSeries.show.raw = true;
-      chartSeries.total = 1;
     } else if (modelData.data.length && !showNonAgg) {
       // 2. Model-provided Anomaly Data goes into custom Dygraphs Underlay.
       //    Series 1 is either still the Metric-provided Raw Metric Data, or may
       //    become the Model-provided Aggregated Metric Data below.
       chartSeries.show.anomaly = true;
-      chartSeries.total = 1;
 
       //  (2. Raw or Aggregated data?)
       if (model.aggregated) {
@@ -184,13 +184,11 @@ export default class ModelData extends React.Component {
       chartSeries.show.anomaly = true;
       chartSeries.show.aggregated = true;
       chartSeries.show.raw = true;
-      chartSeries.total = 2;
     }
 
     // --- Use Chart Series Data+Display state to prepare data and charts ---
     // * Series 1 => Metric-provided Raw Metric Data
     if (
-      chartSeries.total > 0 &&
       chartSeries.show.raw &&
       chartSeries.index.raw === 1
     ) {
@@ -198,14 +196,10 @@ export default class ModelData extends React.Component {
       metaData.length.metric = metricData.length;
     }
     // * Underlay => Model-provided Anomaly Data
-    if (
-      chartSeries.total > 0 &&
-      chartSeries.show.anomaly
-    ) {
+    if (chartSeries.show.anomaly) {
       // reinit Anomaly Bars Overlay bound to fresh model data
       options.modelData = modelData.data;
       metaData.length.model = modelData.data.length;
-
       if (
         chartSeries.index.aggregated === 1 &&
         chartSeries.show.aggregated
@@ -216,7 +210,6 @@ export default class ModelData extends React.Component {
     }
     // * Series 2 => Metric-provided Raw Data overlay over top of Agg data chart
     if (
-      chartSeries.total === 2 &&
       chartSeries.show.raw &&
       chartSeries.index.raw === 2
     ) {
