@@ -37,6 +37,7 @@ import databaseClient from './lib/Unicorn/DatabaseClient';
 import fileClient from './lib/Unicorn/FileClient';
 import FileDetailsStore from './stores/FileDetailsStore';
 import MetricStore from './stores/MetricStore';
+import CreateModelStore from './stores/CreateModelStore';
 import FileStore from './stores/FileStore';
 import StartApplicationAction from './actions/StartApplication';
 import loggerConfig from '../config/logger';
@@ -80,8 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
   app = new Fluxible({
     component: MainComponent,
     stores: [
-      FileStore, ModelStore, ModelDataStore, MetricDataStore, FileDetailsStore,
-      MetricStore]
+      CreateModelStore, FileDetailsStore, FileStore, MetricDataStore,
+      MetricStore, ModelDataStore, ModelStore
+    ]
   });
 
   // Plug Unicorn plugin giving access to Unicorn clients
