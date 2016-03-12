@@ -28,7 +28,7 @@ import paramFinderService from './ParamFinderService';
 import MainMenu from './MainMenu';
 import ModelServiceIPC from './ModelServiceIPC';
 import ParamFinderServiceIPC from './ParamFinderServiceIPC';
-import Utils from './Utils';
+import {promisify} from '../common/common-utils';
 
 const log = bunyan.createLogger({
   level: 'debug',  // @TODO higher for Production
@@ -49,7 +49,6 @@ function initializeApplicationData() {
   // Check if running for the first time
   let initialized = config.get('initialized');
   if (!initialized) {
-    let promisify = Utils.promisify;
     // Load sample files from the file system
     promisify(::fileService.getSampleFiles)
       // Save all sample files to the database

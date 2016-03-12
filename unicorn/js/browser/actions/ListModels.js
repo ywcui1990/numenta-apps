@@ -15,31 +15,27 @@
 //
 // http://numenta.org/licenses/
 
-
 import {ACTIONS} from '../lib/Constants';
 
 
 /**
- * Delete model
- * @param {FluxibleContext} actionContext -
- * @param {string} modelId - Model ID
- * @emits {DELETE_MODEL}
- * @emits {DELETE_MODEL_FAILED}
- * @return {Promise}
+ * Load All Models
+ * @param  {FluxibleContext} actionContext - The action context
+ * @emits {LIST_MODELS}
+ * @emits {LIST_MODELS_FAILURE}
+ * @returns {Promise} - A Promise to be resolved with return value
  */
-export default function (actionContext, modelId) {
+export default function (actionContext) {
   return new Promise((resolve, reject) => {
-    let database = actionContext.getDatabaseClient();
-    // Delete model
-    database.deleteModel(modelId, (error) => {
+    let db = actionContext.getDatabaseClient();
+    db.getAllModels((error, models) => {
       if (error) {
-        actionContext.dispatch(ACTIONS.DELETE_MODEL_FAILED, {modelId, error});
+        actionContext.dispatch(ACTIONS.LIST_MODELS_FAILURE, error);
         reject(error);
       } else {
-        actionContext.dispatch(ACTIONS.DELETE_MODEL, modelId);
-        let modelClient = actionContext.getModelClient();
-        modelClient.removeModel(modelId);
-        resolve(modelId);
+        models = JSON.parse(models);
+        actionContext.dispatch(ACTIONS.LIST_MODELS, models);
+        resolve(models);
       }
     });
   });

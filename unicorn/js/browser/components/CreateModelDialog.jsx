@@ -25,7 +25,7 @@ import React from 'react';
 import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
 import CreateModelStore from '../stores/CreateModelStore';
 import StartModelAction from '../actions/StartModel';
-import Utils from '../../main/Utils';
+import {trims} from '../../common/common-utils';
 
 
 const STYLES = {
@@ -78,7 +78,7 @@ export default class CreateModelDialog extends React.Component {
 
     let body = null;
     let actions = [];
-    let title = Utils.trims`Create model for ${metricName}
+    let title = trims`Create model for ${metricName}
                   (${path.basename(fileName)})`;
 
     if (paramFinderResults && !this.state.progress) {
@@ -92,7 +92,7 @@ export default class CreateModelDialog extends React.Component {
         aggOpts: paramFinderResults.aggInfo
       });
 
-      body = Utils.trims`We determined that you will get the best results if
+      body = trims`We determined that you will get the best results if
               we aggregate your data to
               ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
 

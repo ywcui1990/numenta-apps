@@ -14,33 +14,27 @@
 // this program. If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
-
-
-import {ACTIONS} from '../lib/Constants';
-
+import muiTheme from './MaterialUI/UnicornTheme';
 
 /**
- * Delete model
- * @param {FluxibleContext} actionContext -
- * @param {string} modelId - Model ID
- * @emits {DELETE_MODEL}
- * @emits {DELETE_MODEL_FAILED}
- * @return {Promise}
+ * Generic Javascript functions that can only be used on the `browser` process.
+ * These functions can access objects available from the `browser` process but
+ * should not depend on node`
  */
-export default function (actionContext, modelId) {
-  return new Promise((resolve, reject) => {
-    let database = actionContext.getDatabaseClient();
-    // Delete model
-    database.deleteModel(modelId, (error) => {
-      if (error) {
-        actionContext.dispatch(ACTIONS.DELETE_MODEL_FAILED, {modelId, error});
-        reject(error);
-      } else {
-        actionContext.dispatch(ACTIONS.DELETE_MODEL, modelId);
-        let modelClient = actionContext.getModelClient();
-        modelClient.removeModel(modelId);
-        resolve(modelId);
-      }
-    });
-  });
+
+/**
+ * Map Anomaly value/height to bar color (Red/Yellow/Green)
+ * @param {Number} index - Integer for current count of anomaly height
+ * @param {Number} total - Integer for max possible anomaly height
+ * @returns {String} - String for Color to use
+ */
+export function mapAnomalyColor(index, total) {
+  let color = muiTheme.palette.safeColor;
+  if (index > (total/4)) {
+    color = muiTheme.palette.warnColor;
+  }
+  if (index > (total/2)) {
+    color = muiTheme.palette.dangerColor;
+  }
+  return color;
 }
