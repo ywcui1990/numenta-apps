@@ -47,7 +47,7 @@ import ParamFinderClient from './lib/Unicorn/ParamFinderClient';
 import ModelDataStore from './stores/ModelDataStore';
 import ModelStore from './stores/ModelStore';
 import UnicornPlugin from './lib/Fluxible/UnicornPlugin';
-import Utils from '../main/Utils';
+import {trims} from '../common/common-utils';
 
 const dialog = remote.require('dialog');
 const logger = bunyan.createLogger(loggerConfig);
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modelCount > 0) {
       cancel = dialog.showMessageBox({
         buttons: ['Quit', 'Cancel'],
-        message: Utils.trims`There are still ${modelCount} active models
+        message: trims`There are still ${modelCount} active models
                   running. All models will be interrupted upon quitting, and
                   it won’t be possible to restart these models. All results
                   obtained so far will be persisted. Are you sure you want to

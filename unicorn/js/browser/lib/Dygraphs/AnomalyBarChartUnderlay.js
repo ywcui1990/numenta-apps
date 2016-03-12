@@ -18,7 +18,7 @@
 import RGBColor from 'rgbcolor';
 
 import {DATA_FIELD_INDEX} from '../Constants';
-import Utils from '../../../main/Utils';
+import {mapAnomalyColor} from '../../lib/browser-utils';
 
 const {DATA_INDEX_TIME, DATA_INDEX_ANOMALY} = DATA_FIELD_INDEX;
 
@@ -83,7 +83,7 @@ export default function (context, canvas, area, dygraph) {
       if (isFinite(x) && (value >= 0)) {
         // draw: real anomaly bar
         y = 0 - Math.round(value * yFactor) || NaN;
-        color = Utils.mapAnomalyColor(value, anomalyMax);
+        color = mapAnomalyColor(value, anomalyMax);
         _drawRectangle(canvas, x, area.h - 1, barWidth, y, color);
       }
     }(index));  // help data survive loop closure

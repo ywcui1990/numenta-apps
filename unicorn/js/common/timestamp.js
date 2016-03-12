@@ -15,12 +15,12 @@
 //
 // http://numenta.org/licenses/
 
-const MOMENT_TO_STRPTIME = require('./momentjs_to_datetime_strptime.json');
+const MOMENT_TO_STRPTIME = require('../config/momentjs_to_datetime_strptime.json'); // eslint-disable-line
 
 /**
  * List of supported timestamp formats mapped to python dateutil format
  * @type {string}
- * @see ./momentjs_to_datetime_strptime.json
+ * @see ../config/momentjs_to_datetime_strptime.json
  */
 export const TIMESTAMP_FORMAT_PY_MAPPING =
    MOMENT_TO_STRPTIME.reduce((prev, cur) => {

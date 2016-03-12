@@ -26,7 +26,7 @@ import React from 'react';
 import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
 import MetricStore from '../stores/MetricStore';
 import StartModelAction from '../actions/StartModel';
-import Utils from '../../main/Utils';
+import {trims} from '../../common/common-utils';
 
 
 /**
@@ -94,7 +94,7 @@ export default class CreateModelDialog extends React.Component {
   render() {
     let body = null;
     let actions = [];
-    let title = Utils.trims`Create model for ${this.state.metricName}
+    let title = trims`Create model for ${this.state.metricName}
                   (${path.basename(this.state.fileName)})`;
 
     if (this.state.fileName && this.state.metricName) {

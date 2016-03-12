@@ -37,7 +37,7 @@ import ModelData from '../components/ModelData';
 import ModelStore from '../stores/ModelStore';
 import ShowCreateModelDialogAction from '../actions/ShowCreateModelDialog';
 import StartParamFinderAction from '../actions/StartParamFinder';
-import {TIMESTAMP_FORMAT_PY_MAPPING} from '../../config/timestamp';
+import {TIMESTAMP_FORMAT_PY_MAPPING} from '../../common/timestamp';
 
 const dialog = remote.require('dialog');
 

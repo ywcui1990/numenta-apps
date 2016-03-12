@@ -16,7 +16,6 @@
 // http://numenta.org/licenses/
 
 import BaseStore from 'fluxible/addons/BaseStore';
-import Utils from '../../main/Utils';
 
 
 /**
@@ -135,8 +134,13 @@ export default class MetricStore extends BaseStore {
    * @return {Array<MetricStore.Metric>}  Array of metrics
    */
   getMetricsByFileName(filename) {
-    let fileId = Utils.generateFileId(filename);
-    return this.getMetricsByFileId(fileId);
+    let metrics = [];
+    this._metrics.forEach((value, key, map) => {
+      if (value.filename === filename) {
+        metrics.push(value);
+      }
+    });
+    return metrics;
   }
 
   /**
@@ -144,9 +148,8 @@ export default class MetricStore extends BaseStore {
    * @param  {string} filename The name of the file to delete
    */
   _handleDeleteFile(filename) {
-    let fileId = Utils.generateFileId(filename);
     this._metrics.forEach((value, key, map) => {
-      if (value.file_uid === fileId) {
+      if (value.filename === filename) {
         map.delete(key);
       }
     });

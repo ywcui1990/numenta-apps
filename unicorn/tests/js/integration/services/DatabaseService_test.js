@@ -24,7 +24,9 @@ import path from 'path';
 import os from 'os';
 
 import {DatabaseService} from '../../../../js/main/DatabaseService';
-import Utils from '../../../../js/main/Utils';
+import {
+  generateFileId, generateMetricId
+} from '../../../../js/main/generateId';
 import {
   DBFileSchema,
   DBMetricSchema, DBMetricDataSchema,
@@ -48,9 +50,9 @@ const MODEL_OPTIONS = require('../../fixtures/model_runner_model.json');
 const INPUT_OPTIONS = require('../../fixtures/param_finder_input.json');
 
 const EXPECTED_FILENAME = path.join(FIXTURES, 'file.csv');
-const EXPECTED_FILENAME_ID = Utils.generateFileId(EXPECTED_FILENAME);
-const EXPECTED_METRIC_ID = Utils.generateMetricId(EXPECTED_FILENAME, 'metric');
-const EXPECTED_TIMESTAMP_ID = Utils.generateMetricId(EXPECTED_FILENAME, 'timestamp');
+const EXPECTED_FILENAME_ID = generateFileId(EXPECTED_FILENAME);
+const EXPECTED_METRIC_ID = generateMetricId(EXPECTED_FILENAME, 'metric');
+const EXPECTED_TIMESTAMP_ID = generateMetricId(EXPECTED_FILENAME, 'timestamp');
 
 const EXPECTED_FILE = Object.assign({}, INSTANCES.File, {
   filename: EXPECTED_FILENAME,

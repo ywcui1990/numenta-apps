@@ -18,7 +18,7 @@
 import Dygraph from 'dygraphs';
 import RGBColor from 'rgbcolor';
 
-import Utils from '../../../main/Utils';
+import {mapAnomalyColor} from '../browser-utils';
 
 
 /**
@@ -184,7 +184,7 @@ export default class {
       previous.value = value;
 
       if (isFinite(x) && (value >= 0.25)) {
-        color = Utils.mapAnomalyColor(value, yRange);
+        color = mapAnomalyColor(value, yRange);
         this._drawMiniBar(context, x, canvasHeight, color, stroke);
       }
     }

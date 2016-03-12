@@ -19,7 +19,7 @@ import connectToStores from 'fluxible-addons-react/connectToStores';
 import React from 'react';
 
 import AnomalyBarChart from '../lib/Dygraphs/AnomalyBarChartUnderlay';
-import Chart from '../components/Chart';
+import Chart from './Chart';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 import MetricDataStore from '../stores/MetricDataStore';
 import ModelDataStore from '../stores/ModelDataStore';
@@ -120,6 +120,14 @@ export default class ModelData extends React.Component {
       }
     }; // chartOptions
   } // constructor
+
+  shouldComponentUpdate(nextProps, nextState) {
+    // Only updates if the model data has changed
+    if (this.props.modelData.data.length) {
+      return this.props.modelData.modified !== nextProps.modelData.modified;
+    }
+    return true;
+  }
 
   render() {
     // load data

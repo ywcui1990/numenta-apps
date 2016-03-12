@@ -29,7 +29,10 @@ import path from 'path';
 import sublevel from 'level-sublevel';
 import Batch from 'level-sublevel/batch';
 import {Validator} from 'jsonschema';
-import Utils from './Utils';
+import {promisify} from '../common/common-utils';
+import {
+  generateMetricDataId, generateFileId
+} from '../main/generateId';
 
 // Schemas
 import {
@@ -352,7 +355,7 @@ export class DatabaseService {
       return;
     }
     let {metric_uid, timestamp} = data;
-    let key = Utils.generateMetricDataId(metric_uid, timestamp);
+    let key = generateMetricDataId(metric_uid, timestamp);
     this._modelData.put(key, data, callback);
   }
 
@@ -376,7 +379,7 @@ export class DatabaseService {
 
     let ops = data.map((value) => {
       let {metric_uid, timestamp} = value;
-      let key = Utils.generateMetricDataId(metric_uid, timestamp);
+      let key = generateMetricDataId(metric_uid, timestamp);
       return {
         type: 'put', key, value
       };
@@ -401,7 +404,7 @@ export class DatabaseService {
       return;
     }
     let {metric_uid, timestamp} = metricData;
-    let key = Utils.generateMetricDataId(metric_uid, timestamp);
+    let key = generateMetricDataId(metric_uid, timestamp);
     this._metricData.put(key, metricData, callback);
   }
 
@@ -425,7 +428,7 @@ export class DatabaseService {
 
     let ops = data.map((value) => {
       let {metric_uid, timestamp} = value;
-      let key = Utils.generateMetricDataId(metric_uid, timestamp);
+      let key = generateMetricDataId(metric_uid, timestamp);
       return {
         type: 'put', key, value
       };
@@ -603,7 +606,7 @@ export class DatabaseService {
    *                             with a possible error argument
    */
   deleteFile(filename, callback) {
-    let fileId = Utils.generateFileId(filename);
+    let fileId = generateFileId(filename);
     this._files.del(fileId, (error) => {
       if (error) {
         callback(error);
@@ -702,7 +705,7 @@ export class DatabaseService {
     let file = fileToUpload;
     if (typeof file === 'string') {
       file = instantiator.instantiate(DBFileSchema);
-      file.uid = Utils.generateFileId(fileToUpload);
+      file.uid = generateFileId(fileToUpload);
       file.filename = fileToUpload;
       file.name = path.basename(fileToUpload);
     } else {
@@ -714,7 +717,6 @@ export class DatabaseService {
       }
     }
 
-    let promisify = Utils.promisify;
     promisify(::fileService.getFields, file.filename)
       .then((results) => {
         let {offset, fields} = results;
