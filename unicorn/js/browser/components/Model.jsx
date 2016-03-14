@@ -72,6 +72,7 @@ export default class Model extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+    let muiTheme = this.context.muiTheme;
 
     this._config = this.context.getConfigClient();
 
@@ -105,6 +106,9 @@ export default class Model extends React.Component {
         },
         checkbox: {
           marginRight: 7
+        },
+        label: {
+          color: muiTheme.rawTheme.palette.primary1Color
         }
       }
     };
@@ -244,6 +248,7 @@ export default class Model extends React.Component {
           defaultChecked={false}
           iconStyle={this._styles.showNonAgg.checkbox}
           label={this._config.get('chart:showNonAgg')}
+          labelStyle={this._styles.showNonAgg.label}
           onCheck={this._toggleNonAggOverlay.bind(this)}
           style={this._styles.showNonAgg.root}
           unCheckedIcon={<CheckboxOutline color={checkboxColor} />}
