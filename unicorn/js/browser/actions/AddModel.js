@@ -17,6 +17,9 @@
 
 import {ACTIONS} from '../lib/Constants';
 
+import instantiator from 'json-schema-instantiator';
+import {DBModelSchema} from '../../database/schema';
+const INSTANCE = instantiator.instantiate(DBModelSchema);
 
 /**
  * Add new model to the {@link ModelStore}
@@ -28,11 +31,26 @@ import {ACTIONS} from '../lib/Constants';
  * @param {string} payload.filename - File full path name
  * @param {string} payload.timestampField - Timestamp field name
  * @param {string} payload.metric - Metric field name
+ * @return {Promise}  Promise
  * @emits {ADD_MODEL}
+ * @emits {ADD_MODEL_FAILED}
  */
 export default function (actionContext, payload) {
-  let {modelId, filename, timestampField, metric} = payload;
-  actionContext.dispatch(ACTIONS.ADD_MODEL, {
-    modelId, filename, timestampField, metric
+  return new Promise((resolve, reject) => {
+    let {modelId, filename, timestampField, metric} = payload;
+    let model = Object.assign({}, INSTANCE, {
+      modelId, filename, timestampField, metric
+    });
+
+    let db = actionContext.getDatabaseClient();
+    db.putModel(model, (error) => {
+      if (error) {
+        actionContext.dispatch(ACTIONS.ADD_MODEL_FAILED, {modelId, error});
+        reject(model);
+      } else {
+        actionContext.dispatch(ACTIONS.ADD_MODEL, model);
+        resolve(model);
+      }
+    });
   });
 }

@@ -278,7 +278,7 @@ export default class Model extends React.Component {
           title={deleteConfirmDialog.title}>
             {deleteConfirmDialog.message}
         </Dialog>
-        <CreateModelDialog ref="createModelWindow" initialOpenState={false} />
+        <CreateModelDialog ref="createModelWindow"/>
       </Card>
     );
   }
