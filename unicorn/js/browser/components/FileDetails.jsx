@@ -16,8 +16,6 @@
 // http://numenta.org/licenses/
 
 
-// import Checkbox from 'material-ui/lib/checkbox'; // @FIXME: UNI-323
-
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
@@ -81,6 +79,7 @@ const STYLES = {
  */
 @connectToStores([FileDetailsStore], (context) => ({
   file: context.getStore(FileDetailsStore).getFile(),
+  fields: context.getStore(FileDetailsStore).getFields(),
   error: context.getStore(FileDetailsStore).getError(),
   visible: context.getStore(FileDetailsStore).isVisible(),
   newFile: context.getStore(FileDetailsStore).isNewFile()
@@ -105,24 +104,35 @@ export default class FileDetails extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.visible && nextProps.file) {
-      let file = nextProps.file;
+      let {file, fields} = nextProps;
+
       // File size in bytes
       let stats = fs.statSync(file.filename); // eslint-disable-line no-sync
       let fileSize = stats.size;
 
       // Load first 20 records
-      let data = [];
       let fileClient = this.context.getFileClient();
-      fileClient.getData(file.filename, {limit: 20}, (error, buffer) => {
-        if (error) {
-          throw new Error(error);
-        } else if (buffer) {
-          data.push(JSON.parse(buffer));
-        } else {
-          // Initialize State
-          this.setState({fileSize, data});
-        }
-      });
+      let options = {limit: 20, columns: false, offset: file.rowOffset};
+      return new Promise((resolve, reject) => {
+        let data = [];
+        fileClient.getData(file.filename, options, (error, buffer) => {
+          if (error) {
+            reject(error, {fileSize, file, fields, data});
+          } else if (buffer) {
+            let row = JSON.parse(buffer);
+            if (fields) {
+              data.push(fields.map((field) => row[field.index]));
+            } else {
+              data.push(row);
+            }
+          } else {
+            // Resolve to data
+            resolve(data);
+          }
+        });
+      })
+      .catch((error) => this.setState({error, fileSize, fields, data:[]}))
+      .then((data) => this.setState({fileSize, fields, data}))
     }
   }
 
@@ -140,19 +150,21 @@ export default class FileDetails extends React.Component {
 
   _renderDataTable() {
     let columnHeader;
-    let data = this.state.data;
+    let {fields, data} = this.state;
     let tableRows = [];
     let tableHeight = this.props.error ? 200 : 250;
 
-    if (data.length > 0) {
-      columnHeader = Object.keys(data[0]).map((name, idx) => {
+    if (fields) {
+      columnHeader = fields.map((field) => {
         return (
-          <TableHeaderColumn key={idx} style={STYLES.tableHeader}>
-            {name}
+          <TableHeaderColumn key={field.index} style={STYLES.tableHeader}>
+            {field.name}
           </TableHeaderColumn>
         );
       });
+    }
 
+    if (data.length > 0) {
       data.forEach((row, rowIdx) => {
         let columns = [];
         Object.values(row).map((value, colIdx) => {
