@@ -18,7 +18,10 @@
 import Dygraph from 'dygraphs';
 import RGBColor from 'rgbcolor';
 
+import {DATA_FIELD_INDEX} from '../Constants';
 import {mapAnomalyColor} from '../browser-utils';
+
+const {DATA_INDEX_ANOMALY} = DATA_FIELD_INDEX;
 
 
 /**
@@ -37,11 +40,6 @@ export default class {
    * Construct Dygraphs Plugin object
    */
   constructor() {
-    // super(); @TODO SuperClass shared features of DyGraph Plugins
-
-    this._dataIndexTimestamp = 0;  // 0 for data timestamp field
-    this._dataIndexAnomaly = 2;  // 2 for anomaly score field from model
-
     this._canvas = null;
     this._canvas_context = null;
     this._canvasRect = null;
@@ -165,15 +163,15 @@ export default class {
       let maxIndex = 0;
 
       for (let j=0; j<points.length; j++) {
-        let current = points[j][this._dataIndexAnomaly];
-        let max = points[maxIndex][this._dataIndexAnomaly];
+        let current = points[j][DATA_INDEX_ANOMALY];
+        let max = points[maxIndex][DATA_INDEX_ANOMALY];
         if (current > max) {
           maxIndex = j;
         }
       }
 
       point = points[maxIndex]; // aggregate to prevent pixel overwriting
-      value = point[this._dataIndexAnomaly];
+      value = point[DATA_INDEX_ANOMALY];
       x = this._xValueToPixel(point[0], xExtremes[0], xFactor);
 
       if (x === previous.x && value < previous.value) {
@@ -222,8 +220,8 @@ export default class {
     let hasData = false;
     let first = NaN;
 
-    if (data && data.length && data[0][this._dataIndexAnomaly]) {
-      first = data[0][this._dataIndexAnomaly];
+    if (data && data.length && data[0][DATA_INDEX_ANOMALY]) {
+      first = data[0][DATA_INDEX_ANOMALY];
     }
     hasData = !isNaN(first);
     return hasData;
@@ -302,8 +300,8 @@ export default class {
   _updateVisibility() {
     let enabled = this._getOption('showRangeSelector');
     let data = this._getOption('modelData');
-    let first = (data && data[0] && data[0][this._dataIndexAnomaly])
-                  ? data[0][this._dataIndexAnomaly] : NaN;
+    let first = (data && data[0] && data[0][DATA_INDEX_ANOMALY])
+                  ? data[0][DATA_INDEX_ANOMALY] : NaN;
     let hasData = !isNaN(first);
 
     if (enabled) {
