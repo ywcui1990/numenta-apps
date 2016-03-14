@@ -117,6 +117,17 @@ function guessFields(filename, values, names) {
         }
         field.uid = generateMetricId(filename, field.name);
         fields.push(field);
+      } else if (!Number.isNaN(Date.parse(value))) {
+        // NOTE: Handles Unknown date format. 'Date.parse' is browser and locale
+        //       dependent and may not work in all cases.
+        field.type = 'date';
+        if (names) {
+          field.name = names[index];
+        } else {
+          field.name = `timestamp${index+1}`;
+        }
+        field.uid = generateMetricId(filename, field.name);
+        fields.push(field);
       }
     }
   }
@@ -235,6 +246,9 @@ export class FileService {
           });
           if (dateFields.length !== 1) {
             error = 'The file should have one and only one date/time column';
+          } else if (!dateFields[0].format) {
+            error = `The date/time format used on column ` +
+                    `${dateFields[0].index + 1} is not supported`;
           } else if (!fields.some((field) => field.type === 'number')) {
             error = 'The file should have at least one numeric value';
           }
