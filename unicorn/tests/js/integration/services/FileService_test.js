@@ -255,6 +255,12 @@ describe('FileService', () => {
         done();
       });
     });
+    it('should reject invalid CSV file', (done) => {
+      service.validate(INVALID_CSV_FILE, (error, results) => {
+        assert.equal(error, 'Invalid CSV file');
+        done();
+      });
+    });
     it('should reject invalid date', (done) => {
       service.validate(INVALID_DATE_CONTENT_FILE, (error, results) => {
         assert.equal(error,

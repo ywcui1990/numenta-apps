@@ -504,8 +504,12 @@ export class FileService {
       let dataError = error;
 
       // Update file and fields
-      let fields = validFields.fields;
-      let offset = validFields.offset;
+      let fields = [];
+      let offset = 0;
+      if (validFields) {
+        fields = validFields.fields;
+        offset = validFields.offset;
+      }
 
       // Load data
       let stream = fs.createReadStream(filename, {
