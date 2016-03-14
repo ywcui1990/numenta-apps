@@ -17,6 +17,7 @@
 
 import CircularProgress from 'material-ui/lib/circular-progress';
 import Dygraph from 'dygraphs';
+import moment from 'moment';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -24,6 +25,8 @@ import ReactDOM from 'react-dom';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 
 const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
+
+Dygraph.prototype.setSelection = function () {}; // short out unused method
 
 
 /**
@@ -123,8 +126,8 @@ export default class Chart extends React.Component {
   _chartInitalize() {
     let {data, options} = this.props;
     let element = ReactDOM.findDOMNode(this.refs.chart);
-    let first = new Date(data[0][DATA_INDEX_TIME]).getTime();
-    let second = new Date(data[1][DATA_INDEX_TIME]).getTime();
+    let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
+    let second = moment(data[1][DATA_INDEX_TIME]).valueOf();
     let unit = second - first; // each datapoint
 
     // determine each value datapoint time unit and chart width based on that
@@ -145,7 +148,7 @@ export default class Chart extends React.Component {
     let {data, options} = this.props;
     let model = this.props.metaData.model;
     let modelIndex = Math.abs(this.props.metaData.length.model - 1);
-    let first = new Date(data[0][DATA_INDEX_TIME]).getTime();
+    let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
     let blockRedraw = modelIndex % 2 === 0; // filter out some redrawing
     let rangeMax, rangeMin;
 
@@ -158,7 +161,7 @@ export default class Chart extends React.Component {
 
     if (!this._chartBusy) {
       // scroll along with fresh anomaly model data input
-      rangeMax = new Date(data[modelIndex][DATA_INDEX_TIME]).getTime();
+      rangeMax = moment(data[modelIndex][DATA_INDEX_TIME]).valueOf();
       rangeMin = rangeMax - this._chartRangeWidth;
       if (rangeMin < first) {
         rangeMin = first;

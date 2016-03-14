@@ -17,7 +17,7 @@
 
 
 /**
- * Unicorn: FileClient - Talk to a FileService over IPC or HTTP, gaining
+ * HTM Studio: FileClient - Talk to a FileService over IPC or HTTP, gaining
  *  access to the Node/io.js layer of filesystem, so we can CRUD files.
  *  Connects via HTTP or IPC adapter. FileClientIPC adpater is currently a
  *  pseudo-library, using the magic of Electron's `remote` module.

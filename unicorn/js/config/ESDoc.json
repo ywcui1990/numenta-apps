@@ -1,7 +1,7 @@
 {
   "source": "./js",
   "destination": "./js/docs",
-  "title": "Numenta Unicorn Application",
+  "title": "Numenta HTM Studio",
   "excludes": [
     "bundle\\.js$"
   ],

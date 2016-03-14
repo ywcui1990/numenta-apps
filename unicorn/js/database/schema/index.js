@@ -36,7 +36,7 @@ Object.keys(MRAggregationSchema.properties).forEach((option) => {
 
 
 /**
- * Module containing all JSON schemas used by Unicorn.
+ * Module containing all JSON schemas used by HTM Studio.
  *
  * - Database Schemas
  * 	- DBFileSchema: Represents `File` in the database

@@ -27,7 +27,7 @@ const MODEL_SERVER_IPC_CHANNEL = 'MODEL_SERVER_IPC_CHANNEL';
 
 
 /**
- * Unicorn: ModelClient - Talk to a ModelService over IPC, gaining
+ * HTM Studio: ModelClient - Talk to a ModelService over IPC, gaining
  *  access to the Backend NuPIC Model Runner. Connects via IPC adapter.
  */
 export default class ModelClient {

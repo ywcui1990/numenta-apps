@@ -54,6 +54,7 @@ SCHEMAS.forEach((schema) => {
   VALIDATOR.addSchema(schema);
 });
 
+
 /**
  * Check if the given value is a valid datetime value and returns the best
  * matching timestamp format defined in {@link TIMESTAMP_FORMATS}
@@ -123,9 +124,10 @@ function guessFields(filename, values, names) {
   return fields;
 }
 
+
 /**
- * Unicorn: FileService - Respond to a FileClient over IPC, sharing our access to
- *  the Node layer of filesystem, so client can CRUD files.
+ * HTM Studio: FileService - Respond to a FileClient over IPC, sharing our
+ *  access to the Node layer of filesystem, so client can CRUD files.
  */
 export class FileService {
 
@@ -530,6 +532,7 @@ export class FileService {
       stream.pipe(newliner).pipe(csvParser);
     });
   }
+
 }
 
 // Returns singleton

@@ -17,13 +17,13 @@
 
 
 /**
- * Unicorn: ConfigClient - Talk to a ConfigService over IPC, gaining
- *  access to the Node/io.js-layer configuration settings.
- *  Connects via IPC adapter. ConfigClientIPC adpater is currently a
- *  pseudo-library, using the magic of Electron's `remote` module.
+ * HTM Studio: DatabaseClient - Talk to a DatabaseService over IPC, gaining
+ *  access to the Node/io.js layer of filesystem, so we can CRUD against a
+ *  flat-file database. Connects via IPC adapter. DatabaseClientIPC
+ *  adpater is currently a pseudo-library, using the magic of Electron's
+ *  `remote` module.
  */
 
 let remote = require('remote'); // eslint-disable-line
-
-let client = remote.require('./ConfigService'); // Get singleton
+let client = remote.require('./DatabaseService').default; // Get singleton
 export default client;

@@ -80,8 +80,9 @@ function stringifyResultsCallback(callback) {
   return (error, data) => callback(error, JSON.stringify(data));
 }
 
+
 /**
- * Unicorn: DatabaseService - Respond to a DatabaseClient over IPC.
+ * HTM Studio: DatabaseService - Respond to a DatabaseClient over IPC.
  *  For sharing our access to a file-based NodeJS database system.
  *  Meant for heavy persistence.
  * @param {string} [path] - Database location path (optional)
@@ -554,7 +555,7 @@ export class DatabaseService {
     })
     .on('data', (result) => {
       let data = Object.assign({}, result, {
-        timestamp: new Date(result.timestamp)
+        timestamp: moment(result.timestamp).toDate()
       });
       parser.write(JSON.stringify(data));
     })

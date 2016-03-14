@@ -18,20 +18,21 @@
 
 
 /**
- * UnicornPlugin plugin exposing unicorn clients from contexts
+ * Fluxible HTM Studio Plugin: plugin exposing HTM Studio clients from contexts
  * @see https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md
  */
 export default {
 
-  name: 'Unicorn',
+  name: 'HTM Studio',
 
   plugContext(options, context, app) {
     let {
       configClient, loggerClient, databaseClient, fileClient, modelClient,
       paramFinderClient
-      } = options;
+    } = options;
 
     return {
+
       plugActionContext(actionContext, context, app) {
         actionContext.getConfigClient = function () {
           return configClient;
@@ -52,6 +53,7 @@ export default {
           return paramFinderClient;
         };
       },
+
       plugComponentContext(componentContext, context, app) {
         componentContext.getConfigClient = function () {
           return configClient;
@@ -72,6 +74,7 @@ export default {
           return paramFinderClient;
         };
       },
+
       plugStoreContext(storeContext, context, app) {
         storeContext.getConfigClient = function () {
           return configClient;
@@ -92,7 +95,9 @@ export default {
           return paramFinderClient;
         };
       }
+
     };
+
   } // plugContext
 
-} // UnicornPlugin
+} // HTMStudioPlugin

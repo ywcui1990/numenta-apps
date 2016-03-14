@@ -22,8 +22,7 @@ import zIndex from 'material-ui/lib/styles/zIndex';
 
 
 /**
- * Unicorn Material-UI Theme
- *
+ * HTM Studio: Material-UI Theme
  */
 export default {
   fontFamily: 'Roboto, sans-serif',

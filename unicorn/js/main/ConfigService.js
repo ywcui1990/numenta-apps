@@ -31,7 +31,7 @@ const Defaults = {
 
 
 /**
- * Unicorn: ConfigService - Respond to a ConfigClient over IPC, sharing our
+ * HTM Studio: ConfigService - Respond to a ConfigClient over IPC, sharing our
  *  access to the Node-layer config settings.
  * @return {Object} - Configuration data handler object
  */
