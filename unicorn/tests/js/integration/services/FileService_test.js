@@ -30,6 +30,14 @@ import {
   DBFileSchema, DBMetricSchema
 } from '../../../../js/database/schema';
 
+function createFileInstance(filename, properties) {
+  return Object.assign({}, FILE_INSTANCE, {
+    filename,
+    uid: generateFileId(filename),
+    name: path.basename(filename)
+  }, properties);
+}
+
 // Contents of 'fixture/file.csv'
 const EXPECTED_CONTENT =
 `timestamp,metric
@@ -76,13 +84,6 @@ const EXPECTED_FIELDS = [
     type: 'number'
   })
 ];
-const EXPECTED_FILE_SMALL = Object.assign({}, FILE_INSTANCE, {
-  filename: FILENAME_SMALL,
-  name: path.basename(FILENAME_SMALL),
-  uid: FILENAME_SMALL_ID,
-  rowOffset: 1,
-  records: 7
-});
 
 const INVALID_CSV_FILE = path.join(FIXTURES, 'invalid.csv');
 const TWO_DATES_FILE = path.join(FIXTURES, 'two-dates.csv');
@@ -241,13 +242,16 @@ describe('FileService', () => {
       });
     });
   });
-
   describe('#validate', () => {
     it('should accept valid file', (done) => {
       service.validate(FILENAME_SMALL, (error, results) => {
         assert.ifError(error);
-        assert.deepEqual(results.file, EXPECTED_FILE_SMALL);
         assert.deepEqual(results.fields, EXPECTED_FIELDS);
+        assert.deepEqual(results.file,
+          createFileInstance(FILENAME_SMALL, {
+            rowOffset: 1,
+            records: 7
+          }));
         done();
       });
     });
@@ -256,6 +260,11 @@ describe('FileService', () => {
         assert.equal(error,
           "Invalid date at row 5: Found timestamp = 'Not a Date', " +
           "expecting date matching 'YYYY-MM-DDTHH:mm:ssZ'");
+        assert.deepEqual(results.file,
+          createFileInstance(INVALID_DATE_CONTENT_FILE, {
+            rowOffset: 1,
+            records: 7
+          }));
         done();
       });
     });
@@ -264,12 +273,22 @@ describe('FileService', () => {
         assert.equal(error,
           "Invalid date at row 5: Found timestamp = '08/26/2015 19:50', " +
           "expecting date matching 'YYYY-MM-DDTHH:mm:ssZ'");
+        assert.deepEqual(results.file,
+          createFileInstance(INVALID_DATE_FORMAT_FILE, {
+            rowOffset: 1,
+            records: 7
+          }));
         done();
       });
     });
     it('should reject invalid number', (done) => {
       service.validate(INVALID_NUMBER_FILE, (error, results) => {
         assert.equal(error, "Invalid number at row 5: Found metric = 'A21'");
+        assert.deepEqual(results.file,
+          createFileInstance(INVALID_NUMBER_FILE, {
+            rowOffset: 1,
+            records: 7
+          }));
         done();
       });
     });

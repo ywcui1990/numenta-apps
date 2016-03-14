@@ -489,10 +489,8 @@ export class FileService {
 
     // Validate fields
     this.getFields(filename, (error, validFields) => {
-      if (error) {
-        callback(error, {file});
-        return;
-      }
+      let dataError = error;
+
       // Update file and fields
       let fields = validFields.fields;
       let offset = validFields.offset;
@@ -511,13 +509,17 @@ export class FileService {
         if (row <= offset) {
           return;
         }
-        let error;
+        // Stop validating of first error but keep loading file to get total records
+        if (dataError) {
+          return;
+        }
+        let message;
         let valid = fields.every((field, index) => {
           let value = data[field.index];
-          error = `Invalid ${field.type} at row ${row}: ` +
+          message = `Invalid ${field.type} at row ${row}: ` +
                   `Found ${field.name} = '${value}'`;
           if (field.format) {
-            error += `, expecting ${field.type} matching '${field.format}'`;
+            message += `, expecting ${field.type} matching '${field.format}'`;
           }
           switch (field.type) {
           case 'number':
@@ -527,11 +529,9 @@ export class FileService {
           default:
             return true;
           }
-        })
+        });
         if (!valid) {
-          csvParser.removeAllListeners();
-          stream.destroy();
-          callback(error, {file});
+          dataError = message;
           return;
         }
       })
@@ -539,7 +539,7 @@ export class FileService {
       .once('end', () => {
         file.records = row;
         file.rowOffset = offset;
-        callback(null, {file, fields});
+        callback(dataError, {file, fields});
       });
       stream.pipe(newliner).pipe(csvParser);
     });
