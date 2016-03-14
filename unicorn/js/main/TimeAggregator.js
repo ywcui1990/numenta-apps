@@ -15,7 +15,7 @@
 //
 // http://numenta.org/licenses/
 
-var moment = require('moment');
+var moment = require('moment');  // eslint-disable-line no-var
 var Transform = require('stream').Transform; // eslint-disable-line no-var
 var util = require('util'); // eslint-disable-line no-var
 

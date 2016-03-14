@@ -22,7 +22,6 @@
  * @see https://github.com/yahoo/fluxible/blob/master/docs/api/Plugins.md
  */
 export default {
-
   name: 'HTM Studio',
 
   plugContext(options, context, app) {
@@ -32,7 +31,6 @@ export default {
     } = options;
 
     return {
-
       plugActionContext(actionContext, context, app) {
         actionContext.getConfigClient = function () {
           return configClient;
@@ -95,9 +93,6 @@ export default {
           return paramFinderClient;
         };
       }
-
     };
-
   } // plugContext
-
 } // HTMStudioPlugin

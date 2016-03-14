@@ -329,7 +329,8 @@ export class DatabaseService {
 
     const validation = this.validator.validate(metric, DBMetricSchema);
     if (validation.errors.length) {
-      return callback(validation.errors, null);
+      callback(validation.errors, null);
+      return;
     }
 
     this._metrics.put(metric.uid, metric, callback);
