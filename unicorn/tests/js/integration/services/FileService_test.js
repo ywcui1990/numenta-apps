@@ -307,7 +307,6 @@ describe('FileService', () => {
         }
       });
     });
-
     it('should get data with limit=1', (done) => {
       service.getData(FILENAME_SMALL, {limit: 1}, (error, data) => {
         assert.ifError(error);
@@ -319,7 +318,29 @@ describe('FileService', () => {
         }
       });
     });
-
+    it('should get data with offset=1', (done) => {
+      let i = 1;
+      service.getData(FILENAME_SMALL, {offset: 1}, (error, data) => {
+        assert.ifError(error);
+        if (data) {
+          let row = JSON.parse(data);
+          assert.deepEqual(row, EXPECTED_DATA[i++]);
+        } else {
+          done();
+        }
+      });
+    });
+    it('should get data with offset=1 and limit=1', (done) => {
+      service.getData(FILENAME_SMALL, {offset: 1, limit: 1}, (error, data) => {
+        assert.ifError(error);
+        if (data) {
+          let row = JSON.parse(data);
+          assert.deepEqual(row, EXPECTED_DATA[1]);
+        } else {
+          done();
+        }
+      });
+    });
     it('should get aggregated data', (done) => {
       let options = {
         limit: 1,
@@ -362,7 +383,6 @@ describe('FileService', () => {
         done();
       });
     });
-
     it('should get statistics for some records of the file', (done) => {
       service.getStatistics(FILENAME_SMALL, {limit: 2}, (error, data) => {
         assert.ifError(error);

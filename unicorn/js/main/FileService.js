@@ -78,7 +78,7 @@ function guessTimestampFormat(timestamp) {
  *                               fields are named `metricX`, ignoring all
  *                               other fields. Something like this:
  *
- *                               	timestamp, metric1, metric2, ...
+ *                                     timestamp, metric1, metric2, ...
  *
  * @return {Field[]}          Array of valid {@link Field} definitions or an
  *                            empty array if no valid field was found
@@ -201,8 +201,8 @@ export class FileService {
    *
    * ```
    * {
-   * 	fields: [metrics], // Array of Metric definitions. See "Metric.json"
-   * 	offset: 0 | 1   // index of first data row in CSV file; zero-based
+   *   fields: [metrics], // Array of Metric definitions. See "Metric.json"
+   *   offset: 0 | 1   // index of first data row in CSV file; zero-based
    * }
    * ```
    *
@@ -293,6 +293,9 @@ export class FileService {
    *                        // Max Number of records to process
    *                        limit: Number.MAX_SAFE_INTEGER,
    *
+   *                        // Number of rows to skip
+   *                        offset: 0
+   *
    *                        // Aggregation settings. See {TimeAggregator}
    *                        aggregation: {
    *                          // Name of the field representing 'time'
@@ -323,7 +326,12 @@ export class FileService {
     if (!('limit' in options)) {
       options.limit = Number.MAX_SAFE_INTEGER;
     }
+    if (!('offset' in options)) {
+      options.offset = 0;
+    }
 
+    let offset = options.offset;
+    let row = 0;
     let limit = options.limit;
     let fileStream = fs.createReadStream(filename, {encoding: 'utf8'});
     let newliner = convertNewline('lf').stream();
@@ -336,6 +344,10 @@ export class FileService {
     }
     lastStream
       .on('data', function (data) {
+        row++;
+        if (row <= offset) {
+          return;
+        }
         if (limit > 0) {
           callback(null, data); // eslint-disable-line callback-return
         }
