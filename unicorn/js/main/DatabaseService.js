@@ -16,38 +16,31 @@
 //
 // http://numenta.org/licenses/
 
+import Batch from 'level-sublevel/batch';
 import fs from 'fs';
-import os from 'os';
-import isElectronRenderer from 'is-electron-renderer';
-import fileService from './FileService';
 import instantiator from 'json-schema-instantiator';
+import isElectronRenderer from 'is-electron-renderer';
 import json2csv from 'json2csv-stream';
 import leveldown from 'leveldown';
 import levelup from 'levelup';
 import moment from 'moment';
+import os from 'os';
 import path from 'path';
 import sublevel from 'level-sublevel';
-import Batch from 'level-sublevel/batch';
 import {Validator} from 'jsonschema';
-import {promisify} from '../common/common-utils';
+
+import fileService from './FileService';
 import {
   generateMetricDataId, generateFileId
 } from '../main/generateId';
+import {promisify} from '../common/common-utils';
 
 // Schemas
 import {
-  DBFileSchema,
-  DBMetricDataSchema,
-  DBMetricSchema,
-  DBModelDataSchema,
-  DBModelSchema,
-
-  MRAggregationSchema,
-  MRInputSchema,
-  MRModelSchema,
-
-  PFInputSchema,
-  PFOutputSchema
+  DBFileSchema, DBMetricDataSchema, DBMetricSchema,
+  DBModelDataSchema, DBModelSchema,
+  MRAggregationSchema, MRInputSchema, MRModelSchema,
+  PFInputSchema, PFOutputSchema
 } from '../database/schema';
 
 const SCHEMAS = [
@@ -56,6 +49,7 @@ const SCHEMAS = [
   MRAggregationSchema, MRInputSchema, MRModelSchema,
   PFInputSchema, PFOutputSchema
 ];
+
 
 /**
  * Calculate default database location. If running inside `Electron` then use
@@ -334,8 +328,7 @@ export class DatabaseService {
 
     const validation = this.validator.validate(metric, DBMetricSchema);
     if (validation.errors.length) {
-      callback(validation.errors, null);
-      return;
+      return callback(validation.errors, null);
     }
 
     this._metrics.put(metric.uid, metric, callback);
@@ -800,18 +793,20 @@ export class DatabaseService {
     if (typeof properties === 'string') {
       properties = JSON.parse(properties);
     }
+
     this._models.get(modelId, (error, model) => {
       if (error) {
-        callback(error);
-        return;
+        return callback(error);
       }
+
       let newModel = Object.assign({}, model, properties);
       newModel.modelId = modelId;
+
       const validation = this.validator.validate(newModel, DBModelSchema);
       if (validation.errors.length) {
-        callback(validation.errors, null);
-        return;
+        return callback(validation.errors, null);
       }
+
       this.putModel(newModel, (error) => callback(error, newModel));
     });
   }
@@ -832,15 +827,14 @@ export class DatabaseService {
     }
     this._metrics.get(metricId, (error, metric) => {
       if (error) {
-        callback(error);
-        return;
+        return callback(error);
       }
       let newMetric = Object.assign({}, metric, properties);
       newMetric.uid = metricId;
+
       const validation = this.validator.validate(newMetric, DBMetricSchema);
       if (validation.errors.length) {
-        callback(validation.errors, null);
-        return;
+        return callback(validation.errors, null);
       }
       this.putMetric(newMetric, (error) => callback(error, newMetric));
     });

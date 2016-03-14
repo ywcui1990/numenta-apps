@@ -29,6 +29,12 @@ import PFInputSchema from '../../../py/unicorn_backend/input_opt_schema_param_fi
 import PFOutputSchema from '../../../py/unicorn_backend/param_finder_output_schema.json';
 
 
+// Aggregation options JSON Schema not 'required' on UI layer.
+Object.keys(MRAggregationSchema.properties).forEach((option) => {
+  MRAggregationSchema.properties[option].required = false;
+});
+
+
 /**
  * Module containing all JSON schemas used by Unicorn.
  *

@@ -52,6 +52,10 @@ export default function (actionContext, payload) {
       actionContext.dispatch(ACTIONS.START_MODEL, {
         modelId: metricId, aggregated
       });
+      return resolve();
+    })
+    .catch((error) => {
+      return reject(error);
     });
   });
 }
