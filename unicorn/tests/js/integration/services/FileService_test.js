@@ -17,7 +17,6 @@
 //
 // http://numenta.org/licenses/
 
-
 const assert = require('assert');
 import instantiator from 'json-schema-instantiator';
 
@@ -119,7 +118,7 @@ const EXPECTED_FIELDS_NO_HEADER_CSV_FILE = [
   })
 ];
 
-const IGNORE_FIELDS_FILE = path.join(FIXTURES, 'ignored-fields.csv'); // eslint-disable-line
+const IGNORE_FIELDS_FILE = path.join(FIXTURES, 'ignored-fields.csv');
 const IGNORE_FIELDS_FILE_ID = generateFileId(IGNORE_FIELDS_FILE);
 const EXPECTED_FIELDS_IGNORED = [
   Object.assign({}, METRIC_INSTANCE, {
@@ -194,7 +193,7 @@ describe('FileService', () => {
     });
     it('should not get fields from non-csv files', (done) => {
       service.getFields(INVALID_CSV_FILE, (error, fields) => {
-        assert(error, 'Invalid CSV File was validated');
+        assert.equal(error, 'Invalid CSV file');
         done();
       });
     });
@@ -208,19 +207,21 @@ describe('FileService', () => {
     });
     it('should not validate files with more than one date/time field', (done) => { // eslint-disable-line
       service.getFields(TWO_DATES_FILE, (error, results) => {
-        assert(error, 'File with more than one date field was validated');
+        assert.equal(error,
+          'The file should have one and only one date/time column');
         done();
       });
     });
-    it('should have one date/time field', (done) => { // eslint-disable-line
+    it('should have one date/time field', (done) => {
       service.getFields(NO_DATES_FILE, (error, results) => {
-        assert(error, 'File without date field was validated');
+        assert.equal(error,
+          'The file should have one and only one date/time column');
         done();
       });
     });
     it('should have at least one scalar fields', (done) => {
       service.getFields(NO_SCALAR_FILE, (error, results) => {
-        assert(error, 'File with no numeric fields was validated');
+        assert.equal(error, 'The file should have at least one numeric value');
         done();
       });
     });
@@ -244,19 +245,23 @@ describe('FileService', () => {
     });
     it('should reject invalid date', (done) => {
       service.validate(INVALID_DATE_CONTENT_FILE, (error, results) => {
-        assert(error, 'File with invalid date was validated');
+        assert.equal(error,
+          "Invalid date at row 5: Found timestamp = 'Not a Date', " +
+          "expecting date matching 'YYYY-MM-DDTHH:mm:ssZ'");
         done();
       });
     });
     it('should reject invalid format', (done) => {
       service.validate(INVALID_DATE_FORMAT_FILE, (error, results) => {
-        assert(error, 'File with invalid date was validated');
+        assert.equal(error,
+          "Invalid date at row 5: Found timestamp = '08/26/2015 19:50', " +
+          "expecting date matching 'YYYY-MM-DDTHH:mm:ssZ'");
         done();
       });
     });
     it('should reject invalid number', (done) => {
       service.validate(INVALID_NUMBER_FILE, (error, results) => {
-        assert(error, 'File with invalid number was validated');
+        assert.equal(error, "Invalid number at row 5: Found metric = 'A21'");
         done();
       });
     });
