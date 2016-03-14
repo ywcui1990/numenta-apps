@@ -102,13 +102,17 @@ export default class Model extends React.Component {
       },
       showNonAgg: {
         root: {
-          width: '100%'
+          float: 'right',
+          marginRight: '-2.5rem',
+          width: '15rem'
         },
         checkbox: {
           marginRight: 7
         },
         label: {
-          color: muiTheme.rawTheme.palette.primary1Color
+          color: muiTheme.rawTheme.palette.primary1Color,
+          fontSize: 13,
+          fontWeight: muiTheme.rawTheme.font.weight.normal
         }
       }
     };

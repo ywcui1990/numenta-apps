@@ -84,6 +84,7 @@ export default class Chart extends React.Component {
       root: {
         boxShadow: 'none',
         height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 2.75,
+        marginTop: '0.25rem',
         width: '100%'
       }
     };
@@ -182,6 +183,12 @@ export default class Chart extends React.Component {
    * @return {Object} - Built React component pseudo-DOM object
    */
   render() {
+    let model = this.props.metaData.model;
+
+    if (model.aggregated) {
+      this._styles.root.marginTop = '0.66rem';
+    }
+
     return (
       <Paper
         className="dygraph-chart"

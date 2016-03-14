@@ -34,11 +34,13 @@ const {DATA_INDEX_TIME, DATA_INDEX_VALUE} = DATA_FIELD_INDEX;
  *  Chart component.
  */
 @connectToStores([MetricDataStore, ModelDataStore, ModelStore],
-  (context, props) => ({
-    metricData: context.getStore(MetricDataStore).getData(props.modelId),
-    modelData: context.getStore(ModelDataStore).getData(props.modelId),
-    model: context.getStore(ModelStore).getModel(props.modelId)
-  }))
+  (context, props) => {
+    let metricData = context.getStore(MetricDataStore).getData(props.modelId);
+    let modelData = context.getStore(ModelDataStore).getData(props.modelId);
+    let model = context.getStore(ModelStore).getModel(props.modelId);
+    return {metricData, modelData, model};
+  }
+)
 export default class ModelData extends React.Component {
 
   static get contextTypes() {
@@ -113,7 +115,7 @@ export default class ModelData extends React.Component {
             axis: 'y2',
             color: muiTheme.rawTheme.palette.primary1Color,  // light blue
             independentTicks: false,
-            showInRangeSelector: false,
+            showInRangeSelector: null,
             strokeWidth: 2
           }
         }
@@ -136,103 +138,32 @@ export default class ModelData extends React.Component {
   }
 
   render() {
-    // load data
-    let {modelId, showNonAgg} = this.props;
-    let metricDataStore = this.context.getStore(MetricDataStore);
-    let modelDataStore = this.context.getStore(ModelDataStore);
-    let modelStore = this.context.getStore(ModelStore);
-    let metricData = metricDataStore.getData(modelId);
-    let modelData = modelDataStore.getData(modelId);
-    let model = modelStore.getModel(modelId);
-
-    // prep data
+    let {metricData, model, modelData, showNonAgg} = this.props;
     let {options, raw, value} = this._chartOptions;
     let {axes, labels, series} = value;
     let metaData = {model, length: {metric: 0, model: 0}};
     let data = [];  // actual matrix of data to plot w/dygraphs
 
-    // --- keep track of Display+Data series on the Chart ---
-    let chartSeries = {
-      // index: Relate chart series indexes to data types (raw,anom,agg).
-      //  series 1 = dark blue (raw _or_ aggregated)
-      //  series 2 = light numenta blue (raw _and_ aggregated)
-      //  underlay = anomaly bar charts underlay
-      index: {
-        timestamp: 0,
-        aggregated: null,  // model-aggregated metric data, series 1.
-        raw: null  // raw metric data, series 2.
-      },
-      show: {
-        aggregated: false,  // show the Model-Aggregated Data line chart?
-        anomaly: false,  // show the Model Anomaly data bar chart?
-        raw: false  // show the Raw Metric data line chart?
-      }
-    };
-
-    // --- Init Chart Series Display+Data state (3 total states, #2 w/parts) ---
-    if (metricData.length && !modelData.data.length) {
-      // 1. Metric-provided Raw Data on Series 1, alone by itself.
-      chartSeries.index.raw = 1;
-      chartSeries.show.raw = true;
-    } else if (modelData.data.length && !showNonAgg) {
-      // 2. Model-provided Anomaly Data goes into custom Dygraphs Underlay.
-      //    Series 1 is either still the Metric-provided Raw Metric Data, or may
-      //    become the Model-provided Aggregated Metric Data below.
-      chartSeries.show.anomaly = true;
-
-      //  (2. Raw or Aggregated data?)
-      if (model.aggregated) {
-        // 2a. Now the Model-provided Aggregated Metric Data, along w/Anomlies
-        chartSeries.index.aggregated = 1;
-        chartSeries.show.aggregated = true;
-      } else {
-        // 2b. still the Metric-provided Raw Metric Data, along with Anomalies
-        chartSeries.index.raw = 1;
-        chartSeries.show.raw = true;
-      }
-    } else if (modelData.data.length && showNonAgg) {
-      // 3. Model-provided Aggregated Metric Data on Series 1, and now the
-      //    additional Raw Metric Data goes on to Series 2.
-      chartSeries.index.aggregated = 1;
-      chartSeries.index.raw = 2;
-      chartSeries.show.anomaly = true;
-      chartSeries.show.aggregated = true;
-      chartSeries.show.raw = true;
-    }
-
-    // --- Use Chart Series Data+Display state to prepare data and charts ---
-    // * Series 1 => Metric-provided Raw Metric Data
-    if (
-      chartSeries.show.raw &&
-      chartSeries.index.raw === 1
-    ) {
+    // 1. Raw metric data on Series 1
+    if (metricData.length) {
       data = Array.from(metricData);
       metaData.length.metric = metricData.length;
     }
-    // * Underlay => Model-provided Anomaly Data
-    if (chartSeries.show.anomaly) {
-      // reinit Anomaly Bars Overlay bound to fresh model data
+    // 2. Model anomaly data on Underlay
+    if (modelData.data.length) {
       options.modelData = modelData.data;
       metaData.length.model = modelData.data.length;
-      if (
-        chartSeries.index.aggregated === 1 &&
-        chartSeries.show.aggregated
-      ) {
-        // series 1 => New Model-provided Aggregated Metric Data, Remove anomaly
+
+      // 2a. Aggregated Model metric data on Series 1
+      if (model.aggregated) {
         data = Array.from(modelData.data).map((item) => item.slice(0, 2));
       }
     }
-    // * Series 2 => Metric-provided Raw Data overlay over top of Agg data chart
-    if (
-      chartSeries.show.raw &&
-      chartSeries.index.raw === 2
-    ) {
-      // Merge data[] + metricData[], that is, merge Raw Non-Aggregated Metric
-      //  Data with Aggregated Metric Data into output Chart Data grid.
+    // 3. Overlay: Aggregated on Series 1. Raw on Series 2.
+    if (modelData.data.length && showNonAgg) {
       let newData = [];
       let dataId = 0;
       let dataStamp = data[dataId][DATA_INDEX_TIME];
-
       metricData.forEach((item, rowid) => { // increment pointer to metricData[]
         let metricStamp = item[DATA_INDEX_TIME];
         if (metricStamp.getTime() < dataStamp.getTime()) {
@@ -240,9 +171,8 @@ export default class ModelData extends React.Component {
           newData.push([metricStamp, null, item[DATA_INDEX_VALUE]]);
         } else {
           // merge in agg+anom data record
-          let aggregate = data[dataId][chartSeries.index.aggregated];
+          let aggregate = data[dataId][1];
           newData.push([dataStamp, aggregate, null]);
-
           if (dataId < data.length - 1) {
             dataId++; // increment pointer to data[]
             dataStamp = data[dataId][DATA_INDEX_TIME];
