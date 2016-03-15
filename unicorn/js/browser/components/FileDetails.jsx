@@ -19,6 +19,7 @@
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
+import RaisedButton from 'material-ui/lib/raised-button';
 import fs from 'fs';
 import React from 'react';
 import Table from 'material-ui/lib/table/table';
@@ -37,6 +38,10 @@ import HideFileDetailsAction from '../actions/HideFileDetails';
 const STYLES = {
   dialog: {
     margin: '1rem'
+  },
+  button: {
+    marginRight: '1rem',
+    marginBottom: '1rem'
   },
   error: {
     color: Colors.red500
@@ -234,13 +239,15 @@ export default class FileDetails extends React.Component {
                     onRequestClose={this._onRequestClose.bind(this)}
                     onTouchTap={this._onRequestClose.bind(this)}/>,
 
-        <FlatButton label="Add File" primary={true} ref="submit"
+        <RaisedButton label="Add File" primary={true} ref="submit"
                     disabled={this.props.error}
+                    style={STYLES.button}
                     onRequestClose={this._onRequestClose.bind(this)}
                     onTouchTap={this._onSave.bind(this)}/>
       ];
     }
-    return(<FlatButton label="Close" primary={true}
+    return(<RaisedButton label="Close" primary={true}
+                       style={STYLES.button}
                        onRequestClose={this._onRequestClose.bind(this)}
                        onTouchTap={this._onRequestClose.bind(this)}/>);
   }
