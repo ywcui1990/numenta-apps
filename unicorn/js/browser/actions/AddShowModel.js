@@ -15,33 +15,35 @@
 //
 // http://numenta.org/licenses/
 
-import {ACTIONS} from '../lib/Constants';
-
 import instantiator from 'json-schema-instantiator';
+
+import {ACTIONS} from '../lib/Constants';
 import {DBModelSchema} from '../../database/schema';
+import ShowModelAction from './ShowModel';
+
 const INSTANCE = instantiator.instantiate(DBModelSchema);
 
+
 /**
- * Add new model to the {@link ModelStore}
- *
- * @param {FluxibleContext} actionContext -
+ * Add new model to the {@link ModelStore}, and make visible
+ * @param {FluxibleContext} actionContext - Fluxible action context object
  * @param {Object} payload - Action payload object
  * @param {string} payload.modelId - Model Unique ID.
  *                                	See {@link Utls.generateModelId}
  * @param {string} payload.filename - File full path name
  * @param {string} payload.timestampField - Timestamp field name
  * @param {string} payload.metric - Metric field name
- * @return {Promise}  Promise
+ * @return {Promise} Promise
  * @emits {ADD_MODEL}
  * @emits {ADD_MODEL_FAILED}
  */
 export default function (actionContext, payload) {
-  return new Promise((resolve, reject) => {
-    let {modelId, filename, timestampField, metric} = payload;
-    let model = Object.assign({}, INSTANCE, {
-      modelId, filename, timestampField, metric
-    });
+  let {modelId, filename, timestampField, metric} = payload;
+  let model = Object.assign({}, INSTANCE, {
+    modelId, filename, timestampField, metric
+  });
 
+  return new Promise((resolve, reject) => {
     let db = actionContext.getDatabaseClient();
     db.putModel(model, (error) => {
       if (error) {
@@ -52,5 +54,8 @@ export default function (actionContext, payload) {
         resolve(model);
       }
     });
+  }).then((model) => {
+    // show model after adding it to store
+    actionContext.executeAction(ShowModelAction, modelId);
   });
 }

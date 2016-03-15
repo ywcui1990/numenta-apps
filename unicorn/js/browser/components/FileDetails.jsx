@@ -15,7 +15,6 @@
 //
 // http://numenta.org/licenses/
 
-
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
@@ -78,6 +77,7 @@ const STYLES = {
     textOverflow: 'ellipsis'
   }
 };
+
 
 /**
  * Show file details page. The file must be available from the {@link FileStore}
@@ -181,7 +181,8 @@ export default class FileDetails extends React.Component {
 
       return (
         <div style={STYLES.data}>
-          <Table selectable={false} fixedHeader={true} height={tableHeight}>
+          <Table fixedHeader={true} height={tableHeight.toString()}
+              selectable={false}>
             <TableHeader adjustForCheckbox={false} displaySelectAll={false}
                          enableSelectAll={false}>
               <TableRow style={STYLES.tableRow}>

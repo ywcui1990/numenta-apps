@@ -123,6 +123,38 @@ export default class ModelData extends React.Component {
     }; // chartOptions
   } // constructor
 
+  /**
+   * Transform two indepdent time-series datasets into a single Dygraphs
+   *  data matrix, overlaid on top of each other.
+   * @param {Array} dataSeries - Input Dygraph data series matrix for overlay.
+   * @param {Array} metricData - Input data record list, raw metric data.
+   * @returns {Array} - Output Dygraph Multi-dimensional array matrix Data
+   *                    Series for charting: data[ts][series].
+   * @see http://dygraphs.com/tests/independent-series.html
+   */
+  _overlayDataSeries(dataSeries, metricData) {
+    let dataId = 0;
+    let dataStamp = dataSeries[dataId][DATA_INDEX_TIME];
+    let newData = [];
+
+    metricData.forEach((item, rowid) => {
+      let metricStamp = item[DATA_INDEX_TIME];
+      if (metricStamp.getTime() < dataStamp.getTime()) {
+        // merge in raw metric data record
+        newData.push([metricStamp, null, item[DATA_INDEX_VALUE]]);
+      } else {
+        // merge in agg+anom data record
+        let aggregate = dataSeries[dataId][DATA_INDEX_VALUE];
+        newData.push([dataStamp, aggregate, null]);
+        if (dataId < dataSeries.length - 1) {
+          dataId++; // increment pointer to data[]
+          dataStamp = dataSeries[dataId][DATA_INDEX_TIME];
+        }
+      }
+    });
+    return newData;
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     // allow chart to switch between "show non-agg data" toggle states
     if (this.props.showNonAgg !== nextProps.showNonAgg) {
@@ -161,25 +193,8 @@ export default class ModelData extends React.Component {
     }
     // 3. Overlay: Aggregated on Series 1. Raw on Series 2.
     if (modelData.data.length && showNonAgg) {
-      let newData = [];
-      let dataId = 0;
-      let dataStamp = data[dataId][DATA_INDEX_TIME];
-      metricData.forEach((item, rowid) => { // increment pointer to metricData[]
-        let metricStamp = item[DATA_INDEX_TIME];
-        if (metricStamp.getTime() < dataStamp.getTime()) {
-          // merge in raw metric data record
-          newData.push([metricStamp, null, item[DATA_INDEX_VALUE]]);
-        } else {
-          // merge in agg+anom data record
-          let aggregate = data[dataId][1];
-          newData.push([dataStamp, aggregate, null]);
-          if (dataId < data.length - 1) {
-            dataId++; // increment pointer to data[]
-            dataStamp = data[dataId][DATA_INDEX_TIME];
-          }
-        }
-      });
-      data = newData; // switch to use merged array
+      // switch to use merged array
+      data = this._overlayDataSeries(data, metricData);
 
       // Format non-aggregated overlay series
       labels = labels.concat(raw.labels);
