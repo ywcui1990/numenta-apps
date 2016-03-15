@@ -68,6 +68,25 @@ function guessTimestampFormat(timestamp) {
 }
 
 /**
+ * Check whether or not the given string can be converted into a valid {@link Date}
+ * > NOTE: Based on 'Date.parse' which is browser and locale dependent and may
+ * >			 not work in all cases.
+ * @param  {string}  value string value to chaeck
+ * @return {Boolean}       true for valid date false otherwise
+ */
+function isDate(value) {
+  if (value && value.length > 0) {
+    // Check if the first char is numeric
+    if (Number.isNaN(parseInt(value.charAt(0), 10))) {
+      return false;
+    }
+    // Parse using JS builtin Date object
+    return !Number.isNaN(Date.parse(value))
+  }
+  return false;
+}
+
+/**
  * Guess field definitions from string values
  * @param  {string}   filename   Full path name
  * @param  {string[]} values     Array of field values
@@ -117,9 +136,7 @@ function guessFields(filename, values, names) {
         }
         field.uid = generateMetricId(filename, field.name);
         fields.push(field);
-      } else if (!Number.isNaN(Date.parse(value))) {
-        // NOTE: Handles Unknown date format. 'Date.parse' is browser and locale
-        //       dependent and may not work in all cases.
+      } else if (isDate(value)) {
         field.type = 'date';
         if (names) {
           field.name = names[index];
