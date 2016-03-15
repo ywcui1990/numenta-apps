@@ -17,10 +17,10 @@
 //
 // http://numenta.org/licenses/
 
-
 const assert = require('assert');
 import instantiator from 'json-schema-instantiator';
 
+import moment from 'moment';
 import path from 'path';
 
 import service from '../../../../js/main/FileService';
@@ -30,6 +30,14 @@ import {
 import {
   DBFileSchema, DBMetricSchema
 } from '../../../../js/database/schema';
+
+function createFileInstance(filename, properties) {
+  return Object.assign({}, FILE_INSTANCE, {
+    filename,
+    uid: generateFileId(filename),
+    name: path.basename(filename)
+  }, properties);
+}
 
 // Contents of 'fixture/file.csv'
 const EXPECTED_CONTENT =
@@ -77,17 +85,11 @@ const EXPECTED_FIELDS = [
     type: 'number'
   })
 ];
-const EXPECTED_FILE_SMALL = Object.assign({}, FILE_INSTANCE, {
-  filename: FILENAME_SMALL,
-  name: path.basename(FILENAME_SMALL),
-  uid: FILENAME_SMALL_ID,
-  rowOffset: 1,
-  records: 7
-});
 
 const INVALID_CSV_FILE = path.join(FIXTURES, 'invalid.csv');
 const TWO_DATES_FILE = path.join(FIXTURES, 'two-dates.csv');
 const NO_DATES_FILE = path.join(FIXTURES, 'no-dates.csv');
+const INVALID_DATE_FILE = path.join(FIXTURES, 'invalid-date.csv');
 const INVALID_DATE_CONTENT_FILE = path.join(FIXTURES, 'invalid-date-content.csv'); // eslint-disable-line
 const INVALID_DATE_FORMAT_FILE = path.join(FIXTURES, 'invalid-date-format.csv');
 const INVALID_NUMBER_FILE = path.join(FIXTURES, 'invalid-number.csv');
@@ -119,7 +121,7 @@ const EXPECTED_FIELDS_NO_HEADER_CSV_FILE = [
   })
 ];
 
-const IGNORE_FIELDS_FILE = path.join(FIXTURES, 'ignored-fields.csv'); // eslint-disable-line
+const IGNORE_FIELDS_FILE = path.join(FIXTURES, 'ignored-fields.csv');
 const IGNORE_FIELDS_FILE_ID = generateFileId(IGNORE_FIELDS_FILE);
 const EXPECTED_FIELDS_IGNORED = [
   Object.assign({}, METRIC_INSTANCE, {
@@ -155,6 +157,8 @@ const EXPECTED_MAX_PARTIAL = 21;
 // Keep this list up to date with file names in "samples/"
 const EXPECTED_SAMPLE_FILES = ['gym.csv'];
 
+// Use this date to Mock moment now
+const EXPECTED_DATE = '2016-03-15T15:09:05-07:00';
 
 /* eslint-disable max-nested-callbacks */
 describe('FileService', () => {
@@ -194,7 +198,7 @@ describe('FileService', () => {
     });
     it('should not get fields from non-csv files', (done) => {
       service.getFields(INVALID_CSV_FILE, (error, fields) => {
-        assert(error, 'Invalid CSV File was validated');
+        assert.equal(error, 'Invalid CSV file');
         done();
       });
     });
@@ -208,19 +212,28 @@ describe('FileService', () => {
     });
     it('should not validate files with more than one date/time field', (done) => { // eslint-disable-line
       service.getFields(TWO_DATES_FILE, (error, results) => {
-        assert(error, 'File with more than one date field was validated');
+        assert.equal(error,
+          'The file should have one and only one date/time column');
         done();
       });
     });
-    it('should have one date/time field', (done) => { // eslint-disable-line
+    it('should have one date/time field', (done) => {
       service.getFields(NO_DATES_FILE, (error, results) => {
-        assert(error, 'File without date field was validated');
+        assert.equal(error,
+          'The file should have one and only one date/time column');
+        done();
+      });
+    });
+    it('should not validate files with invalid date format', (done) => {
+      service.getFields(INVALID_DATE_FILE, (error, results) => {
+        assert.equal(error,
+          'The date/time format used on column 1 is not supported');
         done();
       });
     });
     it('should have at least one scalar fields', (done) => {
       service.getFields(NO_SCALAR_FILE, (error, results) => {
-        assert(error, 'File with no numeric fields was validated');
+        assert.equal(error, 'The file should have at least one numeric value');
         done();
       });
     });
@@ -232,31 +245,77 @@ describe('FileService', () => {
       });
     });
   });
-
   describe('#validate', () => {
+    let saveMomentNow = moment.now;
+    before((done) => {
+      // Mock 'moment.now' to always return 'EXPECTED_DATE'
+      let mockTimeMs = moment(EXPECTED_DATE).valueOf();
+      moment.now = function () {
+        return mockTimeMs;
+      };
+      done();
+    });
+    after((done) => {
+      // Restore original 'moment.now' function
+      moment.now = saveMomentNow;
+      done();
+    });
+
     it('should accept valid file', (done) => {
       service.validate(FILENAME_SMALL, (error, results) => {
         assert.ifError(error);
-        assert.deepEqual(results.file, EXPECTED_FILE_SMALL);
         assert.deepEqual(results.fields, EXPECTED_FIELDS);
+        assert.deepEqual(results.file,
+          createFileInstance(FILENAME_SMALL, {
+            rowOffset: 1,
+            records: 7
+          }));
+        done();
+      });
+    });
+    it('should reject invalid CSV file', (done) => {
+      service.validate(INVALID_CSV_FILE, (error, results) => {
+        assert.equal(error, 'Invalid CSV file');
         done();
       });
     });
     it('should reject invalid date', (done) => {
       service.validate(INVALID_DATE_CONTENT_FILE, (error, results) => {
-        assert(error, 'File with invalid date was validated');
+        assert.equal(error,
+          "Invalid date/time at row 5: The date/time value is 'Not a Date' " +
+          "instead of having a format matching 'YYYY-MM-DDTHH:mm:ssZ'. For " +
+          `example: '${EXPECTED_DATE}'`
+        )
+        assert.deepEqual(results.file,
+          createFileInstance(INVALID_DATE_CONTENT_FILE, {
+            rowOffset: 1,
+            records: 7
+          }));
         done();
       });
     });
     it('should reject invalid format', (done) => {
       service.validate(INVALID_DATE_FORMAT_FILE, (error, results) => {
-        assert(error, 'File with invalid date was validated');
+        assert.equal(error,
+          'Invalid date/time at row 5: The date/time value is ' +
+          "'08/26/2015 19:50' instead of having a format matching " +
+          `'YYYY-MM-DDTHH:mm:ssZ'. For example: '${EXPECTED_DATE}'`);
+        assert.deepEqual(results.file,
+          createFileInstance(INVALID_DATE_FORMAT_FILE, {
+            rowOffset: 1,
+            records: 7
+          }));
         done();
       });
     });
     it('should reject invalid number', (done) => {
       service.validate(INVALID_NUMBER_FILE, (error, results) => {
-        assert(error, 'File with invalid number was validated');
+        assert.equal(error, "Invalid number at row 5: Found 'metric' = 'A21'");
+        assert.deepEqual(results.file,
+          createFileInstance(INVALID_NUMBER_FILE, {
+            rowOffset: 1,
+            records: 7
+          }));
         done();
       });
     });
@@ -275,7 +334,6 @@ describe('FileService', () => {
         }
       });
     });
-
     it('should get data with limit=1', (done) => {
       service.getData(FILENAME_SMALL, {limit: 1}, (error, data) => {
         assert.ifError(error);
@@ -287,7 +345,29 @@ describe('FileService', () => {
         }
       });
     });
-
+    it('should get data with offset=1', (done) => {
+      let i = 1;
+      service.getData(FILENAME_SMALL, {offset: 1}, (error, data) => {
+        assert.ifError(error);
+        if (data) {
+          let row = JSON.parse(data);
+          assert.deepEqual(row, EXPECTED_DATA[i++]);
+        } else {
+          done();
+        }
+      });
+    });
+    it('should get data with offset=1 and limit=1', (done) => {
+      service.getData(FILENAME_SMALL, {offset: 1, limit: 1}, (error, data) => {
+        assert.ifError(error);
+        if (data) {
+          let row = JSON.parse(data);
+          assert.deepEqual(row, EXPECTED_DATA[1]);
+        } else {
+          done();
+        }
+      });
+    });
     it('should get aggregated data', (done) => {
       let options = {
         limit: 1,
@@ -330,7 +410,6 @@ describe('FileService', () => {
         done();
       });
     });
-
     it('should get statistics for some records of the file', (done) => {
       service.getStatistics(FILENAME_SMALL, {limit: 2}, (error, data) => {
         assert.ifError(error);

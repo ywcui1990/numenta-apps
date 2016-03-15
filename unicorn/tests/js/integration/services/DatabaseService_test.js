@@ -101,6 +101,68 @@ const EXPECTED_METRIC_DATA = [
   {metric_uid: EXPECTED_METRIC_ID, timestamp: 1440557491000, metric_value: 19}
 ];
 
+const NO_HEADER_CSV_FILE = path.join(FIXTURES, 'no-header.csv');
+const NO_HEADER_CSV_FILE_ID = generateFileId(NO_HEADER_CSV_FILE);
+const EXPECTED_NO_HEADER_CSV_FILE = Object.assign({}, INSTANCES.File, {
+  filename: NO_HEADER_CSV_FILE,
+  name: path.basename(NO_HEADER_CSV_FILE),
+  uid: NO_HEADER_CSV_FILE_ID,
+  rowOffset: 0,
+  records: 6
+});
+
+const EXPECTED_FIELDS_NO_HEADER_CSV_FILE = [
+  Object.assign({}, INSTANCES.Metric, {
+    uid: generateMetricId(NO_HEADER_CSV_FILE, 'timestamp'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    name: 'timestamp',
+    index: 0,
+    type: 'date',
+    format: 'YYYY-MM-DDTHH:mm:ssZ'
+  }),
+  Object.assign({}, INSTANCES.Metric, {
+    uid: generateMetricId(NO_HEADER_CSV_FILE, 'metric2'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    index: 2,
+    name: 'metric2',
+    type: 'number'
+  }),
+  Object.assign({}, INSTANCES.Metric, {
+    uid: generateMetricId(NO_HEADER_CSV_FILE, 'metric1'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    index: 1,
+    name: 'metric1',
+    type: 'number'
+  })
+];
+
+const IGNORE_FIELDS_FILE = path.join(FIXTURES, 'ignored-fields.csv');
+const IGNORE_FIELDS_FILE_ID = generateFileId(IGNORE_FIELDS_FILE);
+const EXPECTED_IGNORE_FIELDS_FILE = Object.assign({}, INSTANCES.File, {
+  filename: IGNORE_FIELDS_FILE,
+  name: path.basename(IGNORE_FIELDS_FILE),
+  uid: IGNORE_FIELDS_FILE_ID,
+  rowOffset: 0,
+  records: 6
+});
+const EXPECTED_FIELDS_IGNORE_FIELDS_FILE = [
+  Object.assign({}, INSTANCES.Metric, {
+    uid: generateMetricId(IGNORE_FIELDS_FILE, 'timestamp'),
+    file_uid: IGNORE_FIELDS_FILE_ID,
+    name: 'timestamp',
+    index: 1,
+    type: 'date',
+    format: 'YYYY-MM-DDTHH:mm:ssZ'
+  }),
+  Object.assign({}, INSTANCES.Metric, {
+    uid: generateMetricId(IGNORE_FIELDS_FILE, 'metric1'),
+    file_uid: IGNORE_FIELDS_FILE_ID,
+    index: 4,
+    name: 'metric1',
+    type: 'number'
+  })
+];
+
 const EXPECTED_METRIC_DATA_RESULT = EXPECTED_METRIC_DATA.map((data) => [
   data.timestamp, data.metric_value
 ]);
@@ -278,6 +340,36 @@ describe('DatabaseService:', () => {
               assert.deepStrictEqual(data, EXPECTED_METRIC_DATA_RESULT);
               done();
             })
+          });
+        });
+      });
+    });
+    it('should upload file with no header to the database', (done) => {
+      service.uploadFile(NO_HEADER_CSV_FILE, (error, file) => {
+        assert.ifError(error);
+        service.getFile(NO_HEADER_CSV_FILE_ID, (error, actual) => {
+          assert.ifError(error);
+          assert.deepStrictEqual(JSON.parse(actual), EXPECTED_NO_HEADER_CSV_FILE);
+          assert.ifError(error);
+          service.getMetricsByFile(NO_HEADER_CSV_FILE_ID, (error, actual) => {
+            assert.ifError(error);
+            assert.deepStrictEqual(JSON.parse(actual), EXPECTED_FIELDS_NO_HEADER_CSV_FILE);
+            done();
+          });
+        });
+      });
+    });
+    it('should upload file with ignoring non-scalar fields to the database', (done) => {
+      service.uploadFile(IGNORE_FIELDS_FILE, (error, file) => {
+        assert.ifError(error);
+        service.getFile(IGNORE_FIELDS_FILE_ID, (error, actual) => {
+          assert.ifError(error);
+          assert.deepStrictEqual(JSON.parse(actual), EXPECTED_IGNORE_FIELDS_FILE);
+          assert.ifError(error);
+          service.getMetricsByFile(IGNORE_FIELDS_FILE_ID, (error, actual) => {
+            assert.ifError(error);
+            assert.deepStrictEqual(JSON.parse(actual), EXPECTED_FIELDS_IGNORE_FIELDS_FILE);
+            done();
           });
         });
       });

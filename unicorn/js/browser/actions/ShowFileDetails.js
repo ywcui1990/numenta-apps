@@ -22,10 +22,14 @@ import {ACTIONS} from '../lib/Constants';
 /**
  * Show {@link FileDetails} page for the given file
  * @param  {FluxibleContext} actionContext - The action context
- * @param  {string} filename - The name of the file to show.
- *                             Must be in the {@link FileStore}
+ * @param  {File} file - The the file to show.
  * @emits {SHOW_FILE_DETAILS}
  */
-export default function (actionContext, filename) {
-  actionContext.dispatch(ACTIONS.SHOW_FILE_DETAILS, filename);
+export default function (actionContext, file) {
+  let db = actionContext.getDatabaseClient();
+  db.getMetricsByFile(file.uid, (error, metrics) => {
+    actionContext.dispatch(ACTIONS.SHOW_FILE_DETAILS, {
+      error, file, fields: JSON.parse(metrics)
+    });
+  });
 }

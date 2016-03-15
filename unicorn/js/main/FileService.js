@@ -69,6 +69,25 @@ function guessTimestampFormat(timestamp) {
 }
 
 /**
+ * Check whether or not the given string can be converted into a valid {@link Date}
+ * > NOTE: Based on 'Date.parse' which is browser and locale dependent and may
+ * >			 not work in all cases.
+ * @param  {string}  value string value to chaeck
+ * @return {Boolean}       true for valid date false otherwise
+ */
+function isDate(value) {
+  if (value && value.length > 0) {
+    // Check if the first char is numeric
+    if (Number.isNaN(parseInt(value.charAt(0), 10))) {
+      return false;
+    }
+    // Parse using JS builtin Date object
+    return !Number.isNaN(Date.parse(value))
+  }
+  return false;
+}
+
+/**
  * Guess field definitions from string values
  * @param  {string}   filename   Full path name
  * @param  {string[]} values     Array of field values
@@ -79,7 +98,7 @@ function guessTimestampFormat(timestamp) {
  *                               fields are named `metricX`, ignoring all
  *                               other fields. Something like this:
  *
- *                               	timestamp, metric1, metric2, ...
+ *                                     timestamp, metric1, metric2, ...
  *
  * @return {Field[]}          Array of valid {@link Field} definitions or an
  *                            empty array if no valid field was found
@@ -115,6 +134,15 @@ function guessFields(filename, values, names) {
         } else {
           field.name = `metric${metricX}`;
           metricX++;
+        }
+        field.uid = generateMetricId(filename, field.name);
+        fields.push(field);
+      } else if (isDate(value)) {
+        field.type = 'date';
+        if (names) {
+          field.name = names[index];
+        } else {
+          field.name = `timestamp${index+1}`;
         }
         field.uid = generateMetricId(filename, field.name);
         fields.push(field);
@@ -192,8 +220,8 @@ export class FileService {
    *
    * ```
    * {
-   * 	fields: [metrics], // Array of Metric definitions. See "Metric.json"
-   * 	offset: 0 | 1   // index of first data row in CSV file; zero-based
+   *   fields: [metrics], // Array of Metric definitions. See "Metric.json"
+   *   offset: 0 | 1   // index of first data row in CSV file; zero-based
    * }
    * ```
    *
@@ -237,6 +265,9 @@ export class FileService {
           });
           if (dateFields.length !== 1) {
             error = 'The file should have one and only one date/time column';
+          } else if (!dateFields[0].format) {
+            error = `The date/time format used on column ` +
+                    `${dateFields[0].index + 1} is not supported`;
           } else if (!fields.some((field) => field.type === 'number')) {
             error = 'The file should have at least one numeric value';
           }
@@ -281,6 +312,9 @@ export class FileService {
    *                        // Max Number of records to process
    *                        limit: Number.MAX_SAFE_INTEGER,
    *
+   *                        // Number of rows to skip
+   *                        offset: 0
+   *
    *                        // Aggregation settings. See {TimeAggregator}
    *                        aggregation: {
    *                          // Name of the field representing 'time'
@@ -311,7 +345,12 @@ export class FileService {
     if (!('limit' in options)) {
       options.limit = Number.MAX_SAFE_INTEGER;
     }
+    if (!('offset' in options)) {
+      options.offset = 0;
+    }
 
+    let offset = options.offset;
+    let row = 0;
     let limit = options.limit;
     let fileStream = fs.createReadStream(filename, {encoding: 'utf8'});
     let newliner = convertNewline('lf').stream();
@@ -324,6 +363,10 @@ export class FileService {
     }
     lastStream
       .on('data', function (data) {
+        row++;
+        if (row <= offset) {
+          return;
+        }
         if (limit > 0) {
           callback(null, data); // eslint-disable-line callback-return
         }
@@ -477,13 +520,15 @@ export class FileService {
 
     // Validate fields
     this.getFields(filename, (error, validFields) => {
-      if (error) {
-        callback(error, {file});
-        return;
-      }
+      let dataError = error;
+
       // Update file and fields
-      let fields = validFields.fields;
-      let offset = validFields.offset;
+      let fields = [];
+      let offset = 0;
+      if (validFields) {
+        fields = validFields.fields;
+        offset = validFields.offset;
+      }
 
       // Load data
       let stream = fs.createReadStream(filename, {
@@ -499,27 +544,33 @@ export class FileService {
         if (row <= offset) {
           return;
         }
-        let error;
+        // Stop validating of first error but keep loading file to get total records
+        if (dataError) {
+          return;
+        }
+        let message;
         let valid = fields.every((field, index) => {
           let value = data[field.index];
-          error = `Invalid ${field.type} at row ${row}: ` +
-                  `Found ${field.name} = '${value}'`;
-          if (field.format) {
-            error += `, expecting ${field.type} matching '${field.format}'`;
-          }
           switch (field.type) {
           case 'number':
+            message = `Invalid number at row ${row}: ` +
+                      `Found '${field.name}' = '${value}'`;
             return Number.isFinite(Number(value));
           case 'date':
+            message = `Invalid date/time at row ${row}: ` +
+                      `The date/time value is '${value}'`;
+            if (field.format) {
+              let current = moment().format(field.format);
+              message += ' instead of having a format matching ' +
+                         `'${field.format}'. For example: '${current}'`;
+            }
             return moment(value, field.format).isValid();
           default:
             return true;
           }
-        })
+        });
         if (!valid) {
-          csvParser.removeAllListeners();
-          stream.destroy();
-          callback(error, {file});
+          dataError = message;
           return;
         }
       })
@@ -527,7 +578,7 @@ export class FileService {
       .once('end', () => {
         file.records = row;
         file.rowOffset = offset;
-        callback(null, {file, fields});
+        callback(dataError, {file, fields});
       });
       stream.pipe(newliner).pipe(csvParser);
     });
