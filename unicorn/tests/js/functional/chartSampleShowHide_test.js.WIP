@@ -68,7 +68,7 @@ describe('Chart Sample Show', () => {
       .call(done);
   });
 
-  it('should click checkbox to show Sample Chart', (done) => {
+  it('should click checkbox to SHOW Sample Chart', (done) => {
     client.click(SELECTOR.CHECKBOX)
       .waitForVisible(SELECTOR.CHART)
       .isVisible(SELECTOR.CHART)
@@ -88,6 +88,40 @@ describe('Chart Sample Show', () => {
 
   it('should NOT be showing the Default App Background anymore', (done) => {
     client.isVisible(SELECTOR.DEFAULT)
+      .then((response) => {
+        assert.equal(response, false);
+      })
+      .call(done);
+  });
+
+  it('should click checkbox to HIDE Sample Chart', (done) => {
+    client.click(SELECTOR.CHECKBOX)
+      .waitForVisible(SELECTOR.DEFAULT)
+      .isVisible(SELECTOR.CHART)
+      .then((response) => {
+        assert.equal(response, false);
+      })
+      .call(done);
+  });
+
+  it('should be showing the Default App Background again', (done) => {
+    client.isVisible(SELECTOR.DEFAULT)
+      .then((response) => {
+        assert.equal(response, true);
+      })
+      .call(done);
+  });
+
+  it('should NOT be showing a Sample Chart again', (done) => {
+    client.isVisible(SELECTOR.CHART)
+      .then((response) => {
+        assert.equal(response, false);
+      })
+      .call(done);
+  });
+
+  it('should NOT be showing a Sample Chart with Create button again', (done) => { // eslint-disable-line
+    client.isVisible(SELECTOR.CREATE)
       .then((response) => {
         assert.equal(response, false);
       })
