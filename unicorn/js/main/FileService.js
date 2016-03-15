@@ -549,15 +549,19 @@ export class FileService {
         let message;
         let valid = fields.every((field, index) => {
           let value = data[field.index];
-          message = `Invalid ${field.type} at row ${row}: ` +
-                  `Found ${field.name} = '${value}'`;
-          if (field.format) {
-            message += `, expecting ${field.type} matching '${field.format}'`;
-          }
           switch (field.type) {
           case 'number':
+            message = `Invalid number at row ${row}: ` +
+                      `Found '${field.name}' = '${value}'`;
             return Number.isFinite(Number(value));
           case 'date':
+            message = `Invalid date/time at row ${row}: ` +
+                      `The date/time value is '${value}'`;
+            if (field.format) {
+              let current = moment().format(field.format);
+              message += ' instead of having a format matching ' +
+                         `'${field.format}'. For example: '${current}'`;
+            }
             return moment(value, field.format).isValid();
           default:
             return true;

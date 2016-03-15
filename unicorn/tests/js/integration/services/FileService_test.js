@@ -20,6 +20,7 @@
 const assert = require('assert');
 import instantiator from 'json-schema-instantiator';
 
+import moment from 'moment';
 import path from 'path';
 
 import service from '../../../../js/main/FileService';
@@ -156,6 +157,8 @@ const EXPECTED_MAX_PARTIAL = 21;
 // Keep this list up to date with file names in "samples/"
 const EXPECTED_SAMPLE_FILES = ['gym.csv'];
 
+// Use this date to Mock moment now
+const EXPECTED_DATE = '2016-03-15T15:09:05-07:00';
 
 /* eslint-disable max-nested-callbacks */
 describe('FileService', () => {
@@ -243,6 +246,21 @@ describe('FileService', () => {
     });
   });
   describe('#validate', () => {
+    let saveMomentNow = moment.now;
+    before((done) => {
+      // Mock 'moment.now' to always return 'EXPECTED_DATE'
+      let mockTimeMs = moment(EXPECTED_DATE).valueOf();
+      moment.now = function () {
+        return mockTimeMs;
+      };
+      done();
+    });
+    after((done) => {
+      // Restore original 'moment.now' function
+      moment.now = saveMomentNow;
+      done();
+    });
+
     it('should accept valid file', (done) => {
       service.validate(FILENAME_SMALL, (error, results) => {
         assert.ifError(error);
@@ -264,8 +282,10 @@ describe('FileService', () => {
     it('should reject invalid date', (done) => {
       service.validate(INVALID_DATE_CONTENT_FILE, (error, results) => {
         assert.equal(error,
-          "Invalid date at row 5: Found timestamp = 'Not a Date', " +
-          "expecting date matching 'YYYY-MM-DDTHH:mm:ssZ'");
+          "Invalid date/time at row 5: The date/time value is 'Not a Date' " +
+          "instead of having a format matching 'YYYY-MM-DDTHH:mm:ssZ'. For " +
+          `example: '${EXPECTED_DATE}'`
+        )
         assert.deepEqual(results.file,
           createFileInstance(INVALID_DATE_CONTENT_FILE, {
             rowOffset: 1,
@@ -277,8 +297,9 @@ describe('FileService', () => {
     it('should reject invalid format', (done) => {
       service.validate(INVALID_DATE_FORMAT_FILE, (error, results) => {
         assert.equal(error,
-          "Invalid date at row 5: Found timestamp = '08/26/2015 19:50', " +
-          "expecting date matching 'YYYY-MM-DDTHH:mm:ssZ'");
+          'Invalid date/time at row 5: The date/time value is ' +
+          "'08/26/2015 19:50' instead of having a format matching " +
+          `'YYYY-MM-DDTHH:mm:ssZ'. For example: '${EXPECTED_DATE}'`);
         assert.deepEqual(results.file,
           createFileInstance(INVALID_DATE_FORMAT_FILE, {
             rowOffset: 1,
@@ -289,7 +310,7 @@ describe('FileService', () => {
     });
     it('should reject invalid number', (done) => {
       service.validate(INVALID_NUMBER_FILE, (error, results) => {
-        assert.equal(error, "Invalid number at row 5: Found metric = 'A21'");
+        assert.equal(error, "Invalid number at row 5: Found 'metric' = 'A21'");
         assert.deepEqual(results.file,
           createFileInstance(INVALID_NUMBER_FILE, {
             rowOffset: 1,
