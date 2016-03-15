@@ -17,14 +17,16 @@
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import React from 'react';
-import RGBColor from 'rgbcolor';
 
+import AnomalyBarChart from '../lib/Dygraphs/AnomalyBarChartUnderlay';
 import Chart from './Chart';
+import {DATA_FIELD_INDEX} from '../lib/Constants';
 import MetricDataStore from '../stores/MetricDataStore';
 import ModelDataStore from '../stores/ModelDataStore';
 import ModelStore from '../stores/ModelStore';
 import RangeSelectorBarChart from '../lib/Dygraphs/RangeSelectorBarChartPlugin';
-import {mapAnomalyColor} from '../lib/browser-utils';
+
+const {DATA_INDEX_TIME, DATA_INDEX_VALUE} = DATA_FIELD_INDEX;
 
 
 /**
@@ -32,11 +34,13 @@ import {mapAnomalyColor} from '../lib/browser-utils';
  *  Chart component.
  */
 @connectToStores([MetricDataStore, ModelDataStore, ModelStore],
-  (context, props) => ({
-    metricData: context.getStore(MetricDataStore).getData(props.modelId),
-    modelData: context.getStore(ModelDataStore).getData(props.modelId),
-    model: context.getStore(ModelStore).getModel(props.modelId)
-  }))
+  (context, props) => {
+    let metricData = context.getStore(MetricDataStore).getData(props.modelId);
+    let modelData = context.getStore(ModelDataStore).getData(props.modelId);
+    let model = context.getStore(ModelStore).getModel(props.modelId);
+    return {metricData, modelData, model};
+  }
+)
 export default class ModelData extends React.Component {
 
   static get contextTypes() {
@@ -49,7 +53,8 @@ export default class ModelData extends React.Component {
 
   static get propTypes() {
     return {
-      modelId: React.PropTypes.string.isRequired
+      modelId: React.PropTypes.string.isRequired,
+      showNonAgg: React.PropTypes.bool
     };
   }
 
@@ -66,13 +71,19 @@ export default class ModelData extends React.Component {
     this._chartOptions = {
       // dygraphs global chart options
       options: {
+        connectSeparatedPoints: true,  // required for raw+agg overlay
+        highlightCircleSize: 0,
+        includeZero: true,
+        legend: 'never',
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
-        showRangeSelector: true
+        showLabelsOnHighlight: false,
+        showRangeSelector: true,
+        underlayCallback: AnomalyBarChart.bind(null, this)
       },
 
-      // main value data chart line
+      // main value data chart line (could be either Raw OR Aggregated data)
       value: {
         labels: ['Time', 'Value'],
         axes: {
@@ -81,133 +92,103 @@ export default class ModelData extends React.Component {
         },
         series: {
           Value: {
-            color: muiTheme.rawTheme.palette.primary2Color,
-            showInRangeSelector: true,
+            axis: 'y',
+            color: muiTheme.rawTheme.palette.primary2Color,  // dark blue
+            independentTicks: true,
+            showInRangeSelector: true,  // plot alone in range selector
             strokeWidth: 2
           }
         }
       },
 
-      // anomaly value chart line
-      anomaly: {
-        labels: ['Anomaly'],
+      // non-aggregated line chart overlay on top of aggregated data line chart
+      raw: {
+        labels: ['NonAggregated'],
         axes: {
           y2: {
-            axisLabelWidth: 0,
             drawGrid: false,
-            valueRange: [0.0, this._anomalyValueHeight]
+            drawAxis: false
           }
         },
         series: {
-          Anomaly: {
+          NonAggregated: {
             axis: 'y2',
-            plotter: this._anomalyBarChartPlotter.bind(this)
+            color: muiTheme.rawTheme.palette.primary1Color,  // light blue
+            independentTicks: false,
+            showInRangeSelector: null,
+            strokeWidth: 2
           }
         }
       }
     }; // chartOptions
   } // constructor
 
-  /**
-   * DyGraphs custom plotter function to draw Anomaly bar charts
-   * @param {Object} event - Dygraph event object reference
-   * @requires RGBColor
-   */
-  _anomalyBarChartPlotter(event) {
-    let context = event.drawingContext;
-    let points = event.points;
-    let yBottom = event.dygraph.toDomYCoord(0);
-
-    points.forEach((point) => {
-      let height = yBottom - point.canvasy;
-      let xCenter = point.canvasx;
-      let xStart = (xCenter - this._anomalyBarWidth / 2);
-      let xEnd = (xCenter + this._anomalyBarWidth / 2);
-      let startColor = new RGBColor(mapAnomalyColor(0, yBottom)).toRGB();
-      let color, index;
-
-      // every bar has a basic 2px placeholder green line
-      this._chartDrawLine(context, xStart, xEnd, yBottom, startColor);
-      this._chartDrawLine(context, xStart, xEnd, yBottom-1, startColor);
-
-      // draw vertical bar with several horizontal lines in column
-      color = new RGBColor(mapAnomalyColor(height, yBottom));
-      if (color && 'toRGB' in color) {
-        // @TODO This was originally for anomaly bars that had color gradients
-        //  instead of flat bars. It could probably be optimized to use less
-        //  calls to the <canvas> actually .stroke()ing.
-        for (index=0; index < height; index++) {
-          let y = yBottom - index;
-          this._chartDrawLine(context, xStart, xEnd, y, color.toRGB());
-        }
-      }
-    });
-  }
-
-  /**
-   * DyGraph custom Plotter function to draw a simple horizontal line
-   * @param {Object} context - DyGraph object context
-   * @param {Number} xStart - Starting X coord of line
-   * @param {Number} xEnd - Ending X coord of line
-   * @param {Number} y - Y coord of line
-   * @param {String|Object} color - Color (string or RGBColor object) for line
-   */
-  _chartDrawLine(context, xStart, xEnd, y, color) {
-    context.strokeStyle = color;
-    context.beginPath();
-    context.moveTo(xStart, y);
-    context.lineTo(xEnd, y);
-    context.stroke();
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
+    // allow chart to switch between "show non-agg data" toggle states
+    if (this.props.showNonAgg !== nextProps.showNonAgg) {
+      return true;
+    }
+
     // Only updates if the model data has changed
     if (this.props.modelData.data.length) {
       return this.props.modelData.modified !== nextProps.modelData.modified;
     }
+
     return true;
   }
 
   render() {
-    let {model, metricData, modelData} = this.props;
-
-    let {anomaly, options} = this._chartOptions;
-    let {axes, labels, series} = this._chartOptions.value;
-    let anomalyIndex = 2;
+    let {metricData, model, modelData, showNonAgg} = this.props;
+    let {options, raw, value} = this._chartOptions;
+    let {axes, labels, series} = value;
     let metaData = {model, length: {metric: 0, model: 0}};
-    let data = [];
+    let data = [];  // actual matrix of data to plot w/dygraphs
 
-    if (metricData && metricData.length && !model.aggregated) {
-      // using metric data
+    // 1. Raw metric data on Series 1
+    if (metricData.length) {
       data = Array.from(metricData);
       metaData.length.metric = metricData.length;
     }
-    if (model && modelData.data && modelData.data.length) {
-      // using model data
-      if (model.aggregated) {
-        // use only model data in "aggregated data mode"
-        data = Array.from(modelData.data);
-      } else {
-        // append model data to current metric data for "raw data mode"
-        data.forEach((item) => item[anomalyIndex] = Number.NaN);  // init
-
-        // Update values: ts, value, anomaly
-        modelData.data.forEach((item, rowid) => {
-          if (rowid < data.length) {
-            data[rowid][anomalyIndex] = item[anomalyIndex];
-          }
-        });
-      }
+    // 2. Model anomaly data on Underlay
+    if (modelData.data.length) {
+      options.modelData = modelData.data;
       metaData.length.model = modelData.data.length;
 
-      // Format anomaly series
-      labels = labels.concat(anomaly.labels);
-      Object.assign(axes, anomaly.axes);
-      Object.assign(series, anomaly.series);
+      // 2a. Aggregated Model metric data on Series 1
+      if (model.aggregated) {
+        data = Array.from(modelData.data).map((item) => item.slice(0, 2));
+      }
+    }
+    // 3. Overlay: Aggregated on Series 1. Raw on Series 2.
+    if (modelData.data.length && showNonAgg) {
+      let newData = [];
+      let dataId = 0;
+      let dataStamp = data[dataId][DATA_INDEX_TIME];
+      metricData.forEach((item, rowid) => { // increment pointer to metricData[]
+        let metricStamp = item[DATA_INDEX_TIME];
+        if (metricStamp.getTime() < dataStamp.getTime()) {
+          // merge in raw metric data record
+          newData.push([metricStamp, null, item[DATA_INDEX_VALUE]]);
+        } else {
+          // merge in agg+anom data record
+          let aggregate = data[dataId][1];
+          newData.push([dataStamp, aggregate, null]);
+          if (dataId < data.length - 1) {
+            dataId++; // increment pointer to data[]
+            dataStamp = data[dataId][DATA_INDEX_TIME];
+          }
+        }
+      });
+      data = newData; // switch to use merged array
+
+      // Format non-aggregated overlay series
+      labels = labels.concat(raw.labels);
+      Object.assign(axes, raw.axes);
+      Object.assign(series, raw.series);
     }
 
+    // RENDER
     Object.assign(options, {axes, labels, series});
-
     return (
       <Chart data={data} metaData={metaData} options={options} />
     );

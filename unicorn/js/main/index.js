@@ -18,6 +18,7 @@
 
 import {app, BrowserWindow, crashReporter, dialog, Menu} from 'electron';
 import bunyan from 'bunyan';
+import moment from 'moment';
 import path from 'path';
 
 import config from './ConfigService';
@@ -77,7 +78,7 @@ function receiveModelData(modelId, data) {
   let [timestamp, value, score] = data; // eslint-disable-line
   let metricData = {
     metric_uid: modelId,
-    timestamp: new Date(timestamp).getTime(),
+    timestamp: moment(timestamp).valueOf(),
     metric_value: value,
     anomaly_score: score
   };
@@ -122,7 +123,7 @@ function handleModelEvents() {
 
 
 /**
- * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
+ * HTM Studio: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files.
  *
  * Main Electron code Application entry point, initializes browser app.

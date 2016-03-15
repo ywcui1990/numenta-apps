@@ -18,21 +18,16 @@
 import CircularProgress from 'material-ui/lib/circular-progress';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
-import RaisedButton from 'material-ui/lib/raised-button';
+import FlatButton from 'material-ui/lib/flat-button';
 import path from 'path';
+import RaisedButton from 'material-ui/lib/raised-button';
 import React from 'react';
 
-import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
 import CreateModelStore from '../stores/CreateModelStore';
+import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
 import StartModelAction from '../actions/StartModel';
 import {trims} from '../../common/common-utils';
 
-
-const STYLES = {
-  raw: {
-    fontSize: 11
-  }
-};
 
 /**
  * "Create Model" Dialog
@@ -58,6 +53,21 @@ export default class CreateModelDialog extends React.Component {
     super(props, context);
     this._config = this.context.getConfigClient();
     this.state = {progress: true};
+
+    let muiTheme = this.context.muiTheme;
+    this._styles = {
+      agg: {
+        marginRight: '1rem'
+      },
+      raw: {
+        color: muiTheme.rawTheme.palette.accent4Color,
+        fontSize: 13,
+        fontWeight: muiTheme.rawTheme.font.weight.normal,
+        marginRight: '0.5rem',
+        textDecoration: 'underline',
+        textTransform: 'none'
+      }
+    };
   }
 
   _onClick(modelPayload) {
@@ -72,10 +82,8 @@ export default class CreateModelDialog extends React.Component {
 
   render() {
     let {
-      fileName, inputOpts, metricId,
-      metricName, paramFinderResults
+      fileName, inputOpts, metricId, metricName, paramFinderResults
     } = this.props;
-
     let body = null;
     let actions = [];
     let title = trims`Create model for ${metricName}
@@ -92,21 +100,28 @@ export default class CreateModelDialog extends React.Component {
         aggOpts: paramFinderResults.aggInfo
       });
 
-      body = trims`We determined that you will get the best results if
-              we aggregate your data to
-              ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
+      body = (
+        <div>
+          We determined that you will get the best results if we aggregate
+          your data to {paramFinderResults.aggInfo.windowSize} seconds
+          intervals.
+        </div>
+      );
 
       actions.push(
         <RaisedButton
           label={this._config.get('button:okay')}
           onTouchTap={this._onClick.bind(this, aggregatePayload)}
-          primary={true}/>
+          primary={true}
+          style={this._styles.agg}
+          />
       );
       actions.push(
-        <a href="#" styles={STYLES.raw}
-          onClick={this._onClick.bind(this, rawPayload)}>
-            {this._config.get('dialog:model:create:raw')}
-        </a>
+        <FlatButton
+          label={this._config.get('dialog:model:create:raw')}
+          onTouchTap={this._onClick.bind(this, rawPayload)}
+          labelStyle={this._styles.raw}
+          />
       );
     } else {
       body = (
@@ -116,6 +131,7 @@ export default class CreateModelDialog extends React.Component {
         </div>
       );
     }
+
     return (
       <Dialog actions={actions} open={this.props.open} title={title}>
         {body}

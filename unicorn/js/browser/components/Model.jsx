@@ -19,6 +19,8 @@ import Card from 'material-ui/lib/card/card';
 import CardActions from 'material-ui/lib/card/card-actions';
 import CardHeader from 'material-ui/lib/card/card-header';
 import CardText from 'material-ui/lib/card/card-text';
+import Checkbox from 'material-ui/lib/checkbox';
+import CheckboxOutline from 'material-ui/lib/svg-icons/toggle/check-box-outline-blank';
 import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
@@ -38,6 +40,7 @@ import StartParamFinderAction from '../actions/StartParamFinder';
 import {TIMESTAMP_FORMAT_PY_MAPPING} from '../../common/timestamp';
 
 const dialog = remote.require('dialog');
+
 
 /**
  * Model component, contains Chart details, actions, and Chart Graph itself.
@@ -69,9 +72,17 @@ export default class Model extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+    let muiTheme = this.context.muiTheme;
 
     this._config = this.context.getConfigClient();
 
+    // init state
+    this.state = {
+      deleteConfirmDialog: null,
+      showNonAgg: false  // show raw data overlay on top of aggregate chart?
+    };
+
+    // style
     this._styles = {
       root: {
         marginBottom: '1rem',
@@ -88,20 +99,30 @@ export default class Model extends React.Component {
         textAlign: 'right',
         marginRight: 0,
         marginTop: '-5.5rem'
+      },
+      showNonAgg: {
+        root: {
+          float: 'right',
+          marginRight: '-2.5rem',
+          width: '15rem'
+        },
+        checkbox: {
+          marginRight: 7
+        },
+        label: {
+          color: muiTheme.rawTheme.palette.primary1Color,
+          fontSize: 13,
+          fontWeight: muiTheme.rawTheme.font.weight.normal
+        }
       }
-    };
-
-    // init state
-    this.state = {
-      deleteConfirmDialog: null
     };
   }
 
   /**
    * Opens a modal confirmation dialog
-   * @param  {string}   title    Dialog title
-   * @param  {string}   message  Dialog Message
-   * @param  {Function} callback Function to be called on confirmation
+   * @param {String} title - Dialog title
+   * @param {String} message - Dialog Message
+   * @param {Function} callback - Function to be called on confirmation
    */
   _showDeleteConfirmDialog(title, message, callback) {
     this.setState({
@@ -123,7 +144,6 @@ export default class Model extends React.Component {
       valueIndex: valueField.index,
       datetimeFormat: TIMESTAMP_FORMAT_PY_MAPPING[timestampField.format]
     };
-
     this.context.executeAction(ShowCreateModelDialogAction, {
       fileName: file.name,
       metricName: valueField.name
@@ -159,15 +179,32 @@ export default class Model extends React.Component {
     });
   }
 
+  /**
+   * Toggle showing a 3rd series of Raw Metric Data over top of the
+   *  already-charted 2-Series Model results (Aggregated Metric and Anomaly).
+   */
+  _toggleNonAggOverlay() {
+    if (this.props.model.aggregated) {
+      this.setState({showNonAgg: !this.state.showNonAgg});
+    }
+  }
+
   render() {
     let {model, file, valueField, timestampField} = this.props;
-    let hasModelRun = (model && ('ran' in model) && model.ran);
-    let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let title = model.metric;
-    let dialogOpen = false;
-    let titleColor;
+    let hasModelRun = (model && ('ran' in model) && model.ran);
 
-    let dialogActions = [
+    // prep UI
+    let muiTheme = this.context.muiTheme;
+    let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
+    let showNonAgg = this.props.model.aggregated === true &&
+                      this.state.showNonAgg === true;
+    let openDialog = this.state.deleteConfirmDialog !== null;
+    let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
+    let actions, dialogActions, showNonAggAction, titleColor;
+
+    // prep visual sub-components
+    dialogActions = [
       <FlatButton
         label={this._config.get('button:cancel')}
         onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
@@ -180,7 +217,7 @@ export default class Model extends React.Component {
         ref="submit"
         />
     ];
-    let actions = (
+    actions = (
       <CardActions style={this._styles.actions}>
         <FlatButton
           disabled={hasModelRun}
@@ -208,16 +245,28 @@ export default class Model extends React.Component {
           />
       </CardActions>
     );
+    if (model.aggregated) {
+      showNonAggAction = (
+        <Checkbox
+          checked={showNonAgg}
+          defaultChecked={false}
+          iconStyle={this._styles.showNonAgg.checkbox}
+          label={this._config.get('chart:showNonAgg')}
+          labelStyle={this._styles.showNonAgg.label}
+          onCheck={this._toggleNonAggOverlay.bind(this)}
+          style={this._styles.showNonAgg.root}
+          unCheckedIcon={<CheckboxOutline color={checkboxColor} />}
+          />
+      );
+    }
 
+    // eror handle
     if (model.error) {
       titleColor = Colors.red400;
-      title = `${model.metric} | ${model.error.message}`;
+      file.name = model.error.message;
     }
 
-    if (this.state.deleteConfirmDialog) {
-      dialogOpen = true;
-    }
-
+    // actual render
     return (
       <Card initiallyExpanded={true} style={this._styles.root}>
         <CardHeader
@@ -227,12 +276,13 @@ export default class Model extends React.Component {
           titleColor={titleColor} />
         <CardText expandable={false}>
           {actions}
-          <ModelData modelId={model.modelId}/>
+          {showNonAggAction}
+          <ModelData modelId={model.modelId} showNonAgg={showNonAgg} />
         </CardText>
         <Dialog
           actions={dialogActions}
           onRequestClose={this._dismissDeleteConfirmDialog.bind(this)}
-          open={dialogOpen}
+          open={openDialog}
           ref="deleteConfirmDialog"
           title={deleteConfirmDialog.title}>
             {deleteConfirmDialog.message}
@@ -241,4 +291,5 @@ export default class Model extends React.Component {
       </Card>
     );
   }
+
 }

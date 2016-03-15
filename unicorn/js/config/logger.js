@@ -22,7 +22,7 @@ import bunyan from 'bunyan';
  * Logger settings
  */
 export default {
-  name: 'Unicorn:Renderer',
+  name: 'HTMStudio:Renderer',
   streams: [{ // @TODO hardcoded to Dev right now, needs Prod mode. Refactor.
     level: 'debug',  // @TODO higher for Production
     stream: {

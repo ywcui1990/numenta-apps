@@ -16,22 +16,25 @@
 // http://numenta.org/licenses/
 
 const assert = require('assert');
-const webdriverio = require('webdriverio');
 const config = require('../../../js/config/default.json');
 const options = require('./webdriver.options');
+const webdriverio = require('webdriverio');
 
 let client  = webdriverio.remote(options);
+
+
 describe('Start Application', () => {
   before((done) => {
     client.init().then(() => done());
   })
-  it('should start the application', (done) => {
-    client.getTitle().then((title) => {
-      assert.equal(title, 'HTM Studio | Numenta');
-    })
-    .call(done);
-  });
 
+  it('should start the application', (done) => {
+    client.getTitle()
+      .then((title) => {
+        assert.equal(title, 'HTM Studio | Numenta');
+      })
+      .call(done);
+  });
   it('should have Logo', (done) => {
     client.getText('//main/div/header')
       .then((text) => {
@@ -41,31 +44,31 @@ describe('Start Application', () => {
   });
   it('should have "ADD FILE" button', (done) => {
     client.getText('//main/div/div/button')
-    .then((text) => {
-      assert.equal(text, config.button.add.toUpperCase());
-    })
-    .call(done);
+      .then((text) => {
+        assert.equal(text, config.button.add.toUpperCase());
+      })
+      .call(done);
   });
   it('should have "Your data" section', (done) => {
     client.getText('//main/div/nav/div[1]/div[1]')
-    .then((text) => {
-      assert.equal(text, config.heading.data.user);
-    })
-    .call(done);
+      .then((text) => {
+        assert.equal(text, config.heading.data.user);
+      })
+      .call(done);
   });
   it('should not have "Your data" files', (done) => {
     client.getText('//main/div/nav/div[1]/div/span')
-    .then((text) => {
-      assert.equal(text, config.heading.data.empty);
-    })
-    .call(done);
+      .then((text) => {
+        assert.equal(text, config.heading.data.empty);
+      })
+      .call(done);
   });
   it('should have "Sample Data" section', (done) => {
     client.getText('//main/div/nav/div[2]/div[1]')
-    .then((text) => {
-      assert.equal(text, config.heading.data.sample);
-    })
-    .call(done);
+      .then((text) => {
+        assert.equal(text, config.heading.data.sample);
+      })
+      .call(done);
   });
   it('should have 1 sample file', (done) => {
     client.elements('//main/div/nav/div[2]/div/span')

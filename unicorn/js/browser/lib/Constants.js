@@ -156,12 +156,23 @@ export const ACTIONS = Object.freeze({
   UNLOAD_METRIC_DATA: 'UNLOAD_METRIC_DATA'
 });
 
+
 /**
  * Database Errors. Use to check database error names returned by callbacks.
  * 	- NOT_FOUND: Record not found
- *
  * @type {string}
  */
-export const DATABASE_ERRORS = {
+export const DATABASE_ERRORS = Object.freeze({
   NOT_FOUND: 'NotFoundError'
-};
+});
+
+
+/**
+ * Source Data array index map: [0=Timestamp, 1=Value, 2=Anomaly].
+ * @type {Number}
+ */
+export const DATA_FIELD_INDEX = Object.freeze({
+  DATA_INDEX_TIME: 0,
+  DATA_INDEX_VALUE: 1,
+  DATA_INDEX_ANOMALY: 2
+});

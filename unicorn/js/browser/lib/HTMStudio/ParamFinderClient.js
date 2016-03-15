@@ -27,8 +27,9 @@ import StopParamFinderAction from '../../actions/StopParamFinder';
 import ReceiveParamFinderData from '../../actions/ReceiveParamFinderData'
 
 /**
- * Unicorn: ParamFinderClient - Talk to a ParamFinderService over IPC, gaining
- *  access to the Backend NuPIC Param Finder Runner. Connects via IPC adapter.
+ * HTM Studio: ParamFinderClient - Talk to a ParamFinderService over IPC,
+ *  gaining access to the Backend NuPIC Param Finder Runner. Connects via
+ *  IPC adapter.
  */
 export default class ParamFinderClient {
 

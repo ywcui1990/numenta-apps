@@ -16,6 +16,8 @@
 // http://numenta.org/licenses/
 
 import crypto from 'crypto';
+import moment from 'moment';
+
 
 /**
  * Genereate unique hashed UID based on seed string and SHA1.
@@ -59,7 +61,7 @@ export function generateMetricId(filename, metric) {
  */
 export function generateMetricDataId(metricId, timestamp) {
   if (!(timestamp instanceof Date)) {
-    timestamp = new Date(timestamp);
+    timestamp = moment(timestamp);
   }
-  return `${metricId}!${timestamp.getTime()}`;
+  return `${metricId}!${timestamp.valueOf()}`;
 }

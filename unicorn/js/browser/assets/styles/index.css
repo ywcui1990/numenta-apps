@@ -29,6 +29,18 @@ body {
 
 /* DyGraphs overrides */
 
+.dygraph-chart:hover {
+  cursor: move !important;
+}
+
+.dygraph-axis-label-y2 {
+  display: none !important;
+}
+
+.dygraph-legend {
+  display: none !important;
+}
+
 .dygraph-rangesel-bgcanvas {
   z-index: 10 !important;
 }
@@ -38,11 +50,11 @@ body {
 }
 
 .dygraph-rangeselbarchart-canvas {
-  opacity: 0.8;
+  opacity: 0.8 !important;
   z-index: 20 !important;
 }
 
 img.dygraph-rangesel-zoomhandle {
   cursor: move !important;
-  opacity: 0;
+  opacity: 0 !important;
 }

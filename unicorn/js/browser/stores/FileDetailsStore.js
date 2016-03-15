@@ -20,7 +20,7 @@ import BaseStore from 'fluxible/addons/BaseStore';
 
 
 /**
- * Unicorn File Details Store backing {FileDetails} Component
+ * HTM Studio: File Details Store backing {FileDetails} Component
  */
 export default class FileDetailsStore extends BaseStore {
   static get storeName() {

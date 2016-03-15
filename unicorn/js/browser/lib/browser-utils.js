@@ -14,13 +14,16 @@
 // this program. If not, see http://www.gnu.org/licenses.
 //
 // http://numenta.org/licenses/
-import muiTheme from './MaterialUI/UnicornTheme';
+
+import muiTheme from './MaterialUI/HTMStudioTheme';
+
 
 /**
  * Generic Javascript functions that can only be used on the `browser` process.
  * These functions can access objects available from the `browser` process but
  * should not depend on node`
  */
+
 
 /**
  * Map Anomaly value/height to bar color (Red/Yellow/Green)

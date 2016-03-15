@@ -32,22 +32,22 @@ import ReactDOM from 'react-dom';
 import remote from 'remote';
 import tapEventInject from 'react-tap-event-plugin';
 
-import config from './lib/Unicorn/ConfigClient';
-import databaseClient from './lib/Unicorn/DatabaseClient';
-import fileClient from './lib/Unicorn/FileClient';
-import FileDetailsStore from './stores/FileDetailsStore';
-import MetricStore from './stores/MetricStore';
+import config from './lib/HTMStudio/ConfigClient';
 import CreateModelStore from './stores/CreateModelStore';
+import databaseClient from './lib/HTMStudio/DatabaseClient';
+import fileClient from './lib/HTMStudio/FileClient';
+import FileDetailsStore from './stores/FileDetailsStore';
 import FileStore from './stores/FileStore';
-import StartApplicationAction from './actions/StartApplication';
+import HTMStudioPlugin from './lib/Fluxible/HTMStudioPlugin';
 import loggerConfig from '../config/logger';
 import MainComponent from './components/Main';
 import MetricDataStore from './stores/MetricDataStore';
-import ModelClient from './lib/Unicorn/ModelClient';
-import ParamFinderClient from './lib/Unicorn/ParamFinderClient';
+import MetricStore from './stores/MetricStore';
+import ModelClient from './lib/HTMStudio/ModelClient';
 import ModelDataStore from './stores/ModelDataStore';
 import ModelStore from './stores/ModelStore';
-import UnicornPlugin from './lib/Fluxible/UnicornPlugin';
+import ParamFinderClient from './lib/HTMStudio/ParamFinderClient';
+import StartApplicationAction from './actions/StartApplication';
 import {trims} from '../common/common-utils';
 
 const dialog = remote.require('dialog');
@@ -58,7 +58,7 @@ let paramFinderClient = new ParamFinderClient();
 
 
 /**
- * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
+ * HTM Studio: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files. Main browser web code
  *  Application GUI entry point.
  */
@@ -86,8 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
     ]
   });
 
-  // Plug Unicorn plugin giving access to Unicorn clients
-  app.plug(UnicornPlugin);
+  // Plug HTMStudio plugin giving access to HTMStudio clients
+  app.plug(HTMStudioPlugin);
 
   // add context to app
   context = app.createContext({

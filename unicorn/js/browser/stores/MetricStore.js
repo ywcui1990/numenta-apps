@@ -15,26 +15,27 @@
 //
 // http://numenta.org/licenses/
 
-
 import BaseStore from 'fluxible/addons/BaseStore';
+
 
 /**
  * Metric type stored in the {@link MetricStore}
  * @see ../database/schema/Metric.json
- *
  * @typedef {Object} MetricStore.Metric
- * @property {string} uid: Metric ID
- * @property {string} file_uid: File ID
- * @property {string} name: Metric Name
- * @property {string} type: Metric type ('string' | 'number' | 'date')
- * @property {string} type: Metric type ('string' | 'number' | 'date')
+ * @property {String} uid - Metric ID
+ * @property {String} file_uid - File ID
+ * @property {String} name - Metric Name
+ * @property {String} type - Metric type ('string' | 'number' | 'date')
+ * @property {string} [format] - Optional timestamp field format
+ * @property {Object} [input_options] - Input option param objmap
+ * @property {Object} [aggregation_options] - Aggregation option param objmap
+ * @property {Object} [model_options] - Model option params objmap
  */
 
 
 /**
  * Metric store, it maintains a collection of {@link MetricStore.Metric}
  */
-
 export default class MetricStore extends BaseStore {
 
   static get storeName() {

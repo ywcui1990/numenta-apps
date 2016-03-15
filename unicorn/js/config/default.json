@@ -22,6 +22,7 @@
     "okay": "OK"
   },
   "chart": {
+    "showNonAgg": "Show non-aggregated data",
     "loading": "Loading chart...",
     "points": 100
   },
