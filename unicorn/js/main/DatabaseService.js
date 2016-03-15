@@ -890,7 +890,8 @@ export class DatabaseService {
         let records = file.rowOffset;
         let options = {
           objectMode: true,
-          columns: file.rowOffset === 1
+          columns: false,
+          offset : file.rowOffset
         };
         fileService.getData(file.filename, options, ((error, data) => { // eslint-disable-line
           if (error) {
@@ -903,8 +904,8 @@ export class DatabaseService {
               if (field.type === 'number') {
                 let metricData = {
                   metric_uid: field.uid,
-                  timestamp: moment(data[timestampField.name], timestampField.format).valueOf(), // eslint-disable-line
-                  metric_value: parseFloat(data[field.name])
+                  timestamp: moment(data[timestampField.index], timestampField.format).valueOf(), // eslint-disable-line
+                  metric_value: parseFloat(data[field.index])
                 };
                 // Save data
                 this.putMetricData(metricData, (error) => { // eslint-disable-line
