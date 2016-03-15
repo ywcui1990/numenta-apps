@@ -98,7 +98,8 @@ export default class FileDetails extends React.Component {
 
     this.state = {
       fileSize: 0,
-      data: []
+      data: [],
+      fields: []
     };
   }
 
@@ -149,12 +150,12 @@ export default class FileDetails extends React.Component {
   }
 
   _renderDataTable() {
-    let columnHeader;
     let {fields, data} = this.state;
-    let tableRows = [];
-    let tableHeight = this.props.error ? 200 : 250;
+    if (fields.length > 0  && data.length > 0) {
+      let columnHeader;
+      let tableRows = [];
+      let tableHeight = this.props.error ? 200 : 250;
 
-    if (fields) {
       columnHeader = fields.map((field) => {
         return (
           <TableHeaderColumn key={field.index} style={STYLES.tableHeader}>
@@ -162,9 +163,7 @@ export default class FileDetails extends React.Component {
           </TableHeaderColumn>
         );
       });
-    }
 
-    if (data.length > 0) {
       data.forEach((row, rowIdx) => {
         let columns = [];
         Object.values(row).map((value, colIdx) => {
@@ -176,17 +175,19 @@ export default class FileDetails extends React.Component {
       });
 
       return (
-        <Table selectable={false} fixedHeader={true} height={tableHeight}>
-          <TableHeader adjustForCheckbox={false} displaySelectAll={false}
-                       enableSelectAll={false}>
-            <TableRow style={STYLES.tableRow}>
-              {columnHeader}
-            </TableRow>
-          </TableHeader>
-          <TableBody stripedRows={true} displayRowCheckbox={false}>
-            {tableRows}
-          </TableBody>
-        </Table>
+        <div style={STYLES.data}>
+          <Table selectable={false} fixedHeader={true} height={tableHeight}>
+            <TableHeader adjustForCheckbox={false} displaySelectAll={false}
+                         enableSelectAll={false}>
+              <TableRow style={STYLES.tableRow}>
+                {columnHeader}
+              </TableRow>
+            </TableHeader>
+            <TableBody stripedRows={true} displayRowCheckbox={false}>
+              {tableRows}
+            </TableBody>
+          </Table>
+        </div>
       );
     }
   }
@@ -221,9 +222,7 @@ export default class FileDetails extends React.Component {
             underlineStyle={{display:'none'}}
             value={file.records.toString()}/>
         </div>
-        <div style={STYLES.data}>
-          {this._renderDataTable()}
-        </div>
+        {this._renderDataTable()}
       </div>
     );
   }
