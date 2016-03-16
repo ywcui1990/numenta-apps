@@ -37,7 +37,7 @@ local changes without conflicts:
   uncomment the lines for the DynamoDB local test tool and create an empty
   `.dynamodb` directory:
 
-    mkdir $HOME/.dynamodb
+    `mkdir $HOME/.dynamodb`
 
 Create an empty taurus `logs` directory:
 
