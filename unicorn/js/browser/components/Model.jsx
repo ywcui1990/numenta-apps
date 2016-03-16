@@ -193,8 +193,6 @@ export default class Model extends React.Component {
     let {model, file, valueField, timestampField} = this.props;
     let title = model.metric;
     let hasModelRun = (model && ('ran' in model) && model.ran);
-
-    // prep UI
     let muiTheme = this.context.muiTheme;
     let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
     let showNonAgg = this.props.model.aggregated === true &&
@@ -265,6 +263,9 @@ export default class Model extends React.Component {
       titleColor = Colors.red400;
       file.name = model.error.message;
     }
+
+    // visibility
+    this._styles.root.display = (model.visible === true) ? 'block' : 'none';
 
     // actual render
     return (

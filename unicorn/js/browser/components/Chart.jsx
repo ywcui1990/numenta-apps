@@ -72,12 +72,6 @@ export default class Chart extends React.Component {
     this._dygraph = null;
     this._displayPointCount = this._config.get('chart:points');
 
-    // Chart Range finder values: For Fixed-width-chart & auto-scroll-to-right
-    this._chartBusy = null;
-    this._chartRange = null;
-    this._chartRangeWidth = null;
-    this._chartScrollLock = null;
-
     // dynamic styles
     let muiTheme = this.context.muiTheme;
     this._styles = {
@@ -91,11 +85,6 @@ export default class Chart extends React.Component {
   }
 
   componentDidMount() {
-    this._chartBusy = false;
-    this._chartRange = [0, 0];
-    this._chartRangeWidth = null;
-    this._chartScrollLock = true;  // auto-scroll with new model+anomaly data
-
     if (this.props.data.length) {
       this._chartInitalize();
     }
@@ -106,11 +95,6 @@ export default class Chart extends React.Component {
       this._dygraph.destroy();
       this._dygraph = null;
     }
-
-    this._chartBusy = null;
-    this._chartRange = null;
-    this._chartRangeWidth = null;
-    this._chartScrollLock = null;
   }
 
   componentDidUpdate() {
@@ -121,61 +105,66 @@ export default class Chart extends React.Component {
     }
   }
 
+  _getChartRange() {
+    if (this._dygraph) {
+      return this._dygraph.xAxisRange();
+    }
+  }
+
   /**
    * DyGrpahs Chart Initalize and Render
    */
   _chartInitalize() {
     let {data, options} = this.props;
-    let element = ReactDOM.findDOMNode(this.refs.chart);
+    let model = this.props.metaData.model;
+    let element = ReactDOM.findDOMNode(this.refs[`chart-${model.modelId}`]);
     let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
     let second = moment(data[1][DATA_INDEX_TIME]).valueOf();
     let unit = second - first; // each datapoint
-
-    // determine each value datapoint time unit and chart width based on that
-    this._chartRangeWidth = Math.round(unit * this._displayPointCount);
-    this._chartRange = [first, first + this._chartRangeWidth]; // float left
+    let rangeWidth = Math.round(unit * this._displayPointCount);
+    let chartRange = [first, first + rangeWidth]; // float left
 
     // init chart
-    this._chartBusy = true;
-    options.dateWindow = this._chartRange;
+    options.dateWindow = chartRange;
     this._dygraph = new Dygraph(element, data, options);
-    this._chartBusy = false;
   }
 
   /**
    * DyGrpahs Chart Update Logic and Re-Render
    */
   _chartUpdate() {
-    let {data, options} = this.props;
-    let model = this.props.metaData.model;
-    let modelIndex = Math.abs(this.props.metaData.length.model - 1);
+    let {data, metaData, options} = this.props;
+    let {length, model} = metaData;
+    let modelIndex = Math.abs(length.model - 1);
     let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
+    let [rangeMin, rangeMax] = this._getChartRange();
+    let rangeWidth = Math.round(rangeMax - rangeMin);
     let blockRedraw = modelIndex % 2 === 0; // filter out some redrawing
-    let rangeMax, rangeMin;
+    let scrollLock = false;
 
     // If new aggregated data chart: destroy, and it will re-create itself fresh
     if (model.aggregated && modelIndex === 1) {
-      this.componentWillUnmount();
-      this.componentDidMount();
-      return;
+      return this.componentWillUnmount();
     }
 
-    if (!this._chartBusy) {
-      // scroll along with fresh anomaly model data input
+    if (model.active && modelIndex < data.length) {
+      scrollLock = true;
+    }
+
+    // scroll along with fresh anomaly model data input
+    if (scrollLock) {
       rangeMax = moment(data[modelIndex][DATA_INDEX_TIME]).valueOf();
-      rangeMin = rangeMax - this._chartRangeWidth;
+      rangeMin = rangeMax - rangeWidth;
       if (rangeMin < first) {
         rangeMin = first;
-        rangeMax = rangeMin + this._chartRangeWidth;
+        rangeMax = rangeMin + rangeWidth;
       }
-      this._chartRange = [rangeMin, rangeMax];
     }
 
-    this._chartBusy = true;
-    options.dateWindow = this._chartRange;
+    // update chart
+    options.dateWindow = [rangeMin, rangeMax];
     options.file = data;  // new data
     this._dygraph.updateOptions(options, blockRedraw);
-    this._chartBusy = false;
   }
 
   /**
@@ -192,7 +181,7 @@ export default class Chart extends React.Component {
     return (
       <Paper
         className="dygraph-chart"
-        ref="chart"
+        ref={`chart-${model.modelId}`}
         style={this._styles.root}
         zDepth={this.props.zDepth}
         >

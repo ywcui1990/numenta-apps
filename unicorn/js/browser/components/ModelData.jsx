@@ -152,6 +152,7 @@ export default class ModelData extends React.Component {
         }
       }
     });
+
     return newData;
   }
 
@@ -161,8 +162,8 @@ export default class ModelData extends React.Component {
       return true;
     }
 
-    // Only updates if the model data has changed
-    if (this.props.modelData.data.length) {
+    // Only update if the model is visible and model data has changed
+    if (this.props.visible && this.props.modelData.data.length) {
       return this.props.modelData.modified !== nextProps.modelData.modified;
     }
 

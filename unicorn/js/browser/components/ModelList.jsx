@@ -84,28 +84,32 @@ export default class ModelList extends React.Component {
   }
 
   _renderModels() {
-    let visibleModels = this.props.models.find((model) => model.visible);
-    let checkboxColor, emptyMessage;
+    let emptyMessage = this._config.get('heading:chart:empty');
+    let checkboxColor = this.context.muiTheme.rawTheme.palette.primary1Color;
+    let visibleModels = false;
+    let renderModels = [ // start with empty messaging by default
+      <div key="emptyMessage" style={this._styles.empty}>
+        <IconCheckbox color={checkboxColor} />
+        <span style={this._styles.emptyMessage}>{emptyMessage}</span>
+      </div>
+    ];
 
-    if (! visibleModels) {
-      emptyMessage = this._config.get('heading:chart:empty');
-      checkboxColor = this.context.muiTheme.rawTheme.palette.primary1Color;
-
-      return (
-        <div style={this._styles.empty}>
-          <IconCheckbox color={checkboxColor} />
-          <span style={this._styles.emptyMessage}>{emptyMessage}</span>
-        </div>
+    // push visible AND hidden model markup
+    this.props.models.forEach((model) => {
+      renderModels.push(
+        <Model key={model.modelId} modelId={model.modelId} />
       );
+      if (model.visible && !visibleModels) {
+        visibleModels = true;
+      }
+    });
+
+    // if no visible, show empty messaging
+    if (visibleModels) {
+      renderModels.shift(); // visible models = remove empty messaging
     }
 
-    return this.props.models
-      .filter((model) => model.visible)
-      .map((model) => {
-        return (
-          <Model key={model.modelId} modelId={model.modelId} />
-        );
-      });
+    return renderModels;
   }
 
   render() {
