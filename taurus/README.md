@@ -34,12 +34,15 @@ local changes without conflicts:
 
 - Additionally ensure that APPLICATION_CONFIG_PATH is set in your environment.
 - If running with local dynamodb emulation, edit `conf-user/supervisord.conf` to
-  uncomment the lines for the DynamoDB local test tool.
+  uncomment the lines for the DynamoDB local test tool and create an empty
+  `.dynamodb` directory:
 
-Create empty `logs` and `.dynamodb` directories:
+    `mkdir $HOME/.dynamodb`
+
+Create an empty taurus `logs` directory:
 
     mkdir logs
-    mkdir $HOME/.dynamodb
+    
 
 With `taurus` installed, and configuration updated, run `taurus-create-db` to
 initialize the database.
