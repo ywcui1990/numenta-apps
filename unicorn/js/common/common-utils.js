@@ -64,3 +64,16 @@ export function promisify(fn, ...args) {
     })
   });
 }
+
+const LOG_1_MINUS_0_9999999999 = Math.log(1.0 - 0.9999999999);
+/**
+ * Return the given value using log scale
+ * @param {float} value value
+ * @return {float} log scaled value
+ */
+export function logScale(value) {
+  if (value > 0.99999) {
+    return 1;
+  }
+  return Math.log(1.0000000001 - value) / LOG_1_MINUS_0_9999999999;
+}

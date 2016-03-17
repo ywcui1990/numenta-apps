@@ -66,7 +66,6 @@ export default class ModelData extends React.Component {
     let displayPointCount = this._config.get('chart:points');
 
     this._anomalyBarWidth = Math.round(displayPointCount / 16, 10);
-    this._anomalyValueHeight = 1.0;
 
     this._chartOptions = {
       // dygraphs global chart options

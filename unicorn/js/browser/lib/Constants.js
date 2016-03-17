@@ -176,3 +176,15 @@ export const DATA_FIELD_INDEX = Object.freeze({
   DATA_INDEX_VALUE: 1,
   DATA_INDEX_ANOMALY: 2
 });
+
+/**
+ * Floor value for 'red' anomalies
+ * @type {Number}
+ */
+export const ANOMALY_RED_VALUE = 0.99999;
+
+/**
+ * Floor value for 'yellow' anomalies
+ * @type {Number}
+ */
+export const ANOMALY_YELLOW_VALUE = 0.9999;

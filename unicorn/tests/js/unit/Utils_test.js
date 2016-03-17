@@ -21,7 +21,7 @@ import {
 } from '../../../js/main/generateId';
 
 import {
-  trims, promisify
+  trims, promisify, logScale
 } from '../../../js/common/common-utils';
 
 const assert = require('assert');
@@ -93,6 +93,23 @@ describe('Utils', () => {
             done();
           });
       });
+    });
+    it('#logScale', (done) => {
+      assert.equal(0.03, logScale(0.5).toFixed(2));
+      assert.equal(0.1, logScale(0.9).toFixed(1));
+      assert.equal(0.13, logScale(0.95).toFixed(2));
+      assert.equal(0.2, logScale(0.99).toFixed(1));
+      assert.equal(0.23, logScale(0.995).toFixed(2));
+      assert.equal(0.3, logScale(0.999).toFixed(1));
+      assert.equal(0.33, logScale(0.9995).toFixed(2));
+      assert.equal(0.4, logScale(0.9999).toFixed(1));
+      assert.equal(0.43, logScale(0.99995).toFixed(2));
+      assert.equal(0.5, logScale(0.99999).toFixed(1));
+      assert.equal(1, logScale(0.999995).toFixed(2));
+      assert.equal(1, logScale(0.999999).toFixed(1));
+      assert.equal(1, logScale(0.9999995).toFixed(1));
+      assert.equal(1, logScale(1).toFixed(1));
+      done();
     });
   });
 });

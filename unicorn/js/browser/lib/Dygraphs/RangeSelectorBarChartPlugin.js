@@ -18,7 +18,9 @@
 import Dygraph from 'dygraphs';
 import RGBColor from 'rgbcolor';
 
-import {DATA_FIELD_INDEX} from '../Constants';
+import {
+  DATA_FIELD_INDEX, ANOMALY_YELLOW_VALUE
+} from '../Constants';
 import {mapAnomalyColor} from '../browser-utils';
 
 const {DATA_INDEX_ANOMALY} = DATA_FIELD_INDEX;
@@ -142,7 +144,6 @@ export default class {
     let context = this._canvas_context;
     let xExtremes = this._dygraph.xAxisExtremes();
     let xRange = Math.max(xExtremes[1] - xExtremes[0], 1.e-30);
-    let yRange = 1;
     let margin = 0.5;
     let canvasWidth = this._canvasRect.w - margin;
     let canvasHeight = this._canvasRect.h - margin;
@@ -181,8 +182,8 @@ export default class {
       previous.x = x;
       previous.value = value;
 
-      if (isFinite(x) && (value >= 0.25)) {
-        color = mapAnomalyColor(value, yRange);
+      if (isFinite(x) && value >= ANOMALY_YELLOW_VALUE) {
+        color = mapAnomalyColor(value);
         this._drawMiniBar(context, x, canvasHeight, color, stroke);
       }
     }
