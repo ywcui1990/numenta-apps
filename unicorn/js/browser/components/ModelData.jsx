@@ -157,14 +157,16 @@ export default class ModelData extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    let {model, modelData, showNonAgg} = this.props;
+
     // allow chart to switch between "show non-agg data" toggle states
-    if (this.props.showNonAgg !== nextProps.showNonAgg) {
+    if (showNonAgg !== nextProps.showNonAgg) {
       return true;
     }
 
     // Only update if the model is visible and model data has changed
-    if (this.props.visible && this.props.modelData.data.length) {
-      return this.props.modelData.modified !== nextProps.modelData.modified;
+    if (model.visible && modelData.data.length) {
+      return modelData.modified !== nextProps.modelData.modified;
     }
 
     return true;
