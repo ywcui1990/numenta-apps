@@ -47,7 +47,7 @@
     "postinstall": "npm run install:backend",
     "test": "npm run test:unit && npm run test:integration",
     "pretest:coverage": "npm run clean:coverage && npm run clean:docs && npm run clean:webpack",
-    "test:coverage": "babel-node `npm bin`/isparta cover --include-all-sources _mocha -- --opts tests/js/mocha.opts tests/js/{unit,integration}",
+    "test:coverage": "babel-node `npm bin`/isparta cover --verbose --include '**/*.jsx' --include '**/*.js' --include-all-sources _mocha -- --opts tests/js/mocha.opts tests/js/{unit,integration}",
     "posttest:coverage": "open-url file://${PWD}/coverage/lcov-report/index.html",
     "test:integration": "mocha --opts tests/js/mocha.opts tests/js/integration",
     "pretest:pipeline": "npm run prepare",
