@@ -144,7 +144,8 @@ export default class Chart extends React.Component {
 
     // If new aggregated data chart: destroy, and it will re-create itself fresh
     if (model.aggregated && modelIndex === 1) {
-      return this.componentWillUnmount();
+      this.componentWillUnmount();
+      return;
     }
 
     if (model.active && modelIndex < data.length) {
