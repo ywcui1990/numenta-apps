@@ -34,6 +34,11 @@
       "type:": "integer",
       "description": "Zero based Column index"
     },
+    "viewpoint": {
+      "type": ["integer", "null"],
+      "default": null,
+      "description": "Chart viewport starting point. Tracked as a JS Date, miliseconds since epoch (1 January 1970 00:00:00 UTC), example = 1458342717816. JS Null if unused."
+    },
     "input_options": {
       "$ref": "/py/input_opt_schema_param_finder"
     },
