@@ -88,7 +88,8 @@ export default class ModelData extends React.Component {
           x: {drawGrid: false},
           y: {
             axisLabelWidth: 0,
-            drawGrid: false
+            drawGrid: false,
+            ticker: this._valueTicker.bind(this)
           }
         },
         series: {
@@ -155,6 +156,45 @@ export default class ModelData extends React.Component {
       }
     });
     return newData;
+  }
+
+  /**
+   * Dygraph callback used to generate value tick marks on Y axis.
+   * @param {Number} fromValue -
+   * @param {Number} toValue -
+   * @param {Number} pixels - Length of the axis in pixels
+   * @param {function(string):*} opts - Function mapping from option name
+   *                                  to value, e.g. opts('labelsKMB')
+   * @param {Dygraph} dygraph -
+   * @param {Array} vals - generate labels for these data values
+   * @return {Array} - [ { v: tick1_v, label: tick1_label[, label_v: label_v1] },
+   *                    { v: tick2_v, label: tick2_label[, label_v: label_v2] },
+   *                    ...]
+   * @see node_modules/dygraphs/dygraph-tickers.js
+   */
+  _valueTicker(fromValue, toValue, pixels, opts, dygraph, vals) {
+    const NUMBER_OF_Y_LABELS = 3;
+    let ticks = [];
+    let interval = (toValue - fromValue) / NUMBER_OF_Y_LABELS;
+    let decimals = 0;
+    let i = 0;
+    let label, val;
+
+    if (interval > 0) {
+      if (interval < 1) {
+        decimals = Math.ceil(-Math.log(interval)/Math.LN10);
+      }
+      for (i=0; i<=NUMBER_OF_Y_LABELS; i++) {
+        val = fromValue + (i * interval);
+        label = new Number(val.toFixed(decimals)).toLocaleString();
+        ticks.push({v: val, label});
+      }
+    } else {
+      label = new Number(fromValue.toFixed(decimals)).toLocaleString();
+      ticks.push({v: fromValue, label});
+    }
+
+    return ticks;
   }
 
   shouldComponentUpdate(nextProps, nextState) {
