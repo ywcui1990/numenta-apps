@@ -16,14 +16,16 @@
 // http://numenta.org/licenses/
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
+import Dygraph from 'dygraphs';
 import React from 'react';
 
 import AnomalyBarChart from '../lib/Dygraphs/AnomalyBarChartUnderlay';
 import Chart from './Chart';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
+import MetricStore from '../stores/MetricStore';
 import MetricDataStore from '../stores/MetricDataStore';
-import ModelDataStore from '../stores/ModelDataStore';
 import ModelStore from '../stores/ModelStore';
+import ModelDataStore from '../stores/ModelDataStore';
 import RangeSelectorBarChart from '../lib/Dygraphs/RangeSelectorBarChartPlugin';
 
 const {DATA_INDEX_TIME, DATA_INDEX_VALUE} = DATA_FIELD_INDEX;
@@ -33,12 +35,13 @@ const {DATA_INDEX_TIME, DATA_INDEX_VALUE} = DATA_FIELD_INDEX;
  * React Component for sending Model Data from Model component to
  *  Chart component.
  */
-@connectToStores([MetricDataStore, ModelDataStore, ModelStore],
+@connectToStores([MetricStore, MetricDataStore, ModelStore, ModelDataStore],
   (context, props) => {
+    let metric = context.getStore(MetricStore).getMetric(props.modelId);
     let metricData = context.getStore(MetricDataStore).getData(props.modelId);
-    let modelData = context.getStore(ModelDataStore).getData(props.modelId);
     let model = context.getStore(ModelStore).getModel(props.modelId);
-    return {metricData, modelData, model};
+    let modelData = context.getStore(ModelDataStore).getData(props.modelId);
+    return {metric, metricData, model, modelData};
   }
 )
 export default class ModelData extends React.Component {
@@ -68,19 +71,19 @@ export default class ModelData extends React.Component {
     this._anomalyBarWidth = Math.round(displayPointCount / 16, 10);
     this._anomalyValueHeight = 1.0;
 
+    // Dygraphs Chart Options: Global and per-Series/Axis settings.
     this._chartOptions = {
-      // dygraphs global chart options
+      // Dygraphs global chart options
       options: {
         connectSeparatedPoints: true,  // required for raw+agg overlay
-        highlightCircleSize: 0,
         includeZero: true,
-        legend: 'never',
+        interactionModel: Dygraph.Interaction.dragIsPanInteractionModel,
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
-        showLabelsOnHighlight: false,
         showRangeSelector: true,
-        underlayCallback: AnomalyBarChart.bind(null, this)
+        underlayCallback: AnomalyBarChart.bind(null, this),
+        yRangePad: 0
       },
 
       // main value data chart line (could be either Raw OR Aggregated data)
@@ -88,7 +91,10 @@ export default class ModelData extends React.Component {
         labels: ['Time', 'Value'],
         axes: {
           x: {drawGrid: false},
-          y: {drawGrid: false}
+          y: {
+            axisLabelWidth: 0,
+            drawGrid: false
+          }
         },
         series: {
           Value: {
@@ -106,6 +112,7 @@ export default class ModelData extends React.Component {
         labels: ['NonAggregated'],
         axes: {
           y2: {
+            axisLabelWidth: 0,
             drawGrid: false,
             drawAxis: false
           }
@@ -173,21 +180,21 @@ export default class ModelData extends React.Component {
   }
 
   render() {
-    let {metricData, model, modelData, showNonAgg} = this.props;
+    let {metric, metricData, model, modelData, showNonAgg} = this.props;
     let {options, raw, value} = this._chartOptions;
     let {axes, labels, series} = value;
-    let metaData = {model, length: {metric: 0, model: 0}};
+    let metaData = {metric, model};
     let data = [];  // actual matrix of data to plot w/dygraphs
 
     // 1. Raw metric data on Series 1
     if (metricData.length) {
       data = Array.from(metricData);
-      metaData.length.metric = metricData.length;
+      metaData.metric.dataSize = metricData.length;
     }
     // 2. Model anomaly data on Underlay
     if (modelData.data.length) {
       options.modelData = modelData.data;
-      metaData.length.model = modelData.data.length;
+      metaData.model.dataSize = modelData.data.length;
 
       // 2a. Aggregated Model metric data on Series 1
       if (model.aggregated) {

@@ -22,22 +22,25 @@ import Paper from 'material-ui/lib/paper';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import ChartUpdateViewpoint from '../actions/ChartUpdateViewpoint';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 
 const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
 
-Dygraph.prototype.setSelection = function () {}; // short out unused method
-
 
 /**
- * Chart Widget.
- *  Wraps http://dygraphs.com/ as a React Component.
- * @TODO The local variables (this._chart*) should be refactored to React state.
- *  And, React's `render()` should be overrided with DyGraphs `updateOptions()`,
- *  possibly using Reacts's `shouldComponentUpdate()` method to skip React's
- *  state change => render cycle for DyGraphs to not have it's DOM node reset.
+ * Chart Widget. Wraps as a React Component.
+ * @see http://dygraphs.com/
  */
 export default class Chart extends React.Component {
+
+  static get contextTypes() {
+    return {
+      executeAction: React.PropTypes.func,
+      getConfigClient: React.PropTypes.func,
+      muiTheme: React.PropTypes.object
+    };
+  }
 
   static get propTypes() {
     return {
@@ -54,13 +57,6 @@ export default class Chart extends React.Component {
       metaData: {},
       options: {},
       zDepth: 1
-    };
-  }
-
-  static get contextTypes() {
-    return {
-      getConfigClient: React.PropTypes.func,
-      muiTheme: React.PropTypes.object
     };
   }
 
@@ -91,7 +87,11 @@ export default class Chart extends React.Component {
   }
 
   componentWillUnmount() {
+    let {model} = this.props.metaData;
+    let element = ReactDOM.findDOMNode(this.refs[`chart-${model.modelId}`]);
+
     if (this._dygraph) {
+      Dygraph.removeEvent(element, 'mouseup', this._handleMouseUp.bind(this));
       this._dygraph.destroy();
       this._dygraph = null;
     }
@@ -105,28 +105,30 @@ export default class Chart extends React.Component {
     }
   }
 
-  _getChartRange() {
-    if (this._dygraph) {
-      return this._dygraph.xAxisRange();
-    }
-  }
-
   /**
    * DyGrpahs Chart Initalize and Render
    */
   _chartInitalize() {
-    let {data, options} = this.props;
-    let model = this.props.metaData.model;
+    let {data, metaData, options} = this.props;
+    let {metric, model} = metaData;
     let element = ReactDOM.findDOMNode(this.refs[`chart-${model.modelId}`]);
     let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
     let second = moment(data[1][DATA_INDEX_TIME]).valueOf();
     let unit = second - first; // each datapoint
-    let rangeWidth = Math.round(unit * this._displayPointCount);
+    let rangeWidth = unit * this._displayPointCount;
     let chartRange = [first, first + rangeWidth]; // float left
+
+    // move chart back to last valid display position from previous viewing?
+    if ('viewpoint' in metric && metric.viewpoint) {
+      chartRange = [metric.viewpoint, metric.viewpoint + rangeWidth];
+    }
 
     // init chart
     options.dateWindow = chartRange;
     this._dygraph = new Dygraph(element, data, options);
+
+    // track chart viewport position on chart/rangeselector mouseup event
+    Dygraph.addEvent(element, 'mouseup', this._handleMouseUp.bind(this));
   }
 
   /**
@@ -134,11 +136,11 @@ export default class Chart extends React.Component {
    */
   _chartUpdate() {
     let {data, metaData, options} = this.props;
-    let {length, model} = metaData;
-    let modelIndex = Math.abs(length.model - 1);
+    let {model} = metaData;
+    let modelIndex = Math.abs(model.dataSize - 1);
     let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
-    let [rangeMin, rangeMax] = this._getChartRange();
-    let rangeWidth = Math.round(rangeMax - rangeMin);
+    let [rangeMin, rangeMax] = this._dygraph.xAxisRange();
+    let rangeWidth = rangeMax - rangeMin;
     let blockRedraw = modelIndex % 2 === 0; // filter out some redrawing
     let scrollLock = false;
 
@@ -148,11 +150,12 @@ export default class Chart extends React.Component {
       return;
     }
 
+    // should we scroll along with incoming model data?
     if (model.active && modelIndex < data.length) {
       scrollLock = true;
     }
 
-    // scroll along with fresh anomaly model data input
+    // scroll along with fresh anomaly model data input.
     if (scrollLock) {
       rangeMax = moment(data[modelIndex][DATA_INDEX_TIME]).valueOf();
       rangeMin = rangeMax - rangeWidth;
@@ -169,11 +172,27 @@ export default class Chart extends React.Component {
   }
 
   /**
+   * Overlay default Dygraphs mouseup event handler to also store the current
+   *  chart viewpoint (viewport starting UTC date stamp). This is used for
+   *  both the Main Chart and the Range Selector.
+   * @param {Object} event - DOM `mouseup` event object
+   */
+  _handleMouseUp(event) {
+    if (this._dygraph) {
+      let range = this._dygraph.xAxisRange();
+      this.context.executeAction(ChartUpdateViewpoint, {
+        metricId: this.props.metaData.model.modelId,
+        viewpoint: range[0] || null
+      });
+    }
+  }
+
+  /**
    * React render()
    * @return {Object} - Built React component pseudo-DOM object
    */
   render() {
-    let model = this.props.metaData.model;
+    let {model} = this.props.metaData;
 
     if (model.aggregated) {
       this._styles.root.marginTop = '0.66rem';

@@ -28,12 +28,13 @@ import FlatButton from 'material-ui/lib/flat-button';
 import React from 'react';
 import {remote} from 'electron';
 
-import CreateModelDialog from '../components/CreateModelDialog'
+import ChartUpdateViewpoint from '../actions/ChartUpdateViewpoint';
+import CreateModelDialog from './CreateModelDialog'
 import DeleteModelAction from '../actions/DeleteModel';
 import ExportModelResultsAction from '../actions/ExportModelResults';
 import FileStore from '../stores/FileStore';
 import MetricStore from '../stores/MetricStore';
-import ModelData from '../components/ModelData';
+import ModelData from './ModelData';
 import ModelStore from '../stores/ModelStore';
 import ShowCreateModelDialogAction from '../actions/ShowCreateModelDialog';
 import StartParamFinderAction from '../actions/StartParamFinder';
@@ -158,10 +159,18 @@ export default class Model extends React.Component {
   _deleteModel(modelId) {
     this._showDeleteConfirmDialog(
       this._config.get('dialog:model:delete:title'),
-      this._config.get('dialog:model:delete:message'), () => {
+      this._config.get('dialog:model:delete:message'),
+      () => {
+        // reset chart viewpoint so we can start fresh on next chart re-create
+        this.context.executeAction(ChartUpdateViewpoint, {
+          metricId: modelId,
+          viewpoint: null
+        });
+
         this.context.executeAction(DeleteModelAction, modelId);
         this._dismissDeleteConfirmDialog();
-      });
+      }
+    );
   }
 
   _exportModelResults(modelId) {
