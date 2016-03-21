@@ -72,15 +72,13 @@ export default class ModelData extends React.Component {
       // dygraphs global chart options
       options: {
         connectSeparatedPoints: true,  // required for raw+agg overlay
-        highlightCircleSize: 0,
         includeZero: true,
-        legend: 'never',
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
-        showLabelsOnHighlight: false,
         showRangeSelector: true,
-        underlayCallback: AnomalyBarChart.bind(null, this)
+        underlayCallback: AnomalyBarChart.bind(null, this),
+        yRangePad: 0
       },
 
       // main value data chart line (could be either Raw OR Aggregated data)
@@ -88,7 +86,10 @@ export default class ModelData extends React.Component {
         labels: ['Time', 'Value'],
         axes: {
           x: {drawGrid: false},
-          y: {drawGrid: false}
+          y: {
+            axisLabelWidth: 0,
+            drawGrid: false
+          }
         },
         series: {
           Value: {
@@ -106,6 +107,7 @@ export default class ModelData extends React.Component {
         labels: ['NonAggregated'],
         axes: {
           y2: {
+            axisLabelWidth: 0,
             drawGrid: false,
             drawAxis: false
           }
