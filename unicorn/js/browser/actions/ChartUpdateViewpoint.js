@@ -16,24 +16,17 @@
 // http://numenta.org/licenses/
 
 import {ACTIONS} from '../lib/Constants';
-import LoadModelDataAction from './LoadModelData';
-import LoadMetricDataAction from './LoadMetricData';
 
 
 /**
- * Show model making sure its data is loaded
- * @param  {FluxibleContext} actionContext - The action context
- * @param  {string} modelId - The model to show.
- *                            Must be in the {@link ModelStore}
- * @emits {SHOW_MODEL}
- * @emits {LoadMetricDataAction}
- * @returns {Promise} - A Promise to be resolved with return value
+ * Update Chart starting viewpoint in the {@link MetricStore}.
+ * @emits {CHART_UPDATE_VIEWPOINT}
+ * @param {FluxibleContext} actionContext - Fluxible action context object.
+ * @param {Object} payload - Payload data object to use.
+ * @param {String} payload.metricId - Unique Metric ID to operate on.
+ * @param {Number} payload.viewpoint - JS Date stamp, ms since epoch UTC,
+ *  starting point for Metric+Chart viewport.
  */
-export default function (actionContext, modelId) {
-  return Promise.all([
-    actionContext.executeAction(LoadModelDataAction, modelId),
-    actionContext.executeAction(LoadMetricDataAction, modelId)
-  ]).then(() => {
-    actionContext.dispatch(ACTIONS.SHOW_MODEL, modelId);
-  });
+export default function (actionContext, payload) {
+  actionContext.dispatch(ACTIONS.CHART_UPDATE_VIEWPOINT, payload);
 }

@@ -19,7 +19,7 @@
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
 
-import Logo from '../components/Logo';
+import Logo from './Logo';
 
 
 /**
