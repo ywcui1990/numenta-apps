@@ -113,7 +113,7 @@ export default class Model extends React.Component {
           color: muiTheme.rawTheme.palette.textColor
         },
         anomaly: {
-          verticalAlign: 'bottom'
+          verticalAlign: 'top'
         }
       },
       showNonAgg: {
