@@ -289,7 +289,17 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
 
   @return (dict) A dictionary of model parameters
   """
-  modelParams = getScalarMetricWithTimeOfDayAnomalyParams(metricData=values)
+
+  # Get params in the same fashion as NAB, setting the RDSE resolution
+  inputMin = numpy.min(values)
+  inputMax = numpy.max(values)
+  rangePadding = abs(inputMax - inputMin) * 0.2
+  modelParams = getScalarMetricWithTimeOfDayAnomalyParams(
+    metricData=[0],
+    minVal=inputMin - rangePadding,
+    maxVal=inputMax + rangePadding,
+    minResolution=0.001
+  )
 
   if useTimeOfDay:
     modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
