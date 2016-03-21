@@ -66,7 +66,6 @@ export default class FileList extends React.Component {
     super(props, context);
 
     let showNested = {};
-    let muiTheme = this.context.muiTheme;
 
     this._config = this.context.getConfigClient();
 
@@ -82,13 +81,6 @@ export default class FileList extends React.Component {
     }, props);
 
     this._styles = {
-      root: {
-        paddingTop: '0.5rem'
-      },
-      list: {
-        color: muiTheme.rawTheme.palette.accent3Color,
-        fontWeight: muiTheme.rawTheme.font.weight.normal
-      },
       file: {
         marginLeft: '-1.4rem',
         overflow: 'hidden',
@@ -108,11 +100,6 @@ export default class FileList extends React.Component {
         textOverflow: 'ellipsis',
         textTransform: 'capitalize',
         whiteSpace: 'nowrap'
-      },
-      empty: {
-        color: muiTheme.rawTheme.palette.primary2Color,
-        fontSize: '82.5%',
-        marginLeft: 3
       },
       status: {
         height: 12,
@@ -251,18 +238,7 @@ export default class FileList extends React.Component {
   }
 
   _renderFiles(filetype) {
-    let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
-    let uploadCount = uploaded.length || 0;
-    let emptyMessage = this._config.get('heading:data:empty');
-
-    if ((filetype === 'uploaded') && (uploadCount <= 0)) {
-      return (
-        <ListItem
-          initiallyOpen={true}
-          primaryText={<div style={this._styles.empty}>{emptyMessage}</div>}
-          />
-      );
-    }
+    let isInitiallyOpen = filetype === 'uploaded';
 
     return this.props.files.map((file) => {
       if (file.type === filetype) {
@@ -306,7 +282,7 @@ export default class FileList extends React.Component {
 
         return (
           <ListItem
-            initiallyOpen={true}
+            initiallyOpen={isInitiallyOpen}
             key={file.name}
             leftIcon={leftIconButton}
             disabled={true}
@@ -321,8 +297,11 @@ export default class FileList extends React.Component {
   }
 
   render() {
+    let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
+    let uploadCount = uploaded.length || 0;
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let dialogOpen = this.state.deleteConfirmDialog !== null;
+    let sampleAttrs = {key: 'sample'};
     let dialogActions = [
       <FlatButton
         label={this._config.get('button:cancel')}
@@ -337,27 +316,25 @@ export default class FileList extends React.Component {
         />
     ];
     let userFiles = (
-      <List
-        key="uploaded"
-        subheader={this._config.get('heading:data:user')}
-        subheaderStyle={this._styles.list}
-        >
-          {this._renderFiles('uploaded')}
+      <List key="uploaded">
+        {this._renderFiles('uploaded')}
       </List>
     );
-    let sampleFiles = (
-      <List
-        key="sample"
-        subheader={this._config.get('heading:data:sample')}
-        subheaderStyle={this._styles.list}
-        >
-          {this._renderFiles('sample')}
+    let filesList, sampleFiles;
+
+    if (uploadCount > 0) {
+      sampleAttrs.subheader = this._config.get('heading:data:sample');
+      sampleAttrs.subheaderStyle = this._styles.list;
+    }
+    sampleFiles = (
+      <List {...sampleAttrs}>
+        {this._renderFiles('sample')}
       </List>
     );
-    let filesList = [userFiles, sampleFiles];
+    filesList = [userFiles, sampleFiles];
 
     return (
-      <nav style={this._styles.root}>
+      <nav>
         {filesList}
         <Dialog
           actions={dialogActions}
