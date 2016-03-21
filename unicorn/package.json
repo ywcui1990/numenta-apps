@@ -80,6 +80,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
+    "babel-preset-es2015-node5": "1.2.0",
     "bunyan": "1.6.0",
     "convert-newline": "0.0.5",
     "csv-streamify": "3.0.3",
@@ -137,7 +138,7 @@
     "source-map-support": "0.4.0",
     "style-loader": "0.13.0",
     "url-loader": "0.5.7",
-    "webdriverio": "4.0.3",
+    "webdriverio": "4.0.4",
     "webpack": "1.12.14"
   },
   "optionalDependencies": {
