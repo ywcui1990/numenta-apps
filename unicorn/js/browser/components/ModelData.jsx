@@ -74,17 +74,16 @@ export default class ModelData extends React.Component {
     this._chartOptions = {
       // Dygraphs global chart options
       options: {
+        axisLineColor: muiTheme.rawTheme.palette.accent4Color,
         connectSeparatedPoints: true,  // required for raw+agg overlay
-        highlightCircleSize: 0,
-        legend: 'never',
         includeZero: true,
         interactionModel: Dygraph.Interaction.dragIsPanInteractionModel,
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
-        showLabelsOnHighlight: false,
         showRangeSelector: true,
-        underlayCallback: AnomalyBarChart.bind(null, this)
+        underlayCallback: AnomalyBarChart.bind(null, this),
+        yRangePad: 0
       },
 
       // main value data chart line (could be either Raw OR Aggregated data)
@@ -92,7 +91,12 @@ export default class ModelData extends React.Component {
         labels: ['Time', 'Value'],
         axes: {
           x: {drawGrid: false},
-          y: {drawGrid: false}
+          y: {
+            axisLabelOverflow: true,
+            axisLabelWidth: 20,
+            drawGrid: false,
+            ticker: this._valueTicker.bind(this)
+          }
         },
         series: {
           Value: {
@@ -110,6 +114,7 @@ export default class ModelData extends React.Component {
         labels: ['NonAggregated'],
         axes: {
           y2: {
+            axisLabelWidth: 0,
             drawGrid: false,
             drawAxis: false
           }
@@ -158,6 +163,45 @@ export default class ModelData extends React.Component {
     });
 
     return newData;
+  }
+
+  /**
+   * Dygraph callback used to generate value tick marks on Y axis.
+   * @param {Number} fromValue -
+   * @param {Number} toValue -
+   * @param {Number} pixels - Length of the axis in pixels
+   * @param {function(string):*} opts - Function mapping from option name
+   *                                  to value, e.g. opts('labelsKMB')
+   * @param {Dygraph} dygraph -
+   * @param {Array} vals - generate labels for these data values
+   * @return {Array} - [ { v: tick1_v, label: tick1_label[, label_v: label_v1] },
+   *                    { v: tick2_v, label: tick2_label[, label_v: label_v2] },
+   *                    ...]
+   * @see node_modules/dygraphs/dygraph-tickers.js
+   */
+  _valueTicker(fromValue, toValue, pixels, opts, dygraph, vals) {
+    const NUMBER_OF_Y_LABELS = 4;
+    let ticks = [];
+    let interval = (toValue - fromValue) / NUMBER_OF_Y_LABELS;
+    let decimals = 0;
+    let i = 0;
+    let label, val;
+
+    if (interval > 0) {
+      if (interval < 1) {
+        decimals = Math.ceil(-Math.log(interval)/Math.LN10);
+      }
+      for (i=0; i<=NUMBER_OF_Y_LABELS; i++) {
+        val = fromValue + (i * interval);
+        label = new Number(val.toFixed(decimals)).toLocaleString();
+        ticks.push({v: val, label});
+      }
+    } else {
+      label = new Number(fromValue.toFixed(decimals)).toLocaleString();
+      ticks.push({v: fromValue, label});
+    }
+
+    return ticks;
   }
 
   shouldComponentUpdate(nextProps, nextState) {

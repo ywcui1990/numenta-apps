@@ -27,8 +27,6 @@ import {DATA_FIELD_INDEX} from '../lib/Constants';
 
 const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
 
-Dygraph.prototype.setSelection = function () {}; // short out unused method
-
 
 /**
  * Chart Widget. Wraps as a React Component.

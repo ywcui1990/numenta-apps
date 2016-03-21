@@ -181,7 +181,7 @@ Example of setting up development environment on Mac OS/X:
 brew install git node chromedriver
 git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/unicorn
-pip install -r py/requirements.txt
+python py/setup.py install
 npm install
 unset PYTHONPATH  # force usage of our custom internal Python
 ```
