@@ -16,6 +16,7 @@
 // http://numenta.org/licenses/
 
 import Checkbox from 'material-ui/lib/checkbox';
+import CheckboxIcon from 'material-ui/lib/svg-icons/toggle/check-box';
 import CheckboxOutline from 'material-ui/lib/svg-icons/toggle/check-box-outline-blank';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
@@ -64,7 +65,7 @@ export default class FileList extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-
+    let muiTheme = this.context.muiTheme;
     let showNested = {};
 
     this._config = this.context.getConfigClient();
@@ -81,7 +82,17 @@ export default class FileList extends React.Component {
     }, props);
 
     this._styles = {
+      root: {
+        paddingTop: '0.5rem'
+      },
+      subhead: {
+        color: muiTheme.rawTheme.palette.accent3Color,
+        fontSize: 13,
+        fontWeight: muiTheme.rawTheme.font.weight.normal
+      },
       file: {
+        fontSize: 14,
+        fontWeight: muiTheme.rawTheme.font.weight.medium,
         marginLeft: '-1.4rem',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -95,11 +106,17 @@ export default class FileList extends React.Component {
         width: 40
       },
       metric: {
-        marginLeft: '-1.4rem',
+        fontSize: 14,
+        fontWeight: muiTheme.rawTheme.font.weight.medium,
+        marginLeft: '-1.9rem',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         textTransform: 'capitalize',
         whiteSpace: 'nowrap'
+      },
+      checkbox: {
+        left: 12,
+        top: 14
       },
       status: {
         height: 12,
@@ -212,6 +229,12 @@ export default class FileList extends React.Component {
               leftCheckbox={
                 <Checkbox
                   checked={isModelVisible}
+                  checkedIcon={
+                    <CheckboxIcon
+                      color={checkboxColor}
+                      viewBox="0 0 30 30"
+                      />
+                  }
                   onCheck={
                     this._onMetricCheck.bind(
                       this,
@@ -221,7 +244,13 @@ export default class FileList extends React.Component {
                       metric.name
                     )
                   }
-                  unCheckedIcon={<CheckboxOutline color={checkboxColor} />}
+                  style={this._styles.checkbox}
+                  unCheckedIcon={
+                    <CheckboxOutline
+                      color={checkboxColor}
+                      viewBox="0 0 30 30"
+                      />
+                  }
                   />
               }
               primaryText={
@@ -324,7 +353,7 @@ export default class FileList extends React.Component {
 
     if (uploadCount > 0) {
       sampleAttrs.subheader = this._config.get('heading:data:sample');
-      sampleAttrs.subheaderStyle = this._styles.list;
+      sampleAttrs.subheaderStyle = this._styles.subhead;
     }
     sampleFiles = (
       <List {...sampleAttrs}>
