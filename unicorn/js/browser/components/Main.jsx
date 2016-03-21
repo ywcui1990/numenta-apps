@@ -26,11 +26,11 @@ import ThemeDecorator from 'material-ui/lib/styles/theme-decorator';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 import FileValidateAction from '../actions/FileValidate';
-import FileList from '../components/FileList';
-import FileDetails from '../components/FileDetails';
+import FileList from './FileList';
+import FileDetails from './FileDetails';
 import HTMStudioTheme from '../lib/MaterialUI/HTMStudioTheme';
-import LeftNav from '../components/LeftNav';
-import ModelList from '../components/ModelList';
+import LeftNav from './LeftNav';
+import ModelList from './ModelList';
 
 const app = remote.app;
 const dialog = remote.require('dialog');

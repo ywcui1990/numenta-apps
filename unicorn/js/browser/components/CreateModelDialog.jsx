@@ -23,6 +23,7 @@ import path from 'path';
 import RaisedButton from 'material-ui/lib/raised-button';
 import React from 'react';
 
+import ChartUpdateViewpoint from '../actions/ChartUpdateViewpoint';
 import CreateModelStore from '../stores/CreateModelStore';
 import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
 import StartModelAction from '../actions/StartModel';
@@ -70,9 +71,15 @@ export default class CreateModelDialog extends React.Component {
     };
   }
 
-  _onClick(modelPayload) {
+  _onClick(payload) {
+    // reset chart viewpoint so we can scroll with new data again
+    this.context.executeAction(ChartUpdateViewpoint, {
+      metricId: payload.metricId,
+      viewpoint: null
+    });
+
     this.context.executeAction(HideCreateModelDialogAction);
-    this.context.executeAction(StartModelAction, modelPayload);
+    this.context.executeAction(StartModelAction, payload);
   }
 
   componentDidMount() {
