@@ -71,7 +71,7 @@ export default class CreateModelDialog extends React.Component {
     };
   }
 
-  _onClick(payload) {
+  _startModel(payload) {
     // reset chart viewpoint so we can scroll with new data again
     this.context.executeAction(ChartUpdateViewpoint, {
       metricId: payload.metricId,
@@ -103,33 +103,38 @@ export default class CreateModelDialog extends React.Component {
         modelOpts: paramFinderResults.modelInfo,
         aggOpts: {}
       };
-      let aggregatePayload = Object.assign({}, rawPayload, {
-        aggOpts: paramFinderResults.aggInfo
-      });
+      if (paramFinderResults.aggInfo) {
+        let aggregatePayload = Object.assign({}, rawPayload, {
+          aggOpts: paramFinderResults.aggInfo
+        });
 
-      body = (
-        <div>
-          We determined that you will get the best results if we aggregate
-          your data to {paramFinderResults.aggInfo.windowSize} seconds
-          intervals.
-        </div>
-      );
+        body = (
+          <div>
+            We determined that you will get the best results if we aggregate
+            your data to {paramFinderResults.aggInfo.windowSize} seconds
+            intervals.
+          </div>
+        );
 
-      actions.push(
-        <RaisedButton
-          label={this._config.get('button:okay')}
-          onTouchTap={this._onClick.bind(this, aggregatePayload)}
-          primary={true}
-          style={this._styles.agg}
-          />
-      );
-      actions.push(
-        <FlatButton
-          label={this._config.get('dialog:model:create:raw')}
-          onTouchTap={this._onClick.bind(this, rawPayload)}
-          labelStyle={this._styles.raw}
-          />
-      );
+        actions.push(
+          <RaisedButton
+            label={this._config.get('button:okay')}
+            onTouchTap={this._startModel.bind(this, aggregatePayload)}
+            primary={true}
+            style={this._styles.agg}
+            />
+        );
+        actions.push(
+          <FlatButton
+            label={this._config.get('dialog:model:create:raw')}
+            onTouchTap={this._startModel.bind(this, rawPayload)}
+            labelStyle={this._styles.raw}
+            />
+        );
+      } else {
+        // No aggregation required, just start the model
+        this._startModel(rawPayload);
+      }
     } else {
       body = (
         <div>
