@@ -1,4 +1,5 @@
 --ignore-dir=bundle/
+--ignore-dir=coverage/
 --ignore-dir=docs/
 --ignore-dir=node_modules/
 
