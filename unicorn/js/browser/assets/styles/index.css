@@ -1,4 +1,4 @@
-/* HTM Studio - Styles for entire App */
+/* Entire App */
 
 html {
   box-sizing: border-box;
@@ -27,9 +27,9 @@ body {
 }
 
 
-/* DyGraphs style overrides */
+/* DyGraphs overrides */
 
-.dygraph-chart:active {
+.dygraph-chart:hover {
   cursor: move !important;
 }
 
@@ -38,7 +38,7 @@ body {
 }
 
 .dygraph-legend {
-  background-color: rgba(255,255,255,0.75) !important;
+  display: none !important;
 }
 
 .dygraph-rangesel-bgcanvas {
