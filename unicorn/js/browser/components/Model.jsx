@@ -21,6 +21,7 @@ import CardHeader from 'material-ui/lib/card/card-header';
 import CardText from 'material-ui/lib/card/card-text';
 import Checkbox from 'material-ui/lib/checkbox';
 import CheckboxOutline from 'material-ui/lib/svg-icons/toggle/check-box-outline-blank';
+import StopIcon from 'material-ui/lib/svg-icons/av/stop';
 import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
@@ -36,9 +37,13 @@ import FileStore from '../stores/FileStore';
 import MetricStore from '../stores/MetricStore';
 import ModelData from './ModelData';
 import ModelStore from '../stores/ModelStore';
+import ModelDataStore from '../stores/ModelDataStore';
 import ShowCreateModelDialogAction from '../actions/ShowCreateModelDialog';
 import StartParamFinderAction from '../actions/StartParamFinder';
 import {TIMESTAMP_FORMAT_PY_MAPPING} from '../../common/timestamp';
+import {
+  DATA_FIELD_INDEX, ANOMALY_YELLOW_VALUE, ANOMALY_RED_VALUE
+} from '../lib/Constants';
 
 const dialog = remote.require('dialog');
 
@@ -48,11 +53,12 @@ const dialog = remote.require('dialog');
  */
 @connectToStores([ModelStore, MetricStore], (context, props) => {
   let model = context.getStore(ModelStore).getModel(props.modelId);
+  let modelData = context.getStore(ModelDataStore).getData(props.modelId);
   let file = context.getStore(FileStore).getFile(model.filename);
   let valueField = context.getStore(MetricStore).getMetric(props.modelId);
   let metrics = context.getStore(MetricStore).getMetricsByFileId(file.uid);
   let timestampField = metrics.find((metric) => metric.type === 'date');
-  return {model, file, valueField, timestampField};
+  return {model, modelData, file, valueField, timestampField};
 })
 export default class Model extends React.Component {
 
@@ -79,7 +85,7 @@ export default class Model extends React.Component {
 
     // init state
     this.state = {
-      deleteConfirmDialog: null,
+      modalDialog: null,
       showNonAgg: false  // show raw data overlay on top of aggregate chart?
     };
 
@@ -101,6 +107,14 @@ export default class Model extends React.Component {
         marginRight: 0,
         marginTop: '-5.5rem'
       },
+      summary: {
+        text: {
+          color: muiTheme.rawTheme.palette.textColor
+        },
+        anomaly: {
+          verticalAlign: 'bottom'
+        }
+      },
       showNonAgg: {
         root: {
           float: 'right',
@@ -120,20 +134,24 @@ export default class Model extends React.Component {
   }
 
   /**
-   * Opens a modal confirmation dialog
+   * Opens a modal dialog
    * @param {String} title - Dialog title
-   * @param {String} message - Dialog Message
-   * @param {Function} callback - Function to be called on confirmation
+   * @param {String} body - Dialog body
+   * @param {Button[]} actions - Dialog actions
    */
-  _showDeleteConfirmDialog(title, message, callback) {
+  _showModalDialog(title, body, actions) {
     this.setState({
-      deleteConfirmDialog: {callback, message, title}
+      modalDialog: {
+        body,
+        title,
+        actions
+      }
     });
   }
 
-  _dismissDeleteConfirmDialog() {
+  _dismissModalDialog() {
     this.setState({
-      deleteConfirmDialog: null
+      modalDialog: null
     });
   }
 
@@ -157,20 +175,31 @@ export default class Model extends React.Component {
   }
 
   _deleteModel(modelId) {
-    this._showDeleteConfirmDialog(
+    let dialogActions = [
+      <FlatButton
+        label={this._config.get('button:cancel')}
+        onTouchTap={this._dismissModalDialog.bind(this)}
+        />,
+      <FlatButton
+        keyboardFocused={true}
+        label={this._config.get('button:delete')}
+        onTouchTap={() => {
+          // reset chart viewpoint so we can start fresh on next chart re-create
+          this.context.executeAction(ChartUpdateViewpoint, {
+            metricId: modelId,
+            viewpoint: null
+          });
+
+          this.context.executeAction(DeleteModelAction, modelId);
+          this._dismissModalDialog();
+        }}
+        primary={true}
+        />
+    ];
+    this._showModalDialog(
       this._config.get('dialog:model:delete:title'),
       this._config.get('dialog:model:delete:message'),
-      () => {
-        // reset chart viewpoint so we can start fresh on next chart re-create
-        this.context.executeAction(ChartUpdateViewpoint, {
-          metricId: modelId,
-          viewpoint: null
-        });
-
-        this.context.executeAction(DeleteModelAction, modelId);
-        this._dismissDeleteConfirmDialog();
-      }
-    );
+      dialogActions);
   }
 
   _exportModelResults(modelId) {
@@ -188,6 +217,62 @@ export default class Model extends React.Component {
     });
   }
 
+  _renderModelSummaryDialog() {
+    let {model, file, modelData} = this.props;
+
+    let total = modelData.data.reduce((previous, data) => {
+      let {red, yellow} = previous;
+      let anomaly = data[DATA_FIELD_INDEX.DATA_INDEX_ANOMALY];
+      if (anomaly >= ANOMALY_RED_VALUE) {
+        red++;
+      } else if (anomaly >= ANOMALY_YELLOW_VALUE) {
+        yellow++;
+      }
+      return {red, yellow};
+    }, {red:0, yellow: 0});
+
+    let summary = [];
+    if (total.red === 0 && total.yellow === 0) {
+      summary.push(<p>No anomalies</p>);
+    } else {
+      let muiTheme = this.context.muiTheme;
+      if (total.red > 0) {
+        summary.push(
+          <p>
+            <StopIcon
+              color={muiTheme.rawTheme.palette.dangerColor}
+              style={this._styles.summary.anomaly}/>
+            <b>{total.red}</b> anomalies
+          </p>);
+      }
+      if (total.yellow > 0) {
+        summary.push(
+          <p>
+            <StopIcon
+              color={muiTheme.rawTheme.palette.warnColor}
+              style={this._styles.summary.anomaly}/>
+            <b>{total.yellow}</b> likely anomalies
+          </p>);
+      }
+    }
+
+    return (
+      <div>
+        <p><b>What did we find?</b></p>
+        <p>The HTM model completed successfully for <b>{file.name}</b> and <b>
+          {model.metric}</b> and detected the following:</p>
+        {summary}
+        <p><b>What do I do next?</b></p>
+        <ol>
+          <li>Explore the chart to understand your results in context</li>
+          <li>Export the results to preserve and present your findings</li>
+          <li>Engage with a more scalable HTM project in the NuPIC community or
+              contact us for a license</li>
+        </ol>
+      </div>
+    );
+  }
+
   /**
    * Toggle showing a 3rd series of Raw Metric Data over top of the
    *  already-charted 2-Series Model results (Aggregated Metric and Anomaly).
@@ -195,6 +280,21 @@ export default class Model extends React.Component {
   _toggleNonAggOverlay() {
     if (this.props.model.aggregated) {
       this.setState({showNonAgg: !this.state.showNonAgg});
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    let newModel = nextProps.model;
+    let oldModel = this.props.model;
+    if (oldModel.active  && !newModel.active) {
+      let actions = [<FlatButton
+                        keyboardFocused={true}
+                        label={this._config.get('button:okay')}
+                        onTouchTap={this._dismissModalDialog.bind(this)}
+                        primary={true}/>
+                    ];
+      let body = this._renderModelSummaryDialog();
+      this._showModalDialog('Anomaly results summary', body, actions)
     }
   }
 
@@ -208,24 +308,11 @@ export default class Model extends React.Component {
     let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
     let showNonAgg = this.props.model.aggregated === true &&
                       this.state.showNonAgg === true;
-    let openDialog = this.state.deleteConfirmDialog !== null;
-    let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
-    let actions, dialogActions, showNonAggAction, titleColor;
+    let openDialog = this.state.modalDialog !== null;
+    let modalDialog = this.state.modalDialog || {};
+    let actions, showNonAggAction, titleColor;
 
     // prep visual sub-components
-    dialogActions = [
-      <FlatButton
-        label={this._config.get('button:cancel')}
-        onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
-        />,
-      <FlatButton
-        keyboardFocused={true}
-        label={this._config.get('button:delete')}
-        onTouchTap={deleteConfirmDialog.callback}
-        primary={true}
-        ref="submit"
-        />
-    ];
     actions = (
       <CardActions style={this._styles.actions}>
         <FlatButton
@@ -289,16 +376,15 @@ export default class Model extends React.Component {
           <ModelData modelId={model.modelId} showNonAgg={showNonAgg} />
         </CardText>
         <Dialog
-          actions={dialogActions}
-          onRequestClose={this._dismissDeleteConfirmDialog.bind(this)}
+          actions={modalDialog.actions}
+          onRequestClose={this._dismissModalDialog.bind(this)}
           open={openDialog}
-          ref="deleteConfirmDialog"
-          title={deleteConfirmDialog.title}>
-            {deleteConfirmDialog.message}
+          ref="modalDialog"
+          title={modalDialog.title}>
+            {modalDialog.body}
         </Dialog>
         <CreateModelDialog ref="createModelWindow"/>
       </Card>
     );
   }
-
 }

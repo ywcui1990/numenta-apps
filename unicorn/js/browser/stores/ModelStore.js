@@ -192,7 +192,7 @@ export default class ModelStore extends BaseStore {
    *                             can't be found
    */
   getModel(modelId) {
-    return this._models.get(modelId);
+    return Object.assign({}, this._models.get(modelId));
   }
 
   /**

@@ -64,3 +64,21 @@ export function promisify(fn, ...args) {
     })
   });
 }
+
+/**
+ * Return the given value using anomaly scale:
+ *  - [0.99999, 1]  => 0.3
+ *  - [0.9999, 0.99999) => 0.2
+ *  - [0, 0.9999) => 0.1
+ * @param {float} value anomaly value [0 .. 1]
+ * @return {float} scaled value
+ */
+export function anomalyScale(value) {
+  if (value >= 0.99999) {
+    return 0.3;
+  }
+  if (value >= 0.9999) {
+    return 0.2;
+  }
+  return 0.1;
+}
