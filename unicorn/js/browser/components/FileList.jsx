@@ -309,6 +309,7 @@ export default class FileList extends React.Component {
             initiallyOpen={true}
             key={file.name}
             leftIcon={leftIconButton}
+            disabled={true}
             nestedItems={this._renderMetrics(file)}
             primaryText={<div style={this._styles.file}>{file.name}</div>}
             ref={`file-toggle-${fileId}`}
