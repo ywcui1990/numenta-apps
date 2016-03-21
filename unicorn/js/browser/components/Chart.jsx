@@ -69,6 +69,7 @@ export default class Chart extends React.Component {
     // DyGraphs chart container
     this._dygraph = null;
     this._displayPointCount = this._config.get('chart:points');
+    this._previousDataSize = 0;
 
     // dynamic styles
     let muiTheme = this.context.muiTheme;
@@ -107,14 +108,8 @@ export default class Chart extends React.Component {
     }
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    let modelIndex = Math.abs(this.props.metaData.model.dataSize - 1);
-    let nextIndex = Math.abs(nextProps.metaData.model.dataSize - 1);
-
-    // If new model data for chart: destroy, and it will re-create itself fresh.
-    //  Dygraphs has a hard time restting to a new timeseries, so we cause a
-    //  hard reset here.
-    if (nextIndex < modelIndex) {
+  componentWillUpdate() {
+    if (this.props.data.length < this._previousDataSize) {
       this.componentWillUnmount();
     }
   }
@@ -139,6 +134,7 @@ export default class Chart extends React.Component {
 
     // init chart
     options.dateWindow = chartRange;
+    this._previousDataSize = data.length;
     this._dygraph = new Dygraph(element, data, options);
 
     // track chart viewport position on chart/rangeselector mouseup event
@@ -176,6 +172,7 @@ export default class Chart extends React.Component {
     // update chart
     options.dateWindow = [rangeMin, rangeMax];
     options.file = data;  // new data
+    this._previousDataSize = data.length;
     this._dygraph.updateOptions(options, blockRedraw);
   }
 
