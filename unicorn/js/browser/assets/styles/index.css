@@ -33,12 +33,18 @@ body {
   cursor: move !important;
 }
 
+.dygraph-axis-label {
+  color: #999 !important;
+  font-size: 12px !important;
+}
+
 .dygraph-axis-label-y2 {
   display: none !important;
 }
 
 .dygraph-legend {
   background-color: rgba(255,255,255,0.75) !important;
+  color: #666 !important;
   font-size: 12px !important;
   left: 25px !important;
   width: auto !important;
