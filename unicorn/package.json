@@ -25,6 +25,7 @@
     "build": "npm run electron:packager",
     "clean": "npm install rimraf && npm run clean:docs && npm run clean:build && npm run clean:webpack && npm run clean:npm",
     "clean:build": "rimraf dist/ && rimraf backend/unicorn_backend/nupic/",
+    "clean:coverage": "rimraf coverage/",
     "clean:db:osx": "rm -rf $HOME/Library/Application\\ Support/HTM\\ Studio/*",
     "clean:docs": "rimraf js/docs/",
     "clean:npm": "rimraf node_modules/ && npm cache clean",
@@ -45,6 +46,9 @@
     "install:backend": "python py/setup.py install",
     "postinstall": "npm run install:backend",
     "test": "npm run test:unit && npm run test:integration",
+    "pretest:coverage": "npm run clean:coverage && npm run clean:docs && npm run clean:webpack",
+    "test:coverage": "babel-node `npm bin`/isparta cover --include '**/*.jsx' --include '**/*.js' --include-all-sources _mocha -- --opts tests/js/mocha.opts tests/js/{unit,integration}",
+    "posttest:coverage": "open-url file://${PWD}/coverage/lcov-report/index.html",
     "test:integration": "mocha --opts tests/js/mocha.opts tests/js/integration",
     "pretest:pipeline": "npm run prepare",
     "test:pipeline": "npm run test:pipeline:unit && npm run test:pipeline:integration",
@@ -110,6 +114,7 @@
     "roboto-fontface": "0.4.5"
   },
   "devDependencies": {
+    "babel-cli": "6.6.5",
     "babel-core": "6.7.2",
     "babel-eslint": "4.1.8",
     "babel-loader": "6.2.4",
@@ -129,6 +134,7 @@
     "eslint": "1.10.3",
     "eslint-plugin-react": "3.16.1",
     "file-loader": "0.8.5",
+    "isparta": "4.0.0",
     "json-loader": "0.5.4",
     "lev": "3.3.1",
     "mocha": "2.4.5",

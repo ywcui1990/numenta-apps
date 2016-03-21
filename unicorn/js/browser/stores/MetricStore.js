@@ -16,44 +16,50 @@
 // http://numenta.org/licenses/
 
 import BaseStore from 'fluxible/addons/BaseStore';
+import instantiator from 'json-schema-instantiator';
+import {Validator} from 'jsonschema';
+import {
+  DBFileSchema, DBMetricDataSchema, DBMetricSchema,
+  DBModelDataSchema, DBModelSchema,
+  MRAggregationSchema, MRInputSchema, MRModelSchema,
+  PFInputSchema, PFOutputSchema
+} from '../../database/schema';
 
-
-/**
- * Metric type stored in the {@link MetricStore}
- * @see ../database/schema/Metric.json
- * @typedef {Object} MetricStore.Metric
- * @property {String} uid - Metric ID
- * @property {String} file_uid - File ID
- * @property {String} name - Metric Name
- * @property {String} type - Metric type ('string' | 'number' | 'date')
- * @property {string} [format] - Optional timestamp field format
- * @property {Object} [input_options] - Input option param objmap
- * @property {Object} [aggregation_options] - Aggregation option param objmap
- * @property {Object} [model_options] - Model option params objmap
- */
+const INSTANCE = instantiator.instantiate(DBMetricSchema);
+const SCHEMAS = [
+  DBFileSchema, DBMetricDataSchema, DBMetricSchema,
+  DBModelDataSchema, DBModelSchema,
+  MRAggregationSchema, MRInputSchema, MRModelSchema,
+  PFInputSchema, PFOutputSchema
+];
+const VALIDATOR = new Validator();
+SCHEMAS.forEach((schema) => {
+  VALIDATOR.addSchema(schema);
+});
 
 
 /**
  * Metric store, it maintains a collection of {@link MetricStore.Metric}
+ * @see ../database/schema/Metric.json
  */
 export default class MetricStore extends BaseStore {
 
+  /**
+   * MetricStore
+   */
   static get storeName() {
     return 'MetricStore';
   }
 
   /**
-   * @listens {LIST_METRICS}
    * @listens {DELETE_FILE}
-   * @listens {SHOW_CREATE_MODEL_DIALOG}
-   * @listens {HIDE_CREATE_MODEL_DIALOG}
-   * @listens {START_PARAM_FINDER}
-   * @listens {RECEIVE_PARAM_FINDER_DATA}
+   * @listens {LIST_METRICS}
    */
   static get handlers() {
     return {
       DELETE_FILE: '_handleDeleteFile',
-      LIST_METRICS: '_handleListMetrics'
+      LIST_METRICS: '_handleListMetrics',
+      CHART_UPDATE_VIEWPOINT: '_handleUpdateViewpoint'
     }
   }
 
@@ -129,9 +135,40 @@ export default class MetricStore extends BaseStore {
   _handleListMetrics(metrics) {
     if (metrics) {
       metrics.forEach((metric) => {
-        this._metrics.set(metric.uid, Object.assign({}, metric));
+        let record = Object.assign({}, INSTANCE, metric);
+        let validation = VALIDATOR.validate(record, DBMetricSchema);
+        if (validation.errors.length) {
+          throw new Error('New Metric did not validate against schema');
+        }
+        this._metrics.set(metric.uid, record);
       });
       this.emitChange();
+    }
+  }
+
+  /**
+   * Update store with new Metric+Chart starting viewpoint. The starting
+   *  viewpoint is stored as a JS Date stamp, miliseconds since epoch
+   *  (1 January 1970 00:00:00 UTC), example = 1458342717816. JS Null if unused.
+   *  This value ends up in Dygraphs as the start value of the range viewfinder
+   *  coordinate [begin, end] pair, which leads to the visible Chart section.
+   *  This store updater does not emit changes, as we want to keep this value
+   *  for the future, but not trigger a UI re-render (already did).
+   * @param {Object} payload - Data payload to use
+   * @param {String} payload.metricId - ID of Metric to operate on
+   * @param {Number} payload.viewpoint - Number timestamp, Miliseconds since
+   *  epoch UTC. Where to start zooming in on chart.
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+   * @see http://dygraphs.com/options.html#dateWindow
+   * @see view-source://dygraphs.com/tests/range-selector.html
+   */
+  _handleUpdateViewpoint(payload) {
+    let {metricId, viewpoint} = payload;
+    let metric = this._metrics.get(metricId);
+    if (metric) {
+      metric.viewpoint = viewpoint;
+      // No change emit - only store value, do not cause UI to re-render.
+      //  The UI just gave us this value, UI does not need any updating now.
     }
   }
 }
