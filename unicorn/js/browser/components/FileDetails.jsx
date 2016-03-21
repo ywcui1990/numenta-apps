@@ -15,12 +15,10 @@
 //
 // http://numenta.org/licenses/
 
-
-// import Checkbox from 'material-ui/lib/checkbox'; // @FIXME: UNI-323
-
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
+import RaisedButton from 'material-ui/lib/raised-button';
 import fs from 'fs';
 import React from 'react';
 import Table from 'material-ui/lib/table/table';
@@ -39,6 +37,10 @@ import HideFileDetailsAction from '../actions/HideFileDetails';
 const STYLES = {
   dialog: {
     margin: '1rem'
+  },
+  button: {
+    marginRight: '1rem',
+    marginBottom: '1rem'
   },
   error: {
     color: Colors.red500
@@ -76,11 +78,13 @@ const STYLES = {
   }
 };
 
+
 /**
  * Show file details page. The file must be available from the {@link FileStore}
  */
 @connectToStores([FileDetailsStore], (context) => ({
   file: context.getStore(FileDetailsStore).getFile(),
+  fields: context.getStore(FileDetailsStore).getFields(),
   error: context.getStore(FileDetailsStore).getError(),
   visible: context.getStore(FileDetailsStore).isVisible(),
   newFile: context.getStore(FileDetailsStore).isNewFile()
@@ -99,30 +103,42 @@ export default class FileDetails extends React.Component {
 
     this.state = {
       fileSize: 0,
-      data: []
+      data: [],
+      fields: []
     };
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.visible && nextProps.file) {
-      let file = nextProps.file;
+      let {file, fields} = nextProps;
+
       // File size in bytes
       let stats = fs.statSync(file.filename); // eslint-disable-line no-sync
       let fileSize = stats.size;
 
       // Load first 20 records
-      let data = [];
       let fileClient = this.context.getFileClient();
-      fileClient.getData(file.filename, {limit: 20}, (error, buffer) => {
-        if (error) {
-          throw new Error(error);
-        } else if (buffer) {
-          data.push(JSON.parse(buffer));
-        } else {
-          // Initialize State
-          this.setState({fileSize, data});
-        }
-      });
+      let options = {limit: 20, columns: false, offset: file.rowOffset};
+      return new Promise((resolve, reject) => {
+        let data = [];
+        fileClient.getData(file.filename, options, (error, buffer) => {
+          if (error) {
+            reject(error, {fileSize, file, fields, data});
+          } else if (buffer) {
+            let row = JSON.parse(buffer);
+            if (fields) {
+              data.push(fields.map((field) => row[field.index]));
+            } else {
+              data.push(row);
+            }
+          } else {
+            // Resolve to data
+            resolve(data);
+          }
+        });
+      })
+      .catch((error) => this.setState({error, fileSize, fields, data:[]}))
+      .then((data) => this.setState({fileSize, fields, data}))
     }
   }
 
@@ -139,16 +155,16 @@ export default class FileDetails extends React.Component {
   }
 
   _renderDataTable() {
-    let columnHeader;
-    let data = this.state.data;
-    let tableRows = [];
-    let tableHeight = this.props.error ? 200 : 250;
+    let {fields, data} = this.state;
+    if (fields.length > 0  && data.length > 0) {
+      let columnHeader;
+      let tableRows = [];
+      let tableHeight = this.props.error ? 200 : 250;
 
-    if (data.length > 0) {
-      columnHeader = Object.keys(data[0]).map((name, idx) => {
+      columnHeader = fields.map((field) => {
         return (
-          <TableHeaderColumn key={idx} style={STYLES.tableHeader}>
-            {name}
+          <TableHeaderColumn key={field.index} style={STYLES.tableHeader}>
+            {field.name}
           </TableHeaderColumn>
         );
       });
@@ -164,24 +180,28 @@ export default class FileDetails extends React.Component {
       });
 
       return (
-        <Table selectable={false} fixedHeader={true} height={tableHeight}>
-          <TableHeader adjustForCheckbox={false} displaySelectAll={false}
-                       enableSelectAll={false}>
-            <TableRow style={STYLES.tableRow}>
-              {columnHeader}
-            </TableRow>
-          </TableHeader>
-          <TableBody stripedRows={true} displayRowCheckbox={false}>
-            {tableRows}
-          </TableBody>
-        </Table>
+        <div style={STYLES.data}>
+          <Table fixedHeader={true} height={tableHeight.toString()}
+              selectable={false}>
+            <TableHeader adjustForCheckbox={false} displaySelectAll={false}
+                         enableSelectAll={false}>
+              <TableRow style={STYLES.tableRow}>
+                {columnHeader}
+              </TableRow>
+            </TableHeader>
+            <TableBody stripedRows={true} displayRowCheckbox={false}>
+              {tableRows}
+            </TableBody>
+          </Table>
+        </div>
       );
     }
   }
 
   _renderBody() {
     let file = this.props.file;
-    let fileSize = this.state.fileSize;
+    // File Size in KB
+    let fileSize = (this.state.fileSize / 1024).toFixed();
     let error;
     if (this.props.error) {
       error =  (<p style={STYLES.error}>{this.props.error}</p>);
@@ -198,7 +218,7 @@ export default class FileDetails extends React.Component {
             tabIndex={-1}
             name="fileSize"
             ref="fileSize"
-            value={fileSize.toString()}/>
+            value={`${fileSize} KB`}/>
           <TextField
             floatingLabelText="Number of rows"
             name="numOfRows"
@@ -209,9 +229,7 @@ export default class FileDetails extends React.Component {
             underlineStyle={{display:'none'}}
             value={file.records.toString()}/>
         </div>
-        <div style={STYLES.data}>
-          {this._renderDataTable()}
-        </div>
+        {this._renderDataTable()}
       </div>
     );
   }
@@ -223,13 +241,15 @@ export default class FileDetails extends React.Component {
                     onRequestClose={this._onRequestClose.bind(this)}
                     onTouchTap={this._onRequestClose.bind(this)}/>,
 
-        <FlatButton label="Add File" primary={true} ref="submit"
+        <RaisedButton label="Add File" primary={true} ref="submit"
                     disabled={this.props.error}
+                    style={STYLES.button}
                     onRequestClose={this._onRequestClose.bind(this)}
                     onTouchTap={this._onSave.bind(this)}/>
       ];
     }
-    return(<FlatButton label="Close" primary={true}
+    return(<RaisedButton label="Close" primary={true}
+                       style={STYLES.button}
                        onRequestClose={this._onRequestClose.bind(this)}
                        onTouchTap={this._onRequestClose.bind(this)}/>);
   }

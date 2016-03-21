@@ -20,7 +20,7 @@ import BaseStore from 'fluxible/addons/BaseStore';
 
 
 /**
- * Unicorn File Details Store backing {FileDetails} Component
+ * HTM Studio: File Details Store backing {FileDetails} Component
  */
 export default class FileDetailsStore extends BaseStore {
   static get storeName() {
@@ -43,6 +43,7 @@ export default class FileDetailsStore extends BaseStore {
   constructor(dispatcher) {
     super(dispatcher);
     this._file = null;
+    this._fields = null;
     this._error = null;
     this._visible = false;
     this._newFile = false;
@@ -54,6 +55,13 @@ export default class FileDetailsStore extends BaseStore {
    */
   getFile() {
     return this._file ;
+  }
+  /**
+   * Fields from current selected file sorted by 'index'
+   * @return {Metric[]} Fields from current selected file or null
+   */
+  getFields() {
+    return this._fields ? this._fields.sort((a, b) => a.index - b.index) : null;
   }
   /**
    * @return {Boolean} Whether or not the Details page should be visible
@@ -78,11 +86,13 @@ export default class FileDetailsStore extends BaseStore {
 
   /**
    * Handle  {ShowFileDetails} action
-   * @param  {File} file The file to show
+   * @param  {object} results The file, fields and error to show
    */
-  _showFileDetails(file) {
+  _showFileDetails(results) {
+    let {file, fields, error} = results;
     this._file = file;
-    this._error = null;
+    this._fields = fields;
+    this._error = error;
     this._visible = true;
     this._newFile = false;
     this.emitChange();
@@ -94,6 +104,7 @@ export default class FileDetailsStore extends BaseStore {
     this._visible = false;
     this._newFile = false;
     this._file = null;
+    this._fields = null;
     this._error = null;
     this.emitChange();
   }
@@ -108,6 +119,7 @@ export default class FileDetailsStore extends BaseStore {
     this._newFile = true;
     this._error = results.error;
     this._file = results.file;
+    this._fields = results.fields;
     this.emitChange();
   }
 }

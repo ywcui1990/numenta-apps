@@ -15,8 +15,9 @@
 //
 // http://numenta.org/licenses/
 
-
 import BaseStore from 'fluxible/addons/BaseStore';
+import moment from 'moment';
+
 
 /**
  * Maintains model results data store
@@ -52,22 +53,20 @@ export default class ModelDataStore extends BaseStore {
    */
   _appendModelData(modelId, data) {
     // Convert timestamp to Date
-    let newData = data.map((row) => [
-      new Date(row[0]), row[1], row[2]]);
-
+    let newData = data.map((row) => [moment(row[0]).toDate(), row[1], row[2]]);
     let model = this._models.get(modelId);
     if (model) {
       // Append payload data to existing model
       model.data.push(...newData);
       // Record last time this model was modified
-      model.modified = new Date();
+      model.modified = moment().toDate();
     } else {
       // New model
       this._models.set(modelId, {
         modelId,
         data: newData,
         // Record last time this model was modified
-        modified: new Date()
+        modified: moment().toDate()
       });
     }
     this.emitChange();
@@ -110,6 +109,8 @@ export default class ModelDataStore extends BaseStore {
    * @property {Date} modified - Last time the data was modified
    */
   getData(modelId) {
-    return this._models.get(modelId) || {modelId, data:[], modified:0};
+    return Object.assign({
+      modelId, data:[], modified:0
+    }, this._models.get(modelId));
   }
 }

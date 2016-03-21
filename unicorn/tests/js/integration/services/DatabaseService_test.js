@@ -24,7 +24,9 @@ import path from 'path';
 import os from 'os';
 
 import {DatabaseService} from '../../../../js/main/DatabaseService';
-import Utils from '../../../../js/main/Utils';
+import {
+  generateFileId, generateMetricId
+} from '../../../../js/main/generateId';
 import {
   DBFileSchema,
   DBMetricSchema, DBMetricDataSchema,
@@ -48,9 +50,9 @@ const MODEL_OPTIONS = require('../../fixtures/model_runner_model.json');
 const INPUT_OPTIONS = require('../../fixtures/param_finder_input.json');
 
 const EXPECTED_FILENAME = path.join(FIXTURES, 'file.csv');
-const EXPECTED_FILENAME_ID = Utils.generateFileId(EXPECTED_FILENAME);
-const EXPECTED_METRIC_ID = Utils.generateMetricId(EXPECTED_FILENAME, 'metric');
-const EXPECTED_TIMESTAMP_ID = Utils.generateMetricId(EXPECTED_FILENAME, 'timestamp');
+const EXPECTED_FILENAME_ID = generateFileId(EXPECTED_FILENAME);
+const EXPECTED_METRIC_ID = generateMetricId(EXPECTED_FILENAME, 'metric');
+const EXPECTED_TIMESTAMP_ID = generateMetricId(EXPECTED_FILENAME, 'timestamp');
 
 const EXPECTED_FILE = Object.assign({}, INSTANCES.File, {
   filename: EXPECTED_FILENAME,
@@ -97,6 +99,68 @@ const EXPECTED_METRIC_DATA = [
   {metric_uid: EXPECTED_METRIC_ID, timestamp: 1440557371000, metric_value: 21},
   {metric_uid: EXPECTED_METRIC_ID, timestamp: 1440557431000, metric_value: 16},
   {metric_uid: EXPECTED_METRIC_ID, timestamp: 1440557491000, metric_value: 19}
+];
+
+const NO_HEADER_CSV_FILE = path.join(FIXTURES, 'no-header.csv');
+const NO_HEADER_CSV_FILE_ID = generateFileId(NO_HEADER_CSV_FILE);
+const EXPECTED_NO_HEADER_CSV_FILE = Object.assign({}, INSTANCES.File, {
+  filename: NO_HEADER_CSV_FILE,
+  name: path.basename(NO_HEADER_CSV_FILE),
+  uid: NO_HEADER_CSV_FILE_ID,
+  rowOffset: 0,
+  records: 6
+});
+
+const EXPECTED_FIELDS_NO_HEADER_CSV_FILE = [
+  Object.assign({}, INSTANCES.Metric, {
+    uid: generateMetricId(NO_HEADER_CSV_FILE, 'timestamp'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    name: 'timestamp',
+    index: 0,
+    type: 'date',
+    format: 'YYYY-MM-DDTHH:mm:ssZ'
+  }),
+  Object.assign({}, INSTANCES.Metric, {
+    uid: generateMetricId(NO_HEADER_CSV_FILE, 'metric2'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    index: 2,
+    name: 'metric2',
+    type: 'number'
+  }),
+  Object.assign({}, INSTANCES.Metric, {
+    uid: generateMetricId(NO_HEADER_CSV_FILE, 'metric1'),
+    file_uid: NO_HEADER_CSV_FILE_ID,
+    index: 1,
+    name: 'metric1',
+    type: 'number'
+  })
+];
+
+const IGNORE_FIELDS_FILE = path.join(FIXTURES, 'ignored-fields.csv');
+const IGNORE_FIELDS_FILE_ID = generateFileId(IGNORE_FIELDS_FILE);
+const EXPECTED_IGNORE_FIELDS_FILE = Object.assign({}, INSTANCES.File, {
+  filename: IGNORE_FIELDS_FILE,
+  name: path.basename(IGNORE_FIELDS_FILE),
+  uid: IGNORE_FIELDS_FILE_ID,
+  rowOffset: 0,
+  records: 6
+});
+const EXPECTED_FIELDS_IGNORE_FIELDS_FILE = [
+  Object.assign({}, INSTANCES.Metric, {
+    uid: generateMetricId(IGNORE_FIELDS_FILE, 'timestamp'),
+    file_uid: IGNORE_FIELDS_FILE_ID,
+    name: 'timestamp',
+    index: 1,
+    type: 'date',
+    format: 'YYYY-MM-DDTHH:mm:ssZ'
+  }),
+  Object.assign({}, INSTANCES.Metric, {
+    uid: generateMetricId(IGNORE_FIELDS_FILE, 'metric1'),
+    file_uid: IGNORE_FIELDS_FILE_ID,
+    index: 4,
+    name: 'metric1',
+    type: 'number'
+  })
 ];
 
 const EXPECTED_METRIC_DATA_RESULT = EXPECTED_METRIC_DATA.map((data) => [
@@ -163,14 +227,17 @@ describe('DatabaseService:', () => {
     service.close((err) => assert.ifError(err));
     service.destroy((err) => assert.ifError(err));
   });
-  afterEach(() => {
+  afterEach((done) => {
     // Delete all records
     let db = service.levelup;
     let batch = db.batch();
     db.createReadStream()
       .on('data', (value) => batch.del(value.key))
       .on('error', assert.ifError)
-      .on('end', () => batch.write(assert.ifError));
+      .on('end', () => {
+        batch.write(assert.ifError);
+        done();
+      });
   });
 
   describe('Schema Validation:', () => {
@@ -273,6 +340,36 @@ describe('DatabaseService:', () => {
               assert.deepStrictEqual(data, EXPECTED_METRIC_DATA_RESULT);
               done();
             })
+          });
+        });
+      });
+    });
+    it('should upload file with no header to the database', (done) => {
+      service.uploadFile(NO_HEADER_CSV_FILE, (error, file) => {
+        assert.ifError(error);
+        service.getFile(NO_HEADER_CSV_FILE_ID, (error, actual) => {
+          assert.ifError(error);
+          assert.deepStrictEqual(JSON.parse(actual), EXPECTED_NO_HEADER_CSV_FILE);
+          assert.ifError(error);
+          service.getMetricsByFile(NO_HEADER_CSV_FILE_ID, (error, actual) => {
+            assert.ifError(error);
+            assert.deepStrictEqual(JSON.parse(actual), EXPECTED_FIELDS_NO_HEADER_CSV_FILE);
+            done();
+          });
+        });
+      });
+    });
+    it('should upload file with ignoring non-scalar fields to the database', (done) => {
+      service.uploadFile(IGNORE_FIELDS_FILE, (error, file) => {
+        assert.ifError(error);
+        service.getFile(IGNORE_FIELDS_FILE_ID, (error, actual) => {
+          assert.ifError(error);
+          assert.deepStrictEqual(JSON.parse(actual), EXPECTED_IGNORE_FIELDS_FILE);
+          assert.ifError(error);
+          service.getMetricsByFile(IGNORE_FIELDS_FILE_ID, (error, actual) => {
+            assert.ifError(error);
+            assert.deepStrictEqual(JSON.parse(actual), EXPECTED_FIELDS_IGNORE_FIELDS_FILE);
+            done();
           });
         });
       });
@@ -472,6 +569,23 @@ describe('DatabaseService:', () => {
         })
       });
     });
+    it('should update metric', (done) => {
+      // Add metric
+      service.putMetric(EXPECTED_METRIC, (error) => {
+        assert.ifError(error);
+        let expected = Object.assign({}, EXPECTED_METRIC, {
+          index: 2,
+          name: 'metric2'
+        });
+        service.updateMetric(EXPECTED_METRIC.uid, expected, (error) => {
+          assert.ifError(error);
+          service.getMetric(EXPECTED_METRIC.uid, (error, actual) => {
+            assert.deepStrictEqual(JSON.parse(actual), expected);
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('MetricData:', () => {
@@ -522,6 +636,96 @@ describe('DatabaseService:', () => {
               assert.equal(JSON.parse(actual).length, 0);
               done();
             });
+          });
+        });
+      });
+    });
+  });
+
+  describe('Model', () => {
+    it('should add a single model to the database', (done) => {
+      service.putModel(EXPECTED_MODEL, (error) => {
+        assert.ifError(error);
+        service.getModel(EXPECTED_MODEL.modelId, (error, actual) => {
+          assert.ifError(error);
+          assert.deepStrictEqual(JSON.parse(actual), EXPECTED_MODEL);
+          done();
+        });
+      });
+    });
+    it('should not add invalid model to the database', (done) => {
+      let invalid = Object.assign({}, EXPECTED_MODEL);
+      delete invalid.modelId;
+      service.putModel(invalid, (error) => {
+        assert(error, 'Invalid Model was created');
+        done();
+      });
+    });
+    it('should add multiple models to the database', (done) => {
+      let batch = Array.from(['file1!metric1', 'file1!metric2'], (modelId) => {
+        return Object.assign({}, EXPECTED_MODEL, {modelId});
+      });
+      service.putModelBatch(batch, (error) => {
+        assert.ifError(error);
+        service.getAllModels((error, actual) => {
+          assert.ifError(error);
+          assert.deepStrictEqual(JSON.parse(actual), batch);
+          done();
+        });
+      });
+    });
+    it('should load a single model from the database', (done) => {
+      let batch = Array.from(['file1!metric1', 'file1!metric2'], (modelId) => {
+        return Object.assign({}, EXPECTED_MODEL, {modelId});
+      });
+      service.putModelBatch(batch, (error) => {
+        assert.ifError(error);
+        service.getModel(batch[0].modelId, (error, actual) => {
+          assert.ifError(error);
+          assert.deepStrictEqual(JSON.parse(actual), batch[0]);
+          done();
+        });
+      });
+    });
+    it('should delete model from the database', (done) => {
+      // Add model
+      service.putModel(EXPECTED_MODEL, (error) => {
+        assert.ifError(error);
+        // Add data
+        service.putModelDataBatch(BATCH_MODEL_DATA, (error) => {
+          assert.ifError(error);
+          // Delete model
+          service.deleteModel(EXPECTED_MODEL.uid, (error) => {
+            assert.ifError(error);
+            service.getModel(EXPECTED_MODEL.uid, (error, actual) => {
+              // Make sure model was deleted
+              assert(
+                error && error.type === 'NotFoundError',
+                'Model was not deleted'
+              );
+              // Make sure data was deleted
+              service.getModelData(EXPECTED_MODEL.uid, (error, actual) => {
+                assert(JSON.parse(actual).length === 0, 'ModelData was not deleted');
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+    it('should update model', (done) => {
+      // Add model
+      service.putModel(EXPECTED_MODEL, (error) => {
+        assert.ifError(error);
+        let expected = Object.assign({}, EXPECTED_MODEL, {
+          filename: 'updated file name',
+          metric: 'metric2'
+        });
+        service.updateModel(EXPECTED_MODEL.modelId, expected, (error) => {
+          assert.ifError(error);
+          service.getModel(EXPECTED_MODEL.modelId, (error, actual) => {
+            assert.deepStrictEqual(JSON.parse(actual), expected);
+            done();
           });
         });
       });

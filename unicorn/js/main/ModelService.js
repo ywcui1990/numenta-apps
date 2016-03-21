@@ -54,8 +54,8 @@ export class ModelNotFoundError extends UserError {
 
 
 /**
- * Unicorn: ModelService - Respond to a ModelClient over IPC, sharing our access
- * to Unicorn Backend Model Runner python and NuPIC processes.
+ * HTM Studio: ModelService - Respond to a ModelClient over IPC, sharing our
+ *  access to Backend Model Runner python and NuPIC processes.
  */
 export class ModelService extends EventEmitter {
   constructor(...args) {

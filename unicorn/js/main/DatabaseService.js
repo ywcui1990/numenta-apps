@@ -16,41 +16,40 @@
 //
 // http://numenta.org/licenses/
 
+import Batch from 'level-sublevel/batch';
 import fs from 'fs';
-import os from 'os';
-import isElectronRenderer from 'is-electron-renderer';
-import fileService from './FileService';
 import instantiator from 'json-schema-instantiator';
+import isElectronRenderer from 'is-electron-renderer';
 import json2csv from 'json2csv-stream';
 import leveldown from 'leveldown';
 import levelup from 'levelup';
 import moment from 'moment';
+import os from 'os';
 import path from 'path';
 import sublevel from 'level-sublevel';
-import Batch from 'level-sublevel/batch';
 import {Validator} from 'jsonschema';
-import Utils from './Utils';
+
+import fileService from './FileService';
+import {
+  generateMetricDataId, generateFileId
+} from '../main/generateId';
+import {promisify} from '../common/common-utils';
 
 // Schemas
 import {
-  DBFileSchema,
-  DBMetricDataSchema,
-  DBMetricSchema,
-  DBModelDataSchema,
-
-  MRAggregationSchema,
-  MRInputSchema,
-  MRModelSchema,
-
-  PFInputSchema,
-  PFOutputSchema
+  DBFileSchema, DBMetricDataSchema, DBMetricSchema,
+  DBModelDataSchema, DBModelSchema,
+  MRAggregationSchema, MRInputSchema, MRModelSchema,
+  PFInputSchema, PFOutputSchema
 } from '../database/schema';
 
 const SCHEMAS = [
-  DBFileSchema, DBMetricDataSchema, DBMetricSchema, DBModelDataSchema,
+  DBFileSchema, DBMetricDataSchema, DBMetricSchema,
+  DBModelDataSchema, DBModelSchema,
   MRAggregationSchema, MRInputSchema, MRModelSchema,
   PFInputSchema, PFOutputSchema
 ];
+
 
 /**
  * Calculate default database location. If running inside `Electron` then use
@@ -81,8 +80,9 @@ function stringifyResultsCallback(callback) {
   return (error, data) => callback(error, JSON.stringify(data));
 }
 
+
 /**
- * Unicorn: DatabaseService - Respond to a DatabaseClient over IPC.
+ * HTM Studio: DatabaseService - Respond to a DatabaseClient over IPC.
  *  For sharing our access to a file-based NodeJS database system.
  *  Meant for heavy persistence.
  * @param {string} [path] - Database location path (optional)
@@ -106,6 +106,7 @@ export class DatabaseService {
     this._files = this._root.sublevel('File');
     this._metrics = this._root.sublevel('Metric');
     this._metricData = this._root.sublevel('MetricData');
+    this._models = this._root.sublevel('Model');
     this._modelData = this._root.sublevel('ModelData');
   }
 
@@ -186,6 +187,34 @@ export class DatabaseService {
       let remoteCallback = stringifyResultsCallback(callback);
       remoteCallback(null, results);
     });
+  }
+
+  /**
+   * Get a single Model.
+   * @param {string} modelId - Unique ID of model to get
+   * @param {Function} callback Async callback function(error, results)
+   *                            The results will be JSON.stringified
+   */
+  getModel(modelId, callback) {
+    this._models.get(modelId, stringifyResultsCallback(callback));
+  }
+
+  /**
+   * Get all Models.
+   * @param {Function} callback Async callback function(error, results)
+   *                            The results will be JSON.stringified
+   */
+  getAllModels(callback) {
+    let results = [];
+    this._models.createValueStream()
+      .on('data', (model) => {
+        results.push(model);
+      })
+      .on('error', callback)
+      .on('end', () => {
+        let remoteCallback = stringifyResultsCallback(callback);
+        remoteCallback(null, results);
+      });
   }
 
   /**
@@ -336,6 +365,56 @@ export class DatabaseService {
     this._metrics.batch(ops, callback);
   }
 
+
+  /**
+   * Put a single Model to DB.
+   * @param {Object} model - Data object of Model info to save
+   * @param {Function} callback - Async done callback: function(error, results)
+   */
+  putModel(model, callback) {
+    if (typeof metric === 'string') {
+      model = JSON.parse(model);
+    }
+
+    const validation = this.validator.validate(model, DBModelSchema);
+    if (validation.errors.length) {
+      callback(validation.errors, null);
+      return;
+    }
+
+    this._models.put(model.modelId, model, callback);
+  }
+
+  /**
+   * Put multiple Models into DB.
+   * @param {Array} models - Data objects of Models info to save
+   * @param {Function} callback - Async done callback: function(error, results)
+   */
+  putModelBatch(models, callback) {
+    if (typeof metrics === 'string') {
+      models = JSON.parse(models);
+    }
+
+    for (let i = 0; i < models.length; i++) {
+      const validation = this.validator.validate(models[i], DBModelSchema);
+      if (validation.errors.length) {
+        callback(validation.errors, null);
+        return;
+      }
+    }
+
+    let ops = models.map((model) => {
+      return {
+        type: 'put',
+        key: model.modelId,
+        value: model
+      };
+    });
+
+    this._models.batch(ops, callback);
+  }
+
+
   /**
    * Put a single ModelData record to DB.
    * @param {Object} data - ModelData object to save
@@ -352,7 +431,7 @@ export class DatabaseService {
       return;
     }
     let {metric_uid, timestamp} = data;
-    let key = Utils.generateMetricDataId(metric_uid, timestamp);
+    let key = generateMetricDataId(metric_uid, timestamp);
     this._modelData.put(key, data, callback);
   }
 
@@ -376,7 +455,7 @@ export class DatabaseService {
 
     let ops = data.map((value) => {
       let {metric_uid, timestamp} = value;
-      let key = Utils.generateMetricDataId(metric_uid, timestamp);
+      let key = generateMetricDataId(metric_uid, timestamp);
       return {
         type: 'put', key, value
       };
@@ -401,7 +480,7 @@ export class DatabaseService {
       return;
     }
     let {metric_uid, timestamp} = metricData;
-    let key = Utils.generateMetricDataId(metric_uid, timestamp);
+    let key = generateMetricDataId(metric_uid, timestamp);
     this._metricData.put(key, metricData, callback);
   }
 
@@ -425,7 +504,7 @@ export class DatabaseService {
 
     let ops = data.map((value) => {
       let {metric_uid, timestamp} = value;
-      let key = Utils.generateMetricDataId(metric_uid, timestamp);
+      let key = generateMetricDataId(metric_uid, timestamp);
       return {
         type: 'put', key, value
       };
@@ -477,7 +556,7 @@ export class DatabaseService {
     })
     .on('data', (result) => {
       let data = Object.assign({}, result, {
-        timestamp: new Date(result.timestamp)
+        timestamp: moment(result.timestamp).toDate()
       });
       parser.write(JSON.stringify(data));
     })
@@ -546,8 +625,24 @@ export class DatabaseService {
           callback(error);
           return;
         }
-        this.deleteModelData(metricId, callback);
+        this.deleteModel(metricId, callback);
       });
+    })
+  }
+
+  /**
+   * Delete model and associated data from database.
+   * @param  {string}   modelId Model to delete
+   * @param  {Function} callback called when the operation is complete,
+   *                             with a possible error argument
+   */
+  deleteModel(modelId, callback) {
+    this._models.del(modelId, (error) => {
+      if (error) {
+        callback(error);
+        return;
+      }
+      this.deleteModelData(modelId, callback);
     })
   }
 
@@ -603,7 +698,7 @@ export class DatabaseService {
    *                             with a possible error argument
    */
   deleteFile(filename, callback) {
-    let fileId = Utils.generateFileId(filename);
+    let fileId = generateFileId(filename);
     this._files.del(fileId, (error) => {
       if (error) {
         callback(error);
@@ -687,6 +782,67 @@ export class DatabaseService {
   }
 
   /**
+   * Update model with the given properties
+   * @param  {string}   modelId    Model to update
+   * @param  {object}   properties Properties to update,
+   *                               must be a valid Model property.
+   *                               If properties includes 'modelId' it will be
+   *                               ignored and replaced be the given 'modelId'
+   * @param  {Function} callback   called when the operation is complete with
+   *                               the updated model record or error
+   */
+  updateModel(modelId, properties, callback) {
+    if (typeof properties === 'string') {
+      properties = JSON.parse(properties);
+    }
+
+    this._models.get(modelId, (error, model) => {
+      if (error) {
+        return callback(error);
+      }
+
+      let newModel = Object.assign({}, model, properties);
+      newModel.modelId = modelId;
+
+      const validation = this.validator.validate(newModel, DBModelSchema);
+      if (validation.errors.length) {
+        return callback(validation.errors, null);
+      }
+
+      this.putModel(newModel, (error) => callback(error, newModel));
+    });
+  }
+
+  /**
+   * Update metric with the given properties
+   * @param  {string}   metricId   Metric to update
+   * @param  {object}   properties Properties to update,
+   *                               must be a valid Metric property.
+   *                               If properties includes 'uid' it will be
+   *                               ignored and replaced be the given 'metricId'
+   * @param  {Function} callback   called when the operation is complete with
+   *                               the updated metric record or error
+   */
+  updateMetric(metricId, properties, callback) {
+    if (typeof properties === 'string') {
+      properties = JSON.parse(properties);
+    }
+    this._metrics.get(metricId, (error, metric) => {
+      if (error) {
+        return callback(error);
+      }
+      let newMetric = Object.assign({}, metric, properties);
+      newMetric.uid = metricId;
+
+      const validation = this.validator.validate(newMetric, DBMetricSchema);
+      if (validation.errors.length) {
+        return callback(validation.errors, null);
+      }
+      this.putMetric(newMetric, (error) => callback(error, newMetric));
+    });
+  }
+
+  /**
    * Upload a new file to the database performing the following steps:
    * - Save file metadata
    * - Save fields/metrics metadata
@@ -702,7 +858,7 @@ export class DatabaseService {
     let file = fileToUpload;
     if (typeof file === 'string') {
       file = instantiator.instantiate(DBFileSchema);
-      file.uid = Utils.generateFileId(fileToUpload);
+      file.uid = generateFileId(fileToUpload);
       file.filename = fileToUpload;
       file.name = path.basename(fileToUpload);
     } else {
@@ -714,7 +870,6 @@ export class DatabaseService {
       }
     }
 
-    let promisify = Utils.promisify;
     promisify(::fileService.getFields, file.filename)
       .then((results) => {
         let {offset, fields} = results;
@@ -731,7 +886,8 @@ export class DatabaseService {
         let records = file.rowOffset;
         let options = {
           objectMode: true,
-          columns: file.rowOffset === 1
+          columns: false,
+          offset : file.rowOffset
         };
         fileService.getData(file.filename, options, ((error, data) => { // eslint-disable-line
           if (error) {
@@ -744,8 +900,8 @@ export class DatabaseService {
               if (field.type === 'number') {
                 let metricData = {
                   metric_uid: field.uid,
-                  timestamp: moment(data[timestampField.name], timestampField.format).valueOf(), // eslint-disable-line
-                  metric_value: parseFloat(data[field.name])
+                  timestamp: moment(data[timestampField.index], timestampField.format).valueOf(), // eslint-disable-line
+                  metric_value: parseFloat(data[field.index])
                 };
                 // Save data
                 this.putMetricData(metricData, (error) => { // eslint-disable-line

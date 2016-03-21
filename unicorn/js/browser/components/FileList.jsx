@@ -31,15 +31,17 @@ import ListItem from 'material-ui/lib/lists/list-item';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import React from 'react';
 
-import AddModelAction from '../actions/AddModel';
+import AddShowModelAction from '../actions/AddShowModel';
 import DeleteFileAction from '../actions/DeleteFile';
 import FileStore from '../stores/FileStore';
 import HideModelAction from '../actions/HideModel';
-import ModelStore from '../stores/ModelStore';
 import MetricStore from '../stores/MetricStore';
+import ModelStore from '../stores/ModelStore';
 import ShowFileDetailsAction from '../actions/ShowFileDetails';
 import ShowModelAction from '../actions/ShowModel';
-import Utils from '../../main/Utils';
+
+// Using module from 'main' process, it may infer use of `remote` IPC calls
+import {generateMetricId} from '../../main/generateId';
 
 
 /**
@@ -148,11 +150,10 @@ export default class FileList extends React.Component {
       // show: already known
       this.context.executeAction(ShowModelAction, modelId);
     } else if (checked) {
-      // show: unknown, so know it first
-      this.context.executeAction(AddModelAction, {
+      // show: unknown, so add and show
+      this.context.executeAction(AddShowModelAction, {
         modelId, filename, timestampField, metric
       });
-      this.context.executeAction(ShowModelAction, modelId);
     } else {
       // hide
       this.context.executeAction(HideModelAction, modelId);
@@ -202,7 +203,7 @@ export default class FileList extends React.Component {
       return fileMetrics.map((metric) => {
         if (metric.type !== 'date') {
           let muiTheme = this.context.muiTheme;
-          let modelId = Utils.generateMetricId(file.filename, metric.name);
+          let modelId = generateMetricId(file.filename, metric.name);
           let models = this.props.models;
           let model = models.find((m) => m.modelId === modelId);
           let isModelVisible = false;

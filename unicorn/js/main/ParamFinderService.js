@@ -53,8 +53,8 @@ export class ParamFinderNotFoundError extends UserError {
 
 
 /**
- * Unicorn: ParamFinderService - Respond to a ParamFinderService over IPC,
- *  sharing our access to Unicorn Backend Param Finder Runner python and
+ * HTM Studio: ParamFinderService - Respond to a ParamFinderService over IPC,
+ *  sharing our access to HTM Studio Backend Param Finder Runner python and
  *  NuPIC processes.
  */
 export class ParamFinderService extends EventEmitter {

@@ -26,11 +26,11 @@ import ThemeDecorator from 'material-ui/lib/styles/theme-decorator';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 import FileValidateAction from '../actions/FileValidate';
-import FileList from '../components/FileList';
-import FileDetails from '../components/FileDetails';
-import LeftNav from '../components/LeftNav';
-import ModelList from '../components/ModelList';
-import UnicornTheme from '../lib/MaterialUI/UnicornTheme';
+import FileList from './FileList';
+import FileDetails from './FileDetails';
+import HTMStudioTheme from '../lib/MaterialUI/HTMStudioTheme';
+import LeftNav from './LeftNav';
+import ModelList from './ModelList';
 
 const app = remote.app;
 const dialog = remote.require('dialog');
@@ -47,7 +47,7 @@ const dialog = remote.require('dialog');
   getModelClient: React.PropTypes.func,
   getParamFinderClient: React.PropTypes.func
 })
-@ThemeDecorator(ThemeManager.getMuiTheme(UnicornTheme)) // eslint-disable-line new-cap
+@ThemeDecorator(ThemeManager.getMuiTheme(HTMStudioTheme)) // eslint-disable-line new-cap
 export default class Main extends React.Component {
 
   static get contextTypes() {

@@ -1,4 +1,4 @@
-/* Entire App */
+/* HTM Studio - Styles for entire App */
 
 html {
   box-sizing: border-box;
@@ -27,7 +27,28 @@ body {
 }
 
 
-/* DyGraphs overrides */
+/* DyGraphs style overrides */
+
+.dygraph-chart:active {
+  cursor: move !important;
+}
+
+.dygraph-axis-label {
+  color: #999 !important;
+  font-size: 12px !important;
+}
+
+.dygraph-axis-label-y2 {
+  display: none !important;
+}
+
+.dygraph-legend {
+  background-color: rgba(255,255,255,0.75) !important;
+  color: #666 !important;
+  font-size: 12px !important;
+  left: 35px !important;
+  width: auto !important;
+}
 
 .dygraph-rangesel-bgcanvas {
   z-index: 10 !important;
@@ -38,11 +59,11 @@ body {
 }
 
 .dygraph-rangeselbarchart-canvas {
-  opacity: 0.8;
+  opacity: 0.8 !important;
   z-index: 20 !important;
 }
 
 img.dygraph-rangesel-zoomhandle {
   cursor: move !important;
-  opacity: 0;
+  opacity: 0 !important;
 }

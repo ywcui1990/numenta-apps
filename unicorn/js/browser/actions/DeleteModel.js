@@ -30,8 +30,8 @@ import {ACTIONS} from '../lib/Constants';
 export default function (actionContext, modelId) {
   return new Promise((resolve, reject) => {
     let database = actionContext.getDatabaseClient();
-    // Delete model data
-    database.deleteModelData(modelId, (error) => {
+    // Delete model
+    database.deleteModel(modelId, (error) => {
       if (error) {
         actionContext.dispatch(ACTIONS.DELETE_MODEL_FAILED, {modelId, error});
         reject(error);

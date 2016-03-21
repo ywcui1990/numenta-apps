@@ -15,85 +15,57 @@
 //
 // http://numenta.org/licenses/
 
-
 import BaseStore from 'fluxible/addons/BaseStore';
-import Utils from '../../main/Utils';
+import instantiator from 'json-schema-instantiator';
+import {Validator} from 'jsonschema';
+import {
+  DBFileSchema, DBMetricDataSchema, DBMetricSchema,
+  DBModelDataSchema, DBModelSchema,
+  MRAggregationSchema, MRInputSchema, MRModelSchema,
+  PFInputSchema, PFOutputSchema
+} from '../../database/schema';
 
-/**
- * Metric type stored in the {@link MetricStore}
- * @see ../database/schema/Metric.json
- *
- * @typedef {Object} MetricStore.Metric
- * @property {string} uid: Metric ID
- * @property {string} file_uid: File ID
- * @property {string} name: Metric Name
- * @property {string} type: Metric type ('string' | 'number' | 'date')
- * @property {string} type: Metric type ('string' | 'number' | 'date')
- */
+const INSTANCE = instantiator.instantiate(DBMetricSchema);
+const SCHEMAS = [
+  DBFileSchema, DBMetricDataSchema, DBMetricSchema,
+  DBModelDataSchema, DBModelSchema,
+  MRAggregationSchema, MRInputSchema, MRModelSchema,
+  PFInputSchema, PFOutputSchema
+];
+const VALIDATOR = new Validator();
+SCHEMAS.forEach((schema) => {
+  VALIDATOR.addSchema(schema);
+});
 
 
 /**
  * Metric store, it maintains a collection of {@link MetricStore.Metric}
+ * @see ../database/schema/Metric.json
  */
-
 export default class MetricStore extends BaseStore {
 
+  /**
+   * MetricStore
+   */
   static get storeName() {
     return 'MetricStore';
   }
 
   /**
-   * @listens {LIST_METRICS}
    * @listens {DELETE_FILE}
-   * @listens {SHOW_CREATE_MODEL_DIALOG}
-   * @listens {HIDE_CREATE_MODEL_DIALOG}
-   * @listens {START_PARAM_FINDER}
-   * @listens {RECEIVE_PARAM_FINDER_DATA}
+   * @listens {LIST_METRICS}
    */
   static get handlers() {
     return {
       DELETE_FILE: '_handleDeleteFile',
       LIST_METRICS: '_handleListMetrics',
-      SHOW_CREATE_MODEL_DIALOG: '_handleShowCreateModelDialog',
-      HIDE_CREATE_MODEL_DIALOG: '_handleHideCreateModelDialog',
-      START_PARAM_FINDER: '_handleStartParamFinder',
-      RECEIVE_PARAM_FINDER_DATA: '_handleReceiveParamFinderData'
+      CHART_UPDATE_VIEWPOINT: '_handleUpdateViewpoint'
     }
   }
 
   constructor(dispatcher) {
     super(dispatcher);
     this._metrics = new Map();
-    this._reset();
-  }
-
-  _reset() {
-    // CreateModelDialog
-    this.fileName = null;
-    this.metricName = null;
-    this.open = false;
-
-    // Param Finder
-    this.paramFinderResults = new Map();
-    this.inputOpts = new Map();
-  }
-
-  /**
-   * Get input opts
-   * @param  {string} metricId The metric id
-   * @return {MetricStore.Metric} The metric object or `null`
-   */
-  getInputOpts(metricId) {
-    return this.inputOpts.get(metricId);
-  }
-
-  /**
-   * Get param finder results
-   * @param  {string} metricId The metric id
-   * @return {MetricStore.Metric} The metric object or `null`
-   */
-  getParamFinderResults(metricId) {
-    return this.paramFinderResults.get(metricId);
   }
 
   /**
@@ -134,8 +106,13 @@ export default class MetricStore extends BaseStore {
    * @return {Array<MetricStore.Metric>}  Array of metrics
    */
   getMetricsByFileName(filename) {
-    let fileId = Utils.generateFileId(filename);
-    return this.getMetricsByFileId(fileId);
+    let metrics = [];
+    this._metrics.forEach((value, key, map) => {
+      if (value.filename === filename) {
+        metrics.push(value);
+      }
+    });
+    return metrics;
   }
 
   /**
@@ -143,9 +120,8 @@ export default class MetricStore extends BaseStore {
    * @param  {string} filename The name of the file to delete
    */
   _handleDeleteFile(filename) {
-    let fileId = Utils.generateFileId(filename);
     this._metrics.forEach((value, key, map) => {
-      if (value.file_uid === fileId) {
+      if (value.filename === filename) {
         map.delete(key);
       }
     });
@@ -159,36 +135,40 @@ export default class MetricStore extends BaseStore {
   _handleListMetrics(metrics) {
     if (metrics) {
       metrics.forEach((metric) => {
-        this._metrics.set(metric.uid, Object.assign({}, metric));
+        let record = Object.assign({}, INSTANCE, metric);
+        let validation = VALIDATOR.validate(record, DBMetricSchema);
+        if (validation.errors.length) {
+          throw new Error('New Metric did not validate against schema');
+        }
+        this._metrics.set(metric.uid, record);
       });
       this.emitChange();
     }
   }
 
-  _handleStartParamFinder(payload) {
-    let metricId = payload.metricId;
-    let inputOpts = payload.inputOpts;
-    this.inputOpts.set(metricId, inputOpts);
-    this.emitChange();
+  /**
+   * Update store with new Metric+Chart starting viewpoint. The starting
+   *  viewpoint is stored as a JS Date stamp, miliseconds since epoch
+   *  (1 January 1970 00:00:00 UTC), example = 1458342717816. JS Null if unused.
+   *  This value ends up in Dygraphs as the start value of the range viewfinder
+   *  coordinate [begin, end] pair, which leads to the visible Chart section.
+   *  This store updater does not emit changes, as we want to keep this value
+   *  for the future, but not trigger a UI re-render (already did).
+   * @param {Object} payload - Data payload to use
+   * @param {String} payload.metricId - ID of Metric to operate on
+   * @param {Number} payload.viewpoint - Number timestamp, Miliseconds since
+   *  epoch UTC. Where to start zooming in on chart.
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+   * @see http://dygraphs.com/options.html#dateWindow
+   * @see view-source://dygraphs.com/tests/range-selector.html
+   */
+  _handleUpdateViewpoint(payload) {
+    let {metricId, viewpoint} = payload;
+    let metric = this._metrics.get(metricId);
+    if (metric) {
+      metric.viewpoint = viewpoint;
+      // No change emit - only store value, do not cause UI to re-render.
+      //  The UI just gave us this value, UI does not need any updating now.
+    }
   }
-
-  _handleShowCreateModelDialog(payload) {
-    this.fileName = payload.fileName;
-    this.metricName = payload.metricName;
-    this.open = true;
-    this.emitChange();
-  }
-
-  _handleHideCreateModelDialog() {
-    this._reset();
-    this.emitChange();
-  }
-
-  _handleReceiveParamFinderData(payload) {
-    let paramFinderResults = JSON.parse(payload.paramFinderResults);
-    let metricId = payload.metricId;
-    this.paramFinderResults.set(metricId, paramFinderResults);
-    this.emitChange();
-  }
-
 }

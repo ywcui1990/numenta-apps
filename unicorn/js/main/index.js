@@ -18,6 +18,7 @@
 
 import {app, BrowserWindow, crashReporter, dialog, Menu} from 'electron';
 import bunyan from 'bunyan';
+import moment from 'moment';
 import path from 'path';
 
 import config from './ConfigService';
@@ -28,7 +29,7 @@ import paramFinderService from './ParamFinderService';
 import MainMenu from './MainMenu';
 import ModelServiceIPC from './ModelServiceIPC';
 import ParamFinderServiceIPC from './ParamFinderServiceIPC';
-import Utils from './Utils';
+import {promisify} from '../common/common-utils';
 
 const log = bunyan.createLogger({
   level: 'debug',  // @TODO higher for Production
@@ -49,7 +50,6 @@ function initializeApplicationData() {
   // Check if running for the first time
   let initialized = config.get('initialized');
   if (!initialized) {
-    let promisify = Utils.promisify;
     // Load sample files from the file system
     promisify(::fileService.getSampleFiles)
       // Save all sample files to the database
@@ -78,7 +78,7 @@ function receiveModelData(modelId, data) {
   let [timestamp, value, score] = data; // eslint-disable-line
   let metricData = {
     metric_uid: modelId,
-    timestamp: new Date(timestamp).getTime(),
+    timestamp: moment(timestamp).valueOf(),
     metric_value: value,
     anomaly_score: score
   };
@@ -123,7 +123,7 @@ function handleModelEvents() {
 
 
 /**
- * Unicorn: Cross-platform Desktop Application to showcase basic HTM features
+ * HTM Studio: Cross-platform Desktop Application to showcase basic HTM features
  *  to a user using their own data stream or files.
  *
  * Main Electron code Application entry point, initializes browser app.

@@ -20,7 +20,7 @@ import IconCheckbox from 'material-ui/lib/svg-icons/toggle/check-box';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
 
-import Model from '../components/Model';
+import Model from './Model';
 import ModelStore from '../stores/ModelStore';
 
 

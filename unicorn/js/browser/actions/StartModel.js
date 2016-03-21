@@ -16,6 +16,7 @@
 // http://numenta.org/licenses/
 
 import {ACTIONS} from '../lib/Constants';
+import {promisify} from '../../common/common-utils';
 
 
 /**
@@ -26,13 +27,35 @@ import {ACTIONS} from '../lib/Constants';
  * @param {Object} payload.inputOpts - input options to start the model
  * @param {String} payload.metricId - ID of the metric to start model for
  * @param {Object} payload.modelOpts - model params options
- * @TODO: {@ParamFinderService} should save `modelOpts` to database
+ * @return {Promise}  Promise
  */
 export default function (actionContext, payload) {
-  let modelClient = actionContext.getModelClient();
-  let {aggOpts, inputOpts, metricId, modelOpts} = payload;
-  let aggregated = (Object.keys(aggOpts).length >= 1);
+  return new Promise((resolve, reject) => {
+    let {aggOpts, inputOpts, metricId, modelOpts} = payload;
+    let aggregated = (Object.keys(aggOpts).length >= 1);
 
-  modelClient.createModel(metricId, inputOpts, aggOpts, modelOpts);
-  actionContext.dispatch(ACTIONS.START_MODEL, {modelId: metricId, aggregated});
+    // Save to database
+    let db = actionContext.getDatabaseClient();
+    return promisify(::db.updateMetric, metricId, {
+      input_options: inputOpts,
+      aggregation_options: aggOpts,
+      model_options: modelOpts
+    })
+    .then((metric) => promisify(::db.updateModel, metricId, {
+      ran: true,
+      aggregated
+    }))
+    .then(() => {
+      // Start model
+      let modelClient = actionContext.getModelClient();
+      modelClient.createModel(metricId, inputOpts, aggOpts, modelOpts);
+      actionContext.dispatch(ACTIONS.START_MODEL, {
+        modelId: metricId, aggregated
+      });
+      return resolve();
+    })
+    .catch((error) => {
+      return reject(error);
+    });
+  });
 }

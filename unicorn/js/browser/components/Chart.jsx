@@ -17,20 +17,30 @@
 
 import CircularProgress from 'material-ui/lib/circular-progress';
 import Dygraph from 'dygraphs';
+import moment from 'moment';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import ChartUpdateViewpoint from '../actions/ChartUpdateViewpoint';
+import {DATA_FIELD_INDEX} from '../lib/Constants';
+
+const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
+
 
 /**
- * Chart Widget.
- *  Wraps http://dygraphs.com/ as a React Component.
- * @TODO The local variables (this._chart*) should be refactored to React state.
- *  And, React's `render()` should be overrided with DyGraphs `updateOptions()`,
- *  possibly using Reacts's `shouldComponentUpdate()` method to skip React's
- *  state change => render cycle for DyGraphs to not have it's DOM node reset.
+ * Chart Widget. Wraps as a React Component.
+ * @see http://dygraphs.com/
  */
 export default class Chart extends React.Component {
+
+  static get contextTypes() {
+    return {
+      executeAction: React.PropTypes.func,
+      getConfigClient: React.PropTypes.func,
+      muiTheme: React.PropTypes.object
+    };
+  }
 
   static get propTypes() {
     return {
@@ -50,13 +60,6 @@ export default class Chart extends React.Component {
     };
   }
 
-  static get contextTypes() {
-    return {
-      getConfigClient: React.PropTypes.func,
-      muiTheme: React.PropTypes.object
-    };
-  }
-
   constructor(props, context) {
     super(props, context);
     this._config = this.context.getConfigClient();
@@ -64,12 +67,7 @@ export default class Chart extends React.Component {
     // DyGraphs chart container
     this._dygraph = null;
     this._displayPointCount = this._config.get('chart:points');
-
-    // Chart Range finder values: For Fixed-width-chart & auto-scroll-to-right
-    this._chartBusy = null;
-    this._chartRange = null;
-    this._chartRangeWidth = null;
-    this._chartScrollLock = null;
+    this._previousDataSize = 0;
 
     // dynamic styles
     let muiTheme = this.context.muiTheme;
@@ -77,32 +75,27 @@ export default class Chart extends React.Component {
       root: {
         boxShadow: 'none',
         height: muiTheme.rawTheme.spacing.desktopKeylineIncrement * 2.75,
+        marginTop: '0.25rem',
         width: '100%'
       }
     };
   }
 
   componentDidMount() {
-    this._chartBusy = false;
-    this._chartRange = [0, 0];
-    this._chartRangeWidth = null;
-    this._chartScrollLock = true;  // auto-scroll with new model+anomaly data
-
     if (this.props.data.length) {
       this._chartInitalize();
     }
   }
 
   componentWillUnmount() {
+    let {model} = this.props.metaData;
+    let element = ReactDOM.findDOMNode(this.refs[`chart-${model.modelId}`]);
+
     if (this._dygraph) {
+      Dygraph.removeEvent(element, 'mouseup', this._handleMouseUp.bind(this));
       this._dygraph.destroy();
       this._dygraph = null;
     }
-
-    this._chartBusy = null;
-    this._chartRange = null;
-    this._chartRangeWidth = null;
-    this._chartScrollLock = null;
   }
 
   componentDidUpdate() {
@@ -113,63 +106,88 @@ export default class Chart extends React.Component {
     }
   }
 
+  componentWillUpdate() {
+    if (this.props.data.length < this._previousDataSize) {
+      this.componentWillUnmount();
+    }
+  }
+
   /**
    * DyGrpahs Chart Initalize and Render
    */
   _chartInitalize() {
-    let {data, options} = this.props;
-    let timestampIndex = 0;
-    let element = ReactDOM.findDOMNode(this.refs.chart);
-    let first = new Date(data[0][timestampIndex]).getTime();
-    let second = new Date(data[1][timestampIndex]).getTime();
+    let {data, metaData, options} = this.props;
+    let {metric, model} = metaData;
+    let element = ReactDOM.findDOMNode(this.refs[`chart-${model.modelId}`]);
+    let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
+    let second = moment(data[1][DATA_INDEX_TIME]).valueOf();
     let unit = second - first; // each datapoint
+    let rangeWidth = unit * this._displayPointCount;
+    let chartRange = [first, first + rangeWidth]; // float left
 
-    // determine each value datapoint time unit and chart width based on that
-    this._chartRangeWidth = Math.round(unit * this._displayPointCount);
-    this._chartRange = [first, first + this._chartRangeWidth]; // float left
+    // move chart back to last valid display position from previous viewing?
+    if ('viewpoint' in metric && metric.viewpoint) {
+      chartRange = [metric.viewpoint, metric.viewpoint + rangeWidth];
+    }
 
     // init chart
-    this._chartBusy = true;
-    options.dateWindow = this._chartRange;
+    options.dateWindow = chartRange;
+    this._previousDataSize = data.length;
     this._dygraph = new Dygraph(element, data, options);
-    this._chartBusy = false;
+
+    // track chart viewport position on chart/rangeselector mouseup event
+    Dygraph.addEvent(element, 'mouseup', this._handleMouseUp.bind(this));
   }
 
   /**
    * DyGrpahs Chart Update Logic and Re-Render
    */
   _chartUpdate() {
-    let {data, options} = this.props;
-    let timestampIndex = 0;
-    let model = this.props.metaData.model;
-    let modelIndex = Math.abs(this.props.metaData.length.model - 1);
-    let first = new Date(data[0][timestampIndex]).getTime();
+    let {data, metaData, options} = this.props;
+    let {model} = metaData;
+    let modelIndex = Math.abs(model.dataSize - 1);
+    let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
+    let [rangeMin, rangeMax] = this._dygraph.xAxisRange();
+    let rangeWidth = rangeMax - rangeMin;
     let blockRedraw = modelIndex % 2 === 0; // filter out some redrawing
-    let rangeMax, rangeMin;
+    let scrollLock = false;
 
-    // If new aggregated data chart: destroy, and it will re-create itself fresh
-    if (model.aggregated && modelIndex === 1) {
-      this.componentWillUnmount();
-      this.componentDidMount();
-      return;
+    // should we scroll along with incoming model data?
+    if (model.active && modelIndex < data.length) {
+      scrollLock = true;
     }
 
-    // scroll along with fresh anomaly model data input
-    if (!this._chartBusy) {
-      rangeMax = new Date(data[modelIndex][timestampIndex]).getTime();
-      rangeMin = rangeMax - this._chartRangeWidth;
+    // scroll along with fresh anomaly model data input.
+    if (scrollLock) {
+      rangeMax = moment(data[modelIndex][DATA_INDEX_TIME]).valueOf();
+      rangeMin = rangeMax - rangeWidth;
       if (rangeMin < first) {
         rangeMin = first;
-        rangeMax = rangeMin + this._chartRangeWidth;
+        rangeMax = rangeMin + rangeWidth;
       }
-      this._chartRange = [rangeMin, rangeMax];
     }
 
-    this._chartBusy = true;
-    options.dateWindow = this._chartRange;
+    // update chart
+    options.dateWindow = [rangeMin, rangeMax];
     options.file = data;  // new data
+    this._previousDataSize = data.length;
     this._dygraph.updateOptions(options, blockRedraw);
-    this._chartBusy = false;
+  }
+
+  /**
+   * Overlay default Dygraphs mouseup event handler to also store the current
+   *  chart viewpoint (viewport starting UTC date stamp). This is used for
+   *  both the Main Chart and the Range Selector.
+   * @param {Object} event - DOM `mouseup` event object
+   */
+  _handleMouseUp(event) {
+    if (this._dygraph) {
+      let range = this._dygraph.xAxisRange();
+      this.context.executeAction(ChartUpdateViewpoint, {
+        metricId: this.props.metaData.model.modelId,
+        viewpoint: range[0] || null
+      });
+    }
   }
 
   /**
@@ -177,10 +195,21 @@ export default class Chart extends React.Component {
    * @return {Object} - Built React component pseudo-DOM object
    */
   render() {
+    let {model} = this.props.metaData;
+
+    if (model.aggregated) {
+      this._styles.root.marginTop = '0.66rem';
+    }
+
     return (
-      <Paper ref="chart" style={this._styles.root} zDepth={this.props.zDepth}>
-        <CircularProgress size={0.5} />
-        {this._config.get('chart:loading')}
+      <Paper
+        className="dygraph-chart"
+        ref={`chart-${model.modelId}`}
+        style={this._styles.root}
+        zDepth={this.props.zDepth}
+        >
+          <CircularProgress size={0.5} />
+          {this._config.get('chart:loading')}
       </Paper>
     );
   }

@@ -28,6 +28,7 @@ VALIDATOR.addSchema(DBModelSchema);
 
 /**
  * Fluxible Store for Model Data
+ * @see js/database/schema/Model.json
  */
 export default class ModelStore extends BaseStore {
 
@@ -46,6 +47,8 @@ export default class ModelStore extends BaseStore {
    * @listens {START_MODEL}
    * @listens {SHOW_MODEL}
    * @listens {HIDE_MODEL}
+   *
+   * @listens {ADD_MODEL_FAILED}
    * @listens {DELETE_MODEL_FAILED}
    * @listens {STOP_MODEL_FAILED}
    * @listens {START_MODEL_FAILED}
@@ -61,6 +64,7 @@ export default class ModelStore extends BaseStore {
       SHOW_MODEL: '_showModel',
       HIDE_MODEL: '_hideModel',
 
+      ADD_MODEL_FAILED: '_handleModelFailed',
       DELETE_MODEL_FAILED: '_handleModelFailed',
       STOP_MODEL_FAILED: '_handleModelFailed',
       START_MODEL_FAILED: '_handleModelFailed',
@@ -70,7 +74,6 @@ export default class ModelStore extends BaseStore {
 
   constructor(dispatcher) {
     super(dispatcher);
-
     this._models = new Map();
   }
 
@@ -189,7 +192,7 @@ export default class ModelStore extends BaseStore {
    *                             can't be found
    */
   getModel(modelId) {
-    return this._models.get(modelId);
+    return Object.assign({}, this._models.get(modelId));
   }
 
   /**
@@ -199,5 +202,4 @@ export default class ModelStore extends BaseStore {
   getModels() {
     return Array.from(this._models.values());
   }
-
 }

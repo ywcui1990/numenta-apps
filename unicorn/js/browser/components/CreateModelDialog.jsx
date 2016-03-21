@@ -18,24 +18,28 @@
 import CircularProgress from 'material-ui/lib/circular-progress';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
-import RaisedButton from 'material-ui/lib/raised-button';
+import FlatButton from 'material-ui/lib/flat-button';
 import path from 'path';
+import RaisedButton from 'material-ui/lib/raised-button';
 import React from 'react';
 
+import ChartUpdateViewpoint from '../actions/ChartUpdateViewpoint';
+import CreateModelStore from '../stores/CreateModelStore';
 import HideCreateModelDialogAction from '../actions/HideCreateModelDialog';
-import MetricStore from '../stores/MetricStore';
 import StartModelAction from '../actions/StartModel';
-import Utils from '../../main/Utils';
+import {trims} from '../../common/common-utils';
 
 
 /**
  * "Create Model" Dialog
  */
-@connectToStores([MetricStore], (context) => ({
-  fileName: context.getStore(MetricStore).fileName,
-  metricName: context.getStore(MetricStore).metricName,
-  open: context.getStore(MetricStore).open,
-  paramFinderResults: context.getStore(MetricStore).paramFinderResults
+@connectToStores([CreateModelStore], (context) => ({
+  fileName: context.getStore(CreateModelStore).fileName,
+  inputOpts: context.getStore(CreateModelStore).inputOpts,
+  metricId: context.getStore(CreateModelStore).metricId,
+  metricName: context.getStore(CreateModelStore).metricName,
+  open: context.getStore(CreateModelStore).open,
+  paramFinderResults: context.getStore(CreateModelStore).paramFinderResults
 }))
 export default class CreateModelDialog extends React.Component {
 
@@ -46,103 +50,99 @@ export default class CreateModelDialog extends React.Component {
     muiTheme: React.PropTypes.object
   };
 
-  static propTypes = {
-    initialOpenState: React.PropTypes.bool.isRequired
-  };
-
   constructor(props, context) {
     super(props, context);
     this._config = this.context.getConfigClient();
+    this.state = {progress: true};
 
-    this.state = Object.assign({}, this.props);
-
+    let muiTheme = this.context.muiTheme;
     this._styles = {
+      agg: {
+        marginRight: '1rem'
+      },
       raw: {
-        fontSize: 11
+        color: muiTheme.rawTheme.palette.accent4Color,
+        fontSize: 13,
+        fontWeight: muiTheme.rawTheme.font.weight.normal,
+        marginRight: '0.5rem',
+        textDecoration: 'underline',
+        textTransform: 'none'
       }
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.state = Object.assign({}, nextProps);
-  }
-
-  _resetState() {
-    this.setState({
-      open: false,
-      fileName: null,
-      metricName: null
+  _onClick(payload) {
+    // reset chart viewpoint so we can scroll with new data again
+    this.context.executeAction(ChartUpdateViewpoint, {
+      metricId: payload.metricId,
+      viewpoint: null
     });
+
+    this.context.executeAction(HideCreateModelDialogAction);
+    this.context.executeAction(StartModelAction, payload);
   }
 
-  _onClick(modelPayload) {
-    this.context.executeAction(HideCreateModelDialogAction);
-    this.context.executeAction(StartModelAction, modelPayload);
-    this._resetState()
+  componentDidMount() {
+    // Show progress for at least 3 secs
+    setTimeout(() => this.setState({progress: false}), 3000);
   }
 
   render() {
+    let {
+      fileName, inputOpts, metricId, metricName, paramFinderResults
+    } = this.props;
     let body = null;
     let actions = [];
-    let title = Utils.trims`Create model for ${this.state.metricName}
-                  (${path.basename(this.state.fileName)})`;
+    let title = trims`Create model for ${metricName}
+                  (${path.basename(fileName)})`;
 
-    if (this.state.fileName && this.state.metricName) {
-      let metricStore = this.context.getStore(MetricStore);
-      let metrics = metricStore.getMetrics();
-      let metricId = null;
-      for (let metric of metrics.values()) {
-        if (metric.name === this.state.metricName) {
-          metricId = metric.uid;
-        }
-      }
+    if (paramFinderResults && !this.state.progress) {
+      let rawPayload = {
+        metricId,
+        inputOpts,
+        modelOpts: paramFinderResults.modelInfo,
+        aggOpts: {}
+      };
+      let aggregatePayload = Object.assign({}, rawPayload, {
+        aggOpts: paramFinderResults.aggInfo
+      });
 
-      let inputOpts = metricStore.getInputOpts(metricId);
-      let paramFinderResults = metricStore.getParamFinderResults(metricId);
-      if (paramFinderResults) {
-        let rawPayload = {
-          metricId,
-          inputOpts,
-          modelOpts: paramFinderResults.modelInfo,
-          aggOpts: {}
-        };
-        let aggregatePayload = Object.assign({}, rawPayload, {
-          aggOpts: paramFinderResults.aggInfo
-        });
+      body = (
+        <div>
+          We determined that you will get the best results if we aggregate
+          your data to {paramFinderResults.aggInfo.windowSize} seconds
+          intervals.
+        </div>
+      );
 
-        body = Utils.trims`We determined that you will get the best results if
-                we aggregate your data to
-                ${paramFinderResults.aggInfo.windowSize} seconds intervals.`;
-
-        actions.push(
-          <RaisedButton
-            label={this._config.get('button:okay')}
-            onTouchTap={this._onClick.bind(this, aggregatePayload)}
-            primary={true}
-            />
-        );
-        actions.push(
-          <a href="#"
-            onClick={this._onClick.bind(this, rawPayload)}
-            styles={this._styles.raw}
-            >
-              {this._config.get('dialog:model:create:raw')}
-          </a>
-        );
-      } else {
-        body = (
-          <div>
-            <CircularProgress size={0.5} />
-            {this._config.get('dialog:model:create:loading')}
-          </div>
-        );
-      }
+      actions.push(
+        <RaisedButton
+          label={this._config.get('button:okay')}
+          onTouchTap={this._onClick.bind(this, aggregatePayload)}
+          primary={true}
+          style={this._styles.agg}
+          />
+      );
+      actions.push(
+        <FlatButton
+          label={this._config.get('dialog:model:create:raw')}
+          onTouchTap={this._onClick.bind(this, rawPayload)}
+          labelStyle={this._styles.raw}
+          />
+      );
+    } else {
+      body = (
+        <div>
+          <CircularProgress size={0.5} />
+          {this._config.get('dialog:model:create:loading')}
+        </div>
+      );
     }
+
     return (
-      <Dialog actions={actions} open={this.state.open} title={title}>
+      <Dialog actions={actions} open={this.props.open} title={title}>
         {body}
       </Dialog>
     );
   }
-
 }

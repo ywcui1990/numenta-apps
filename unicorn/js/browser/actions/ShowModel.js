@@ -30,9 +30,10 @@ import LoadMetricDataAction from './LoadMetricData';
  * @returns {Promise} - A Promise to be resolved with return value
  */
 export default function (actionContext, modelId) {
-  actionContext.dispatch(ACTIONS.SHOW_MODEL, modelId);
   return Promise.all([
     actionContext.executeAction(LoadModelDataAction, modelId),
     actionContext.executeAction(LoadMetricDataAction, modelId)
-  ]);
+  ]).then(() => {
+    actionContext.dispatch(ACTIONS.SHOW_MODEL, modelId);
+  });
 }
