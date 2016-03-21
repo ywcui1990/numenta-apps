@@ -28,6 +28,7 @@
 import bunyan from 'bunyan';
 import Fluxible from 'fluxible';
 import FluxibleReact from 'fluxible-addons-react';
+import batchedUpdatePlugin from 'fluxible-addons-react/batchedUpdatePlugin';
 import ReactDOM from 'react-dom';
 import remote from 'remote';
 import tapEventInject from 'react-tap-event-plugin';
@@ -85,6 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
       MetricStore, ModelDataStore, ModelStore
     ]
   });
+
+  // Plug batchedUpdatePlugin
+  app.plug(batchedUpdatePlugin);
 
   // Plug HTMStudio plugin giving access to HTMStudio clients
   app.plug(HTMStudioPlugin);

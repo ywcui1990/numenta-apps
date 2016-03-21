@@ -34,6 +34,8 @@ export default class ModelClient {
 
   constructor() {
     this._context = null;
+    this._lastActionEvent = 0;
+    this._dataBuffer = new Map();
   }
 
   start(actionContext) {
@@ -96,7 +98,26 @@ export default class ModelClient {
         error: `Error closing model ${error}`
       });
     } else {
+      // Flush model data
+      this._flush(modelId);
+      // Stop model
       this._context.executeAction(StopModelAction, modelId);
+    }
+  }
+
+  _flush(modelId) {
+    if (modelId) {
+      if (this._dataBuffer.has(modelId)) {
+        let data = this._dataBuffer.get(modelId);
+        this._dataBuffer.delete(modelId);
+        this._context.executeAction(ReceiveModelDataAction, {modelId, data});
+      }
+    } else {
+      // Flush all pending data
+      for (let [modelId, data] of this._dataBuffer) {
+        this._context.executeAction(ReceiveModelDataAction, {modelId, data});
+      }
+      this._dataBuffer.clear();
     }
   }
 
@@ -107,7 +128,18 @@ export default class ModelClient {
         return  JSON.parse(row);
       }
     });
-    this._context.executeAction(ReceiveModelDataAction, {modelId, data});
-  }
 
+    // Add data to buffer
+    if (!this._dataBuffer.has(modelId)) {
+      this._dataBuffer.set(modelId, []);
+    }
+    this._dataBuffer.get(modelId).push(...data);
+
+    // Flush data every 100ms
+    let now = Date.now();
+    if (now > this._lastActionEvent + 100) {
+      this._lastActionEvent = now;
+      this._flush();
+    }
+  }
 }
