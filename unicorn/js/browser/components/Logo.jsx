@@ -51,14 +51,15 @@ export default class Logo extends React.Component {
       avatar: {
         backgroundColor: 'none',
         border: 0,
-        borderRadius: 'none'
+        borderRadius: 'none',
+        marginLeft: -5
       },
       title: {
         fontSize: '160%',
         fontWeight: muiTheme.rawTheme.font.weight.light,
         letterSpacing: '0.33px',
         position: 'relative',
-        left: '0.666rem',
+        left: '0.8rem',
         top: '-5px'
       },
       titleStrong: {
