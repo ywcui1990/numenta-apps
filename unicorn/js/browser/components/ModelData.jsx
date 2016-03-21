@@ -93,7 +93,8 @@ export default class ModelData extends React.Component {
         axes: {
           x: {drawGrid: false},
           y: {
-            axisLabelWidth: 0,
+            axisLabelOverflow: true,
+            axisLabelWidth: 20,
             drawGrid: false,
             ticker: this._valueTicker.bind(this)
           }
@@ -180,7 +181,7 @@ export default class ModelData extends React.Component {
    * @see node_modules/dygraphs/dygraph-tickers.js
    */
   _valueTicker(fromValue, toValue, pixels, opts, dygraph, vals) {
-    const NUMBER_OF_Y_LABELS = 3;
+    const NUMBER_OF_Y_LABELS = 4;
     let ticks = [];
     let interval = (toValue - fromValue) / NUMBER_OF_Y_LABELS;
     let decimals = 0;
