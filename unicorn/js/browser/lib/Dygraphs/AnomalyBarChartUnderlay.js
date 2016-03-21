@@ -19,6 +19,7 @@ import RGBColor from 'rgbcolor';
 
 import {DATA_FIELD_INDEX} from '../Constants';
 import {mapAnomalyColor} from '../../lib/browser-utils';
+import {anomalyScale} from '../../../common/common-utils';
 
 const {DATA_INDEX_TIME, DATA_INDEX_ANOMALY} = DATA_FIELD_INDEX;
 
@@ -55,10 +56,9 @@ function _drawRectangle(canvas, xStart, yStart, width, height, color) {
 export default function (context, canvas, area, dygraph) {
   let modelData = dygraph.getOption('modelData') || [];
   let xAxisRange = dygraph.xAxisRange();
-  let anomalyMax = context._anomalyValueHeight;
   let barWidth = context._anomalyBarWidth;
   let safeColor = context.context.muiTheme.rawTheme.palette.safeColor;
-  let yFactor = Math.round(area.h / anomalyMax);
+  let height = area.h;
   let halfBarWidth = Math.ceil(barWidth / 2);
 
   if (!(modelData.length)) {
@@ -78,13 +78,14 @@ export default function (context, canvas, area, dygraph) {
       x = Math.round(dygraph.toDomXCoord(time) - halfBarWidth);
 
       // draw: every point has small green marker "bar" by default
-      _drawRectangle(canvas, x, area.h - 1, barWidth, -2, safeColor);
+      _drawRectangle(canvas, x, height - 1, barWidth, -2, safeColor);
 
       if (isFinite(x) && (value >= 0)) {
         // draw: real anomaly bar
-        y = 0 - Math.round(value * yFactor) || NaN;
-        color = mapAnomalyColor(value, anomalyMax);
-        _drawRectangle(canvas, x, area.h - 1, barWidth, y, color);
+        let barHeight = Math.round(anomalyScale(value) * height);
+        y = 0 - barHeight;
+        color = mapAnomalyColor(value);
+        _drawRectangle(canvas, x, height - 1, barWidth, y, color);
       }
     }(index));  // help data survive loop closure
   }  // for loop modelData
