@@ -152,7 +152,8 @@ export default class MetricStore extends BaseStore {
    *  (1 January 1970 00:00:00 UTC), example = 1458342717816. JS Null if unused.
    *  This value ends up in Dygraphs as the start value of the range viewfinder
    *  coordinate [begin, end] pair, which leads to the visible Chart section.
-   *  This store updater does not emit changes!
+   *  This store updater does not emit changes, as we want to keep this value
+   *  for the future, but not trigger a UI re-render (already did).
    * @param {Object} payload - Data payload to use
    * @param {String} payload.metricId - ID of Metric to operate on
    * @param {Number} payload.viewpoint - Number timestamp, Miliseconds since
@@ -166,7 +167,8 @@ export default class MetricStore extends BaseStore {
     let metric = this._metrics.get(metricId);
     if (metric) {
       metric.viewpoint = viewpoint;
-      // no change emit!
+      // No change emit - only store value, do not cause UI to re-render.
+      //  The UI just gave us this value, UI does not need any updating now.
     }
   }
 }
