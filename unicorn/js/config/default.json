@@ -53,9 +53,7 @@
   },
   "heading": {
     "data": {
-      "empty": "You have not added any data yet.",
-      "sample": "Sample Data",
-      "user": "Your Data"
+      "sample": "Sample Data"
     },
     "chart": {
       "empty": "Select a metric from the left menu."

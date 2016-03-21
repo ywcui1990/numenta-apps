@@ -67,9 +67,8 @@ export default class Main extends React.Component {
     this._styles = {
       root: {},
       add: {
-        float: 'right',
-        marginRight: '0.75rem',
-        marginTop: '0.75rem'
+        marginLeft: '1rem',
+        marginTop: '1rem'
       },
       addLabel: {
         fontWeight: 400
