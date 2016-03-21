@@ -107,6 +107,18 @@ export default class Chart extends React.Component {
     }
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    let modelIndex = Math.abs(this.props.metaData.model.dataSize - 1);
+    let nextIndex = Math.abs(nextProps.metaData.model.dataSize - 1);
+
+    // If new model data for chart: destroy, and it will re-create itself fresh.
+    //  Dygraphs has a hard time restting to a new timeseries, so we cause a
+    //  hard reset here.
+    if (nextIndex < modelIndex) {
+      this.componentWillUnmount();
+    }
+  }
+
   /**
    * DyGrpahs Chart Initalize and Render
    */
@@ -145,12 +157,6 @@ export default class Chart extends React.Component {
     let rangeWidth = rangeMax - rangeMin;
     let blockRedraw = modelIndex % 2 === 0; // filter out some redrawing
     let scrollLock = false;
-
-    // If new aggregated data chart: destroy, and it will re-create itself fresh
-    if (model.aggregated && modelIndex === 1) {
-      this.componentWillUnmount();
-      return;
-    }
 
     // should we scroll along with incoming model data?
     if (model.active && modelIndex < data.length) {
