@@ -27,6 +27,7 @@ import Colors from 'material-ui/lib/styles/colors';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
+import RaisedButton from 'material-ui/lib/raised-button';
 import React from 'react';
 import {remote} from 'electron';
 
@@ -116,7 +117,7 @@ export default class Model extends React.Component {
           color: muiTheme.rawTheme.palette.textColor
         },
         anomaly: {
-          verticalAlign: 'bottom'
+          verticalAlign: 'top'
         }
       },
       showNonAgg: {
@@ -186,8 +187,7 @@ export default class Model extends React.Component {
         label={this._config.get('button:cancel')}
         onTouchTap={this._dismissModalDialog.bind(this)}
         />,
-      <FlatButton
-        keyboardFocused={true}
+      <RaisedButton
         label={this._config.get('button:delete')}
         onTouchTap={() => {
           // reset chart viewpoint so we can start fresh on next chart re-create
@@ -279,6 +279,16 @@ export default class Model extends React.Component {
     );
   }
 
+  _showModelSummaryDialog() {
+    let actions = [<RaisedButton
+                      label={this._config.get('button:okay')}
+                      onTouchTap={this._dismissModalDialog.bind(this)}
+                      primary={true}/>
+                  ];
+    let body = this._renderModelSummaryDialog();
+    let title = this._config.get('dialog:summary:title');
+    this._showModalDialog(title, body, actions);
+  }
   /**
    * Toggle showing a 3rd series of Raw Metric Data over top of the
    *  already-charted 2-Series Model results (Aggregated Metric and Anomaly).
@@ -293,21 +303,13 @@ export default class Model extends React.Component {
     let newModel = nextProps.model;
     let oldModel = this.props.model;
     if (oldModel.active  && !newModel.active) {
-      let actions = [<FlatButton
-                        keyboardFocused={true}
-                        label={this._config.get('button:okay')}
-                        onTouchTap={this._dismissModalDialog.bind(this)}
-                        primary={true}/>
-                    ];
-      let body = this._renderModelSummaryDialog();
-      this._showModalDialog('Anomaly results summary', body, actions)
+      this._showModelSummaryDialog();
     }
   }
 
   render() {
     let {model, file, valueField, timestampField} = this.props;
     let title = model.metric;
-    let hasModelRun = (model && ('ran' in model) && model.ran);
 
     // prep UI
     let muiTheme = this.context.muiTheme;
@@ -322,7 +324,7 @@ export default class Model extends React.Component {
     actions = (
       <CardActions style={this._styles.actions}>
         <FlatButton
-          disabled={hasModelRun}
+          disabled={model.ran || model.active}
           label={this._config.get('button:model:create')}
           labelPosition="after"
           labelStyle={this._styles.actionLabels}
@@ -330,23 +332,30 @@ export default class Model extends React.Component {
             this._createModel.bind(this, model, file, valueField,
               timestampField)
           }
-          primary={!hasModelRun}
+          primary={!model.ran}
           />
         <FlatButton
-          disabled={!hasModelRun}
-          label={this._config.get('button:model:delete')}
+          disabled={!model.ran || model.active}
+          label={this._config.get('button:model:summary')}
           labelPosition="after"
           labelStyle={this._styles.actionLabels}
-          onTouchTap={this._deleteModel.bind(this, model.modelId)}
-          primary={hasModelRun}
+          onTouchTap={this._showModelSummaryDialog.bind(this)}
+          primary={model.ran}
           />
         <FlatButton
-          disabled={!hasModelRun}
+          disabled={!model.ran || model.active}
           label={this._config.get('button:model:export')}
           labelPosition="after"
           labelStyle={this._styles.actionLabels}
           onTouchTap={this._exportModelResults.bind(this, model.modelId)}
-          primary={hasModelRun}
+          primary={model.ran}
+          />
+        <FlatButton
+          disabled={!model.ran || model.active}
+          label={this._config.get('button:model:delete')}
+          labelPosition="after"
+          onTouchTap={this._deleteModel.bind(this, model.modelId)}
+          primary={model.ran}
           />
       </CardActions>
     );
