@@ -15,9 +15,10 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "model": {
-      "create": "Create Model",
-      "delete": "Delete Model",
-      "export": "Export Results"
+      "create": "Find anomalies",
+      "delete": "Delete results",
+      "export": "Export results",
+      "summary": "Results summary"
     },
     "okay": "OK"
   },
@@ -34,6 +35,9 @@
       "delete": {
         "title": "Delete File",
         "message": "Deleting this dataset will delete the associated models. Are you sure you want to delete this file?"
+      },
+      "summary": {
+        "title": "Anomaly results summary"
       }
     },
     "model": {
@@ -42,7 +46,7 @@
         "raw": "No, please use original data."
       },
       "delete": {
-        "title": "Delete Model",
+        "title": "Delete Model Results",
         "message": "Deleting this model will delete the associated model results. Are you sure you want to delete this model?"
       },
       "export": {
@@ -53,9 +57,7 @@
   },
   "heading": {
     "data": {
-      "empty": "You have not added any data yet.",
-      "sample": "Sample Data",
-      "user": "Your Data"
+      "sample": "Sample Data"
     },
     "chart": {
       "empty": "Select a metric from the left menu."

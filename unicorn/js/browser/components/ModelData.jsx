@@ -28,7 +28,9 @@ import ModelStore from '../stores/ModelStore';
 import ModelDataStore from '../stores/ModelDataStore';
 import RangeSelectorBarChart from '../lib/Dygraphs/RangeSelectorBarChartPlugin';
 
-const {DATA_INDEX_TIME, DATA_INDEX_VALUE} = DATA_FIELD_INDEX;
+const {
+  DATA_INDEX_TIME, DATA_INDEX_VALUE, DATA_INDEX_ANOMALY
+} = DATA_FIELD_INDEX;
 
 
 /**
@@ -224,22 +226,28 @@ export default class ModelData extends React.Component {
     let {metric, metricData, model, modelData, showNonAgg} = this.props;
     let {options, raw, value} = this._chartOptions;
     let {axes, labels, series} = value;
-    let metaData = {metric, model};
+    let metaData = {metric, model, min: -Infinity, max: Infinity};
     let data = [];  // actual matrix of data to plot w/dygraphs
+    let values = [];  // used to find chart value min/max to lock Y-axis
 
     // 1. Raw metric data on Series 1
     if (metricData.length) {
       data = Array.from(metricData);
       metaData.metric.dataSize = metricData.length;
+      values = data.map((item) => item[DATA_INDEX_VALUE]);
     }
     // 2. Model anomaly data on Underlay
     if (modelData.data.length) {
       options.modelData = modelData.data;
       metaData.model.dataSize = modelData.data.length;
+      values = modelData.data.map((item) => item[DATA_INDEX_VALUE])
+                .concat(values);
 
       // 2a. Aggregated Model metric data on Series 1
       if (model.aggregated) {
-        data = Array.from(modelData.data).map((item) => item.slice(0, 2));
+        data = Array.from(modelData.data).map((item) => {
+          return item.slice(DATA_INDEX_TIME, DATA_INDEX_ANOMALY);
+        });
       }
     }
     // 3. Overlay: Aggregated on Series 1. Raw on Series 2.
@@ -252,6 +260,10 @@ export default class ModelData extends React.Component {
       Object.assign(axes, raw.axes);
       Object.assign(series, raw.series);
     }
+
+    // find Y value min+max for locking chart Y-axis in place
+    metaData.min = Math.min(...values);
+    metaData.max = Math.max(...values);
 
     // RENDER
     Object.assign(options, {axes, labels, series});
