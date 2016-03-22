@@ -117,18 +117,18 @@ export default class CreateModelDialog extends React.Component {
         );
 
         actions.push(
+          <FlatButton
+            label={this._config.get('dialog:model:create:raw')}
+            onTouchTap={this._startModel.bind(this, rawPayload)}
+            labelStyle={this._styles.raw}
+            />
+        );
+        actions.push(
           <RaisedButton
             label={this._config.get('button:okay')}
             onTouchTap={this._startModel.bind(this, aggregatePayload)}
             primary={true}
             style={this._styles.agg}
-            />
-        );
-        actions.push(
-          <FlatButton
-            label={this._config.get('dialog:model:create:raw')}
-            onTouchTap={this._startModel.bind(this, rawPayload)}
-            labelStyle={this._styles.raw}
             />
         );
       } else {
