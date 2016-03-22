@@ -286,7 +286,7 @@ export default class Model extends React.Component {
                       primary={true}/>
                   ];
     let body = this._renderModelSummaryDialog();
-    let title = this._config.get('dialog:summary:title');
+    let title = this._config.get('dialog:model:summary:title');
     this._showModalDialog(title, body, actions);
   }
   /**
