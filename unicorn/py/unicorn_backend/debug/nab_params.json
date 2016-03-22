@@ -32,7 +32,7 @@
             "type": "DateEncoder",
             "timeOfDay": [
               21,
-              9.49
+              9.49122334747737
             ],
             "fieldname": "c0",
             "name": "c0_timeOfDay"
@@ -56,8 +56,8 @@
         "spatialImp": "cpp",
         "inputWidth": 0,
         "spVerbosity": 0,
-        "synPermConnected": 0.2,
-        "synPermActiveInc": 0.003,
+        "synPermConnected": 0.1,
+        "synPermActiveInc": 0.0015,
         "potentialPct": 0.8,
         "numActiveColumnsPerInhArea": 40,
         "globalInhibition": 1,
