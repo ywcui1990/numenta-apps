@@ -69,12 +69,13 @@ export default class Main extends React.Component {
     this._styles = {
       root: {},
       add: {
-        marginLeft: '1rem',
-        marginTop: '1rem'
+        marginLeft: '1.1rem',
+        marginTop: '1.1rem',
+        minWidth: '45%'  // add button more wide
       },
       addLabel: {
         fontSize: 13,
-        fontWeight: muiTheme.rawTheme.font.weight.normal
+        fontWeight: muiTheme.rawTheme.font.weight.medium
       },
       models: {
         marginLeft: 256,
