@@ -35,9 +35,6 @@
       "delete": {
         "title": "Delete File",
         "message": "Deleting this dataset will delete the associated models. Are you sure you want to delete this file?"
-      },
-      "summary": {
-        "title": "Anomaly results summary"
       }
     },
     "model": {
@@ -52,6 +49,9 @@
       "export": {
         "title": "Export Model Results",
         "path": "Untitled.csv"
+      },
+      "summary": {
+        "title": "Anomaly results summary"
       }
     }
   },
