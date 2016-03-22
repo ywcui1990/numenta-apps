@@ -21,6 +21,7 @@ import CheckboxOutline from 'material-ui/lib/svg-icons/toggle/check-box-outline-
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
+import RaisedButton from 'material-ui/lib/raised-button';
 import IconButton from 'material-ui/lib/icon-button';
 import IconClose from 'material-ui/lib/svg-icons/hardware/keyboard-arrow-down';
 import IconMenu from 'material-ui/lib/menus/icon-menu';
@@ -336,9 +337,8 @@ export default class FileList extends React.Component {
         label={this._config.get('button:cancel')}
         onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
         />,
-      <FlatButton
+      <RaisedButton
         label={this._config.get('button:delete')}
-        keyboardFocused={true}
         onTouchTap={deleteConfirmDialog.callback}
         primary={true}
         ref="submit"
