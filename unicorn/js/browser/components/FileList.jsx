@@ -16,10 +16,12 @@
 // http://numenta.org/licenses/
 
 import Checkbox from 'material-ui/lib/checkbox';
+import CheckboxIcon from 'material-ui/lib/svg-icons/toggle/check-box';
 import CheckboxOutline from 'material-ui/lib/svg-icons/toggle/check-box-outline-blank';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
+import RaisedButton from 'material-ui/lib/raised-button';
 import IconButton from 'material-ui/lib/icon-button';
 import IconClose from 'material-ui/lib/svg-icons/hardware/keyboard-arrow-down';
 import IconMenu from 'material-ui/lib/menus/icon-menu';
@@ -64,9 +66,8 @@ export default class FileList extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-
-    let showNested = {};
     let muiTheme = this.context.muiTheme;
+    let showNested = {};
 
     this._config = this.context.getConfigClient();
 
@@ -85,11 +86,14 @@ export default class FileList extends React.Component {
       root: {
         paddingTop: '0.5rem'
       },
-      list: {
+      subhead: {
         color: muiTheme.rawTheme.palette.accent3Color,
+        fontSize: 13,
         fontWeight: muiTheme.rawTheme.font.weight.normal
       },
       file: {
+        fontSize: 14,
+        fontWeight: muiTheme.rawTheme.font.weight.medium,
         marginLeft: '-1.4rem',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -103,16 +107,17 @@ export default class FileList extends React.Component {
         width: 40
       },
       metric: {
-        marginLeft: '-1.4rem',
+        fontSize: 14,
+        fontWeight: muiTheme.rawTheme.font.weight.medium,
+        marginLeft: '-1.9rem',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         textTransform: 'capitalize',
         whiteSpace: 'nowrap'
       },
-      empty: {
-        color: muiTheme.rawTheme.palette.primary2Color,
-        fontSize: '82.5%',
-        marginLeft: 3
+      checkbox: {
+        left: 12,
+        top: 14
       },
       status: {
         height: 12,
@@ -225,6 +230,12 @@ export default class FileList extends React.Component {
               leftCheckbox={
                 <Checkbox
                   checked={isModelVisible}
+                  checkedIcon={
+                    <CheckboxIcon
+                      color={checkboxColor}
+                      viewBox="0 0 30 30"
+                      />
+                  }
                   onCheck={
                     this._onMetricCheck.bind(
                       this,
@@ -234,7 +245,13 @@ export default class FileList extends React.Component {
                       metric.name
                     )
                   }
-                  unCheckedIcon={<CheckboxOutline color={checkboxColor} />}
+                  style={this._styles.checkbox}
+                  unCheckedIcon={
+                    <CheckboxOutline
+                      color={checkboxColor}
+                      viewBox="0 0 30 30"
+                      />
+                  }
                   />
               }
               primaryText={
@@ -251,18 +268,7 @@ export default class FileList extends React.Component {
   }
 
   _renderFiles(filetype) {
-    let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
-    let uploadCount = uploaded.length || 0;
-    let emptyMessage = this._config.get('heading:data:empty');
-
-    if ((filetype === 'uploaded') && (uploadCount <= 0)) {
-      return (
-        <ListItem
-          initiallyOpen={true}
-          primaryText={<div style={this._styles.empty}>{emptyMessage}</div>}
-          />
-      );
-    }
+    let isInitiallyOpen = filetype === 'uploaded';
 
     return this.props.files.map((file) => {
       if (file.type === filetype) {
@@ -306,9 +312,10 @@ export default class FileList extends React.Component {
 
         return (
           <ListItem
-            initiallyOpen={true}
+            initiallyOpen={isInitiallyOpen}
             key={file.name}
             leftIcon={leftIconButton}
+            disabled={true}
             nestedItems={this._renderMetrics(file)}
             primaryText={<div style={this._styles.file}>{file.name}</div>}
             ref={`file-toggle-${fileId}`}
@@ -320,43 +327,43 @@ export default class FileList extends React.Component {
   }
 
   render() {
+    let uploaded = this.props.files.filter((file) => file.type === 'uploaded');
+    let uploadCount = uploaded.length || 0;
     let deleteConfirmDialog = this.state.deleteConfirmDialog || {};
     let dialogOpen = this.state.deleteConfirmDialog !== null;
+    let sampleAttrs = {key: 'sample'};
     let dialogActions = [
       <FlatButton
         label={this._config.get('button:cancel')}
         onTouchTap={this._dismissDeleteConfirmDialog.bind(this)}
         />,
-      <FlatButton
+      <RaisedButton
         label={this._config.get('button:delete')}
-        keyboardFocused={true}
         onTouchTap={deleteConfirmDialog.callback}
         primary={true}
         ref="submit"
         />
     ];
     let userFiles = (
-      <List
-        key="uploaded"
-        subheader={this._config.get('heading:data:user')}
-        subheaderStyle={this._styles.list}
-        >
-          {this._renderFiles('uploaded')}
+      <List key="uploaded">
+        {this._renderFiles('uploaded')}
       </List>
     );
-    let sampleFiles = (
-      <List
-        key="sample"
-        subheader={this._config.get('heading:data:sample')}
-        subheaderStyle={this._styles.list}
-        >
-          {this._renderFiles('sample')}
+    let filesList, sampleFiles;
+
+    if (uploadCount > 0) {
+      sampleAttrs.subheader = this._config.get('heading:data:sample');
+      sampleAttrs.subheaderStyle = this._styles.subhead;
+    }
+    sampleFiles = (
+      <List {...sampleAttrs}>
+        {this._renderFiles('sample')}
       </List>
     );
-    let filesList = [userFiles, sampleFiles];
+    filesList = [userFiles, sampleFiles];
 
     return (
-      <nav style={this._styles.root}>
+      <nav>
         {filesList}
         <Dialog
           actions={dialogActions}

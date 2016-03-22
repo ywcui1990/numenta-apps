@@ -29,7 +29,11 @@ Implements param finder, which automatically
 """
 
 import datetime
+import json
 import numpy
+import os
+
+from pkg_resources import resource_stream
 
 from nupic.frameworks.opf.common_models.cluster_params import (
   getScalarMetricWithTimeOfDayAnomalyParams)
@@ -294,14 +298,35 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
 
   @return (dict) A dictionary of model parameters
   """
-  modelParams = getScalarMetricWithTimeOfDayAnomalyParams(metricData=values)
+
+  # Get params in the same fashion as NAB, setting the RDSE resolution
+  inputMin = numpy.min(values)
+  inputMax = numpy.max(values)
+  rangePadding = abs(inputMax - inputMin) * 0.2
+  modelParams = getScalarMetricWithTimeOfDayAnomalyParams(
+    metricData=[0],
+    minVal=inputMin - rangePadding,
+    maxVal=inputMax + rangePadding,
+    minResolution=0.001
+  )
+
+  # FIXME: remove this once NAB params are released in NuPIC  
+
+  # Keep the resolution and replace the model params by the up=to=date NAB ones
+  resolution = modelParams["modelConfig"]["modelParams"]["sensorParams"] \
+    ["encoders"]["c1"]["resolution"]
+
+  paramFileRelativePath = os.path.join("debug", "nab_params.json")
+  with resource_stream(__name__, paramFileRelativePath) as infile:
+    modelParams = json.load(infile)
+  # end FIXME.
 
   if useTimeOfDay:
     modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
       ["c0_timeOfDay"] = dict(fieldname="c0",
                               name="c0",
                               type="DateEncoder",
-                              timeOfDay=(21, 9))
+                              timeOfDay=(21, 9.49))
   else:
     modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
       ["c0_timeOfDay"] = None
@@ -318,6 +343,14 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
 
   modelParams["timestampFieldName"] = "c0"
   modelParams["valueFieldName"] = "c1"
+
+  # FIXME: remove this once NAB params are released in NuPIC  
+  modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
+    ["c0_dayOfWeek"] = None
+  modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"]["c1"][
+    "resolution"] = resolution
+  # end FIXME.
+
   return modelParams
 
 
@@ -512,7 +545,7 @@ def _determineEncoderTypes(cwtVar, timeScale):
     nearestLocalMinValue = numpy.max(leftLocalMinValue, rightLocalMinValue)
 
     if ((localMaxValue - nearestLocalMinValue) / localMaxValue > 0.1 and
-        localMaxValue > baselineValue):
+            localMaxValue > baselineValue):
       strongLocalMax.append(localMax[i])
 
       if (timeScale[leftLocalMin] < dayPeriod < timeScale[rightLocalMin]
