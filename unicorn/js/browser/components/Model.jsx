@@ -20,6 +20,7 @@ import CardActions from 'material-ui/lib/card/card-actions';
 import CardHeader from 'material-ui/lib/card/card-header';
 import CardText from 'material-ui/lib/card/card-text';
 import Checkbox from 'material-ui/lib/checkbox';
+import CheckboxIcon from 'material-ui/lib/svg-icons/toggle/check-box';
 import CheckboxOutline from 'material-ui/lib/svg-icons/toggle/check-box-outline-blank';
 import StopIcon from 'material-ui/lib/svg-icons/av/stop';
 import Colors from 'material-ui/lib/styles/colors';
@@ -104,9 +105,12 @@ export default class Model extends React.Component {
         width: '13rem'
       },
       actions: {
-        textAlign: 'right',
         marginRight: 0,
-        marginTop: '-5.5rem'
+        marginTop: '-5.5rem',
+        textAlign: 'right'
+      },
+      actionLabels: {
+        fontSize: 13
       },
       summary: {
         text: {
@@ -119,16 +123,18 @@ export default class Model extends React.Component {
       showNonAgg: {
         root: {
           float: 'right',
-          marginRight: '-2.5rem',
+          marginRight: '-3.666rem',
+          top: -5,
           width: '15rem'
         },
         checkbox: {
-          marginRight: 7
+          marginRight: 2,
+          top: 1
         },
         label: {
           color: muiTheme.rawTheme.palette.primary1Color,
-          fontSize: 13,
-          fontWeight: muiTheme.rawTheme.font.weight.normal
+          fontSize: 12,
+          fontWeight: muiTheme.rawTheme.font.weight.light
         }
       }
     };
@@ -321,6 +327,7 @@ export default class Model extends React.Component {
           disabled={model.ran || model.active}
           label={this._config.get('button:model:create')}
           labelPosition="after"
+          labelStyle={this._styles.actionLabels}
           onTouchTap={
             this._createModel.bind(this, model, file, valueField,
               timestampField)
@@ -331,6 +338,7 @@ export default class Model extends React.Component {
           disabled={!model.ran || model.active}
           label={this._config.get('button:model:summary')}
           labelPosition="after"
+          labelStyle={this._styles.actionLabels}
           onTouchTap={this._showModelSummaryDialog.bind(this)}
           primary={model.ran}
           />
@@ -338,6 +346,7 @@ export default class Model extends React.Component {
           disabled={!model.ran || model.active}
           label={this._config.get('button:model:export')}
           labelPosition="after"
+          labelStyle={this._styles.actionLabels}
           onTouchTap={this._exportModelResults.bind(this, model.modelId)}
           primary={model.ran}
           />
@@ -354,13 +363,18 @@ export default class Model extends React.Component {
       showNonAggAction = (
         <Checkbox
           checked={showNonAgg}
+          checkedIcon={
+            <CheckboxIcon color={checkboxColor} viewBox="0 0 30 30" />
+          }
           defaultChecked={false}
           iconStyle={this._styles.showNonAgg.checkbox}
           label={this._config.get('chart:showNonAgg')}
           labelStyle={this._styles.showNonAgg.label}
           onCheck={this._toggleNonAggOverlay.bind(this)}
           style={this._styles.showNonAgg.root}
-          unCheckedIcon={<CheckboxOutline color={checkboxColor} />}
+          unCheckedIcon={
+            <CheckboxOutline color={checkboxColor} viewBox="0 0 30 30" />
+          }
           />
       );
     }

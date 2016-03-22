@@ -27,8 +27,6 @@ import {DATA_FIELD_INDEX} from '../lib/Constants';
 
 const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
 
-Dygraph.prototype.setSelection = function () {}; // short out unused method
-
 
 /**
  * Chart Widget. Wraps as a React Component.
@@ -132,12 +130,13 @@ export default class Chart extends React.Component {
       chartRange = [metric.viewpoint, metric.viewpoint + rangeWidth];
     }
 
-    // init chart
-    options.dateWindow = chartRange;
+    // init, render, and draw chart!
     this._previousDataSize = data.length;
+    options.dateWindow = chartRange;  // update viewport of chart range selector
+    options.axes.y.valueRange = [metaData.min, metaData.max];  // lock y-axis
     this._dygraph = new Dygraph(element, data, options);
 
-    // track chart viewport position on chart/rangeselector mouseup event
+    // after: track chart viewport position on chart/rangeselector mouseup event
     Dygraph.addEvent(element, 'mouseup', this._handleMouseUp.bind(this));
   }
 
@@ -151,7 +150,6 @@ export default class Chart extends React.Component {
     let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
     let [rangeMin, rangeMax] = this._dygraph.xAxisRange();
     let rangeWidth = rangeMax - rangeMin;
-    let blockRedraw = modelIndex % 2 === 0; // filter out some redrawing
     let scrollLock = false;
 
     // should we scroll along with incoming model data?
@@ -173,7 +171,7 @@ export default class Chart extends React.Component {
     options.dateWindow = [rangeMin, rangeMax];
     options.file = data;  // new data
     this._previousDataSize = data.length;
-    this._dygraph.updateOptions(options, blockRedraw);
+    this._dygraph.updateOptions(options);
   }
 
   /**
