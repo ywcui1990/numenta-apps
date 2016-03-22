@@ -20,6 +20,7 @@ import CardActions from 'material-ui/lib/card/card-actions';
 import CardHeader from 'material-ui/lib/card/card-header';
 import CardText from 'material-ui/lib/card/card-text';
 import Checkbox from 'material-ui/lib/checkbox';
+import CheckboxIcon from 'material-ui/lib/svg-icons/toggle/check-box';
 import CheckboxOutline from 'material-ui/lib/svg-icons/toggle/check-box-outline-blank';
 import StopIcon from 'material-ui/lib/svg-icons/av/stop';
 import Colors from 'material-ui/lib/styles/colors';
@@ -29,12 +30,13 @@ import FlatButton from 'material-ui/lib/flat-button';
 import React from 'react';
 import {remote} from 'electron';
 
-import CreateModelDialog from '../components/CreateModelDialog'
+import ChartUpdateViewpoint from '../actions/ChartUpdateViewpoint';
+import CreateModelDialog from './CreateModelDialog'
 import DeleteModelAction from '../actions/DeleteModel';
 import ExportModelResultsAction from '../actions/ExportModelResults';
 import FileStore from '../stores/FileStore';
 import MetricStore from '../stores/MetricStore';
-import ModelData from '../components/ModelData';
+import ModelData from './ModelData';
 import ModelStore from '../stores/ModelStore';
 import ModelDataStore from '../stores/ModelDataStore';
 import ShowCreateModelDialogAction from '../actions/ShowCreateModelDialog';
@@ -102,9 +104,12 @@ export default class Model extends React.Component {
         width: '13rem'
       },
       actions: {
-        textAlign: 'right',
         marginRight: 0,
-        marginTop: '-5.5rem'
+        marginTop: '-5.5rem',
+        textAlign: 'right'
+      },
+      actionLabels: {
+        fontSize: 13
       },
       summary: {
         text: {
@@ -117,16 +122,18 @@ export default class Model extends React.Component {
       showNonAgg: {
         root: {
           float: 'right',
-          marginRight: '-2.5rem',
+          marginRight: '-3.666rem',
+          top: -5,
           width: '15rem'
         },
         checkbox: {
-          marginRight: 7
+          marginRight: 2,
+          top: 1
         },
         label: {
           color: muiTheme.rawTheme.palette.primary1Color,
-          fontSize: 13,
-          fontWeight: muiTheme.rawTheme.font.weight.normal
+          fontSize: 12,
+          fontWeight: muiTheme.rawTheme.font.weight.light
         }
       }
     };
@@ -183,6 +190,12 @@ export default class Model extends React.Component {
         keyboardFocused={true}
         label={this._config.get('button:delete')}
         onTouchTap={() => {
+          // reset chart viewpoint so we can start fresh on next chart re-create
+          this.context.executeAction(ChartUpdateViewpoint, {
+            metricId: modelId,
+            viewpoint: null
+          });
+
           this.context.executeAction(DeleteModelAction, modelId);
           this._dismissModalDialog();
         }}
@@ -312,6 +325,7 @@ export default class Model extends React.Component {
           disabled={hasModelRun}
           label={this._config.get('button:model:create')}
           labelPosition="after"
+          labelStyle={this._styles.actionLabels}
           onTouchTap={
             this._createModel.bind(this, model, file, valueField,
               timestampField)
@@ -322,6 +336,7 @@ export default class Model extends React.Component {
           disabled={!hasModelRun}
           label={this._config.get('button:model:delete')}
           labelPosition="after"
+          labelStyle={this._styles.actionLabels}
           onTouchTap={this._deleteModel.bind(this, model.modelId)}
           primary={hasModelRun}
           />
@@ -329,6 +344,7 @@ export default class Model extends React.Component {
           disabled={!hasModelRun}
           label={this._config.get('button:model:export')}
           labelPosition="after"
+          labelStyle={this._styles.actionLabels}
           onTouchTap={this._exportModelResults.bind(this, model.modelId)}
           primary={hasModelRun}
           />
@@ -338,13 +354,18 @@ export default class Model extends React.Component {
       showNonAggAction = (
         <Checkbox
           checked={showNonAgg}
+          checkedIcon={
+            <CheckboxIcon color={checkboxColor} viewBox="0 0 30 30" />
+          }
           defaultChecked={false}
           iconStyle={this._styles.showNonAgg.checkbox}
           label={this._config.get('chart:showNonAgg')}
           labelStyle={this._styles.showNonAgg.label}
           onCheck={this._toggleNonAggOverlay.bind(this)}
           style={this._styles.showNonAgg.root}
-          unCheckedIcon={<CheckboxOutline color={checkboxColor} />}
+          unCheckedIcon={
+            <CheckboxOutline color={checkboxColor} viewBox="0 0 30 30" />
+          }
           />
       );
     }

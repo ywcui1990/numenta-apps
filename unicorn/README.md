@@ -36,6 +36,7 @@ goal to demo to the user.
 ├── DEPENDENCIES.md         # Module dependency overview file
 ├── LICENSE.txt             # Dual: Commercial and AGPLv3
 ├── README.md               # This file. A project overview.
+├── coverage/               # JS Unit+Integration test coverage output (!git)
 ├── js/                     # Frontend+GUI that exposes NuPIC HTM models to User
 │   ├── assets/             # System/native-level assets, images, icons, etc.
 │   ├── browser/            # JS+HTML+CSS as GUI in electron's Renderer Process
@@ -180,7 +181,7 @@ Example of setting up development environment on Mac OS/X:
 brew install git node chromedriver
 git clone https://github.com/numenta/numenta-apps
 cd numenta-apps/unicorn
-pip install -r py/requirements.txt
+python py/setup.py install
 npm install
 unset PYTHONPATH  # force usage of our custom internal Python
 ```
@@ -259,10 +260,12 @@ Here are the `npm` scripts available via `npm run <script-name>`. Please see
   * `test:integration`: Run all JS integration tests
   * `test:unit`: Run all JS unit tests
   * `test:functional`: Run all JS functional tests
-* `test:pipeline`:Run all JS tests using pipeline options. See
+* `test:pipeline`: Run all JS tests using pipeline options. See
   [mocha.opts](tests/js/mocha.pipeline.opts)
   * `test:pipeline:integration`:  Run all JS integration tests
   * `test:pipeline:unit`: Run all JS unit tests
+* `test:coverage`: Run test coverage on all JS unit+integration tests, and
+  open reports when done in browser.
 
 ### Problems?
 
@@ -319,6 +322,16 @@ with a different set of options
 npm run test:pipeline               # pipeline all
 npm run test:pipeline:unit          # pipeline unit tests only
 npm run test:pipeline:integration   # pipeline integration tests only
+```
+
+### Test Coverage
+
+Use the following to generate JS Unit and Integration test code coverage
+results, build the reports, and open them in browser for display. Output
+data is in the untracked `./coverage/` directory.
+
+```shell
+npm run test:coverage     # run code coverage on js unit+int tests
 ```
 
 ### Common Test Problems

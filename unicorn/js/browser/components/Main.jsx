@@ -26,11 +26,11 @@ import ThemeDecorator from 'material-ui/lib/styles/theme-decorator';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
 
 import FileValidateAction from '../actions/FileValidate';
-import FileList from '../components/FileList';
-import FileDetails from '../components/FileDetails';
+import FileList from './FileList';
+import FileDetails from './FileDetails';
 import HTMStudioTheme from '../lib/MaterialUI/HTMStudioTheme';
-import LeftNav from '../components/LeftNav';
-import ModelList from '../components/ModelList';
+import LeftNav from './LeftNav';
+import ModelList from './ModelList';
 
 const app = remote.app;
 const dialog = remote.require('dialog');
@@ -55,24 +55,26 @@ export default class Main extends React.Component {
       executeAction: React.PropTypes.func.isRequired,
       getParamFinderClient: React.PropTypes.func,
       getConfigClient: React.PropTypes.func,
-      getModelClient: React.PropTypes.func
+      getModelClient: React.PropTypes.func,
+      muiTheme: React.PropTypes.object
     };
   }
 
   constructor(props, context) {
     super(props, context);
+    let muiTheme = this.context.muiTheme;
 
     this._config = this.context.getConfigClient();
 
     this._styles = {
       root: {},
       add: {
-        float: 'right',
-        marginRight: '0.75rem',
-        marginTop: '0.75rem'
+        marginLeft: '1rem',
+        marginTop: '1rem'
       },
       addLabel: {
-        fontWeight: 400
+        fontSize: 13,
+        fontWeight: muiTheme.rawTheme.font.weight.normal
       },
       models: {
         marginLeft: 256,
