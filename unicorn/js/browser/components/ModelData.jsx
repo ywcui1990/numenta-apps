@@ -21,7 +21,6 @@ import moment from 'moment';
 import React from 'react';
 
 import anomalyBarChartUnderlay from '../lib/Dygraphs/AnomalyBarChartUnderlay';
-import {anomalyScale} from '../../common/common-utils';
 import axesCustomLabelsUnderlay from '../lib/Dygraphs/AxesCustomLabelsUnderlay';
 import Chart from './Chart';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
@@ -173,7 +172,7 @@ export default class ModelData extends React.Component {
       modelData[row] &&
       modelData[row][DATA_INDEX_ANOMALY]
     ) {
-      anomaly = anomalyScale(modelData[row][DATA_INDEX_ANOMALY]);
+      anomaly = modelData[row][DATA_INDEX_ANOMALY];
       percent = Math.round(anomaly * 100);
       value = `${value} <strong>Anomaly</strong>: ${percent}%`;
     }
