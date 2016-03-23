@@ -129,8 +129,8 @@ export default class {
    */
   _drawMiniBar(context, x, height, color, stroke) {
     context.beginPath();
-    context.moveTo(x, height - 1);
-    context.lineTo(x, 2);
+    context.moveTo(x, height + 1);
+    context.lineTo(x, 3);
     context.closePath();
     this._canvas_context.lineWidth = stroke;
     this._canvas_context.strokeStyle = new RGBColor(color).toRGB();
@@ -254,22 +254,12 @@ export default class {
    */
   _resize() {
     let plotArea = this._dygraph.layout_.getPlotArea();
-    let xAxisLabelHeight;
-
-    if (this._dygraph.getOptionForAxis('drawAxis', 'x')) {
-      xAxisLabelHeight = this._getOption('xAxisHeight') || 0;
-      if (xAxisLabelHeight <= 0) {
-        xAxisLabelHeight = (this._getOption('axisLabelFontSize') *
-                            this._getOption('axisTickSize')) / 2;
-      }
-    }
     this._canvasRect = {
       x: plotArea.x,
-      y: plotArea.y + plotArea.h + xAxisLabelHeight + 3,
+      y: plotArea.y + plotArea.h + 3,
       w: plotArea.w,
       h: this._getOption('rangeSelectorHeight')
     };
-
     this._setElementRect(this._canvas, this._canvas_context, this._canvasRect);
   }
 

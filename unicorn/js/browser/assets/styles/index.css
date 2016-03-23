@@ -32,26 +32,29 @@ body {
 }
 
 
-/* DyGraphs style overrides */
+/* DyGraphs style overrides, all require !important to activate */
 
 .dygraph-chart:active {
   cursor: move !important;
 }
 
-.dygraph-axis-label {
-  color: #999 !important;
-  font-size: 12px !important;
-}
-
+.dygraph-axis-label,
+.dygraph-axis-label-x,
+.dygraph-axis-label-y,
+.dygraph-axis-label-y1,
 .dygraph-axis-label-y2 {
   display: none !important;
 }
 
 .dygraph-legend {
-  background-color: rgba(255,255,255,0.75) !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid #ccc !important;
+  box-shadow: 2px 2px 3px #999 !important;
   color: #666 !important;
   font-size: 12px !important;
-  left: 35px !important;
+  left: 15px !important;
+  padding: 5px 8px !important;
+  top: 12px !important;
   width: auto !important;
 }
 
@@ -69,6 +72,7 @@ body {
 }
 
 img.dygraph-rangesel-zoomhandle {
+  /* do not set display:none, it'll break dygraps range selector */
   cursor: move !important;
   opacity: 0 !important;
 }
