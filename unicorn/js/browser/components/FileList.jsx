@@ -28,6 +28,7 @@ import IconMenu from 'material-ui/lib/menus/icon-menu';
 import IconMore from 'material-ui/lib/svg-icons/navigation/more-vert';
 import IconOpen from 'material-ui/lib/svg-icons/hardware/keyboard-arrow-up';
 import IconStatus from 'material-ui/lib/svg-icons/image/lens';
+import IconLoading from 'material-ui/lib/svg-icons/navigation/refresh';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 import MenuItem from 'material-ui/lib/menus/menu-item';
@@ -118,6 +119,19 @@ export default class FileList extends React.Component {
       checkbox: {
         left: 12,
         top: 14
+      },
+      tooltip: {
+        margin: 0,
+        padding: 0
+      },
+      loading: {
+        animation: 'spin 1s linear infinite',
+        height: 12,
+        margin: 0,
+        marginRight: '0.5rem',
+        verticalAlign: 'top',
+        padding: 0,
+        width: 12
       },
       status: {
         height: 12,
@@ -213,15 +227,36 @@ export default class FileList extends React.Component {
           let model = models.find((m) => m.modelId === modelId);
           let isModelVisible = false;
           let checkboxColor = muiTheme.rawTheme.palette.primary1Color;
-          let statusColor = muiTheme.rawTheme.palette.disabledColor;
+          let statusColor, statusIcon, statusTooltip;
 
           if (model) {
             if (model.visible) {
               isModelVisible = true;
             }
-            if (model.ran) {
+            if (model.active) {
+              statusTooltip = this._config.get('status:model:active');
               statusColor = muiTheme.rawTheme.palette.primary2Color;
+              statusIcon = (
+                <IconLoading color={statusColor} style={this._styles.loading}/>
+              );
+            } else {
+              if (model.ran) {
+                statusTooltip = this._config.get('status:model:ran');
+                statusColor = muiTheme.rawTheme.palette.primary2Color;
+              } else {
+                statusTooltip = this._config.get('status:model:none');
+                statusColor = muiTheme.rawTheme.palette.disabledColor;
+              }
+              statusIcon = (
+                <IconStatus color={statusColor} style={this._styles.status} />
+              );
             }
+          } else {
+            statusTooltip = this._config.get('status:model:none');
+            statusColor = muiTheme.rawTheme.palette.disabledColor;
+            statusIcon = (
+              <IconStatus color={statusColor} style={this._styles.status} />
+            );
           }
 
           return (
@@ -256,7 +291,9 @@ export default class FileList extends React.Component {
               }
               primaryText={
                 <div style={this._styles.metric}>
-                  <IconStatus color={statusColor} style={this._styles.status} />
+                  <span title={statusTooltip} style={this._styles.tooltip}>
+                    {statusIcon}
+                  </span>
                   {metric.name}
                 </div>
               }
@@ -302,10 +339,7 @@ export default class FileList extends React.Component {
           toggleIcon = (<IconClose color={color} />);
         }
         leftIconButton = (
-          <IconButton
-            onTouchTap={this._handleFileToggle.bind(this, fileId)}
-            style={this._styles.fileToggle}
-            >
+          <IconButton style={this._styles.fileToggle}>
               {toggleIcon}
           </IconButton>
         );
@@ -314,8 +348,8 @@ export default class FileList extends React.Component {
           <ListItem
             initiallyOpen={isInitiallyOpen}
             key={file.name}
+            onTouchTap={this._handleFileToggle.bind(this, fileId)}
             leftIcon={leftIconButton}
-            disabled={true}
             nestedItems={this._renderMetrics(file)}
             primaryText={<div style={this._styles.file}>{file.name}</div>}
             ref={`file-toggle-${fileId}`}
