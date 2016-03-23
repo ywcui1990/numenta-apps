@@ -135,7 +135,8 @@ export default class ModelData extends React.Component {
             axisLabelOverflow: false,
             axisLabelWidth: 0,
             drawAxis: false,
-            drawGrid: false
+            drawGrid: false,
+            valueFormatter: this._overlayValueFormatter
           }
         },
         series: {
@@ -152,7 +153,7 @@ export default class ModelData extends React.Component {
   } // constructor
 
   /**
-   * Format Values for Dygraph Chart Legend. Add Anomaly info if available.
+   * Format Values & Anomalies for Dygraph Chart Legend. Add Anomaly when there.
    * @param {Number} time - UTC epoch milisecond stamp of current value point
    * @param {Function} options - options('key') same as dygraph.getOption('key')
    * @param {String} series - Name of series
@@ -178,6 +179,21 @@ export default class ModelData extends React.Component {
     }
 
     return value;
+  }
+
+  /**
+   * Format Values for non-aggregated raw overlay data on Dygraph Chart Legend.
+   * @param {Number} time - UTC epoch milisecond stamp of current value point
+   * @param {Function} options - options('key') same as dygraph.getOption('key')
+   * @param {String} series - Name of series
+   * @param {Object} dygraph - Instantiated Dygraphs charting object
+   * @param {Number} row - Current row (series)
+   * @param {Number} column - Current column (data index)
+   * @returns {Number|String} - Valueset for display in Legend
+   * @see http://dygraphs.com/options.html#valueFormatter
+   */
+  _overlayValueFormatter(time, options, series, dygraph, row, column) {
+    return formatDisplayValue(dygraph.getValue(row, column));
   }
 
   /**

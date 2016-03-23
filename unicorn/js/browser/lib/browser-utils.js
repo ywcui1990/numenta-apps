@@ -35,7 +35,7 @@ export function formatDisplayValue(value) {
   if (Number.isInteger(value)) {
     return value.toLocaleString();
   }
-  return value.toFixed(2).toLocaleString();
+  return (value.toFixed(2)).toLocaleString();
 }
 
 /**
