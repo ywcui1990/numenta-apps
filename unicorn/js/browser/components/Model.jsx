@@ -98,6 +98,7 @@ export default class Model extends React.Component {
         width: '100%'
       },
       title: {
+        fontSize: 14,
         marginTop: -3,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -263,7 +264,7 @@ export default class Model extends React.Component {
     }
 
     return (
-      <div>
+      <div key="modelSummaryDialog">
         <p><b>What did we find?</b></p>
         <p>The HTM model completed successfully for <b>{file.name}</b> and <b>
           {model.metric}</b> and detected the following:</p>
@@ -354,12 +355,13 @@ export default class Model extends React.Component {
           disabled={!model.ran || model.active}
           label={this._config.get('button:model:delete')}
           labelPosition="after"
+          labelStyle={this._styles.actionLabels}
           onTouchTap={this._deleteModel.bind(this, model.modelId)}
           primary={model.ran}
           />
       </CardActions>
     );
-    if (model.aggregated) {
+    if (model.aggregated && !model.active && model.ran) {
       showNonAggAction = (
         <Checkbox
           checked={showNonAgg}
