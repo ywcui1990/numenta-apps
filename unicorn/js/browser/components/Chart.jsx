@@ -198,7 +198,7 @@ export default class Chart extends React.Component {
     let {model} = this.props.metaData;
 
     if (model.aggregated) {
-      this._styles.root.marginTop = '0.66rem';
+      this._styles.root.marginTop = '1rem';
     }
 
     return (

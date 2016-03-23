@@ -15,6 +15,10 @@
 //
 // http://numenta.org/licenses/
 
+
+/* eslint-disable */
+
+
 import moment from 'moment';
 import RGBColor from 'rgbcolor';
 
@@ -52,6 +56,8 @@ export default function (context, canvas, area, dygraph) {
   // dygraph.numColumns()
   // dygraph.getValue(row, column)
 
+  return;
+
   // prep Y value labels
   for (let y=1; y<yLabels-1; y++) {
     let multiplier = y / (yLabels - 1);
@@ -65,20 +71,17 @@ export default function (context, canvas, area, dygraph) {
     xValues.splice(x, 0, value);
   }
 
-  // prep drawing
-  canvas.font = '12px Roboto';
-  canvas.fontWeight = 400;
-  canvas.fillStyle = new RGBColor(muiTheme.palette.accent3Color).toRGB();
-  canvas.strokeStyle = new RGBColor(muiTheme.palette.accent3Color).toRGB();
-  canvas.lineWidth = 2;
-
   // draw Y axis line
   canvas.beginPath();
+  canvas.lineWidth = 2;
+  canvas.strokeStyle = new RGBColor(muiTheme.palette.accent3Color).toRGB();
   canvas.moveTo(area.x, area.y);
   canvas.lineTo(area.x, area.y + area.h);  // y axis left
   canvas.stroke();
 
   // draw left-side Y axis labels
+  canvas.font = '12px Roboto';
+  canvas.fillStyle = new RGBColor(muiTheme.palette.accent3Color).toRGB();
   for (let y=0; y<yValues.length; y++) {
     let yHeight = area.h - (y * yFactor);
     if (yHeight <= 0) {
@@ -88,15 +91,16 @@ export default function (context, canvas, area, dygraph) {
   }
 
   // draw top X axis labels and markers
-  canvas.fillStyle = new RGBColor(muiTheme.palette.disabledColor).toRGB();
+  canvas.font = '10px Roboto';
   canvas.lineWidth = 1;
+  canvas.fillStyle = new RGBColor(muiTheme.palette.disabledColor).toRGB();
   for (let x=1; x<xValues.length; x++) {
     let xWidth = area.w - (x * xFactor); // eslint-disable-line
     let when = moment(xValues[x]); // eslint-disable-line
-    // let date = when.format('ll'); // eslint-disable-line
-    // let time = when.format('LT'); // eslint-disable-line
-    // canvas.fillText(date, area.x + xWidth, area.y + pad);
-    // canvas.fillText(time, area.x + xWidth + 2, area.y + (pad * 2));
+    let date = when.format('ll'); // eslint-disable-line
+    let time = when.format('LT'); // eslint-disable-line
+    canvas.fillText(date, area.x + xWidth, area.y + pad);
+    canvas.fillText(time, area.x + xWidth + 2, area.y + (pad * 2));
   }
 
   // for (let index=0; index<modelData.length; index++) {

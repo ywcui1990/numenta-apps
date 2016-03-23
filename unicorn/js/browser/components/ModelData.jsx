@@ -19,7 +19,8 @@ import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dygraph from 'dygraphs';
 import React from 'react';
 
-import AnomalyBarChart from '../lib/Dygraphs/AnomalyBarChartUnderlay';
+import anomalyBarChartUnderlay from '../lib/Dygraphs/AnomalyBarChartUnderlay';
+import axesCustomLabelsUnderlay from '../lib/Dygraphs/AxesCustomLabelsUnderlay';
 import Chart from './Chart';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 import MetricStore from '../stores/MetricStore';
@@ -84,7 +85,11 @@ export default class ModelData extends React.Component {
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
         showRangeSelector: true,
-        underlayCallback: AnomalyBarChart.bind(null, this),
+        underlayCallback: function (context, ...args) {
+          anomalyBarChartUnderlay(context, ...args);
+          axesCustomLabelsUnderlay(context, ...args);
+        }.bind(null, this),
+        xRangePad: 0,
         yRangePad: 0
       },
 

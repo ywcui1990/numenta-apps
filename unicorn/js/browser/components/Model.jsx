@@ -124,13 +124,13 @@ export default class Model extends React.Component {
       showNonAgg: {
         root: {
           float: 'right',
-          marginRight: '-3.666rem',
-          top: -5,
+          marginRight: '-3.8rem',
+          top: -10,
           width: '15rem'
         },
         checkbox: {
           marginRight: 2,
-          top: 1
+          top: 2
         },
         label: {
           color: muiTheme.rawTheme.palette.primary1Color,
