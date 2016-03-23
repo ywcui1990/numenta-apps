@@ -26,6 +26,7 @@ Compatibility test of the unicorn_backend.model_runner_2 module
 """
 
 import csv
+import datetime
 import json
 import logging
 import os
@@ -33,16 +34,19 @@ import subprocess
 import sys
 import unittest
 
+import numpy
+from pkg_resources import resource_stream
 
 from nta.utils.logging_support_raw import LoggingSupport
 from nta.utils import test_utils
+from unicorn_backend import date_time_utils
 
 
 
 _LOGGER = logging.getLogger("unicorn_model_runner_test")
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
-
+ANOMALY_THRESH = 0.5126953125
 
 
 def setUpModule():
@@ -134,10 +138,10 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
     with self._startParamFinderRunnerSubprocess(inputSpec) as pfrProcess:
       outputInfo = pfrProcess.stdout.readline()
       outputInfo = json.loads(outputInfo)
-    print json.dumps(outputInfo, indent=2)
-    # with open(os.path.join(RESULTS_DIR, name+'_model_params.json')) as infile:
-    #   expectedOutputInfo = json.loads(infile.read())
-    #   self.assertEqual(outputInfo, expectedOutputInfo)
+
+    with open(os.path.join(RESULTS_DIR, name+'_model_params.json')) as infile:
+      expectedOutputInfo = json.loads(infile.read())
+      self.assertEqual(outputInfo, expectedOutputInfo)
     return outputInfo
 
 
@@ -160,17 +164,60 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
       out = stdoutData.splitlines()
       self.assertEqual(stderrData, "")
 
-      results = self._loadCsvFile(os.path.join(RESULTS_DIR, name+'.csv'))
-      self.assertEqual(len(out), len(results))
+      results = self._loadCsvFile(os.path.join(RESULTS_DIR,
+                                               'numenta_'+name+'.csv'))
+      inputSpec = json.loads(inputSpec)
 
-      for computedResult, trueResult in zip(out, results):
+      trueResultTimestamp = []
+      trueAnomalyLikelihood = []
+      for trueResult in results:
+        timestamp = date_time_utils.parseDatetime(trueResult[0],
+                                        inputSpec['datetimeFormat'])
+        trueResultTimestamp.append(timestamp)
+        trueAnomalyLikelihood.append(float(trueResult[2]))
+      dataDuration = trueResultTimestamp[-1] - trueResultTimestamp[0]
+
+      duration = dataDuration.total_seconds()
+      anomalyWindow = duration * 0.1
+      probationaryPeriod = trueResultTimestamp[0] + \
+                           datetime.timedelta(seconds=duration * 0.2)
+
+      nabDetection = self._convertAnomalyScoresToDetections(
+        trueResultTimestamp, trueAnomalyLikelihood, ANOMALY_THRESH)
+
+      computedTimestamp = []
+      computedAnomalyLikelihood = []
+      for computedResult in out:
         outputRecord = json.loads(computedResult)
+        timestamp = date_time_utils.parseDatetime(outputRecord[0],
+                                        "%Y-%m-%dT%H:%M:%S")
+        computedTimestamp.append(timestamp)
+        computedAnomalyLikelihood.append(float(outputRecord[2]))
 
-        trueDataValue = float(trueResult[1])
-        trueAnomalyLikelihood = float(trueResult[2])
-        self.assertAlmostEqual(outputRecord[1], trueDataValue, places=7)
-        self.assertAlmostEqual(outputRecord[2], trueAnomalyLikelihood, places=7)
 
+      computedDetection = self._convertAnomalyScoresToDetections(
+        computedTimestamp, computedAnomalyLikelihood, ANOMALY_THRESH)
+
+      nabLabels = self._getTrueAnomalyLabels(name)
+
+      numTruePositiveComputed = self._checkForTruePositives(
+        nabLabels, computedDetection, anomalyWindow)
+      numTruePositiveNAB= self._checkForTruePositives(
+        nabLabels, nabDetection, anomalyWindow)
+
+      numFalsePositiveComputed = self._checkForFalsePositives(
+        nabLabels, computedDetection, anomalyWindow, probationaryPeriod)
+      numFalsePositiveNAB= self._checkForFalsePositives(
+        nabLabels, nabDetection, anomalyWindow, probationaryPeriod)
+
+      print "Dataset: ", name
+      print "numTruePositiveNAB: ", numTruePositiveNAB
+      print "numTruePositiveComputed: ", numTruePositiveComputed
+      print "numFalsePositiveNAB: ", numFalsePositiveNAB
+      print "numFalsePositiveComputed: ", numFalsePositiveComputed
+
+      self.assertGreaterEqual(numTruePositiveComputed, numTruePositiveNAB)
+      self.assertLessEqual(numFalsePositiveComputed, numFalsePositiveNAB)
       self.assertEqual(mrProcess.returncode, 0)
 
 
@@ -183,31 +230,115 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
       {"datetimeFormat": "%Y-%m-%d %H:%M:%S",
        "timestampIndex": 0,
        "csv": os.path.join(DATA_DIR, name+".csv"),
-       "rowOffset": 4,
+       "rowOffset": 1,
        "valueIndex": 1})
 
     outputInfo = self._testParamFinderRunner(name, inputSpec)
 
-    aggSpec = json.dumps(outputInfo["aggInfo"])
+    aggSpec = outputInfo["aggInfo"]
+    if aggSpec is not None:
+      aggSpec = json.dumps(aggSpec)
+
     modelSpec = outputInfo['modelInfo']
     modelSpec['modelId'] = 'test'
+    print "Dataset: ", name
+    print json.dumps(modelSpec, indent=2)
     modelSpec = json.dumps(modelSpec)
 
     self._testModelRunner(name, inputSpec, aggSpec, modelSpec)
 
 
-  def testAmbientTemperatureSystemFailure(self):
+  def _convertAnomalyScoresToDetections(self,
+                                        timeStamps, anomalyScores, threshold):
     """
-    Run paramFinder and ModelRunner on ambient_temperature_system_failure
+    Convert anomaly scores (values between 0 and 1) to detections (binary
+    values) given a threshold.
     """
-    self._testParamFinderAndModelRunner('ambient_temperature_system_failure')
+    anomalyScores = numpy.array(anomalyScores)
+    anomalyDetections = []
+    for alert in numpy.where(anomalyScores >= threshold)[0]:
+      anomalyDetections.append(timeStamps[alert])
+
+    return anomalyDetections
+
+
+  def _getTrueAnomalyLabels(self, name):
+    labelFileRelativePath = os.path.join("data", "anomaly_labels_nab.json")
+    with resource_stream(__name__, labelFileRelativePath) as infile:
+      nabLabels = json.load(infile)
+
+    targetAnomalies = []
+    for anomaly in nabLabels[name]:
+      targetAnomalies.append(date_time_utils.parseDatetime(anomaly,
+                                          "%Y-%m-%d %H:%M:%S"))
+    return targetAnomalies
+
+
+  def _checkForTruePositives(self, trueLabel, detections, anomalyWindow):
+    numTruePositive = 0
+    for targetAnomaly in trueLabel:
+      timeDelta = []
+      for alert in detections:
+        timeDelta.append((alert-targetAnomaly).total_seconds())
+      if len(timeDelta) == 0:
+        continue
+      if numpy.min(numpy.abs(numpy.array(timeDelta))) < anomalyWindow:
+        numTruePositive += 1
+    return numTruePositive
+
+
+  def _checkForFalsePositives(self, trueLabel, detections,
+                              anomalyWindow, probationaryPeriod):
+    numFalsePositive = 0
+    for alert in detections:
+      if alert < probationaryPeriod:
+        continue
+      timeDelta = []
+      for targetAnomaly in trueLabel:
+        timeDelta.append((alert-targetAnomaly).total_seconds())
+      if (len(timeDelta) == 0 or
+              numpy.min(numpy.abs(numpy.array(timeDelta))) > anomalyWindow):
+        numFalsePositive += 1
+    return numFalsePositive
+
+
+  def testDailyFlatMiddle(self):
+    """
+    Run paramFinder and ModelRunner on art_daily_flatmiddle
+    This is an artificial dataset with anomaly
+    """
+    self._testParamFinderAndModelRunner('art_daily_flatmiddle')
+
+
+  def testDailyNoNoise(self):
+    """
+    Run paramFinder and ModelRunner on art_daily_no_noise
+    This is an artificial dataset without anomaly
+    """
+    self._testParamFinderAndModelRunner('art_daily_no_noise')
 
 
   def testNYCTaxi(self):
     """
     Run paramFinder and ModelRunner on nyc_taxi
+    This is a realworld dataset with known anomalies
     """
     self._testParamFinderAndModelRunner('nyc_taxi')
+
+
+  def testTwitterAAPL(self):
+    """
+    Run paramFinder and ModelRunner on Twitter_volume_AAPL
+    """
+    self._testParamFinderAndModelRunner('Twitter_volume_AAPL')
+
+
+  def testEC2DiskWrite(self):
+    """
+    Run paramFinder and ModelRunner on ec2_disk_write_bytes_1ef3de
+    """
+    self._testParamFinderAndModelRunner('ec2_disk_write_bytes_1ef3de')
+
 
 
 if __name__ == "__main__":

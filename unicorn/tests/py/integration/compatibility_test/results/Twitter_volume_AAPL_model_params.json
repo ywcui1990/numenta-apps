@@ -1,7 +1,7 @@
 {
   "aggInfo": {
     "func": "mean", 
-    "windowSize": 2575
+    "windowSize": 464
   }, 
   "modelInfo": {
     "inferenceArgs": {
@@ -55,7 +55,7 @@
             "c1": {
               "fieldname": "c1", 
               "name": "c1", 
-              "resolution": 422.03538461538466, 
+              "resolution": 145.15846153846152, 
               "seed": 42, 
               "type": "RandomDistributedScalarEncoder"
             }

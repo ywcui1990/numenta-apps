@@ -42,7 +42,7 @@ _CORRELATION_MODE_VALID = 0
 _CORRELATION_MODE_SAME = 1
 _CORRELATION_MODE_FULL = 2
 
-_AGGREGATION_WINDOW_THRESH = 0.05
+_AGGREGATION_WINDOW_THRESH = 0.03
 
 # Maximum number of rows param_finder will process
 # If the input data exceeds MAX_NUM_ROWS, the first MAX_NUM_ROWS will be used
@@ -326,7 +326,7 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
       ["c0_timeOfDay"] = dict(fieldname="c0",
                               name="c0",
                               type="DateEncoder",
-                              timeOfDay=(21, 9.49))
+                              timeOfDay=(21, 9.49122334747737))
   else:
     modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
       ["c0_timeOfDay"] = None
