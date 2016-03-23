@@ -339,10 +339,7 @@ export default class FileList extends React.Component {
           toggleIcon = (<IconClose color={color} />);
         }
         leftIconButton = (
-          <IconButton
-            onTouchTap={this._handleFileToggle.bind(this, fileId)}
-            style={this._styles.fileToggle}
-            >
+          <IconButton style={this._styles.fileToggle}>
               {toggleIcon}
           </IconButton>
         );
@@ -351,8 +348,8 @@ export default class FileList extends React.Component {
           <ListItem
             initiallyOpen={isInitiallyOpen}
             key={file.name}
+            onTouchTap={this._handleFileToggle.bind(this, fileId)}
             leftIcon={leftIconButton}
-            disabled={true}
             nestedItems={this._renderMetrics(file)}
             primaryText={<div style={this._styles.file}>{file.name}</div>}
             ref={`file-toggle-${fileId}`}
