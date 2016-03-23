@@ -17,12 +17,14 @@
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dygraph from 'dygraphs';
+import moment from 'moment';
 import React from 'react';
 
 import anomalyBarChartUnderlay from '../lib/Dygraphs/AnomalyBarChartUnderlay';
 import axesCustomLabelsUnderlay from '../lib/Dygraphs/AxesCustomLabelsUnderlay';
 import Chart from './Chart';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
+import {formatDisplayValue} from '../lib/browser-utils';
 import MetricStore from '../stores/MetricStore';
 import MetricDataStore from '../stores/MetricDataStore';
 import ModelStore from '../stores/ModelStore';
@@ -81,6 +83,7 @@ export default class ModelData extends React.Component {
         connectSeparatedPoints: true,  // required for raw+agg overlay
         includeZero: true,
         interactionModel: Dygraph.Interaction.dragIsPanInteractionModel,
+        labelsShowZeroValues: true,
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
@@ -101,13 +104,15 @@ export default class ModelData extends React.Component {
             axisLabelOverflow: false,
             axisLabelWidth: 0,
             drawAxis: false,
-            drawGrid: false
+            drawGrid: false,
+            valueFormatter: (time) => moment(time).format('lll')
           },
           y: {
             axisLabelOverflow: false,
             axisLabelWidth: 0,
             drawAxis: false,
-            drawGrid: false
+            drawGrid: false,
+            valueFormatter: this._legendValueFormatter
           }
         },
         series: {
@@ -144,6 +149,35 @@ export default class ModelData extends React.Component {
       }
     }; // chartOptions
   } // constructor
+
+  /**
+   * Format Values for Dygraph Chart Legend. Add Anomaly info if available.
+   * @param {Number} time - UTC epoch milisecond stamp of current value point
+   * @param {Function} options - options('key') same as dygraph.getOption('key')
+   * @param {String} series - Name of series
+   * @param {Object} dygraph - Instantiated Dygraphs charting object
+   * @param {Number} row - Current row (series)
+   * @param {Number} column - Current column (data index)
+   * @returns {Number|String} - Valueset for display in Legend
+   * @see http://dygraphs.com/options.html#valueFormatter
+   */
+  _legendValueFormatter(time, options, series, dygraph, row, column) {
+    let modelData = options('modelData');  // custom
+    let value = formatDisplayValue(dygraph.getValue(row, column));
+    let anomaly, percent;
+
+    if (
+      modelData &&
+      modelData[column] &&
+      modelData[column][DATA_INDEX_ANOMALY]
+    ) {
+      anomaly = modelData[column][DATA_INDEX_ANOMALY];
+      percent = Math.round(anomaly * 100);
+      value = `${value}, <strong>Anomaly</strong>: ${percent}%`;
+    }
+
+    return value;
+  }
 
   /**
    * Transform two indepdent time-series datasets into a single Dygraphs

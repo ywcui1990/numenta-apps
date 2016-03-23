@@ -15,12 +15,10 @@
 //
 // http://numenta.org/licenses/
 
-
-/* eslint-disable */
-
-
 import moment from 'moment';
 import RGBColor from 'rgbcolor';
+
+import {formatDisplayValue} from '../browser-utils';
 
 
 /**
@@ -45,30 +43,17 @@ export default function (context, canvas, area, dygraph) {
   const yFactor = area.h / (yLabels - 1);
   const yAxisRange = dygraph.yAxisRange();
   const yRangeWidth = yAxisRange[1] - yAxisRange[0];
-  let xValues = xAxisRange;
-  let yValues = yAxisRange;
+  let xValues = Array.from(xAxisRange);
+  let yValues = Array.from(yAxisRange);
 
-  // let barWidth = context._anomalyBarWidth;
-  // let halfBarWidth = Math.ceil(barWidth / 2);
-  // const xLabels = 12;
-  // const xFactor = xRangeWidth / xLabels;
-  // dygraph.numRows()
-  // dygraph.numColumns()
-  // dygraph.getValue(row, column)
 
-  return;
+  // --- Custom Y axis and labels (on left) ---
 
   // prep Y value labels
-  for (let y=1; y<yLabels-1; y++) {
+  for (let y=1; y<(yLabels - 1); y++) {
     let multiplier = y / (yLabels - 1);
     let value = yAxisRange[0] + (yRangeWidth * multiplier);
     yValues.splice(y, 0, value);
-  }
-  // prep X value labels
-  for (let x=1; x<xLabels-1; x++) {
-    let multiplier = x / (xLabels - 1);
-    let value = xAxisRange[0] + (xRangeWidth * multiplier);
-    xValues.splice(x, 0, value);
   }
 
   // draw Y axis line
@@ -84,29 +69,49 @@ export default function (context, canvas, area, dygraph) {
   canvas.fillStyle = new RGBColor(muiTheme.palette.accent3Color).toRGB();
   for (let y=0; y<yValues.length; y++) {
     let yHeight = area.h - (y * yFactor);
-    if (yHeight <= 0) {
-      yHeight += pad;
+    let value = formatDisplayValue(yValues[y]);
+
+    if (y === yValues.length - 1) {
+      yHeight += pad;  // bring down top label to make visible
+    } else if (y === 0) {
+      yHeight--;  // visual: push bottom label pixel spacing a bit
+    } else {
+      yHeight += (pad/2);  // visual: slight vertical padding
     }
-    canvas.fillText(yValues[y].toFixed(2), area.x + (pad/2), area.y + yHeight);
+
+    canvas.fillText(value, area.x + (pad/2), area.y + yHeight);
   }
+
+
+  // --- Custom X axis and labels and markers (along top) ---
+
+  // prep X value labels
+  for (let x=1; x<(xLabels - 1); x++) {
+    let multiplier = x / (xLabels - 1);
+    let value = xAxisRange[0] + (xRangeWidth * multiplier);
+    xValues.splice(x, 0, value);
+  }
+  xValues.reverse();  // order time min<->max
 
   // draw top X axis labels and markers
-  canvas.font = '10px Roboto';
+  canvas.font = '11px Roboto';
   canvas.lineWidth = 1;
   canvas.fillStyle = new RGBColor(muiTheme.palette.disabledColor).toRGB();
-  for (let x=1; x<xValues.length; x++) {
-    let xWidth = area.w - (x * xFactor); // eslint-disable-line
-    let when = moment(xValues[x]); // eslint-disable-line
-    let date = when.format('ll'); // eslint-disable-line
-    let time = when.format('LT'); // eslint-disable-line
-    canvas.fillText(date, area.x + xWidth, area.y + pad);
-    canvas.fillText(time, area.x + xWidth + 2, area.y + (pad * 2));
-  }
+  canvas.strokeStyle = new RGBColor(muiTheme.palette.disabledColor).toRGB();
+  for (let x=1; x<(xValues.length - 1); x++) {
+    let xWidth = area.w - (x * xFactor);
+    let when = moment(xValues[x]);
+    let date = when.format('ll');
+    let time = when.format('LT');
 
-  // for (let index=0; index<modelData.length; index++) {
-    // (function (i) {  // help data survive loop closure
-      // let time = modelData[i][DATA_INDEX_TIME].getTime();
-      // _drawRectangle(canvas, x, height - 1, barWidth, y, color);
-    // }(index));  // help data survive loop closure
-  // }  // for loop modelData
+    // draw x axis label
+    canvas.fillText(date, area.x + xWidth + (pad/2), area.y + pad);
+    canvas.fillText(time, area.x + xWidth + (pad/2), area.y + (pad*2)+3);
+
+    // draw thin x axis label vertical marker line
+    canvas.beginPath();
+    canvas.moveTo(area.x + xWidth, area.y);
+    canvas.lineTo(area.x + xWidth, area.y + area.h);
+    canvas.stroke();
+  }
 }
