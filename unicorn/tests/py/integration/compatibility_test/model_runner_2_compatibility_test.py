@@ -241,8 +241,6 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
 
     modelSpec = outputInfo['modelInfo']
     modelSpec['modelId'] = 'test'
-    print "Dataset: ", name
-    print json.dumps(modelSpec, indent=2)
     modelSpec = json.dumps(modelSpec)
 
     self._testModelRunner(name, inputSpec, aggSpec, modelSpec)
