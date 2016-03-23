@@ -294,42 +294,49 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
     return numFalsePositive
 
 
-  def testDailyFlatMiddle(self):
-    """
-    Run paramFinder and ModelRunner on art_daily_flatmiddle
-    This is an artificial dataset with anomaly
-    """
-    self._testParamFinderAndModelRunner('art_daily_flatmiddle')
+  # def testDailyFlatMiddle(self):
+  #   """
+  #   Run paramFinder and ModelRunner on art_daily_flatmiddle
+  #   This is an artificial dataset with anomaly
+  #   """
+  #   self._testParamFinderAndModelRunner('art_daily_flatmiddle')
+  #
+  #
+  # def testDailyNoNoise(self):
+  #   """
+  #   Run paramFinder and ModelRunner on art_daily_no_noise
+  #   This is an artificial dataset without anomaly
+  #   """
+  #   self._testParamFinderAndModelRunner('art_daily_no_noise')
+  #
+  #
+  # def testNYCTaxi(self):
+  #   """
+  #   Run paramFinder and ModelRunner on nyc_taxi
+  #   This is a realworld dataset with known anomalies
+  #   """
+  #   self._testParamFinderAndModelRunner('nyc_taxi')
+  #
+  #
+  # def testTwitterAAPL(self):
+  #   """
+  #   Run paramFinder and ModelRunner on Twitter_volume_AAPL
+  #   """
+  #   self._testParamFinderAndModelRunner('Twitter_volume_AAPL')
+  #
+  #
+  # def testEC2DiskWrite(self):
+  #   """
+  #   Run paramFinder and ModelRunner on ec2_disk_write_bytes_1ef3de
+  #   """
+  #   self._testParamFinderAndModelRunner('ec2_disk_write_bytes_1ef3de')
 
 
-  def testDailyNoNoise(self):
+  def testEC2CPU(self):
     """
-    Run paramFinder and ModelRunner on art_daily_no_noise
-    This is an artificial dataset without anomaly
+    Run paramFinder and ModelRunner on ec2_cpu_utilization_825cc2
     """
-    self._testParamFinderAndModelRunner('art_daily_no_noise')
-
-
-  def testNYCTaxi(self):
-    """
-    Run paramFinder and ModelRunner on nyc_taxi
-    This is a realworld dataset with known anomalies
-    """
-    self._testParamFinderAndModelRunner('nyc_taxi')
-
-
-  def testTwitterAAPL(self):
-    """
-    Run paramFinder and ModelRunner on Twitter_volume_AAPL
-    """
-    self._testParamFinderAndModelRunner('Twitter_volume_AAPL')
-
-
-  def testEC2DiskWrite(self):
-    """
-    Run paramFinder and ModelRunner on ec2_disk_write_bytes_1ef3de
-    """
-    self._testParamFinderAndModelRunner('ec2_disk_write_bytes_1ef3de')
+    self._testParamFinderAndModelRunner('ec2_cpu_utilization_825cc2')
 
 
 
