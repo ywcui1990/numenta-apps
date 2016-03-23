@@ -69,6 +69,13 @@
       "details": "File Details"
     }
   },
+  "status": {
+    "model": {
+      "none": "No model",
+      "active": "Model in progress",
+      "ran": "Model created"
+    }
+  },
   "samples": {
     "path": "../../samples"
   }
