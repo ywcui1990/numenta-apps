@@ -264,7 +264,7 @@ export default class Model extends React.Component {
     }
 
     return (
-      <div key="modelSummaryDialog">
+      <div>
         <p><b>What did we find?</b></p>
         <p>The HTM model completed successfully for <b>{file.name}</b> and <b>
           {model.metric}</b> and detected the following:</p>

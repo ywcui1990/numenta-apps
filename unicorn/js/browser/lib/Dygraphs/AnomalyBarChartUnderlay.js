@@ -17,9 +17,9 @@
 
 import RGBColor from 'rgbcolor';
 
+import {anomalyScale} from '../../../common/common-utils';
 import {DATA_FIELD_INDEX} from '../Constants';
 import {mapAnomalyColor} from '../../lib/browser-utils';
-import {anomalyScale} from '../../../common/common-utils';
 
 const {DATA_INDEX_TIME, DATA_INDEX_ANOMALY} = DATA_FIELD_INDEX;
 

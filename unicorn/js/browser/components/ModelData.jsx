@@ -21,6 +21,7 @@ import moment from 'moment';
 import React from 'react';
 
 import anomalyBarChartUnderlay from '../lib/Dygraphs/AnomalyBarChartUnderlay';
+import {anomalyScale} from '../../common/common-utils';
 import axesCustomLabelsUnderlay from '../lib/Dygraphs/AxesCustomLabelsUnderlay';
 import Chart from './Chart';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
@@ -89,8 +90,8 @@ export default class ModelData extends React.Component {
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
         showRangeSelector: true,
         underlayCallback: function (context, ...args) {
-          anomalyBarChartUnderlay(context, ...args);
           axesCustomLabelsUnderlay(context, ...args);
+          anomalyBarChartUnderlay(context, ...args);
         }.bind(null, this),
         xRangePad: 0,
         yRangePad: 0
@@ -168,12 +169,12 @@ export default class ModelData extends React.Component {
 
     if (
       modelData &&
-      modelData[column] &&
-      modelData[column][DATA_INDEX_ANOMALY]
+      modelData[row] &&
+      modelData[row][DATA_INDEX_ANOMALY]
     ) {
-      anomaly = modelData[column][DATA_INDEX_ANOMALY];
+      anomaly = anomalyScale(modelData[row][DATA_INDEX_ANOMALY]);
       percent = Math.round(anomaly * 100);
-      value = `${value}, <strong>Anomaly</strong>: ${percent}%`;
+      value = `${value} <strong>Anomaly</strong>: ${percent}%`;
     }
 
     return value;
