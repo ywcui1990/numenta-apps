@@ -210,12 +210,6 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
       numFalsePositiveNAB= self._checkForFalsePositives(
         nabLabels, nabDetection, anomalyWindow, probationaryPeriod)
 
-      print "Dataset: ", name
-      print "numTruePositiveNAB: ", numTruePositiveNAB
-      print "numTruePositiveComputed: ", numTruePositiveComputed
-      print "numFalsePositiveNAB: ", numFalsePositiveNAB
-      print "numFalsePositiveComputed: ", numFalsePositiveComputed
-
       self.assertGreaterEqual(numTruePositiveComputed, numTruePositiveNAB)
       self.assertLessEqual(numFalsePositiveComputed, numFalsePositiveNAB)
       self.assertEqual(mrProcess.returncode, 0)
