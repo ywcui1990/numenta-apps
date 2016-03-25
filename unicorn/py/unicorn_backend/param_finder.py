@@ -310,17 +310,6 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
     minResolution=0.001
   )
 
-  # FIXME: remove this once NAB params are released in NuPIC  
-
-  # Keep the resolution and replace the model params by the up=to=date NAB ones
-  resolution = modelParams["modelConfig"]["modelParams"]["sensorParams"] \
-    ["encoders"]["c1"]["resolution"]
-
-  paramFileRelativePath = os.path.join("debug", "nab_params.json")
-  with resource_stream(__name__, paramFileRelativePath) as infile:
-    modelParams = json.load(infile)
-  # end FIXME.
-
   if useTimeOfDay:
     modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
       ["c0_timeOfDay"] = dict(fieldname="c0",
@@ -343,13 +332,6 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
 
   modelParams["timestampFieldName"] = "c0"
   modelParams["valueFieldName"] = "c1"
-
-  # FIXME: remove this once NAB params are released in NuPIC  
-  modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
-    ["c0_dayOfWeek"] = None
-  modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"]["c1"][
-    "resolution"] = resolution
-  # end FIXME.
 
   return modelParams
 
