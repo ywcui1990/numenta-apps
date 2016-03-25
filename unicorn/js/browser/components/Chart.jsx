@@ -27,6 +27,15 @@ import {DATA_FIELD_INDEX} from '../lib/Constants';
 
 const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
 
+/**
+ * Override default draw of Dygraphs RangeSelector handle, so we can customize
+ *  the styling.
+ * @see node_modules/dygraphs/plugins/range-selector.js
+ */
+Dygraph.Plugins.RangeSelector.prototype.drawInteractiveLayer_ = function () {
+  console.log('yey');
+}
+
 
 /**
  * Chart Widget. Wraps as a React Component.
