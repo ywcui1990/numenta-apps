@@ -316,10 +316,10 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
   resolution = modelParams["modelConfig"]["modelParams"]["sensorParams"] \
     ["encoders"]["c1"]["resolution"]
 
-  paramFileRelativePath = os.path.join("debug", "nab_params.json")
-  with resource_stream(__name__, paramFileRelativePath) as infile:
-    modelParams = json.load(infile)
-  # end FIXME.
+  # paramFileRelativePath = os.path.join("debug", "nab_params.json")
+  # with resource_stream(__name__, paramFileRelativePath) as infile:
+  #   modelParams = json.load(infile)
+  # # end FIXME.
 
   if useTimeOfDay:
     modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
@@ -344,12 +344,12 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
   modelParams["timestampFieldName"] = "c0"
   modelParams["valueFieldName"] = "c1"
 
-  # FIXME: remove this once NAB params are released in NuPIC  
-  modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
-    ["c0_dayOfWeek"] = None
-  modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"]["c1"][
-    "resolution"] = resolution
-  # end FIXME.
+  # # FIXME: remove this once NAB params are released in NuPIC
+  # modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
+  #   ["c0_dayOfWeek"] = None
+  # modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"]["c1"][
+  #   "resolution"] = resolution
+  # # end FIXME.
 
   return modelParams
 
