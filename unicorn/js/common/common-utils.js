@@ -15,6 +15,8 @@
 //
 // http://numenta.org/licenses/
 
+import {ANOMALY_RED_VALUE, ANOMALY_YELLOW_VALUE} from '../browser/lib/Constants';
+
 /**
  * Generic Javascript functions that can be used on either the `main` process or
  * the `browser` process. These functions should be pure Javascript and not
@@ -74,10 +76,10 @@ export function promisify(fn, ...args) {
  * @return {float} scaled value
  */
 export function anomalyScale(value) {
-  if (value >= 0.99999) {
+  if (value >= ANOMALY_RED_VALUE) {
     return 0.3;
   }
-  if (value >= 0.9999) {
+  if (value >= ANOMALY_YELLOW_VALUE) {
     return 0.2;
   }
   return 0.1;
