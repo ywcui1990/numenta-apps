@@ -46,6 +46,8 @@ from unicorn_backend import date_time_utils
 _LOGGER = logging.getLogger("unicorn_model_runner_test")
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
+
+# threshold from NAB/config/thresholds.json
 ANOMALY_THRESH = 0.5126953125
 
 
@@ -142,9 +144,9 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
       outputInfo = pfrProcess.stdout.readline()
       outputInfo = json.loads(outputInfo)
 
-    # with open(os.path.join(RESULTS_DIR, name+'_model_params.json')) as infile:
-    #   expectedOutputInfo = json.loads(infile.read())
-    #   self.assertEqual(outputInfo, expectedOutputInfo)
+    with open(os.path.join(RESULTS_DIR, name+'_model_params.json')) as infile:
+      expectedOutputInfo = json.loads(infile.read())
+      self.assertEqual(outputInfo, expectedOutputInfo)
     return outputInfo
 
 
@@ -212,13 +214,6 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
         nabLabels, computedDetection, anomalyWindow, probationaryPeriod)
       numFalsePositiveNAB= self._checkForFalsePositives(
         nabLabels, nabDetection, anomalyWindow, probationaryPeriod)
-
-      print "Dataset: ", name
-      print "number of anomalies: ", len(nabLabels)
-      print "numTruePositiveNABDetector: ", numTruePositiveNAB
-      print "numTruePositiveComputed: ", numTruePositiveComputed
-      print "numFalsePositiveNABDetector: ", numFalsePositiveNAB
-      print "numFalsePositiveComputed: ", numFalsePositiveComputed
 
       self.assertGreaterEqual(numTruePositiveComputed, numTruePositiveNAB)
       self.assertLessEqual(numFalsePositiveComputed, numFalsePositiveNAB)
