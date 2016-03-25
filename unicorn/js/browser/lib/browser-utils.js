@@ -18,12 +18,25 @@
 import muiTheme from './MaterialUI/HTMStudioTheme';
 import {ANOMALY_RED_VALUE, ANOMALY_YELLOW_VALUE} from './Constants'
 
+
 /**
  * Generic Javascript functions that can only be used on the `browser` process.
  * These functions can access objects available from the `browser` process but
  * should not depend on node`
  */
 
+
+/**
+ * Format value for display for Dygraph Chart Y axis label, or Legend display.
+ * @param {Number} value - Number to display (5, 6.23, 2.3232342, etc).
+ * @return {Number} - Display value (cut long decimals, locale-ize)
+ */
+export function formatDisplayValue(value) {
+  if (Number.isInteger(value)) {
+    return value.toLocaleString();
+  }
+  return (value.toFixed(2)).toLocaleString();
+}
 
 /**
  * Map Anomaly value to bar color (Red/Yellow/Green)

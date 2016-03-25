@@ -17,11 +17,14 @@
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dygraph from 'dygraphs';
+import moment from 'moment';
 import React from 'react';
 
-import AnomalyBarChart from '../lib/Dygraphs/AnomalyBarChartUnderlay';
+import anomalyBarChartUnderlay from '../lib/Dygraphs/AnomalyBarChartUnderlay';
+import axesCustomLabelsUnderlay from '../lib/Dygraphs/AxesCustomLabelsUnderlay';
 import Chart from './Chart';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
+import {formatDisplayValue} from '../lib/browser-utils';
 import MetricStore from '../stores/MetricStore';
 import MetricDataStore from '../stores/MetricDataStore';
 import ModelStore from '../stores/ModelStore';
@@ -80,11 +83,16 @@ export default class ModelData extends React.Component {
         connectSeparatedPoints: true,  // required for raw+agg overlay
         includeZero: true,
         interactionModel: Dygraph.Interaction.dragIsPanInteractionModel,
+        labelsShowZeroValues: true,
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
         showRangeSelector: true,
-        underlayCallback: AnomalyBarChart.bind(null, this),
+        underlayCallback: function (context, ...args) {
+          axesCustomLabelsUnderlay(context, ...args);
+          anomalyBarChartUnderlay(context, ...args);
+        }.bind(null, this),
+        xRangePad: 0,
         yRangePad: 0
       },
 
@@ -92,19 +100,26 @@ export default class ModelData extends React.Component {
       value: {
         labels: ['Time', 'Value'],
         axes: {
-          x: {drawGrid: false},
-          y: {
-            axisLabelOverflow: true,
-            axisLabelWidth: 20,
+          x: {
+            axisLabelOverflow: false,
+            axisLabelWidth: 0,
+            drawAxis: false,
             drawGrid: false,
-            ticker: this._valueTicker.bind(this)
+            valueFormatter: (time) => moment(time).format('lll')
+          },
+          y: {
+            axisLabelOverflow: false,
+            axisLabelWidth: 0,
+            drawAxis: false,
+            drawGrid: false,
+            valueFormatter: this._legendValueFormatter
           }
         },
         series: {
           Value: {
             axis: 'y',
             color: muiTheme.rawTheme.palette.primary2Color,  // dark blue
-            independentTicks: true,
+            independentTicks: false,
             showInRangeSelector: true,  // plot alone in range selector
             strokeWidth: 2
           }
@@ -116,9 +131,11 @@ export default class ModelData extends React.Component {
         labels: ['NonAggregated'],
         axes: {
           y2: {
+            axisLabelOverflow: false,
             axisLabelWidth: 0,
+            drawAxis: false,
             drawGrid: false,
-            drawAxis: false
+            valueFormatter: this._overlayValueFormatter
           }
         },
         series: {
@@ -126,13 +143,57 @@ export default class ModelData extends React.Component {
             axis: 'y2',
             color: muiTheme.rawTheme.palette.primary1Color,  // light blue
             independentTicks: false,
-            showInRangeSelector: null,
+            showInRangeSelector: false,
             strokeWidth: 2
           }
         }
       }
     }; // chartOptions
   } // constructor
+
+  /**
+   * Format Values & Anomalies for Dygraph Chart Legend. Add Anomaly when there.
+   * @param {Number} time - UTC epoch milisecond stamp of current value point
+   * @param {Function} options - options('key') same as dygraph.getOption('key')
+   * @param {String} series - Name of series
+   * @param {Object} dygraph - Instantiated Dygraphs charting object
+   * @param {Number} row - Current row (series)
+   * @param {Number} column - Current column (data index)
+   * @returns {Number|String} - Valueset for display in Legend
+   * @see http://dygraphs.com/options.html#valueFormatter
+   */
+  _legendValueFormatter(time, options, series, dygraph, row, column) {
+    let modelData = options('modelData');  // custom
+    let value = formatDisplayValue(dygraph.getValue(row, column));
+    let anomaly, percent;
+
+    if (
+      modelData &&
+      modelData[row] &&
+      modelData[row][DATA_INDEX_ANOMALY]
+    ) {
+      anomaly = modelData[row][DATA_INDEX_ANOMALY];
+      percent = Math.round(anomaly * 100);
+      value = `${value} <strong>Anomaly</strong>: ${percent}%`;
+    }
+
+    return value;
+  }
+
+  /**
+   * Format Values for non-aggregated raw overlay data on Dygraph Chart Legend.
+   * @param {Number} time - UTC epoch milisecond stamp of current value point
+   * @param {Function} options - options('key') same as dygraph.getOption('key')
+   * @param {String} series - Name of series
+   * @param {Object} dygraph - Instantiated Dygraphs charting object
+   * @param {Number} row - Current row (series)
+   * @param {Number} column - Current column (data index)
+   * @returns {Number|String} - Valueset for display in Legend
+   * @see http://dygraphs.com/options.html#valueFormatter
+   */
+  _overlayValueFormatter(time, options, series, dygraph, row, column) {
+    return formatDisplayValue(dygraph.getValue(row, column));
+  }
 
   /**
    * Transform two indepdent time-series datasets into a single Dygraphs
@@ -165,45 +226,6 @@ export default class ModelData extends React.Component {
     });
 
     return newData;
-  }
-
-  /**
-   * Dygraph callback used to generate value tick marks on Y axis.
-   * @param {Number} fromValue -
-   * @param {Number} toValue -
-   * @param {Number} pixels - Length of the axis in pixels
-   * @param {function(string):*} opts - Function mapping from option name
-   *                                  to value, e.g. opts('labelsKMB')
-   * @param {Dygraph} dygraph -
-   * @param {Array} vals - generate labels for these data values
-   * @return {Array} - [ { v: tick1_v, label: tick1_label[, label_v: label_v1] },
-   *                    { v: tick2_v, label: tick2_label[, label_v: label_v2] },
-   *                    ...]
-   * @see node_modules/dygraphs/dygraph-tickers.js
-   */
-  _valueTicker(fromValue, toValue, pixels, opts, dygraph, vals) {
-    const NUMBER_OF_Y_LABELS = 4;
-    let ticks = [];
-    let interval = (toValue - fromValue) / NUMBER_OF_Y_LABELS;
-    let decimals = 0;
-    let i = 0;
-    let label, val;
-
-    if (interval > 0) {
-      if (interval < 1) {
-        decimals = Math.ceil(-Math.log(interval)/Math.LN10);
-      }
-      for (i=0; i<=NUMBER_OF_Y_LABELS; i++) {
-        val = fromValue + (i * interval);
-        label = new Number(val.toFixed(decimals)).toLocaleString();
-        ticks.push({v: val, label});
-      }
-    } else {
-      label = new Number(fromValue.toFixed(decimals)).toLocaleString();
-      ticks.push({v: fromValue, label});
-    }
-
-    return ticks;
   }
 
   shouldComponentUpdate(nextProps, nextState) {
