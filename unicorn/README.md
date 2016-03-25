@@ -209,17 +209,6 @@ IMPORTANT: run this if you updated the python code in `py/unicorn_backend` and y
 want these changes to take effect in the portable python distribution run 
 by the electron app.
 
-#### Test
-To run the backend integration tests with the portable python distribution run:
-```shell
-npm run test:integration:backend
-```
-This will make sure (among other things) that the model_runner and param_finder 
-are giving results that are compatible with the NAB ones. That is to say:
-* Make sure that the new system (param_finder + model_runner) detects the same set of anomalies as NAB.
-* It is ok for the new system to detect anomalies earlier than the NAB results.
-* It is not OK for the new system to have significantly more false positives than the NAB detections. 
-
 ### Run
 
 ```shell
@@ -326,6 +315,15 @@ npm run test:unit         # unit tests only
 npm run test:integration  # integration tests only
 npm run test:functional   # functional tests only
 ```
+To run the (python) backend integration tests with the portable python distribution run:
+```shell
+npm run test:integration:backend
+```
+This will make sure (among other things) that the model_runner and param_finder
+are giving results that are compatible with the NAB ones. That is to say:
+* Make sure that the new system (param_finder + model_runner) detects the same set of anomalies as NAB.
+* It is ok for the new system to detect anomalies earlier than the NAB results.
+* It is not OK for the new system to have significantly more false positives than the NAB detections.
 
 ### Pipeline Tests
 
