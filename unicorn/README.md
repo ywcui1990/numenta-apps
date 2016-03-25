@@ -319,6 +319,9 @@ To run the (python) backend integration tests with the portable python distribut
 ```shell
 npm run test:integration:backend
 ```
+> Optional: you might want to run a `npm run clean && npm install` before running the test to make 
+> you have an up-to-date portable python distribution.
+
 This will make sure (among other things) that the model_runner and param_finder
 are giving results that are compatible with the NAB ones. That is to say:
 * Make sure that the new system (param_finder + model_runner) detects the same set of anomalies as NAB.
