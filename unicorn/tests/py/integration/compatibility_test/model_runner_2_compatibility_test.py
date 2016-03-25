@@ -67,6 +67,8 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
       ManagedSubprocessTerminator
     :rtype: nta.utils.test_utils.ManagedSubprocessTerminator
     """
+
+    _LOGGER.info("Python: %s" % sys.executable)
     process = subprocess.Popen(
       args=[sys.executable,
             "-m", "unicorn_backend.param_finder_runner",
@@ -101,6 +103,7 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
     if aggSpec is not None:
       argumentPattern += ["--agg=%s" % aggSpec]
 
+    _LOGGER.info("Args: %s" % argumentPattern)
     process = subprocess.Popen(
       args=argumentPattern,
       stdin=subprocess.PIPE,
