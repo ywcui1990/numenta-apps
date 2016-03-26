@@ -180,10 +180,12 @@ export const DATA_FIELD_INDEX = Object.freeze({
  * Floor value for 'red' anomalies
  * @type {Number}
  */
-export const ANOMALY_RED_VALUE = 0.99999;
+// See NAB threshold:
+// https://github.com/numenta/NAB/blob/master/config/thresholds.json#L27
+export const ANOMALY_RED_VALUE = 0.5125976562500002;
 
 /**
  * Floor value for 'yellow' anomalies
  * @type {Number}
  */
-export const ANOMALY_YELLOW_VALUE = 0.9999;
+export const ANOMALY_YELLOW_VALUE = 0.4;
