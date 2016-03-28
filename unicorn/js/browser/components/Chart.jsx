@@ -208,7 +208,7 @@ export default class Chart extends React.Component {
         style={this._styles.root}
         zDepth={this.props.zDepth}
         >
-          <CircularProgress size={0.5} />
+          <CircularProgress className="loading" size={0.5} />
           {this._config.get('chart:loading')}
       </Paper>
     );

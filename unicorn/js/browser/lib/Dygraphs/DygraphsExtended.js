@@ -31,7 +31,7 @@ Dygraph.Plugins.RangeSelector.prototype.drawStaticLayer_ = function () {
   try {
     this.drawMiniPlot_();
   } catch (error) {
-    console.error(error);
+    throw new Error(error);
   }
 
   this.bgcanvas_ctx_.lineWidth = 1;
@@ -57,6 +57,7 @@ Dygraph.Plugins.RangeSelector.prototype.drawInteractiveLayer_ = function () {
   let zoomHandleStatus = this.getZoomHandleStatus_();
 
   ctx.clearRect(0, 0, this.canvasRect_.w, this.canvasRect_.h);
+  ctx.strokeWidth = 1;
 
   if (!zoomHandleStatus.isZoomed) {
     if (this.iePanOverlay_) {
@@ -68,14 +69,13 @@ Dygraph.Plugins.RangeSelector.prototype.drawInteractiveLayer_ = function () {
     let rightHandleCanvasPos = Math.min(width,
           zoomHandleStatus.rightHandlePos - this.canvasRect_.x);
 
-    ctx.fillStyle = 'rgba(220, 220, 220, 0.666)';
+    ctx.fillStyle = 'rgba(200, 200, 200, 0.543)';
     ctx.fillRect(0, 0, leftHandleCanvasPos, this.canvasRect_.h);
     ctx.fillRect(rightHandleCanvasPos, 0,
           this.canvasRect_.w - rightHandleCanvasPos, this.canvasRect_.h);
 
     ctx.beginPath();
-    ctx.strokeStyle = '#666';
-    ctx.strokeWidth = 2;
+    ctx.strokeStyle = 'rgba(75, 75, 75, 0.9)';
     ctx.moveTo(leftHandleCanvasPos, margin);
     ctx.lineTo(leftHandleCanvasPos, height);
     ctx.lineTo(rightHandleCanvasPos, height);
