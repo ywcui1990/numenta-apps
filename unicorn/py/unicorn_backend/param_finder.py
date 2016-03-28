@@ -42,19 +42,24 @@ _CORRELATION_MODE_VALID = 0
 _CORRELATION_MODE_SAME = 1
 _CORRELATION_MODE_FULL = 2
 
-_AGGREGATION_WINDOW_THRESH = 0.2
+_AGGREGATION_WINDOW_THRESH = 0.03
 
 # Maximum number of rows param_finder will process
 # If the input data exceeds MAX_NUM_ROWS, the first MAX_NUM_ROWS will be used
 MAX_NUM_ROWS = 20000
+
 # Minimum number of rows. If the number of record in the input data is
 # less than MIN_NUM_ROWS, the param_finder will return the default parameters
 MIN_NUM_ROWS = 100
+
 # Minimum number of rows after the data aggregation. The suggested aggInfo will
 # make sure more than MIN_ROW_AFTER_AGGREGATION number of records after
 # aggregation
 MIN_ROW_AFTER_AGGREGATION = 1000
 
+# Set DISABLE_DAY_OF_WEEK_ENCODER to True to disable the use of day of week
+# encoder
+DISABLE_DAY_OF_WEEK_ENCODER = True
 
 def _convolve(vector1, vector2, mode):
   """
@@ -305,23 +310,12 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
     minResolution=0.001
   )
 
-  # FIXME: remove this once NAB params are released in NuPIC  
-
-  # Keep the resolution and replace the model params by the up=to=date NAB ones
-  resolution = modelParams["modelConfig"]["modelParams"]["sensorParams"] \
-    ["encoders"]["c1"]["resolution"]
-
-  paramFileRelativePath = os.path.join("debug", "nab_params.json")
-  with resource_stream(__name__, paramFileRelativePath) as infile:
-    modelParams = json.load(infile)
-  # end FIXME.
-
   if useTimeOfDay:
     modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
       ["c0_timeOfDay"] = dict(fieldname="c0",
                               name="c0",
                               type="DateEncoder",
-                              timeOfDay=(21, 9.49))
+                              timeOfDay=(21, 9.49122334747737))
   else:
     modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
       ["c0_timeOfDay"] = None
@@ -338,13 +332,6 @@ def _getModelParams(useTimeOfDay, useDayOfWeek, values):
 
   modelParams["timestampFieldName"] = "c0"
   modelParams["valueFieldName"] = "c1"
-
-  # FIXME: remove this once NAB params are released in NuPIC  
-  modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"] \
-    ["c0_dayOfWeek"] = None
-  modelParams["modelConfig"]["modelParams"]["sensorParams"]["encoders"]["c1"][
-    "resolution"] = resolution
-  # end FIXME.
 
   return modelParams
 
@@ -463,8 +450,8 @@ def _determineAggregationWindow(timeScale,
 
   aggregationTimeScale = cutoffTimeScale / 10.0
   aggregationTimeScale = aggregationTimeScale.astype("float64")
-  if aggregationTimeScale < samplingInterval * 4:
-    aggregationTimeScale = samplingInterval * 4
+  if aggregationTimeScale < samplingInterval:
+    aggregationTimeScale = samplingInterval
 
   # make sure there is at least 1000 records after aggregation
   if numDataPts < MIN_ROW_AFTER_AGGREGATION:
@@ -547,9 +534,10 @@ def _determineEncoderTypes(cwtVar, timeScale):
           and cwtVarAtDayPeriod > localMaxValue * 0.5):
         useTimeOfDay = True
 
-      if (timeScale[leftLocalMin] < weekPeriod < timeScale[rightLocalMin]
-          and cwtVarAtWeekPeriod > localMaxValue * 0.5):
-        useDayOfWeek = True
+      if DISABLE_DAY_OF_WEEK_ENCODER is False:
+        if (timeScale[leftLocalMin] < weekPeriod < timeScale[rightLocalMin]
+            and cwtVarAtWeekPeriod > localMaxValue * 0.5):
+          useDayOfWeek = True
 
   return useTimeOfDay, useDayOfWeek
 

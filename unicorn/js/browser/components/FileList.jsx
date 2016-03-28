@@ -98,7 +98,6 @@ export default class FileList extends React.Component {
         marginLeft: '-1.4rem',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        textTransform: 'capitalize',
         whiteSpace: 'nowrap'
       },
       fileToggle: {
@@ -113,7 +112,6 @@ export default class FileList extends React.Component {
         marginLeft: '-1.9rem',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        textTransform: 'capitalize',
         whiteSpace: 'nowrap'
       },
       checkbox: {
