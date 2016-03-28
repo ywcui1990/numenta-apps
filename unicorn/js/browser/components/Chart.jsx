@@ -16,25 +16,16 @@
 // http://numenta.org/licenses/
 
 import CircularProgress from 'material-ui/lib/circular-progress';
-import Dygraph from 'dygraphs';
 import moment from 'moment';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
 import ChartUpdateViewpoint from '../actions/ChartUpdateViewpoint';
+import Dygraph from '../lib/Dygraphs/DygraphsExtended';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 
 const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
-
-/**
- * Override default draw of Dygraphs RangeSelector handle, so we can customize
- *  the styling.
- * @see node_modules/dygraphs/plugins/range-selector.js
- */
-Dygraph.Plugins.RangeSelector.prototype.drawInteractiveLayer_ = function () {
-  console.log('yey');
-}
 
 
 /**
