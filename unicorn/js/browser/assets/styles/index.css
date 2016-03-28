@@ -24,11 +24,17 @@ body {
 }
 
 ._init {
-  color:#999;
+  color: #ccc;
   font-family: Arial, sans-serif;
   font-size: 250%;
   margin-top: 17rem;
   text-align: center;
+}
+._init > img {
+  animation: spin 1s linear infinite;
+  margin-right: 0.75rem;
+  position: relative;
+  top: 6px;
 }
 
 
