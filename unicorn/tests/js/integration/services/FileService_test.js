@@ -155,7 +155,8 @@ const EXPECTED_MIN_PARTIAL = 17;
 const EXPECTED_MAX_PARTIAL = 21;
 
 // Keep this list up to date with file names in "samples/"
-const EXPECTED_SAMPLE_FILES = ['gym.csv'];
+const EXPECTED_SAMPLE_FILES = ['home_data.csv', 'machine_data.csv',
+  'nyc_taxi.csv', 'server_data.csv'];
 
 // Use this date to Mock moment now
 const EXPECTED_DATE = '2016-03-15T15:09:05-07:00';

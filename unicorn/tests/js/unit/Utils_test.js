@@ -56,7 +56,7 @@ describe('Utils', () => {
       assert.equal(actual, EXPECTED_METRICDATA_ID)
       done();
     });
-  })
+  });
   describe('common-utils', () => {
     it('#trims', (done) => {
       let multiline = `1
@@ -96,19 +96,10 @@ describe('Utils', () => {
     });
     it('#anomalyScale', (done) => {
       assert.equal(0.1, anomalyScale(0));
-      assert.equal(0.1, anomalyScale(0.5));
-      assert.equal(0.1, anomalyScale(0.9));
-      assert.equal(0.1, anomalyScale(0.95));
-      assert.equal(0.1, anomalyScale(0.99));
-      assert.equal(0.1, anomalyScale(0.995));
-      assert.equal(0.1, anomalyScale(0.999));
-      assert.equal(0.1, anomalyScale(0.9995));
-      assert.equal(0.2, anomalyScale(0.9999));
-      assert.equal(0.2, anomalyScale(0.99995));
-      assert.equal(0.3, anomalyScale(0.99999));
-      assert.equal(0.3, anomalyScale(0.999995));
-      assert.equal(0.3, anomalyScale(0.999999));
-      assert.equal(0.3, anomalyScale(0.9999995));
+      assert.equal(0.1, anomalyScale(0.3999999));
+      assert.equal(0.2, anomalyScale(0.4));
+      assert.equal(0.2, anomalyScale(0.5125976562500001));
+      assert.equal(0.3, anomalyScale(0.5125976562500002));
       assert.equal(0.3, anomalyScale(1));
       done();
     });
