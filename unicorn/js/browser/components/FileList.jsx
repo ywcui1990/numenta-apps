@@ -36,6 +36,8 @@ import React from 'react';
 
 import AddShowModelAction from '../actions/AddShowModel';
 import DeleteFileAction from '../actions/DeleteFile';
+import DeleteModelAction from '../actions/DeleteModel';
+import StopModelAction from '../actions/StopModel';
 import FileStore from '../stores/FileStore';
 import HideModelAction from '../actions/HideModel';
 import MetricStore from '../stores/MetricStore';
@@ -206,6 +208,18 @@ export default class FileList extends React.Component {
         this._config.get('dialog:file:delete:title'),
         this._config.get('dialog:file:delete:message'),
         () => {
+          let models = this.props.models;
+          models.forEach((model) => {
+            if (model.filename === file.filename) {
+              if (model.visible) {
+                this.context.executeAction(HideModelAction, model.modelId);
+              }
+              if (model.active) {
+                this.context.executeAction(StopModelAction, model.modelId);
+              }
+              this.context.executeAction(DeleteModelAction, model.modelId);
+            }
+          });
           this.context.executeAction(DeleteFileAction, file.filename);
           this._dismissDeleteConfirmDialog();
         }
