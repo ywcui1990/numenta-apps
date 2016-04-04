@@ -15,12 +15,12 @@
 //
 // http://numenta.org/licenses/
 
-import Dygraph from 'dygraphs';
 import RGBColor from 'rgbcolor';
 
 import {
   DATA_FIELD_INDEX, ANOMALY_YELLOW_VALUE
 } from '../Constants';
+import Dygraph from './DygraphsExtended';
 import {mapAnomalyColor} from '../browser-utils';
 
 const {DATA_INDEX_ANOMALY} = DATA_FIELD_INDEX;
@@ -130,7 +130,7 @@ export default class {
   _drawMiniBar(context, x, height, color, stroke) {
     context.beginPath();
     context.moveTo(x, height + 1);
-    context.lineTo(x, 3);
+    context.lineTo(x, 2);
     context.closePath();
     this._canvas_context.lineWidth = stroke;
     this._canvas_context.strokeStyle = new RGBColor(color).toRGB();

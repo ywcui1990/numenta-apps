@@ -1,4 +1,26 @@
-/* HTM Studio - Styles for entire App */
+/**
+ * Copyright © 2016, Numenta, Inc.  Unless you have purchased from
+ * Numenta, Inc. a separate commercial license for this software code, the
+ * following terms and conditions apply:
+ *
+ * This program is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero Public License along with
+ * this program.  If not, see http://www.gnu.org/licenses.
+ *
+ * http://numenta.org/licenses/
+ */
+
+
+/**
+ * HTM Studio - Styles for entire App
+ */
 
 html {
   box-sizing: border-box;
@@ -18,25 +40,36 @@ body {
   padding: 0;
 }
 
+/* animations */
 @keyframes spin {
-	from { transform: rotate(0deg); }
-	to { transform: rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
+/* app startup + init */
 ._init {
-  color:#999;
+  color: #ccc;
   font-family: Arial, sans-serif;
   font-size: 250%;
   margin-top: 17rem;
   text-align: center;
 }
-
-
-/* DyGraphs style overrides, all require !important to activate */
-
-.dygraph-chart:active {
-  cursor: move !important;
+._init > img {
+  animation: spin 1s linear infinite;
+  margin-right: 0.75rem;
+  position: relative;
+  top: 6px;
 }
+
+/* MUI CircularProgress needs to be thicker to match rest of style */
+div.loading > div > svg > circle {
+  stroke-width: 5px !important;
+}
+
+
+/**
+ * DyGraphs style overrides, all require !important to activate */
+ */
 
 .dygraph-axis-label,
 .dygraph-axis-label-x,
@@ -59,20 +92,23 @@ body {
 }
 
 .dygraph-rangesel-bgcanvas {
+  cursor: pointer !important;
   z-index: 10 !important;
 }
 
 .dygraph-rangesel-fgcanvas {
+  cursor: pointer !important;
   z-index: 30 !important;
 }
 
 .dygraph-rangeselbarchart-canvas {
-  opacity: 0.8 !important;
+  cursor: pointer !important;
+  opacity: 0.666 !important;
   z-index: 20 !important;
 }
 
 img.dygraph-rangesel-zoomhandle {
   /* do not set display:none, it'll break dygraps range selector */
-  cursor: move !important;
+  cursor: pointer !important;
   opacity: 0 !important;
 }

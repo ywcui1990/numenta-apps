@@ -60,6 +60,12 @@ export default class CreateModelDialog extends React.Component {
       agg: {
         marginRight: '1rem'
       },
+      loading: {
+        left: 0,
+        marginRight: 10,
+        position: 'relative',
+        top: 16
+      },
       raw: {
         color: muiTheme.rawTheme.palette.accent4Color,
         fontSize: 13,
@@ -83,8 +89,8 @@ export default class CreateModelDialog extends React.Component {
   }
 
   componentDidMount() {
-    // Show progress for at least 3 secs
-    setTimeout(() => this.setState({progress: false}), 3000);
+    // Show progress for at least 4 secs
+    setTimeout(() => this.setState({progress: false}), 4000);
   }
 
   render() {
@@ -138,7 +144,11 @@ export default class CreateModelDialog extends React.Component {
     } else {
       body = (
         <div>
-          <CircularProgress size={0.5} />
+          <CircularProgress
+            className="loading"
+            size={0.5}
+            style={this._styles.loading}
+            />
           {this._config.get('dialog:model:create:loading')}
         </div>
       );

@@ -18,6 +18,7 @@
 import Checkbox from 'material-ui/lib/checkbox';
 import CheckboxIcon from 'material-ui/lib/svg-icons/toggle/check-box';
 import CheckboxOutline from 'material-ui/lib/svg-icons/toggle/check-box-outline-blank';
+import CircularProgress from 'material-ui/lib/circular-progress';
 import connectToStores from 'fluxible-addons-react/connectToStores';
 import Dialog from 'material-ui/lib/dialog';
 import FlatButton from 'material-ui/lib/flat-button';
@@ -28,7 +29,6 @@ import IconMenu from 'material-ui/lib/menus/icon-menu';
 import IconMore from 'material-ui/lib/svg-icons/navigation/more-vert';
 import IconOpen from 'material-ui/lib/svg-icons/hardware/keyboard-arrow-up';
 import IconStatus from 'material-ui/lib/svg-icons/image/lens';
-import IconLoading from 'material-ui/lib/svg-icons/navigation/refresh';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 import MenuItem from 'material-ui/lib/menus/menu-item';
@@ -121,24 +121,28 @@ export default class FileList extends React.Component {
         top: 14
       },
       tooltip: {
-        margin: 0,
+        marginBottom: 0,
+        marginLeft: 0,
+        marginRight: 23,
+        marginTop: 2,
         padding: 0
       },
       loading: {
-        animation: 'spin 1s linear infinite',
-        height: 12,
-        margin: 0,
-        marginRight: '0.5rem',
-        verticalAlign: 'top',
-        padding: 0,
-        width: 12
+        position: 'absolute',
+        height: 15,
+        marginLeft: 3,
+        marginTop: 1,
+        width: 15
+      },
+      loadingInner: {
+        left: -20,
+        position: 'relative',
+        top: -19
       },
       status: {
-        height: 12,
-        margin: 0,
-        marginRight: '0.5rem',
-        padding: 0,
-        width: 12
+        position: 'absolute',
+        height: 15,
+        width: 15
       }
     };
   }
@@ -249,7 +253,13 @@ export default class FileList extends React.Component {
               statusTooltip = this._config.get('status:model:active');
               statusColor = muiTheme.rawTheme.palette.primary2Color;
               statusIcon = (
-                <IconLoading color={statusColor} style={this._styles.loading}/>
+                <CircularProgress
+                  className="loading"
+                  color={statusColor}
+                  innerStyle={this._styles.loadingInner}
+                  size={0.2}
+                  style={this._styles.loading}
+                  />
               );
             } else {
               if (model.ran) {

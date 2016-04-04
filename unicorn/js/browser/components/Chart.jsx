@@ -16,16 +16,17 @@
 // http://numenta.org/licenses/
 
 import CircularProgress from 'material-ui/lib/circular-progress';
-import Dygraph from 'dygraphs';
 import moment from 'moment';
 import Paper from 'material-ui/lib/paper';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
 import ChartUpdateViewpoint from '../actions/ChartUpdateViewpoint';
+import Dygraph from '../lib/Dygraphs/DygraphsExtended';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 
 const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
+const RANGE_SELECTOR_CLASS = 'dygraph-rangesel-fgcanvas';
 
 
 /**
@@ -66,6 +67,7 @@ export default class Chart extends React.Component {
 
     // DyGraphs chart container
     this._dygraph = null;
+    this._chartRange = [null, null];
     this._displayPointCount = this._config.get('chart:points');
     this._previousDataSize = 0;
 
@@ -90,9 +92,11 @@ export default class Chart extends React.Component {
   componentWillUnmount() {
     let {model} = this.props.metaData;
     let element = ReactDOM.findDOMNode(this.refs[`chart-${model.modelId}`]);
+    let range = element.getElementsByClassName(RANGE_SELECTOR_CLASS)[0];
 
     if (this._dygraph) {
       Dygraph.removeEvent(element, 'mouseup', this._handleMouseUp.bind(this));
+      Dygraph.removeEvent(range, 'mousedown', this._handleMouseDown.bind(this));
       this._dygraph.destroy();
       this._dygraph = null;
     }
@@ -123,20 +127,24 @@ export default class Chart extends React.Component {
     let second = moment(data[1][DATA_INDEX_TIME]).valueOf();
     let unit = second - first; // each datapoint
     let rangeWidth = unit * this._displayPointCount;
-    let chartRange = [first, first + rangeWidth]; // float left
+    let rangeEl;
+
+    this._chartRange = [first, first + rangeWidth]; // float left
 
     // move chart back to last valid display position from previous viewing?
     if ('viewpoint' in metric && metric.viewpoint) {
-      chartRange = [metric.viewpoint, metric.viewpoint + rangeWidth];
+      this._chartRange = [metric.viewpoint, metric.viewpoint + rangeWidth];
     }
 
     // init, render, and draw chart!
-    this._previousDataSize = data.length;
-    options.dateWindow = chartRange;  // update viewport of chart range selector
+    options.dateWindow = this._chartRange;  // update viewport of range selector
     options.axes.y.valueRange = [metaData.min, metaData.max];  // lock y-axis
+    this._previousDataSize = data.length;
     this._dygraph = new Dygraph(element, data, options);
 
-    // after: track chart viewport position on chart/rangeselector mouseup event
+    // after: track chart viewport position changes
+    rangeEl = element.getElementsByClassName(RANGE_SELECTOR_CLASS)[0];
+    Dygraph.addEvent(rangeEl, 'mousedown', this._handleMouseDown.bind(this));
     Dygraph.addEvent(element, 'mouseup', this._handleMouseUp.bind(this));
   }
 
@@ -148,12 +156,15 @@ export default class Chart extends React.Component {
     let {model} = metaData;
     let modelIndex = Math.abs(model.dataSize - 1);
     let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
-    let [rangeMin, rangeMax] = this._dygraph.xAxisRange();
+    let [rangeMin, rangeMax] = this._chartRange;
     let rangeWidth = rangeMax - rangeMin;
     let scrollLock = false;
 
     // should we scroll along with incoming model data?
-    if (model.active && modelIndex < data.length) {
+    if (model.active && (modelIndex < data.length) && (
+      (model.aggregated && (data.length !== this._previousDataSize)) ||
+      (!model.aggregated)
+    )) {
       scrollLock = true;
     }
 
@@ -165,13 +176,52 @@ export default class Chart extends React.Component {
         rangeMin = first;
         rangeMax = rangeMin + rangeWidth;
       }
+      this._chartRange = [rangeMin, rangeMax];
     }
 
     // update chart
-    options.dateWindow = [rangeMin, rangeMax];
+    options.dateWindow = this._chartRange;
     options.file = data;  // new data
     this._previousDataSize = data.length;
     this._dygraph.updateOptions(options);
+  }
+
+  /**
+   * Overlay default Dygraphs Range Selector mousedown event handler in order
+   *  to move chart viewpoint easily via point-and-click.
+   * @param {Object} event - DOM `mousedown` event object
+   */
+  _handleMouseDown(event) {
+    if (! this._dygraph) return;
+
+    let eventX = this._dygraph.eventToDomCoords(event)[0];
+    let {w: canvasWidth} = this._dygraph.getArea();
+    let [chartStart, chartEnd] = this._dygraph.xAxisExtremes();
+    let [rangeStart, rangeEnd] = this._chartRange;
+    let chartWidth = chartEnd - chartStart;
+    let rangeWidth = rangeEnd - rangeStart;
+    let rangeWidthHalf = rangeWidth / 2;
+    let pixelFactor = eventX / canvasWidth;
+    let chartFactor = pixelFactor * chartWidth;
+    let ts = chartStart + chartFactor;
+    let newMin = ts - rangeWidthHalf;
+    let newMax = ts + rangeWidthHalf;
+
+    // only handle click outside of range finder handle
+    if (ts >= rangeStart && ts <= rangeEnd) return;
+
+    // watch out for Range Selector hanging off edges
+    if (newMin < chartStart) {
+      newMin = chartStart;
+      newMax = chartStart + rangeWidth;
+    } else if (newMax > chartEnd) {
+      newMax = chartEnd;
+      newMin = chartEnd - rangeWidth;
+    }
+
+    // update chart
+    this._chartRange = [newMin, newMax];
+    this._chartUpdate();
   }
 
   /**
@@ -181,13 +231,15 @@ export default class Chart extends React.Component {
    * @param {Object} event - DOM `mouseup` event object
    */
   _handleMouseUp(event) {
-    if (this._dygraph) {
-      let range = this._dygraph.xAxisRange();
-      this.context.executeAction(ChartUpdateViewpoint, {
-        metricId: this.props.metaData.model.modelId,
-        viewpoint: range[0] || null
-      });
-    }
+    if (! this._dygraph) return;
+    let range = this._dygraph.xAxisRange();
+    this._chartRange = range;
+
+    // store viewpoint position
+    this.context.executeAction(ChartUpdateViewpoint, {
+      metricId: this.props.metaData.model.modelId,
+      viewpoint: range[0] || null
+    });
   }
 
   /**
@@ -208,7 +260,7 @@ export default class Chart extends React.Component {
         style={this._styles.root}
         zDepth={this.props.zDepth}
         >
-          <CircularProgress size={0.5} />
+          <CircularProgress className="loading" size={0.5} />
           {this._config.get('chart:loading')}
       </Paper>
     );

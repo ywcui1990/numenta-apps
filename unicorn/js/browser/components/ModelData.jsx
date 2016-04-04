@@ -16,7 +16,6 @@
 // http://numenta.org/licenses/
 
 import connectToStores from 'fluxible-addons-react/connectToStores';
-import Dygraph from 'dygraphs';
 import moment from 'moment';
 import React from 'react';
 
@@ -24,6 +23,7 @@ import anomalyBarChartUnderlay from '../lib/Dygraphs/AnomalyBarChartUnderlay';
 import axesCustomLabelsUnderlay from '../lib/Dygraphs/AxesCustomLabelsUnderlay';
 import Chart from './Chart';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
+import Dygraph from '../lib/Dygraphs/DygraphsExtended';
 import {formatDisplayValue} from '../lib/browser-utils';
 import MetricStore from '../stores/MetricStore';
 import MetricDataStore from '../stores/MetricDataStore';

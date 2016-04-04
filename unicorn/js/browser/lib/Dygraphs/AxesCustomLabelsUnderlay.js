@@ -15,6 +15,8 @@
 //
 // http://numenta.org/licenses/
 
+/* eslint-disable max-statements */
+
 import moment from 'moment';
 import RGBColor from 'rgbcolor';
 
