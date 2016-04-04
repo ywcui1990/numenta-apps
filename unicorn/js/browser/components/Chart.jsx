@@ -26,6 +26,7 @@ import Dygraph from '../lib/Dygraphs/DygraphsExtended';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 
 const {DATA_INDEX_TIME} = DATA_FIELD_INDEX;
+const RANGE_SELECTOR_CLASS = 'dygraph-rangesel-fgcanvas';
 
 
 /**
@@ -91,9 +92,11 @@ export default class Chart extends React.Component {
   componentWillUnmount() {
     let {model} = this.props.metaData;
     let element = ReactDOM.findDOMNode(this.refs[`chart-${model.modelId}`]);
+    let range = element.getElementsByClassName(RANGE_SELECTOR_CLASS)[0];
 
     if (this._dygraph) {
       Dygraph.removeEvent(element, 'mouseup', this._handleMouseUp.bind(this));
+      Dygraph.removeEvent(range, 'mousedown', this._handleMouseDown.bind(this));
       this._dygraph.destroy();
       this._dygraph = null;
     }
@@ -119,7 +122,6 @@ export default class Chart extends React.Component {
   _chartInitalize() {
     let {data, metaData, options} = this.props;
     let {metric, model} = metaData;
-    let rangeClass = 'dygraph-rangesel-fgcanvas';
     let element = ReactDOM.findDOMNode(this.refs[`chart-${model.modelId}`]);
     let first = moment(data[0][DATA_INDEX_TIME]).valueOf();
     let second = moment(data[1][DATA_INDEX_TIME]).valueOf();
@@ -141,8 +143,7 @@ export default class Chart extends React.Component {
     this._dygraph = new Dygraph(element, data, options);
 
     // after: track chart viewport position changes
-    rangeEl = element.getElementsByClassName(rangeClass)[0];
-    rangeEl.style.cursor = 'pointer';
+    rangeEl = element.getElementsByClassName(RANGE_SELECTOR_CLASS)[0];
     Dygraph.addEvent(rangeEl, 'mousedown', this._handleMouseDown.bind(this));
     Dygraph.addEvent(element, 'mouseup', this._handleMouseUp.bind(this));
   }
@@ -160,11 +161,10 @@ export default class Chart extends React.Component {
     let scrollLock = false;
 
     // should we scroll along with incoming model data?
-    if (
-      model.active &&
-      modelIndex < data.length &&
-      data.length !== this._previousDataSize
-    ) {
+    if (model.active && (modelIndex < data.length) && (
+      (model.aggregated && (data.length !== this._previousDataSize)) ||
+      (!model.aggregated)
+    )) {
       scrollLock = true;
     }
 
@@ -188,7 +188,7 @@ export default class Chart extends React.Component {
 
   /**
    * Overlay default Dygraphs Range Selector mousedown event handler in order
-   *  to move chart viewpoint easily.
+   *  to move chart viewpoint easily via point-and-click.
    * @param {Object} event - DOM `mousedown` event object
    */
   _handleMouseDown(event) {
