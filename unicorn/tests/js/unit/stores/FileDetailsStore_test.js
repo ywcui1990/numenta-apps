@@ -21,11 +21,11 @@ import instantiator from 'json-schema-instantiator';
 import path from 'path';
 import {
   DBFileSchema, DBMetricSchema
-} from '../../../../js/database/schema';
-import FileDetailsStore from '../../../../js/browser/stores/FileDetailsStore';
+} from '../../../../app/database/schema';
+import FileDetailsStore from '../../../../app/browser/stores/FileDetailsStore';
 import {
   generateMetricId, generateFileId
-} from '../../../../js/main/generateId';
+} from '../../../../app/main/generateId';
 
 const assert = require('assert');
 const METRIC_INSTANCE = instantiator.instantiate(DBMetricSchema);

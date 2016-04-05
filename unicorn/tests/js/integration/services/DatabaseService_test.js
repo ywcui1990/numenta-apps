@@ -23,15 +23,15 @@ import instantiator from 'json-schema-instantiator';
 import path from 'path';
 import os from 'os';
 
-import {DatabaseService} from '../../../../js/main/DatabaseService';
+import {DatabaseService} from '../../../../app/main/DatabaseService';
 import {
   generateFileId, generateMetricId
-} from '../../../../js/main/generateId';
+} from '../../../../app/main/generateId';
 import {
   DBFileSchema,
   DBMetricSchema, DBMetricDataSchema,
   DBModelSchema, DBModelDataSchema
-} from '../../../../js/database/schema';
+} from '../../../../app/database/schema';
 
 
 const assert = require('assert');

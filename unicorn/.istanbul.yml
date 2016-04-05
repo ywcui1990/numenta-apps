@@ -1,5 +1,5 @@
 instrumentation:
-  root: js
+  root: app
   extensions:
     - .jsx
     - .js

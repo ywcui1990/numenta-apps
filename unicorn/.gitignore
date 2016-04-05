@@ -5,11 +5,10 @@
 .tags_swap
 tags
 
-build/
 coverage/
 dist/
-js/browser/assets/bundle/
-js/docs/
+app/browser/assets/bundle/
+docs/
 node_modules/
-nupic/
-Unicorn-darwin-x64/
+py/build/
+py/dist/

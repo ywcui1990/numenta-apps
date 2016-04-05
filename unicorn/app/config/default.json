@@ -1,14 +1,9 @@
 {
   "title": "HTM Studio",
-  "desc": "Cross-platform Desktop HTM Example Application",
+  "desc": "HTM Studio Desktop Application",
   "company": "Numenta",
   "browser": {
     "entry": "../browser/index.html"
-  },
-  "bundle": {
-    "destination": "js/browser/assets/bundle",
-    "public": "js/browser/assets/bundle/",
-    "source": "js/browser/app"
   },
   "button": {
     "add": "Add File",
@@ -77,6 +72,6 @@
     }
   },
   "samples": {
-    "path": "../../samples"
+    "path": "../samples"
   }
 }

@@ -1,6 +1,6 @@
 {
-  "source": "./js",
-  "destination": "./js/docs",
+  "source": "./app",
+  "destination": "./docs",
   "title": "Numenta HTM Studio",
   "excludes": [
     "bundle\\.js$"

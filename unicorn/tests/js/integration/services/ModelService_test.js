@@ -19,7 +19,7 @@
  * -------------------------------------------------------------------------- */
 
 import path from 'path';
-import {ModelService} from '../../../../js/main/ModelService';
+import {ModelService} from '../../../../app/main/ModelService';
 const assert = require('assert');
 
 const FIXTURES = path.resolve(__dirname, '..', '..', 'fixtures');

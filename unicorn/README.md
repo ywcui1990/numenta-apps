@@ -14,7 +14,7 @@ and http://numenta.org/licenses/.
 
 ## Repository
 
-The `js/` directory contains Cross-platform Desktop Application GUI code,
+The `app/` directory contains Cross-platform Desktop Application GUI code,
 running Javascript/HTML/CSS/etc. on [Node.js](https://nodejs.org/),
 [Electron](https://github.com/atom/electron), and
 [Google Chromium](https://www.chromium.org/Home). It also contains non-GUI logic
@@ -37,7 +37,7 @@ goal to demo to the user.
 ├── LICENSE.txt             # Dual: Commercial and AGPLv3
 ├── README.md               # This file. A project overview.
 ├── coverage/               # JS Unit+Integration test coverage output (!git)
-├── js/                     # Frontend+GUI that exposes NuPIC HTM models to User
+├── app/                    # Frontend+GUI that exposes NuPIC HTM models to User
 │   ├── assets/             # System/native-level assets, images, icons, etc.
 │   ├── browser/            # JS+HTML+CSS as GUI in electron's Renderer Process
 │   │   ├── actions/        # FLUX Fluxible Actions JS
@@ -150,9 +150,9 @@ known as "Flux".
 Below is an example of tracing of our way through GUI initialization, GUI first
 loop run, and GUI loop continuation:
 
-1. Electron loads `js/main.js`
-1. .. which (or Browser directly) loads `js/browser/index.html`
-1. .. which loads `js/browser/js/app.js`
+1. Electron loads `app/main.js`
+1. .. which (or Browser directly) loads `app/browser/index.html`
+1. .. which loads `app/browser/app.js`
 1. .. which inits Fluxible
 1. .. and then Fluxible fires off an initial Action
 1. .. which dispatches Events with state data to Stores
@@ -205,8 +205,8 @@ Execute the following command after making changes to `unicorn_backend` code:
 ```shell
 npm run install:backend
 ```
-IMPORTANT: run this if you updated the python code in `py/unicorn_backend` and you 
-want these changes to take effect in the portable python distribution run 
+IMPORTANT: run this if you updated the python code in `py/unicorn_backend` and you
+want these changes to take effect in the portable python distribution run
 by the electron app.
 
 ### Run
@@ -319,7 +319,7 @@ To run the (python) backend integration tests with the portable python distribut
 ```shell
 npm run test:integration:backend
 ```
-> Optional: you might want to run a `npm run clean && npm install` before running the test to make 
+> Optional: you might want to run a `npm run clean && npm install` before running the test to make
 > you have an up-to-date portable python distribution.
 
 This will make sure (among other things) that the model_runner and param_finder

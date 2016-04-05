@@ -19,7 +19,7 @@
  * -------------------------------------------------------------------------- */
 
 import path from 'path';
-import {ParamFinderService} from '../../../../js/main/ParamFinderService';
+import {ParamFinderService} from '../../../../app/main/ParamFinderService';
 const assert = require('assert');
 
 const FIXTURES = path.resolve(__dirname, '..', '..', 'fixtures');

@@ -23,13 +23,13 @@ import instantiator from 'json-schema-instantiator';
 import moment from 'moment';
 import path from 'path';
 
-import service from '../../../../js/main/FileService';
+import service from '../../../../app/main/FileService';
 import {
   generateMetricId, generateFileId
-} from '../../../../js/main/generateId';
+} from '../../../../app/main/generateId';
 import {
   DBFileSchema, DBMetricSchema
-} from '../../../../js/database/schema';
+} from '../../../../app/database/schema';
 
 function createFileInstance(filename, properties) {
   return Object.assign({}, FILE_INSTANCE, {

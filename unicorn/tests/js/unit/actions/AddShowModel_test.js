@@ -21,11 +21,11 @@ import {createMockActionContext} from 'fluxible/utils';
 import instantiator from 'json-schema-instantiator';
 import path from 'path';
 
-import {ACTIONS} from '../../../../js/browser/lib/Constants';
-import AddShowModelAction from '../../../../js/browser/actions/AddShowModel';
-import {DBModelSchema} from '../../../../js/database/schema';
-import {generateMetricId} from '../../../../js/main/generateId';
-import ModelStore from '../../../../js/browser/stores/ModelStore';
+import {ACTIONS} from '../../../../app/browser/lib/Constants';
+import AddShowModelAction from '../../../../app/browser/actions/AddShowModel';
+import {DBModelSchema} from '../../../../app/database/schema';
+import {generateMetricId} from '../../../../app/main/generateId';
+import ModelStore from '../../../../app/browser/stores/ModelStore';
 
 const MODEL_INSTANCE = instantiator.instantiate(DBModelSchema);
 
