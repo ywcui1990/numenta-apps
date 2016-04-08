@@ -16,7 +16,7 @@
 // http://numenta.org/licenses/
 
 const assert = require('assert');
-const config = require('../../../js/config/default.json');
+const config = require('../../../app/config/default.json');
 const options = require('./webdriver.options');
 const webdriverio = require('webdriverio');
 

@@ -21,12 +21,12 @@ import DBMetricSchema from './Metric.json';
 import DBModelDataSchema from './ModelData.json';
 import DBModelSchema from './Model.json';
 
-import MRAggregationSchema from '../../../py/unicorn_backend/agg_opt_schema.json';
-import MRInputSchema from '../../../py/unicorn_backend/input_opt_schema.json';
-import MRModelSchema from '../../../py/unicorn_backend/model_opt_schema.json';
+import MRAggregationSchema from './py/agg_opt_schema.json';
+import MRInputSchema from './py/input_opt_schema.json';
+import MRModelSchema from './py/model_opt_schema.json';
 
-import PFInputSchema from '../../../py/unicorn_backend/input_opt_schema_param_finder.json';
-import PFOutputSchema from '../../../py/unicorn_backend/param_finder_output_schema.json';
+import PFInputSchema from './py/input_opt_schema_param_finder.json';
+import PFOutputSchema from './py/param_finder_output_schema.json';
 
 
 // Aggregation options JSON Schema not 'required' on UI layer.

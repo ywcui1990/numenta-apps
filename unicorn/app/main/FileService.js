@@ -37,7 +37,7 @@ import TimeAggregator from './TimeAggregator';
 import {TIMESTAMP_FORMATS} from '../common/timestamp';
 import {
   generateFileId, generateMetricId
-} from '../main/generateId';
+} from './generateId';
 
 const INSTANCES = {
   FILE: instantiator.instantiate(DBFileSchema),

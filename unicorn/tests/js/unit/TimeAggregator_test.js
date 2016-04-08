@@ -22,7 +22,7 @@ import csv from 'csv-streamify';
 import fs from 'fs';
 import path from 'path';
 
-import TimeAggregator from '../../../js/main/TimeAggregator';
+import TimeAggregator from '../../../app/main/TimeAggregator';
 const assert = require('assert');
 
 const FILENAME = path.resolve(__dirname, '../fixtures/rec-center-15.csv');

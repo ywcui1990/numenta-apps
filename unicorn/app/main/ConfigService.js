@@ -20,7 +20,7 @@ import path from 'path';
 import isElectronRenderer from 'is-electron-renderer';
 
 const CONFIG_FILE = 'default.json';
-const CONFIG_PATH = path.join('js', 'config');
+const CONFIG_PATH = path.join(__dirname, '..', 'config');
 
 const Defaults = {
   NODE_ENV: 'development',

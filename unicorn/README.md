@@ -14,7 +14,7 @@ and http://numenta.org/licenses/.
 
 ## Repository
 
-The `js/` directory contains Cross-platform Desktop Application GUI code,
+The `app/` directory contains Cross-platform Desktop Application GUI code,
 running Javascript/HTML/CSS/etc. on [Node.js](https://nodejs.org/),
 [Electron](https://github.com/atom/electron), and
 [Google Chromium](https://www.chromium.org/Home). It also contains non-GUI logic
@@ -26,7 +26,7 @@ goal to demo to the user.
 
 ### Filesystem Tree
 
-`tree` output last updated `Sun Feb 28 13:47:32 PST 2016`:
+`tree` output last updated `Thu Apr  7 08:15:13 PDT 2016`:
 
 ```shell
 ./                          # Git Repo Root
@@ -36,12 +36,10 @@ goal to demo to the user.
 ├── DEPENDENCIES.md         # Module dependency overview file
 ├── LICENSE.txt             # Dual: Commercial and AGPLv3
 ├── README.md               # This file. A project overview.
-├── coverage/               # JS Unit+Integration test coverage output (!git)
-├── js/                     # Frontend+GUI that exposes NuPIC HTM models to User
-│   ├── assets/             # System/native-level assets, images, icons, etc.
+├── app/                    # Frontend+GUI that exposes NuPIC HTM models to User
 │   ├── browser/            # JS+HTML+CSS as GUI in electron's Renderer Process
 │   │   ├── actions/        # FLUX Fluxible Actions JS
-│   │   ├── app.js          # Fluxible Web GUI App entry, compiles to bundle.js  
+│   │   ├── entry.js        # Fluxible Web GUI App entry, compiles to bundle.js  
 │   │   ├── assets/         # Browser/GUI images, icons, and other assets
 │   │   │   ├── bundle/     # Auto-generated WebPack output bundle target dir
 │   │   │   ├── images/     # GUI imagery
@@ -53,15 +51,21 @@ goal to demo to the user.
 │   ├── config/             # JS Config files, both auto-init with nconf, more.
 │   ├── database/           # File-based database storage (levelup + leveldown)
 │   │   └── schema/         # Database definition schemas in JSONSchema Draft-3
-│   ├── docs/               # Output dir for generated JS docs (not in git)
-│   └── main/               # JS for Electron's "Main Process", App init startup
-│       ├── index.js        # ES6 Electron App main entry, init GUI, run models
-│       └── loader.js       # Electron App entry loader for main.js ES5 => ES6
-├── node_modules/           # Where `npm` installs packages to (not in git)
-├── package.json            # Node.js `npm` packages, dependencies, and config
+│   ├── main/               # JS for Electron's "Main Process", App init startup
+│   │   ├── index.js        # ES6 Electron App main entry, init GUI, run models
+│   │   └── loader.js       # Electron App entry loader for main.js ES5 => ES6
+│   ├── node_modules/       # Where npm installs packages for distribution
+│   ├── package.json        # npm dependencies and config for distribution
+│   └── samples/            # Sample .CSV data files to pre-load for user in GUI
+├── build/                  # Distribution assets, images, icons, etc.
+├── coverage/               # JS Unit+Integration test coverage output (!git)
+├── dist/                   # Installers and disk images for distribution
+├── docs/                   # Output dir for generated JS docs (not in git)
+├── esdoc.json              # ESDoc configuration file
+├── node_modules/           # Where npm installs packages for development
+├── package.json            # npm dependencies and config for development
 ├── py/                     # ModelRunner and support Python/C++ code
 │   └── README.md           # Python Backend instructions
-├── samples/                # Sample .CSV data files to pre-load for user in GUI
 ├── scripts/                # Building and cross-platform Portability scripts
 ├── tests/                  # All tests, javascript, python, unit, integration
 │   ├── data/               # Data tests, bad formats, etc.
@@ -150,9 +154,9 @@ known as "Flux".
 Below is an example of tracing of our way through GUI initialization, GUI first
 loop run, and GUI loop continuation:
 
-1. Electron loads `js/main.js`
-1. .. which (or Browser directly) loads `js/browser/index.html`
-1. .. which loads `js/browser/js/app.js`
+1. Electron loads `app/main.js`
+1. .. which (or Browser directly) loads `app/browser/index.html`
+1. .. which loads `app/browser/app.js`
 1. .. which inits Fluxible
 1. .. and then Fluxible fires off an initial Action
 1. .. which dispatches Events with state data to Stores
@@ -205,8 +209,8 @@ Execute the following command after making changes to `unicorn_backend` code:
 ```shell
 npm run install:backend
 ```
-IMPORTANT: run this if you updated the python code in `py/unicorn_backend` and you 
-want these changes to take effect in the portable python distribution run 
+IMPORTANT: run this if you updated the python code in `py/unicorn_backend` and you
+want these changes to take effect in the portable python distribution run
 by the electron app.
 
 ### Run
@@ -231,17 +235,34 @@ output generated by [ESDoc](https://esdoc.org/).
 npm run docs  # generate and open documentation
 ```
 
+### Packaging and distribution
+
+We use [electron-builder](https://www.npmjs.com/package/electron-builder) to build and package the application for distribution. The authors of `electron-builder` strongly recommend to use two `package.json` files.
+
+#### Two `package.json` structure:
+
+1. For development
+In the root of the project. Here you declare dependencies for your development environment, tests and build scripts.
+
+2. For your application
+In the app directory. Only this directory is distributed with real application.
+
 ### `npm` Scripts
 
 Here are the `npm` scripts available via `npm run <script-name>`. Please see
 `package.json` for more info.
 
-* `build`: Run all steps required to build the application
+* `build:osx`: Run all steps required to build the application (OSX)
+* `build:win`: Run all steps required to build the application (Windows)
 * `clean`: Clean all build an runtime artifacts
-  * `clean:build`: Delete build artifacts
+  * `clean:backend`: Delete `python` backend packages
+  * `clean:dist`: Delete all build artifacts
+  * `clean:osx`: Delete build artifacts (OSX)
+  * `clean:win`: Delete build artifacts (Windows)
   * `clean:db:osx`: Delete database files (OSX)
   * `clean:docs`: Delete documentation
-  * `clean:npm`: Delete `npm` installed packages installed locally
+  * `clean:npm`: Delete `npm` installed packages
+  * `clean:python`: Delete `python` build artifacts
   * `clean:webpack`: Clean compiled/packaged JS code
 * `dev`: Launch Desktop application
 * `dev:debug`: Launch in debug mode. See
@@ -251,6 +272,8 @@ Here are the `npm` scripts available via `npm run <script-name>`. Please see
   See [Electron Documentation]( https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
   for detailed instructions on how to use the debugger
 * `docs`: Build documentation (esdoc)
+* `dist:osx`: Build Mac OSX distribution artifacts
+* `dist:win`: Build Windows distribution artifacts
 * `electron`: Launch Electron
 * `electron:debug`: Launch Electron in debug mode. See
   [Electron Documentation]( https://github.com/atom/electron/blob/master/docs/tutorial/debugging-main-process.md)
@@ -258,6 +281,8 @@ Here are the `npm` scripts available via `npm run <script-name>`. Please see
 * `electron:packager`: Build installable packages
 * `esfmt`: Format JS code (esformatter)
 * `lint`: Lint JS code (eslint)
+* `pack:osx`: Package the electron app as a Mac OSX Application
+* `pack:win`: Package the electron app as a Windows Application
 * `prepare`: Prepare code for packaging
 * `test`: Run all JS tests using developer options. See
   [mocha.opts](tests/js/mocha.opts)
@@ -319,7 +344,7 @@ To run the (python) backend integration tests with the portable python distribut
 ```shell
 npm run test:integration:backend
 ```
-> Optional: you might want to run a `npm run clean && npm install` before running the test to make 
+> Optional: you might want to run a `npm run clean && npm install` before running the test to make
 > you have an up-to-date portable python distribution.
 
 This will make sure (among other things) that the model_runner and param_finder
@@ -372,17 +397,24 @@ unset PYTHONPATH
 Build the electron app with:
 
 ```shell
-npm run build
+npm run build:osx
 
 # same thing, but explicit
-NODE_ENV=production npm run build
+NODE_ENV=production npm run build:osx
 ```
 
-The resulting `.app` can be found in `unicorn/Unicorn-darwin-x64/`
+The resulting artifacts can be found in `dist/`
 
 ### Windows
 
-@TODO
+```shell
+npm run build:win
+
+# same thing, but explicit
+NODE_ENV=production npm run build:win
+```
+
+The resulting artifacts can be found in `dist/`
 
 
 ## Release
@@ -392,12 +424,11 @@ The resulting `.app` can be found in `unicorn/Unicorn-darwin-x64/`
 * You need a certificate type of “Developer ID Application” from Apple. This
   certificate usually has a common name in the form of
   `Developer ID Application: YourCompany, Inc. (ABCDEFGHIJK)`.
-* Set the environment variable `UNICORN_CERT_DEV_APPLE` and sign the app:
-  `export UNICORN_CERT_DEV_APPLE="Developer ID Application: Numenta, Inc. (ABCDEFGHIJK)"`
-* Now when you package with `npm run electron:packager`, the app will
+* Set the environment variable `CSC_NAME` and sign the app:
+  `export CSC_NAME="Developer ID Application: Numenta, Inc. (ABCDEFGHIJK)"`
+* Now when you package with `npm run build:osx`, the app will
   be signed.
-* Useful blog post about signing Electron apps:
-  http://jbavari.github.io/blog/2015/08/14/codesigning-electron-applications
+* See [electron-builder#code-signing](https://github.com/electron-userland/electron-builder#code-signing) for more info.
 
 ### App Store
 

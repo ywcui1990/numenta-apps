@@ -28,7 +28,7 @@ VALIDATOR.addSchema(DBModelSchema);
 
 /**
  * Fluxible Store for Model Data
- * @see js/database/schema/Model.json
+ * @see app/database/schema/Model.json
  */
 export default class ModelStore extends BaseStore {
 

@@ -18,11 +18,11 @@
 /* eslint-disable max-nested-callbacks */
 import {
   generateId, generateFileId, generateMetricId, generateMetricDataId
-} from '../../../js/main/generateId';
+} from '../../../app/main/generateId';
 
 import {
   trims, promisify, anomalyScale
-} from '../../../js/common/common-utils';
+} from '../../../app/common/common-utils';
 
 const assert = require('assert');
 const FILENAME = 'file.csv';

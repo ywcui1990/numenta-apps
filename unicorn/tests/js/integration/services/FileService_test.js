@@ -23,13 +23,13 @@ import instantiator from 'json-schema-instantiator';
 import moment from 'moment';
 import path from 'path';
 
-import service from '../../../../js/main/FileService';
+import service from '../../../../app/main/FileService';
 import {
   generateMetricId, generateFileId
-} from '../../../../js/main/generateId';
+} from '../../../../app/main/generateId';
 import {
   DBFileSchema, DBMetricSchema
-} from '../../../../js/database/schema';
+} from '../../../../app/database/schema';
 
 function createFileInstance(filename, properties) {
   return Object.assign({}, FILE_INSTANCE, {
@@ -247,18 +247,18 @@ describe('FileService', () => {
     });
   });
   describe('#validate', () => {
-    let saveMomentNow = moment.now;
+    let saveDateNow = Date.now;
     before((done) => {
-      // Mock 'moment.now' to always return 'EXPECTED_DATE'
+      // Mock 'Date.now' to always return 'EXPECTED_DATE'
       let mockTimeMs = moment(EXPECTED_DATE).valueOf();
-      moment.now = function () {
+      Date.now = function () {
         return mockTimeMs;
       };
       done();
     });
     after((done) => {
-      // Restore original 'moment.now' function
-      moment.now = saveMomentNow;
+      // Restore original 'Date.now' function
+      Date.now = saveDateNow;
       done();
     });
 
