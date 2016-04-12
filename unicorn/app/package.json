@@ -14,8 +14,8 @@
   },
   "license": "SEE LICENSE IN LICENSE.txt",
   "engines": {
-    "node": "5.1.1",
-    "npm": "2.14.12"
+    "node": "5.10.0",
+    "npm": "3.8.3"
   },
   "os": [
     "darwin",
