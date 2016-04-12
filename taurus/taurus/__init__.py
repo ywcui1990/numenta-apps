@@ -18,4 +18,3 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-# See http://peak.telecommunity.com/DevCenter/setuptools#namespace-packages
