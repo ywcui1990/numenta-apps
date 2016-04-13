@@ -1,4 +1,4 @@
 --compilers js:babel-core/register
 --recursive
---reporter xunit
+--reporter mocha-bamboo-reporter
 --timeout 5000

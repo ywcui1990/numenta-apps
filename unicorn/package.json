@@ -90,6 +90,7 @@
     "json-schema-instantiator": "0.3.0",
     "lev": "3.3.1",
     "mocha": "2.4.5",
+    "mocha-bamboo-reporter": "1.1.0",
     "moment": "2.11.2",
     "node-inspector": "0.12.7",
     "open-url": "2.0.2",
