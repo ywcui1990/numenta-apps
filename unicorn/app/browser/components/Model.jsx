@@ -39,6 +39,7 @@ import ExportModelResultsAction from '../actions/ExportModelResults';
 import FileStore from '../stores/FileStore';
 import MetricStore from '../stores/MetricStore';
 import ModelData from './ModelData';
+import ModelProgress from './ModelProgress';
 import ModelStore from '../stores/ModelStore';
 import ModelDataStore from '../stores/ModelDataStore';
 import ShowCreateModelDialogAction from '../actions/ShowCreateModelDialog';
@@ -100,21 +101,46 @@ export default class Model extends React.Component {
         marginBottom: '1rem',
         width: '100%'
       },
+      cardHeader: {
+        paddingBottom: 0
+      },
+      cardText: {
+        paddingTop: 0
+      },
+      cardHeaderText: {
+        display: 'inline-flex',
+        height: '1.5rem'
+      },
       title: {
         fontSize: 14,
-        marginTop: -3,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
-        width: '13rem'
+        marginRight: '0.5rem'
+      },
+      subtitle: {
+        fontSize: 14,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        fontWeight: muiTheme.rawTheme.font.weight.light
       },
       actions: {
         marginRight: 0,
-        marginTop: '-5.5rem',
-        textAlign: 'right'
+        textAlign: 'right',
+        float: 'right',
+        display: 'inline-flex',
+        padding: 0
       },
-      actionLabels: {
-        fontSize: 13
+      actionButton: {
+        height: '1.5rem'
+      },
+      actionButtonLabel: {
+        fontSize: 12,
+        color: muiTheme.rawTheme.palette.primary1Color
+      },
+      actionCreateLabel: {
+        fontSize: 12
       },
       summary: {
         text: {
@@ -124,12 +150,14 @@ export default class Model extends React.Component {
           verticalAlign: 'top'
         }
       },
+      progress: {
+        // marginTop: '-5rem',
+        float: 'right'
+      },
       showNonAgg: {
         root: {
-          float: 'right',
-          marginRight: '-3.8rem',
-          top: -10,
-          width: '15rem'
+          float: 'left',
+          margin: 0
         },
         checkbox: {
           marginRight: 2,
@@ -335,65 +363,75 @@ export default class Model extends React.Component {
                       this.state.showNonAgg === true;
     let openDialog = this.state.modalDialog !== null;
     let modalDialog = this.state.modalDialog || {};
-    let actions, showNonAggAction, titleColor;
+    let actions, progress, showNonAggAction, titleColor;
 
-    // prep visual sub-components
-    actions = (
-      <CardActions style={this._styles.actions}>
-        <FlatButton
-          disabled={model.ran || model.active}
-          label={this._config.get('button:model:create')}
-          labelPosition="after"
-          labelStyle={this._styles.actionLabels}
-          onTouchTap={
-            this._createModel.bind(this, model, file, valueField,
-              timestampField)
-          }
-          primary={!model.ran}
-          />
-        <FlatButton
-          disabled={!model.ran || model.active}
-          label={this._config.get('button:model:summary')}
-          labelPosition="after"
-          labelStyle={this._styles.actionLabels}
-          onTouchTap={this._showModelSummaryDialog.bind(this)}
-          primary={model.ran}
-          />
-        <FlatButton
-          disabled={!model.ran || model.active}
-          label={this._config.get('button:model:export')}
-          labelPosition="after"
-          labelStyle={this._styles.actionLabels}
-          onTouchTap={this._exportModelResults.bind(this, model.modelId)}
-          primary={model.ran}
-          />
-        <FlatButton
-          disabled={!model.ran || model.active}
-          label={this._config.get('button:model:delete')}
-          labelPosition="after"
-          labelStyle={this._styles.actionLabels}
-          onTouchTap={this._deleteModel.bind(this, model.modelId)}
-          primary={model.ran}
-          />
-      </CardActions>
-    );
-    if (model.aggregated && !model.active && model.ran) {
-      showNonAggAction = (
-        <Checkbox
-          checked={showNonAgg}
-          checkedIcon={
-            <CheckboxIcon color={checkboxColor} viewBox="0 0 30 30" />
-          }
-          defaultChecked={false}
-          iconStyle={this._styles.showNonAgg.checkbox}
-          label={this._config.get('chart:showNonAgg')}
-          labelStyle={this._styles.showNonAgg.label}
-          onCheck={this._toggleNonAggOverlay.bind(this)}
-          style={this._styles.showNonAgg.root}
-          unCheckedIcon={
-            <CheckboxOutline color={checkboxColor} viewBox="0 0 30 30" />
-          }
-          />
+    // Model is running, show progress bar
+    if (model.active) {
+      progress = (
+        <ModelProgress modelId={model.modelId} style={this._styles.progress}/>
+      );
+    } else if (model.ran) {
+      // Results Action buttons
+      actions = (
+        <CardActions style={this._styles.actions}>
+          <RaisedButton
+            label={this._config.get('button:model:summary')}
+            labelPosition="after"
+            labelStyle={this._styles.actionButtonLabel}
+            style={this._styles.actionButton}
+            onTouchTap={this._showModelSummaryDialog.bind(this)}
+            />
+          <RaisedButton
+            label={this._config.get('button:model:export')}
+            labelPosition="after"
+            labelStyle={this._styles.actionButtonLabel}
+            style={this._styles.actionButton}
+            onTouchTap={this._exportModelResults.bind(this, model.modelId)}
+            />
+          <RaisedButton
+            label={this._config.get('button:model:delete')}
+            labelPosition="after"
+            labelStyle={this._styles.actionButtonLabel}
+            style={this._styles.actionButton}
+            onTouchTap={this._deleteModel.bind(this, model.modelId)}
+            />
+        </CardActions>
+      );
+      if (model.aggregated) {
+        showNonAggAction = (
+          <Checkbox
+            checked={showNonAgg}
+            checkedIcon={
+              <CheckboxIcon color={checkboxColor} viewBox="0 0 40 40" />
+            }
+            defaultChecked={false}
+            iconStyle={this._styles.showNonAgg.checkbox}
+            label={this._config.get('chart:showNonAgg')}
+            labelStyle={this._styles.showNonAgg.label}
+            onCheck={this._toggleNonAggOverlay.bind(this)}
+            style={this._styles.showNonAgg.root}
+            unCheckedIcon={
+              <CheckboxOutline color={checkboxColor} viewBox="0 0 40 40" />
+            }
+            />
+        );
+      }
+    } else {
+      // Create Action buttons
+      actions = (
+        <CardActions style={this._styles.actions}>
+          <RaisedButton
+            primary={true}
+            label={this._config.get('button:model:create')}
+            labelPosition="after"
+            labelStyle={this._styles.actionCreateLabel}
+            style={this._styles.actionButton}
+            onTouchTap={
+              this._createModel.bind(this, model, file, valueField,
+                timestampField)
+            }
+            />
+        </CardActions>
       );
     }
 
@@ -407,13 +445,19 @@ export default class Model extends React.Component {
     return (
       <Card initiallyExpanded={true} style={this._styles.root}>
         <CardHeader
+          style={this._styles.cardHeader}
+          textStyle={this._styles.cardHeaderText}
+          titleStyle={this._styles.title}
+          subtitleStyle={this._styles.subtitle}
           showExpandableButton={false}
-          subtitle={<div style={this._styles.title}>{file.name}</div>}
-          title={<div style={this._styles.title}>{title}</div>}
-          titleColor={titleColor} />
-        <CardText expandable={false}>
+          subtitle={file.name}
+          title={title}
+          titleColor={titleColor}>
+          {progress}
           {actions}
           {showNonAggAction}
+        </CardHeader>
+        <CardText expandable={false} style={this._styles.cardText}>
           <ModelData modelId={model.modelId} showNonAgg={showNonAgg} />
         </CardText>
         <Dialog

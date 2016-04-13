@@ -10,10 +10,10 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "model": {
-      "create": "Find anomalies",
-      "delete": "Delete results",
-      "export": "Export results",
-      "summary": "Results summary"
+      "create": "Analyze",
+      "delete": "Delete",
+      "export": "Export",
+      "summary": "Results"
     },
     "okay": "OK"
   },
