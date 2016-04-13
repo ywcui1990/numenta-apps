@@ -30,6 +30,7 @@ import FlatButton from 'material-ui/lib/flat-button';
 import RaisedButton from 'material-ui/lib/raised-button';
 import React from 'react';
 import {remote} from 'electron';
+import Snackbar from 'material-ui/lib/snackbar';
 
 import ChartUpdateViewpoint from '../actions/ChartUpdateViewpoint';
 import CreateModelDialog from './CreateModelDialog'
@@ -88,6 +89,8 @@ export default class Model extends React.Component {
     // init state
     this.state = {
       modalDialog: null,
+      showSnackbar: false,
+      snackbarMessage: '',
       showNonAgg: false  // show raw data overlay on top of aggregate chart?
     };
 
@@ -300,11 +303,24 @@ export default class Model extends React.Component {
     }
   }
 
+  _showModelSnackbar(message) {
+    this.setState({
+      showSnackbar: true,
+      snackbarMessage: message
+    });
+  }
+  _dismissSnackbar() {
+    this.setState({showSnackbar: false});
+  }
+
   componentWillReceiveProps(nextProps) {
     let newModel = nextProps.model;
     let oldModel = this.props.model;
     if (oldModel.active  && !newModel.active) {
-      this._showModelSummaryDialog();
+      let message = this._config.get('snackbar:completed:message');
+      let title = this.props.model.metric;
+      let fileName = this.props.file.name;
+      this._showModelSnackbar(message.replace('%s', `${title} (${fileName})`));
     }
   }
 
@@ -409,6 +425,14 @@ export default class Model extends React.Component {
             {modalDialog.body}
         </Dialog>
         <CreateModelDialog ref="createModelWindow"/>
+        <Snackbar
+          open={this.state.showSnackbar}
+          message={this.state.snackbarMessage}
+          autoHideDuration={30000}
+          action={this._config.get('snackbar:completed:action')}
+          onActionTouchTap={::this._showModelSummaryDialog}
+          onRequestClose={::this._dismissSnackbar}
+        />
       </Card>
     );
   }

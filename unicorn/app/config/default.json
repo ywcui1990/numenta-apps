@@ -50,6 +50,12 @@
       }
     }
   },
+  "snackbar": {
+    "completed": {
+      "message": "HTM Model completed for %s",
+      "action" : "Results"
+    }
+  },
   "heading": {
     "data": {
       "sample": "Sample Data"
