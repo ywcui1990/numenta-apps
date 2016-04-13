@@ -17,6 +17,7 @@
 
 import BaseStore from 'fluxible/addons/BaseStore';
 import moment from 'moment';
+import {DATA_FIELD_INDEX} from '../lib/Constants';
 
 
 /**
@@ -98,6 +99,27 @@ export default class ModelDataStore extends BaseStore {
   _handleDeleteModel(modelId) {
     this._models.delete(modelId);
     this.emitChange();
+  }
+
+  /**
+   * Returns the date period stored for the given Model
+   * @param {string} modelId - Model to get
+   * @return {Object} date range or null
+   * @property {Date} from From timestamp
+   * @property {Date} to  To timestamp
+   */
+  getTimeRange(modelId) {
+    let model = this._models.get(modelId);
+    if (model) {
+      let data = model.data;
+      if (data && data.length > 0) {
+        return {
+          from: data[0][DATA_FIELD_INDEX.DATA_INDEX_TIME],
+          to: data[data.length - 1][DATA_FIELD_INDEX.DATA_INDEX_TIME]
+        };
+      }
+    }
+    return null;
   }
 
   /**
