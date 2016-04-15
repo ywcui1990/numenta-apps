@@ -135,9 +135,9 @@ export default class ModelClient {
     }
     this._dataBuffer.get(modelId).push(...data);
 
-    // Flush data every 100ms
+    // Flush data every 200 ms
     let now = Date.now();
-    if (now > this._lastActionEvent + 100) {
+    if (now > this._lastActionEvent + 200) {
       this._lastActionEvent = now;
       this._flush();
     }

@@ -55,7 +55,7 @@ export default {
   output: {
     filename: 'bundle.js',
     path: './app/browser/assets/bundle',
-    publicPath: './app/browser/assets/bundle/'
+    publicPath: './assets/bundle/'
   },
   resolve: {
     extensions: [

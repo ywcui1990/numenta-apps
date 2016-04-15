@@ -10,10 +10,10 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "model": {
-      "create": "Find anomalies",
-      "delete": "Delete results",
-      "export": "Export results",
-      "summary": "Results summary"
+      "create": "Analyze",
+      "delete": "Delete",
+      "export": "Export",
+      "summary": "Results"
     },
     "okay": "OK"
   },
@@ -48,6 +48,12 @@
       "summary": {
         "title": "Anomaly results summary"
       }
+    }
+  },
+  "snackbar": {
+    "completed": {
+      "message": "HTM Model completed for %s",
+      "action" : "Results"
     }
   },
   "heading": {

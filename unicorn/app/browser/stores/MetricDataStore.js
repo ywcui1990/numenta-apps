@@ -17,6 +17,7 @@
 
 import BaseStore from 'fluxible/addons/BaseStore';
 import moment from 'moment';
+import {DATA_FIELD_INDEX} from '../lib/Constants';
 
 
 /**
@@ -84,6 +85,25 @@ export default class MetricDataStore extends BaseStore {
   _handleHideModel(metricId) {
     this._handleUnloadData(metricId);
   }
+
+  /**
+   * Returns the date range stored for the given metric
+   * @param {string} metricId - Metric to get
+   * @return {Object} date range or null
+   * @property {Date} from From timestamp
+   * @property {Date} to  To timestamp
+   */
+  getTimeRange(metricId) {
+    let data = this._metrics.get(metricId);
+    if (data && data.length > 0) {
+      return {
+        from: data[0][DATA_FIELD_INDEX.DATA_INDEX_TIME],
+        to: data[data.length - 1][DATA_FIELD_INDEX.DATA_INDEX_TIME]
+      };
+    }
+    return null;
+  }
+
   /**
    * Get data for the given metric.
    * @param  {string} metricId - Metric to get data from
