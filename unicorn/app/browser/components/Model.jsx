@@ -472,7 +472,7 @@ export default class Model extends React.Component {
         <Snackbar
           open={this.state.showSnackbar}
           message={this.state.snackbarMessage}
-          autoHideDuration={30000}
+          autoHideDuration={10000}
           action={this._config.get('snackbar:completed:action')}
           onActionTouchTap={::this._showModelSummaryDialog}
           onRequestClose={::this._dismissSnackbar}
