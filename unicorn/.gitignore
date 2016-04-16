@@ -5,6 +5,7 @@
 .tags_swap
 tags
 
+mocha.json
 coverage/
 dist/
 app/browser/assets/bundle/
