@@ -5,7 +5,6 @@
 .tags_swap
 tags
 
-mocha.json
 coverage/
 dist/
 app/browser/assets/bundle/
@@ -13,3 +12,4 @@ docs/
 node_modules/
 py/build/
 py/dist/
+test-reports/
