@@ -51,6 +51,7 @@
     "test:unit": "mocha --opts tests/js/mocha.opts tests/js/unit",
     "pretest:coverage": "npm run clean:coverage && npm run clean:docs && npm run clean:webpack",
     "test:coverage": "isparta cover --include '**/*.jsx' --include '**/*.js' --include-all-sources _mocha -- --opts tests/js/mocha.opts tests/js/{unit,integration}",
+    "test:pipeline:coverage": "isparta cover --report clover --report html --include '**/*.jsx' --include '**/*.js' --include-all-sources _mocha -- --opts tests/js/mocha.opts tests/js/{unit,integration}",
     "posttest:coverage": "open-url file://${PWD}/coverage/lcov-report/index.html",
     "pretest:integration:backend": "npm run install:backend && cd ../nta.utils/ && python -m pip install -r requirements.txt && python setup.py install",
     "test:integration:backend": "python tests/py/integration/compatibility_test/model_runner_2_compatibility_test.py",
