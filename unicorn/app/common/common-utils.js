@@ -68,10 +68,7 @@ export function promisify(fn, ...args) {
 }
 
 /**
- * Return the given value using anomaly scale:
- *  - [0.99999, 1]  => 0.3
- *  - [0.9999, 0.99999) => 0.2
- *  - [0, 0.9999) => 0.1
+ * Return the given value using anomaly scale.
  * @param {float} value anomaly value [0 .. 1]
  * @return {float} scaled value
  */
