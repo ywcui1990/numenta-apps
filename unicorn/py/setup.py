@@ -62,8 +62,9 @@ setup(
   description = "Unicorn backend",
   packages = find_packages(),
   include_package_data=True,
+  package_data={'unicorn_backend': ['logging.conf']},
   install_requires = installRequires,
   dependency_links = dependencyLinks,
-  tests_require=["mock==1.0.1", "nta.utils>=0.0.0"],
+  tests_require=["mock==1.0.1"],
   cmdclass = {"test": PyTest},
 )
