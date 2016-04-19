@@ -38,8 +38,8 @@ import dateutil.tz
 
 from nupic.frameworks.opf.common_models.cluster_params import (
   getScalarMetricWithTimeOfDayAnomalyParams)
-from nta.utils.logging_support_raw import LoggingSupport
-from nta.utils import test_utils
+from unicorn_backend.utils.logging_support import LoggingSupport
+from unicorn_backend.utils import test_utils
 
 
 
@@ -78,7 +78,7 @@ class ModelRunnerTestCase(unittest.TestCase):
       aggregation
     :returns: the started subprocess.Popen object wrapped in
       ManagedSubprocessTerminator
-    :rtype: nta.utils.test_utils.ManagedSubprocessTerminator
+    :rtype: unicorn_backend.utils.test_utils.ManagedSubprocessTerminator
     """
     args = [
       sys.executable,

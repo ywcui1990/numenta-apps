@@ -32,7 +32,7 @@ import unittest
 
 import numpy
 
-from nta.utils.logging_support_raw import LoggingSupport
+from unicorn_backend.utils.logging_support import LoggingSupport
 from unicorn_backend import param_finder
 
 _LOGGER = logging.getLogger("unicorn_param_finder_test")

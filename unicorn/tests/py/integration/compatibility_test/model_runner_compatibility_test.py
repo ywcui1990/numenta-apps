@@ -35,8 +35,8 @@ import sys
 import unittest
 
 
-from nta.utils.logging_support_raw import LoggingSupport
-from nta.utils import test_utils
+from unicorn_backend.logging_support import LoggingSupport
+from unicorn_backend import test_utils
 
 
 
@@ -63,7 +63,7 @@ class ModelRunnerCompatibilityTest(unittest.TestCase):
       unicorn_backend package
     :returns: the started subprocess.Popen object wrapped in
       ManagedSubprocessTerminator
-    :rtype: nta.utils.test_utils.ManagedSubprocessTerminator
+    :rtype: unicorn_backend.utils.test_utils.ManagedSubprocessTerminator
     """
     process = subprocess.Popen(
       args=[sys.executable,
