@@ -146,15 +146,15 @@ class ParamFinderTestCase(unittest.TestCase):
     (useTimeOfDay,
      useDayOfWeek) = param_finder._determineEncoderTypes(cwtVar, timeScale)
     self.assertFalse(useTimeOfDay)
-    self.assertTrue(useDayOfWeek)
+    self.assertFalse(useDayOfWeek)  # dayOfWeek is always false in Unicorn
 
-    # a double peaked function
+    # A double peaked function.
     cwtVar = (numpy.exp(-(timeScale - dayPeriod) ** 2 / (2 * 100000.0 ** 2)) +
               numpy.exp(-(timeScale - weekPeriod) ** 2 / (2 * 100000.0 ** 2)))
     (useTimeOfDay,
      useDayOfWeek) = param_finder._determineEncoderTypes(cwtVar, timeScale)
     self.assertTrue(useTimeOfDay)
-    self.assertTrue(useDayOfWeek)
+    self.assertFalse(useDayOfWeek) # dayOfWeek is always false in Unicorn
 
 
   def testDetermineAggregationWindow(self):
@@ -248,8 +248,8 @@ class ParamFinderTestCase(unittest.TestCase):
     # Use dayOfWeek but not timeOfDay encoder for dataSet with daily period
     self.assertIsNone(outputInfo["modelInfo"]["modelConfig"]["modelParams"]
                       ["sensorParams"]["encoders"]["c0_timeOfDay"])
-    self.assertIsNotNone(outputInfo["modelInfo"]["modelConfig"]["modelParams"]
-                         ["sensorParams"]["encoders"]["c0_dayOfWeek"])
+    self.assertIsNone(outputInfo["modelInfo"]["modelConfig"]["modelParams"]
+                      ["sensorParams"]["encoders"]["c0_dayOfWeek"])
 
     outputInfo = param_finder.findParameters(createTestData("transaction", 300))
     self.assertGreaterEqual(outputInfo["aggInfo"]["windowSize"], 300)
@@ -257,6 +257,8 @@ class ParamFinderTestCase(unittest.TestCase):
     # Use dayOfWeek but not timeOfDay encoder for dataSet with daily period
     self.assertIsNone(outputInfo["modelInfo"]["modelConfig"]["modelParams"]
                       ["sensorParams"]["encoders"]["c0_timeOfDay"])
+    # Check that dayOfWeek has been disabled event if the dataset has a daily 
+    # period.
     self.assertIsNone(outputInfo["modelInfo"]["modelConfig"]["modelParams"]
                       ["sensorParams"]["encoders"]["c0_dayOfWeek"])
 
