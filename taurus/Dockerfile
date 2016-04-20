@@ -70,5 +70,5 @@ ENV APPLICATION_CONFIG_PATH=/opt/numenta/taurus/conf \
 ENTRYPOINT ["/opt/numenta/taurus/docker/entrypoint.sh"]
 CMD ["/opt/numenta/taurus/docker/run.sh"]
 VOLUME ["/opt/numenta/taurus/logs", \
-        "/opt/numenta/taurus/conf/overrides"]
+        "/root/taurus_model_checkpoints"]
 
