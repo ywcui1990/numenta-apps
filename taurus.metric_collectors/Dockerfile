@@ -67,5 +67,4 @@ ENV APPLICATION_CONFIG_PATH=/opt/numenta/taurus.metric_collectors/conf \
 
 ENTRYPOINT ["/opt/numenta/taurus.metric_collectors/docker/entrypoint.sh"]
 CMD ["/opt/numenta/taurus.metric_collectors/docker/run.sh"]
-VOLUME ["/opt/numenta/taurus.metric_collectors/logs", \
-        "/opt/numenta/taurus.metric_collectors/conf/overrides"]
+VOLUME ["/opt/numenta/taurus.metric_collectors/logs"]
