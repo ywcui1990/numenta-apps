@@ -38,17 +38,12 @@ import dateutil.tz
 
 from nupic.frameworks.opf.common_models.cluster_params import (
   getScalarMetricWithTimeOfDayAnomalyParams)
-from unicorn_backend.utils.logging_support import LoggingSupport
 from unicorn_backend.utils import test_utils
 
 
 
 _LOGGER = logging.getLogger("unicorn_model_runner_test")
-
-
-
-def setUpModule():
-  LoggingSupport.initTestApp()
+_LOGGER.addHandler(logging.StreamHandler())
 
 
 

@@ -37,22 +37,19 @@ import unittest
 import numpy
 from pkg_resources import resource_stream
 
-from unicorn_backend.utils.logging_support import LoggingSupport
 from unicorn_backend.utils import test_utils
 from unicorn_backend.utils import date_time_utils
 
 
 
 _LOGGER = logging.getLogger("unicorn_model_runner_test")
+_LOGGER.addHandler(logging.StreamHandler())
+
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
 
 # threshold from NAB/config/thresholds.json
 ANOMALY_THRESH = 0.5126953125
-
-
-def setUpModule():
-  LoggingSupport.initTestApp()
 
 
 

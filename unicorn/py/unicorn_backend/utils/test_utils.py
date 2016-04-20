@@ -23,7 +23,7 @@ import errno
 
 
 class ManagedSubprocessTerminator(object):
-  """ Kills the managed subrocess on exit from Context Manager """
+  """ Kills the managed subprocess on exit from Context Manager """
 
   def __init__(self, p):
     """

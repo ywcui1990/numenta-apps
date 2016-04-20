@@ -35,19 +35,14 @@ import sys
 import unittest
 
 
-from unicorn_backend.logging_support import LoggingSupport
 from unicorn_backend import test_utils
 
 
 
 _LOGGER = logging.getLogger("unicorn_model_runner_test")
+_LOGGER.addHandler(logging.StreamHandler())
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
-
-
-
-def setUpModule():
-  LoggingSupport.initTestApp()
 
 
 
