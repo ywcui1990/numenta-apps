@@ -109,6 +109,7 @@ export default class Model extends React.Component {
       },
       cardHeaderText: {
         display: 'inline-flex',
+        verticalAlign: 'middle',
         height: '1.5rem'
       },
       title: {
@@ -156,9 +157,10 @@ export default class Model extends React.Component {
       },
       showNonAgg: {
         root: {
-          width: '13rem',
+          width: '11rem',
           textAlign: 'left',
-          margin: 0
+          whiteSpace: 'nowrap',
+          marginRight: '0.5rem'
         },
         checkbox: {
           marginRight: 0,
