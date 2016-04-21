@@ -24,7 +24,9 @@ import axesCustomLabelsUnderlay from '../lib/Dygraphs/AxesCustomLabelsUnderlay';
 import Chart from './Chart';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 import Dygraph from '../lib/Dygraphs/DygraphsExtended';
-import {formatDisplayValue} from '../lib/browser-utils';
+import {
+  formatDisplayValue, mapAnomalyColor, mapAnomalyText
+} from '../lib/browser-utils';
 import MetricStore from '../stores/MetricStore';
 import MetricDataStore from '../stores/MetricDataStore';
 import ModelStore from '../stores/ModelStore';
@@ -165,16 +167,12 @@ export default class ModelData extends React.Component {
   _legendValueFormatter(time, options, series, dygraph, row, column) {
     let modelData = options('modelData');  // custom
     let value = formatDisplayValue(dygraph.getValue(row, column));
-    let anomaly, percent;
 
-    if (
-      modelData &&
-      modelData[row] &&
-      modelData[row][DATA_INDEX_ANOMALY]
-    ) {
-      anomaly = modelData[row][DATA_INDEX_ANOMALY];
-      percent = Math.round(anomaly * 100);
-      value = `${value} <strong>Anomaly</strong>: ${percent}%`;
+    if (modelData && modelData[row] && modelData[row][DATA_INDEX_ANOMALY]) {
+      let anomaly = modelData[row][DATA_INDEX_ANOMALY];
+      let anomalyText = mapAnomalyText(anomaly);
+      let color = mapAnomalyColor(anomaly);
+      value = `${value} Anomaly: <font color="${color}"><b>${anomalyText}</b></font>`;
     }
 
     return value;
