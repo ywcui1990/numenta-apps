@@ -21,22 +21,11 @@
 
 """Unit test of the unicorn_backend.model_runner module"""
 
-import logging
 from mock import patch
 import sys
 import unittest
 
-from nta.utils.logging_support_raw import LoggingSupport
 from unicorn_backend import model_runner
-
-
-
-_LOGGER = logging.getLogger("unicorn_model_runner_test")
-
-
-
-def setUpModule():
-  LoggingSupport.initTestApp()
 
 
 

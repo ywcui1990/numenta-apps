@@ -27,7 +27,7 @@ import os
 
 import unittest
 
-from unicorn_backend import date_time_utils
+from unicorn_backend.utils import date_time_utils
 
 
 

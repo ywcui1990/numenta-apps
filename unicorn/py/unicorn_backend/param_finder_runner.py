@@ -38,7 +38,7 @@ import validictory
 from unicorn_backend.param_finder import findParameters
 from unicorn_backend.param_finder import MAX_NUM_ROWS
 
-from unicorn_backend import date_time_utils
+from unicorn_backend.utils import date_time_utils
 
 g_log = logging.getLogger(__name__)
 
