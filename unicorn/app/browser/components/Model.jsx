@@ -348,7 +348,7 @@ export default class Model extends React.Component {
       let message = this._config.get('snackbar:completed:message');
       let title = this.props.model.metric;
       let fileName = this.props.file.name;
-      this._showModelSnackbar(message.replace('%s', `${title} (${fileName})`));
+      this._showModelSnackbar(message.replace('%s', `${fileName} (${title})`));
     }
   }
 
