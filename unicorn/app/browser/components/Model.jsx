@@ -109,6 +109,7 @@ export default class Model extends React.Component {
       },
       cardHeaderText: {
         display: 'inline-flex',
+        verticalAlign: 'middle',
         height: '1.5rem'
       },
       title: {
@@ -156,12 +157,14 @@ export default class Model extends React.Component {
       },
       showNonAgg: {
         root: {
-          float: 'left',
-          margin: 0
+          width: '11rem',
+          textAlign: 'left',
+          whiteSpace: 'nowrap',
+          marginRight: '0.5rem'
         },
         checkbox: {
-          marginRight: 2,
-          top: 2
+          marginRight: 0,
+          top: 3
         },
         label: {
           color: muiTheme.rawTheme.palette.primary1Color,
@@ -371,9 +374,30 @@ export default class Model extends React.Component {
         <ModelProgress modelId={model.modelId} style={this._styles.progress}/>
       );
     } else if (model.ran) {
+      if (model.aggregated) {
+        showNonAggAction = (
+          <Checkbox
+            checked={showNonAgg}
+            checkedIcon={
+              <CheckboxIcon color={checkboxColor} viewBox="0 0 40 40" />
+            }
+            defaultChecked={false}
+            iconStyle={this._styles.showNonAgg.checkbox}
+            label={this._config.get('chart:showNonAgg')}
+            labelStyle={this._styles.showNonAgg.label}
+            onCheck={this._toggleNonAggOverlay.bind(this)}
+            style={this._styles.showNonAgg.root}
+            unCheckedIcon={
+              <CheckboxOutline color={checkboxColor} viewBox="0 0 40 40" />
+            }
+            />
+        );
+      }
+
       // Results Action buttons
       actions = (
         <CardActions style={this._styles.actions}>
+          {showNonAggAction}
           <RaisedButton
             label={this._config.get('button:model:summary')}
             labelPosition="after"
@@ -397,25 +421,6 @@ export default class Model extends React.Component {
             />
         </CardActions>
       );
-      if (model.aggregated) {
-        showNonAggAction = (
-          <Checkbox
-            checked={showNonAgg}
-            checkedIcon={
-              <CheckboxIcon color={checkboxColor} viewBox="0 0 40 40" />
-            }
-            defaultChecked={false}
-            iconStyle={this._styles.showNonAgg.checkbox}
-            label={this._config.get('chart:showNonAgg')}
-            labelStyle={this._styles.showNonAgg.label}
-            onCheck={this._toggleNonAggOverlay.bind(this)}
-            style={this._styles.showNonAgg.root}
-            unCheckedIcon={
-              <CheckboxOutline color={checkboxColor} viewBox="0 0 40 40" />
-            }
-            />
-        );
-      }
     } else {
       // Create Action buttons
       actions = (
@@ -455,7 +460,6 @@ export default class Model extends React.Component {
           titleColor={titleColor}>
           {progress}
           {actions}
-          {showNonAggAction}
         </CardHeader>
         <CardText expandable={false} style={this._styles.cardText}>
           <ModelData modelId={model.modelId} showNonAgg={showNonAgg} />
