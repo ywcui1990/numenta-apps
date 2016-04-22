@@ -99,7 +99,8 @@ fi
 taurus-set-dynamodb \
   --host=${DYNAMODB_HOST} \
   --port=${DYNAMODB_PORT} \
-  --table-suffix=${DYNAMODB_TABLE_SUFFIX} &&
+  --table-suffix=${DYNAMODB_TABLE_SUFFIX} \
+  ${DYNAMODB_EXTRAS} &&
 
 # Set Taurus API key
 taurus-set-api-key --apikey=${TAURUS_API_KEY}
