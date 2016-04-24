@@ -27,6 +27,7 @@ import Dygraph from '../lib/Dygraphs/DygraphsExtended';
 import {
   formatDisplayValue, mapAnomalyColor, mapAnomalyText
 } from '../lib/browser-utils';
+import {binarySearch} from '../../common/common-utils';
 import MetricStore from '../stores/MetricStore';
 import MetricDataStore from '../stores/MetricDataStore';
 import ModelStore from '../stores/ModelStore';
@@ -44,11 +45,12 @@ const {
  */
 @connectToStores([MetricStore, MetricDataStore, ModelStore, ModelDataStore],
   (context, props) => {
-    let metric = context.getStore(MetricStore).getMetric(props.modelId);
-    let metricData = context.getStore(MetricDataStore).getData(props.modelId);
-    let model = context.getStore(ModelStore).getModel(props.modelId);
-    let modelData = context.getStore(ModelDataStore).getData(props.modelId);
-    return {metric, metricData, model, modelData};
+    let modelId = props.modelId;
+    let metric = context.getStore(MetricStore).getMetric(modelId);
+    let metricData = context.getStore(MetricDataStore).getData(modelId);
+    let model = context.getStore(ModelStore).getModel(modelId);
+    let modelData = context.getStore(ModelDataStore).getData(modelId);
+    return {metric, metricData, model, modelData, modelId};
   }
 )
 export default class ModelData extends React.Component {
@@ -75,6 +77,18 @@ export default class ModelData extends React.Component {
     let muiTheme = this.context.muiTheme;
     let displayPointCount = this._config.get('chart:points');
 
+    this._styles = {
+      container: {
+        position: 'relative'
+      },
+      legendSection: {
+        height: '1rem',
+        fontSize: 12
+      },
+      legend: {
+        float: 'left'
+      }
+    }
     this._anomalyBarWidth = Math.round(displayPointCount / 16, 10);
 
     // Dygraphs Chart Options: Global and per-Series/Axis settings.
@@ -86,6 +100,7 @@ export default class ModelData extends React.Component {
         includeZero: true,
         interactionModel: Dygraph.Interaction.dragIsPanInteractionModel,
         labelsShowZeroValues: true,
+        labelsDiv: `legend-${props.modelId}`,
         plugins: [RangeSelectorBarChart],
         rangeSelectorPlotFillColor: muiTheme.rawTheme.palette.primary1FadeColor,
         rangeSelectorPlotStrokeColor: muiTheme.rawTheme.palette.primary1Color,
@@ -107,14 +122,14 @@ export default class ModelData extends React.Component {
             axisLabelWidth: 0,
             drawAxis: false,
             drawGrid: false,
-            valueFormatter: (time) => moment(time).format('lll')
+            valueFormatter: (time) => moment(time).format('llll')
           },
           y: {
             axisLabelOverflow: false,
             axisLabelWidth: 0,
             drawAxis: false,
             drawGrid: false,
-            valueFormatter: this._legendValueFormatter
+            valueFormatter: ::this._legendValueFormatter
           }
         },
         series: {
@@ -137,7 +152,7 @@ export default class ModelData extends React.Component {
             axisLabelWidth: 0,
             drawAxis: false,
             drawGrid: false,
-            valueFormatter: this._overlayValueFormatter
+            valueFormatter: ::this._legendValueFormatter
           }
         },
         series: {
@@ -155,7 +170,7 @@ export default class ModelData extends React.Component {
 
   /**
    * Format Values & Anomalies for Dygraph Chart Legend. Add Anomaly when there.
-   * @param {Number} time - UTC epoch milisecond stamp of current value point
+   * @param {Number} numOrTime - UTC epoch milisecond stamp of current value point
    * @param {Function} options - options('key') same as dygraph.getOption('key')
    * @param {String} series - Name of series
    * @param {Object} dygraph - Instantiated Dygraphs charting object
@@ -164,33 +179,45 @@ export default class ModelData extends React.Component {
    * @returns {Number|String} - Valueset for display in Legend
    * @see http://dygraphs.com/options.html#valueFormatter
    */
-  _legendValueFormatter(time, options, series, dygraph, row, column) {
+  _legendValueFormatter(numOrTime, options, series, dygraph, row, column) {
     let modelData = options('modelData');  // custom
     let value = formatDisplayValue(dygraph.getValue(row, column));
 
-    if (modelData && modelData[row] && modelData[row][DATA_INDEX_ANOMALY]) {
-      let anomaly = modelData[row][DATA_INDEX_ANOMALY];
-      let anomalyText = mapAnomalyText(anomaly);
-      let color = mapAnomalyColor(anomaly);
-      value = `${value} Anomaly: <font color="${color}"><b>${anomalyText}</b></font>`;
+    // Format data value
+    let valueColor = options('series')[series]['color'];
+    let displayValue = `<font color="${valueColor}"><b>${value}</b></font>`;
+    // Show anomaly
+    if (modelData) {
+      // Get time value
+      let time = dygraph.getValue(row, 0);
+
+      // Find anomaly closest to the time
+      let anomalyIdx = binarySearch(modelData, time, (current, key) => {
+        return current[DATA_INDEX_TIME].getTime() - key;
+      });
+      let anomalyValue;
+      if (anomalyIdx >= 0) {
+        // Found exact value
+        anomalyValue = modelData[anomalyIdx][DATA_INDEX_ANOMALY];
+      } else {
+        // Get max value from neighboring points
+        let first = -anomalyIdx;
+        let second = first + 1;
+        if (second >= modelData.length - 1) {
+          second = modelData.length - 1;
+        }
+        anomalyValue = Math.max(modelData[first][DATA_INDEX_ANOMALY],
+                                modelData[second][DATA_INDEX_ANOMALY]);
+      }
+      // Format anomaly value
+      if (anomalyValue) {
+        let color = mapAnomalyColor(anomalyValue);
+        let anomalyText = mapAnomalyText(anomalyValue);
+        displayValue += ` <font color="${color}">Anomaly: <b>${anomalyText}` +
+                        `</b></font>`;
+      }
     }
-
-    return value;
-  }
-
-  /**
-   * Format Values for non-aggregated raw overlay data on Dygraph Chart Legend.
-   * @param {Number} time - UTC epoch milisecond stamp of current value point
-   * @param {Function} options - options('key') same as dygraph.getOption('key')
-   * @param {String} series - Name of series
-   * @param {Object} dygraph - Instantiated Dygraphs charting object
-   * @param {Number} row - Current row (series)
-   * @param {Number} column - Current column (data index)
-   * @returns {Number|String} - Valueset for display in Legend
-   * @see http://dygraphs.com/options.html#valueFormatter
-   */
-  _overlayValueFormatter(time, options, series, dygraph, row, column) {
-    return formatDisplayValue(dygraph.getValue(row, column));
+    return displayValue;
   }
 
   /**
@@ -243,7 +270,9 @@ export default class ModelData extends React.Component {
   }
 
   render() {
-    let {metric, metricData, model, modelData, showNonAgg} = this.props;
+    let {
+      metric, metricData, model, modelData, showNonAgg, modelId
+    } = this.props;
     let {options, raw, value} = this._chartOptions;
     let {axes, labels, series} = value;
     let metaData = {metric, model, min: -Infinity, max: Infinity};
@@ -288,8 +317,14 @@ export default class ModelData extends React.Component {
     // RENDER
     Object.assign(options, {axes, labels, series});
     return (
-      <Chart data={data} metaData={metaData} options={options} />
+      <div style={this._styles.container}>
+        <section style={this._styles.legendSection}>
+          <span id={`legend-${modelId}`} style={this._styles.legend}></span>
+        </section>
+        <section>
+          <Chart data={data} metaData={metaData} options={options} />
+        </section>
+      </div>
     );
   }
-
 }

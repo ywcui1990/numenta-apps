@@ -81,3 +81,37 @@ export function anomalyScale(value) {
   }
   return 0.1;
 }
+
+/**
+ * Binary Search sorted array for a given key
+ * @param  {Array} array Sorted array to search elements
+ * @param  {Object} key  Element key to search
+ * @param  {function} compare Comparison function in the following format:
+ *                            ```
+ *                            compare(current, key) => {
+ *                            	if (current < key) return -1;
+ *                            	if (current > key) return 1;
+ *                            	if (current === key) return 0;
+ *                            }
+ *                            ```
+ * @return {integer} element index if found,
+ *                   or negative value representing the insertion index if not found
+ */
+export function binarySearch(array, key, compare) {
+  let max = array.length - 1;
+  let min = 0;
+  let current,  mid, res;
+  while (min <= max) {
+    mid = (min + max) >>> 1;
+    current = array[mid];
+    res = compare(current, key);
+    if (res < 0) {
+      min = mid + 1;
+    } else if (res > 0) {
+      max = mid - 1;
+    } else {
+      return mid;
+    }
+  }
+  return -max; // Insertion index
+}

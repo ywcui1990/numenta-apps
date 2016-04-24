@@ -102,15 +102,15 @@ export default class Model extends React.Component {
         width: '100%'
       },
       cardHeader: {
-        paddingBottom: 0
+        paddingBottom: 0,
+        height: '3rem'
       },
       cardText: {
         paddingTop: 0
       },
       cardHeaderText: {
         display: 'inline-flex',
-        verticalAlign: 'middle',
-        height: '1.5rem'
+        verticalAlign: 'middle'
       },
       title: {
         fontSize: 14,
