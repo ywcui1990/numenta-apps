@@ -28,6 +28,7 @@ import os from 'os';
 import path from 'path';
 import sublevel from 'level-sublevel';
 import {Validator} from 'jsonschema';
+import {mapAnomalyText} from '../common/common-utils';
 
 import fileService from './FileService';
 import {
@@ -540,9 +541,7 @@ export class DatabaseService {
    */
   exportModelData(metricId, filename, callback) {
     const output = fs.createWriteStream(filename);
-    const parser = json2csv({
-      keys: ['timestamp', 'metric_value', 'anomaly_score']
-    });
+    const parser = json2csv();
     parser.pipe(output);
 
     // Metric Data id is based on metric Id. See Util.generateMetricDataId
@@ -555,9 +554,12 @@ export class DatabaseService {
       callback(error);
     })
     .on('data', (result) => {
-      let data = Object.assign({}, result, {
-        timestamp: moment(result.timestamp).toDate()
-      });
+      let data = {
+        timestamp: moment(result.timestamp).toDate(),
+        metric_value: result.metric_value,
+        anomaly_level: mapAnomalyText(result.anomaly_score),
+        raw_anomaly_score: result.anomaly_score
+      };
       parser.write(JSON.stringify(data));
     })
     .on('end', () => {
