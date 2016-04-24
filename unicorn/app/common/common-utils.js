@@ -15,7 +15,7 @@
 //
 // http://numenta.org/licenses/
 
-import {ANOMALY_RED_VALUE, ANOMALY_YELLOW_VALUE} from '../browser/lib/Constants';
+import {ANOMALY_RED_VALUE, ANOMALY_YELLOW_VALUE} from './Constants';
 
 /**
  * Generic Javascript functions that can be used on either the `main` process or
@@ -114,4 +114,18 @@ export function binarySearch(array, key, compare) {
     }
   }
   return -max; // Insertion index
+}
+
+/**
+ * Map Anomaly value to text (HIGH / MEDIUM / LOW)
+ * @param {Number} anomaly - Anomaly value
+ * @returns {String} - Anomaly text
+ */
+export function mapAnomalyText(anomaly) {
+  if (anomaly >= ANOMALY_RED_VALUE) {
+    return 'HIGH';
+  } else if (anomaly >= ANOMALY_YELLOW_VALUE) {
+    return 'MEDIUM';
+  }
+  return 'LOW';
 }

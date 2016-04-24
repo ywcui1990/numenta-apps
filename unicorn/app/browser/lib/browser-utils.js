@@ -51,17 +51,3 @@ export function mapAnomalyColor(anomaly) {
   }
   return muiTheme.palette.safeColor;
 }
-
-/**
- * Map Anomaly value to text (HIGH / MEDIUM / LOW)
- * @param {Number} anomaly - Anomaly value
- * @returns {String} - String for Color to use
- */
-export function mapAnomalyText(anomaly) {
-  if (anomaly >= ANOMALY_RED_VALUE) {
-    return 'HIGH';
-  } else if (anomaly >= ANOMALY_YELLOW_VALUE) {
-    return 'MEDIUM';
-  }
-  return 'LOW';
-}

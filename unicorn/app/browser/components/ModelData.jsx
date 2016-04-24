@@ -25,9 +25,9 @@ import Chart from './Chart';
 import {DATA_FIELD_INDEX} from '../lib/Constants';
 import Dygraph from '../lib/Dygraphs/DygraphsExtended';
 import {
-  formatDisplayValue, mapAnomalyColor, mapAnomalyText
+  formatDisplayValue, mapAnomalyColor
 } from '../lib/browser-utils';
-import {binarySearch} from '../../common/common-utils';
+import {binarySearch, mapAnomalyText} from '../../common/common-utils';
 import MetricStore from '../stores/MetricStore';
 import MetricDataStore from '../stores/MetricDataStore';
 import ModelStore from '../stores/ModelStore';

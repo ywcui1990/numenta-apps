@@ -15,6 +15,9 @@
 //
 // http://numenta.org/licenses/
 
+// Export common constants
+import * as CommonConstants from '../../common/Constants';
+Object.assign(module.exports, CommonConstants);
 
 /**
  * Fluxible Action keys
@@ -157,16 +160,6 @@ export const ACTIONS = Object.freeze({
 
 
 /**
- * Database Errors. Use to check database error names returned by callbacks.
- * 	- NOT_FOUND: Record not found
- * @type {string}
- */
-export const DATABASE_ERRORS = Object.freeze({
-  NOT_FOUND: 'NotFoundError'
-});
-
-
-/**
  * Source Data array index map: [0=Timestamp, 1=Value, 2=Anomaly].
  * @type {Number}
  */
@@ -175,17 +168,3 @@ export const DATA_FIELD_INDEX = Object.freeze({
   DATA_INDEX_VALUE: 1,
   DATA_INDEX_ANOMALY: 2
 });
-
-/**
- * Floor value for 'red' anomalies
- * @type {Number}
- */
-// See NAB threshold:
-// https://github.com/numenta/NAB/blob/master/config/thresholds.json#L27
-export const ANOMALY_RED_VALUE = 0.5125976562500002;
-
-/**
- * Floor value for 'yellow' anomalies
- * @type {Number}
- */
-export const ANOMALY_YELLOW_VALUE = 0.4;
