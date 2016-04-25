@@ -23,8 +23,6 @@
 Unit tests for nta.utils.prompt_utils
 """
 
-import os
-import sys
 import time
 import unittest
 
@@ -34,8 +32,6 @@ from nta.utils import prompt_utils
 
 
 
-@unittest.skipIf(os.isatty(sys.stdout.fileno()),
-                 "PromptUtilsTestCase requires interactive shell")
 class PromptUtilsTestCase(unittest.TestCase):
 
 
@@ -51,6 +47,7 @@ class PromptUtilsTestCase(unittest.TestCase):
     rawInputMock.assert_called_once_with("Ask user something")
 
 
+  @unittest.skip("DEVOPS-105 Skip until compatible with bamboo/docker env")
   @patch("__builtin__.raw_input", autospec=True)
   def testPromptWithTimeoutTimedOut(self, rawInputMock):
 
