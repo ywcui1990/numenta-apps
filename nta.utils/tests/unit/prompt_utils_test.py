@@ -23,6 +23,7 @@
 Unit tests for nta.utils.prompt_utils
 """
 
+import os
 import sys
 import time
 import unittest
@@ -33,7 +34,8 @@ from nta.utils import prompt_utils
 
 
 
-@unittest.skipIf(sys.stdout.isatty(),"PromptUtilsTestCase requires tty")
+@unittest.skipIf(os.isatty(sys.stdout.fileno()),
+                 "PromptUtilsTestCase requires interactive shell")
 class PromptUtilsTestCase(unittest.TestCase):
 
 
