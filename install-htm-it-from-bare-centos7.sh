@@ -47,7 +47,7 @@ set -o pipefail
 
 # Install base centos packages
 sudo yum install gcc gcc-c++ -y
-sudo rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+sudo rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-6.noarch.rpm
 sudo yum -y install python-pip python-devel libxml2-devel libxslt-devel
 
 # Install MySQL and Rabbit
