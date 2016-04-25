@@ -23,7 +23,7 @@
 Unit tests for nta.utils.prompt_utils
 """
 
-
+import sys
 import time
 import unittest
 
@@ -36,6 +36,8 @@ from nta.utils import prompt_utils
 class PromptUtilsTestCase(unittest.TestCase):
 
 
+  @unittest.skipIf(sys.stdout.isatty(),
+                   "PromptUtilsTestCase not tested within tty.")
   @patch("__builtin__.raw_input", autospec=True)
   def testPromptWithTimeoutNoTimeout(self, rawInputMock):
     rawInputMock.return_value = "Yes"
@@ -48,6 +50,8 @@ class PromptUtilsTestCase(unittest.TestCase):
     rawInputMock.assert_called_once_with("Ask user something")
 
 
+  @unittest.skipIf(sys.stdout.isatty(),
+                   "PromptUtilsTestCase not tested within tty.")
   @patch("__builtin__.raw_input", autospec=True)
   def testPromptWithTimeoutTimedOut(self, rawInputMock):
 
