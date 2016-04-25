@@ -366,7 +366,7 @@ export default class Model extends React.Component {
                       this.state.showNonAgg === true;
     let openDialog = this.state.modalDialog !== null;
     let modalDialog = this.state.modalDialog || {};
-    let actions, progress, showNonAggAction, titleColor;
+    let actions, progress, titleColor;
 
     // Model is running, show progress bar
     if (model.active) {
@@ -374,6 +374,7 @@ export default class Model extends React.Component {
         <ModelProgress modelId={model.modelId} style={this._styles.progress}/>
       );
     } else if (model.ran) {
+      let showNonAggAction = (<noscript/>);
       if (model.aggregated) {
         showNonAggAction = (
           <Checkbox
