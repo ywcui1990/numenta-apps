@@ -213,7 +213,7 @@ export default class ModelData extends React.Component {
       if (anomalyValue) {
         let color = mapAnomalyColor(anomalyValue);
         let anomalyText = mapAnomalyText(anomalyValue);
-        displayValue += ` <font color="${color}">Anomaly: <b>${anomalyText}` +
+        displayValue += ` <font color="${color}"><b>Anomaly: ${anomalyText}` +
                         `</b></font>`;
       }
     }
