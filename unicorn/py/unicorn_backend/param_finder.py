@@ -44,6 +44,10 @@ _CORRELATION_MODE_FULL = 2
 
 _AGGREGATION_WINDOW_THRESH = 0.03
 
+# Maximum time scale for wavelet analysis. The longer time scale will be ignored
+# in unit of seconds
+_MAX_TIME_SCALE = 604800 * 20
+
 # Maximum number of rows param_finder will process
 # If the input data exceeds MAX_NUM_ROWS, the first MAX_NUM_ROWS will be used
 MAX_NUM_ROWS = 20000
@@ -383,7 +387,9 @@ def _calculateContinuousWaveletTransform(samplingInterval, values):
     "timeScale" (numpy array) Stores the corresponding time scales
   """
 
-  widths = numpy.logspace(0, numpy.log10(len(values) / 10), 50)
+  maxTimeScaleN = min(float(_MAX_TIME_SCALE)/samplingInterval.astype("float32"),
+                      len(values)/10)
+  widths = numpy.logspace(0, numpy.log10(maxTimeScaleN), 50)
   timeScale = widths * samplingInterval * 4
 
   # continuous wavelet transformation with ricker wavelet
@@ -488,16 +494,20 @@ def _determineEncoderTypes(cwtVar, timeScale):
           "useDayOfWeek" (bool) indicating whether to use dayOfWeek encoder
   """
 
+  dayPeriod = 86400.0
+  weekPeriod = 604800.0
+
+  # discard slow time scale (> 4 weeks ) before peak detection
+  timeScale = timeScale.astype("float32")
+  cwtVar = cwtVar[timeScale < 4*weekPeriod]
+  timeScale = timeScale[timeScale < 4*weekPeriod]
+
   # Detect all local minima and maxima when the first difference reverse sign
   signOfFirstDifference = numpy.sign(numpy.diff(cwtVar))
   localMin = (numpy.diff(signOfFirstDifference) > 0).nonzero()[0] + 1
   localMax = (numpy.diff(signOfFirstDifference) < 0).nonzero()[0] + 1
 
-  baselineValue = 1.0 / len(cwtVar)
-
-  dayPeriod = 86400.0
-  weekPeriod = 604800.0
-  timeScale = timeScale.astype("float32")
+  baselineValue = numpy.mean(cwtVar)
 
   cwtVarAtDayPeriod = numpy.interp(dayPeriod, timeScale, cwtVar)
   cwtVarAtWeekPeriod = numpy.interp(weekPeriod, timeScale, cwtVar)
