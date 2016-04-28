@@ -30,7 +30,7 @@ import urlparse
 
 import pytz
 
-from taurus import metric_collectors
+import taurus.metric_collectors
 from taurus.metric_collectors import logging_support
 from taurus.metric_collectors.xignite import xignite_stock_agent
 
@@ -525,8 +525,10 @@ class XigniteStockAgentTestCase(unittest.TestCase):
       stockExchange="NASDAQ",
       sampleKey="Volume")
 
-    with patch.object(xignite_stock_agent, "g_opMode",
-                      new=metric_collectors.ApplicationConfig.OP_MODE_ACTIVE):
+    with patch.object(
+        xignite_stock_agent,
+        "g_opMode",
+        new=taurus.metric_collectors.ApplicationConfig.OP_MODE_ACTIVE):
       xignite_stock_agent.forward((msft,), data, security)
 
     self.assertEqual(
