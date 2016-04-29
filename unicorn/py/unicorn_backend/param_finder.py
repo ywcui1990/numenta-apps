@@ -253,9 +253,7 @@ def findParameters(samples):
   (useTimeOfDay, useDayOfWeek) = _determineEncoderTypes(cwtVar, timeScale)
 
   # decide the aggregation function ("mean" or "sum")
-  aggFunc = _getAggregationFunction(medianSamplingInterval,
-                                    medianAbsoluteDevSamplingInterval,
-                                    _AGGREGATION_WINDOW_THRESH)
+  aggFunc = _getAggregationFunction(values)
 
   return {
     "aggInfo": _getAggInfo(medianSamplingInterval,
@@ -553,30 +551,19 @@ def _determineEncoderTypes(cwtVar, timeScale):
 
 
 
-def _getAggregationFunction(medianSamplingInterval,
-                            medianAbsoluteDevSamplingInterval,
-                            aggregationFuncThresh):
+def _getAggregationFunction(values):
   """
   Return the aggregation function type:
     ("sum" for transactional data types
      "mean" for non-transactional data types)
 
-  The data type is determined via a data type indicator, defined as the
-  ratio between median absolute deviation and median of the sampling interval.
-  @param medianSamplingInterval, numpy timedelta64 in unit of seconds
-
-  @param medianAbsoluteDev (timedelta64) the median absolute deviation of
-          sampling interval
-
-  @param aggregationFuncThresh (float) a positive number indication the
-        threshold between transactional and non-transactional data types
-        A higher threshold will lead to a bias towards non-transactional data
+  Use "sum" for binary transactional data, and "mean" otherwise
+  @param values, numpy data values
 
   @return aggFunc (string) "sum" or "mean"
   """
-  dataTypeIndicator = (medianAbsoluteDevSamplingInterval /
-                       medianSamplingInterval)
-  if dataTypeIndicator > aggregationFuncThresh:
+
+  if len(numpy.unique(values)) <= 2:
     aggFunc = "sum"  # "transactional"
   else:
     aggFunc = "mean"  # "non-transactional"
