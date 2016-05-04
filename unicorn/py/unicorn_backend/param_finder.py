@@ -42,10 +42,11 @@ _CORRELATION_MODE_FULL = 2
 
 _AGGREGATION_WINDOW_THRESH = 0.03
 
+_ONE_DAY_IN_SEC = 86400.0
+_ONE_WEEK_IN_SEC = 604800.0
+
 # Maximum time scale for wavelet analysis. The longer time scale will be ignored
 # in unit of seconds
-_ONE_DAY_IN_SEC = 86400
-_ONE_WEEK_IN_SEC = 604800
 MAX_WAVELET_TIME_WINDOW_SEC = _ONE_WEEK_IN_SEC * 20
 
 # Maximum number of rows param_finder will process
@@ -541,7 +542,7 @@ def _determineEncoderTypes(cwtVar, timeScale):
           and cwtVarAtDayPeriod > localMaxValue * 0.5):
         useTimeOfDay = True
 
-      if DISABLE_DAY_OF_WEEK_ENCODER is False:
+      if not DISABLE_DAY_OF_WEEK_ENCODER:
         if (timeScale[leftLocalMin] < _ONE_WEEK_IN_SEC <
             timeScale[rightLocalMin] and
             cwtVarAtWeekPeriod > localMaxValue * 0.5):
